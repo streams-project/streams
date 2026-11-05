@@ -192,6 +192,11 @@ fn p35_a_pending_title_goes_along() {
     let route = decide("/home?title=tv:9", &MEMBER);
     assert_eq!(route.target, Target::Home);
     assert_eq!(route.title, Some(key(TitleKind::Tv, 9)));
+    // the kind separator is often escaped by whoever wrote the address
+    assert_eq!(
+        decide("/home?title=tv%3A9", &MEMBER).title,
+        Some(key(TitleKind::Tv, 9))
+    );
     // a bare id has no kind, so it is left behind
     assert_eq!(decide("/home?title=9", &MEMBER).title, None);
 }
