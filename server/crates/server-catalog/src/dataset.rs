@@ -10,10 +10,19 @@ use thiserror::Error;
 use tracing::{info, warn};
 
 use crate::catalog::{CatalogMap, load_catalog};
+use crate::centroid::CentroidVault;
+use crate::cluster::ClusterSeeds;
+use crate::events::EventStore;
+use crate::fresh::FreshStore;
+use crate::groups::{self, GroupMap, GroupNames};
 use crate::index::{HnswIndex, read_stamp};
 use crate::manifest::{DataFiles, DatasetManifest, ManifestError, role};
+use crate::people::PeopleIndex;
 use crate::profiles::ProfileStore;
+use crate::taxonomy::TaxonomyStore;
+use crate::topics::TopicStore;
 use crate::vectors::VectorStore;
+use crate::vibe::{self, VibeIndex};
 
 /// One whole data set, immutable once loaded apart from the index, which arrives when built.
 pub struct DataSet {
@@ -25,6 +34,19 @@ pub struct DataSet {
     pub vectors: Arc<VectorStore>,
     pub profiles: ProfileStore,
     pub mean: Vec<f32>,
+    pub seeds: ClusterSeeds,
+    pub vault: CentroidVault,
+    pub groups: GroupMap,
+    pub group_names: GroupNames,
+    pub vibe: VibeIndex,
+    pub topics: TopicStore,
+    pub fresh: FreshStore,
+    pub people: PeopleIndex,
+    pub events: EventStore,
+    /// Row definitions, centred on the corpus mean. Empty when the files are absent.
+    pub taxonomy: Arc<TaxonomyStore>,
+    /// Row definitions of the Kids pages.
+    pub kids_taxonomy: Arc<TaxonomyStore>,
     /// Empty while the index builds. Pages then use the exact scan.
     pub index: ArcSwapOption<HnswIndex>,
     /// Optional files that failed their check.
@@ -67,14 +89,53 @@ impl DataSet {
             .get(role::PROFILES)
             .map_or_else(ProfileStore::empty, ProfileStore::load);
         let mean = vectors.compute_mean();
+        let mut dropped = dropped;
+        let seeds = load_seeds(&files, dims, &mut dropped);
+        let vault = CentroidVault::compute(&catalog, &vectors);
+        let db = need(role::CATALOG)?;
+        require_text_index(&db)?;
+        let group_map = groups::load(&db);
+        let group_names = groups::load_names(&db);
+        let vibe = vibe::load(&db, groups::vibe_members(&group_map));
+        let taxonomy = load_taxonomy(
+            &files,
+            (role::TAXONOMY_VECTORS, role::TAXONOMY_ENTRIES),
+            dims,
+            &mean,
+            &mut dropped,
+        );
+        let kids_taxonomy = load_taxonomy(
+            &files,
+            (role::KIDS_VECTORS, role::KIDS_ENTRIES),
+            dims,
+            &mean,
+            &mut dropped,
+        );
         Ok(Self {
             manifest,
             data_hash,
+            topics: files
+                .get(role::TOPICS_META)
+                .map_or_else(TopicStore::default, TopicStore::load),
+            fresh: files
+                .get(role::FRESH)
+                .map_or_else(FreshStore::default, FreshStore::load),
+            events: files
+                .get(role::EVENTS)
+                .map_or_else(EventStore::default, EventStore::load),
+            people: PeopleIndex::load(&db),
             files,
             catalog,
             vectors,
             profiles,
             mean,
+            seeds,
+            vault,
+            groups: group_map,
+            group_names,
+            vibe,
+            taxonomy,
+            kids_taxonomy,
             index: ArcSwapOption::empty(),
             dropped,
         })
@@ -131,6 +192,66 @@ impl DataSet {
         }
         results.sort_unstable_by(|a, b| b.1.total_cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
         results
+    }
+}
+
+/// Search reads a full text table. With none its text step would quietly find nothing, so a set
+/// without one is refused at load.
+fn require_text_index(db: &Path) -> Result<(), SwapError> {
+    use rusqlite::{Connection, OpenFlags};
+    let refused = |error: rusqlite::Error| SwapError::Load(error.to_string());
+    let conn =
+        Connection::open_with_flags(db, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(refused)?;
+    let found: i64 = conn
+        .query_row(
+            "SELECT count(*) FROM sqlite_master WHERE name = 'catalog_fts'",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(refused)?;
+    if found == 0 {
+        return Err(SwapError::Load(String::from(
+            "the catalogue has no text index",
+        )));
+    }
+    Ok(())
+}
+
+/// Seeds are optional, so a bad file is dropped and never stops the set.
+fn load_seeds(files: &DataFiles, dims: usize, dropped: &mut Vec<String>) -> ClusterSeeds {
+    let Some(path) = files.get(role::SEEDS) else {
+        return ClusterSeeds::default();
+    };
+    ClusterSeeds::load(path, dims).unwrap_or_else(|error| {
+        warn!("Seeds left out: {error}");
+        dropped.push(role::SEEDS.to_owned());
+        ClusterSeeds::default()
+    })
+}
+
+/// Row definitions, centred on the corpus mean, with an empty store when absent or bad.
+fn load_taxonomy(
+    files: &DataFiles,
+    (vectors, entries): (&str, &str),
+    dims: usize,
+    mean: &[f32],
+    dropped: &mut Vec<String>,
+) -> Arc<TaxonomyStore> {
+    let (Some(bin), Some(json)) = (files.get(vectors), files.get(entries)) else {
+        return TaxonomyStore::from_raw(Vec::new());
+    };
+    match TaxonomyStore::load(bin, json, dims) {
+        Ok(mut store) => {
+            if let Some(owned) = Arc::get_mut(&mut store) {
+                owned.center_with(mean);
+            }
+            store
+        }
+        Err(error) => {
+            warn!("Row definitions left out: {error}");
+            dropped.push(entries.to_owned());
+            TaxonomyStore::from_raw(Vec::new())
+        }
     }
 }
 

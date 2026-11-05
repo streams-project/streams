@@ -203,7 +203,8 @@ fn write_catalog(path: &Path, titles: &[SampleTitle]) -> rusqlite::Result<()> {
            vote_average REAL, popularity REAL, is_anime INTEGER, tagline TEXT, director TEXT,
            vote_count INTEGER, adult INTEGER, original_language TEXT, tv_type TEXT,
            origin_country TEXT, keywords TEXT, runtime INTEGER, certs TEXT, networks TEXT,
-           other_names TEXT);",
+           other_names TEXT);
+         CREATE VIRTUAL TABLE catalog_fts USING fts5(id UNINDEXED, overview, genres, director);",
     )?;
     let mut insert = conn.prepare(
         "INSERT INTO catalog VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,0,'',?12,?13,?14,'en',?15,
@@ -238,8 +239,75 @@ fn write_catalog(path: &Path, titles: &[SampleTitle]) -> rusqlite::Result<()> {
             serde_json::to_string(&title.other_names).unwrap_or_default(),
         ])?;
     }
+    conn.execute_batch(
+        "INSERT INTO catalog_fts (id, overview, genres, director)
+         SELECT id, overview, genres, director FROM catalog;",
+    )?;
     Ok(())
 }
+
+/// One seed per genre, as the offline grouping would make.
+fn seed_bytes(titles: &[SampleTitle]) -> Vec<u8> {
+    let mut groups: Vec<(Vec<f32>, Vec<u32>)> = Vec::new();
+    for (genre, _) in GENRES {
+        let members: Vec<&SampleTitle> = titles
+            .iter()
+            .filter(|title| title.id < 9000 && title.genres.first() == Some(&genre))
+            .collect();
+        let mut centre = vec![0.0f32; SAMPLE_DIMS];
+        for title in &members {
+            for (sum, value) in centre.iter_mut().zip(unit_vector(title)) {
+                *sum += value;
+            }
+        }
+        crate::vectors::l2_normalize(&mut centre);
+        let keys = members
+            .iter()
+            .map(|title| item_key(title.kind, title.id))
+            .collect();
+        groups.push((centre, keys));
+    }
+    let mut bytes = Vec::new();
+    let width = |value: usize| u32::try_from(value).unwrap_or(0).to_le_bytes();
+    bytes.extend_from_slice(&width(groups.len()));
+    bytes.extend_from_slice(&width(SAMPLE_DIMS));
+    for (centre, keys) in groups {
+        for value in centre {
+            bytes.extend_from_slice(&value.to_le_bytes());
+        }
+        bytes.extend_from_slice(&width(keys.len()));
+        for key in keys {
+            bytes.extend_from_slice(&key.to_le_bytes());
+        }
+    }
+    bytes
+}
+
+/// Release dates near the sample's own time: 2023-11-14.
+fn fresh_json(titles: &[SampleTitle]) -> String {
+    let items: Vec<serde_json::Value> = titles
+        .iter()
+        .take(48)
+        .enumerate()
+        .map(|(n, title)| {
+            let day = crate::fresh::parse_days("2023-11-14").unwrap_or(0) + 12 - n as i64;
+            serde_json::json!({
+                "media_type": title.kind,
+                "id": title.id,
+                "title": title.name,
+                "release_date": crate::fresh::ymd(day),
+                "popularity": title.popularity,
+                "lists": ["trending_day"],
+            })
+        })
+        .collect();
+    serde_json::json!({ "generated": "sample", "items": items }).to_string()
+}
+
+const EVENTS_JSON: &str = r#"{"events":{
+  "autumn":{"label":"Autumn Evenings","season":{"start":"10-01","end":"12-01"},"genres":["Drama"],"languages":["en"]},
+  "midwinter":{"label":"Midwinter Feast","season":{"start":"12-20","end":"01-05"},"keywords":["feast"]}
+}}"#;
 
 fn entry(dir: &Path, name: &str, required: bool) -> std::io::Result<FileEntry> {
     let path = dir.join(name);
@@ -277,12 +345,18 @@ pub fn write_sample(dir: &Path) -> PathBuf {
         "p": { "audience": "kids, family", "content": [], "themes": ["friendship"], "tone": ["gentle"] }
     });
     std::fs::write(dir.join("profiles.jsonl"), format!("{profile}\n")).expect("sample profiles");
+    std::fs::write(dir.join("seeds.bin"), seed_bytes(&titles)).expect("sample seeds");
+    std::fs::write(dir.join("fresh.json"), fresh_json(&titles)).expect("sample fresh list");
+    std::fs::write(dir.join("events.json"), EVENTS_JSON).expect("sample events");
     let mut files = BTreeMap::new();
     for (name, file, required) in [
         (role::CATALOG, "catalog.db", true),
         (role::VECTORS, "vectors.bin", true),
         (role::VECTOR_KEYS, "vectors.keys", true),
         (role::PROFILES, "profiles.jsonl", false),
+        (role::SEEDS, "seeds.bin", false),
+        (role::FRESH, "fresh.json", false),
+        (role::EVENTS, "events.json", false),
     ] {
         files.insert(
             name.to_owned(),

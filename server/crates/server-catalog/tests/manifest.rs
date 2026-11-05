@@ -151,3 +151,29 @@ fn s142_s138_the_index_opens_only_on_its_own_data_set() {
     let fresh = DataSet::load(&manifest).unwrap();
     assert!(!fresh.open_index(&path));
 }
+
+#[test]
+fn h70_a_catalogue_with_no_text_index_is_refused_at_load() {
+    let dir = folder("no_text_index");
+    let manifest = write_sample(&dir);
+    let db = dir.join("catalog.db");
+    let conn = rusqlite::Connection::open(&db).unwrap();
+    conn.execute_batch("DROP TABLE catalog_fts;").unwrap();
+    drop(conn);
+    rewrite(&manifest, |m| {
+        let entry = m.files.get_mut(server_catalog::role::CATALOG).unwrap();
+        entry.sha256 = server_catalog::manifest::sha256_file(&db).unwrap();
+        entry.bytes = std::fs::metadata(&db).unwrap().len();
+    });
+    assert!(matches!(DataSet::load(&manifest), Err(SwapError::Load(_))));
+}
+
+#[test]
+fn s151_the_sample_reads_its_seeds_events_and_fresh_list() {
+    let dir = folder("extras");
+    let set = DataSet::load(&write_sample(&dir)).unwrap();
+    assert_eq!(set.seeds.seeds.len(), 8);
+    assert!(!set.fresh.items.is_empty());
+    assert_eq!(set.events.all().len(), 2);
+    assert!(set.dropped.is_empty());
+}

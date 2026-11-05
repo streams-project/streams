@@ -12,6 +12,8 @@ pub struct Catalog {
     pub gem_keys: Vec<u32>,
     /// Per topic slug (`topics_v1.json`) the titles the judge accepted, best quality first
     pub topic_keys: HashMap<String, Vec<u32>>,
+    /// True when judged page memberships were loaded
+    pub judged: bool,
 }
 
 impl Catalog {
@@ -62,6 +64,7 @@ impl Catalog {
             attr_keys,
             gem_keys,
             topic_keys,
+            judged: false,
         }
     }
 }

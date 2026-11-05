@@ -84,13 +84,14 @@ pub fn apply_awards(map: &mut HashMap<u32, CatalogItem>, files: &crate::manifest
     info!("Awards: {added} titles marked from {}", path.display());
 }
 
-/// True once `categories_v1.json` was applied: the pages it covers then use the judged membership alone (the old keyword rules only propose candidates).
-pub static CATEGORIES_LOADED: std::sync::atomic::AtomicBool =
-    std::sync::atomic::AtomicBool::new(false);
-
 /// Adds the judged memberships of `categories_v1.json` (page categories) and `topics_v1.json` (topic rows) next to the database to the keywords of the titles as
 /// `cat:<slug>` and `topic:<slug>`. Both files are `{ "<slug>": { "<movie|tv>:<title id>": probability } }`, only titles the judge accepted. A missing file adds nothing.
-pub fn apply_categories(map: &mut HashMap<u32, CatalogItem>, files: &crate::manifest::DataFiles) {
+/// True when page categories were marked, so those pages use the judged list alone.
+pub fn apply_categories(
+    map: &mut HashMap<u32, CatalogItem>,
+    files: &crate::manifest::DataFiles,
+) -> bool {
+    let mut judged = false;
     for (file, prefix) in [
         (crate::manifest::role::CATEGORIES, "cat"),
         (crate::manifest::role::TOPICS, "topic"),
@@ -122,9 +123,8 @@ pub fn apply_categories(map: &mut HashMap<u32, CatalogItem>, files: &crate::mani
                 }
             }
         }
-        if prefix == "cat" && added > 0 {
-            CATEGORIES_LOADED.store(true, std::sync::atomic::Ordering::Relaxed);
-        }
+        judged |= prefix == "cat" && added > 0;
         info!("{file}: {added} memberships added");
     }
+    judged
 }

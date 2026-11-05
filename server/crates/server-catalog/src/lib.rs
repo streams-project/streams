@@ -3,15 +3,25 @@
 
 pub mod attributes;
 pub mod catalog;
+pub mod centroid;
+pub mod cluster;
 pub mod dataset;
 pub mod det;
+pub mod events;
+pub mod fresh;
+pub mod groups;
 pub mod index;
 pub mod manifest;
+pub mod people;
 pub mod profiles;
 pub mod quality;
 #[cfg(feature = "sample")]
 pub mod sample;
+pub mod support;
+pub mod taxonomy;
+pub mod topics;
 pub mod vectors;
+pub mod vibe;
 
 pub use catalog::{CatalogItem, CatalogMap, SharedCatalog, item_key};
 pub use dataset::{DataSet, DataSlot, SwapError};

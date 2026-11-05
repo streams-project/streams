@@ -176,8 +176,9 @@ pub fn load_catalog(files: &crate::manifest::DataFiles) -> Result<CatalogMap> {
 
     apply_popularity_overlay(&mut map, files);
     apply_awards(&mut map, files);
-    apply_categories(&mut map, files);
-    let catalog = Catalog::new(map);
+    let judged = apply_categories(&mut map, files);
+    let mut catalog = Catalog::new(map);
+    catalog.judged = judged;
     info!(
         "Catalog loaded: {} items, {} on the chart list",
         catalog.len(),
