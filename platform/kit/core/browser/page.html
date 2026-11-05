@@ -46,6 +46,7 @@ async function checks(bytes, longest) {
     a_config_that_does_not_read_is_refused: fails(() => module.open("{"), CoreRefused),
     an_empty_config_is_refused: fails(() => module.open(""), CoreRefused),
     a_message_that_does_not_read_is_refused: fails(() => core.step("{"), CoreRefused),
+    a_message_nested_too_deep_is_refused: fails(() => core.step("[".repeat(4000)), CoreRefused),
     the_core_still_steps_after_a_refusal: core.step(STEP).startsWith('{"contract"'),
     the_first_step_gave_a_core_out_message: first.includes('"type":"core_out"'),
   };
