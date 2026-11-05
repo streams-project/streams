@@ -6,10 +6,10 @@ license.workspace = true
 publish.workspace = true
 
 [lib]
+# A library called core would hide the language's own core in anything that
+# names it as a dependency, its own tests included.
+name = "platform_core"
 path = "src/lib.rs"
-# rustdoc passes this crate as `--extern core`, which hides the real core
-# prelude, so any doctest run here fails. Tests live in tests/ and fixtures.
-doctest = false
 
 [dependencies]
 contract = { path = "../contract" }
