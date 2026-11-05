@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["contract", "contract/gen", "core", "offline", "bridges/c", "bridges/wasm", "base/net-guard"]
+members = ["contract", "contract/gen", "core", "offline", "bridges/c", "bridges/wasm", "base/net-guard", "kit/core"]
 
 [workspace.package]
 version = "0.0.0"
