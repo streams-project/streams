@@ -10,6 +10,8 @@ jobs:
           repository: ${{ github.repository_owner }}/platform
           path: platform-checkout
       - run: mv platform-checkout ../platform
+      # every id a test name claims must be a real ledger row
+      - run: python3 scripts/check_test_ids.py
       - uses: dtolnay/rust-toolchain@1.98.1
         with:
           components: rustfmt,clippy

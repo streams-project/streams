@@ -30,8 +30,15 @@ no address is built in. The full list is in `crates/server-api/src/config.rs`.
     cargo fmt --all -- --check
     cargo clippy --workspace --all-targets -- -D warnings
     cargo test --workspace
+    python3 scripts/check_test_ids.py
 
-Tests name the ledger ids they cover. Tests marked `#[ignore]` need a real Postgres in
-`TEST_DATABASE_URL`, with the chain in `migrations/` applied.
+Tests name the ledger ids they cover, so `check_test_ids.py` fails when a name claims an id that
+`../platform/contract/ledger.csv` does not hold. The threat model and the failure matrix of the
+cross project plan keep id lists of their own that reuse the ledger's letters, so a test that proves
+one of those rows writes it under its own namespace: `tmt13_...` for threat T13, `fmg5_...` for gate
+G5.
+
+Tests marked `#[ignore]` need a real Postgres in `TEST_DATABASE_URL`, with the chain in
+`migrations/` applied.
 
 Licensed under either of MIT or Apache 2.0, at your option.
