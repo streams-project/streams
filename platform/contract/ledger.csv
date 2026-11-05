@@ -1,0 +1,586 @@
+id,kind,status,home,place,new_rule,reason
+S1,behaviour,changed,server,server library,"Ordering uses age_ms from the command, or arrival when age is unknown. A late offline write never moves another device back. Each op answers applied, superseded or rejected.",Main resources
+S2,behaviour,carried,server,server door,,
+S3,behaviour,carried,server,server door,,
+S4,behaviour,changed,server,base/net-guard,"Two named profiles over one deny table: fetch guard (5 hops, no cookies) and provider client (10 redirects, cookies).",Where every other behaviour lives
+S5,behaviour,carried,server,"each repository, server side",,
+S6,behaviour,carried,server,finder,,
+S7,behaviour,carried,server,finder,,
+S8,behaviour,carried,server,finder,,
+S9,behaviour,carried,server,finder,,
+S10,behaviour,carried,server,server play,,
+S11,behaviour,carried,server,server play,,
+S12,behaviour,carried,server,finder,,
+S13,behaviour,carried,server,finder,,
+S14,behaviour,carried,server,finder,,
+S15,behaviour,carried,server,finder,,
+S16,behaviour,carried,server,finder,,
+S17,behaviour,carried,server,finder,,
+S18,behaviour,carried,server,finder,,
+S19,behaviour,carried,server,finder,,
+S20,behaviour,carried,server,finder,,
+S21,behaviour,carried,server,finder,,
+S22,behaviour,carried,server,finder,,
+S23,behaviour,carried,server,finder,,
+S24,behaviour,carried,server,finder,,
+S25,behaviour,carried,server,finder,,
+S26,behaviour,carried,server,finder,,
+S27,behaviour,carried,server,finder,,
+S28,behaviour,carried,server,finder,,
+S29,behaviour,carried,server,finder,,
+S30,behaviour,changed,server,finder,Embed templates return only to a client that declares embeds.,Where every other behaviour lives
+S31,behaviour,changed,server,finder,"The disabled provider rule holds. The one provider that needs the insecure client does not move, and neither does that client.",The mother project
+S32,behaviour,carried,server,finder,,
+S33,behaviour,carried,server,finder,,
+S34,behaviour,carried,server,finder,,
+S35,behaviour,carried,server,finder,,
+S36,behaviour,carried,server,contract,,
+S37,behaviour,carried,server,server accounts,,
+S38,behaviour,carried,server,server accounts,,
+S39,behaviour,carried,server,server accounts,,
+S40,behaviour,carried,server,server accounts,,
+S41,behaviour,carried,server,server accounts,,
+S42,behaviour,changed,server,server accounts,POST /v1/auth/confirm records time and method on the session row. The window is 300 s and a refresh never renews it. No token claim is read and no session is replaced. Age limit changes need it. A device session has no step up power until it proves a password or code on that device.,Sign in
+S43,behaviour,carried,server,server accounts,,
+S44,behaviour,changed,server,server library,Clock clamp replaced by age_ms; age unknown is ordered by arrival. Retries and reordered writes stay safe.,Rule changes
+S45,behaviour,carried,server,server library,,
+S46,behaviour,carried,server,server accounts,,
+S47,behaviour,carried,server,server rules,,
+S48,behaviour,carried,server,server accounts,,
+S49,behaviour,carried,server,server accounts,,
+S50,behaviour,carried,server,server accounts,,
+S51,behaviour,carried,server,server library,,
+S52,behaviour,carried,server,server accounts,,
+S53,behaviour,carried,server,server accounts,,
+S54,behaviour,carried,server,server accounts,,
+S55,behaviour,carried,server,server accounts,,
+S56,behaviour,carried,server,server accounts,,
+S57,behaviour,changed,server,server accounts,"The deny by default model holds. ProfileScope, minted only by the door, replaces row level rules.",Database
+S58,behaviour,changed,server,server accounts,Limits stay on the server. Refresh timing is in core.,Rule changes
+S59,behaviour,carried,server,server mail,,
+S60,behaviour,changed,server,server accounts,Session row and ProfileScope replace token memory and row reads.,Rule changes
+S61,behaviour,dropped,dropped,dropped,,Signed token checks and the 5 minute token memory are removed by opaque tokens. S61's age_rating clause carries into server rules.
+S62,behaviour,carried,server,server accounts,,
+S63,behaviour,changed,server,server play,"Limits on id, season, episode and title stay. Subtitle proxy list and intro lookup end: subtitles and marks replace them.",Rule changes
+S64,behaviour,dropped,dropped,dropped,,Signed token checks and the 5 minute token memory are removed by opaque tokens. S61's age_rating clause carries into server rules.
+S65,behaviour,carried,server,server rules,,
+S66,behaviour,changed,server,server accounts,Session row and ProfileScope replace token memory and row reads.,Rule changes
+S67,behaviour,changed,server,server rules,Unrated titles use the model profile where present and are refused below 18 otherwise. A title with no profile fails closed on sample data. The hero path's allowance at 12 and 15 ends. Owner default until the owner answers.,Rules
+S68,behaviour,changed,server,server rules,Unrated titles use the model profile where present and are refused below 18 otherwise. A title with no profile fails closed on sample data. The hero path's allowance at 12 and 15 ends. Owner default until the owner answers.,Rules
+S69,behaviour,carried,server,server rules,,
+S70,behaviour,carried,server,server rules,,
+S71,behaviour,carried,server,server rules,,
+S72,behaviour,carried,server,server pages,,
+S73,behaviour,carried,server,server pages,,
+S74,behaviour,carried,server,server pages,,
+S75,behaviour,changed,server,server pages,"Clauses from third party captures end: page_rhythm cap, rhythm slots, the 0.5 third party name score, depth, learned signals. S106 falls back to keywords. Stage 3 scores these pages.",Rule changes
+S76,behaviour,carried,server,server pages,,
+S77,behaviour,carried,server,server pages,,
+S78,behaviour,carried,server,server pages,,
+S79,behaviour,carried,server,server pages,,
+S80,behaviour,carried,server,server pages,,
+S81,behaviour,carried,server,server pages,,
+S82,behaviour,carried,server,server pages,,
+S83,behaviour,changed,server,server pages,"Clauses from third party captures end: page_rhythm cap, rhythm slots, the 0.5 third party name score, depth, learned signals. S106 falls back to keywords. Stage 3 scores these pages.",Rule changes
+S84,behaviour,carried,server,server pages,,
+S85,behaviour,carried,server,server pages,,
+S86,behaviour,carried,server,server pages,,
+S87,behaviour,carried,server,server pages,,
+S88,behaviour,changed,server,server pages,"Clauses from third party captures end: page_rhythm cap, rhythm slots, the 0.5 third party name score, depth, learned signals. S106 falls back to keywords. Stage 3 scores these pages.",Rule changes
+S89,behaviour,carried,server,server pages,,
+S90,behaviour,changed,server,server pages,"Clauses from third party captures end: page_rhythm cap, rhythm slots, the 0.5 third party name score, depth, learned signals. S106 falls back to keywords. Stage 3 scores these pages.",Rule changes
+S91,behaviour,carried,server,server pages,,
+S92,behaviour,carried,server,server pages,,
+S93,behaviour,carried,server,server pages,,
+S94,behaviour,carried,server,server pages,,
+S95,behaviour,carried,server,server pages,,
+S96,behaviour,carried,server,server pages,,
+S97,behaviour,carried,server,server pages,,
+S98,behaviour,carried,server,server pages,,
+S99,behaviour,carried,server,server pages,,
+S100,behaviour,carried,server,server pages,,
+S101,behaviour,carried,server,server pages,,
+S102,behaviour,carried,server,server search,,
+S103,behaviour,carried,server,server search,,
+S104,behaviour,carried,server,server search,,
+S105,behaviour,carried,server,server pages,,
+S106,behaviour,changed,server,server pages,"Clauses from third party captures end: page_rhythm cap, rhythm slots, the 0.5 third party name score, depth, learned signals. S106 falls back to keywords. Stage 3 scores these pages.",Rule changes
+S107,behaviour,carried,server,server pages,,
+S108,behaviour,carried,server,server titles,,
+S109,behaviour,changed,server,server titles,A bad file keeps the last good value. A missing file gives the default.,Who owns each piece of data
+S110,behaviour,changed,server,server door,"The API is bearer only with no cookies, so CORS answers * and a null Origin stays safe. Origin lists and the canonical origin end. The profile header ends, because the active profile sits on the session. Rate limits hold.",What connects to what
+S111,behaviour,carried,server,server index,,
+S112,behaviour,changed,server,server play,"POST /v1/play takes title and episode. The door knows device and profile, and the server reads title facts itself.",Play gate and ranking
+S113,behaviour,changed,server,server play,"One ranker on the server takes viewer language, original language and capability and prefers the adaptive master. Tie order is data. The client re-sort ends.",Play gate and ranking
+S114,behaviour,carried,server,server rules,,
+S115,behaviour,carried,server,server subtitles,,
+S116,behaviour,changed,server,server titles,"Clients stop asking. The marks route uses the same premiere, finale and typical choice, and answers these marks when no cues exist.",Subtitles and skip marks
+S117,behaviour,changed,server,server library,Debounce and pull triggers move to the offline layer. Limits stay on the server. Age rating and blocked titles leave the settings command.,Rule changes
+S118,behaviour,changed,server,server library,"Ordering uses age_ms from the command, or arrival when age is unknown. A late offline write never moves another device back. Each op answers applied, superseded or rejected.",Main resources
+S119,behaviour,carried,server,server accounts,,
+S120,behaviour,carried,server,server rules,,
+S121,behaviour,carried,server,server rules,,
+S122,behaviour,carried,server,server accounts,,
+S123,behaviour,carried,server,server accounts,,
+S124,behaviour,changed,server,server accounts,POST /v1/auth/confirm records time and method on the session row. The window is 300 s and a refresh never renews it. No token claim is read and no session is replaced. Age limit changes need it. A device session has no step up power until it proves a password or code on that device.,Sign in
+S125,behaviour,carried,server,server accounts,,
+S126,behaviour,carried,server,server accounts,,
+S127,behaviour,carried,server,server accounts,,
+S128,behaviour,carried,server,server accounts,,
+S129,behaviour,carried,server,server accounts,,
+S130,behaviour,carried,server,server accounts,,
+S131,behaviour,carried,server,server accounts,,
+S132,behaviour,carried,server,server accounts,,
+S133,behaviour,changed,server,data,"The third party list clause ends, so 1,466 of 70,911 titles (2.07 percent) leave the view and stay in the titles table. The clock arrives as input.",Rule changes
+S134,behaviour,carried,server,data,,
+S135,behaviour,carried,server,server index,,
+S136,behaviour,carried,server,server search,,
+S137,behaviour,carried,server,server index,,
+S138,behaviour,changed,server,server index,Manifest equality replaces the one sided 95 percent test.,Where every other behaviour lives
+S139,behaviour,carried,server,server index,,
+S140,behaviour,carried,server,server index,,
+S141,behaviour,changed,server,server index,"Clauses from third party captures end: page_rhythm cap, rhythm slots, the 0.5 third party name score, depth, learned signals. S106 falls back to keywords. Stage 3 scores these pages.",Rule changes
+S142,behaviour,carried,server,server search,,
+S143,behaviour,carried,server,server search,,
+S144,behaviour,carried,server,server titles,,
+S145,behaviour,carried,server,server titles,,
+S146,behaviour,changed,server,server titles,"Clauses from third party captures end: page_rhythm cap, rhythm slots, the 0.5 third party name score, depth, learned signals. S106 falls back to keywords. Stage 3 scores these pages.",Rule changes
+S147,behaviour,dropped,dropped,dropped,,"Learned genres depend on tags derived from third party captures. Series Romance, Horror and Teen pages change."
+S148,behaviour,carried,server,server titles,,
+S149,behaviour,carried,server,server titles,,
+S150,behaviour,carried,server,data,,
+S151,behaviour,changed,server,data,Schedule in the data repository. Reload rule in server index.,Rule changes
+S152,behaviour,carried,server,server titles,,
+S153,behaviour,carried,server,server door,,
+S154,behaviour,carried,server,data,,
+S155,behaviour,carried,server,server pages,,
+S156,behaviour,carried,server,server pages,,
+S157,behaviour,carried,server,server pages,,
+S158,behaviour,carried,server,server pages,,
+S159,behaviour,carried,server,server pages,,
+S160,behaviour,carried,server,server pages,,
+S161,behaviour,changed,server,server door,"The API is bearer only with no cookies, so CORS answers * and a null Origin stays safe. Origin lists and the canonical origin end. The profile header ends, because the active profile sits on the session. Rate limits hold.",What connects to what
+S162,behaviour,carried,server,server door,,
+S163,behaviour,carried,server,server door,,
+S164,behaviour,dropped,dropped,dropped,,Signed token checks and the 5 minute token memory are removed by opaque tokens. S61's age_rating clause carries into server rules.
+S165,behaviour,carried,server,server accounts,,
+S166,behaviour,carried,server,server play,,
+S167,behaviour,changed,server,server play,"POST /v1/play order: eligibility, title facts, finders under a total budget, capability filter, one ranking, then attempts plus start_at, age card, audio and subtitle defaults, next episode and the count of dropped attempts. A cache hit still does no provider work.",Play gate and ranking
+S168,behaviour,changed,server,server play,Only done answers enter the 6 hour cache. Failures stay 5 minutes.,Finder
+S169,behaviour,carried,server,server play,,
+S170,behaviour,carried,server,server door,,
+S171,behaviour,carried,server,finder,,
+S172,behaviour,carried,server,finder,,
+S173,behaviour,carried,server,server play,,
+S174,behaviour,carried,server,finder,,
+S175,behaviour,carried,server,contract,,
+S176,behaviour,carried,server,server door,,
+S177,behaviour,carried,server,server subtitles,,
+S178,behaviour,carried,server,server subtitles,,
+S179,behaviour,carried,server,server subtitles,,
+S180,behaviour,carried,server,server subtitles,,
+S181,behaviour,carried,server,server subtitles,,
+S182,behaviour,carried,server,server subtitles,,
+S183,behaviour,carried,server,server subtitles,,
+S184,behaviour,changed,server,base/net-guard,"Two named profiles over one deny table: fetch guard (5 hops, no cookies) and provider client (10 redirects, cookies).",Where every other behaviour lives
+S185,behaviour,changed,server,server door,"The API is bearer only with no cookies, so CORS answers * and a null Origin stays safe. Origin lists and the canonical origin end. The profile header ends, because the active profile sits on the session. Rate limits hold.",What connects to what
+S186,behaviour,carried,server,server door,,
+S187,behaviour,carried,server,finder,,
+S188,behaviour,carried,server,finder,,
+S189,behaviour,carried,server,server rules,,
+S190,behaviour,changed,server,server accounts,POST /v1/auth/confirm records time and method on the session row. The window is 300 s and a refresh never renews it. No token claim is read and no session is replaced. Age limit changes need it. A device session has no step up power until it proves a password or code on that device.,Sign in
+S191,behaviour,carried,server,server accounts,,
+S192,behaviour,carried,server,server accounts,,
+S193,behaviour,changed,server,server library,Debounce and pull triggers move to the offline layer. Limits stay on the server. Age rating and blocked titles leave the settings command.,Rule changes
+S194,behaviour,changed,server,server library,Debounce and pull triggers move to the offline layer. Limits stay on the server. Age rating and blocked titles leave the settings command.,Rule changes
+S195,behaviour,carried,server,server rules,,
+S196,behaviour,changed,server,server rules,The client copy ends. Kids Reality follows the server rule in S67. Owner default until the owner answers.,Rules
+S197,behaviour,carried,server,server rules,,
+S198,behaviour,carried,server,server pages,,
+S199,behaviour,carried,server,server door,,
+S200,behaviour,carried,server,server pages,,
+S201,behaviour,dropped,dropped,dropped,,No run time call to the outside title service exists. Its genre mapping survives as data in the data repository.
+S202,behaviour,carried,server,server titles,,
+S203,behaviour,changed,server,server accounts,"Feature values on the server. Core keeps unreachable counts as accounts required. Last good copy in the offline layer. Device key length check on the server. Country comes from the server at registration, or stays empty, because the edge trace address does not exist on a stranger's web server.",Rule changes
+S204,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+S205,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+S206,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+S207,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+S208,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+S209,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+S210,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+S211,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+S212,behaviour,carried,server,server door,,
+S213,behaviour,carried,server,server door,,
+S214,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+S215,behaviour,carried,server,server door,,
+S216,behaviour,carried,server,server index,,
+S217,behaviour,changed,server,server door,"The API is bearer only with no cookies, so CORS answers * and a null Origin stays safe. Origin lists and the canonical origin end. The profile header ends, because the active profile sits on the session. Rate limits hold.",What connects to what
+S218,behaviour,changed,server,server door,"The API is bearer only with no cookies, so CORS answers * and a null Origin stays safe. Origin lists and the canonical origin end. The profile header ends, because the active profile sits on the session. Rate limits hold.",What connects to what
+S219,behaviour,changed,server,server index,"A hash per file in one manifest replaces the size and time stamp, so a copy keeps working and a wrong file swap is refused.",Data builder
+S220,behaviour,carried,server,data,,
+S221,behaviour,carried,server,server index,,
+S222,behaviour,carried,server,server door,,
+S223,behaviour,changed,server,server mail,"The auth service's send email hook calls the server's mail module on the same machine. Provider is a setting, SMTP included. The refusal shape holds.",Accounts and sign in
+S224,behaviour,changed,server,"server deploy and CI, phone rules in finder","One forward migration chain replaces the setup file, and CI compares a fresh install to a migrated one. server/deploy/auth-init makes roles, schema, generated secrets, OTP length 8 and expiry 600.",Database
+S225,behaviour,changed,server,server door,"The API is bearer only with no cookies, so CORS answers * and a null Origin stays safe. Origin lists and the canonical origin end. The profile header ends, because the active profile sits on the session. Rate limits hold.",What connects to what
+S226,behaviour,dropped,dropped,dropped,,Signed token checks and the 5 minute token memory are removed by opaque tokens. S61's age_rating clause carries into server rules.
+S227,behaviour,carried,server,finder,,
+S228,behaviour,carried,server,server door,,
+C1,behaviour,carried,core,core player,,
+C2,behaviour,changed,offline,offline layer,"Queue the position first with op id, age and boot id, send it with age_ms, and clear it on acknowledgement. Without the layer a failed send is dropped and the next heartbeat carries the newer position.",Offline layer
+C3,behaviour,carried,core,core player,,
+C4,behaviour,changed,core,core player,"While playing, send every 30,000 ms. Also save on pause, seek, end, exit and suspend. The 5,000 ms local write ends.",Inside the core
+C5,behaviour,carried,core,core net,,
+C6,behaviour,carried,core,core net,,
+C7,behaviour,changed,core,core session,Renew 120 s before expiry: C88's value holds over C7's 60 s. A 401 refreshes once and retries once; a second 401 ends the session. One refresher per device.,Inside the core
+C8,behaviour,carried,platform_app,every host,,
+C9,behaviour,carried,core,core session,,
+C10,behaviour,dropped,dropped,dropped,,Audio skip and sleep values from the reading app have no screen in this product.
+C11,behaviour,carried,server,contract,,
+C12,behaviour,carried,platform_app,strings,,
+C13,behaviour,carried,platform_app,each repository,,
+C14,behaviour,carried,server,server play,,
+C15,behaviour,carried,server,server play,,
+C16,behaviour,changed,server,contract,"A source on the wire is an attempt. Required: url, kind, group id, required headers, verified flag. Optional: container, codecs, height, audio, expiry. No provider name reaches a device.",Play gate and ranking
+C17,behaviour,changed,core,core player,"Provider compare uses the opaque group id from the attempt, so no provider name reaches a device. The host and order rules hold.",Play gate and ranking
+C18,behaviour,changed,server,contract,"List and rating are separate fields, each with its own version and change time. Removing from My List leaves the rating. Removing a rating leaves the list entry.",Rule changes
+C19,behaviour,carried,offline,offline layer,,
+C20,behaviour,changed,server,server library,Hide is a series level fact covering all episodes. Clear history is one server operation.,Rule changes
+C21,behaviour,changed,server,server library,Server validates id and duration. Core keeps only the rule that position above 5 s is worth sending. Episode percent comes from the title answer.,Rule changes
+C22,behaviour,carried,server,contract,,
+C23,behaviour,carried,server,server mail,,
+C24,behaviour,carried,server,server accounts,,
+C25,behaviour,carried,server,contract,,
+C26,behaviour,changed,server,server pages,Third party ids become own ids.,Rule changes
+C27,behaviour,carried,server,server play,,
+C28,behaviour,changed,core,core player,"Provider compare uses the opaque group id from the attempt, so no provider name reaches a device. The host and order rules hold.",Play gate and ranking
+C29,behaviour,carried,core,core player,,
+C30,behaviour,changed,core,core player,"Duration and video width come from the driver's position event, and no driver decides no picture on its own. A driver that cannot report width sends has_picture unknown, and the rule stays off there.",Player
+C31,behaviour,carried,server,server play,,
+C32,behaviour,changed,core,core player,Server validates id and duration. Core keeps only the rule that position above 5 s is worth sending. Episode percent comes from the title answer.,Rule changes
+C33,behaviour,carried,server,server library,,
+C34,behaviour,changed,server,server play,Address aliases in core routes. Saved episode in server play.,Rule changes
+C35,behaviour,changed,core,core routes,"No request without a kind. An old /watch/{id} link is answered once by the server: one kind found, redirect; both found, film, as today.",Rule changes
+C36,behaviour,changed,core,core player,The consent check leaves the core. The server discards feedback when consent is off.,Rule changes
+C37,behaviour,changed,core,core player,Drivers report the manifest tag. Core compares base tags. Unknown tags show the manifest's raw label. C41's full parser stays on the server.,Rule changes
+C38,behaviour,changed,core,core player,Drivers report the manifest tag. Core compares base tags. Unknown tags show the manifest's raw label. C41's full parser stays on the server.,Rule changes
+C39,behaviour,carried,server,server subtitles,,
+C40,behaviour,carried,server,server subtitles,,
+C41,behaviour,carried,server,server subtitles,,
+C42,behaviour,carried,core,core net,,
+C43,behaviour,changed,server,server subtitles,"Server: size, cue count, adverts, language. Core: length against driver duration.",Rule changes
+C44,behaviour,carried,server,server subtitles,,
+C45,behaviour,carried,server,server subtitles,,
+C46,behaviour,carried,server,server subtitles,,
+C47,behaviour,carried,server,server subtitles,,
+C48,behaviour,carried,server,server subtitles,,
+C49,behaviour,carried,core,core player,,
+C50,behaviour,carried,core,core player,,
+C51,behaviour,carried,core,core player,,
+C52,behaviour,changed,core,core player,"Cues and skip buttons reach the device as time windows in view data. The host compares player time to a window, so nothing ticks across the boundary. C52's text safety and C58's visibility bounds hold.",Subtitles and skip marks
+C53,behaviour,changed,server,server marks,"Server, after first frame, series only, English and active file only.",Rule changes
+C54,behaviour,changed,server,server marks,"Server, after first frame, series only, English and active file only.",Rule changes
+C55,behaviour,changed,server,server marks,"Server, after first frame, series only, English and active file only.",Rule changes
+C56,behaviour,changed,server,server marks,"Server, after first frame, series only, English and active file only.",Rule changes
+C57,behaviour,changed,server,server marks,"Server, after first frame, series only, English and active file only.",Rule changes
+C58,behaviour,changed,core,core player,"Cues and skip buttons reach the device as time windows in view data. The host compares player time to a window, so nothing ticks across the boundary. C52's text safety and C58's visibility bounds hold.",Subtitles and skip marks
+C59,behaviour,carried,core,core player,,
+C60,behaviour,changed,core,core player,Reason words and US wording come from the server. Core keeps timing.,Rule changes
+C61,behaviour,carried,server,server titles,,
+C62,behaviour,changed,server,server titles,"Lasting refusal codes reach the server as the trailer refused command, and the server's trailer choice skips them. Codes 2 and 5 stay unrecorded. The kept counts hold.",Main resources
+C63,behaviour,changed,server,contract,"List and rating are separate fields, each with its own version and change time. Removing from My List leaves the rating. Removing a rating leaves the list entry.",Rule changes
+C64,behaviour,changed,server,contract,Hide is a series level fact covering all episodes. Clear history is one server operation.,Rule changes
+C65,behaviour,carried,server,server library,,
+C66,behaviour,carried,server,server library,,
+C67,behaviour,carried,server,server play,,
+C68,behaviour,changed,core,core player,Server validates id and duration. Core keeps only the rule that position above 5 s is worth sending. Episode percent comes from the title answer.,Rule changes
+C69,behaviour,carried,server,server accounts,,
+C70,behaviour,carried,server,server accounts,,
+C71,behaviour,carried,core,core session,,
+C72,behaviour,carried,core,core session,,
+C73,behaviour,carried,core,core session,,
+C74,behaviour,carried,core,core gate,,
+C75,behaviour,carried,server,server accounts,,
+C76,behaviour,carried,server,server accounts,,
+C77,behaviour,carried,offline,offline layer,,
+C78,behaviour,changed,server,contract,"No request without a kind. An old /watch/{id} link is answered once by the server: one kind found, redirect; both found, film, as today.",Rule changes
+C79,behaviour,carried,server,server rules,,
+C80,behaviour,carried,server,server play,,
+C81,behaviour,carried,server,server play,,
+C82,behaviour,carried,server,server play,,
+C83,behaviour,dropped,dropped,dropped,,The second ranker that causes H44.
+C84,behaviour,changed,core,core player,"Provider compare uses the opaque group id from the attempt, so no provider name reaches a device. The host and order rules hold.",Play gate and ranking
+C85,behaviour,changed,server,server subtitles,"Server: size, cue count, adverts, language. Core: length against driver duration.",Rule changes
+C86,behaviour,carried,server,server subtitles,,
+C87,behaviour,carried,server,server subtitles,,
+C88,behaviour,carried,core,core session,,
+C89,behaviour,carried,core,core session,,
+C90,behaviour,carried,server,server accounts,,
+C91,behaviour,carried,server,server accounts,,
+C92,behaviour,carried,server,server accounts,,
+C93,behaviour,carried,server,server play,,
+C94,behaviour,changed,server,server library,Server validates id and duration. Core keeps only the rule that position above 5 s is worth sending. Episode percent comes from the title answer.,Rule changes
+C95,behaviour,carried,core,core session,,
+C96,behaviour,carried,server,server accounts,,
+C97,behaviour,changed,server,server play,"One ranker on the server takes viewer language, original language and capability and prefers the adaptive master. Tie order is data. The client re-sort ends.",Play gate and ranking
+C98,behaviour,changed,core,core player,"Provider compare uses the opaque group id from the attempt, so no provider name reaches a device. The host and order rules hold.",Play gate and ranking
+C99,behaviour,dropped,dropped,dropped,,"The server knows session and profile, so client identity headers and session ids end. Their consent role moves to the server."
+C100,behaviour,changed,offline,offline layer,"Cached screens stay fresh by the ttl in each server answer, scoped by account and profile, with one shared request per key. Failures are forgotten. The last good /v1/hello is kept.",Offline layer
+C101,behaviour,changed,server,server web,"Server: host split and moved addresses, one table, sent as data through /v1/hello for deep links. Core: unknown address, then member and visitor redirects. In app links use final addresses, checked in CI. The API has no cookies, so the server cannot do member redirects.",Rule changes
+C102,behaviour,changed,core,core routes,"Audience lists and the Kids limit leave the core. The server answers each screen call allowed or refused, and the profile answer names its home. Core maps the code to a target.",Rule changes
+C103,behaviour,carried,core,core gate,,
+C104,behaviour,changed,server,"server accounts, banner timing in web","Consent is a server fact, default off for personal rows. Until the owner answers it lives on the device session row. With consent off the server reads no personal data and discards feedback. Withdrawal deletes that profile's taste and feed events. Banner timing (1,500 ms, 7 day dismissal, hidden on the player address) stays in web. The browser's global privacy signal reaches the server as a refusal.",Consent
+C105,behaviour,carried,server,server titles,,
+C106,behaviour,carried,server,server titles,,
+C107,behaviour,carried,server,server subtitles,,
+C108,behaviour,changed,core,core config,"Feature values on the server. Core keeps unreachable counts as accounts required. Last good copy in the offline layer. Device key length check on the server. Country comes from the server at registration, or stays empty, because the edge trace address does not exist on a stranger's web server.",Rule changes
+C109,behaviour,changed,core,core config,The host holds the base address.,Rule changes
+C110,behaviour,changed,core,core config,Limits arrive from the server in /v1/hello and the core holds them. The client keeps no copy of its own.,Inside the core
+C111,behaviour,carried,core,core net,,
+C112,behaviour,carried,core,core session,,
+C113,behaviour,changed,core,core session,"Expiry comes from expires_in and monotonic time, never an absolute time read against the device clock. The 120 s margin and the 400 to 403 outcome hold.",Inside the core
+C114,behaviour,carried,core,core session,,
+C115,behaviour,carried,server,server accounts,,
+C116,behaviour,changed,server,server accounts,POST /v1/auth/confirm records time and method on the session row. The window is 300 s and a refresh never renews it. No token claim is read and no session is replaced. Age limit changes need it. A device session has no step up power until it proves a password or code on that device.,Sign in
+C117,behaviour,changed,offline,offline layer,"Scope is account and profile. No sync snapshot exists, so that base ends.",Offline layer
+C118,behaviour,carried,core,core session,,
+C119,behaviour,carried,server,server play,,
+C120,behaviour,changed,server,server play,"One ranker on the server takes viewer language, original language and capability and prefers the adaptive master. Tie order is data. The client re-sort ends.",Play gate and ranking
+C121,behaviour,dropped,dropped,dropped,,"The server knows session and profile, so client identity headers and session ids end. Their consent role moves to the server."
+C122,behaviour,changed,offline,offline layer,"Cached screens stay fresh by the ttl in each server answer, scoped by account and profile, with one shared request per key. Failures are forgotten. The last good /v1/hello is kept.",Offline layer
+C123,behaviour,dropped,dropped,dropped,,"The server knows session and profile, so client identity headers and session ids end. Their consent role moves to the server."
+C124,behaviour,changed,server,"server accounts, banner timing in web","Consent is a server fact, default off for personal rows. Until the owner answers it lives on the device session row. With consent off the server reads no personal data and discards feedback. Withdrawal deletes that profile's taste and feed events. Banner timing (1,500 ms, 7 day dismissal, hidden on the player address) stays in web. The browser's global privacy signal reaches the server as a refusal.",Consent
+C125,behaviour,carried,server,server titles,,
+C126,behaviour,carried,server,server rules,,
+C127,behaviour,changed,server,server rules,The client copy ends. Kids Reality follows the server rule in S67. Owner default until the owner answers.,Rules
+C128,behaviour,carried,server,server rules,,
+C129,behaviour,carried,server,server accounts,,
+C130,behaviour,carried,core,core gate,,
+C131,behaviour,changed,core,core routes,"Server: host split and moved addresses, one table, sent as data through /v1/hello for deep links. Core: unknown address, then member and visitor redirects. In app links use final addresses, checked in CI. The API has no cookies, so the server cannot do member redirects.",Rule changes
+C132,behaviour,changed,core,core session,"Feature values on the server. Core keeps unreachable counts as accounts required. Last good copy in the offline layer. Device key length check on the server. Country comes from the server at registration, or stays empty, because the edge trace address does not exist on a stranger's web server.",Rule changes
+C133,behaviour,carried,server,contract,,
+C134,behaviour,carried,server,server accounts,,
+C135,behaviour,changed,server,server titles,"Lasting refusal codes reach the server as the trailer refused command, and the server's trailer choice skips them. Codes 2 and 5 stay unrecorded. The kept counts hold.",Main resources
+C136,behaviour,changed,server,server pages,"Off by default. With no engine value no figure shows, unless the owner keeps the invented figure.",Where every other behaviour lives
+C137,behaviour,carried,server,contract,,
+P1,behaviour,carried,platform_app,kotlin host,,
+P2,behaviour,carried,platform_app,swift host,,
+P3,behaviour,carried,platform_app,kotlin host,,
+P4,behaviour,carried,platform_app,kotlin host,,
+P5,behaviour,carried,platform_app,swift host,,
+P6,behaviour,carried,platform_app,kotlin host,,
+P7,behaviour,carried,platform_app,each repository,,
+P8,behaviour,carried,platform_app,each repository,,
+P9,behaviour,carried,platform_app,web,,
+P10,behaviour,carried,platform_app,web,,
+P11,behaviour,carried,core,core gate,,
+P12,behaviour,conditional,server,conditional on the owner,"Default dropped. If the owner keeps it, it becomes a single use server grant bound to the device.",One owner item: 24 hour return after sign out.
+P13,behaviour,carried,offline,offline layer,,
+P14,behaviour,carried,platform_app,drivers/hls,,
+P15,behaviour,carried,platform_app,drivers/hls,,
+P16,behaviour,carried,platform_app,drivers/hls,,
+P17,behaviour,carried,platform_app,web,,
+P18,behaviour,carried,platform_app,web,,
+P19,behaviour,carried,platform_app,web,,
+P20,behaviour,carried,platform_app,every host,,
+P21,behaviour,carried,platform_app,web,,
+P22,behaviour,carried,platform_app,web,,
+P23,behaviour,carried,platform_app,web,,
+P24,behaviour,carried,platform_app,web,,
+P25,behaviour,carried,platform_app,web,,
+P26,behaviour,carried,platform_app,web,,
+P27,behaviour,carried,platform_app,web,,
+P28,behaviour,carried,platform_app,web,,
+P29,behaviour,carried,platform_app,web,,
+P30,behaviour,carried,platform_app,web,,
+P31,behaviour,carried,platform_app,web,,
+P32,behaviour,conditional,server,conditional on the owner,"Default dropped. If the owner keeps it, it becomes a single use server grant bound to the device.",One owner item: 24 hour return after sign out.
+P33,behaviour,carried,platform_app,web,,
+P34,behaviour,carried,core,core session,,
+P35,behaviour,changed,core,core routes,"Audience lists and the Kids limit leave the core. The server answers each screen call allowed or refused, and the profile answer names its home. Core maps the code to a target.",Rule changes
+P36,behaviour,carried,platform_app,web,,
+P37,behaviour,changed,server,"server accounts, banner timing in web","Consent is a server fact, default off for personal rows. Until the owner answers it lives on the device session row. With consent off the server reads no personal data and discards feedback. Withdrawal deletes that profile's taste and feed events. Banner timing (1,500 ms, 7 day dismissal, hidden on the player address) stays in web. The browser's global privacy signal reaches the server as a refusal.",Consent
+P38,behaviour,carried,platform_app,web,,
+P39,behaviour,changed,core,core player,"Duration and video width come from the driver's position event, and no driver decides no picture on its own. A driver that cannot report width sends has_picture unknown, and the rule stays off there.",Player
+P40,behaviour,carried,platform_app,drivers/hls,,
+P41,behaviour,carried,server,finder,,
+P42,behaviour,conditional,server,conditional on the owner,"Default dropped. If the owner keeps it, it becomes a single use server grant bound to the device.",One owner item: 24 hour return after sign out.
+P43,behaviour,changed,server,server titles,"Lasting refusal codes reach the server as the trailer refused command, and the server's trailer choice skips them. Codes 2 and 5 stay unrecorded. The kept counts hold.",Main resources
+P44,behaviour,changed,server,server web,Title head data comes from the server's own titles table. No call to the outside title service happens at run time.,"Pages, rows, titles and search"
+P45,behaviour,carried,platform_app,web,,
+P46,behaviour,carried,server,server web,,
+P47,behaviour,carried,server,server web,,
+P48,behaviour,changed,server,server web,Title head data comes from the server's own titles table. No call to the outside title service happens at run time.,"Pages, rows, titles and search"
+P49,behaviour,carried,server,server web,,
+P50,behaviour,carried,server,server web,,
+P51,behaviour,carried,server,server web,,
+P52,behaviour,dropped,dropped,dropped,,The edge function route list has no meaning on a plain web server.
+P53,behaviour,carried,platform_app,web,,
+P54,behaviour,changed,platform_app,every host,"On TV browsers with no secure store, tokens are short lived and revocable.",Where every other behaviour lives
+P55,behaviour,carried,platform_app,web,,
+P56,behaviour,conditional,server,conditional on the owner,"Default dropped. If the owner keeps it, it becomes a single use server grant bound to the device.",One owner item: 24 hour return after sign out.
+P57,behaviour,carried,platform_app,web,,
+P58,behaviour,carried,server,server titles,,
+U1,behaviour,changed,server,server play,"One ranker on the server takes viewer language, original language and capability and prefers the adaptive master. Tie order is data. The client re-sort ends.",Play gate and ranking
+U2,behaviour,carried,server,finder,,
+U3,behaviour,changed,server,"server accounts, banner timing in web","Consent is a server fact, default off for personal rows. Until the owner answers it lives on the device session row. With consent off the server reads no personal data and discards feedback. Withdrawal deletes that profile's taste and feed events. Banner timing (1,500 ms, 7 day dismissal, hidden on the player address) stays in web. The browser's global privacy signal reaches the server as a refusal.",Consent
+U4,behaviour,carried,server,server pages,,
+U5,behaviour,dropped,dropped,dropped,,"The characters route has no client caller, and its mass rule uses third party data."
+U6,behaviour,changed,server,"server accounts, banner timing in web","Consent is a server fact, default off for personal rows. Until the owner answers it lives on the device session row. With consent off the server reads no personal data and discards feedback. Withdrawal deletes that profile's taste and feed events. Banner timing (1,500 ms, 7 day dismissal, hidden on the player address) stays in web. The browser's global privacy signal reaches the server as a refusal.",Consent
+U7,behaviour,carried,platform_app,web,,
+U8,behaviour,carried,server,contract,,
+U9,behaviour,changed,server,server accounts,POST /v1/auth/confirm records time and method on the session row. The window is 300 s and a refresh never renews it. No token claim is read and no session is replaced. Age limit changes need it. A device session has no step up power until it proves a password or code on that device.,Sign in
+U10,behaviour,conditional,server,conditional on the owner,"Default dropped. If the owner keeps it, it becomes a single use server grant bound to the device.",One owner item: 24 hour return after sign out.
+U11,behaviour,carried,server,server door,,
+U12,behaviour,changed,server,"server deploy and CI, phone rules in finder",Settings come from environment files per host under a name the operator sets. No file name carries a brand.,Charter rule 6
+U13,behaviour,dropped,dropped,dropped,,Scraped trailer search has no caller.
+U14,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+U15,behaviour,carried,server,server pages,,
+U16,behaviour,changed,server,server pages,"Off by default. With no engine value no figure shows, unless the owner keeps the invented figure.",Where every other behaviour lives
+U17,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+U18,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+U19,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+U20,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
+U21,behaviour,dropped,dropped,dropped,,"OpenAPI lists every route, so no 501 stubs exist."
+H1,defect,changed,core,core crate,"The build fails if core gains std, async, a clock or IO. Web must import the crate.",gate Pure core
+H2,defect,changed,core,core crate,"The build fails if core gains std, async, a clock or IO. Web must import the crate.",gate Pure core
+H3,defect,changed,core,core crate,"The build fails if core gains std, async, a clock or IO. Web must import the crate.",gate Pure core
+H4,defect,changed,server,server door,"Old client replay: a dated version range with server transforms, never exact equality.",gate Versions
+H5,defect,changed,platform_app,kotlin host,"Built new per device family. The ABI matrix includes armv7, and a test covers the container filter.",gate Native players
+H6,defect,changed,platform_app,kotlin host,"Built new per device family. The ABI matrix includes armv7, and a test covers the container filter.",gate Native players
+H7,defect,changed,platform_app,swift host,"Built new per device family. The ABI matrix includes armv7, and a test covers the container filter.",gate Native players
+H8,defect,changed,platform_app,kotlin host,"Built new per device family. The ABI matrix includes armv7, and a test covers the container filter.",gate Native players
+H9,defect,changed,core,core player,"The build fails if core gains std, async, a clock or IO. Web must import the crate.",gate Pure core
+H10,defect,changed,server,base/net-guard,"Resolve, pin, check each hop, deny table per range, byte cap while reading, and a lint against other HTTP clients.",gate Outbound guard
+H11,defect,changed,server,"server deploy and CI, phone rules in finder","No vendor runtime, run time config, no owner value in any file.",gate Portable config
+H12,defect,changed,server,finder,"Fuel, memory cap, blocking pool, total budget with partial answer, panic per provider, verified flag, real not found, one match rule, byte caps, title facts from the server.",gate Finder isolation
+H13,defect,changed,server,finder,"Fuel, memory cap, blocking pool, total budget with partial answer, panic per provider, verified flag, real not found, one match rule, byte caps, title facts from the server.",gate Finder isolation
+H14,defect,changed,server,finder,"Fuel, memory cap, blocking pool, total budget with partial answer, panic per provider, verified flag, real not found, one match rule, byte caps, title facts from the server.",gate Finder isolation
+H15,defect,changed,server,finder,"Fuel, memory cap, blocking pool, total budget with partial answer, panic per provider, verified flag, real not found, one match rule, byte caps, title facts from the server.",gate Finder isolation
+H16,defect,changed,server,server play,"A declared capability, off by default, off in store builds, sandboxed, covered by a CSP generator test, with a timeout and a way out, last in order.",gate Embeds
+H17,defect,changed,server,finder,"Fuel, memory cap, blocking pool, total budget with partial answer, panic per provider, verified flag, real not found, one match rule, byte caps, title facts from the server.",gate Finder isolation
+H18,defect,changed,server,base/net-guard,"Resolve, pin, check each hop, deny table per range, byte cap while reading, and a lint against other HTTP clients.",gate Outbound guard
+H19,defect,changed,server,finder,"Fuel, memory cap, blocking pool, total budget with partial answer, panic per provider, verified flag, real not found, one match rule, byte caps, title facts from the server.",gate Finder isolation
+H20,defect,changed,offline,offline layer,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H21,defect,changed,server,server library,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H22,defect,changed,server,server accounts,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H23,defect,changed,server,server library,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H24,defect,changed,server,server library,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H25,defect,changed,core,core player,"A 30 s heartbeat plus saves on pause, seek, background, close and end.",gate Position
+H26,defect,changed,server,server pages,"Pages read library and durable taste, and dislike counts.",gate Server reads profile
+H27,defect,changed,server,server rules,"Active profile on the session, fail closed, TierVisible and Visible with one fixture set across lists, art, title and play, PIN and step up on the server, blocked titles enforced, unrated rule fixed.",gate Trust
+H28,defect,changed,server,server door,"Active profile on the session, fail closed, TierVisible and Visible with one fixture set across lists, art, title and play, PIN and step up on the server, blocked titles enforced, unrated rule fixed.",gate Trust
+H29,defect,changed,server,server pages,An opaque cursor with an HTTP test.,gate Cursor
+H30,defect,changed,server,server door,"Active profile on the session, fail closed, TierVisible and Visible with one fixture set across lists, art, title and play, PIN and step up on the server, blocked titles enforced, unrated rule fixed.",gate Trust
+H31,defect,changed,server,server door,"Active profile on the session, fail closed, TierVisible and Visible with one fixture set across lists, art, title and play, PIN and step up on the server, blocked titles enforced, unrated rule fixed.",gate Trust
+H32,defect,changed,server,server rules,"Active profile on the session, fail closed, TierVisible and Visible with one fixture set across lists, art, title and play, PIN and step up on the server, blocked titles enforced, unrated rule fixed.",gate Trust
+H33,defect,changed,server,server rules,"Active profile on the session, fail closed, TierVisible and Visible with one fixture set across lists, art, title and play, PIN and step up on the server, blocked titles enforced, unrated rule fixed.",gate Trust
+H34,defect,changed,server,server rules,"Active profile on the session, fail closed, TierVisible and Visible with one fixture set across lists, art, title and play, PIN and step up on the server, blocked titles enforced, unrated rule fixed.",gate Trust
+H35,defect,changed,server,server rules,"Active profile on the session, fail closed, TierVisible and Visible with one fixture set across lists, art, title and play, PIN and step up on the server, blocked titles enforced, unrated rule fixed.",gate Trust
+H36,defect,changed,server,server pages,"Pages read library and durable taste, and dislike counts.",gate Server reads profile
+H37,defect,changed,server,server pages,"Pages read library and durable taste, and dislike counts.",gate Server reads profile
+H38,defect,changed,core,core player,"A 30 s heartbeat plus saves on pause, seek, background, close and end.",gate Position
+H39,defect,changed,core,core player,"Start deadline, classified errors, teardown before open, position kept, ended and season rollover.",gate Player session
+H40,defect,changed,core,core player,"Start deadline, classified errors, teardown before open, position kept, ended and season rollover.",gate Player session
+H41,defect,changed,platform_app,web,"A declared capability, off by default, off in store builds, sandboxed, covered by a CSP generator test, with a timeout and a way out, last in order.",gate Embeds
+H42,defect,changed,core,core player,"Start deadline, classified errors, teardown before open, position kept, ended and season rollover.",gate Player session
+H43,defect,changed,core,core player,"Start deadline, classified errors, teardown before open, position kept, ended and season rollover.",gate Player session
+H44,defect,changed,server,server play,"Server only. The finder returns facts, headers are required in the attempt, and CORS facts are scoped to the web class.",gate One ranking
+H45,defect,changed,server,server play,"Server only. The finder returns facts, headers are required in the attempt, and CORS facts are scoped to the web class.",gate One ranking
+H46,defect,changed,server,server play,"Active profile on the session, fail closed, TierVisible and Visible with one fixture set across lists, art, title and play, PIN and step up on the server, blocked titles enforced, unrated rule fixed.",gate Trust
+H47,defect,changed,offline,offline layer,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H48,defect,changed,offline,offline layer,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H49,defect,changed,server,server library,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H50,defect,changed,server,server library,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H51,defect,changed,server,server accounts,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H52,defect,changed,core,core player,"A 30 s heartbeat plus saves on pause, seek, background, close and end.",gate Position
+H53,defect,changed,offline,offline layer,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H54,defect,changed,offline,offline layer,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H55,defect,changed,server,server library,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H56,defect,changed,server,server library,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H57,defect,changed,server,contract,A bare id does not parse.,gate Title key
+H58,defect,changed,server,server accounts,"A recovery route, a set main route, and UI tests.",gate Account flows
+H59,defect,changed,server,server accounts,"A recovery route, a set main route, and UI tests.",gate Account flows
+H60,defect,changed,server,server accounts,"Active profile on the session, fail closed, TierVisible and Visible with one fixture set across lists, art, title and play, PIN and step up on the server, blocked titles enforced, unrated rule fixed.",gate Trust
+H61,defect,changed,offline,offline layer,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H62,defect,changed,server,data,"Build, publish, prove. Ready shows age, and an alarm fires.",gate Freshness
+H63,defect,changed,server,data,"Hashes, model, dimensions and keys in one manifest. A mix is refused, no trust switch exists, the pipeline is public, and a sidecar table lists every file.",gate Manifest
+H64,defect,changed,server,server index,"Hashes, model, dimensions and keys in one manifest. A mix is refused, no trust switch exists, the pipeline is public, and a sidecar table lists every file.",gate Manifest
+H65,defect,changed,server,server index,"Errors counted, semaphore, deadline, shed, one vector copy, sized maps, a bad optional file ignored, text index required.",gate Engine
+H66,defect,changed,server,server door,"Errors counted, semaphore, deadline, shed, one vector copy, sized maps, a bad optional file ignored, text index required.",gate Engine
+H67,defect,changed,server,server index,"Errors counted, semaphore, deadline, shed, one vector copy, sized maps, a bad optional file ignored, text index required.",gate Engine
+H68,defect,changed,server,server door,Build and data hash in ready.,gate Identity
+H69,defect,changed,server,server index,"Errors counted, semaphore, deadline, shed, one vector copy, sized maps, a bad optional file ignored, text index required.",gate Engine
+H70,defect,changed,server,server search,"Errors counted, semaphore, deadline, shed, one vector copy, sized maps, a bad optional file ignored, text index required.",gate Engine
+H71,defect,changed,server,finder,"Fuel, memory cap, blocking pool, total budget with partial answer, panic per provider, verified flag, real not found, one match rule, byte caps, title facts from the server.",gate Finder isolation
+H72,defect,changed,server,base/net-guard,"Resolve, pin, check each hop, deny table per range, byte cap while reading, and a lint against other HTTP clients.",gate Outbound guard
+H73,defect,changed,server,base/net-guard,"Resolve, pin, check each hop, deny table per range, byte cap while reading, and a lint against other HTTP clients.",gate Outbound guard
+H74,defect,changed,server,base/net-guard,"Resolve, pin, check each hop, deny table per range, byte cap while reading, and a lint against other HTTP clients.",gate Outbound guard
+H75,defect,changed,server,base/net-guard,"Resolve, pin, check each hop, deny table per range, byte cap while reading, and a lint against other HTTP clients.",gate Outbound guard
+H76,defect,changed,server,server door,"Local token check, 429 kept apart from 401, meter before outside calls.",gate Door
+H77,defect,changed,server,"each repository, server side",Handlers in a library. Tests gate merge and release.,gate CI
+H78,defect,changed,server,server play,"Fuel, memory cap, blocking pool, total budget with partial answer, panic per provider, verified flag, real not found, one match rule, byte caps, title facts from the server.",gate Finder isolation
+H79,defect,changed,server,server play,"Active profile on the session, fail closed, TierVisible and Visible with one fixture set across lists, art, title and play, PIN and step up on the server, blocked titles enforced, unrated rule fixed.",gate Trust
+H80,defect,changed,server,server play,"Server only. The finder returns facts, headers are required in the attempt, and CORS facts are scoped to the web class.",gate One ranking
+H81,defect,changed,server,server play,"Server only. The finder returns facts, headers are required in the attempt, and CORS facts are scoped to the web class.",gate One ranking
+H82,defect,changed,core,core player,"A declared capability, off by default, off in store builds, sandboxed, covered by a CSP generator test, with a timeout and a way out, last in order.",gate Embeds
+H83,defect,changed,server,server library,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H84,defect,changed,server,server library,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H85,defect,changed,offline,offline layer,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H86,defect,changed,server,server library,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H87,defect,changed,server,server accounts,"No snapshot or list diff exists. Per field versions, one id delete, series hide, per op answer, elapsed age with boot id, one writer per session, flush on suspend, sign out and profile switch, and two device fixtures with the layer on and off.",gate Commands
+H88,defect,changed,server,server rules,"Active profile on the session, fail closed, TierVisible and Visible with one fixture set across lists, art, title and play, PIN and step up on the server, blocked titles enforced, unrated rule fixed.",gate Trust
+H89,defect,changed,core,core player,"A 30 s heartbeat plus saves on pause, seek, background, close and end.",gate Position
+H90,defect,changed,server,server play,"Active profile on the session, fail closed, TierVisible and Visible with one fixture set across lists, art, title and play, PIN and step up on the server, blocked titles enforced, unrated rule fixed.",gate Trust
+H91,defect,changed,server,contract,A bare id does not parse.,gate Title key
+H92,defect,changed,server,server pages,An opaque cursor with an HTTP test.,gate Cursor
+H93,defect,changed,platform_app,web,"A declared capability, off by default, off in store builds, sandboxed, covered by a CSP generator test, with a timeout and a way out, last in order.",gate Embeds
+H94,defect,changed,platform_app,each repository,Handlers in a library. Tests gate merge and release.,gate CI
+H95,defect,changed,server,"server deploy and CI, phone rules in finder","Swap with health and rollback, kept releases, outside check, client reports, one migration path, tested restore, phone path included.",gate Deploy
+H96,defect,changed,server,"server deploy and CI, phone rules in finder","Swap with health and rollback, kept releases, outside check, client reports, one migration path, tested restore, phone path included.",gate Deploy
+H97,defect,changed,platform_app,each repository,Handlers in a library. Tests gate merge and release.,gate CI
+H98,defect,changed,server,server door,Build and data hash in ready.,gate Identity
+H99,defect,changed,server,"server deploy and CI, phone rules in finder","Build, publish, prove. Ready shows age, and an alarm fires.",gate Freshness
+H100,defect,changed,server,"server deploy and CI, phone rules in finder","Swap with health and rollback, kept releases, outside check, client reports, one migration path, tested restore, phone path included.",gate Deploy
+H101,defect,changed,platform_app,every host,"No vendor runtime, run time config, no owner value in any file.",gate Portable config
+H102,defect,changed,server,"server deploy and CI, phone rules in finder","No vendor runtime, run time config, no owner value in any file.",gate Portable config
+H103,defect,changed,server,"server deploy and CI, phone rules in finder","Swap with health and rollback, kept releases, outside check, client reports, one migration path, tested restore, phone path included.",gate Deploy
+H104,defect,changed,server,"server deploy and CI, phone rules in finder","Swap with health and rollback, kept releases, outside check, client reports, one migration path, tested restore, phone path included.",gate Deploy
+H105,defect,changed,server,"server deploy and CI, phone rules in finder","Swap with health and rollback, kept releases, outside check, client reports, one migration path, tested restore, phone path included.",gate Deploy
+H106,defect,changed,core,core crate,"The build fails if core gains std, async, a clock or IO. Web must import the crate.",gate Pure core
+H107,defect,changed,core,core crate,"The build fails if core gains std, async, a clock or IO. Web must import the crate.",gate Pure core
+H108,defect,changed,core,core crate,"The build fails if core gains std, async, a clock or IO. Web must import the crate.",gate Pure core
+H109,defect,changed,core,core crate,"The build fails if core gains std, async, a clock or IO. Web must import the crate.",gate Pure core
+H110,defect,changed,platform_app,bridges,Six exports carry bytes. The contract depends on serde only.,gate Boundary
+H111,defect,changed,platform_app,bridges,Six exports carry bytes. The contract depends on serde only.,gate Boundary
+H112,defect,changed,platform_app,bridges,Six exports carry bytes. The contract depends on serde only.,gate Boundary
+H113,defect,changed,core,core crate,"The build fails if core gains std, async, a clock or IO. Web must import the crate.",gate Pure core
+H114,defect,changed,core,core crate,"The build fails if core gains std, async, a clock or IO. Web must import the crate.",gate Pure core
+H115,defect,changed,platform_app,bridges,"Wasm, JS and CSS scans. No Component Model.",gate Floors
+H116,defect,changed,platform_app,each repository,"Wasm, JS and CSS scans. No Component Model.",gate Floors
+H117,defect,changed,platform_app,bridges,"Wasm, JS and CSS scans. No Component Model.",gate Floors
+H118,defect,changed,core,core crate,"The build fails if core gains std, async, a clock or IO. Web must import the crate.",gate Pure core
+H119,defect,changed,server,contract,"Old client replay: a dated version range with server transforms, never exact equality.",gate Versions
+H120,defect,changed,platform_app,kit,"Black box suites with public result tables, written with the first release.",gate Kit
+H121,defect,changed,platform_app,each repository,"Exact toolchain, --locked everywhere, tools in a lock file, actions by commit, and a CI step that builds twice and compares bytes.",gate Reproducible
+H122,defect,changed,platform_app,each repository,"A licence lint on every file, every capture derived file absent, and a CI scan.",gate Licence
+H123,defect,changed,platform_app,each repository,"A licence lint on every file, every capture derived file absent, and a CI scan.",gate Licence
+H124,defect,changed,platform_app,each repository,"A licence lint on every file, every capture derived file absent, and a CI scan.",gate Licence
+H125,defect,changed,platform_app,each repository,"A licence lint on every file, every capture derived file absent, and a CI scan.",gate Licence
+H126,defect,changed,platform_app,each repository,"No vendor runtime, run time config, no owner value in any file.",gate Portable config
+H127,defect,changed,server,server door,"No vendor runtime, run time config, no owner value in any file.",gate Portable config
+H128,defect,changed,platform_app,every host,"No vendor runtime, run time config, no owner value in any file.",gate Portable config
+H129,defect,changed,server,contract,Six exports carry bytes. The contract depends on serde only.,gate Boundary
+H130,defect,changed,core,core crate,"The build fails if core gains std, async, a clock or IO. Web must import the crate.",gate Pure core
+H131,defect,changed,server,server titles,No title data client in apps.,gate Second recommender
+H132,defect,changed,server,data,"Hashes, model, dimensions and keys in one manifest. A mix is refused, no trust switch exists, the pipeline is public, and a sidecar table lists every file.",gate Manifest
+H133,defect,changed,server,data,"A licence lint on every file, every capture derived file absent, and a CI scan.",gate Licence
+N1,new,changed,platform_app,web,"Diagnostics page: network check, playback specification and speed test. The speed test address is a setting, and the test is off when unset.",Stage 7
+N2,new,changed,platform_app,web,"Help tools stay in web and act on this browser: diagnostics, data, profiles, language, cookies, refresh. Help and legal text comes from the server. Clearing history is the server's one operation.",Stage 7
+N3,new,changed,server,server titles,"Signed out title data: GET /v1/public/titles/{kind}/{id} answers under the visitor tier, cacheable, with no profile.","Pages, rows, titles and search"
+N4,new,changed,server,data,Network and company logos join the data pulls. The networks column holds names only today.,Data builder
+N5,new,changed,platform_app,swift host,"Subtitles in system picture in picture and wireless display stay a written gap: the app draws its own line, which those modes cannot show. No design solved it.","Not fixed, and why"
+N6,new,changed,server,server pages,"The games route becomes the games screen behind the existing feature switch, default off.",Route coverage
+N7,new,changed,server,server pages,Clips get a screen: GET /v1/screens/clips.,Route coverage
+N8,new,changed,server,server pages,Original audio gets a screen: GET /v1/screens/language.,Route coverage
