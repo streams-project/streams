@@ -25,6 +25,10 @@ hold a path to a file, never a key.
     databuild files                 print the table of files in a set
     databuild scan .                refuse brand words, addresses and keys
 
+`./scripts/check` cross checks the contract and the type the server reads a set with, so it needs
+the `platform` and `server` repositories cloned next to this folder. A check that cannot see one
+fails and names it, instead of passing quietly; CI checks both out.
+
 ## The stages
 
 | Stage | Reads | Writes |
