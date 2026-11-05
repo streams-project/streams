@@ -38,6 +38,16 @@ fn http_paths(out: &Value) -> Vec<String> {
         .collect()
 }
 
+fn secret_names(out: &Value) -> Vec<String> {
+    out["effects"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|effect| effect["kind"] == "secret")
+        .map(|effect| effect["name"].as_str().unwrap().to_string())
+        .collect()
+}
+
 fn effect_id(out: &Value, path: &str) -> String {
     out["effects"]
         .as_array()
@@ -341,4 +351,102 @@ fn c131_an_address_waits_while_the_kept_session_is_unknown_even_with_hello_in_ha
     );
     assert_eq!(out["view"]["route"]["target"], "sign_in");
     assert_eq!(out["view"]["route"]["next"], "/my-list");
+}
+
+#[test]
+fn h1_h106_c132_a_host_that_cannot_keep_a_secret_is_not_asked_again() {
+    let mut core = core();
+    let first = step(&mut core, 0, &json!([]));
+    assert_eq!(first["effects"][0]["name"], "device");
+    let device = first["effects"][0]["id"].clone();
+    let out = step(
+        &mut core,
+        1,
+        &json!([{"id": device, "type": "unsupported"}]),
+    );
+    assert!(
+        secret_names(&out).is_empty(),
+        "a host with no secret store is asked once, not for ever: {out}"
+    );
+    // the kept session answer cannot be written back either, and nothing waits on it
+    let out = step(
+        &mut core,
+        2,
+        &json!([{"id": "s9", "type": "action",
+                 "action": {"action": "sign_in", "email": "a@b.example", "password": "x"}}]),
+    );
+    let sign_in = effect_id(&out, "/v1/auth/password");
+    let out = step(
+        &mut core,
+        3,
+        &json!([{"id": sign_in, "type": "http_done", "status": 200, "body": tokens(3_600)}]),
+    );
+    assert!(secret_names(&out).is_empty(), "{out}");
+    assert_eq!(out["view"]["session"]["state"], "signed_in");
+}
+
+#[test]
+fn c117_h53_a_command_needs_a_profile_in_use() {
+    let press = json!({"id": "c1", "type": "action",
+                       "action": {"action": "command",
+                                  "command": {"command": "list", "title": "movie:7",
+                                              "in_list": true}}});
+    let (mut core, _) = member(3_600);
+    let out = step(&mut core, 4, &json!([press]));
+    assert!(
+        http_paths(&out).is_empty(),
+        "an op belongs to a profile, and none is in use: {out}"
+    );
+    let out = step(
+        &mut core,
+        5,
+        &json!([{"id": "a1", "type": "action",
+                 "action": {"action": "enter_profile", "profile": "p1"}}]),
+    );
+    let enter = effect_id(&out, "/v1/profiles/p1/enter");
+    let entered = json!({"profile": profile("p1"), "home": "home"}).to_string();
+    step(
+        &mut core,
+        6,
+        &json!([{"id": enter, "type": "http_done", "status": 200, "body": entered}]),
+    );
+    // with a profile in use the same press goes out
+    let out = step(&mut core, 7, &json!([press]));
+    assert_eq!(http_paths(&out), ["/v1/commands"]);
+}
+
+#[test]
+fn c74_c130_the_last_activity_is_written_at_most_every_30_s() {
+    let (mut core, _) = member(3_600);
+    // the first activity past 30 s writes the session, so time away survives a restart
+    let out = step(&mut core, 40_000, &json!([{"type": "activity"}]));
+    assert_eq!(secret_names(&out), ["session"], "{out}");
+    // 10 s later nothing is written
+    let out = step(&mut core, 50_000, &json!([{"type": "activity"}]));
+    assert!(
+        secret_names(&out).is_empty(),
+        "a write for every event would wear out the store: {out}"
+    );
+}
+
+#[test]
+fn c108_c131_a_hello_with_no_ttl_is_not_read_again_at_once() {
+    let text = include_str!("../../contract/fixtures/2026-11-05/valid/Hello.basic.json");
+    let mut hello: Value = serde_json::from_str(text).unwrap();
+    hello["ttl_s"] = json!(0);
+    let mut core = core();
+    let first = step(&mut core, 0, &json!([]));
+    let id = effect_id(&first, "/v1/hello");
+    let out = step(
+        &mut core,
+        1,
+        &json!([{"id": id, "type": "http_done", "status": 200, "body": hello.to_string()}]),
+    );
+    assert!(http_paths(&out).is_empty(), "{out}");
+    assert_eq!(out.get("next_wake_ms"), None, "nothing is armed: {out}");
+    let out = step(&mut core, 2, &json!([]));
+    assert!(
+        http_paths(&out).is_empty(),
+        "a ttl of 0 is no reason to ask again at once: {out}"
+    );
 }
