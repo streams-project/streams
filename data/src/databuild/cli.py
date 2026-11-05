@@ -12,7 +12,13 @@ from .clean.catalog import clean
 from .context import Context
 from .embed.run import embed
 from .errors import FeatureOff, StageFailed
+from .export.files import table
+from .export.run import export
 from .group.run import group
+from .manifest.age import check_age
+from .manifest.sign import write_keypair
+from .manifest.verify import verify_set
+from .manifest.write import write_manifest
 from .name.run import name
 from .net import UrlTransport
 from .pull.details import pull_details, pull_refresh
@@ -63,11 +69,22 @@ def _scan(args: argparse.Namespace) -> int:
     return EXIT_FAILED if found else 0
 
 
+def _verify(ctx: Context) -> None:
+    public = ctx.settings.sign.public_key_file
+    done = verify_set(ctx.out, public, ctx.settings.contract.schema_dir)
+    state = "signature checked" if done.signed else "signature not checked, no public key set"
+    ctx.say(f"verify: {done.manifest['dataset_version']} passed, {state}")
+    ctx.say(f"verify: manifest sha256 {done.manifest_sha256}")
+
+
 def _all(ctx: Context) -> None:
     clean(ctx)
     embed(ctx)
     group(ctx)
     name(ctx)
+    export(ctx)
+    write_manifest(ctx)
+    _verify(ctx)
 
 
 def parser() -> argparse.ArgumentParser:
@@ -90,7 +107,15 @@ def parser() -> argparse.ArgumentParser:
     embed_command.add_argument("--open-text", help="a file of open text, for the second set")
     commands.add_parser("group", help="write the groups")
     commands.add_parser("name", help="name groups, write row definitions and vocabulary")
+    commands.add_parser("export", help="write the files a server reads")
+    commands.add_parser("manifest", help="hash, sign and name the set")
+    commands.add_parser("verify", help="check a set against its manifest")
+    commands.add_parser("age", help="fail when a set or a daily file is too old")
     commands.add_parser("all", help="every stage after the pull, in order")
+    commands.add_parser("files", help="print the table of files in a set")
+    keygen = commands.add_parser("keygen", help="make a signing key pair")
+    keygen.add_argument("private_file")
+    keygen.add_argument("public_file")
     scan = commands.add_parser("scan", help="refuse what must never be in a file")
     scan.add_argument("paths", nargs="+")
     return top
@@ -114,6 +139,14 @@ def run(args: argparse.Namespace, ctx: Context) -> None:
             group(ctx)
         case "name":
             name(ctx)
+        case "export":
+            export(ctx)
+        case "manifest":
+            write_manifest(ctx)
+        case "verify":
+            _verify(ctx)
+        case "age":
+            check_age(ctx)
         case "all":
             _all(ctx)
 
@@ -123,6 +156,13 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "scan":
             return _scan(args)
+        if args.command == "files":
+            print(table(), end="")
+            return 0
+        if args.command == "keygen":
+            made = write_keypair(Path(args.private_file), Path(args.public_file))
+            print(f"keygen: key id {made}")
+            return 0
         path = args.settings or (DEFAULT_SETTINGS if Path(DEFAULT_SETTINGS).exists() else None)
         ctx = _context(args, load(path))
         run(args, ctx)

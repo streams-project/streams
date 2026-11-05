@@ -122,8 +122,8 @@ def scan_json_fields(value: object, path: str = "") -> Iterator[Finding]:
     """Fields that only a capture could fill, at any depth of a JSON value."""
     if isinstance(value, dict):
         for key, item in value.items():
-            if key in CAPTURE_FIELDS:
-                yield Finding(path, 0, f"capture field {key}")
+            if key in CAPTURE_FIELDS or _refused(str(key).lower()):
+                yield Finding(path, 0, "capture field")
             yield from scan_json_fields(item, path)
     elif isinstance(value, list):
         for item in value:
