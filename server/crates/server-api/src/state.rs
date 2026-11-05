@@ -6,7 +6,7 @@ use server_accounts::{Clock, Door, Meter, SystemClock};
 use server_catalog::DataSlot;
 use server_library::Library;
 use server_pages::Pages;
-use server_play::{Play, PlayLog};
+use server_play::{Play, PlayLog, Subtitles};
 use server_rules::answer::Images;
 use tokio::sync::Semaphore;
 
@@ -35,6 +35,8 @@ pub struct AppState {
     pub play: Option<Play>,
     /// Off with no database.
     pub play_log: Option<Arc<dyn PlayLog>>,
+    /// Off with no subtitle source.
+    pub subtitles: Option<Subtitles>,
     pub live: LiveFile,
     pub images: Images,
     pub calls: Meter,
@@ -64,6 +66,7 @@ impl AppState {
             pages: Pages::new(images.clone()),
             play: None,
             play_log: None,
+            subtitles: None,
             live,
             images,
             calls: Meter::new(CALLS_PER_MINUTE),

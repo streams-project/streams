@@ -8,21 +8,11 @@ use common::{call, harness};
 use contract::api::{Auth, Group, ROUTES};
 
 /// Routes not built yet, each with what it waits for.
-const STILL_TO_BUILD: [(&str, &str, &str); 4] = [
+const STILL_TO_BUILD: [(&str, &str, &str); 2] = [
     (
         "GET",
         "/v1/titles/{kind}/{id}/seasons/{n}",
         "no episode data in the data set",
-    ),
-    (
-        "GET",
-        "/v1/subtitles",
-        "the outbound guard and client in platform",
-    ),
-    (
-        "GET",
-        "/v1/subtitles/{file}",
-        "the outbound guard and client in platform",
     ),
     ("POST", "/v1/core/step", "server-hosted"),
 ];

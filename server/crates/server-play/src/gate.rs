@@ -58,6 +58,7 @@ pub enum PlayError {
 struct PlaySession {
     owner: String,
     title: TitleKey,
+    episode: Option<EpisodeRef>,
     job: Option<String>,
     viewing: Viewing,
     card: Option<CapabilityCard>,
@@ -200,6 +201,7 @@ impl Play {
             PlaySession {
                 owner: owner_of(scope),
                 title,
+                episode: episode.clone(),
                 job: found.job,
                 viewing,
                 card: ask.card,
@@ -266,7 +268,12 @@ impl Play {
     ///
     /// # Errors
     /// `Unknown` otherwise.
-    pub fn check(&self, id: &str, scope: &ProfileScope) -> Result<TitleKey, PlayError> {
-        Ok(self.session(id, scope)?.title)
+    pub fn check(
+        &self,
+        id: &str,
+        scope: &ProfileScope,
+    ) -> Result<(TitleKey, Option<EpisodeRef>), PlayError> {
+        let held = self.session(id, scope)?;
+        Ok((held.title, held.episode))
     }
 }

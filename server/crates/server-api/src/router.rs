@@ -118,6 +118,8 @@ pub fn router(state: Shared) -> Router {
         .route("/v1/play/{id}/more", post(play::more))
         .route("/v1/play/{id}/marks", post(play::marks))
         .route("/v1/play/{id}/events", post(play::events))
+        .route("/v1/subtitles", get(play::list_subtitles))
+        .route("/v1/subtitles/{file}", get(play::subtitle_file))
         .route("/v1/reports", post(play::report))
         .fallback(nothing_here)
         .layer(CatchPanicLayer::custom(panicked))

@@ -11,7 +11,9 @@ workspace = true
 [dependencies]
 async-trait.workspace = true
 contract.workspace = true
+encoding_rs.workspace = true
 moka.workspace = true
+regex.workspace = true
 reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true

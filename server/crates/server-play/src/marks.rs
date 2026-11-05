@@ -1,7 +1,10 @@
 //! Skip marks and content reasons from the data set. Marks are ratios of a video's length; the
 //! detector that reads cues sits behind the subtitle work.
 
+use contract::play::{TimeWindow, WindowKind};
 use serde_json::{Value, json};
+
+use crate::subtitles::detect::SkipMarks;
 
 /// The marks of one video: the first episode of a season takes `premiere`, the last `finale`, every
 /// other one `typical`, each falling back to `typical`. A film or an unknown title has none.
@@ -30,6 +33,48 @@ pub fn pick_marks(entry: Option<&Value>, episode: Option<u32>, last: bool) -> Va
             "credits": marks.get("credits").cloned().unwrap_or(Value::Null),
         }),
         None => none,
+    }
+}
+
+/// The windows of one video from a detector's ratios.
+#[must_use]
+pub fn windows_of(marks: &SkipMarks, duration_ms: u64) -> Vec<TimeWindow> {
+    let at = |ratio: f64| (ratio.clamp(0.0, 1.0) * duration_ms as f64) as u64;
+    let span = |pair: Option<[f64; 2]>, kind| {
+        pair.map(|[start, end]| TimeWindow {
+            kind,
+            start_ms: at(start),
+            end_ms: at(end),
+            seek_to_ms: Some(at(end)),
+            text: None,
+        })
+    };
+    let mut out = Vec::new();
+    out.extend(span(marks.recap, WindowKind::Recap));
+    out.extend(span(marks.intro, WindowKind::Intro));
+    if let Some(start) = marks.credits {
+        out.push(TimeWindow {
+            kind: WindowKind::Credits,
+            start_ms: at(start),
+            end_ms: duration_ms,
+            seek_to_ms: None,
+            text: None,
+        });
+    }
+    out
+}
+
+/// The marks of a data file as the detector reads them.
+#[must_use]
+pub fn marks_of(entry: &Value) -> SkipMarks {
+    let pair = |value: &Value| -> Option<[f64; 2]> {
+        let list = value.as_array()?;
+        Some([list.first()?.as_f64()?, list.get(1)?.as_f64()?])
+    };
+    SkipMarks {
+        intro: pair(&entry["intro"]),
+        recap: pair(&entry["recap"]),
+        credits: entry["credits"].as_f64(),
     }
 }
 

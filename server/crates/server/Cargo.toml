@@ -24,6 +24,8 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 
 [dev-dependencies]
+reqwest.workspace = true
+server-catalog = { workspace = true, features = ["sample"] }
 serde_json.workspace = true
 regex.workspace = true
 sqlparser.workspace = true

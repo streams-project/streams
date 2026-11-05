@@ -11,7 +11,7 @@ use contract::finder::{FindAnswer, FindOutcome, FoundSource};
 use contract::play::{AttemptKind, PlayAnswer};
 use serde_json::json;
 use server_catalog::sample::special;
-use server_play::MemoryFinder;
+use server_play::{FoundFile, MemoryFinder, MemorySubtitles, Subtitles};
 
 fn source(url: &str) -> FoundSource {
     FoundSource {
@@ -267,4 +267,176 @@ async fn c53_s108_marks_answer_for_a_play_and_a_report_needs_a_member() {
         .on(&server.state)
         .await;
     assert_eq!(good.status, StatusCode::OK);
+}
+
+fn srt(lines: usize) -> Vec<u8> {
+    let mut out = String::new();
+    for n in 0..lines {
+        let minute = n / 60;
+        let second = n % 60;
+        out.push_str(&format!(
+            "{}\n00:{minute:02}:{second:02},000 --> 00:{minute:02}:{second:02},900\nStay with me now, please\n\n",
+            n + 1
+        ));
+    }
+    out.into_bytes()
+}
+
+fn with_subtitles(server: &mut Harness, files: Vec<(FoundFile, Vec<u8>)>) {
+    let source = MemorySubtitles { files };
+    let state = Arc::get_mut(&mut server.state).expect("one owner");
+    state.subtitles = Some(Subtitles::new(Arc::new(source)));
+}
+
+fn file(locator: &str, language: &str, hearing_impaired: bool) -> FoundFile {
+    FoundFile {
+        locator: locator.to_owned(),
+        language: language.to_owned(),
+        hearing_impaired,
+    }
+}
+
+#[tokio::test]
+async fn c39_s178_s176_a_list_groups_by_language_puts_hearing_impaired_last_and_hides_the_source() {
+    let mut server = common::harness(&[]);
+    with_subtitles(
+        &mut server,
+        vec![
+            (
+                file("https://files.example/a?key=hidden", "EN", true),
+                srt(20),
+            ),
+            (file("https://files.example/b", "English", false), srt(20)),
+            (file("https://files.example/c", "BR_PT", false), srt(20)),
+            (
+                file("https://files.example/d", "Spanish - Forced", false),
+                srt(20),
+            ),
+        ],
+    );
+    let token = enter(&server, false).await;
+    let answer = get("/v1/subtitles?title=movie:100")
+        .token(&token)
+        .on(&server.state)
+        .await;
+    assert_eq!(answer.status, StatusCode::OK, "{}", answer.body);
+    let text = answer.body.to_string();
+    assert!(
+        !text.contains("hidden") && !text.contains("files.example"),
+        "S176: {text}"
+    );
+    let languages = answer.body["languages"].as_array().unwrap();
+    assert_eq!(languages.len(), 2, "forced files leave the list");
+    assert_eq!(languages[0]["lang"], "en");
+    assert_eq!(languages[0]["files"][0]["hearing_impaired"], false);
+    assert_eq!(languages[0]["files"][1]["hearing_impaired"], true);
+    assert_eq!(languages[1]["lang"], "pt-BR");
+}
+
+#[tokio::test]
+async fn c43_a_file_reads_as_clean_cues_or_webvtt_and_a_bad_file_tells_the_core_to_move_on() {
+    let mut server = common::harness(&[]);
+    with_subtitles(
+        &mut server,
+        vec![
+            (file("good", "en", false), srt(20)),
+            (
+                file("note", "de", false),
+                b"a note pointing at a download site".to_vec(),
+            ),
+        ],
+    );
+    let token = enter(&server, false).await;
+    let listed = get("/v1/subtitles?title=movie:100")
+        .token(&token)
+        .on(&server.state)
+        .await;
+    let languages = listed.body["languages"].as_array().unwrap();
+    let id_of = |lang: &str| {
+        let found = languages.iter().find(|l| l["lang"] == lang).unwrap();
+        found["files"][0]["id"].as_str().unwrap().to_owned()
+    };
+    let good = get(&format!("/v1/subtitles/{}", id_of("en")))
+        .token(&token)
+        .on(&server.state)
+        .await;
+    assert_eq!(
+        good.body["cues"].as_array().unwrap().len(),
+        20,
+        "{}",
+        good.body
+    );
+    assert_eq!(good.body["last_end_ms"], 19_900);
+    let text = get(&format!("/v1/subtitles/{}?delay_ms=1000", id_of("en")))
+        .token(&token)
+        .header("accept", "text/vtt")
+        .on(&server.state)
+        .await;
+    assert!(
+        text.headers["content-type"]
+            .to_str()
+            .unwrap()
+            .starts_with("text/vtt")
+    );
+    let bad = get(&format!("/v1/subtitles/{}", id_of("de")))
+        .token(&token)
+        .on(&server.state)
+        .await;
+    assert_eq!(bad.status, StatusCode::UNPROCESSABLE_ENTITY);
+    let unknown = get("/v1/subtitles/nothing")
+        .token(&token)
+        .on(&server.state)
+        .await;
+    assert_eq!(unknown.status, StatusCode::NOT_FOUND);
+}
+
+#[tokio::test]
+async fn k3_a_subtitle_list_and_file_stay_refused_for_a_title_the_viewer_may_not_see() {
+    let mut server = common::harness(&[]);
+    with_subtitles(&mut server, vec![(file("one", "en", false), srt(20))]);
+    let adult = enter(&server, false).await;
+    let kids = enter(&server, true).await;
+    let path = format!("/v1/subtitles?title=movie:{}", special::ADULT_FLAG);
+    let listed = get(&path).token(&adult).on(&server.state).await;
+    let id = listed.body["languages"][0]["files"][0]["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    assert_eq!(
+        get(&path).token(&kids).on(&server.state).await.status,
+        StatusCode::FORBIDDEN
+    );
+    let read = get(&format!("/v1/subtitles/{id}"))
+        .token(&kids)
+        .on(&server.state)
+        .await;
+    assert_eq!(read.status, StatusCode::FORBIDDEN);
+}
+
+#[tokio::test]
+async fn s213_with_no_source_subtitles_say_they_are_off() {
+    let server = common::harness(&[]);
+    let token = enter(&server, false).await;
+    let answer = get("/v1/subtitles?title=movie:100")
+        .token(&token)
+        .on(&server.state)
+        .await;
+    assert_eq!(answer.code(), "unsupported");
+}
+
+#[tokio::test]
+async fn c54_a_film_gets_no_marks() {
+    let finder = Arc::new(MemoryFinder::answering(found(&[
+        "https://host.example/1.m3u8",
+    ])));
+    let server = harness_play(finder);
+    let token = enter(&server, false).await;
+    let answer = play("movie:100").token(&token).on(&server.state).await;
+    let id = answer.body["play_id"].as_str().unwrap().to_owned();
+    let marks = call(Method::POST, &format!("/v1/play/{id}/marks"))
+        .token(&token)
+        .json(json!({ "attempt": "a0", "duration_ms": 3_000_000 }))
+        .on(&server.state)
+        .await;
+    assert_eq!(marks.body["windows"], json!([]));
 }
