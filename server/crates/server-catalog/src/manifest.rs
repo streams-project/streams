@@ -28,6 +28,7 @@ pub mod role {
     pub const KIDS_VECTORS: &str = "kids_taxonomy_vectors";
     pub const KIDS_ENTRIES: &str = "kids_taxonomy_entries";
     pub const PROFILES: &str = "title_profiles";
+    pub const KIDS_CHANNELS: &str = "kids_channels";
     pub const POPULARITY: &str = "popularity";
     pub const AWARDS: &str = "awards";
     pub const CATEGORIES: &str = "categories";
@@ -99,6 +100,9 @@ pub enum ManifestError {
     OutsideSet(String),
     #[error("the signature does not fit a key this server holds")]
     Signature,
+    /// No key is held, so no signature can be checked and no set can be trusted.
+    #[error("no data signing key is held, so no set can be checked")]
+    NoKeys,
 }
 
 /// Paths of the files that passed, by role.
@@ -238,8 +242,9 @@ impl DatasetManifest {
     }
 }
 
-/// The public keys a server accepts sets from. With none, sets are taken unsigned, and the server
-/// says so at start.
+/// The public keys a server accepts sets from. There is no way to hold none and still read a set:
+/// with no key nothing can be checked, so every set is refused and the server says so at start.
+/// The empty trust is therefore a trust that accepts nothing.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct DataTrust {
     keys: Vec<[u8; 32]>,
@@ -276,15 +281,36 @@ impl DataTrust {
         Self { keys }
     }
 
+    /// Trust from the PEM files the operator named. An empty list is `NoKeys`, so a server with
+    /// the setting unset never reaches a set at all.
+    ///
+    /// # Errors
+    /// `NoKeys` for an empty list, `Unreadable` for a file that does not read, `Signature` for a
+    /// file that is not an ed25519 public key.
+    pub fn from_key_files(paths: &[PathBuf]) -> Result<Self, ManifestError> {
+        if paths.is_empty() {
+            return Err(ManifestError::NoKeys);
+        }
+        let mut pems = Vec::with_capacity(paths.len());
+        for path in paths {
+            pems.push(
+                std::fs::read_to_string(path)
+                    .map_err(|error| ManifestError::Unreadable(error.to_string()))?,
+            );
+        }
+        Self::from_pem(&pems)
+    }
+
     /// Check `manifest.sig` over the exact bytes of the manifest.
     ///
     /// # Errors
-    /// `Signature` for a missing, wrong or unknown signature when any key is held.
+    /// `NoKeys` when this server holds no key, `Signature` for a missing, wrong or unknown
+    /// signature.
     pub fn check(&self, manifest_path: &Path) -> Result<(), ManifestError> {
         use base64::Engine;
         use ed25519_dalek::{Signature, Verifier, VerifyingKey};
         if self.keys.is_empty() {
-            return Ok(());
+            return Err(ManifestError::NoKeys);
         }
         let bytes = std::fs::read(manifest_path).map_err(|_| ManifestError::Signature)?;
         let signature = std::fs::read(manifest_path.with_extension("sig"))

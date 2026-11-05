@@ -4,6 +4,7 @@
 pub mod attributes;
 pub mod catalog;
 pub mod centroid;
+pub mod channels;
 pub mod cluster;
 pub mod coverage;
 pub mod dataset;
@@ -25,6 +26,7 @@ pub mod vectors;
 pub mod vibe;
 
 pub use catalog::{CatalogItem, CatalogMap, SharedCatalog, item_key};
+pub use channels::KidsChannels;
 pub use dataset::{DataSet, DataSlot, SwapError};
 pub use index::{HnswIndex, IndexStamp};
 pub use manifest::{DataFiles, DataTrust, DatasetManifest, FileEntry, ManifestError, role};

@@ -756,6 +756,9 @@ mod tests {
 
     /// Every number in this file that used to carry an outside page count now comes from one of
     /// this repository's own constants. These checks fail if a number drifts from its reason.
+    // Asserting a relation between constants is the job of this test, so the lint against a
+    // constant assertion is off here. The assertion still fails when a constant drifts.
+    #[allow(clippy::assertions_on_constants)]
     #[test]
     fn s75_the_row_depth_and_the_row_caps_follow_from_this_repository_s_own_numbers() {
         assert_eq!(
@@ -808,6 +811,8 @@ mod tests {
         );
     }
 
+    // As above: the penalty is checked against the other constants it was chosen from.
+    #[allow(clippy::assertions_on_constants)]
     #[test]
     fn s75_a_harsh_mood_row_cannot_outrank_the_plainest_row_even_at_full_rotation() {
         let lifted = PRIOR_MOOD + NOISE_WEIGHT - HARSH_PENALTY;

@@ -6,7 +6,8 @@ use std::path::PathBuf;
 
 use server_rules::Tier;
 
-/// Every setting the server reads, with what a missing one turns off.
+/// Every setting the server reads, with what a missing one turns off. The loader reads no name
+/// this table leaves out, and a test fails on any that is only in one of the two.
 pub const SETTINGS: &[(&str, &str)] = &[
     (
         "SERVER_LISTEN",
@@ -15,6 +16,11 @@ pub const SETTINGS: &[(&str, &str)] = &[
     (
         "DATA_MANIFEST",
         "Path of the data manifest. Without it titles, pages and search are off.",
+    ),
+    (
+        "DATA_PUBLIC_KEYS",
+        "Comma separated paths of the PEM keys that sign a data set. Without them no set can be \
+         checked, so titles, pages and search are off.",
     ),
     (
         "INDEX_PATH",
@@ -37,6 +43,39 @@ pub const SETTINGS: &[(&str, &str)] = &[
         "Service token for finders. Without it playback is off.",
     ),
     (
+        "AUTH_ADDRESS",
+        "Address of the auth service. Without it sign in is off.",
+    ),
+    (
+        "AUTH_ADMIN_TOKEN",
+        "Service token for the auth service. Without it sign in is off.",
+    ),
+    (
+        "SITE_ADDRESS",
+        "Public address of this site, used in mail links and the device page. Without it device \
+         sign in is off.",
+    ),
+    (
+        "MAIL_HOOK_SECRET",
+        "Shared secret of the mail hook. Without it mail is off.",
+    ),
+    (
+        "MAIL_ADDRESS",
+        "Address of the mail provider. Without it mail is off.",
+    ),
+    (
+        "MAIL_TOKEN",
+        "Service token of the mail provider. Without it mail is off.",
+    ),
+    (
+        "MAIL_SENDER",
+        "The sender address mail goes out as. Without it mail is off.",
+    ),
+    (
+        "HELP_ADDRESS",
+        "Address of the help pages. Without it help links are left out.",
+    ),
+    (
         "BRAND_NAME",
         "The name shown to viewers. Without it the name is empty.",
     ),
@@ -50,7 +89,8 @@ pub const SETTINGS: &[(&str, &str)] = &[
     ),
     (
         "ACCOUNTS_REQUIRED",
-        "Set to false, with a visitor tier, to let visitors browse.",
+        "Set to false, with a visitor tier, to let visitors browse. Without it accounts stay \
+         required.",
     ),
     (
         "LIVE_SETTINGS",
@@ -146,8 +186,8 @@ impl Config {
             .unwrap_or_default();
         if data_keys.is_empty() {
             note(
-                "data signatures",
-                "DATA_PUBLIC_KEYS is not set, sets are taken unsigned",
+                "titles",
+                "DATA_PUBLIC_KEYS is not set, so no set can be checked and none is served",
             );
         }
         let index_path = value("INDEX_PATH").map(PathBuf::from);
@@ -279,7 +319,52 @@ impl Config {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::BTreeSet;
+
     use super::*;
+
+    /// Every name the loader asks its lookup for, with the lookup answering nothing and then
+    /// answering a value, so a name read only on one branch is still seen.
+    fn names_read() -> BTreeSet<String> {
+        let seen = std::cell::RefCell::new(BTreeSet::new());
+        for answer in [None, Some("x")] {
+            let _ = Config::read(|name| {
+                seen.borrow_mut().insert(name.to_owned());
+                answer.map(str::to_owned)
+            });
+        }
+        seen.into_inner()
+    }
+
+    #[test]
+    fn s213_the_table_lists_every_setting_the_loader_reads_and_no_other() {
+        let read = names_read();
+        let listed: BTreeSet<String> = SETTINGS
+            .iter()
+            .map(|(name, _)| (*name).to_owned())
+            .collect();
+        let missing: Vec<&String> = read.difference(&listed).collect();
+        assert!(
+            missing.is_empty(),
+            "the loader reads settings the table leaves out: {missing:?}"
+        );
+        let unread: Vec<&String> = listed.difference(&read).collect();
+        assert!(
+            unread.is_empty(),
+            "the table lists settings the loader never reads: {unread:?}"
+        );
+        assert_eq!(
+            listed.len(),
+            SETTINGS.len(),
+            "the table names a setting twice"
+        );
+        for (name, what) in SETTINGS {
+            assert!(
+                what.len() > 20 && what.contains("Without"),
+                "{name} does not say what a missing value turns off"
+            );
+        }
+    }
 
     #[test]
     fn s213_a_missing_setting_turns_its_feature_off_and_says_so() {
@@ -303,7 +388,7 @@ mod tests {
     }
 
     #[test]
-    fn k14_only_a_stated_tier_opens_visitors_and_adult_is_never_one() {
+    fn tmk14_only_a_stated_tier_opens_visitors_and_adult_is_never_one() {
         let open = Config::from_pairs(&[("ACCOUNTS_REQUIRED", "false")]);
         assert!(open.accounts_required, "no tier, so accounts stay required");
         let adult = Config::from_pairs(&[("ACCOUNTS_REQUIRED", "false"), ("VISITOR_TIER", "18")]);

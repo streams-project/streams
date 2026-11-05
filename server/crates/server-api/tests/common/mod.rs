@@ -15,7 +15,7 @@ use server_accounts::{
 };
 use server_api::{AppState, Config, Shared};
 use server_catalog::DataSlot;
-use server_catalog::sample::{write_composed_sample, write_sample};
+use server_catalog::sample::{sample_trust, write_composed_sample, write_sample};
 use server_library::{Library, LibraryStore, MemoryLibrary};
 use tower::ServiceExt;
 
@@ -109,7 +109,8 @@ fn make(
     if let Some(auth) = auth {
         door = door.with_auth(auth);
     }
-    let data = manifest.map(|path| Arc::new(DataSlot::open(path).expect("sample set")));
+    let data =
+        manifest.map(|path| Arc::new(DataSlot::open(path, sample_trust()).expect("sample set")));
     let mut settings: Vec<(&str, &str)> = vec![("BUILD_ID", "test-build")];
     settings.extend_from_slice(pairs);
     let books: Arc<dyn LibraryStore> = Arc::new(Arc::new(MemoryLibrary::default()));

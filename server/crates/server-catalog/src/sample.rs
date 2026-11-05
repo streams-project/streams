@@ -9,7 +9,7 @@ use rusqlite::{Connection, params};
 use sha2::{Digest, Sha256};
 
 use crate::catalog::item_key;
-use crate::manifest::{DatasetManifest, FileEntry, SCHEMA_VERSION, role, sha256_file};
+use crate::manifest::{DataTrust, DatasetManifest, FileEntry, SCHEMA_VERSION, role, sha256_file};
 
 /// Width of the sample vectors.
 pub const SAMPLE_DIMS: usize = 16;
@@ -317,6 +317,61 @@ const EVENTS_JSON: &str = r#"{"events":{
   "midwinter":{"label":"Midwinter Feast","season":{"start":"12-20","end":"01-05"},"keywords":["feast"]}
 }}"#;
 
+/// The invented seed the sample signs with. A generated number for tests, like every other value
+/// in this file; no real set is ever signed with it.
+const SAMPLE_SEED: [u8; 32] = [13; 32];
+
+/// The trust a test needs to read the sample. Every sample manifest is signed, so a test goes
+/// through the same signature check a server does.
+#[must_use]
+pub fn sample_trust() -> DataTrust {
+    let signer = ed25519_dalek::SigningKey::from_bytes(&SAMPLE_SEED);
+    DataTrust::from_keys(vec![signer.verifying_key().to_bytes()])
+}
+
+/// The sample's public key in PEM, as an operator holds it for `DATA_PUBLIC_KEYS`.
+#[must_use]
+pub fn sample_key_pem() -> String {
+    use base64::Engine;
+    let signer = ed25519_dalek::SigningKey::from_bytes(&SAMPLE_SEED);
+    let mut der = vec![
+        0x30, 0x2a, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70, 0x03, 0x21, 0x00,
+    ];
+    der.extend_from_slice(&signer.verifying_key().to_bytes());
+    let body = base64::engine::general_purpose::STANDARD.encode(der);
+    format!("-----BEGIN PUBLIC KEY-----\n{body}\n-----END PUBLIC KEY-----\n")
+}
+
+/// Write the sample's public key into `dir` and return its path, for a test that starts the real
+/// binary.
+///
+/// # Panics
+/// The file cannot be written.
+pub fn write_sample_key(dir: &Path) -> PathBuf {
+    let path = dir.join("data_key.pem");
+    std::fs::write(&path, sample_key_pem()).expect("sample key file");
+    path
+}
+
+/// Write `manifest.sig` beside a manifest, over its exact bytes. Call it again after any edit to
+/// the manifest, as the data builder would.
+///
+/// # Panics
+/// The manifest cannot be read or the signature cannot be written.
+pub fn sign_sample(manifest: &Path) {
+    use base64::Engine;
+    use ed25519_dalek::Signer;
+    let signer = ed25519_dalek::SigningKey::from_bytes(&SAMPLE_SEED);
+    let bytes = std::fs::read(manifest).expect("manifest bytes");
+    let text = base64::engine::general_purpose::STANDARD.encode(signer.sign(&bytes).to_bytes());
+    let body = serde_json::json!({
+        "algorithm": "ed25519",
+        "key_id": "sample",
+        "signature": text,
+    });
+    std::fs::write(manifest.with_extension("sig"), body.to_string()).expect("sample signature");
+}
+
 fn entry(dir: &Path, name: &str, required: bool) -> std::io::Result<FileEntry> {
     let path = dir.join(name);
     Ok(FileEntry {
@@ -366,6 +421,7 @@ pub fn write_composed_sample(dir: &Path) -> PathBuf {
         serde_json::to_vec_pretty(&manifest).expect("manifest"),
     )
     .expect("manifest file");
+    sign_sample(&path);
     path
 }
 
@@ -442,5 +498,6 @@ pub fn write_sample(dir: &Path) -> PathBuf {
         serde_json::to_vec_pretty(&manifest).expect("manifest"),
     )
     .expect("manifest file");
+    sign_sample(&path);
     path
 }

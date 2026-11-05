@@ -12,6 +12,7 @@ use tracing::{info, warn};
 
 use crate::catalog::{CatalogMap, load_catalog};
 use crate::centroid::CentroidVault;
+use crate::channels::KidsChannels;
 use crate::cluster::ClusterSeeds;
 use crate::det::HashMap;
 use crate::events::EventStore;
@@ -35,6 +36,8 @@ pub struct DataSet {
     pub catalog: CatalogMap,
     pub vectors: Arc<VectorStore>,
     pub profiles: ProfileStore,
+    /// Channels the set names as children's channels. Empty when the file is absent.
+    pub kids_channels: KidsChannels,
     pub mean: Vec<f32>,
     pub seeds: ClusterSeeds,
     pub vault: CentroidVault,
@@ -97,19 +100,14 @@ pub enum SwapError {
 }
 
 impl DataSet {
-    /// Validate and load one set. Reads files; call on a blocking thread.
+    /// Validate and load one set against the keys this server holds. Reads files; call on a
+    /// blocking thread. No load skips the signature: a trust with no key refuses every set, so an
+    /// unset `DATA_PUBLIC_KEYS` cannot turn the check off.
     ///
     /// # Errors
-    /// The manifest refuses a file, or a required file does not load.
-    pub fn load(manifest_path: &Path) -> Result<Self, SwapError> {
-        Self::load_trusted(manifest_path, &DataTrust::default())
-    }
-
-    /// Validate and load one set against the keys this server holds.
-    ///
-    /// # Errors
-    /// A signature does not fit, a file is refused, or a required file does not load.
-    pub fn load_trusted(manifest_path: &Path, trust: &DataTrust) -> Result<Self, SwapError> {
+    /// No key is held, the signature does not fit, a file is refused, or a required file does not
+    /// load.
+    pub fn load(manifest_path: &Path, trust: &DataTrust) -> Result<Self, SwapError> {
         trust.check(manifest_path)?;
         let (manifest, data_hash) = DatasetManifest::read(manifest_path)?;
         let dir = manifest_path.parent().unwrap_or_else(|| Path::new("."));
@@ -170,6 +168,9 @@ impl DataSet {
                 .get(role::EVENTS)
                 .map_or_else(EventStore::default, EventStore::load),
             play_facts: PlayFacts::load(&files),
+            kids_channels: files
+                .get(role::KIDS_CHANNELS)
+                .map_or_else(KidsChannels::default, KidsChannels::load),
             people: PeopleIndex::load(&db),
             files,
             catalog,
@@ -330,21 +331,13 @@ pub struct DataSlot {
 }
 
 impl DataSlot {
-    /// Load the first set.
-    ///
-    /// # Errors
-    /// The set was refused. With no good set there is nothing to serve.
-    pub fn open(manifest_path: &Path) -> Result<Self, SwapError> {
-        Self::open_trusted(manifest_path, DataTrust::default())
-    }
-
     /// Load the first set against the keys this server holds.
     ///
     /// # Errors
-    /// The set was refused.
-    pub fn open_trusted(manifest_path: &Path, trust: DataTrust) -> Result<Self, SwapError> {
+    /// The set was refused, a key is missing included. With no good set there is nothing to serve.
+    pub fn open(manifest_path: &Path, trust: DataTrust) -> Result<Self, SwapError> {
         Ok(Self {
-            current: ArcSwap::from_pointee(DataSet::load_trusted(manifest_path, &trust)?),
+            current: ArcSwap::from_pointee(DataSet::load(manifest_path, &trust)?),
             manifest_path: manifest_path.to_path_buf(),
             trust,
             swap_lock: Mutex::new(()),
@@ -371,7 +364,7 @@ impl DataSlot {
         if hash == self.load().data_hash {
             return Ok(false);
         }
-        let next = DataSet::load_trusted(&self.manifest_path, &self.trust)?;
+        let next = DataSet::load(&self.manifest_path, &self.trust)?;
         info!("Data set {} in use", next.manifest.dataset_version);
         self.current.store(Arc::new(next));
         Ok(true)

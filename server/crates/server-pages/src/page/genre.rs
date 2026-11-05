@@ -733,3 +733,67 @@ impl<'a> PageContext<'a> {
             .collect()
     }
 }
+
+#[cfg(test)]
+mod probe_tests {
+    use super::*;
+    use server_catalog::sample::{sample_trust, write_sample};
+
+    #[test]
+    fn probe_blend() {
+        let dir = std::env::temp_dir().join(format!("blend_probe_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let manifest = write_sample(&dir);
+        let data = server_catalog::DataSet::load(&manifest, &sample_trust()).expect("sample");
+        let requests = crate::requests::RequestStore::default();
+        let signals = crate::signals::Signals::default();
+        let context = PageContext::new(
+            &data,
+            &requests,
+            PageAsk {
+                surface: "both",
+                genre: None,
+                genre_spec: None,
+                language: None,
+                tier: Tier::Adult,
+                late_night: false,
+                taste: vec![0.0; data.vectors.dims],
+                target_rows: 12,
+                session: "session-a",
+                signals: &signals,
+                now_ms: 1_700_000_100_000,
+            },
+        );
+        // a row of films of one genre, as a seed row would be
+        let films: Vec<&CatalogItem> = data
+            .catalog
+            .values()
+            .filter(|i| i.media_type == "movie" && i.genres.iter().any(|g| g == "Mystery"))
+            .collect();
+        println!("mystery films {}", films.len());
+        let mut row: Vec<RowItem> = films
+            .iter()
+            .take(15)
+            .map(|i| RowItem::from_catalog(i))
+            .collect();
+        let ids: Vec<u32> = row.iter().map(|r| r.id).collect();
+        let vecs: Vec<Vec<f32>> = ids
+            .iter()
+            .filter_map(|id| context.vectors.index_of(*id))
+            .map(|ix| context.vectors.get_f32(ix))
+            .collect();
+        let centroid = server_catalog::vectors::sphere_mean(&vecs, context.vectors.dims);
+        let exclude: HashSet<u32> = ids.iter().copied().collect();
+        let cands = context.other_type_neighbours(&centroid, "tv", &exclude);
+        println!("candidates {}", cands.len());
+        context.blend_other_type(&mut row, &centroid, "tv", cands);
+        let series = row.iter().filter(|r| r.media_type == "tv").count();
+        println!("row {} of which series {}", row.len(), series);
+        println!(
+            "genres {:?}",
+            row.iter()
+                .map(|r| (r.media_type.clone(), r.genres.clone()))
+                .collect::<Vec<_>>()
+        );
+    }
+}

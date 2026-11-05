@@ -1,7 +1,9 @@
 //! The manifest gate on the generated sample.
 
 use server_catalog::manifest::{DatasetManifest, ManifestError, role};
-use server_catalog::sample::{SAMPLE_DIMS, sample_titles, special, write_sample};
+use server_catalog::sample::{
+    SAMPLE_DIMS, sample_titles, sample_trust, sign_sample, special, write_sample,
+};
 use server_catalog::{DataSet, DataSlot, DataTrust, SwapError, item_key};
 
 fn folder(name: &str) -> std::path::PathBuf {
@@ -10,16 +12,19 @@ fn folder(name: &str) -> std::path::PathBuf {
     dir
 }
 
+/// Change the manifest and sign it again, as a data builder writing a new set would. A test that
+/// means to break the signature edits the file itself.
 fn rewrite(path: &std::path::Path, change: impl FnOnce(&mut DatasetManifest)) {
     let (mut manifest, _) = DatasetManifest::read(path).unwrap();
     change(&mut manifest);
     std::fs::write(path, serde_json::to_vec(&manifest).unwrap()).unwrap();
+    sign_sample(path);
 }
 
 #[test]
 fn h63_the_sample_loads_through_its_manifest() {
     let manifest = write_sample(&folder("good"));
-    let set = DataSet::load(&manifest).unwrap();
+    let set = DataSet::load(&manifest, &sample_trust()).unwrap();
     assert_eq!(set.catalog.len(), sample_titles().len());
     assert_eq!(set.dims(), SAMPLE_DIMS);
     assert!(set.dropped.is_empty());
@@ -40,7 +45,7 @@ fn h64_a_wrong_file_swap_is_refused() {
     bytes[0] ^= 1;
     std::fs::write(dir.join("vectors.bin"), bytes).unwrap();
     assert!(matches!(
-        DataSet::load(&manifest),
+        DataSet::load(&manifest, &sample_trust()),
         Err(SwapError::Manifest(ManifestError::WrongHash(_)))
     ));
 }
@@ -57,11 +62,13 @@ fn s219_a_copy_keeps_working_because_hashes_decide_and_not_file_times() {
         "vectors.keys",
         "profiles.jsonl",
         "manifest.json",
+        // a copied set carries its signature, or the copy cannot be checked
+        "manifest.sig",
     ] {
         std::fs::copy(dir.join(name), copy.join(name)).unwrap();
     }
     assert!(manifest.exists());
-    assert!(DataSet::load(&copy.join("manifest.json")).is_ok());
+    assert!(DataSet::load(&copy.join("manifest.json"), &sample_trust()).is_ok());
 }
 
 #[test]
@@ -70,7 +77,7 @@ fn h63_a_row_count_that_does_not_fit_the_vectors_is_refused() {
     let manifest = write_sample(&dir);
     rewrite(&manifest, |m| m.row_count += 1);
     assert!(matches!(
-        DataSet::load(&manifest),
+        DataSet::load(&manifest, &sample_trust()),
         Err(SwapError::Manifest(ManifestError::WrongShape(..)))
     ));
 }
@@ -81,7 +88,7 @@ fn h63_an_unknown_schema_and_a_missing_role_are_refused() {
     let manifest = write_sample(&dir);
     rewrite(&manifest, |m| m.schema_version = 99);
     assert!(matches!(
-        DataSet::load(&manifest),
+        DataSet::load(&manifest, &sample_trust()),
         Err(SwapError::Manifest(ManifestError::Schema(99)))
     ));
     let dir = folder("role");
@@ -90,7 +97,7 @@ fn h63_an_unknown_schema_and_a_missing_role_are_refused() {
         m.files.remove(role::VECTOR_KEYS);
     });
     assert!(matches!(
-        DataSet::load(&manifest),
+        DataSet::load(&manifest, &sample_trust()),
         Err(SwapError::Manifest(ManifestError::MissingRole(_)))
     ));
 }
@@ -100,7 +107,7 @@ fn h69_a_bad_optional_file_is_left_out_and_the_set_loads() {
     let dir = folder("optional");
     let manifest = write_sample(&dir);
     std::fs::write(dir.join("profiles.jsonl"), "changed").unwrap();
-    let set = DataSet::load(&manifest).unwrap();
+    let set = DataSet::load(&manifest, &sample_trust()).unwrap();
     assert_eq!(set.dropped.len(), 1);
     assert!(set.files.get(role::PROFILES).is_none());
     assert!(!set.profiles.has_profiles());
@@ -110,7 +117,7 @@ fn h69_a_bad_optional_file_is_left_out_and_the_set_loads() {
 fn s151_a_refused_reload_keeps_the_last_good_set() {
     let dir = folder("reload");
     let manifest = write_sample(&dir);
-    let slot = DataSlot::open(&manifest).unwrap();
+    let slot = DataSlot::open(&manifest, sample_trust()).unwrap();
     assert!(!slot.reload().unwrap());
     let hash = slot.load().data_hash.clone();
     rewrite(&manifest, |m| m.dataset_version = String::from("sample-2"));
@@ -124,7 +131,7 @@ fn s151_a_refused_reload_keeps_the_last_good_set() {
 fn s142_s138_the_index_opens_only_on_its_own_data_set() {
     let dir = folder("index");
     let manifest = write_sample(&dir);
-    let set = DataSet::load(&manifest).unwrap();
+    let set = DataSet::load(&manifest, &sample_trust()).unwrap();
     let path = dir.join("nearest.index");
     assert!(!set.open_index(&path), "no index yet");
     let row = set.vectors.get_f32(0);
@@ -146,9 +153,9 @@ fn s142_s138_the_index_opens_only_on_its_own_data_set() {
     }
     // Another data set, same files: the stamp names the old manifest hash.
     rewrite(&manifest, |m| m.dataset_version = String::from("sample-2"));
-    let other = DataSet::load(&manifest).unwrap();
+    let other = DataSet::load(&manifest, &sample_trust()).unwrap();
     assert!(!other.open_index(&path));
-    let reopened = DataSet::load(&manifest).unwrap();
+    let reopened = DataSet::load(&manifest, &sample_trust()).unwrap();
     reopened.build_index(&path).unwrap();
     assert!(reopened.open_index(&path));
     // A damaged index file no longer matches its stamp.
@@ -156,7 +163,7 @@ fn s142_s138_the_index_opens_only_on_its_own_data_set() {
     let last = bytes.len() - 1;
     bytes[last] ^= 1;
     std::fs::write(&path, bytes).unwrap();
-    let fresh = DataSet::load(&manifest).unwrap();
+    let fresh = DataSet::load(&manifest, &sample_trust()).unwrap();
     assert!(!fresh.open_index(&path));
 }
 
@@ -173,13 +180,16 @@ fn h70_a_catalogue_with_no_text_index_is_refused_at_load() {
         entry.sha256 = server_catalog::manifest::sha256_file(&db).unwrap();
         entry.bytes = std::fs::metadata(&db).unwrap().len();
     });
-    assert!(matches!(DataSet::load(&manifest), Err(SwapError::Load(_))));
+    assert!(matches!(
+        DataSet::load(&manifest, &sample_trust()),
+        Err(SwapError::Load(_))
+    ));
 }
 
 #[test]
 fn s151_the_sample_reads_its_seeds_events_and_fresh_list() {
     let dir = folder("extras");
-    let set = DataSet::load(&write_sample(&dir)).unwrap();
+    let set = DataSet::load(&write_sample(&dir), &sample_trust()).unwrap();
     assert_eq!(set.seeds.seeds.len(), 12);
     assert!(!set.fresh.items.is_empty());
     assert_eq!(set.events.all().len(), 2);
@@ -196,31 +206,70 @@ fn signed(dir: &std::path::Path, manifest: &std::path::Path, key: &ed25519_dalek
 }
 
 #[test]
-fn c3_a_held_key_refuses_an_unsigned_or_wrongly_signed_set() {
+fn h63_h64_tmc6_a_held_key_refuses_an_unsigned_or_wrongly_signed_set() {
     let dir = folder("signed");
     let manifest = write_sample(&dir);
     let key = ed25519_dalek::SigningKey::from_bytes(&[7; 32]);
     let trust = DataTrust::from_keys(vec![key.verifying_key().to_bytes()]);
+    std::fs::remove_file(dir.join("manifest.sig")).unwrap();
     assert!(matches!(
-        DataSet::load_trusted(&manifest, &trust),
+        DataSet::load(&manifest, &trust),
         Err(SwapError::Manifest(ManifestError::Signature))
     ));
     signed(&dir, &manifest, &key);
-    assert!(DataSet::load_trusted(&manifest, &trust).is_ok());
+    assert!(DataSet::load(&manifest, &trust).is_ok());
     let other = ed25519_dalek::SigningKey::from_bytes(&[8; 32]);
     signed(&dir, &manifest, &other);
-    assert!(DataSet::load_trusted(&manifest, &trust).is_err());
+    assert!(DataSet::load(&manifest, &trust).is_err());
     signed(&dir, &manifest, &key);
     let text = std::fs::read(&manifest).unwrap();
     std::fs::write(&manifest, [text.as_slice(), b" "].concat()).unwrap();
     assert!(
-        DataSet::load_trusted(&manifest, &trust).is_err(),
+        DataSet::load(&manifest, &trust).is_err(),
         "the signature covers the bytes"
     );
 }
 
 #[test]
-fn c3_a_pem_public_key_reads() {
+fn h63_h64_with_no_key_every_set_is_refused_and_the_last_good_one_keeps_serving() {
+    let dir = folder("no_keys");
+    let manifest = write_sample(&dir);
+    // The sample is signed, so only the missing key can refuse it.
+    assert!(dir.join("manifest.sig").exists());
+    assert!(DataSet::load(&manifest, &sample_trust()).is_ok());
+    for empty in [DataTrust::default(), DataTrust::from_keys(Vec::new())] {
+        assert!(
+            matches!(
+                DataSet::load(&manifest, &empty),
+                Err(SwapError::Manifest(ManifestError::NoKeys))
+            ),
+            "a trust with no key must refuse a set, signed or not"
+        );
+    }
+    assert!(matches!(
+        DataSlot::open(&manifest, DataTrust::default()),
+        Err(SwapError::Manifest(ManifestError::NoKeys))
+    ));
+    assert_eq!(
+        DataTrust::from_key_files(&[]),
+        Err(ManifestError::NoKeys),
+        "an unset DATA_PUBLIC_KEYS holds no key"
+    );
+    // A set that loses its signature is refused on reload, and the set in use stays.
+    let slot = DataSlot::open(&manifest, sample_trust()).unwrap();
+    let hash = slot.load().data_hash.clone();
+    rewrite(&manifest, |m| m.dataset_version = String::from("sample-2"));
+    std::fs::remove_file(dir.join("manifest.sig")).unwrap();
+    assert!(matches!(
+        slot.reload(),
+        Err(SwapError::Manifest(ManifestError::Signature))
+    ));
+    assert_eq!(slot.load().data_hash, hash);
+    assert_eq!(slot.load().manifest.dataset_version, "sample-1");
+}
+
+#[test]
+fn h63_h64_tmc6_a_pem_public_key_reads() {
     let key = ed25519_dalek::SigningKey::from_bytes(&[9; 32]);
     use base64::Engine;
     let mut der = vec![
@@ -241,7 +290,7 @@ fn h63_a_key_scheme_or_a_path_outside_the_set_is_refused() {
     let manifest = write_sample(&dir);
     rewrite(&manifest, |m| m.key_scheme = String::from("other"));
     assert!(matches!(
-        DataSet::load(&manifest),
+        DataSet::load(&manifest, &sample_trust()),
         Err(SwapError::Manifest(ManifestError::KeyScheme(_)))
     ));
     let dir = folder("outside");
@@ -250,7 +299,7 @@ fn h63_a_key_scheme_or_a_path_outside_the_set_is_refused() {
         m.files.get_mut(role::FRESH).unwrap().path = String::from("../secret");
     });
     assert!(matches!(
-        DataSet::load(&manifest),
+        DataSet::load(&manifest, &sample_trust()),
         Err(SwapError::Manifest(ManifestError::OutsideSet(_)))
     ));
 }
@@ -258,7 +307,7 @@ fn h63_a_key_scheme_or_a_path_outside_the_set_is_refused() {
 #[test]
 fn h65_a_failing_index_search_is_counted_and_the_exact_scan_answers_with_the_same_ranking() {
     let dir = folder("failing");
-    let set = DataSet::load(&write_sample(&dir)).unwrap();
+    let set = DataSet::load(&write_sample(&dir), &sample_trust()).unwrap();
     set.build_index(&dir.join("nearest.index")).unwrap();
     assert!(set.index_healthy());
     let wrong_width = vec![0.5f32; SAMPLE_DIMS + 1];

@@ -19,24 +19,23 @@ use server_rules::answer::Images;
 use tracing::{info, warn};
 use tracing_subscriber::EnvFilter;
 
+/// The keys every command checks a set with. With `DATA_PUBLIC_KEYS` unset there is no key, so
+/// every set is refused and nothing reads one unsigned.
+fn data_trust(config: &Config) -> Result<DataTrust> {
+    DataTrust::from_key_files(&config.data_keys)
+        .context("DATA_PUBLIC_KEYS names the PEM keys a data set is signed with")
+}
+
 fn open_data(config: &Config) -> Option<Arc<DataSlot>> {
     let manifest = config.data_manifest.as_deref()?;
-    let pems: Result<Vec<String>, _> = config
-        .data_keys
-        .iter()
-        .map(std::fs::read_to_string)
-        .collect();
-    let trust = pems
-        .map_err(|error| error.to_string())
-        .and_then(|pems| DataTrust::from_pem(&pems).map_err(|error| error.to_string()));
-    let trust = match trust {
+    let trust = match data_trust(config) {
         Ok(trust) => trust,
         Err(error) => {
-            warn!("Data signing keys did not read, titles stay off: {error}");
+            warn!("Data signatures cannot be checked, titles stay off: {error:#}");
             return None;
         }
     };
-    match DataSlot::open_trusted(manifest, trust) {
+    match DataSlot::open(manifest, trust) {
         Ok(slot) => Some(Arc::new(slot)),
         Err(error) => {
             warn!("Data set refused, titles stay off: {error}");
@@ -150,7 +149,7 @@ fn check_pages(config: &Config) -> Result<()> {
         .data_manifest
         .as_deref()
         .context("DATA_MANIFEST is not set")?;
-    let slot = DataSlot::open(manifest)?;
+    let slot = DataSlot::open(manifest, data_trust(config)?)?;
     let set = slot.load();
     let pages = Pages::new(Images::new(None));
     let tiers = [
@@ -186,7 +185,7 @@ fn build_index(config: &Config) -> Result<()> {
         .index_path
         .as_deref()
         .context("INDEX_PATH is not set")?;
-    let slot = DataSlot::open(manifest)?;
+    let slot = DataSlot::open(manifest, data_trust(config)?)?;
     let set = slot.load();
     set.build_index(Path::new(path))?;
     info!("Index built");
