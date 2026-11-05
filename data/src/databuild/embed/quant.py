@@ -23,6 +23,11 @@ def quantise(vectors: np.ndarray) -> np.ndarray:
 
 
 def restore(rows: np.ndarray) -> np.ndarray:
-    """Value = q x s as float32, divided by its L2 norm plus 1e-9."""
+    """Value = q x s as float32, divided by its L2 norm plus 1e-9.
+
+    The norm is summed in float64, because a float32 sum can change in its last bit with where the
+    array sits in memory, and a build must give the same bytes each time.
+    """
     x = rows["q"].astype(np.float32) * rows["s"].astype(np.float32)[:, None]
-    return unit(x)
+    norms = np.sqrt(np.einsum("ij,ij->i", x, x, dtype=np.float64))
+    return x / (norms[:, None].astype(np.float32) + 1e-9)

@@ -82,6 +82,9 @@ class Sign:
 @dataclass(frozen=True)
 class Export:
     removed_rows: str = ""
+    awards_file: str = ""
+    marks_file: str = ""
+    reasons_file: str = ""
 
 
 @dataclass(frozen=True)

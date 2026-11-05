@@ -1,11 +1,12 @@
 """Clean stage and the catalogue rule."""
 
+import json
 import sqlite3
 from datetime import date
 
 import pytest
 
-from databuild.clean.catalog import clean, insert_titles, is_anime, open_titles
+from databuild.clean.catalog import clean, insert_titles, is_anime, open_titles, other_names
 from databuild.clean.rule import make_catalog_view, rule_sql
 from databuild.errors import StageFailed
 from databuild.keys import TV_BIT
@@ -17,13 +18,13 @@ from .test_pull import full_transport
 def shown(rows, as_of=date(2026, 11, 5), votes=True):
     db = sqlite3.connect(":memory:")
     db.execute(
-        "CREATE TABLE titles (id INTEGER, media_type TEXT, release_year TEXT, vote_average REAL,"
-        " vote_count INTEGER, adult INTEGER, poster_path TEXT, overview TEXT)"
+        "CREATE TABLE titles (id INTEGER, tmdb_id INTEGER, media_type TEXT, release_year TEXT,"
+        " vote_average REAL, vote_count INTEGER, adult INTEGER, poster_path TEXT, overview TEXT)"
     )
     for i, (kind, year, rating, votes_held) in enumerate(rows):
         db.execute(
-            "INSERT INTO titles VALUES (?,?,?,?,?,0,'/p','" + "x" * 60 + "')",
-            (i, kind, year, rating, votes_held),
+            "INSERT INTO titles VALUES (?,?,?,?,?,?,0,'/p','" + "x" * 60 + "')",
+            (i, i, kind, year, rating, votes_held),
         )
     make_catalog_view(db, as_of, votes)
     return sorted(r[0] for r in db.execute("SELECT id FROM catalog"))
@@ -64,10 +65,10 @@ def test_s133_thresholds(row, kept):
 def test_s133_adult_poster_and_overview_are_refused_first(fields):
     db = sqlite3.connect(":memory:")
     db.execute(
-        "CREATE TABLE titles (id INTEGER, media_type TEXT, release_year TEXT, vote_average REAL,"
-        " vote_count INTEGER, adult INTEGER, poster_path TEXT, overview TEXT)"
+        "CREATE TABLE titles (id INTEGER, tmdb_id INTEGER, media_type TEXT, release_year TEXT,"
+        " vote_average REAL, vote_count INTEGER, adult INTEGER, poster_path TEXT, overview TEXT)"
     )
-    db.execute("INSERT INTO titles VALUES (1,'movie','2026',9.0,5000,?,?,?)", fields)
+    db.execute("INSERT INTO titles VALUES (1,1,'movie','2026',9.0,5000,?,?,?)", fields)
     make_catalog_view(db, date(2026, 11, 5))
     assert db.execute("SELECT count(*) FROM catalog").fetchone() == (0,)
 
@@ -147,3 +148,22 @@ def test_an_empty_titles_file_is_new_each_time(tmp_path):
     db.close()
     db = open_titles(path)
     assert db.execute("SELECT count(*) FROM titles").fetchone() == (0,)
+
+
+def test_the_view_gives_the_public_id_beside_the_packed_key(tmp_path):
+    db = sqlite3.connect(tmp_path / "t.db")
+    db.execute(
+        "CREATE TABLE titles (id INTEGER, tmdb_id INTEGER, media_type TEXT, release_year TEXT,"
+        " vote_average REAL, vote_count INTEGER, adult INTEGER, poster_path TEXT, overview TEXT)"
+    )
+    db.execute(
+        "INSERT INTO titles VALUES (?,12,'tv','2000',9.0,500,0,'/p',?)", (12 | TV_BIT, "x" * 60)
+    )
+    make_catalog_view(db, date(2026, 11, 5))
+    assert db.execute("SELECT id, title_id FROM catalog").fetchall() == [(12 | TV_BIT, 12)]
+
+
+def test_other_names_hold_the_original_and_translated_names_once():
+    translated = json.dumps({"fr-FR": {"title": "Le Port"}, "de-DE": {"title": "Harbour"}})
+    assert json.loads(other_names("Harbour", "Hafen", translated)) == ["Hafen", "Le Port"]
+    assert json.loads(other_names("Harbour", None, "not json")) == []

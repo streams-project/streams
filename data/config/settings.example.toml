@@ -60,6 +60,10 @@ public_key_file = ""
 [export]
 # A JSON list of row names the operator removed. Empty means none.
 removed_rows = ""
+# Files only an operator holds, copied into a set when named. See docs/files.md.
+awards_file = ""
+marks_file = ""
+reasons_file = ""
 
 [contract]
 # The contract's generated/schemas folder. Empty means the copy shipped in this repository.

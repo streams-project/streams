@@ -26,8 +26,8 @@ CREATE TABLE titles (
   original_language TEXT, origin_country TEXT, certs TEXT, keywords TEXT, tv_type TEXT,
   runtime INTEGER, adult INTEGER, status TEXT, imdb_id TEXT, networks TEXT, network_logos TEXT,
   production_companies TEXT, company_logos TEXT, creators TEXT, crew TEXT, videos TEXT,
-  translations TEXT, collection TEXT, seasons INTEGER, episodes INTEGER, source TEXT,
-  fetched_at INTEGER);
+  translations TEXT, other_names TEXT, collection TEXT, seasons INTEGER, episodes INTEGER,
+  source TEXT, fetched_at INTEGER);
 CREATE UNIQUE INDEX idx_titles_key ON titles(media_type, tmdb_id);
 CREATE INDEX idx_titles_popularity ON titles(popularity DESC);
 CREATE TABLE seasons (
@@ -44,7 +44,7 @@ TITLE_COLUMNS = (
     "overview poster_path backdrop_path logo_path vote_average vote_count popularity is_anime "
     "original_language origin_country certs keywords tv_type runtime adult status imdb_id "
     "networks network_logos production_companies company_logos creators crew videos translations "
-    "collection seasons episodes source fetched_at"
+    "other_names collection seasons episodes source fetched_at"
 ).split()
 
 
@@ -62,6 +62,24 @@ def is_anime(genres: str, countries: list[str], language: str | None, keywords: 
         return False
     tagged = any(k.lower() in ("anime", "manga") for k in keywords)
     return "JP" in countries or language == "ja" or tagged
+
+
+def other_names(title: str | None, original: str | None, translations: str | None) -> str:
+    """The original name and translated names that differ from the shown name, for search."""
+    try:
+        held = json.loads(translations) if translations else {}
+    except ValueError:
+        held = {}
+    found = [original or ""]
+    if isinstance(held, dict):
+        found.extend(str(t.get("title") or "") for t in held.values() if isinstance(t, dict))
+    shown = (title or "").casefold()
+    names: list[str] = []
+    for name in found:
+        name = name.strip()
+        if name and name.casefold() != shown and name not in names:
+            names.append(name)
+    return json.dumps(names, ensure_ascii=False)
 
 
 def title_row(pulled: sqlite3.Row) -> dict[str, Any]:
@@ -107,10 +125,13 @@ def title_row(pulled: sqlite3.Row) -> dict[str, Any]:
         "crew": pulled["crew"],
         "videos": pulled["videos"],
         "translations": pulled["translations"],
+        "other_names": other_names(
+            pulled["title"], pulled["original_title"], pulled["translations"]
+        ),
         "collection": pulled["collection"],
         "seasons": pulled["seasons"],
         "episodes": pulled["episodes"],
-        "source": "tmdb",
+        "source": pulled["source"] or "tmdb",
         "fetched_at": pulled["fetched_at"],
     }
 

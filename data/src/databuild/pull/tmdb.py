@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS titles (
   certs TEXT, origin_country TEXT, production_companies TEXT, company_logos TEXT, networks TEXT,
   network_logos TEXT, spoken_languages TEXT, collection TEXT, tv_type TEXT, seasons INTEGER,
   episodes INTEGER, status TEXT, adult INTEGER, imdb_id TEXT, videos TEXT, translations TEXT,
-  fetched_at INTEGER, PRIMARY KEY (media_type, id));
+  source TEXT, fetched_at INTEGER, PRIMARY KEY (media_type, id));
 CREATE TABLE IF NOT EXISTS seasons (
   id INTEGER, season_number INTEGER, name TEXT, overview TEXT, air_date TEXT, poster_path TEXT,
   episode_count INTEGER, PRIMARY KEY (id, season_number));
@@ -62,7 +62,7 @@ COLUMNS = (
     "genres vote_average vote_count popularity poster_path backdrop_path logo_path directors "
     "creators cast_members crew keywords certs origin_country production_companies company_logos "
     "networks network_logos spoken_languages collection tv_type seasons episodes status adult "
-    "imdb_id videos translations fetched_at"
+    "imdb_id videos translations source fetched_at"
 ).split()
 
 
@@ -197,6 +197,7 @@ def parse_title(
         imdb_id=doc.get("imdb_id") or (doc.get("external_ids") or {}).get("imdb_id"),
         videos=_j(_videos(doc)),
         translations=_j(_translations(doc, languages)),
+        source="tmdb",
         fetched_at=at,
     )
     return row

@@ -1,4 +1,7 @@
-"""What the catalogue may show (S133). The date arrives as input, so a built view never moves."""
+"""What the catalogue may show (S133). The date arrives as input, so a built view never moves.
+
+The view adds `title_id`, the public id. The packed `id` stays the internal key.
+"""
 
 from __future__ import annotations
 
@@ -30,5 +33,6 @@ def rule_sql(as_of: date, votes: bool = True) -> str:
 def make_catalog_view(db: sqlite3.Connection, as_of: date, votes: bool = True) -> None:
     """(Re)creates the view `catalog`, the only titles the server may show."""
     db.execute("DROP VIEW IF EXISTS catalog")
-    db.execute(f"CREATE VIEW catalog AS SELECT * FROM titles WHERE {rule_sql(as_of, votes)}")
+    where = rule_sql(as_of, votes)
+    db.execute(f"CREATE VIEW catalog AS SELECT *, tmdb_id AS title_id FROM titles WHERE {where}")
     db.commit()
