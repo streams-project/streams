@@ -1316,7 +1316,7 @@ export interface TitleDetail {
 }
 
 /** movie:<id> or tv:<id>. A bare id does not parse. */
-export type TitleKey = string;
+export type TitleKey = `movie:${number}` | `tv:${number}`;
 
 /** The two kinds of title. Closed on purpose: a new kind reaches old clients only through a dated transform, so a key always names a kind this build can open. */
 export type TitleKind = "movie" | "tv" | (string & {});
@@ -1346,4 +1346,4 @@ export interface View {
 export type WindowKind = "recap" | "intro" | "credits" | "age_card" | "cue" | (string & {});
 
 /** A wire date, YYYY-MM-DD. */
-export type WireDate = string;
+export type WireDate = `${number}-${number}-${number}`;

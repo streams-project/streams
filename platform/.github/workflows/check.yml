@@ -15,3 +15,7 @@ jobs:
       - run: cargo build --locked -p core -p contract -p offline --target wasm32v1-none
       - run: python3 tools/ledger.py check
       - run: python3 tools/test_ledger.py
+      - run: cargo run --locked -p contract-gen -- write
+      - run: git diff --exit-code -- contract/generated
+      - run: test -z "$(git status --porcelain -- contract/generated)"
+      - run: python3 tools/test_fake_server.py

@@ -350,3 +350,14 @@ fn the_three_type_files_name_every_definition() {
         }
     }
 }
+
+#[test]
+fn h57_h91_a_bare_id_is_refused_in_the_three_client_languages() {
+    let all = files();
+    assert!(all["types/contract.ts"].contains("`movie:${number}` | `tv:${number}`"));
+    assert!(all["types/Contract.kt"].contains("value class TitleKey(val value: String)"));
+    assert!(all["types/Contract.kt"].contains("^(movie|tv):[1-9][0-9]{0,9}\\$"));
+    assert!(all["types/Contract.swift"].contains("ContractError.refused(\"TitleKey\")"));
+    assert!(!all["types/Contract.swift"].contains("typealias TitleKey"));
+    assert!(!all["types/Contract.kt"].contains("typealias TitleKey"));
+}

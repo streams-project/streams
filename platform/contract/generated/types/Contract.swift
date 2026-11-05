@@ -5,6 +5,9 @@ import Foundation
 public let wireVersion = "2026-11-05"
 public let abiVersion = 1
 
+/// A value the contract refuses, named by its type.
+public enum ContractError: Error { case refused(String) }
+
 public struct Account: Codable, Equatable, Sendable {
     public var email: String
     public var firstName: String
@@ -4057,7 +4060,25 @@ public struct TitleDetail: Codable, Equatable, Sendable {
 }
 
 /// movie:<id> or tv:<id>. A bare id does not parse.
-public typealias TitleKey = String
+public struct TitleKey: Codable, Hashable, Sendable {
+    public let rawValue: String
+
+    public init(_ rawValue: String) throws {
+        guard rawValue.range(of: "^(movie|tv):[1-9][0-9]{0,9}$", options: .regularExpression) != nil else {
+            throw ContractError.refused("TitleKey")
+        }
+        self.rawValue = rawValue
+    }
+
+    public init(from decoder: Decoder) throws {
+        try self.init(try decoder.singleValueContainer().decode(String.self))
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var single = encoder.singleValueContainer()
+        try single.encode(rawValue)
+    }
+}
 
 /// The two kinds of title. Closed on purpose: a new kind reaches old clients only through a dated transform, so a key always names a kind this build can open.
 public struct TitleKind: RawRepresentable, Codable, Hashable, Sendable {
@@ -4136,4 +4157,22 @@ public struct WindowKind: RawRepresentable, Codable, Hashable, Sendable {
 }
 
 /// A wire date, YYYY-MM-DD.
-public typealias WireDate = String
+public struct WireDate: Codable, Hashable, Sendable {
+    public let rawValue: String
+
+    public init(_ rawValue: String) throws {
+        guard rawValue.range(of: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", options: .regularExpression) != nil else {
+            throw ContractError.refused("WireDate")
+        }
+        self.rawValue = rawValue
+    }
+
+    public init(from decoder: Decoder) throws {
+        try self.init(try decoder.singleValueContainer().decode(String.self))
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var single = encoder.singleValueContainer()
+        try single.encode(rawValue)
+    }
+}

@@ -49,6 +49,8 @@ pub enum Shape {
         common: Vec<Field>,
         variants: Vec<Variant>,
     },
+    /// Text that must match a pattern, so a bad value fails to parse in every language.
+    Checked(String),
     /// Another name for a type.
     Alias(Ty),
 }
@@ -167,6 +169,9 @@ fn shape(name: &str, schema: &Value) -> Shape {
         && schema.get("additionalProperties").is_none()
     {
         return Shape::Struct(Vec::new());
+    }
+    if let Some(pattern) = schema.get("pattern").and_then(Value::as_str) {
+        return Shape::Checked(pattern.to_string());
     }
     Shape::Alias(ty(schema))
 }

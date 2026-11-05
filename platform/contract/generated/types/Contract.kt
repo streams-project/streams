@@ -1979,7 +1979,13 @@ data class TitleDetail(
 )
 
 /** movie:<id> or tv:<id>. A bare id does not parse. */
-typealias TitleKey = String
+@Serializable
+@JvmInline
+value class TitleKey(val value: String) {
+    init {
+        require(Regex("^(movie|tv):[1-9][0-9]{0,9}\$").matches(value)) { "not a TitleKey" }
+    }
+}
 
 /** The two kinds of title. Closed on purpose: a new kind reaches old clients only through a dated transform, so a key always names a kind this build can open. */
 @Serializable
@@ -2029,4 +2035,10 @@ value class WindowKind(val value: String) {
 }
 
 /** A wire date, YYYY-MM-DD. */
-typealias WireDate = String
+@Serializable
+@JvmInline
+value class WireDate(val value: String) {
+    init {
+        require(Regex("^[0-9]{4}-[0-9]{2}-[0-9]{2}\$").matches(value)) { "not a WireDate" }
+    }
+}

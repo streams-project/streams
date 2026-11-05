@@ -103,6 +103,16 @@ fn words(out: &mut String, type_name: &str, list: &[String]) {
     out.push_str("    }\n}\n");
 }
 
+fn checked(out: &mut String, type_name: &str, pattern: &str) {
+    let escaped = pattern.replace('\\', "\\\\").replace('$', "\\$");
+    let _ = writeln!(out, "@Serializable\n@JvmInline");
+    let _ = writeln!(out, "value class {type_name}(val value: String) {{");
+    let _ = writeln!(
+        out,
+        "    init {{\n        require(Regex(\"{escaped}\").matches(value)) {{ \"not a {type_name}\" }}\n    }}\n}}"
+    );
+}
+
 fn union(
     out: &mut String,
     item: &Item,
@@ -242,6 +252,7 @@ pub fn write(items: &[Item]) -> String {
                     item.name
                 );
             }
+            Shape::Checked(pattern) => checked(&mut out, &item.name, pattern),
             Shape::Alias(inner) => {
                 let _ = writeln!(out, "typealias {} = {}", item.name, ty(inner));
             }

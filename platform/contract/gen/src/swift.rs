@@ -130,6 +130,30 @@ fn words(out: &mut String, type_name: &str, list: &[String]) {
     out.push_str("}\n");
 }
 
+fn checked(out: &mut String, type_name: &str, pattern: &str) {
+    let _ = writeln!(
+        out,
+        "public struct {type_name}: Codable, Hashable, Sendable {{"
+    );
+    out.push_str("    public let rawValue: String\n\n");
+    out.push_str("    public init(_ rawValue: String) throws {\n");
+    let _ = writeln!(
+        out,
+        "        guard rawValue.range(of: \"{pattern}\", options: .regularExpression) != nil else {{"
+    );
+    let _ = writeln!(
+        out,
+        "            throw ContractError.refused(\"{type_name}\")"
+    );
+    out.push_str("        }\n        self.rawValue = rawValue\n    }\n\n");
+    out.push_str("    public init(from decoder: Decoder) throws {\n");
+    out.push_str("        try self.init(try decoder.singleValueContainer().decode(String.self))\n");
+    out.push_str("    }\n\n");
+    out.push_str("    public func encode(to encoder: Encoder) throws {\n");
+    out.push_str("        var single = encoder.singleValueContainer()\n");
+    out.push_str("        try single.encode(rawValue)\n    }\n}\n");
+}
+
 fn union(out: &mut String, item: &Item, tag: &str, variants: &[crate::shape::Variant]) {
     let enum_name = union_name(item);
     for variant in variants {
@@ -283,6 +307,8 @@ pub fn write(items: &[Item]) -> String {
     out.push_str("import Foundation\n\n");
     let _ = writeln!(out, "public let wireVersion = \"{WIRE_VERSION}\"");
     let _ = writeln!(out, "public let abiVersion = {ABI_VERSION}");
+    out.push_str("\n/// A value the contract refuses, named by its type.\n");
+    out.push_str("public enum ContractError: Error { case refused(String) }\n");
     for item in items {
         out.push('\n');
         comment(&mut out, "", item.doc.as_ref());
@@ -296,6 +322,7 @@ pub fn write(items: &[Item]) -> String {
                     item.name
                 );
             }
+            Shape::Checked(pattern) => checked(&mut out, &item.name, pattern),
             Shape::Alias(inner) => {
                 let _ = writeln!(out, "public typealias {} = {}", item.name, ty(inner));
             }

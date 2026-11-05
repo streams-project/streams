@@ -6,19 +6,25 @@ use contract::version::{ABI_VERSION, WIRE_VERSION};
 
 use crate::shape::{Field, Item, Shape, Ty};
 
+/// Checked text as a template type, so a bare id is a compile error. Patterns have no other
+/// form here, and a checked name with no template stays plain text.
+fn template(name: &str) -> &'static str {
+    match name {
+        "TitleKey" => "`movie:${number}` | `tv:${number}`",
+        "WireDate" => "`${number}-${number}-${number}`",
+        _ => "string",
+    }
+}
+
 fn ty(ty: &Ty) -> String {
     match ty {
         Ty::Text => "string".into(),
         Ty::Int => "number".into(),
         Ty::Bool => "boolean".into(),
-        Ty::List(inner) => format!("{}[]", wrap(inner)),
+        Ty::List(inner) => format!("{}[]", self::ty(inner)),
         Ty::Map(inner) => format!("Record<string, {}>", self::ty(inner)),
         Ty::Named(name) => name.clone(),
     }
-}
-
-fn wrap(inner: &Ty) -> String {
-    self::ty(inner)
 }
 
 fn comment(out: &mut String, indent: &str, doc: Option<&String>) {
@@ -61,6 +67,9 @@ pub fn write(items: &[Item]) -> String {
             }
             Shape::Fixed(word) => {
                 let _ = writeln!(out, "export type {} = \"{word}\";", item.name);
+            }
+            Shape::Checked(_) => {
+                let _ = writeln!(out, "export type {} = {};", item.name, template(&item.name));
             }
             Shape::Alias(inner) => {
                 let _ = writeln!(out, "export type {} = {};", item.name, ty(inner));
