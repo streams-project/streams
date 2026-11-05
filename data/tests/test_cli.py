@@ -8,7 +8,7 @@ import pytest
 from databuild import cli
 
 
-def test_c13_a_scan_of_a_clean_folder_passes(tmp_path, capsys):
+def test_a_scan_of_a_clean_folder_passes(tmp_path, capsys):
     (tmp_path / "a.txt").write_text("plain words\n")
     assert cli.main(["scan", str(tmp_path)]) == 0
     assert "0 findings" in capsys.readouterr().out

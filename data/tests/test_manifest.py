@@ -301,7 +301,7 @@ def test_an_old_signature_does_not_stay_beside_an_unsigned_manifest(signed):
     assert not (signed.out / "manifest.sig").exists()
 
 
-def test_c3_keygen_never_overwrites_and_the_private_file_is_owner_only(tmp_path):
+def test_keygen_never_overwrites_and_the_private_file_is_owner_only(tmp_path):
     private, public = tmp_path / "k", tmp_path / "p"
     made = write_keypair(private, public)
     assert private.stat().st_mode & 0o777 == 0o600
