@@ -25,7 +25,7 @@ KEY = "not-a-real-key-value"
 
 @dataclass
 class FakeTransport:
-    """`routes` maps a path to a reply, a list of replies used in turn, or a function of the request."""
+    """`routes` maps a path to a reply, a list used in turn, or a function of the request."""
 
     routes: dict[str, Any] = field(default_factory=dict)
     calls: list[Request] = field(default_factory=list)

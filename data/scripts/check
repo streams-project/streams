@@ -1,0 +1,9 @@
+#!/bin/sh
+# What must pass before each commit.
+set -eu
+cd "$(dirname "$0")/.."
+uv run --locked ruff format --check src tests
+uv run --locked ruff check src tests
+uv run --locked --extra full pytest
+uv run --locked databuild scan .
+uvx --from reuse==6.3.0 reuse lint
