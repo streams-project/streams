@@ -7,6 +7,13 @@ publish.workspace = true
 
 [lib]
 path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["layer"]
+# Leave this out on a device with no storage. The core works alone.
+layer = ["dep:offline"]
 
 [dependencies]
 core-rules = { path = "../../core", package = "core" }
+offline = { path = "../../offline", optional = true }

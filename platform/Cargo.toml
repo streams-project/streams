@@ -18,3 +18,8 @@ lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
+
+# Native libraries: release, except that a panic unwinds, so the C bridge can stop it at the boundary.
+[profile.native]
+inherits = "release"
+panic = "unwind"
