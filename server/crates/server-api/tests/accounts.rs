@@ -64,7 +64,7 @@ async fn s58_c70_a_short_password_or_bad_address_stops_sign_up() {
 }
 
 #[tokio::test]
-async fn t13_an_unknown_address_and_a_wrong_password_answer_alike() {
+async fn tmt13_an_unknown_address_and_a_wrong_password_answer_alike() {
     let server = harness_with_auth(&[]);
     new_account(&server, "ada@example.test").await;
     let wrong = post("/v1/auth/password")
@@ -79,7 +79,7 @@ async fn t13_an_unknown_address_and_a_wrong_password_answer_alike() {
 }
 
 #[tokio::test]
-async fn t13_a_code_and_a_recovery_answer_the_same_for_any_address() {
+async fn tmt13_a_code_and_a_recovery_answer_the_same_for_any_address() {
     let server = harness_with_auth(&[]);
     new_account(&server, "ada@example.test").await;
     for path in ["/v1/auth/code", "/v1/auth/recovery/start"] {
@@ -111,7 +111,7 @@ async fn s58_a_code_signs_in() {
 }
 
 #[tokio::test]
-async fn t7_password_tries_hit_429_on_the_account_and_the_address() {
+async fn tmt7_password_tries_hit_429_on_the_account_and_the_address() {
     let server = harness_with_auth(&[]);
     let body = json!({ "email": "ada@example.test", "password": "wrong-password" });
     for _ in 0..10 {
@@ -146,7 +146,7 @@ async fn s42_a_refresh_gives_a_working_token_and_never_renews_a_step_up() {
 }
 
 #[tokio::test]
-async fn t10_a_refused_refresh_ends_the_session_by_name() {
+async fn tmt10_a_refused_refresh_ends_the_session_by_name() {
     let server = harness_with_auth(&[]);
     let answer = post("/v1/auth/refresh")
         .json(json!({ "refresh_token": "made-up.token" }))
@@ -157,7 +157,7 @@ async fn t10_a_refused_refresh_ends_the_session_by_name() {
 }
 
 #[tokio::test]
-async fn s42_t12_export_and_delete_need_a_fresh_step_up_and_confirm_gives_it() {
+async fn s42_tmt12_export_and_delete_need_a_fresh_step_up_and_confirm_gives_it() {
     let server = harness_with_auth(&[]);
     let signed = new_account(&server, "ada@example.test").await;
     let token = signed.access_token.as_str();
@@ -285,7 +285,7 @@ async fn s59_changes_of_password_email_and_phone_need_a_step_up_and_check_shape(
 }
 
 #[tokio::test]
-async fn t11_device_sign_in_runs_through_approval_and_carries_no_step_up() {
+async fn tmt11_device_sign_in_runs_through_approval_and_carries_no_step_up() {
     let server = harness_with_auth(&[("SITE_ADDRESS", "https://site.host.example")]);
     let signed = new_account(&server, "ada@example.test").await;
     let started = post("/v1/auth/device/code")
@@ -332,7 +332,7 @@ async fn t11_device_sign_in_runs_through_approval_and_carries_no_step_up() {
 }
 
 #[tokio::test]
-async fn t11_a_denied_or_lapsed_device_code_ends() {
+async fn tmt11_a_denied_or_lapsed_device_code_ends() {
     let server = harness_with_auth(&[("SITE_ADDRESS", "https://site.host.example")]);
     let signed = new_account(&server, "ada@example.test").await;
     let start = || post("/v1/auth/device/code").json(json!({ "device_name": "tv" }));
@@ -383,7 +383,7 @@ async fn s162_an_odd_token_counts_as_no_token() {
 }
 
 #[tokio::test]
-async fn t10_an_auth_outage_answers_503_and_keeps_tokens() {
+async fn tmt10_an_auth_outage_answers_503_and_keeps_tokens() {
     let auth = Arc::new(MemoryAuth::default());
     let server = common::harness_on(&[], auth.clone());
     new_account(&server, "ada@example.test").await;
@@ -400,28 +400,112 @@ async fn t10_an_auth_outage_answers_503_and_keeps_tokens() {
 #[tokio::test]
 async fn h51_h87_h22_an_edit_on_a_stale_device_changes_one_profile_and_deletes_none() {
     let server = harness_with_auth(&[]);
-    let signed = new_account(&server, "ada@example.test").await;
-    let token = signed.access_token.as_str();
-    let made = post("/v1/profiles")
-        .token(token)
-        .json(json!({ "name": "New One" }))
+    // Two devices on one account: the device that signed up, and a second that signs in after it.
+    let one = new_account(&server, "ada@example.test").await.access_token;
+    let two = signed_in(
+        post("/v1/auth/password")
+            .header("client-app", "phone")
+            .json(json!({ "email": "ada@example.test", "password": "long-enough" }))
+            .on(&server.state)
+            .await,
+    )
+    .access_token;
+    let devices = get("/v1/devices").token(&two).on(&server.state).await;
+    assert_eq!(
+        devices.body["devices"].as_array().unwrap().len(),
+        2,
+        "this test needs two sessions to have two devices"
+    );
+
+    // The second device reads the list and keeps this copy. Every change after it goes unseen.
+    let held = get("/v1/profiles").token(&two).on(&server.state).await;
+    let stale = held.body["profiles"].as_array().unwrap();
+    assert_eq!(stale.len(), 2, "sign up makes a main and a Kids profile");
+    let id_of = |rows: &[serde_json::Value], flag: &str| -> String {
+        rows.iter().find(|row| row[flag] == true).expect("profile")["id"]
+            .as_str()
+            .unwrap()
+            .to_owned()
+    };
+    let main = id_of(stale, "main");
+    let kids = id_of(stale, "kids");
+
+    // The first device renames the main profile and adds one the second device never sees.
+    let renamed = call(Method::PATCH, &format!("/v1/profiles/{main}"))
+        .token(&one)
+        .json(json!({ "name": "Ada Two" }))
         .on(&server.state)
         .await;
-    assert_eq!(made.status, StatusCode::OK, "{}", made.body);
-    let list = get("/v1/profiles").token(token).on(&server.state).await;
-    let first = list.body["profiles"][0]["id"].as_str().unwrap();
-    let edit = call(Method::PATCH, &format!("/v1/profiles/{first}"))
-        .token(token)
-        .json(json!({ "name": "Renamed" }))
+    assert_eq!(renamed.status, StatusCode::OK, "{}", renamed.body);
+    let added = post("/v1/profiles")
+        .token(&one)
+        .json(json!({ "name": "Grace" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(added.status, StatusCode::OK, "{}", added.body);
+    let grace = added.body["id"].as_str().unwrap().to_owned();
+
+    // The stale device sends its edit: one id, one field, and nothing of what it still holds.
+    let edit = call(Method::PATCH, &format!("/v1/profiles/{kids}"))
+        .token(&two)
+        .json(json!({ "avatar": "bear" }))
         .on(&server.state)
         .await;
     assert_eq!(edit.status, StatusCode::OK, "{}", edit.body);
-    let after = get("/v1/profiles").token(token).on(&server.state).await;
+
+    // One profile changed. The stale copy neither undid the rename nor dropped what it never saw.
+    let after = get("/v1/profiles").token(&one).on(&server.state).await;
+    let rows = after.body["profiles"].as_array().unwrap();
     assert_eq!(
-        after.body["profiles"].as_array().unwrap().len(),
+        rows.len(),
         3,
-        "no route deletes by a list"
+        "the profile the stale device never saw is still here"
     );
+    let row = |id: &str| {
+        rows.iter()
+            .find(|row| row["id"].as_str() == Some(id))
+            .expect("profile")
+    };
+    assert_eq!(row(&kids)["avatar"], "bear", "the field it sent, applied");
+    assert_eq!(row(&kids)["name"], "Kids", "no other field of it moved");
+    assert_eq!(
+        row(&main)["name"],
+        "Ada Two",
+        "the stale device did not undo the rename"
+    );
+    assert_eq!(row(&grace)["name"], "Grace");
+
+    // No route takes a list, so a stale copy can never be sent as the whole truth.
+    let snapshot = call(Method::PUT, "/v1/profiles")
+        .token(&two)
+        .json(json!({ "profiles": stale }))
+        .on(&server.state)
+        .await;
+    assert_eq!(
+        snapshot.status,
+        StatusCode::METHOD_NOT_ALLOWED,
+        "a list write would let a stale device delete by leaving a profile out"
+    );
+
+    // A delete names one id. The stale device's delete of a gone profile removes nothing else.
+    let gone = call(Method::DELETE, &format!("/v1/profiles/{grace}"))
+        .token(&one)
+        .on(&server.state)
+        .await;
+    assert_eq!(gone.status, StatusCode::OK, "{}", gone.body);
+    let again = call(Method::DELETE, &format!("/v1/profiles/{grace}"))
+        .token(&two)
+        .on(&server.state)
+        .await;
+    assert_eq!(again.status, StatusCode::NOT_FOUND, "{}", again.body);
+    let last = get("/v1/profiles").token(&one).on(&server.state).await;
+    let names: Vec<&str> = last.body["profiles"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|row| row["name"].as_str().unwrap())
+        .collect();
+    assert_eq!(names, ["Ada Two", "Kids"]);
 }
 
 #[tokio::test]
@@ -467,7 +551,7 @@ async fn h59_s40_the_main_profile_moves_on_the_account_with_a_step_up() {
 }
 
 #[tokio::test]
-async fn t12_p8_a_transfer_needs_a_step_up_and_leaves_the_pin_behind() {
+async fn tmt12_tmp8_a_transfer_needs_a_step_up_and_leaves_the_pin_behind() {
     let server = harness_with_auth(&[]);
     let first = new_account(&server, "ada@example.test").await;
     let second = new_account(&server, "grace@example.test").await;
