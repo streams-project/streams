@@ -11,7 +11,7 @@ client or a fake server is in this folder.
 - `gen/`: the generator, which is the crate `contract-gen`.
 - `generated/openapi.json`: OpenAPI 3.1. It names no server address, because the operator holds it.
 - `generated/schemas/`: one JSON Schema file per type, each standing alone.
-- `generated/types/`: TypeScript, Kotlin and Swift types. BrightScript and C read plain JSON.
+- `generated/types/`: TypeScript, Kotlin and Swift types. Other languages read plain JSON.
 - `fixtures/<date>/`: plain JSON, never deleted.
 - `ledger.csv`: every behaviour and defect with its status.
 

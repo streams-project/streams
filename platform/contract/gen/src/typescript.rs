@@ -1,4 +1,4 @@
-//! TypeScript types, also read by ArkTS.
+//! TypeScript types.
 
 use std::fmt::Write;
 
