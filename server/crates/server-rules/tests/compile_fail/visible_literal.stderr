@@ -1,0 +1,5 @@
+error[E0451]: field `item` of struct `Visible` is private
+ --> tests/compile_fail/visible_literal.rs:5:15
+  |
+5 |     Visible { item }
+  |               ^^^^ private field
