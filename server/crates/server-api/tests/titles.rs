@@ -1,4 +1,5 @@
 //! Title routes through the real router, on the sample set read through its manifest.
+#![allow(clippy::disallowed_types)] // a test reads answers as a client does
 
 mod common;
 

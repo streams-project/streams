@@ -120,3 +120,25 @@ fn h26_only_the_binary_reads_the_process_environment() {
         }
     }
 }
+
+#[test]
+fn a_project_that_takes_only_accounts_gets_no_video_word() {
+    let folder = Path::new(env!("CARGO_MANIFEST_DIR")).join("../server-accounts/src");
+    let words = ["movie", "episode", "season", "trailer", "catalog"];
+    let mut stack = vec![folder];
+    while let Some(folder) = stack.pop() {
+        for entry in std::fs::read_dir(folder).expect("folder") {
+            let path = entry.expect("entry").path();
+            if path.is_dir() {
+                stack.push(path);
+            } else if path.extension().is_some_and(|ext| ext == "rs") {
+                let text = std::fs::read_to_string(&path)
+                    .expect("source")
+                    .to_lowercase();
+                for word in words {
+                    assert!(!text.contains(word), "{} holds {word}", path.display());
+                }
+            }
+        }
+    }
+}

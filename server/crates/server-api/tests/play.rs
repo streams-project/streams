@@ -1,4 +1,5 @@
 //! The play gate through the real router, with a scripted finder.
+#![allow(clippy::disallowed_types)] // a test reads answers as a client does
 
 mod common;
 
