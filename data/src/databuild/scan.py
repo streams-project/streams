@@ -63,7 +63,9 @@ _SECRETS = (
     re.compile(r"\b[0-9a-f]{32}\b"),
 )
 
-ALLOWED_ADDRESS_HOSTS = frozenset({"json-schema.org", "www.apache.org", "reuse.software"})
+ALLOWED_ADDRESS_HOSTS = frozenset(
+    {"127.0.0.1", "json-schema.org", "www.apache.org", "reuse.software"}
+)
 SKIP_DIRS = frozenset(
     {".git", ".venv", "__pycache__", ".pytest_cache", ".ruff_cache", "build", "LICENSES"}
 )

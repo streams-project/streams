@@ -1,6 +1,8 @@
 """Keys, settings and the transport rules."""
 
 import json
+import tomllib
+from dataclasses import fields
 from pathlib import Path
 
 import pytest
@@ -99,3 +101,15 @@ def test_a_network_error_text_holds_no_address_and_no_query():
         UrlTransport().fetch(request)
     assert "sensitive" not in str(caught.value)
     assert "127.0.0.1" not in str(caught.value)
+
+
+def test_the_example_file_lists_every_setting_with_no_address_and_no_key():
+    example = Path(__file__).resolve().parents[1] / "config" / "settings.example.toml"
+    loaded = S.load(example)
+    assert loaded.tmdb.api_base == ""
+    assert loaded.open.wikidata_endpoint == ""
+    assert loaded.sign.key_file == ""
+    raw = tomllib.loads(example.read_text())
+    assert set(raw) == set(S.SECTIONS)
+    for section, cls in S.SECTIONS.items():
+        assert set(raw[section]) == {f.name for f in fields(cls)}, section

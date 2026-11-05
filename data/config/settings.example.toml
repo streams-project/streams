@@ -1,0 +1,72 @@
+# Every setting the builder reads. Copy to databuild.toml, which git ignores.
+# An empty value turns its feature off, and the stage that needs it says which setting is missing.
+# Nothing here is a default address or a key. Key settings hold a path to a file, never the key.
+
+[paths]
+work = "build/work"
+out = "build/out"
+
+[tmdb]
+api_base = ""
+exports_base = ""
+key_file = ""
+languages = ["en-US"]
+min_popularity = 2.0
+rps = 30.0
+workers = 24
+refresh_days = 180
+
+[embed]
+# hashing needs no model and proves function only. Others: local-model, http.
+backend = "hashing"
+model = ""
+dimensions = 1024
+endpoint = ""
+key_file = ""
+device = ""
+batch_size = 128
+max_length = 384
+
+[group]
+# auto, leiden or kmeans. Leiden needs the full extra.
+method = "auto"
+seed = 7
+
+[name]
+# A text model is optional. With no endpoint, names come from the data.
+endpoint = ""
+model = ""
+key_file = ""
+
+[reviews]
+# Review vectors are a private input. With none, the vibe layer and mood pointers stay empty.
+vectors = ""
+keys = ""
+
+[open]
+# The open sample. wikidata_endpoint, tvmaze_api_base and user_agent are all needed to pull it.
+wikidata_endpoint = ""
+tvmaze_api_base = ""
+tvmaze_rps = 1.9
+user_agent = ""
+titles = 1000
+min_links = 2
+
+[sign]
+# Ed25519 keys in PEM files. `databuild keygen` makes a pair.
+key_file = ""
+public_key_file = ""
+
+[export]
+# A JSON list of row names the operator removed. Empty means none.
+removed_rows = ""
+
+[contract]
+# The contract's generated/schemas folder. Empty means the copy shipped in this repository.
+schema_dir = ""
+
+[age]
+# Limits for `databuild age`. A set older than these ends the job with a failure.
+set_days = 200
+popularity_hours = 36
+fresh_hours = 12

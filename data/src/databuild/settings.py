@@ -68,12 +68,32 @@ class Open:
     wikidata_endpoint: str = ""
     tvmaze_api_base: str = ""
     tvmaze_rps: float = 1.9
+    user_agent: str = ""
+    titles: int = 1000
+    min_links: int = 2
 
 
 @dataclass(frozen=True)
 class Sign:
     key_file: str = ""
     public_key_file: str = ""
+
+
+@dataclass(frozen=True)
+class Export:
+    removed_rows: str = ""
+
+
+@dataclass(frozen=True)
+class Contract:
+    schema_dir: str = ""
+
+
+@dataclass(frozen=True)
+class Age:
+    set_days: int = 200
+    popularity_hours: int = 36
+    fresh_hours: int = 12
 
 
 @dataclass(frozen=True)
@@ -86,6 +106,24 @@ class Settings:
     reviews: Reviews = field(default_factory=Reviews)
     open: Open = field(default_factory=Open)
     sign: Sign = field(default_factory=Sign)
+    export: Export = field(default_factory=Export)
+    contract: Contract = field(default_factory=Contract)
+    age: Age = field(default_factory=Age)
+
+
+SECTIONS: dict[str, type] = {
+    "paths": Paths,
+    "tmdb": Tmdb,
+    "embed": Embed,
+    "group": Group,
+    "name": Name,
+    "reviews": Reviews,
+    "open": Open,
+    "sign": Sign,
+    "export": Export,
+    "contract": Contract,
+    "age": Age,
+}
 
 
 def _section(cls: type, raw: dict[str, Any], name: str) -> Any:
@@ -108,21 +146,10 @@ def load(path: str | Path | None) -> Settings:
         raise StageFailed(f"settings: cannot read {path}: {e.strerror}") from e
     except tomllib.TOMLDecodeError as e:
         raise StageFailed(f"settings: {path} is not valid TOML: {e}") from e
-    sections = {f.name: f.type for f in fields(Settings)}
-    unknown = sorted(set(raw) - set(sections))
+    unknown = sorted(set(raw) - set(SECTIONS))
     if unknown:
         raise StageFailed(f"settings: unknown section: {', '.join(unknown)}")
-    classes = {
-        "paths": Paths,
-        "tmdb": Tmdb,
-        "embed": Embed,
-        "group": Group,
-        "name": Name,
-        "reviews": Reviews,
-        "open": Open,
-        "sign": Sign,
-    }
-    return Settings(**{k: _section(classes[k], v, k) for k, v in raw.items()})
+    return Settings(**{k: _section(SECTIONS[k], v, k) for k, v in raw.items()})
 
 
 class Secret:

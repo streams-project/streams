@@ -6,4 +6,4 @@ uv run --locked ruff format --check src tests
 uv run --locked ruff check src tests
 uv run --locked --extra full pytest
 uv run --locked databuild scan .
-uvx --from reuse==6.3.0 reuse lint
+uv run --locked reuse lint

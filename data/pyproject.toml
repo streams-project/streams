@@ -30,7 +30,7 @@ databuild = "databuild.cli:main"
 [dependency-groups]
 dev = [
     "pytest==9.2.0",
-    "reuse==6.3.0",
+    "reuse[charset-normalizer]==6.3.0",
     "ruff==0.17.3",
 ]
 
