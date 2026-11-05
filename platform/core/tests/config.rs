@@ -59,6 +59,8 @@ fn c110_limits_arrive_from_hello_and_the_core_holds_them() {
 #[test]
 fn the_start_deadline_is_per_class_from_hello_with_one_fallback() {
     let mut config = Config::new(start(DeviceClass::Tv, "1.0.0"));
+    // the value, not only the name: the constant on both sides would hold nothing
+    assert_eq!(DEFAULT_START_DEADLINE_MS, 15_000);
     assert_eq!(config.start_deadline_ms(), DEFAULT_START_DEADLINE_MS);
     config.take_hello(hello());
     assert_eq!(config.start_deadline_ms(), 12_000);
