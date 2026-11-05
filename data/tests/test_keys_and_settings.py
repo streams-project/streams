@@ -11,6 +11,7 @@ from databuild import settings as S
 from databuild.errors import FeatureOff, StageFailed
 from databuild.keys import TV_BIT, item_key, parse_title_key, title_key, unpack
 from databuild.net import NetError, Request, UrlTransport
+from databuild.scan import scan_own_words, scan_paths
 
 CONTRACT = Path(__file__).resolve().parents[2] / "platform" / "contract"
 
@@ -113,3 +114,21 @@ def test_the_example_file_lists_every_setting_with_no_address_and_no_key():
     assert set(raw) == set(S.SECTIONS)
     for section, cls in S.SECTIONS.items():
         assert set(raw[section]) == {f.name for f in fields(cls)}, section
+
+
+def test_h133_a_vocabulary_file_with_a_name_from_a_capture_is_refused(tmp_path):
+    folder = tmp_path / "vocabulary"
+    folder.mkdir()
+    (folder / "topics.json").write_text(json.dumps({"x": {"name": "Love " + "Hurts"}}))
+    assert [f.what for f in scan_paths([tmp_path])] == ["name from a capture"]
+    assert not list(scan_own_words({"x": {"name": "Quiet Harbour Stories"}}))
+
+
+def test_h133_the_list_of_capture_names_leaves_out_plain_words_of_our_own():
+    assert not list(scan_own_words(["true crime", "sitcoms", "comedies"]))
+
+
+def test_h133_the_carried_vocabulary_holds_no_name_from_a_capture():
+    folder = Path(__file__).resolve().parents[1] / "src" / "databuild" / "vocabulary"
+    assert not list(scan_paths([folder]))
+    assert not (folder / "topics.json").exists()

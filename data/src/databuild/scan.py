@@ -12,6 +12,8 @@ import json
 import re
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
+from functools import lru_cache
+from importlib import resources
 from pathlib import Path
 
 REFUSED_WORDS = frozenset(
@@ -93,6 +95,37 @@ def _refused(word: str) -> bool:
     return any(_hash(part) in REFUSED_WORDS for part in _PART.split(word))
 
 
+@lru_cache
+def _capture_names() -> frozenset[str]:
+    """Hashes of row names read from third party captures.
+
+    A copied name holds no refused word, so a word scan passes it. A plain word that the project's
+    own vocabulary also uses is not in this list.
+    """
+    text = resources.files("databuild").joinpath("capture_names.json").read_text("utf-8")
+    return frozenset(json.loads(text)["sha256"])
+
+
+def _strings(value: object) -> Iterator[str]:
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            yield str(key)
+            yield from _strings(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from _strings(item)
+
+
+def scan_own_words(value: object, path: str = "") -> Iterator[Finding]:
+    """Every string of a vocabulary file that equals a name from a capture."""
+    names = _capture_names()
+    for text in _strings(value):
+        if _hash(text.lower().strip()) in names:
+            yield Finding(path, 0, "name from a capture")
+
+
 def scan_text(text: str, path: str = "") -> Iterator[Finding]:
     """Every refused word, tag, address or secret in a text."""
     for number, line in enumerate(text.splitlines(), 1):
@@ -155,7 +188,11 @@ def scan_paths(paths: Iterable[Path]) -> list[Finding]:
             found.extend(scan_text(text, shown))
             if path.suffix == ".json":
                 try:
-                    found.extend(scan_json_fields(json.loads(text), shown))
+                    document = json.loads(text)
                 except ValueError:
                     found.append(Finding(shown, 0, "not valid JSON"))
+                    continue
+                found.extend(scan_json_fields(document, shown))
+                if path.parent.name == "vocabulary":
+                    found.extend(scan_own_words(document, shown))
     return found

@@ -2,6 +2,9 @@
 
 Candidates are the titles a rule finds, plus the nearest titles to their centre. Only accepted pairs
 are kept, in `categories.json` and `topics.json`, as `{slug: {"movie:12": 1.0}}`.
+
+Topics come from the project's own row words: each whole title phrase and each extra row of
+`vocabulary/rows.json`. No topic list is carried from anywhere else.
 """
 
 from __future__ import annotations
@@ -19,12 +22,39 @@ from ..embed.run import read_master
 from ..keys import title_key, unpack
 from ..vocab import load
 from .llm import Chat
+from .rows import genre_names, slug
 
 MIN_SEEDS_FOR_CENTRE = 15
 MIN_VOTES = 20
 MIN_RATING = 5.0
 PER_TOPIC = 3000
 SYSTEM = "You judge whether a film or series belongs to a named category. Answer yes or no."
+
+
+def _topic(name: str, keywords: list[str], genres: list[str]) -> dict[str, Any]:
+    return {
+        "name": name,
+        "media": ["movie", "tv"],
+        "definition": f"{name}: a film or series about {', '.join(keywords)}.",
+        "terms": keywords,
+        "genres_any": genres,
+    }
+
+
+def own_topics() -> dict[str, dict[str, Any]]:
+    """One topic per whole title phrase and extra row of the project's own row words."""
+    vocab = load("rows")
+    tv_names = vocab["tv_genre_names"]
+    found: dict[str, dict[str, Any]] = {}
+    for phrase, theme in vocab["themes"].items():
+        if theme["standalone"]:
+            found[slug(phrase)] = _topic(phrase, sorted(theme["keywords"]), [])
+    for extra in vocab["extra"]:
+        genres = genre_names(extra["genre"], tv_names) if extra["genre"] else []
+        found.setdefault(
+            slug(extra["name"]), _topic(extra["name"], sorted(extra["keywords"]), genres)
+        )
+    return found
 
 
 def category_rule(spec: dict[str, Any], row: dict[str, Any]) -> bool:
@@ -87,7 +117,7 @@ def proposals(
 ) -> dict[str, set[str]]:
     position = {k: i for i, k in enumerate(keys)}
     out: dict[str, set[str]] = {}
-    for slug, spec in specs.items():
+    for word, spec in specs.items():
         media = set(spec["media"])
         seeds = [k for k, r in pool.items() if r["kind"] in media and rule(spec, r)]
         held = [k for k in seeds if k in position]
@@ -100,7 +130,7 @@ def proposals(
             allowed = np.array([pool[k]["kind"] in media for k in keys])
             sims[~allowed] = -1.0
             found |= {keys[i] for i in np.argsort(-sims, kind="stable")[:PER_TOPIC]}
-        out[slug] = found
+        out[word] = found
     return out
 
 
@@ -108,8 +138,8 @@ def judge(
     chat: Chat, specs: dict[str, dict[str, Any]], found: dict[str, set[str]], pool: dict
 ) -> dict[str, dict[str, float]]:
     accepted: dict[str, dict[str, float]] = {}
-    for slug, keys in found.items():
-        definition = specs[slug]["definition"]
+    for word, keys in found.items():
+        definition = specs[word]["definition"]
         for key in sorted(keys):
             row = pool[key]
             text = (
@@ -119,7 +149,7 @@ def judge(
                 f"Overview: {row['overview']}\nDoes this title belong? Answer yes or no."
             )
             if chat.ask(SYSTEM, text, max_tokens=2).strip().lower().startswith("yes"):
-                accepted.setdefault(slug, {})[key] = 1.0
+                accepted.setdefault(word, {})[key] = 1.0
     return accepted
 
 
@@ -142,7 +172,7 @@ def write_topics(ctx: Context, chat: Chat | None) -> None:
     folder = ctx.work / "export"
     folder.mkdir(exist_ok=True)
     categories = load("categories")
-    topics = load("topics")
+    topics = own_topics()
     done_categories = judge(
         chat, categories, proposals(categories, category_rule, pool, keys, centred), pool
     )
@@ -150,8 +180,8 @@ def write_topics(ctx: Context, chat: Chat | None) -> None:
     (folder / "categories.json").write_text(json.dumps(done_categories))
     (folder / "topics.json").write_text(json.dumps(done_topics))
     meta = {
-        slug: {"name": t["name"], "media": t["media"], "definition": t["definition"]}
-        for slug, t in topics.items()
+        word: {"name": t["name"], "media": t["media"], "definition": t["definition"]}
+        for word, t in topics.items()
     }
     (folder / "topics_meta.json").write_text(json.dumps(meta, ensure_ascii=False))
     ctx.say(f"name: {len(done_categories)} judged pages, {len(done_topics)} topics")

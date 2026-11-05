@@ -26,11 +26,12 @@ from databuild.name.profiles import PROFILES_FILE, parse_profile, write_profiles
 from databuild.name.rows import Builder, build_rows, passes, repeats, slug
 from databuild.name.run import name
 from databuild.name.taxonomy import calendar_entries, kids_entries
-from databuild.name.topics import category_rule, topic_rule, write_topics
+from databuild.name.topics import category_rule, own_topics, topic_rule, write_topics
 from databuild.net import NetError, Reply
 from databuild.scan import scan_json_fields, scan_text
 from databuild.settings import Embed, Group
 from databuild.settings import Name as NameSettings
+from databuild.vocab import load
 
 from .conftest import FakeTransport
 from .fixtures import make_titles
@@ -307,6 +308,18 @@ def test_category_and_topic_rules_read_facts_only():
     assert topic_rule({"genres_any": [], "terms": ["heist"]}, row)
     assert not topic_rule({"genres_any": ["Drama"], "terms": ["heist"]}, row)
     assert topic_rule({"countries": {"US": 1}, "genres_any": [], "terms": []}, row)
+
+
+def test_h133_topics_come_from_the_project_s_own_row_words():
+    topics = own_topics()
+    vocab = load("rows")
+    allowed = {p for p, t in vocab["themes"].items() if t["standalone"]}
+    allowed |= {e["name"] for e in vocab["extra"]}
+    assert topics
+    assert {t["name"] for t in topics.values()} <= allowed
+    for topic in topics.values():
+        assert topic["terms"]
+        assert topic["media"] == ["movie", "tv"]
 
 
 def test_only_titles_the_judge_accepts_are_kept(context):

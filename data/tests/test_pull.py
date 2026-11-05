@@ -185,7 +185,8 @@ def test_film_row_holds_the_old_facts_and_the_new_pulls():
     assert json.loads(row["certs"]) == {"GB": "15"}
     assert row["collection"] == "Set"
     assert row["logo_path"] == "/en.png"
-    assert json.loads(row["company_logos"]) == [{"name": "One", "logo_path": "/one.png"}]
+    film = parse_title("movie", movie_doc(), ["en-US"], 1)
+    assert json.loads(film["company_logos"]) == [{"name": "One", "logo_path": "/one.png"}]
     assert json.loads(row["crew"]) == [
         {"name": "Ann", "job": "Director"},
         {"name": "Bob", "job": "Writer"},
@@ -443,3 +444,11 @@ def test_s151_a_pull_with_no_items_keeps_the_old_file(context, key_file):
 
 def test_gzip_helper_reads_back():
     assert gzip.decompress(gz_lines([{"id": 1}])) == b'{"id": 1}'
+
+
+def test_n4_network_and_company_logos_join_the_pull():
+    row = parse_title("tv", tv_doc(), ["en-US"], 1)
+    assert json.loads(row["networks"]) == ["Net", "Other"]
+    assert json.loads(row["network_logos"]) == [{"name": "Net", "logo_path": "/net.png"}]
+    film = parse_title("movie", movie_doc(), ["en-US"], 1)
+    assert json.loads(film["company_logos"]) == [{"name": "One", "logo_path": "/one.png"}]

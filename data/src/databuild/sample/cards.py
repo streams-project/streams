@@ -11,6 +11,7 @@ import os
 import tarfile
 from collections.abc import Iterable
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -42,6 +43,12 @@ def _colours(seed: str) -> tuple[tuple[int, int, int], tuple[int, int, int]]:
     dark = (30 + d[0] % 60, 30 + d[1] % 60, 40 + d[2] % 70)
     bright = (90 + d[3] % 120, 80 + d[4] % 120, 90 + d[5] % 120)
     return dark, bright
+
+
+@lru_cache
+def _font(size: int) -> ImageFont.ImageFont:
+    """The font inside the image library, loaded once per size."""
+    return ImageFont.load_default(size)
 
 
 def _gradient(size: tuple[int, int], top: tuple, bottom: tuple) -> Image.Image:
@@ -76,8 +83,8 @@ def render(card: Card, size: tuple[int, int]) -> bytes:
     image = _gradient(size, bright, dark)
     draw = ImageDraw.Draw(image)
     width = size[0] - 2 * MARGIN
-    big = ImageFont.load_default(size[1] // 13)
-    small = ImageFont.load_default(size[1] // 24)
+    big = _font(size[1] // 13)
+    small = _font(size[1] // 24)
     lines = _wrap(draw, card.title, big, width)[:4]
     height = size[1] // 11
     y = size[1] - MARGIN - height * len(lines) - size[1] // 18
@@ -86,7 +93,8 @@ def render(card: Card, size: tuple[int, int]) -> bytes:
         y += height
     draw.text((MARGIN, y + 4), card.line, font=small, fill=(215, 215, 215))
     out = io.BytesIO()
-    image.quantize(COLOURS, dither=Image.Dither.NONE).save(out, "PNG", optimize=True)
+    fast = Image.Quantize.FASTOCTREE
+    image.quantize(COLOURS, method=fast, dither=Image.Dither.NONE).save(out, "PNG", optimize=True)
     return out.getvalue()
 
 

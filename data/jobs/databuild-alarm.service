@@ -1,0 +1,7 @@
+[Unit]
+Description=Tell the operator a data job failed
+
+[Service]
+Type=oneshot
+EnvironmentFile=%h/.config/databuild/env
+ExecStart=/bin/sh -c 'exec "$DATABUILD_HOME/jobs/alarm"'

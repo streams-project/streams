@@ -1,0 +1,8 @@
+#!/bin/sh
+# Runs when a job fails. The operator's command comes from the environment file.
+set -eu
+if [ -z "${ALARM_COMMAND:-}" ]; then
+    echo "alarm off: ALARM_COMMAND is not set" >&2
+    exit 1
+fi
+exec sh -c "$ALARM_COMMAND"

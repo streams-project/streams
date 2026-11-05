@@ -21,8 +21,8 @@ the manifest stage refuses any file this table does not list.
 | removed_rows | `removed_rows.json` | yes | export | export.removed_rows, an operator list | Yes, from this repository alone | An empty list. |
 | title_profiles | `profiles.jsonl` | no | name | titles.db, a text model | Yes, with a text model of their own | No written profiles. Age rules use certificates, and an unrated title is refused below 18. |
 | categories | `categories.json` | no | name | vocabulary/categories.json, vectors, a text model | Yes, with a text model of their own | Category pages fall back to their keyword rules. |
-| topics | `topics.json` | no | name | vocabulary/topics.json, vectors, a text model | Yes, with a text model of their own | No topic rows. |
-| topics_meta | `topics_meta.json` | no | name | vocabulary/topics.json | Yes, with a text model of their own | No topic rows. |
+| topics | `topics.json` | no | name | vocabulary/rows.json, vectors, a text model | Yes, with a text model of their own | No topic rows. |
+| topics_meta | `topics_meta.json` | no | name | vocabulary/rows.json | Yes, with a text model of their own | No topic rows. |
 | popularity | `popularity.db` | no | popularity | the daily TMDB export, catalog.db | Yes, the exports need no key | Popularity stays as built. |
 | fresh | `fresh.json` | no | fresh | TMDB lists | Yes, with their own TMDB key, or from the open sample | No new or upcoming rows. |
 | open_vectors | `open/vectors.bin` | no | export | a second vector set from open text | Yes, from this repository alone | No second set to score. |
@@ -58,7 +58,8 @@ it with that set's manifest hash.
 | popularity overlay | popularity.db |
 | title profiles | profiles.jsonl |
 | judged categories | categories.json |
-| judged topics and their names | topics.json, topics_meta.json |
+| judged topics and their names | topics.json, topics_meta.json, from own row words |
+| the first topic list | Dropped. It came from a capture. Topics now come from own row words. |
 | awards | awards.json, from an operator file |
 | search aliases | search_aliases.json |
 | blocked rows | removed_rows.json, from an operator list |
