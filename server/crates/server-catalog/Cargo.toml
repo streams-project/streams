@@ -1,0 +1,31 @@
+[package]
+name = "server-catalog"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+# Writes a small invented data set for tests in this and other crates.
+sample = []
+
+[dependencies]
+anyhow.workspace = true
+arc-swap.workspace = true
+half.workspace = true
+rayon.workspace = true
+rusqlite.workspace = true
+rustc-hash.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+usearch.workspace = true
+
+[dev-dependencies]
+server-catalog = { path = ".", features = ["sample"] }
