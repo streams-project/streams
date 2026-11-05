@@ -5,6 +5,10 @@ Each mutant is one small change to a rule: a constant moved, a guard dropped, a
 condition inverted. A mutant is killed when the tests notice it and survives
 when they do not. A survivor names a rule no test holds.
 
+A change that leaves behaviour the same cannot be killed by any test. Such a
+mutant carries a written reason, is reported apart from the score, and fails the
+run if a test does see it after all.
+
 The pass never touches the working tree: it copies the tracked and untracked
 files into a work folder, mutates the copy, and runs the tests there with one
 shared target folder.
@@ -54,13 +58,17 @@ QUEUE = "offline/src/queue.rs"
 CACHE = "offline/src/cache.rs"
 
 
-def mutant(number, file, about, find, replace):
+def mutant(number, file, about, find, replace, equivalent=None):
+    """One mutant. `equivalent` is a written reason why no test can see this change, for a
+    change that leaves behaviour the same. Such a mutant is expected to survive and is
+    counted apart from the score. A reason that turns out wrong fails the run."""
     return {
         "id": f"M{number:02d}",
         "file": file,
         "about": about,
         "find": find,
         "replace": replace,
+        "equivalent": equivalent,
     }
 
 
@@ -121,12 +129,21 @@ MUTANTS = [
         "const CREDITS_HIDES_EARLY_MS: u64 = 2_000;",
         "const CREDITS_HIDES_EARLY_MS: u64 = 0;",
     ),
+    # `.to_string()` in place of the lower casing does not compile: the core is no_std and
+    # player.rs imports String but not ToString, so a mutant that read it would prove nothing.
     mutant(
         9,
         PLAYER,
         "host compare becomes case sensitive",
-        "        .to_ascii_lowercase()",
-        "        .to_string()",
+        """    url.split_once("://")
+        .and_then(|(_, rest)| rest.split('/').next())
+        .unwrap_or("")
+        .to_ascii_lowercase()""",
+        """    String::from(
+        url.split_once("://")
+            .and_then(|(_, rest)| rest.split('/').next())
+            .unwrap_or(""),
+    )""",
     ),
     mutant(
         10,
@@ -507,6 +524,11 @@ MUTANTS = [
         }
 """,
         "    fn settle(&mut self, now: Now, out: &mut Out) {\n",
+        equivalent=(
+            "open_address holds the same rule, so with this guard gone settle still draws a "
+            'wait. The only state left over is that `asked` becomes "/" instead of nothing, '
+            'and every reader of `asked` falls back to "/" anyway.'
+        ),
     ),
     mutant(
         57,
@@ -655,6 +677,8 @@ def check(only):
             problems.append(f"{one['id']}: its text is in {one['file']} {found} times")
         elif text.replace(one["find"], one["replace"], 1) == text:
             problems.append(f"{one['id']}: changes nothing")
+        elif one["equivalent"] is not None and len(one["equivalent"]) < 40:
+            problems.append(f"{one['id']}: marked equivalent with no real reason")
     for problem in problems:
         print(problem)
     print(f"{len(catalogue(only)) - len(problems)} of {len(catalogue(only))} mutants fit")
@@ -723,7 +747,7 @@ def run(only, work, keep):
         sys.exit("the baseline fails, so nothing can be measured")
     print(f"baseline passes in {time.time() - started:.0f} s, {len(chosen)} mutants to run")
 
-    killed, survived, broken = [], [], []
+    killed, survived, broken, same, wrong = [], [], [], [], []
     for number, one in enumerate(chosen, start=1):
         path = source / one["file"]
         path.write_text(pristine[one["file"]].replace(one["find"], one["replace"], 1))
@@ -734,22 +758,39 @@ def run(only, work, keep):
         if bad_build:
             broken.append(one)
             verdict = "UNVIABLE"
+        elif passed and one["equivalent"]:
+            same.append(one)
+            verdict = "EQUIVALENT"
         elif passed:
             survived.append(one)
             verdict = "SURVIVED"
         else:
             killed.append((one, first_failure(output)))
             verdict = "killed"
+            if one["equivalent"]:
+                wrong.append(one)
         line = f"[{number}/{len(chosen)}] {one['id']} {verdict} {took:.0f} s  {one['about']}"
         if verdict == "killed":
             line += f"\n    by {killed[-1][1]}"
         print(line, flush=True)
 
     print("")
-    print(f"killed {len(killed)}, survived {len(survived)}, unviable {len(broken)}")
+    print(
+        f"killed {len(killed)}, survived {len(survived)}, "
+        f"equivalent {len(same)}, unviable {len(broken)}"
+    )
     if survived:
         print("survivors:")
         for one in survived:
+            print(f"  {one['id']} {one['file']}: {one['about']}")
+    if same:
+        print("equivalent, by the reason written with each:")
+        for one in same:
+            print(f"  {one['id']} {one['file']}: {one['about']}")
+            print(f"    {one['equivalent']}")
+    if wrong:
+        print("marked equivalent and killed anyway, so the reason is wrong:")
+        for one in wrong:
             print(f"  {one['id']} {one['file']}: {one['about']}")
     if broken:
         print("did not build:")
@@ -760,7 +801,7 @@ def run(only, work, keep):
         print(f"mutation score {len(killed)}/{counted} = {100 * len(killed) / counted:.1f}%")
     if not keep:
         shutil.rmtree(source, ignore_errors=True)
-    return 0 if not survived and not broken else 1
+    return 0 if not survived and not broken and not wrong else 1
 
 
 def first_failure(output):
