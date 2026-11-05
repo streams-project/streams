@@ -1,6 +1,6 @@
 // Draws a Scene with WebGL 1. All state is set here, nothing else touches GL.
 
-import { STRIPE_ROWS, STRIPE_WIDTH } from "./stripes.ts";
+import { ROW_COOL, ROW_MIXED, ROW_SHEEN, ROW_THREAD, ROW_WARM, STRIPE_ROWS, STRIPE_WIDTH } from "./stripes.ts";
 import { CARD, PEEK, PIVOT } from "./timeline.ts";
 import type { LayerDraw, Scene } from "./timeline.ts";
 import { VERTEX_FLOATS } from "./layout.ts";
@@ -24,8 +24,9 @@ export interface RenderInput {
   height: number;
   palette: Palette;
   stripes: Uint8Array;
-  logo: TexImageSource;
-  logoAspect: number;
+  word: TexImageSource;
+  mark: TexImageSource;
+  wordAspect: number;
   atlas: TexImageSource | null;
   text: TexImageSource | null;
   ui: TexImageSource | null;
@@ -61,7 +62,8 @@ export class Renderer {
   rect: Program;
   peek: Program;
   stripeTex: WebGLTexture;
-  logoTex: WebGLTexture;
+  wordTex: WebGLTexture;
+  markTex: WebGLTexture;
   atlasTex: WebGLTexture | null = null;
   textTex: WebGLTexture | null = null;
   uiTex: WebGLTexture | null = null;
@@ -100,7 +102,8 @@ export class Renderer {
     gl.bindTexture(gl.TEXTURE_2D, this.stripeTex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, STRIPE_WIDTH, STRIPE_ROWS, 0, gl.RGBA, gl.UNSIGNED_BYTE, input.stripes);
     this.params(gl.LINEAR, gl.LINEAR);
-    this.logoTex = this.image(input.logo, true);
+    this.wordTex = this.image(input.word, true);
+    this.markTex = this.image(input.mark, true);
     this.last = new Float32Array(96);
     this.key = new Float32Array(96);
   }
@@ -233,11 +236,14 @@ export class Renderer {
     var n = 0;
     k[n++] = s.stage;
     if (s.stage === 0) {
-      k[n++] = s.logoAlpha; k[n++] = s.logoWidth; k[n++] = s.logoHeight; k[n++] = s.filament; k[n++] = s.lines;
-      k[n++] = s.column; k[n++] = s.columnAlpha; k[n++] = s.zoom; k[n++] = s.split; k[n++] = s.fade; k[n++] = s.ringAlpha; k[n++] = s.ringAngleDeg;
+      k[n++] = s.wordAlpha; k[n++] = s.wordU0; k[n++] = s.wordU1; k[n++] = s.wordClip; k[n++] = s.wordV1;
+      k[n++] = s.markAlpha; k[n++] = s.markU0; k[n++] = s.markU1; k[n++] = s.markV0; k[n++] = s.markV1;
+      k[n++] = s.filament; k[n++] = s.lines;
+      k[n++] = s.column; k[n++] = s.columnAlpha; k[n++] = s.zoomWarm; k[n++] = s.zoomCool; k[n++] = s.split;
+      k[n++] = s.fade; k[n++] = s.ringAlpha; k[n++] = s.ringAngleDeg;
       k[n++] = s.ringArcDeg; k[n++] = s.ringU; k[n++] = s.ringV;
     } else {
-      k[n++] = s.cardShift; k[n++] = s.emptyFill; k[n++] = s.band; k[n++] = s.peek; k[n++] = s.markAlpha; k[n++] = s.markScale;
+      k[n++] = s.cardShift; k[n++] = s.emptyFill; k[n++] = s.band; k[n++] = s.peek; k[n++] = s.cardWordAlpha; k[n++] = s.cardWordScale;
       k[n++] = s.layerCount; k[n++] = s.textCount;
       for (var i = 0; i < s.layerCount; i++) {
         var l = s.layers[i];
@@ -276,14 +282,19 @@ export class Renderer {
     gl.viewport(0, 0, this.input.width, this.input.height);
     gl.disable(gl.BLEND);
     gl.useProgram(p.id);
-    this.bind(0, this.logoTex, p.u.uLogo);
-    this.bind(1, this.stripeTex, p.u.uStripes);
+    this.bind(0, this.wordTex, p.u.uWord);
+    this.bind(1, this.markTex, p.u.uMark);
+    this.bind(2, this.stripeTex, p.u.uStripes);
     gl.uniform3fv(p.u.uBlack, c.black);
     gl.uniform3fv(p.u.uRingColour, c.ring);
-    var restWidth = (0.175 * 1080 * this.input.logoAspect) / 1920;
-    gl.uniform2f(p.u.uLogoSize, s.logoWidth > 0 ? s.logoWidth : restWidth, 0.175 * s.logoHeight);
-    gl.uniform4f(p.u.uLogoState, s.logoAlpha, s.filament, s.lines, s.columnAlpha);
-    gl.uniform4f(p.u.uStripeState, s.column, s.zoom, s.split, s.fade);
+    gl.uniform4f(p.u.uRows, ROW_MIXED, ROW_WARM, ROW_COOL, ROW_SHEEN);
+    gl.uniform1f(p.u.uThreadRow, ROW_THREAD);
+    gl.uniform4f(p.u.uWordBox, s.wordU0, s.wordU1, s.wordV0, s.wordV1);
+    gl.uniform2f(p.u.uWordState, s.wordAlpha, s.wordClip);
+    gl.uniform4f(p.u.uMarkBox, s.markU0, s.markU1, s.markV0, s.markV1);
+    gl.uniform3f(p.u.uMarkState, s.markAlpha, s.filament, s.lines);
+    gl.uniform4f(p.u.uStripeState, s.column, s.split, s.columnAlpha, s.fade);
+    gl.uniform2f(p.u.uZoom, s.zoomWarm, s.zoomCool);
     gl.uniform4f(p.u.uRing, s.ringU * 1920, s.ringV * 1080, s.ringRadiusPx, s.ringStrokePx);
     gl.uniform3f(p.u.uRingState, s.ringAngleDeg / 360, s.ringArcDeg / 360, s.ringAlpha);
     this.fullQuad();
@@ -449,13 +460,13 @@ export class Renderer {
     }
     var r = this.rect;
     gl.useProgram(r.id);
-    if (s.markAlpha > 0) {
-      var mh = input.markHeight * s.markScale;
-      var mw = mh * input.logoAspect;
-      this.bind(0, this.logoTex, r.u.uTex);
+    if (s.cardWordAlpha > 0) {
+      var mh = input.markHeight * s.cardWordScale;
+      var mw = mh * input.wordAspect;
+      this.bind(0, this.wordTex, r.u.uTex);
       gl.uniform4f(r.u.uRect, input.markCentre[0] - mw / 2 + shift, input.markCentre[1] - mh / 2, mw, mh);
       gl.uniform4f(r.u.uUv, 0, 0, 1, 1);
-      gl.uniform1f(r.u.uAlpha, s.markAlpha);
+      gl.uniform1f(r.u.uAlpha, s.cardWordAlpha);
       this.fullQuad();
     }
     if (this.uiTex) {
