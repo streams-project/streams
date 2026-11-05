@@ -24,6 +24,7 @@ from .net import UrlTransport
 from .pull.details import pull_details, pull_refresh
 from .pull.fresh import pull_fresh
 from .pull.popularity import pull_popularity
+from .sample.run import OPEN_TEXT_FILE, pull_open
 from .scan import scan_paths
 from .settings import Settings, load
 
@@ -57,6 +58,7 @@ def _context(args: argparse.Namespace, settings: Settings) -> Context:
         work=Path(args.work or settings.paths.work),
         out=Path(args.out or settings.paths.out),
         commit=build_commit(),
+        votes=not (args.open_set or args.command == "sample"),
         transport=UrlTransport(),
     )
 
@@ -77,9 +79,20 @@ def _verify(ctx: Context) -> None:
     ctx.say(f"verify: manifest sha256 {done.manifest_sha256}")
 
 
+def _sample(ctx: Context) -> None:
+    pull_open(ctx)
+    clean(ctx)
+    embed(ctx, ctx.work / OPEN_TEXT_FILE, primary=True)
+    _later(ctx)
+
+
 def _all(ctx: Context) -> None:
     clean(ctx)
     embed(ctx)
+    _later(ctx)
+
+
+def _later(ctx: Context) -> None:
     group(ctx)
     name(ctx)
     export(ctx)
@@ -93,6 +106,9 @@ def parser() -> argparse.ArgumentParser:
     top.add_argument("--as-of", type=date.fromisoformat, help="the build date, YYYY-MM-DD")
     top.add_argument("--work", help="work folder, overrides the setting")
     top.add_argument("--out", help="output folder, overrides the setting")
+    top.add_argument(
+        "--open-set", action="store_true", help="the set is from open sources, which hold no votes"
+    )
     commands = top.add_subparsers(dest="command", required=True)
     for word, text in (
         ("pull", "pull details of new titles"),
@@ -112,6 +128,8 @@ def parser() -> argparse.ArgumentParser:
     commands.add_parser("verify", help="check a set against its manifest")
     commands.add_parser("age", help="fail when a set or a daily file is too old")
     commands.add_parser("all", help="every stage after the pull, in order")
+    commands.add_parser("open-pull", help="pull the open sample and stop")
+    commands.add_parser("sample", help="build the open sample from nothing")
     commands.add_parser("files", help="print the table of files in a set")
     keygen = commands.add_parser("keygen", help="make a signing key pair")
     keygen.add_argument("private_file")
@@ -134,7 +152,7 @@ def run(args: argparse.Namespace, ctx: Context) -> None:
         case "clean":
             clean(ctx)
         case "embed":
-            embed(ctx, Path(args.open_text) if args.open_text else None)
+            embed(ctx, Path(args.open_text) if args.open_text else None, primary=args.open_set)
         case "group":
             group(ctx)
         case "name":
@@ -149,6 +167,10 @@ def run(args: argparse.Namespace, ctx: Context) -> None:
             check_age(ctx)
         case "all":
             _all(ctx)
+        case "open-pull":
+            pull_open(ctx)
+        case "sample":
+            _sample(ctx)
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -121,8 +121,9 @@ def read_master(folder: Path) -> tuple[np.ndarray, np.ndarray, dict]:
     return rows, keys, info
 
 
-def embed(ctx: Context, open_text: Path | None = None) -> None:
-    """Full text by default. With a file of open text it builds the second vector set."""
+def embed(ctx: Context, open_text: Path | None = None, primary: bool = False) -> None:
+    """Full text by default. A file of open text builds the second vector set, or with `primary`
+    the only one, as the open sample does."""
     embedder = make_embedder(ctx)
     if open_text is None:
         items, recipe, target = (
@@ -131,6 +132,7 @@ def embed(ctx: Context, open_text: Path | None = None) -> None:
             ctx.work / "vectors",
         )
     else:
-        items, recipe, target = open_items(open_text), RECIPE_OPEN, ctx.work / "vectors-open"
+        folder = "vectors" if primary else "vectors-open"
+        items, recipe, target = open_items(open_text), RECIPE_OPEN, ctx.work / folder
     target.mkdir(parents=True, exist_ok=True)
     embed_items(ctx, embedder, items, recipe, target)

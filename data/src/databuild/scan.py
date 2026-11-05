@@ -70,7 +70,7 @@ SKIP_DIRS = frozenset(
     {".git", ".venv", "__pycache__", ".pytest_cache", ".ruff_cache", "build", "LICENSES"}
 )
 SKIP_FILES = frozenset({"uv.lock", "LICENSE-APACHE", "LICENSE-MIT"})
-BINARY_SUFFIXES = frozenset({".png", ".jpg", ".q8", ".bin", ".keys", ".npz", ".db"})
+BINARY_SUFFIXES = frozenset({".png", ".jpg", ".q8", ".bin", ".keys", ".npz", ".db", ".tar"})
 
 
 @dataclass(frozen=True)
