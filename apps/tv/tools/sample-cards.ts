@@ -131,9 +131,8 @@ export function cardSvg(index: number, seed: number): string {
   const r = rng(seed + index * 104729);
   const colours = PALETTES[index % PALETTES.length];
   const scene = SCENES[(index * 5 + Math.floor(index / 7)) % SCENES.length];
-  const number = String(index + 1).padStart(2, "0");
   const sky = `<linearGradient id="s" x1="0" y1="0" x2="${r() < 0.5 ? 0 : 1}" y2="1"><stop offset="0" stop-color="${colours[0]}"/><stop offset="1" stop-color="${colours[1]}"/></linearGradient>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><defs>${sky}</defs><rect width="${W}" height="${H}" fill="url(#s)"/>${scene(colours, r)}<g font-family="sans-serif" font-weight="800"><rect x="22" y="${H - 66}" width="118" height="44" rx="8" fill="#000" opacity="0.5"/><text x="81" y="${H - 34}" font-size="28" fill="#fff" text-anchor="middle">No. ${number}</text></g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><defs>${sky}</defs><rect width="${W}" height="${H}" fill="url(#s)"/>${scene(colours, r)}<rect x="22" y="${H - 40}" width="${18 + (index % 12) * 9}" height="10" rx="5" fill="#fff" opacity="0.28"/></svg>`;
 }
 
 export function writeCards(folder: string, count: number, seed: number): void {

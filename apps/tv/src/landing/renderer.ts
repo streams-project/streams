@@ -456,6 +456,7 @@ export class Renderer {
       gl.uniform2f(e.u.uSize, pw, ph);
       gl.uniform1f(e.u.uRadius, CARD.radiusPx);
       gl.uniform1f(e.u.uPx, 1080 / h);
+      gl.uniform3fv(e.u.uEdge, c.edge);
       this.fullQuad();
     }
     var r = this.rect;

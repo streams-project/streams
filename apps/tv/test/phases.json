@@ -1,6 +1,6 @@
 {
   "madeBy": "node tools/landing.ts phases",
-  "sourceHash": "6e44ad4727984f1e",
+  "sourceHash": "16f0144b355f4c4e",
   "fps": 24,
   "framesRendered": 1000,
   "headlines": 10,

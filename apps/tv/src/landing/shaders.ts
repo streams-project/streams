@@ -46,14 +46,14 @@ export var OPENING_FRAG = HEAD + [
   "float f=uMarkState.y*(.1+.75*m.x);",
   "float a=l.a*smoothstep(f-.04,f+.04,n+.02)*uMarkState.x;",
   "vec3 lc=l.a>.001?l.rgb/l.a:vec3(0.);",
-  "lc=mix(lc,st*1.2,uMarkState.z);",
+  "lc=mix(lc,st*1.45,uMarkState.z);",
   "col=mix(col,lc,a);",
   "}}",
   // Column: the stripes, held to a width that opens to the whole picture, and
   // to the mark's own height until the fold hands the whole picture over.
   "if(uStripeState.z>0.){",
   "float d=abs(x)-uStripeState.x;",
-  "float tall=smoothstep(uMarkBox.z-.004,uMarkBox.z+.004,vP.y)*(1.-smoothstep(uMarkBox.w-.004,uMarkBox.w+.004,vP.y));",
+  "float tall=smoothstep(uMarkBox.z-.03,uMarkBox.z+.02,vP.y)*(1.-smoothstep(uMarkBox.w-.02,uMarkBox.w+.03,vP.y));",
   "float k=(1.-smoothstep(-.0015,.0015,d))*uStripeState.z*tall;",
   "col=mix(col,st,k);",
   "col+=st*.28*exp(-max(d,0.)*34.)*(1.-k)*uStripeState.z*tall;",
@@ -176,13 +176,15 @@ export var RECT_FRAG = HEAD + [
 
 // Next card: rounded on the left, runs off the right edge, art falls to dark at the foot.
 export var PEEK_FRAG = HEAD + [
-  "varying vec2 vUv;varying vec2 vL;uniform sampler2D uTex;uniform float uAlpha;uniform vec2 uSize;uniform float uRadius;uniform float uPx;",
+  "varying vec2 vUv;varying vec2 vL;uniform sampler2D uTex;uniform float uAlpha;uniform vec2 uSize;uniform float uRadius;uniform float uPx;uniform vec3 uEdge;",
   "void main(){",
   "vec2 p=vL*uSize;",
   "vec2 q=vec2(uRadius-p.x,max(uRadius-p.y,p.y-uSize.y+uRadius));",
   "float d=length(max(q,0.))-uRadius;",
   "float a=clamp(.5-d/uPx,0.,1.)*uAlpha;",
-  "vec3 c=texture2D(uTex,vUv).rgb*(1.-.9*smoothstep(.62,.98,vL.y))*.86;",
+  "vec3 c=texture2D(uTex,vUv).rgb*(1.-.9*smoothstep(.62,.98,vL.y))*.78;",
+  "float core=clamp((d+3.)/uPx+.5,0.,1.)*clamp(.5-d/uPx,0.,1.);",
+  "c=mix(c,uEdge,core);",
   "gl_FragColor=vec4(c*a,a);",
   "}"
 ].join("");
