@@ -166,7 +166,7 @@ def test_s154_seed_file_lists_every_shown_title_and_its_names_align(context):
         np.fromfile(ctx.out / "vectors.keys", dtype="<u4").tolist()
     )
     names = json.loads((ctx.out / "seeds.names.json").read_text())
-    ids = json.loads((ctx.out / "seeds.ids.json").read_text())
+    ids = json.loads((ctx.out / "seeds.groups.json").read_text())
     assert len(names) == len(ids) == len(seeds)
     db = sqlite3.connect(ctx.work / "groups.db")
     held = dict(db.execute("SELECT id, name FROM groups WHERE kind = 'world' AND level = 2"))

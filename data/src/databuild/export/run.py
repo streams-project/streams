@@ -23,7 +23,7 @@ from ..keys import KEY_SCHEME
 from ..vocab import load
 from .catalog import Identity, write_catalog
 from .files import BY_ROLE, EXPORT_RECORD, FILES, FileSpec
-from .vectors import Member, make_seeds, seed_bytes, seed_ids, seed_names, vector_bytes
+from .vectors import Member, make_seeds, seed_bytes, seed_groups, seed_names, vector_bytes
 
 QUANTISATION = "f16"
 PROFILES_FILE = "profiles.jsonl"
@@ -203,7 +203,7 @@ def export(ctx: Context) -> None:
     seeds = make_seeds(unit_rows, kept_keys, w2, members, ctx.votes)
     put(ctx.out / "seeds.bin", seed_bytes(seeds, info["dimensions"]))
     put(ctx.out / "seeds.names.json", seed_names(seeds, names))
-    put(ctx.out / "seeds.ids.json", seed_ids(seeds))
+    put(ctx.out / "seeds.groups.json", seed_groups(seeds))
     ctx.say(f"export: {len(seeds)} seeds, {sum(len(s.keys) for s in seeds)} members")
 
     copy_named(ctx)

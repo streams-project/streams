@@ -77,8 +77,8 @@ FILES: tuple[FileSpec, ...] = (
         "No set. The stage fails.",
     ),
     FileSpec(
-        "seed_ids",
-        "seeds.ids.json",
+        "seed_groups",
+        "seeds.groups.json",
         True,
         "export",
         "group ids in seed order",

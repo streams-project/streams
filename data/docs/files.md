@@ -10,7 +10,7 @@ the manifest stage refuses any file this table does not list.
 | vector_keys | `vectors.keys` | yes | export | master keys from embed, the catalogue view | Yes, with their own TMDB key, or from the open sample | No set. The stage fails. |
 | seeds | `seeds.bin` | yes | export | world level 2 groups, vectors, popularity, ratings | Yes, with their own TMDB key, or from the open sample | No set. The stage fails. |
 | seed_names | `seeds.names.json` | yes | export | group names in seed order | Yes, with their own TMDB key, or from the open sample | No set. The stage fails. |
-| seed_ids | `seeds.ids.json` | yes | export | group ids in seed order | Yes, with their own TMDB key, or from the open sample | No set. The stage fails. |
+| seed_groups | `seeds.groups.json` | yes | export | group ids in seed order | Yes, with their own TMDB key, or from the open sample | No set. The stage fails. |
 | row_requests | `rows.json` | yes | name | vocabulary/rows.json, events, titles, vectors | Yes, with their own TMDB key, or from the open sample | No set. The stage fails when no row has enough titles. |
 | events | `events.json` | yes | name | vocabulary/events.json, vocabulary/calendar.json | Yes, from this repository alone | No set. The stage fails. |
 | taxonomy_vectors | `taxonomy.bin` | yes | name | vocabulary/calendar.json, the embedding model | Yes, from this repository alone | No set. The stage fails. |

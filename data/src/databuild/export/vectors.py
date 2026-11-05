@@ -106,5 +106,5 @@ def seed_names(seeds: list[Seed], names: dict[int, str]) -> bytes:
     return json.dumps([names.get(s.group, "") for s in seeds], ensure_ascii=False).encode()
 
 
-def seed_ids(seeds: list[Seed]) -> bytes:
+def seed_groups(seeds: list[Seed]) -> bytes:
     return json.dumps([s.group for s in seeds]).encode()

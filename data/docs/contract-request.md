@@ -43,8 +43,7 @@ the two JSON files shipped here.
   bytes of `manifest.json`, with a key id. `server-catalog` checks no signature today.
 - Keep the accepted public keys in its own settings. A set with no signature is unsigned, and the
   server decides what to do with it.
-- Read these roles: `seed_names`, `seed_ids`, `open_vectors`, `open_vector_keys`, `skip_marks`,
+- Read these roles when wanted: `open_vectors`, `open_vector_keys`, `skip_marks`,
   `content_reasons`, `cards`, `series_text`, `series_credit`, `sources`.
-- Read rows from the key `requests` of `rows.json`, as the old reader did. The version is 3.
 - Take cards from `cards.tar`, unpacked under the image host. Paths in the catalogue start with
   `/poster/` and `/backdrop/`.
