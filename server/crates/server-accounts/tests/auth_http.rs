@@ -97,7 +97,7 @@ async fn c69_sign_up_names_a_taken_address_and_a_weak_password_apart() {
 }
 
 #[tokio::test]
-async fn t10_a_failing_auth_service_is_an_outage_and_never_a_refusal() {
+async fn tmt10_a_failing_auth_service_is_an_outage_and_never_a_refusal() {
     let auth = HttpAuth::new(&stand_in().await, "admin-token").unwrap();
     assert_eq!(
         auth.send_code("ada@example.test").await,
@@ -116,7 +116,7 @@ async fn s176_the_admin_route_carries_the_token_and_a_read_finds_the_person() {
 }
 
 #[tokio::test]
-async fn t10_no_answer_at_all_is_an_outage() {
+async fn tmt10_no_answer_at_all_is_an_outage() {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let address = listener.local_addr().unwrap();
     drop(listener);

@@ -251,7 +251,7 @@ mod tests {
     }
 
     #[test]
-    fn k7_k8_kids_get_verified_attempts_and_no_embed_whatever_the_card_says() {
+    fn tmk7_tmk8_kids_get_verified_attempts_and_no_embed_whatever_the_card_says() {
         let card: CapabilityCard = serde_json::from_str(include_str!(
             "../../../../platform/contract/fixtures/2026-11-05/valid/CapabilityCard.web.json"
         ))
@@ -328,7 +328,7 @@ mod tests {
     }
 
     #[test]
-    fn f8_an_address_that_is_not_https_never_reaches_a_device() {
+    fn tmf8_an_address_that_is_not_https_never_reaches_a_device() {
         let v = viewing();
         assert!(!keep_for(
             &source("http://a.example/1.m3u8", AttemptKind::Hls, None, &[]),
@@ -343,7 +343,7 @@ mod tests {
     }
 
     #[test]
-    fn t4_h80_only_three_headers_pass_and_h45_h81_no_provider_name_leaves() {
+    fn tmt4_h80_only_three_headers_pass_and_h45_h81_no_provider_name_leaves() {
         let mut one = source("https://a.example/1.m3u8", AttemptKind::Hls, None, &[]);
         one.group = String::from("provider-name");
         one.headers

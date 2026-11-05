@@ -25,7 +25,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn k13_case_accents_and_punctuation_do_not_matter() {
+    fn tmk13_case_accents_and_punctuation_do_not_matter() {
         assert_eq!(normalise_name("Café  Münster!"), "cafe munster");
         assert_eq!(normalise_name("CAFE-MUNSTER"), "cafe munster");
         assert_eq!(normalise_name(" Ａｍｅｌｉｅ "), "amelie");

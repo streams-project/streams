@@ -132,7 +132,7 @@ mod tests {
     }
 
     #[test]
-    fn k5_a_forged_or_edited_cursor_is_refused() {
+    fn tmk5_a_forged_or_edited_cursor_is_refused() {
         let key = CursorKey::new([7; 32]);
         assert_eq!(key.read("nonsense", "x"), Err(CursorError::Forged));
         let cursor = key.write(&position());
@@ -158,7 +158,7 @@ mod tests {
     }
 
     #[test]
-    fn k5_a_cursor_from_another_session_or_profile_is_refused() {
+    fn tmk5_a_cursor_from_another_session_or_profile_is_refused() {
         let key = CursorKey::new([7; 32]);
         let cursor = key.write(&position());
         assert_eq!(

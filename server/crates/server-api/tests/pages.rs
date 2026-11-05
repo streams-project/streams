@@ -136,7 +136,7 @@ async fn s79_a_title_shows_once_across_rows_on_a_page_that_is_not_composed() {
 }
 
 #[tokio::test]
-async fn h32_h33_k10_a_kids_profile_sees_no_title_above_its_tier_on_any_screen() {
+async fn h32_h33_tmk10_a_kids_profile_sees_no_title_above_its_tier_on_any_screen() {
     let server = harness(&[]);
     let (token, _) = enter(&server, true).await;
     let adult_only = [special::ADULT_FLAG, special::UNRATED_NO_PROFILE];
@@ -164,7 +164,7 @@ async fn h32_h33_k10_a_kids_profile_sees_no_title_above_its_tier_on_any_screen()
 }
 
 #[tokio::test]
-async fn k4_alternating_adult_and_kids_calls_never_cross_a_cached_page() {
+async fn tmk4_alternating_adult_and_kids_calls_never_cross_a_cached_page() {
     let server = harness(&[]);
     let (adult, _) = enter(&server, false).await;
     let (kids, _) = enter(&server, true).await;
@@ -193,7 +193,7 @@ async fn k4_alternating_adult_and_kids_calls_never_cross_a_cached_page() {
 }
 
 #[tokio::test]
-async fn h88_k13_a_blocked_name_leaves_every_section_by_normalised_match() {
+async fn h88_tmk13_a_blocked_name_leaves_every_section_by_normalised_match() {
     let server = harness(&[]);
     let (token, id) = enter(&server, false).await;
     let names = |page: &Screen| -> Vec<String> {
@@ -420,7 +420,7 @@ async fn h36_s91_my_list_comes_from_the_library_and_shows_on_home_from_three_tit
 }
 
 #[tokio::test]
-async fn k3_a_title_a_profile_may_not_see_stays_off_my_list_and_changes() {
+async fn tmk3_a_title_a_profile_may_not_see_stays_off_my_list_and_changes() {
     let server = harness(&[]);
     let (token, _) = enter(&server, true).await;
     let adult = format!("movie:{}", special::ADULT_FLAG);
@@ -480,7 +480,7 @@ async fn h27_a_command_cannot_touch_limits() {
 }
 
 #[tokio::test]
-async fn k5_h29_h92_a_screen_cursor_pages_for_its_owner_and_no_one_else() {
+async fn tmk5_h29_h92_a_screen_cursor_pages_for_its_owner_and_no_one_else() {
     let server = harness(&[]);
     let (adult, _) = enter(&server, false).await;
     let (other, _) = enter(&server, false).await;
@@ -513,7 +513,7 @@ async fn k5_h29_h92_a_screen_cursor_pages_for_its_owner_and_no_one_else() {
 }
 
 #[tokio::test]
-async fn s78_k5_a_deep_row_pages_past_its_first_titles_and_a_switch_to_kids_refuses_the_cursor() {
+async fn s78_tmk5_a_deep_row_pages_past_its_first_titles_and_a_switch_to_kids_refuses_the_cursor() {
     let server = harness_composed(&[]);
     let (token, _) = enter(&server, false).await;
     let page = screen(

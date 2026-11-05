@@ -30,7 +30,7 @@ async fn watching(server: &common::Harness, kids: bool) -> String {
 }
 
 #[tokio::test]
-async fn h30_k1_a_session_with_no_profile_reads_no_title() {
+async fn h30_tmk1_a_session_with_no_profile_reads_no_title() {
     let server = harness(&[]);
     let (_, token) = member(&server.door).await;
     let answer = get("/v1/titles/movie/100")
@@ -86,7 +86,7 @@ async fn h57_a_film_and_a_series_with_one_id_are_two_titles() {
 }
 
 #[tokio::test]
-async fn h35_k10_a_kids_session_is_refused_a_title_its_tier_cannot_see() {
+async fn h35_tmk10_a_kids_session_is_refused_a_title_its_tier_cannot_see() {
     let server = harness(&[]);
     let token = watching(&server, true).await;
     let path = format!("/v1/titles/movie/{}", special::ADULT_FLAG);
@@ -174,7 +174,7 @@ async fn a_title_outside_the_catalogue_answers_no_longer_available() {
 }
 
 #[tokio::test]
-async fn t18_a_title_is_private_and_revalidated() {
+async fn tmt18_a_title_is_private_and_revalidated() {
     let server = harness(&[]);
     let token = watching(&server, false).await;
     let first = get("/v1/titles/movie/100")
@@ -192,7 +192,7 @@ async fn t18_a_title_is_private_and_revalidated() {
 }
 
 #[tokio::test]
-async fn k1_the_public_title_is_off_without_a_stated_tier_and_filtered_with_one() {
+async fn tmk1_the_public_title_is_off_without_a_stated_tier_and_filtered_with_one() {
     let closed = harness(&[]);
     let off = get("/v1/public/titles/movie/100").on(&closed.state).await;
     assert_eq!(off.status, StatusCode::SERVICE_UNAVAILABLE);

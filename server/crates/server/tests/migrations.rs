@@ -50,7 +50,7 @@ fn tables() -> BTreeMap<String, BTreeSet<String>> {
 }
 
 #[test]
-fn g5_every_file_parses_and_the_numbers_only_rise() {
+fn fmg5_every_file_parses_and_the_numbers_only_rise() {
     let files = chain();
     assert!(files.len() >= 3);
     let mut last = 0u32;
@@ -65,7 +65,7 @@ fn g5_every_file_parses_and_the_numbers_only_rise() {
 }
 
 #[test]
-fn g5_a_migration_only_adds_so_the_previous_release_keeps_working() {
+fn fmg5_a_migration_only_adds_so_the_previous_release_keeps_working() {
     let removal =
         Regex::new(r"(?i)\b(drop\s+(table|column|index)|rename\s+(to|column)|truncate)\b").unwrap();
     for (name, sql) in chain() {

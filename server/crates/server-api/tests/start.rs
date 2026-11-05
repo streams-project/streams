@@ -68,7 +68,7 @@ async fn s111_s216_ready_tells_warming_from_broken() {
 }
 
 #[tokio::test]
-async fn g10_ready_carries_no_meter_or_service_name() {
+async fn fmg10_ready_carries_no_meter_or_service_name() {
     let server = harness(&[]);
     let answer = get("/v1/ready").on(&server.state).await;
     let mut names: Vec<&str> = answer

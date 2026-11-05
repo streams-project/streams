@@ -63,7 +63,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn t7_the_limit_holds_inside_a_minute_and_clears_after_it() {
+    fn tmt7_the_limit_holds_inside_a_minute_and_clears_after_it() {
         let meter = Meter::new(2);
         let key = || MeterKey::Address("a".into());
         assert!(meter.check(key(), 0).is_ok());

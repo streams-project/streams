@@ -79,7 +79,7 @@ async fn s112_a_play_answers_ranked_attempts_with_where_to_start() {
 }
 
 #[tokio::test]
-async fn k2_h35_h46_h79_h90_a_refused_title_reaches_no_finder() {
+async fn tmk2_h35_h46_h79_h90_a_refused_title_reaches_no_finder() {
     let finder = Arc::new(MemoryFinder::answering(found(&[
         "https://host.example/1.m3u8",
     ])));
@@ -170,7 +170,7 @@ async fn h17_a_miss_is_a_real_answer_and_a_dead_finder_is_not_a_miss() {
 }
 
 #[tokio::test]
-async fn k15_a_play_id_stops_working_after_a_profile_switch_and_for_anyone_else() {
+async fn tmk15_a_play_id_stops_working_after_a_profile_switch_and_for_anyone_else() {
     let finder = Arc::new(MemoryFinder::answering(FindAnswer {
         outcome: FindOutcome::Partial,
         sources: vec![source("https://host.example/1.m3u8")],
@@ -411,7 +411,7 @@ async fn c43_a_file_reads_as_clean_cues_or_webvtt_and_a_bad_file_tells_the_core_
 }
 
 #[tokio::test]
-async fn k3_a_subtitle_list_and_file_stay_refused_for_a_title_the_viewer_may_not_see() {
+async fn tmk3_a_subtitle_list_and_file_stay_refused_for_a_title_the_viewer_may_not_see() {
     let mut server = common::harness(&[]);
     with_subtitles(&mut server, vec![(file("one", "en", false), srt(20))]);
     let adult = enter(&server, false).await;

@@ -84,7 +84,7 @@ fn only_the_edges_of_the_table_exist() {
 }
 
 #[test]
-fn k14_the_rules_read_no_setting() {
+fn tmk14_the_rules_read_no_setting() {
     let folder = Path::new(env!("CARGO_MANIFEST_DIR")).join("../server-rules/src");
     for entry in std::fs::read_dir(folder).expect("folder") {
         let text = std::fs::read_to_string(entry.expect("entry").path()).expect("source");

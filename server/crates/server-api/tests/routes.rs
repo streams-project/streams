@@ -85,7 +85,7 @@ async fn s3_a_route_that_needs_a_token_refuses_without_one() {
 }
 
 #[tokio::test]
-async fn t19_no_route_sets_a_cookie() {
+async fn tmt19_no_route_sets_a_cookie() {
     let server = harness(&[]);
     for route in ROUTES
         .iter()

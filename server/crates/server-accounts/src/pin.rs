@@ -142,7 +142,7 @@ mod tests {
     }
 
     #[test]
-    fn p3_each_lock_after_the_first_lasts_longer() {
+    fn tmp3_each_lock_after_the_first_lasts_longer() {
         let mut current = row();
         current.locks = 2;
         current.failed = PIN_TRIES - 1;

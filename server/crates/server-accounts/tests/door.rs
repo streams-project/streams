@@ -52,7 +52,7 @@ impl Bench {
 }
 
 #[tokio::test]
-async fn h30_k1_a_session_with_no_profile_gets_no_scope() {
+async fn h30_tmk1_a_session_with_no_profile_gets_no_scope() {
     let bench = bench().await;
     let (member, _) = bench.sign_in().await;
     assert_eq!(
@@ -62,7 +62,7 @@ async fn h30_k1_a_session_with_no_profile_gets_no_scope() {
 }
 
 #[tokio::test]
-async fn h31_p1_the_scope_comes_from_the_session_row() {
+async fn h31_tmp1_the_scope_comes_from_the_session_row() {
     let bench = bench().await;
     let (member, tokens) = bench.sign_in().await;
     let kids = bench.profile(&member, ProfileKind::Kids).await;
@@ -99,7 +99,7 @@ async fn h31_a_profile_of_another_account_is_not_found() {
 }
 
 #[tokio::test]
-async fn h60_p2_deleting_the_active_profile_brings_the_picker_back() {
+async fn h60_tmp2_deleting_the_active_profile_brings_the_picker_back() {
     let bench = bench().await;
     let (member, tokens) = bench.sign_in().await;
     let extra = bench
@@ -178,7 +178,7 @@ async fn s42_a_step_up_lasts_300_seconds_and_refresh_never_renews_it() {
 }
 
 #[tokio::test]
-async fn h27_p6_limits_need_a_step_up() {
+async fn h27_tmp6_limits_need_a_step_up() {
     let bench = bench().await;
     let (member, _) = bench.sign_in().await;
     let main = bench.profile(&member, ProfileKind::Adult).await;
@@ -210,7 +210,7 @@ impl Bench {
 }
 
 #[tokio::test]
-async fn t11_a_device_code_session_has_no_step_up_power() {
+async fn tmt11_a_device_code_session_has_no_step_up_power() {
     let bench = bench().await;
     let access = bench.sign_in_no_step_up().await;
     let member = bench.door.member(&access).await.unwrap();
@@ -268,7 +268,7 @@ async fn s38_five_profiles_kids_included_and_names_are_unique() {
 }
 
 #[tokio::test]
-async fn t10_an_outage_is_not_a_sign_out() {
+async fn tmt10_an_outage_is_not_a_sign_out() {
     let bench = bench().await;
     let (_, tokens) = bench.sign_in().await;
     bench.store.set_down(true);
@@ -285,7 +285,7 @@ async fn t10_an_outage_is_not_a_sign_out() {
 }
 
 #[tokio::test]
-async fn t2_a_revoked_session_stops_on_the_next_request() {
+async fn tmt2_a_revoked_session_stops_on_the_next_request() {
     let bench = bench().await;
     let (member, tokens) = bench.sign_in().await;
     bench.door.sign_out(&member, false).await.unwrap();
@@ -308,7 +308,7 @@ async fn s58_the_access_token_lapses_after_fifteen_minutes() {
 }
 
 #[tokio::test]
-async fn t1_a_lost_reply_gets_the_same_next_token() {
+async fn tmt1_a_lost_reply_gets_the_same_next_token() {
     let bench = bench().await;
     let (_, tokens) = bench.sign_in().await;
     let first = bench.door.refresh(&tokens.refresh).await.unwrap();
@@ -328,7 +328,7 @@ async fn t1_a_lost_reply_gets_the_same_next_token() {
 }
 
 #[tokio::test]
-async fn t1_strict_alternation_ends_past_the_reuse_window() {
+async fn tmt1_strict_alternation_ends_past_the_reuse_window() {
     // A thief and the device hold one token and take turns, so no dead token is ever shown.
     let bench = bench().await;
     let (_, tokens) = bench.sign_in().await;
@@ -363,7 +363,7 @@ async fn s126_a_session_idle_for_thirty_days_ends() {
 }
 
 #[tokio::test]
-async fn t9_invented_tokens_are_metered_before_a_lookup() {
+async fn tmt9_invented_tokens_are_metered_before_a_lookup() {
     let bench = bench().await;
     for _ in 0..600 {
         bench.door.meter_call("203.0.113.9").unwrap();
@@ -376,7 +376,7 @@ async fn t9_invented_tokens_are_metered_before_a_lookup() {
 }
 
 #[tokio::test]
-async fn t7_sign_in_tries_are_metered_by_name_and_address() {
+async fn tmt7_sign_in_tries_are_metered_by_name_and_address() {
     let bench = bench().await;
     for n in 0..10 {
         bench
@@ -393,7 +393,7 @@ async fn t7_sign_in_tries_are_metered_by_name_and_address() {
 }
 
 #[tokio::test]
-async fn t1_a_device_many_steps_behind_a_thief_ends_the_session() {
+async fn tmt1_a_device_many_steps_behind_a_thief_ends_the_session() {
     let bench = bench().await;
     let (_, tokens) = bench.sign_in().await;
     let mut thief = bench.door.refresh(&tokens.refresh).await.unwrap();

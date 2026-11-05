@@ -579,7 +579,7 @@ mod tests {
     }
 
     #[test]
-    fn t11_a_user_code_is_eight_letters_with_no_vowel() {
+    fn tmt11_a_user_code_is_eight_letters_with_no_vowel() {
         let code = new_user_code();
         assert_eq!(code.len(), USER_CODE_LENGTH);
         assert!(code.chars().all(|c| USER_CODE_LETTERS.contains(&(c as u8))));

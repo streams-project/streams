@@ -53,7 +53,7 @@ async fn s38_parallel_inserts_cannot_pass_the_limit() {
 
 #[tokio::test]
 #[ignore = "needs a real Postgres in TEST_DATABASE_URL"]
-async fn h60_p2_deleting_the_active_profile_clears_the_session_row() {
+async fn h60_tmp2_deleting_the_active_profile_clears_the_session_row() {
     let (door, account) = door().await;
     let (_, tokens) = door
         .open_session(account, "pg", StepUpMethod::Password)
