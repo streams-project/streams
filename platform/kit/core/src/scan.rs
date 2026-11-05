@@ -13,6 +13,8 @@ const BANNED: &[(&str, &str)] = &[
     ("async", "async"),
     ("await", "async"),
     ("Future", "async"),
+    ("future", "async"),
+    ("task", "async"),
     ("Poll", "async"),
     ("Waker", "async"),
     ("thread", "thread"),

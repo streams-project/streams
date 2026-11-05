@@ -251,6 +251,8 @@ fn h1_the_scan_catches_planted_std_async_clock_and_io() {
             "clock",
         ),
         ("let t = SystemTime::now();", "clock"),
+        ("let ready = core::future::ready(());", "async"),
+        ("fn f(cx: &mut core::task::Context<'_>) {}", "async"),
         ("let s = TcpStream::connect(a);", "IO"),
         ("let f = File::open(p);", "IO"),
         ("thread_local! { static A: u8 = 0; }", "thread"),

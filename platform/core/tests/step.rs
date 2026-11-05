@@ -92,6 +92,24 @@ fn an_action_with_no_rule_yet_says_so_and_is_never_swallowed() {
 }
 
 #[test]
+fn c5_a_cancelled_hello_or_secret_never_leaves_the_core_waiting() {
+    let mut core = core();
+    let first = step(&mut core, 0, &json!([]));
+    let session_id = first["effects"][1]["id"].clone();
+    let hello_id = first["effects"][2]["id"].clone();
+    let out = step(
+        &mut core,
+        1,
+        &json!([
+            {"id": session_id, "type": "cancelled"},
+            {"id": hello_id, "type": "cancelled"},
+        ]),
+    );
+    assert_eq!(out["view"]["session"]["state"], "signed_out");
+    assert_eq!(out["next_wake_ms"], 2_001);
+}
+
+#[test]
 fn a_timer_fired_is_a_plain_wake_and_the_core_arms_no_timer_of_its_own() {
     let mut core = core();
     step(&mut core, 0, &json!([]));

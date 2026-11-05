@@ -269,6 +269,20 @@ impl Core {
         }
     }
 
+    /// The refresh got no usable answer. A request waiting near expiry goes on the token in
+    /// hand. One the server already refused waits for a new token, because sending the same
+    /// one again could only earn the second 401 that ends a good session.
+    fn refresh_missed(&mut self, now: Now, out: &mut Out) {
+        self.session.refresh_failed(now);
+        for held in self.net.take_held() {
+            if held.retried {
+                self.net.hold(held);
+            } else {
+                self.emit(held.id, held.request, false, out);
+            }
+        }
+    }
+
     /// Where this profile starts. The profile answer named it.
     const fn home(&self) -> Target {
         if self.session.kids() {
@@ -692,12 +706,7 @@ impl Core {
                 }
             }
             EventBody::Unsupported => self.unsupported(now, id.as_deref(), out),
-            EventBody::Cancelled => {
-                if let Some(id) = id.as_deref() {
-                    self.secrets.remove(id);
-                    self.net.take(id);
-                }
-            }
+            EventBody::Cancelled => self.cancelled(now, id.as_deref(), out),
             EventBody::SecretDone { value } => {
                 if let Some(wait) = id.as_deref().and_then(|id| self.secrets.remove(id)) {
                     self.secret_done(now, wait, value, out);
@@ -744,6 +753,25 @@ impl Core {
                 if let Some(id) = id {
                     out.unsupported.push(id);
                 }
+            }
+        }
+    }
+
+    /// The host dropped an effect. A screen's request goes quietly, and what the core itself
+    /// is waiting on counts as no answer, so nothing waits forever.
+    fn cancelled(&mut self, now: Now, id: Option<&str>, out: &mut Out) {
+        let Some(id) = id else {
+            return;
+        };
+        if let Some(wait) = self.secrets.remove(id) {
+            self.secret_done(now, wait, None, out);
+        } else if let Some(pending) = self.net.take(id) {
+            let waited_on = matches!(
+                pending.request.purpose,
+                Purpose::Hello | Purpose::Refresh | Purpose::Play(_) | Purpose::More(_)
+            );
+            if waited_on {
+                self.http_failed(now, pending, NoAnswerReason::Cancelled, out);
             }
         }
     }
@@ -890,6 +918,7 @@ impl Core {
         if retried || !self.session.has_refresh() {
             self.end(now, EndReason::Refused, out);
         } else if serial == self.session.serial() {
+            self.session.token_refused(now);
             self.net.hold(Held {
                 id,
                 request,
@@ -915,10 +944,7 @@ impl Core {
                     self.keep_session(out);
                     self.release_held(out);
                 }
-                Err(_) => {
-                    self.session.refresh_failed(now);
-                    self.release_held(out);
-                }
+                Err(_) => self.refresh_missed(now, out),
             },
             Purpose::SignIn => match serde_json::from_str::<SignedIn>(&text) {
                 Ok(answer) => self.signed_in(now, answer, out),
@@ -1047,8 +1073,7 @@ impl Core {
                 if (400..=403).contains(&status) {
                     self.end(now, EndReason::Refused, out);
                 } else {
-                    self.session.refresh_failed(now);
-                    self.release_held(out);
+                    self.refresh_missed(now, out);
                 }
             }
             Purpose::Hello => self.hello_failed(now, problem, out),

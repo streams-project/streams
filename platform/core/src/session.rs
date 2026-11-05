@@ -205,6 +205,11 @@ impl Session {
         self.refreshing = true;
     }
 
+    /// The server refused this token, so it counts as run out whatever its life said.
+    pub(crate) const fn token_refused(&mut self, now: Now) {
+        self.expires_mono = Some(now.mono_ms);
+    }
+
     /// The refresh got no usable answer. What exists stays, and it is tried later.
     pub(crate) const fn refresh_failed(&mut self, now: Now) {
         self.refreshing = false;
