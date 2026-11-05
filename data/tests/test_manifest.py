@@ -413,6 +413,16 @@ def test_h62_a_new_set_passes_the_age_check_and_an_old_one_fails(signed):
         check_age(ctx)
 
 
+def test_h62_a_daily_manifest_does_not_make_an_old_catalogue_look_new(signed):
+    ctx = signed
+    built_at = manifest_of(ctx)["built_at_ms"]
+    ctx.now = lambda: NOW + timedelta(days=201)
+    write_manifest(ctx)
+    assert manifest_of(ctx)["built_at_ms"] == built_at
+    with pytest.raises(StageFailed, match="days old"):
+        check_age(ctx)
+
+
 def test_h62_a_frozen_popularity_file_ends_the_job_with_a_failure(signed):
     ctx = signed
     db = sqlite3.connect(ctx.out / "popularity.db")

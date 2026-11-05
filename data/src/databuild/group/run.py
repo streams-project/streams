@@ -11,7 +11,7 @@ from ..context import Context
 from ..embed.backends import make_embedder
 from ..embed.quant import restore, unit
 from ..embed.run import read_master
-from ..errors import FeatureOff
+from ..errors import FeatureOff, StageFailed
 from ..keys import unpack
 from ..vocab import load
 from .cluster import choose_method
@@ -58,7 +58,9 @@ def _facts(titles_db: Path, keys: np.ndarray) -> dict:
     keyword_lists: dict[int, str] = {}
     quality: list[int] = []
     for i, key in enumerate(keys.tolist()):
-        r = rows[key]
+        r = rows.get(key)
+        if r is None:
+            raise StageFailed("group: the vectors hold a title the titles file does not")
         facts.append(make_fact(r[1], r[2], r[3], r[4], r[5], r[6], r[7]))
         text_length[i] = r[8] or 0
         buckets[i] = format_bucket(r[3], r[9])

@@ -107,6 +107,11 @@ def test_a_shared_vibe_name_stays_with_the_largest_group_and_the_rest_qualify_or
     assert names == {"vibe|1|1": "Slow Burn", "vibe|1|2": "1990s Slow Burn"}
 
 
+def test_a_name_stage_with_no_groups_names_the_stage_to_run(context):
+    with pytest.raises(StageFailed, match="group stage"):
+        name(context())
+
+
 def test_stage_without_a_model_names_groups_from_data_and_says_so(context):
     ctx = built(context())
     name(ctx)

@@ -34,6 +34,8 @@ class Item:
 
 def full_items(titles_db: Path) -> list[Item]:
     """Every non adult title with an overview of 20 characters or more."""
+    if not titles_db.exists():
+        raise StageFailed("embed: no titles file; run the clean stage")
     db = sqlite3.connect(f"file:{titles_db}?mode=ro", uri=True)
     items = [
         Item(key, full_text(kind, genres, tagline, overview, director, cast))
@@ -113,6 +115,8 @@ def embed_items(
 
 def read_master(folder: Path) -> tuple[np.ndarray, np.ndarray, dict]:
     """Master rows, keys and the embed record of a folder, checked against each other."""
+    if not (folder / "embed.json").exists():
+        raise StageFailed("no vectors; run the embed stage")
     info = json.loads((folder / "embed.json").read_text())
     rows = np.fromfile(folder / "master.q8", dtype=row_type(info["dimensions"]))
     keys = np.fromfile(folder / "master.keys", dtype="<u4")

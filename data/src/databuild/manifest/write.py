@@ -2,6 +2,9 @@
 
 The manifest names model, dimensions, quantisation, keys, row count, versions, the build commit and
 a hash per file. It holds no index: the server builds that and stamps it with this file's hash.
+
+A daily job writes a new manifest around a new daily file. `built_at_ms` still comes from the export
+record, so a daily file never makes an old catalogue look new.
 """
 
 from __future__ import annotations
@@ -30,6 +33,7 @@ SCHEMA_VERSION = 1
 CHUNK = 1 << 20
 RECORD_FIELDS = (
     "dataset_version",
+    "built_at_ms",
     "build_commit",
     "model",
     "dimensions",
@@ -94,7 +98,6 @@ def build_manifest(ctx: Context) -> dict[str, Any]:
             raise StageFailed(f"manifest: required file {spec.path} is missing")
     document: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
-        "built_at_ms": int(ctx.now().timestamp() * 1000),
         "files": files,
     }
     for field in RECORD_FIELDS:

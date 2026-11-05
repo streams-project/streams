@@ -1,7 +1,7 @@
 """Runs the export stage. A file from an earlier build never stays beside this one.
 
 A build date, a set of inputs and a commit give the same bytes each time. The wall clock reaches
-only the manifest.
+only the export record, which holds the time this set was built.
 """
 
 from __future__ import annotations
@@ -214,6 +214,7 @@ def export(ctx: Context) -> None:
 
     record = {
         "dataset_version": version,
+        "built_at_ms": int(ctx.now().timestamp() * 1000),
         "source": source,
         "as_of": ctx.as_of.isoformat(),
         "build_commit": ctx.commit,

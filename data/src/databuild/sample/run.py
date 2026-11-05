@@ -81,6 +81,7 @@ Ratings are one neutral value and popularity is a count of Wikipedia languages.
 CREDIT_TEXT = """# Credit
 
 Series names, summaries and episode text in this folder come from TVmaze, under CC BY-SA 4.0.
+The text was changed only by removing its markup.
 The series rows of catalog.db hold the same text, marked with the source tvmaze.
 Each line of series.jsonl gives the page of its show in the field url.
 This text is shared under the same licence.

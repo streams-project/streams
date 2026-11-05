@@ -330,6 +330,27 @@ OLD_FILES: tuple[tuple[str, str], ...] = (
 )
 
 
+OTHER_INPUTS: tuple[tuple[str, str, str], ...] = (
+    (
+        "Review vectors",
+        "The operator, a private input",
+        "No vibe groups and no mood pointers. Mood rows stay empty.",
+    ),
+    (
+        "A text model",
+        "The operator",
+        "Names come from the data. No profiles, no judged pages, no topic rows.",
+    ),
+    (
+        "An embedding model",
+        "The operator",
+        "The hashing back end proves function and knows nothing about meaning.",
+    ),
+    ("TMDB key", "The operator", "No full build. The open sample still builds."),
+    ("Signing key", "The operator", "The set is unsigned, and the manifest stage says so."),
+)
+
+
 def table() -> str:
     """The sidecar table as Markdown."""
     lines = [
@@ -351,6 +372,12 @@ def table() -> str:
         "",
         "The nearest neighbour index is not in a set. The server builds it from a set and stamps",
         "it with that set's manifest hash.",
+        "",
+        "## Inputs that are not files of a set",
+        "",
+        "| Input | Who holds it | What a build gives without it |",
+        "|---|---|---|",
+        *[f"| {what} | {who} | {without} |" for what, who, without in OTHER_INPUTS],
         "",
         "## What each old engine file became",
         "",

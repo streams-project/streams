@@ -313,3 +313,13 @@ def test_review_keys_that_disagree_with_their_rows_are_refused(context, tmp_path
     )
     with pytest.raises(StageFailed, match="disagree"):
         group(ctx)
+
+
+def test_h63_vectors_of_a_title_the_titles_file_lacks_are_refused(context):
+    ctx = context()
+    ctx.settings = replace(ctx.settings, embed=Embed(dimensions=64), group=Group(method="kmeans"))
+    make_titles(ctx.work / "titles.db", 30)
+    embed(ctx)
+    make_titles(ctx.work / "titles.db", 20)
+    with pytest.raises(StageFailed, match="titles file does not"):
+        group(ctx)

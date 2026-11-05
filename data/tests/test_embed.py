@@ -192,3 +192,11 @@ def test_back_ends_with_no_setting_are_off(context):
     with pytest.raises(StageFailed, match="unknown"):
         make_embedder(ctx, Embed(backend="x"))
     assert isinstance(make_embedder(ctx), backends.HashingEmbedder)
+
+
+def test_stages_run_out_of_order_name_the_stage_to_run(context):
+    ctx = small(context())
+    with pytest.raises(StageFailed, match="clean stage"):
+        embed(ctx)
+    with pytest.raises(StageFailed, match="embed stage"):
+        read_master(ctx.work / "vectors")

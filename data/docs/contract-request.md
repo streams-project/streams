@@ -37,6 +37,9 @@ pub struct DatasetSignature { algorithm: String, key_id: String, signature: Stri
 Once they exist, set `contract.schema_dir` to the contract's `generated/schemas` folder and delete
 the two JSON files shipped here.
 
+`built_at_ms` is when the export ran. A daily job rewrites the manifest around a new daily file and
+keeps this value, so data age never hides an old catalogue.
+
 ## Asked of the server
 
 - Read `manifest.sig` beside `manifest.json`. It is a detached ed25519 signature over the exact
