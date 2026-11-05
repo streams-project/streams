@@ -197,6 +197,16 @@ wire! {
         pub card: Option<CapabilityCard>,
     }
 
+    /// Asks `core_open` for the offline layer. A host sets it as the `layer` key of the text it
+    /// gives `core_open`, next to the `CoreConfig` keys. With no `layer` key the core runs alone,
+    /// and the core itself never reads this key.
+    pub struct LayerConfig {
+        /// Names this boot. It changes when monotonic time restarts.
+        pub boot_id: String,
+        /// The byte cap from the capability card. 0 means nothing is kept across a restart.
+        pub storage_bytes: u64,
+    }
+
     /// What a screen asks for.
     #[serde(tag = "action", rename_all = "snake_case")]
     #[non_exhaustive]

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Asks `core_open` for the offline layer. A host sets it as the `layer` key of the text it\ngives `core_open`, next to the `CoreConfig` keys. With no `layer` key the core runs alone,\nand the core itself never reads this key.",
+  "properties": {
+    "boot_id": {
+      "description": "Names this boot. It changes when monotonic time restarts.",
+      "type": "string"
+    },
+    "storage_bytes": {
+      "description": "The byte cap from the capability card. 0 means nothing is kept across a restart.",
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "boot_id",
+    "storage_bytes"
+  ],
+  "title": "LayerConfig",
+  "type": "object"
+}

@@ -869,6 +869,14 @@ export type ImageRole = "poster" | "backdrop" | "logo" | "still" | "avatar" | (s
 /** Input a device has. */
 export type InputKind = "touch" | "pointer" | "keyboard" | "remote" | "gamepad" | "rotary" | (string & {});
 
+/** Asks `core_open` for the offline layer. A host sets it as the `layer` key of the text it gives `core_open`, next to the `CoreConfig` keys. With no `layer` key the core runs alone, and the core itself never reads this key. */
+export interface LayerConfig {
+  /** Names this boot. It changes when monotonic time restarts. */
+  boot_id: string;
+  /** The byte cap from the capability card. 0 means nothing is kept across a restart. */
+  storage_bytes: number;
+}
+
 /** Limits served from one place, so no client holds a copy. */
 export interface Limits {
   blocked_title_max: number;

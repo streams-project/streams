@@ -11,6 +11,7 @@ extern crate alloc;
 pub mod cache;
 pub mod queue;
 
+use alloc::boxed::Box;
 use alloc::collections::BTreeMap;
 use alloc::format;
 use alloc::string::String;
@@ -25,19 +26,13 @@ use contract::core_msg::{
 };
 use contract::error::ErrorBody;
 use contract::version::WireDate;
-use core_rules::Step;
 use core_rules::net::{Next, problem_of_status};
+use core_rules::{BadMessage, Core, Step};
 use queue::{KEY_PREFIX, Kept, Queue};
 use serde::Deserialize;
 
 /// What the host tells the layer at start.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Config {
-    /// Names this boot. It changes when monotonic time restarts.
-    pub boot_id: String,
-    /// The byte cap from the capability card. 0 means nothing is kept across a restart.
-    pub storage_bytes: u64,
-}
+pub use contract::core_msg::LayerConfig as Config;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Phase {
@@ -860,6 +855,44 @@ fn without_body(event: Event) -> Event {
         other => other,
     };
     Event { id, body }
+}
+
+/// What `core_open` reads beyond the core's own config.
+#[derive(Deserialize)]
+struct Open {
+    #[serde(default)]
+    layer: Option<Config>,
+}
+
+/// One running core, alone or inside the layer. Bridges hold this, so the choice lives here and
+/// the core never learns of it.
+pub enum Machine {
+    Alone(Box<Core>),
+    Layered(Box<Layer<Core>>),
+}
+
+impl Machine {
+    /// Start from the text a host gives `core_open`. A `layer` key turns the layer on.
+    ///
+    /// # Errors
+    /// A config that does not read, or a bad seed.
+    pub fn open_json(start: &str) -> Result<Self, BadMessage> {
+        let core = Box::new(Core::open_json(start)?);
+        let open: Open = serde_json::from_str(start).map_err(|_| BadMessage)?;
+        Ok(match open.layer {
+            Some(config) => Self::Layered(Box::new(Layer::new(*core, config))),
+            None => Self::Alone(core),
+        })
+    }
+}
+
+impl Step for Machine {
+    fn step(&mut self, input: CoreIn) -> CoreOut {
+        match self {
+            Self::Alone(core) => core.step(input),
+            Self::Layered(layer) => layer.step(input),
+        }
+    }
 }
 
 impl<S: Step> Step for Layer<S> {

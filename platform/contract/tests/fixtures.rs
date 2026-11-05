@@ -15,7 +15,9 @@ use contract::account::{
 use contract::api::ROUTES;
 use contract::client::CapabilityCard;
 use contract::command::{Change, Changes, Command, CommandAnswer, CommandBatch};
-use contract::core_msg::{Action, CoreConfig, CoreIn, CoreOut, Effect, Event, HostedStep, View};
+use contract::core_msg::{
+    Action, CoreConfig, CoreIn, CoreOut, Effect, Event, HostedStep, LayerConfig, View,
+};
 use contract::driver::{DriverCommand, DriverEvent};
 use contract::error::{ErrorBody, ErrorCode, Notice};
 use contract::finder::{FindAnswer, FindRequest, FinderHealth};
@@ -113,6 +115,7 @@ fn read_as(type_name: &str, value: &Value) -> Result<Value, String> {
         FinderHealth,
         Hello,
         HostedStep,
+        LayerConfig,
         Marks,
         MarksRequest,
         More,

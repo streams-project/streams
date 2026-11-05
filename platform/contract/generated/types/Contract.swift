@@ -2794,6 +2794,24 @@ public struct InputKind: RawRepresentable, Codable, Hashable, Sendable {
     public static let rotary = InputKind(rawValue: "rotary")
 }
 
+/// Asks `core_open` for the offline layer. A host sets it as the `layer` key of the text it gives `core_open`, next to the `CoreConfig` keys. With no `layer` key the core runs alone, and the core itself never reads this key.
+public struct LayerConfig: Codable, Equatable, Sendable {
+    /// Names this boot. It changes when monotonic time restarts.
+    public var bootId: String
+    /// The byte cap from the capability card. 0 means nothing is kept across a restart.
+    public var storageBytes: Int
+
+    enum CodingKeys: String, CodingKey {
+        case bootId = "boot_id"
+        case storageBytes = "storage_bytes"
+    }
+
+    public init(bootId: String, storageBytes: Int) {
+        self.bootId = bootId
+        self.storageBytes = storageBytes
+    }
+}
+
 /// Limits served from one place, so no client holds a copy.
 public struct Limits: Codable, Equatable, Sendable {
     public var blockedTitleMax: Int
