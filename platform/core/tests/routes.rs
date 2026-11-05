@@ -94,18 +94,20 @@ fn c131_c102_a_visitor_goes_to_sign_in_with_next_and_a_member_leaves_sign_in() {
 fn c102_next_must_be_one_local_members_address() {
     assert_eq!(safe_next("/home").as_deref(), Some("/home"));
     assert_eq!(safe_next("/my-list?x=1").as_deref(), Some("/my-list?x=1"));
+    // Each of these names a members page the shape rule alone refuses, so none of them can pass
+    // for another reason: drop the guard and the address comes back.
     for bad in [
-        "home",
-        "//host.example/home",
-        "/ho me",
-        "/ho\\me",
-        "/ho\nme",
-        "/",
-        "/sign-in",
-        "/title/movie/7",
-        "/nowhere",
+        "home",          // no leading slash, so not local
+        "//home",        // two slashes name another host
+        "/home?x=a\\b",  // a backslash, which some clients read as a slash
+        "/home?x=a b",   // a space
+        "/home?x=a\nme", // a control character
     ] {
         assert_eq!(safe_next(bad), None, "{bad}");
+    }
+    // these are local and well shaped, and refused because they are open to visitors or nothing
+    for open in ["/", "/sign-in", "/title/movie/7", "/nowhere"] {
+        assert_eq!(safe_next(open), None, "{open}");
     }
     assert_eq!(
         decide("/sign-in?next=//host.example", &MEMBER).target,
@@ -147,6 +149,11 @@ fn c34_season_and_episode_come_from_the_address_both_required_with_short_names()
     let route = decide("/watch/tv/7?season=2", &MEMBER);
     assert_eq!(route.title, Some(tv));
     assert_eq!(route.episode, None);
+    // an episode with no season names nothing: no season is assumed
+    let route = decide("/watch/tv/7?episode=3", &MEMBER);
+    assert_eq!(route.title, Some(tv));
+    assert_eq!(route.episode, None);
+    assert_eq!(decide("/watch/tv/7?e=3", &MEMBER).episode, None);
 }
 
 #[test]
