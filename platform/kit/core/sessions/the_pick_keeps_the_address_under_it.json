@@ -1,0 +1,72 @@
+{
+ "about": "An address asked before sign in survives sign in and the picker.",
+ "covers": [
+  "C102",
+  "P35"
+ ],
+ "moments": [
+  {
+   "at_ms": 0,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "view": {
+     "route": {
+      "next": "/my-list",
+      "target": "sign_in"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p1"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "pages": [
+     {
+      "page": {
+       "ttl_s": 600
+      }
+     },
+     {
+      "page": {
+       "name": "my-list"
+      }
+     }
+    ],
+    "view": {
+     "route": {
+      "screen": "my-list",
+      "target": "screen"
+     }
+    }
+   }
+  }
+ ],
+ "name": "the_pick_keeps_the_address_under_it"
+}

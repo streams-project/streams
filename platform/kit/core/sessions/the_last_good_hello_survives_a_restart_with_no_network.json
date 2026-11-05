@@ -1,0 +1,121 @@
+{
+ "about": "With the layer a restart offline still knows accounts are off, from the last good hello. Without it, a server that cannot be reached counts as accounts required.",
+ "covers": [
+  "C108",
+  "C100"
+ ],
+ "moments": [
+  {
+   "at_ms": 0,
+   "want": {
+    "sent": [
+     "GET /v1/hello"
+    ]
+   }
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "address": "/home",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "view": {
+     "route": {
+      "target": "home"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 5000,
+   "events": [
+    {
+     "address": "/home",
+     "type": "address"
+    }
+   ],
+   "net": "down",
+   "restart": true,
+   "want_off": {
+    "view": {
+     "route": {
+      "next": "/home",
+      "target": "sign_in"
+     }
+    }
+   },
+   "want_on": {
+    "view": {
+     "route": {
+      "target": "home"
+     }
+    }
+   }
+  }
+ ],
+ "name": "the_last_good_hello_survives_a_restart_with_no_network",
+ "server": [
+  {
+   "body": {
+    "brand": {
+     "name": "Sample Video",
+     "support_email": "support@host.example"
+    },
+    "client_min": [
+     {
+      "class": "web",
+      "version": "1.0.0"
+     },
+     {
+      "class": "tv",
+      "version": "1.0.0"
+     }
+    ],
+    "contract": {
+     "max": "2026-11-05",
+     "min": "2026-11-05"
+    },
+    "features": {
+     "accounts_required": false,
+     "clips": false,
+     "games": false,
+     "original_audio": false
+    },
+    "limits": {
+     "blocked_title_max": 100,
+     "blocked_titles_max": 200,
+     "code_digits": 8,
+     "code_valid_s": 600,
+     "command_batch_max": 500,
+     "handle_max": 16,
+     "handle_min": 3,
+     "name_max": 60,
+     "password_min": 8,
+     "phone_digits_max": 15,
+     "phone_digits_min": 6,
+     "pin_digits": 4,
+     "profile_name_max": 30,
+     "profiles_max": 5,
+     "step_up_s": 300
+    },
+    "playback": true,
+    "start_deadline_ms": [
+     {
+      "class": "web",
+      "value": 8000
+     },
+     {
+      "class": "tv",
+      "value": 12000
+     }
+    ],
+    "ttl_s": 300
+   },
+   "method": "GET",
+   "path": "/v1/hello"
+  }
+ ]
+}

@@ -1,0 +1,75 @@
+{
+ "about": "Only the newest play opens a source.",
+ "covers": [
+  "C1",
+  "C29",
+  "H9"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p1"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "title": "movie:7"
+     },
+     "type": "action"
+    },
+    {
+     "action": {
+      "action": "play",
+      "title": "movie:8"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "generation": 1,
+      "op": "open"
+     }
+    ],
+    "sent": [
+     "POST /v1/play",
+     "POST /v1/play"
+    ],
+    "view": {
+     "play": {
+      "title": "movie:8"
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_second_play_replaces_the_first_and_the_first_answer_is_dropped"
+}

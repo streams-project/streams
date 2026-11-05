@@ -1,0 +1,61 @@
+{
+ "about": "Coming back after the limit asks and pauses the player.",
+ "covers": [
+  "C103",
+  "P35"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 20000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 3100,
+   "events": [
+    {
+     "type": "visibility",
+     "visible": false
+    }
+   ],
+   "want_off": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 20
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 2403101,
+   "events": [
+    {
+     "type": "visibility",
+     "visible": true
+    }
+   ],
+   "want": {
+    "view": {
+     "gate": {
+      "ask": true
+     },
+     "play": {
+      "state": "paused"
+     }
+    }
+   }
+  }
+ ],
+ "name": "nothing_plays_behind_the_picker",
+ "prologue": "playing"
+}

@@ -1,0 +1,68 @@
+{
+ "about": "Exit while the answer is on its way leaves nothing open.",
+ "covers": [
+  "C1",
+  "H9"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p1"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "title": "movie:7"
+     },
+     "type": "action"
+    },
+    {
+     "action": {
+      "action": "stop"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [],
+    "sent": [
+     "POST /v1/play"
+    ],
+    "view": {
+     "play": {
+      "state": "ended"
+     }
+    },
+    "wake": 780100
+   }
+  }
+ ],
+ "name": "a_play_answer_after_exit_opens_nothing"
+}

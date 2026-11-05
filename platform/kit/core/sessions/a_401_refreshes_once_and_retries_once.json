@@ -1,0 +1,49 @@
+{
+ "about": "The request that failed goes again with the new token.",
+ "covers": [
+  "C7",
+  "C118"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "bearers": [
+     "access-1",
+     "access-2"
+    ],
+    "sent": [
+     "GET /v1/screens/my-list",
+     "POST /v1/auth/refresh",
+     "GET /v1/screens/my-list"
+    ],
+    "view": {
+     "session": {
+      "state": "signed_in"
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_401_refreshes_once_and_retries_once",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "unauthorized",
+    "label": "signed-out"
+   },
+   "method": "GET",
+   "path": "/v1/screens/my-list",
+   "status": 401,
+   "times": 1
+  }
+ ]
+}

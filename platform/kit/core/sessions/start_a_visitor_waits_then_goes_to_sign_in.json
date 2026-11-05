@@ -1,0 +1,44 @@
+{
+ "about": "An address asked at start waits for hello, then the visitor goes to sign in and keeps the address.",
+ "covers": [
+  "C108",
+  "C131",
+  "C109"
+ ],
+ "moments": [
+  {
+   "at_ms": 0,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "routes": [
+     {
+      "target": "wait"
+     },
+     {
+      "next": "/my-list",
+      "target": "sign_in"
+     }
+    ],
+    "sent": [
+     "GET /v1/hello"
+    ],
+    "view": {
+     "route": {
+      "next": "/my-list",
+      "target": "sign_in"
+     },
+     "session": {
+      "state": "signed_out"
+     }
+    },
+    "wake": null
+   }
+  }
+ ],
+ "name": "start_a_visitor_waits_then_goes_to_sign_in"
+}

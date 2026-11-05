@@ -1,0 +1,64 @@
+{
+ "about": "Not found and profile required are codes from the server, mapped to targets here.",
+ "covers": [
+  "C102"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "address": "/title/movie/404",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "view": {
+     "route": {
+      "target": "not_found"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 2000,
+   "events": [
+    {
+     "address": "/films",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "view": {
+     "route": {
+      "target": "profiles"
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_missing_title_and_a_lost_profile_map_to_their_targets",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "not_found",
+    "label": "not-found"
+   },
+   "method": "GET",
+   "path": "/v1/titles/movie/404",
+   "status": 404
+  },
+  {
+   "body": {
+    "build": "sample",
+    "code": "profile_required",
+    "label": "profile"
+   },
+   "method": "GET",
+   "path": "/v1/screens/films",
+   "status": 403
+  }
+ ]
+}

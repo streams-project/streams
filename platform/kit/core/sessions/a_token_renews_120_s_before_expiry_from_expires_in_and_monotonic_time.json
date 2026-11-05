@@ -1,0 +1,50 @@
+{
+ "about": "The device clock is a year ahead and nothing changes: expiry comes from expires_in and monotonic time.",
+ "covers": [
+  "C7",
+  "C71",
+  "C88",
+  "C113",
+  "H61"
+ ],
+ "moments": [
+  {
+   "at_ms": 780000,
+   "want": {
+    "sent": [],
+    "wake": 780100
+   }
+  },
+  {
+   "at_ms": 780200,
+   "want": {
+    "sent": [
+     "POST /v1/auth/refresh"
+    ],
+    "view": {
+     "session": {
+      "state": "signed_in"
+     }
+    },
+    "wake": 1560100
+   }
+  },
+  {
+   "at_ms": 790000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "bearers": [
+     "access-2"
+    ]
+   }
+  }
+ ],
+ "name": "a_token_renews_120_s_before_expiry_from_expires_in_and_monotonic_time",
+ "prologue": "home",
+ "wall_skew_ms": 31536000000
+}

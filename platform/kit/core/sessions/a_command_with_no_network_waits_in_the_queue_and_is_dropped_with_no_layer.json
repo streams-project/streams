@@ -1,0 +1,99 @@
+{
+ "about": "With the layer it stays until the server answers, with its age. Without it, it is dropped and logged.",
+ "covers": [
+  "C2",
+  "C19",
+  "H20",
+  "H47",
+  "H48",
+  "H85"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "net": "down"
+  },
+  {
+   "at_ms": 1100,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:7"
+      }
+     },
+     "type": "action"
+    }
+   ],
+   "want_off": {
+    "logs": [
+     "command-dropped"
+    ],
+    "sent": [
+     "POST /v1/commands"
+    ]
+   },
+   "want_on": {
+    "logs": [],
+    "queued": 1,
+    "sent": []
+   }
+  },
+  {
+   "at_ms": 2000,
+   "want_on": {
+    "sent": []
+   }
+  },
+  {
+   "at_ms": 5200,
+   "want_on": {
+    "queued": 1,
+    "sent": [
+     "POST /v1/commands"
+    ],
+    "wake": 7100
+   }
+  },
+  {
+   "at_ms": 7200,
+   "want_on": {
+    "queued": 1,
+    "sent": [
+     "POST /v1/commands"
+    ],
+    "wake": 11100
+   }
+  },
+  {
+   "at_ms": 8000,
+   "events": [
+    {
+     "online": true,
+     "type": "network"
+    }
+   ],
+   "net": "up",
+   "want_off": {
+    "ops": [],
+    "sent": []
+   },
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 6900,
+      "command": "list",
+      "in_list": true,
+      "title": "movie:7"
+     }
+    ],
+    "queued": 0
+   }
+  }
+ ],
+ "name": "a_command_with_no_network_waits_in_the_queue_and_is_dropped_with_no_layer",
+ "prologue": "home"
+}

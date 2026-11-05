@@ -1,0 +1,62 @@
+{
+ "about": "When the session ends by itself the player closes, nothing is saved and the view shows the end.",
+ "covers": [
+  "C114",
+  "C118",
+  "H9"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 20000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 3100,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     }
+    ],
+    "view": {
+     "play": {
+      "state": "ended"
+     },
+     "session": {
+      "ended": "refused"
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_refused_session_leaves_no_play_on_screen",
+ "prologue": "playing",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "unauthorized",
+    "label": "signed-out"
+   },
+   "method": "GET",
+   "path": "/v1/screens/my-list",
+   "status": 401
+  }
+ ]
+}

@@ -1,0 +1,67 @@
+{
+ "about": "Another profile reads its own copy. Sign out removes every scoped copy and the last good hello stays.",
+ "covers": [
+  "C117",
+  "P13",
+  "C100"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "sent": [
+     "GET /v1/screens/my-list"
+    ]
+   }
+  },
+  {
+   "at_ms": 2000,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p2"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "sent": [
+     "GET /v1/screens/my-list"
+    ]
+   }
+  },
+  {
+   "at_ms": 4000,
+   "events": [
+    {
+     "action": {
+      "action": "sign_out",
+      "everywhere": false
+     },
+     "type": "action"
+    }
+   ],
+   "want_on": {
+    "kept_pages": 1
+   }
+  }
+ ],
+ "name": "pages_are_scoped_by_profile_and_sign_out_keeps_only_hello",
+ "prologue": "home"
+}

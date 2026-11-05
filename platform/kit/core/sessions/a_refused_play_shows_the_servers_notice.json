@@ -1,0 +1,76 @@
+{
+ "about": "A refused play ends the session with the server's label. Nothing opens.",
+ "covers": [
+  "C111",
+  "C6"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p1"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "title": "movie:7"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "notices": [
+     "play-refused"
+    ],
+    "player": [],
+    "sent": [
+     "POST /v1/play"
+    ],
+    "view": {
+     "play": {
+      "state": "failed"
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_refused_play_shows_the_servers_notice",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "refused",
+    "label": "play-refused"
+   },
+   "method": "POST",
+   "path": "/v1/play",
+   "status": 403
+  }
+ ]
+}

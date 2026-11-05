@@ -1,0 +1,181 @@
+{
+ "about": "An error moves on from the current second. A new position never opens anything. A new resolve attaches the same address again.",
+ "covers": [
+  "H42",
+  "H40",
+  "C1",
+  "C29"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 119000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 4000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 120000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 4100,
+   "events": [
+    {
+     "event": {
+      "class": "network",
+      "kind": "error"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     },
+     {
+      "generation": 2,
+      "op": "open",
+      "start_at_ms": 120000,
+      "url": "https://media2.example/b.mp4"
+     }
+    ],
+    "view": {
+     "play": {
+      "attempt": "a2",
+      "state": "switching"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 4200,
+   "events": [
+    {
+     "event": {
+      "kind": "position",
+      "time_ms": 0
+     },
+     "generation": 2,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 4300,
+   "events": [
+    {
+     "event": {
+      "kind": "first_frame"
+     },
+     "generation": 2,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "view": {
+     "play": {
+      "state": "playing"
+     }
+    }
+   },
+   "want_off": {
+    "wake": 34300
+   },
+   "want_on": {
+    "wake": 6000
+   }
+  },
+  {
+   "at_ms": 5000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 120700
+     },
+     "generation": 2,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 5100,
+   "events": [
+    {
+     "action": {
+      "action": "stop"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     }
+    ]
+   },
+   "want_off": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 120
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 5200,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "title": "movie:7"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "generation": 3,
+      "op": "open",
+      "url": "https://media.example/a.m3u8"
+     }
+    ]
+   }
+  }
+ ],
+ "name": "a_failure_mid_play_keeps_the_moment_and_saved_progress_never_reattaches",
+ "prologue": "playing"
+}

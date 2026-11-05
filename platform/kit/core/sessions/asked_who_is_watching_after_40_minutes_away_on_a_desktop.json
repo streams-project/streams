@@ -1,0 +1,69 @@
+{
+ "about": "Activity after the limit asks. Entering a profile clears it and the page stays.",
+ "covers": [
+  "C74",
+  "C103",
+  "C130",
+  "P11"
+ ],
+ "moments": [
+  {
+   "at_ms": 2000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ]
+  },
+  {
+   "at_ms": 2400199,
+   "events": [
+    {
+     "type": "activity"
+    }
+   ],
+   "want": {}
+  },
+  {
+   "at_ms": 4800400,
+   "events": [
+    {
+     "type": "activity"
+    }
+   ],
+   "want": {
+    "view": {
+     "gate": {
+      "ask": true
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 4800500,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p1"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "view": {
+     "gate": {
+      "ask": false
+     },
+     "route": {
+      "screen": "my-list",
+      "target": "screen"
+     }
+    }
+   }
+  }
+ ],
+ "name": "asked_who_is_watching_after_40_minutes_away_on_a_desktop",
+ "prologue": "home"
+}

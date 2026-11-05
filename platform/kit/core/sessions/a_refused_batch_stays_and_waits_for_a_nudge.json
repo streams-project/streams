@@ -1,0 +1,85 @@
+{
+ "about": "A status that will not change by waiting leaves the ops kept with no retry until the next change.",
+ "covers": [
+  "C5",
+  "H20",
+  "H47"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:7"
+      }
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 5100,
+   "want_on": {
+    "queued": 1,
+    "sent": [
+     "POST /v1/commands"
+    ],
+    "wake": 780100
+   }
+  },
+  {
+   "at_ms": 6000,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:8"
+      }
+     },
+     "type": "action"
+    }
+   ],
+   "want_on": {
+    "queued": 2,
+    "wake": 10000
+   }
+  },
+  {
+   "at_ms": 10100,
+   "want_on": {
+    "ops": [
+     {
+      "title": "movie:7"
+     },
+     {
+      "title": "movie:8"
+     }
+    ],
+    "queued": 0
+   }
+  }
+ ],
+ "name": "a_refused_batch_stays_and_waits_for_a_nudge",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "bad_request",
+    "label": "bad"
+   },
+   "method": "POST",
+   "path": "/v1/commands",
+   "status": 400,
+   "times": 1
+  }
+ ]
+}

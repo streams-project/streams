@@ -1,0 +1,105 @@
+{
+ "about": "Inside the ttl no call goes out. After it the etag is sent, and a 304 serves the kept body.",
+ "covers": [
+  "C100",
+  "C122"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "pages": [
+     {
+      "page": {
+       "name": "my-list"
+      }
+     }
+    ],
+    "sent": [
+     "GET /v1/screens/my-list"
+    ]
+   }
+  },
+  {
+   "at_ms": 2000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want_off": {
+    "sent": [
+     "GET /v1/screens/my-list"
+    ]
+   },
+   "want_on": {
+    "pages": [
+     {
+      "page": {
+       "name": "my-list"
+      },
+      "stale": false
+     }
+    ],
+    "sent": []
+   }
+  },
+  {
+   "at_ms": 62000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "sent": [
+     "GET /v1/screens/my-list"
+    ]
+   },
+   "want_on": {
+    "pages": [
+     {
+      "page": {
+       "name": "my-list"
+      },
+      "stale": false
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 63000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want_on": {
+    "sent": []
+   }
+  }
+ ],
+ "name": "a_kept_page_is_served_by_ttl_then_read_again_with_its_etag",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "name": "my-list",
+    "sections": [],
+    "ttl_s": 60
+   },
+   "etag": "\"v1\"",
+   "method": "GET",
+   "path": "/v1/screens/my-list"
+  }
+ ]
+}

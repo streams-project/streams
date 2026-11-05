@@ -1,0 +1,402 @@
+{
+ "about": "While playing a position goes every 30,000 ms. Pause, seek, suspend and exit also save. Paused sends nothing and sets no wake.",
+ "covers": [
+  "C4",
+  "C32",
+  "C36",
+  "C59",
+  "C68",
+  "H25",
+  "H38",
+  "H52",
+  "H89"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 1000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 6100,
+   "want_off": {
+    "ops": []
+   },
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 4000,
+      "command": "feedback",
+      "event": "start"
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 31000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 30000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "wake": 32000
+   }
+  },
+  {
+   "at_ms": 32500,
+   "want_off": {
+    "ops": [
+     {
+      "age_ms": 0,
+      "command": "position",
+      "duration_s": 6000,
+      "position_s": 30
+     }
+    ],
+    "wake": 62000
+   },
+   "want_on": {
+    "ops": [],
+    "queued": 1,
+    "wake": 36000
+   }
+  },
+  {
+   "at_ms": 36500,
+   "want_off": {
+    "ops": []
+   },
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 4000,
+      "command": "position",
+      "position_s": 30
+     }
+    ],
+    "queued": 0
+   }
+  },
+  {
+   "at_ms": 50000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 49000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 50001,
+   "events": [
+    {
+     "action": {
+      "action": "pause"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "pause"
+     }
+    ],
+    "view": {
+     "play": {
+      "state": "paused"
+     }
+    }
+   },
+   "want_off": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 49
+     }
+    ],
+    "wake": 780100
+   },
+   "want_on": {
+    "ops": [],
+    "queued": 1,
+    "wake": 54001
+   }
+  },
+  {
+   "at_ms": 54100,
+   "want_off": {
+    "ops": []
+   },
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 4000,
+      "command": "position",
+      "position_s": 49
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 100000,
+   "want": {
+    "ops": [],
+    "wake": 780100
+   }
+  },
+  {
+   "at_ms": 100001,
+   "events": [
+    {
+     "action": {
+      "action": "unpause"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "play"
+     }
+    ],
+    "view": {
+     "play": {
+      "state": "playing"
+     }
+    },
+    "wake": 130001
+   }
+  },
+  {
+   "at_ms": 120000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 70000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 130500,
+   "want_off": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 70
+     }
+    ],
+    "wake": 160001
+   },
+   "want_on": {
+    "wake": 134001
+   }
+  },
+  {
+   "at_ms": 134600,
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 4000,
+      "command": "position",
+      "position_s": 70
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 140000,
+   "events": [
+    {
+     "action": {
+      "action": "seek",
+      "to_ms": 500000
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "seek",
+      "to_ms": 500000
+     }
+    ]
+   },
+   "want_off": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 500
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 144100,
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 4000,
+      "command": "position",
+      "position_s": 500
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 150000,
+   "events": [
+    {
+     "type": "suspend"
+    }
+   ],
+   "want": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 500
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 150100,
+   "events": [
+    {
+     "action": {
+      "action": "seek",
+      "to_ms": 99000000
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "seek",
+      "to_ms": 6000000
+     }
+    ]
+   },
+   "want_off": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 6000
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 155000,
+   "want_on": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 6000
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 158000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 510000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 158001,
+   "events": [
+    {
+     "action": {
+      "action": "stop"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     }
+    ],
+    "view": {
+     "play": {
+      "state": "ended"
+     }
+    }
+   },
+   "want_off": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 510
+     }
+    ],
+    "wake": 780100
+   },
+   "want_on": {
+    "wake": 162001
+   }
+  },
+  {
+   "at_ms": 162100,
+   "want": {
+    "wake": 780100
+   },
+   "want_off": {
+    "ops": []
+   },
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 4000,
+      "command": "position",
+      "position_s": 510
+     }
+    ]
+   }
+  }
+ ],
+ "name": "heartbeat_at_30_s_plus_pause_seek_suspend_and_exit",
+ "prologue": "playing"
+}

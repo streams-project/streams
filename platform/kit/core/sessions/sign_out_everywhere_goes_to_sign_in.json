@@ -1,0 +1,35 @@
+{
+ "about": "Everywhere leads to sign in.",
+ "covers": [
+  "C9",
+  "C89",
+  "C114",
+  "P34"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "action": {
+      "action": "sign_out",
+      "everywhere": true
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "view": {
+     "route": {
+      "target": "sign_in"
+     },
+     "session": {
+      "ended": "everywhere"
+     }
+    }
+   }
+  }
+ ],
+ "name": "sign_out_everywhere_goes_to_sign_in",
+ "prologue": "home"
+}

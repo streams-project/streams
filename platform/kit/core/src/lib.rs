@@ -1,4 +1,6 @@
-//! Proof kit for the core: the gates that keep the core free of std, async, a clock and IO.
+//! Proof kit for the core: scripted sessions run through the JSON boundary, with the offline
+//! layer on and off, plus the gates that keep the core free of std, async, a clock and IO.
 
+pub mod host;
 pub mod scan;
 pub mod wasm;

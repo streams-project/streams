@@ -1,0 +1,63 @@
+{
+ "about": "Only a position above 5 s is worth sending.",
+ "covers": [
+  "C32",
+  "C68"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 5000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 3001,
+   "events": [
+    {
+     "action": {
+      "action": "pause"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "view": {
+     "play": {
+      "state": "paused"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 6100,
+   "want_off": {
+    "ops": []
+   },
+   "want_on": {
+    "ops": [
+     {
+      "command": "feedback",
+      "event": "start"
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 7000,
+   "want": {
+    "ops": []
+   }
+  }
+ ],
+ "name": "a_position_at_or_under_5_s_is_not_saved",
+ "prologue": "playing"
+}

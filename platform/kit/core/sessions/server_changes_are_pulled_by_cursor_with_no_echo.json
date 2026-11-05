@@ -1,0 +1,116 @@
+{
+ "about": "Pull on profile choice and focus, by cursor. A server change never enters the queue and marks kept pages for reading again.",
+ "covers": [
+  "C77",
+  "C117"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "type": "visibility",
+     "visible": true
+    }
+   ],
+   "want_off": {
+    "sent": []
+   },
+   "want_on": {
+    "queued": 0,
+    "sent": [
+     "GET /v1/changes?cursor=c1"
+    ]
+   }
+  },
+  {
+   "at_ms": 2000,
+   "events": [
+    {
+     "address": "/home",
+     "type": "address"
+    }
+   ],
+   "want_off": {
+    "sent": [
+     "GET /v1/screens/home"
+    ]
+   },
+   "want_on": {
+    "pages": [
+     {
+      "page": {
+       "name": "home"
+      },
+      "stale": false
+     }
+    ],
+    "sent": []
+   }
+  },
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "type": "visibility",
+     "visible": true
+    }
+   ],
+   "want_on": {
+    "queued": 0,
+    "sent": [
+     "GET /v1/changes?cursor=c1"
+    ]
+   }
+  },
+  {
+   "at_ms": 4000,
+   "events": [
+    {
+     "address": "/home",
+     "type": "address"
+    }
+   ],
+   "want_off": {
+    "sent": [
+     "GET /v1/screens/home"
+    ]
+   },
+   "want_on": {
+    "queued": 0,
+    "sent": [
+     "GET /v1/screens/home"
+    ]
+   }
+  }
+ ],
+ "name": "server_changes_are_pulled_by_cursor_with_no_echo",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "changes": [],
+    "cursor": "c1",
+    "has_more": false
+   },
+   "method": "GET",
+   "path": "/v1/changes?cursor=c1",
+   "times": 1
+  },
+  {
+   "body": {
+    "changes": [
+     {
+      "change": "hidden",
+      "title": "movie:7"
+     }
+    ],
+    "cursor": "c2",
+    "has_more": false
+   },
+   "method": "GET",
+   "path": "/v1/changes?cursor=c1",
+   "times": 1
+  }
+ ]
+}
