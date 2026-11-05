@@ -5,7 +5,7 @@ use axum::http::HeaderMap;
 use axum::response::Response;
 use contract::account::{
     Done, PinSet, Profile as ProfileView, ProfileCreate, ProfileEnter, ProfileEntered,
-    ProfileLimits, ProfileList, ProfileUpdate,
+    ProfileLimits, ProfileList, ProfileTransfer, ProfileUpdate,
 };
 use contract::screen::ScreenName;
 use server_accounts::{Door, Profile, ProfileId, ProfileKind, ProfileLimitsRow, ProfilePatch};
@@ -19,7 +19,9 @@ fn door(state: &Shared) -> ApiResult<&Door> {
     state.door.as_ref().ok_or_else(|| ApiError::off("accounts"))
 }
 
-fn view(row: &Profile) -> ProfileView {
+/// The wire view of a profile: a flag for the PIN, never the PIN.
+#[must_use]
+pub fn view(row: &Profile) -> ProfileView {
     ProfileView {
         id: row.id.to_string(),
         name: row.name.clone(),
@@ -142,6 +144,20 @@ pub async fn set_main(
 ) -> ApiResult<Response> {
     door(&state)?
         .set_main_profile(&member, ProfileId::parse(&id)?)
+        .await?;
+    send(&headers, &done(), Keep::Never)
+}
+
+/// `POST /v1/profiles/{id}/transfer`.
+pub async fn transfer(
+    State(state): State<Shared>,
+    Caller(member): Caller,
+    Path(id): Path<String>,
+    headers: HeaderMap,
+    Body(asked): Body<ProfileTransfer>,
+) -> ApiResult<Response> {
+    door(&state)?
+        .transfer_profile(&member, ProfileId::parse(&id)?, &asked.to_account_email)
         .await?;
     send(&headers, &done(), Keep::Never)
 }

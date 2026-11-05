@@ -1,5 +1,7 @@
 //! Route handlers. Each file answers one group of the contract's route table.
 
+pub mod account;
+pub mod auth;
 pub mod commands;
 pub mod devices;
 pub mod pages;

@@ -87,6 +87,9 @@ pub struct Config {
     pub image_base: Option<String>,
     pub finder_urls: Vec<String>,
     pub finder_token: Option<String>,
+    pub auth_address: Option<String>,
+    pub auth_admin_token: Option<String>,
+    pub site_address: Option<String>,
     pub brand_name: String,
     pub support_email: String,
     pub visitor_tier: Option<Tier>,
@@ -152,6 +155,15 @@ impl Config {
         if finder_urls.is_empty() || finder_token.is_none() {
             note("playback", "FINDER_URLS or FINDER_TOKEN is not set");
         }
+        let auth_address = value("AUTH_ADDRESS");
+        let auth_admin_token = value("AUTH_ADMIN_TOKEN");
+        if auth_address.is_none() || auth_admin_token.is_none() {
+            note("sign in", "AUTH_ADDRESS or AUTH_ADMIN_TOKEN is not set");
+        }
+        let site_address = value("SITE_ADDRESS");
+        if site_address.is_none() {
+            note("device sign in", "SITE_ADDRESS is not set");
+        }
         let brand_name = value("BRAND_NAME").unwrap_or_default();
         if brand_name.is_empty() {
             note("brand", "BRAND_NAME is not set");
@@ -188,6 +200,9 @@ impl Config {
             image_base,
             finder_urls,
             finder_token,
+            auth_address,
+            auth_admin_token,
+            site_address,
             brand_name,
             support_email,
             visitor_tier,

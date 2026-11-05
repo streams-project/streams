@@ -28,6 +28,26 @@ pub enum StoreError {
     Rule(&'static str),
 }
 
+/// One device sign in waiting for approval. Only the hash of the device code is kept.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct DeviceCodeRow {
+    pub device_hash: TokenHash,
+    pub user_code: String,
+    pub device_name: String,
+    /// Set when a signed in person approved it.
+    pub account: Option<AccountId>,
+    pub denied: bool,
+    pub last_poll_ms: Option<u64>,
+    pub expires_ms: u64,
+}
+
+/// Names of a person.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct AccountNames {
+    pub first_name: String,
+    pub last_name: String,
+}
+
 /// A store result.
 pub type StoreResult<T> = Result<T, StoreError>;
 
@@ -94,6 +114,37 @@ pub trait AccountStore: Send + Sync {
     async fn set_consent(&self, session: SessionId, consent: Consent) -> StoreResult<()>;
     /// Add a row to the audit log.
     async fn log_event(&self, account: AccountId, event: &str) -> StoreResult<()>;
+    /// The newest audit rows of an account.
+    async fn events_of(&self, account: AccountId, limit: usize) -> StoreResult<Vec<String>>;
+    /// The names of an account.
+    async fn names(&self, account: AccountId) -> StoreResult<AccountNames>;
+    /// Change the names of an account, and the main profile's name when `main` says so.
+    async fn set_names(
+        &self,
+        account: AccountId,
+        names: &AccountNames,
+        main: Option<(ProfileId, String)>,
+    ) -> StoreResult<()>;
+    /// Remove the account's rows. Deleting the auth row cascades in Postgres.
+    async fn delete_account(&self, account: AccountId) -> StoreResult<()>;
+    /// Move a profile to another account, clearing it from sessions that held it.
+    async fn move_profile(
+        &self,
+        from: AccountId,
+        profile: ProfileId,
+        to: AccountId,
+        max: u32,
+    ) -> StoreResult<()>;
+    /// Keep a waiting device sign in.
+    async fn insert_device_code(&self, row: &DeviceCodeRow) -> StoreResult<()>;
+    /// A waiting sign in by the hash of its device code.
+    async fn device_code(&self, hash: &TokenHash) -> StoreResult<Option<DeviceCodeRow>>;
+    /// A waiting sign in by the code a person types.
+    async fn device_code_by_user(&self, user_code: &str) -> StoreResult<Option<DeviceCodeRow>>;
+    /// Write the answer and last poll of a waiting sign in.
+    async fn update_device_code(&self, row: &DeviceCodeRow) -> StoreResult<()>;
+    /// Remove a waiting sign in.
+    async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<()>;
     /// Save a device card as opaque JSON, returning true when the hash is new.
     async fn save_card(
         &self,

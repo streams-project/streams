@@ -2,6 +2,7 @@
 
 use std::sync::Arc;
 
+use crate::auth::AuthService;
 use crate::clock::Clock;
 use crate::error::DoorError;
 use crate::limits::AccountLimits;
@@ -130,6 +131,8 @@ pub struct Door {
     limits: AccountLimits,
     calls: Arc<Meter>,
     sign_ins: Arc<Meter>,
+    device_tries: Arc<Meter>,
+    auth: Option<Arc<dyn AuthService>>,
 }
 
 impl std::fmt::Debug for Door {
@@ -144,6 +147,8 @@ impl std::fmt::Debug for Door {
 const CALLS_PER_MINUTE: u32 = 600;
 /// Password or code tries per minute on one account name or address.
 const SIGN_INS_PER_MINUTE: u32 = 10;
+/// Typed device codes per minute.
+const DEVICE_TRIES_PER_MINUTE: u32 = 5;
 
 impl Door {
     /// A door with the default meters.
@@ -155,7 +160,45 @@ impl Door {
             limits,
             calls: Arc::new(Meter::new(CALLS_PER_MINUTE)),
             sign_ins: Arc::new(Meter::new(SIGN_INS_PER_MINUTE)),
+            device_tries: Arc::new(Meter::new(DEVICE_TRIES_PER_MINUTE)),
+            auth: None,
         }
+    }
+
+    /// This door, with the auth service it signs people in through.
+    #[must_use]
+    pub fn with_auth(mut self, auth: Arc<dyn AuthService>) -> Self {
+        self.auth = Some(auth);
+        self
+    }
+
+    /// The auth service, when one is set.
+    #[must_use]
+    pub fn auth_service(&self) -> Option<&dyn AuthService> {
+        self.auth.as_deref()
+    }
+
+    /// The time this door reads.
+    #[must_use]
+    pub fn now_ms(&self) -> u64 {
+        self.clock.now_ms()
+    }
+
+    /// Count a typed device code.
+    ///
+    /// # Errors
+    /// `RateLimited` past five tries a minute.
+    pub fn meter_device(&self, account: AccountId, address: &str) -> Result<(), DoorError> {
+        let now = self.now();
+        for key in [
+            MeterKey::Account(account.to_string()),
+            MeterKey::Address(address.to_owned()),
+        ] {
+            self.device_tries
+                .check(key, now)
+                .map_err(|retry_after_s| DoorError::RateLimited { retry_after_s })?;
+        }
+        Ok(())
     }
 
     /// The limits this door applies.
@@ -413,6 +456,22 @@ impl Door {
             refresh,
             expires_in: self.limits.access_s,
         })
+    }
+
+    /// Refresh, naming the account the tokens belong to.
+    ///
+    /// # Errors
+    /// As [`Door::refresh`].
+    pub async fn refresh_for(&self, token: &str) -> Result<(AccountId, IssuedTokens), DoorError> {
+        let tokens = self.refresh(token).await?;
+        let (id, _) = token.split_once('.').ok_or(DoorError::SessionEnded)?;
+        let id = SessionId::parse(id).map_err(|_| DoorError::SessionEnded)?;
+        let session = self
+            .store
+            .session(id)
+            .await?
+            .ok_or(DoorError::SessionEnded)?;
+        Ok((session.account, tokens))
     }
 
     /// Record a step up on this session. Refresh never renews it.

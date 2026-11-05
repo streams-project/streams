@@ -13,7 +13,7 @@ use crate::profile::{
     SessionId,
 };
 use crate::session::{Consent, DeviceSession};
-use crate::store::{AccountStore, StoreError, StoreResult};
+use crate::store::{AccountNames, AccountStore, DeviceCodeRow, StoreError, StoreResult};
 use crate::token::TokenHash;
 
 /// Accounts on one pool.
@@ -150,6 +150,24 @@ async fn insert_profile_row(
         .await
         .map_err(fail)?;
     Ok(())
+}
+
+fn device_row(row: &PgRow) -> Result<DeviceCodeRow, sqlx::Error> {
+    let hash: Vec<u8> = row.try_get("device_hash")?;
+    let bytes: [u8; 32] = hash.try_into().map_err(|_| sqlx::Error::RowNotFound)?;
+    Ok(DeviceCodeRow {
+        device_hash: TokenHash(bytes),
+        user_code: row.try_get("user_code")?,
+        device_name: row.try_get("device_name")?,
+        account: row
+            .try_get::<Option<uuid::Uuid>, _>("user_id")?
+            .map(AccountId),
+        denied: row.try_get("denied")?,
+        last_poll_ms: row
+            .try_get::<Option<OffsetDateTime>, _>("last_poll")?
+            .map(to_ms),
+        expires_ms: to_ms(row.try_get("expires_at")?),
+    })
 }
 
 #[async_trait]
@@ -544,6 +562,174 @@ impl AccountStore for PgStore {
         sqlx::query("insert into account_events (user_id, event) values ($1, $2)")
             .bind(account.0)
             .bind(event)
+            .execute(&self.pool)
+            .await
+            .map_err(fail)?;
+        Ok(())
+    }
+
+    async fn events_of(&self, account: AccountId, limit: usize) -> StoreResult<Vec<String>> {
+        let rows = sqlx::query(
+            "select event from account_events where user_id = $1 order by ts desc limit $2",
+        )
+        .bind(account.0)
+        .bind(i64::try_from(limit).unwrap_or(i64::MAX))
+        .fetch_all(&self.pool)
+        .await
+        .map_err(fail)?;
+        rows.iter()
+            .map(|row| row.try_get("event").map_err(fail))
+            .collect()
+    }
+
+    async fn names(&self, account: AccountId) -> StoreResult<AccountNames> {
+        let row =
+            sqlx::query("select first_name, last_name from account_details where user_id = $1")
+                .bind(account.0)
+                .fetch_optional(&self.pool)
+                .await
+                .map_err(fail)?;
+        let Some(row) = row else {
+            return Ok(AccountNames::default());
+        };
+        Ok(AccountNames {
+            first_name: row.try_get("first_name").map_err(fail)?,
+            last_name: row.try_get("last_name").map_err(fail)?,
+        })
+    }
+
+    async fn set_names(
+        &self,
+        account: AccountId,
+        names: &AccountNames,
+        main: Option<(ProfileId, String)>,
+    ) -> StoreResult<()> {
+        let mut tx = self.pool.begin().await.map_err(fail)?;
+        sqlx::query(
+            "insert into account_details (user_id, first_name, last_name) values ($1, $2, $3) \
+             on conflict (user_id) do update set first_name = excluded.first_name, \
+             last_name = excluded.last_name, updated_at = now()",
+        )
+        .bind(account.0)
+        .bind(&names.first_name)
+        .bind(&names.last_name)
+        .execute(&mut *tx)
+        .await
+        .map_err(fail)?;
+        if let Some((id, name)) = main {
+            sqlx::query(
+                "update profiles set name = $3, updated_at = now() where id = $2 and user_id = $1",
+            )
+            .bind(account.0)
+            .bind(id.0)
+            .bind(name)
+            .execute(&mut *tx)
+            .await
+            .map_err(fail)?;
+        }
+        tx.commit().await.map_err(fail)
+    }
+
+    async fn delete_account(&self, account: AccountId) -> StoreResult<()> {
+        sqlx::query("delete from account_details where user_id = $1")
+            .bind(account.0)
+            .execute(&self.pool)
+            .await
+            .map_err(fail)?;
+        Ok(())
+    }
+
+    async fn move_profile(
+        &self,
+        from: AccountId,
+        profile: ProfileId,
+        to: AccountId,
+        max: u32,
+    ) -> StoreResult<()> {
+        let mut tx = self.pool.begin().await.map_err(fail)?;
+        sqlx::query("select pg_advisory_xact_lock(hashtextextended($1::text, 0))")
+            .bind(to.0.to_string())
+            .execute(&mut *tx)
+            .await
+            .map_err(fail)?;
+        let held: i64 = sqlx::query("select count(*) as held from profiles where user_id = $1")
+            .bind(to.0)
+            .fetch_one(&mut *tx)
+            .await
+            .map_err(fail)?
+            .try_get("held")
+            .map_err(fail)?;
+        if held >= i64::from(max) {
+            return Err(StoreError::LimitReached);
+        }
+        let moved = sqlx::query(
+            "update profiles set user_id = $3, is_main = false where id = $2 and user_id = $1",
+        )
+        .bind(from.0)
+        .bind(profile.0)
+        .bind(to.0)
+        .execute(&mut *tx)
+        .await
+        .map_err(fail)?;
+        if moved.rows_affected() == 0 {
+            return Err(StoreError::NotFound);
+        }
+        sqlx::query("update device_sessions set active_profile = null where active_profile = $1")
+            .bind(profile.0)
+            .execute(&mut *tx)
+            .await
+            .map_err(fail)?;
+        tx.commit().await.map_err(fail)
+    }
+
+    async fn insert_device_code(&self, row: &DeviceCodeRow) -> StoreResult<()> {
+        sqlx::query(
+            "insert into device_codes (device_hash, user_code, device_name, expires_at) \
+             values ($1, $2, $3, $4)",
+        )
+        .bind(row.device_hash.0.as_slice())
+        .bind(&row.user_code)
+        .bind(&row.device_name)
+        .bind(to_time(row.expires_ms))
+        .execute(&self.pool)
+        .await
+        .map_err(fail)?;
+        Ok(())
+    }
+
+    async fn device_code(&self, hash: &TokenHash) -> StoreResult<Option<DeviceCodeRow>> {
+        let row = sqlx::query("select * from device_codes where device_hash = $1")
+            .bind(hash.0.as_slice())
+            .fetch_optional(&self.pool)
+            .await
+            .map_err(fail)?;
+        row.as_ref().map(device_row).transpose().map_err(fail)
+    }
+
+    async fn device_code_by_user(&self, user_code: &str) -> StoreResult<Option<DeviceCodeRow>> {
+        let row = sqlx::query("select * from device_codes where user_code = $1")
+            .bind(user_code)
+            .fetch_optional(&self.pool)
+            .await
+            .map_err(fail)?;
+        row.as_ref().map(device_row).transpose().map_err(fail)
+    }
+
+    async fn update_device_code(&self, row: &DeviceCodeRow) -> StoreResult<()> {
+        sqlx::query("update device_codes set user_id = $2, denied = $3, last_poll = $4 where device_hash = $1")
+            .bind(row.device_hash.0.as_slice())
+            .bind(row.account.map(|id| id.0))
+            .bind(row.denied)
+            .bind(row.last_poll_ms.map(to_time))
+            .execute(&self.pool)
+            .await
+            .map_err(fail)?;
+        Ok(())
+    }
+
+    async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<()> {
+        sqlx::query("delete from device_codes where device_hash = $1")
+            .bind(hash.0.as_slice())
             .execute(&self.pool)
             .await
             .map_err(fail)?;

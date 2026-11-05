@@ -12,7 +12,7 @@ use crate::profile::{
     SessionId, name_key,
 };
 use crate::session::{Consent, DeviceSession};
-use crate::store::{AccountStore, StoreError, StoreResult};
+use crate::store::{AccountNames, AccountStore, DeviceCodeRow, StoreError, StoreResult};
 use crate::token::TokenHash;
 
 #[derive(Default)]
@@ -23,6 +23,8 @@ struct Rows {
     profiles: HashMap<ProfileId, Profile>,
     pins: HashMap<ProfileId, PinRow>,
     events: Vec<(AccountId, String)>,
+    device_codes: Vec<DeviceCodeRow>,
+    names: HashMap<AccountId, AccountNames>,
 }
 
 /// Rows in a mutex. A test can stop it to prove an outage is not read as a sign out.
@@ -86,6 +88,13 @@ impl AccountStore for MemoryStore {
     async fn create_account(&self, account: &NewAccount, profiles: &[Profile]) -> StoreResult<()> {
         let mut rows = self.guard()?;
         rows.accounts.insert(account.id, account.clone());
+        rows.names.insert(
+            account.id,
+            AccountNames {
+                first_name: account.first_name.clone(),
+                last_name: account.last_name.clone(),
+            },
+        );
         for profile in profiles {
             rows.profiles.insert(profile.id, profile.clone());
         }
@@ -367,6 +376,129 @@ impl AccountStore for MemoryStore {
 
     async fn log_event(&self, account: AccountId, event: &str) -> StoreResult<()> {
         self.guard()?.events.push((account, event.to_owned()));
+        Ok(())
+    }
+
+    async fn events_of(&self, account: AccountId, limit: usize) -> StoreResult<Vec<String>> {
+        let rows = self.guard()?;
+        let mine = rows
+            .events
+            .iter()
+            .rev()
+            .filter(|(owner, _)| *owner == account);
+        Ok(mine.take(limit).map(|(_, event)| event.clone()).collect())
+    }
+
+    async fn names(&self, account: AccountId) -> StoreResult<AccountNames> {
+        let rows = self.guard()?;
+        Ok(rows.names.get(&account).cloned().unwrap_or_default())
+    }
+
+    async fn set_names(
+        &self,
+        account: AccountId,
+        names: &AccountNames,
+        main: Option<(ProfileId, String)>,
+    ) -> StoreResult<()> {
+        let mut rows = self.guard()?;
+        rows.names.insert(account, names.clone());
+        if let Some((id, name)) = main
+            && let Some(row) = rows.profiles.get_mut(&id)
+        {
+            row.name = name;
+        }
+        Ok(())
+    }
+
+    async fn delete_account(&self, account: AccountId) -> StoreResult<()> {
+        let mut rows = self.guard()?;
+        rows.accounts.remove(&account);
+        rows.names.remove(&account);
+        rows.sessions.retain(|_, row| row.account != account);
+        rows.profiles.retain(|_, row| row.account != account);
+        rows.events.retain(|(owner, _)| *owner != account);
+        Ok(())
+    }
+
+    async fn move_profile(
+        &self,
+        from: AccountId,
+        profile: ProfileId,
+        to: AccountId,
+        max: u32,
+    ) -> StoreResult<()> {
+        let mut rows = self.guard()?;
+        let held = rows
+            .profiles
+            .values()
+            .filter(|row| row.account == to)
+            .count();
+        if held >= max as usize {
+            return Err(StoreError::LimitReached);
+        }
+        let name = rows
+            .profiles
+            .get(&profile)
+            .map(|row| row.name.clone())
+            .ok_or(StoreError::NotFound)?;
+        if name_taken(&rows, to, &name, Some(profile)) {
+            return Err(StoreError::NameTaken);
+        }
+        let row = rows
+            .profiles
+            .get_mut(&profile)
+            .ok_or(StoreError::NotFound)?;
+        if row.account != from {
+            return Err(StoreError::NotFound);
+        }
+        row.account = to;
+        for session in rows.sessions.values_mut() {
+            if session.active_profile == Some(profile) {
+                session.active_profile = None;
+            }
+        }
+        Ok(())
+    }
+
+    async fn insert_device_code(&self, row: &DeviceCodeRow) -> StoreResult<()> {
+        self.guard()?.device_codes.push(row.clone());
+        Ok(())
+    }
+
+    async fn device_code(&self, hash: &TokenHash) -> StoreResult<Option<DeviceCodeRow>> {
+        let rows = self.guard()?;
+        Ok(rows
+            .device_codes
+            .iter()
+            .find(|row| row.device_hash == *hash)
+            .cloned())
+    }
+
+    async fn device_code_by_user(&self, user_code: &str) -> StoreResult<Option<DeviceCodeRow>> {
+        let rows = self.guard()?;
+        Ok(rows
+            .device_codes
+            .iter()
+            .find(|row| row.user_code == user_code)
+            .cloned())
+    }
+
+    async fn update_device_code(&self, row: &DeviceCodeRow) -> StoreResult<()> {
+        let mut rows = self.guard()?;
+        if let Some(held) = rows
+            .device_codes
+            .iter_mut()
+            .find(|held| held.device_hash == row.device_hash)
+        {
+            *held = row.clone();
+        }
+        Ok(())
+    }
+
+    async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<()> {
+        self.guard()?
+            .device_codes
+            .retain(|row| row.device_hash != *hash);
         Ok(())
     }
 

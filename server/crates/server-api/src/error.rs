@@ -111,6 +111,7 @@ impl From<DoorError> for ApiError {
             DoorError::StepUpRequired => {
                 Self::new(Status::FORBIDDEN, Code::StepUpRequired, "step_up_required")
             }
+            DoorError::Refused("off.auth") => Self::off("sign_in"),
             DoorError::Refused(rule) => Self::refused(rule),
             DoorError::BadValue(what) => Self::bad(what),
             DoorError::NotFound => Self::not_found(),

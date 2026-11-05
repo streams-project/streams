@@ -14,7 +14,7 @@ use tower_http::cors::{Any, CorsLayer};
 
 use crate::error::ApiError;
 use crate::guard::guard;
-use crate::routes::{commands, devices, pages, profiles, start, titles};
+use crate::routes::{account, auth, commands, devices, pages, profiles, start, titles};
 use crate::state::Shared;
 
 /// Bearer only and no cookies, so any origin may call, and `Origin: null` from a packaged TV app is
@@ -66,7 +66,29 @@ pub fn router(state: Shared) -> Router {
         .route("/v1/ready", get(start::ready))
         .route("/v1/strings/{lang}", get(start::strings))
         .route("/v1/public/titles/{kind}/{id}", get(titles::public_title))
+        .route("/v1/auth/password", post(auth::password))
+        .route("/v1/auth/code", post(auth::send_code))
+        .route("/v1/auth/code/verify", post(auth::verify_code))
+        .route("/v1/auth/signup", post(auth::sign_up))
+        .route("/v1/auth/refresh", post(auth::refresh))
         .route("/v1/auth/signout", post(devices::sign_out))
+        .route("/v1/auth/confirm", post(auth::confirm))
+        .route("/v1/auth/recovery/start", post(auth::recovery_start))
+        .route("/v1/auth/recovery/finish", post(auth::recovery_finish))
+        .route("/v1/auth/device/code", post(auth::device_code))
+        .route("/v1/auth/device/token", post(auth::device_token))
+        .route("/v1/auth/device/approve", post(auth::device_approve))
+        .route("/v1/auth/device/deny", post(auth::device_deny))
+        .route(
+            "/v1/account",
+            get(account::account)
+                .patch(account::update)
+                .delete(account::delete),
+        )
+        .route("/v1/account/export", get(account::export))
+        .route("/v1/account/password", post(account::password))
+        .route("/v1/account/email", post(account::email))
+        .route("/v1/account/phone", post(account::phone))
         .route("/v1/devices/me", post(devices::register))
         .route("/v1/devices", get(devices::list).delete(devices::remove))
         .route("/v1/consent", put(devices::set_consent))
@@ -78,6 +100,7 @@ pub fn router(state: Shared) -> Router {
         .route("/v1/profiles/{id}/enter", post(profiles::enter))
         .route("/v1/profiles/{id}/pin", put(profiles::set_pin))
         .route("/v1/profiles/{id}/main", post(profiles::set_main))
+        .route("/v1/profiles/{id}/transfer", post(profiles::transfer))
         .route(
             "/v1/profiles/{id}/limits",
             get(profiles::limits).put(profiles::set_limits),

@@ -14,7 +14,7 @@ use contract::version::{
 };
 use server_accounts::MeterKey;
 
-use crate::caller::client_class;
+use crate::caller::{address_of, client_class};
 use crate::error::{ApiError, ApiResult, finish_failure};
 use crate::live::LiveValues;
 use crate::state::Shared;
@@ -102,20 +102,12 @@ pub fn check_floor(headers: &HeaderMap, live: &LiveValues) -> ApiResult<()> {
     Ok(())
 }
 
-/// The address a request came from: the one header the front proxy sets, else the peer.
 fn address(state: &Shared, request: &Request) -> String {
-    let header = state.config.address_header.as_deref().and_then(|name| {
-        let value = request.headers().get(name)?.to_str().ok()?;
-        value.split(',').next().map(|first| first.trim().to_owned())
-    });
-    header
-        .or_else(|| {
-            request
-                .extensions()
-                .get::<ConnectInfo<SocketAddr>>()
-                .map(|info| info.0.ip().to_string())
-        })
-        .unwrap_or_else(|| String::from("?"))
+    let peer = request
+        .extensions()
+        .get::<ConnectInfo<SocketAddr>>()
+        .map(|info| info.0.ip());
+    address_of(state, request.headers(), peer)
 }
 
 fn enter(state: &Shared, request: &Request) -> ApiResult<()> {

@@ -41,6 +41,60 @@ pub fn client_class(headers: &HeaderMap) -> DeviceClass {
         .unwrap_or(DeviceClass::Unknown)
 }
 
+/// Where a request comes from: the one header the front proxy sets, else the peer.
+#[derive(Clone, Debug)]
+pub struct ClientOrigin {
+    pub address: String,
+    pub device: String,
+}
+
+impl ClientOrigin {
+    /// The form the door reads.
+    #[must_use]
+    pub fn as_origin(&self) -> server_accounts::Origin<'_> {
+        server_accounts::Origin {
+            address: &self.address,
+            device: &self.device,
+        }
+    }
+}
+
+/// The address of a request.
+#[must_use]
+pub fn address_of(
+    state: &Shared,
+    parts_headers: &HeaderMap,
+    peer: Option<std::net::IpAddr>,
+) -> String {
+    let header = state.config.address_header.as_deref().and_then(|name| {
+        let value = parts_headers.get(name)?.to_str().ok()?;
+        value.split(',').next().map(|first| first.trim().to_owned())
+    });
+    header
+        .or_else(|| peer.map(|ip| ip.to_string()))
+        .unwrap_or_else(|| String::from("?"))
+}
+
+impl FromRequestParts<Shared> for ClientOrigin {
+    type Rejection = ApiError;
+
+    async fn from_request_parts(parts: &mut Parts, state: &Shared) -> ApiResult<Self> {
+        let peer = parts
+            .extensions
+            .get::<axum::extract::ConnectInfo<std::net::SocketAddr>>()
+            .map(|info| info.0.ip());
+        let device = parts
+            .headers
+            .get("client-app")
+            .and_then(|value| value.to_str().ok())
+            .unwrap_or_default();
+        Ok(Self {
+            address: address_of(state, &parts.headers, peer),
+            device: device.chars().take(120).collect(),
+        })
+    }
+}
+
 fn door(state: &Shared) -> ApiResult<&Door> {
     state.door.as_ref().ok_or_else(|| ApiError::off("accounts"))
 }

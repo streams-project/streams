@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use anyhow::{Context, Result, bail};
 use server_accounts::limits::DEFAULT_LIMITS;
-use server_accounts::{AccountStore, Door, PgStore, SystemClock};
+use server_accounts::{AccountStore, Door, HttpAuth, PgStore, SystemClock};
 use server_api::{AppState, Config};
 use server_catalog::DataSlot;
 use server_library::{Library, LibraryStore, PgLibrary};
@@ -49,7 +49,11 @@ async fn open_accounts(config: &Config) -> Result<Option<(Door, Library)>> {
     let store: Arc<dyn AccountStore> = Arc::new(PgStore::new(pool.clone()));
     let books: Arc<dyn LibraryStore> = Arc::new(PgLibrary::new(pool));
     let clock = Arc::new(SystemClock);
-    let door = Door::new(store, clock.clone(), DEFAULT_LIMITS);
+    let mut door = Door::new(store, clock.clone(), DEFAULT_LIMITS);
+    if let (Some(address), Some(token)) = (&config.auth_address, &config.auth_admin_token) {
+        let auth = HttpAuth::new(address, token).context("the auth client did not build")?;
+        door = door.with_auth(Arc::new(auth));
+    }
     Ok(Some((door, Library::new(books, clock))))
 }
 
@@ -76,7 +80,10 @@ async fn serve(config: Config) -> Result<()> {
 /// Bring the database up to this build. The chain only goes forward, and each file leaves the
 /// previous release working.
 async fn migrate(config: &Config) -> Result<()> {
-    let url = config.database_url.as_deref().context("DATABASE_URL is not set")?;
+    let url = config
+        .database_url
+        .as_deref()
+        .context("DATABASE_URL is not set")?;
     let pool = sqlx::PgPool::connect(url)
         .await
         .context("the database did not answer")?;

@@ -10,7 +10,8 @@ use axum::http::{Method, Request, Response, StatusCode};
 use contract::version::{API_VERSION_HEADER, WIRE_VERSION};
 use server_accounts::limits::DEFAULT_LIMITS;
 use server_accounts::{
-    AccountId, AccountStore, Door, ManualClock, MemoryStore, NewAccount, StepUpMethod,
+    AccountId, AccountStore, AuthService, Door, ManualClock, MemoryAuth, MemoryStore, NewAccount,
+    StepUpMethod,
 };
 use server_api::{AppState, Config, Shared};
 use server_catalog::DataSlot;
@@ -49,6 +50,20 @@ pub fn harness(pairs: &[(&str, &str)]) -> Harness {
     harness_with(pairs, Some(&manifest), dir)
 }
 
+/// A server with an auth service in memory.
+#[must_use]
+pub fn harness_with_auth(pairs: &[(&str, &str)]) -> Harness {
+    harness_on(pairs, Arc::new(MemoryAuth::default()))
+}
+
+/// A server with this auth service.
+#[must_use]
+pub fn harness_on(pairs: &[(&str, &str)], auth: Arc<dyn AuthService>) -> Harness {
+    let dir = folder("auth");
+    let manifest = write_sample(&dir);
+    make(pairs, Some(&manifest), dir, Some(auth))
+}
+
 /// A server on the sample with composed rows.
 #[must_use]
 pub fn harness_composed(pairs: &[(&str, &str)]) -> Harness {
@@ -64,9 +79,21 @@ pub fn harness_no_data(pairs: &[(&str, &str)]) -> Harness {
 }
 
 fn harness_with(pairs: &[(&str, &str)], manifest: Option<&Path>, dir: PathBuf) -> Harness {
+    make(pairs, manifest, dir, None)
+}
+
+fn make(
+    pairs: &[(&str, &str)],
+    manifest: Option<&Path>,
+    dir: PathBuf,
+    auth: Option<Arc<dyn AuthService>>,
+) -> Harness {
     let clock = Arc::new(ManualClock::new(START_MS));
     let store: Arc<dyn AccountStore> = Arc::new(MemoryStore::default());
-    let door = Door::new(store, clock.clone(), DEFAULT_LIMITS);
+    let mut door = Door::new(store, clock.clone(), DEFAULT_LIMITS);
+    if let Some(auth) = auth {
+        door = door.with_auth(auth);
+    }
     let data = manifest.map(|path| Arc::new(DataSlot::open(path).expect("sample set")));
     let mut settings: Vec<(&str, &str)> = vec![("BUILD_ID", "test-build")];
     settings.extend_from_slice(pairs);

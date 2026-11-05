@@ -24,6 +24,18 @@ fn door(state: &Shared) -> ApiResult<&Door> {
     state.door.as_ref().ok_or_else(|| ApiError::off("accounts"))
 }
 
+/// One device as the account reads it.
+#[must_use]
+pub fn session_view(session: &server_accounts::DeviceSession, current: SessionId) -> DeviceSession {
+    DeviceSession {
+        id: session.id.to_string(),
+        name: session.device_name.clone(),
+        class: DeviceClass::Unknown,
+        last_seen_ms: session.last_seen_ms,
+        current: session.id == current,
+    }
+}
+
 /// `POST /v1/devices/me`: a hash at each start, and the whole card when asked for.
 pub async fn register(
     State(state): State<Shared>,
@@ -55,13 +67,7 @@ pub async fn list(
     let sessions = door(&state)?.devices(&member).await?;
     let devices = sessions
         .iter()
-        .map(|session| DeviceSession {
-            id: session.id.to_string(),
-            name: session.device_name.clone(),
-            class: DeviceClass::Unknown,
-            last_seen_ms: session.last_seen_ms,
-            current: session.id == member.session_id(),
-        })
+        .map(|session| session_view(session, member.session_id()))
         .collect();
     send(&headers, &DeviceList { devices }, Keep::Never)
 }

@@ -66,7 +66,8 @@ fn g5_every_file_parses_and_the_numbers_only_rise() {
 
 #[test]
 fn g5_a_migration_only_adds_so_the_previous_release_keeps_working() {
-    let removal = Regex::new(r"(?i)\b(drop\s+(table|column|index)|rename\s+(to|column)|truncate)\b").unwrap();
+    let removal =
+        Regex::new(r"(?i)\b(drop\s+(table|column|index)|rename\s+(to|column)|truncate)\b").unwrap();
     for (name, sql) in chain() {
         assert!(!removal.is_match(&sql), "{name} removes something");
     }
@@ -79,17 +80,24 @@ fn h26_h31_no_rule_hides_in_the_database() {
     )
     .unwrap();
     for (name, sql) in chain() {
-        assert!(!banned.is_match(&sql), "{name} holds a database rule, and rules live in Rust");
+        assert!(
+            !banned.is_match(&sql),
+            "{name} holds a database rule, and rules live in Rust"
+        );
     }
 }
 
 #[test]
 fn a_project_that_takes_only_accounts_stops_before_any_video_word() {
-    let video = Regex::new(r"(?i)\b(title|movie|episode|season|series|film|video|trailer|tmdb)").unwrap();
+    let video =
+        Regex::new(r"(?i)\b(title|movie|episode|season|series|film|video|trailer|tmdb)").unwrap();
     for (name, sql) in chain() {
         let number: u32 = name.split('_').next().unwrap().parse().unwrap();
         if number < 100 {
-            for line in sql.lines().filter(|line| !line.trim_start().starts_with("--")) {
+            for line in sql
+                .lines()
+                .filter(|line| !line.trim_start().starts_with("--"))
+            {
                 assert!(!video.is_match(line), "{name}: {line}");
             }
         }
@@ -100,25 +108,35 @@ fn a_project_that_takes_only_accounts_stops_before_any_video_word() {
 
 /// Every store source file.
 fn store_sources() -> Vec<String> {
-    ["crates/server-accounts/src/postgres.rs", "crates/server-library/src/postgres.rs"]
-        .iter()
-        .map(|path| std::fs::read_to_string(root().join(path)).expect("store source"))
-        .collect()
+    [
+        "crates/server-accounts/src/postgres.rs",
+        "crates/server-library/src/postgres.rs",
+    ]
+    .iter()
+    .map(|path| std::fs::read_to_string(root().join(path)).expect("store source"))
+    .collect()
 }
 
 #[test]
 fn every_table_a_store_names_exists() {
     let tables = tables();
     let named = Regex::new(r"(?i)\b(?:from|into|update|join)\s+([a-z_]+)\b").unwrap();
-    let words = ["the", "a", "this", "one", "memory", "rows", "disk", "any", "every", "an", "session"];
+    let queries = Regex::new(r#"(?s)"((?:select|insert|update|delete)[^"]*)""#).unwrap();
+    let words = [
+        "the", "a", "this", "one", "memory", "rows", "disk", "any", "every", "an", "session",
+    ];
     for source in store_sources() {
-        for query in Regex::new(r#"(?s)"((?:select|insert|update|delete)[^"]*)""#).unwrap().captures_iter(&source) {
+        for query in queries.captures_iter(&source) {
             for table in named.captures_iter(&query[1]) {
                 let table = &table[1];
                 if table == "auth" || table == "set" || words.contains(&table) {
                     continue;
                 }
-                assert!(tables.contains_key(table), "no table {table} in: {}", &query[1]);
+                assert!(
+                    tables.contains_key(table),
+                    "no table {table} in: {}",
+                    &query[1]
+                );
             }
         }
     }
@@ -132,8 +150,13 @@ fn every_column_a_store_writes_exists() {
     let assigned = Regex::new(r"(?:^|,)\s*\\?\s*([a-z_]+)\s*=").unwrap();
     for source in store_sources() {
         for found in inserts.captures_iter(&source) {
-            let columns = tables.get(&found[1]).unwrap_or_else(|| panic!("no table {}", &found[1]));
-            for column in found[2].split(',').map(|c| c.trim().trim_matches('\\').trim()) {
+            let columns = tables
+                .get(&found[1])
+                .unwrap_or_else(|| panic!("no table {}", &found[1]));
+            for column in found[2]
+                .split(',')
+                .map(|c| c.trim().trim_matches('\\').trim())
+            {
                 if !column.is_empty() {
                     assert!(columns.contains(column), "{}.{column}", &found[1]);
                 }
