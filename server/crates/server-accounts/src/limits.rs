@@ -42,7 +42,7 @@ pub const DEFAULT_LIMITS: AccountLimits = AccountLimits {
     handle_max: 16,
     code_digits: 8,
     code_valid_s: 600,
-    command_batch_max: 400,
+    command_batch_max: 500,
     access_s: 900,
     idle_s: 30 * 86_400,
     // Target value. A device that sleeps through a reply for longer signs in again; a thief who

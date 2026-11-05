@@ -677,6 +677,41 @@ impl Door {
             .ok_or(DoorError::NotFound)
     }
 
+    /// Sessions of the caller's account, newest use first.
+    ///
+    /// # Errors
+    /// The store's refusal.
+    pub async fn devices(&self, member: &Member) -> Result<Vec<DeviceSession>, DoorError> {
+        Ok(self.store.sessions_of(member.account()).await?)
+    }
+
+    /// Sign out one device of this account. Another account's device is simply not found.
+    ///
+    /// # Errors
+    /// The store's refusal.
+    pub async fn remove_device(&self, member: &Member, id: SessionId) -> Result<(), DoorError> {
+        let sessions = self.store.sessions_of(member.account()).await?;
+        if !sessions.iter().any(|session| session.id == id) {
+            return Err(DoorError::NotFound);
+        }
+        Ok(self.store.delete_session(member.account(), id).await?)
+    }
+
+    /// Sign out every device but this one.
+    ///
+    /// # Errors
+    /// The store's refusal.
+    pub async fn remove_other_devices(&self, member: &Member) -> Result<(), DoorError> {
+        for session in self.store.sessions_of(member.account()).await? {
+            if session.id != member.session_id() {
+                self.store
+                    .delete_session(member.account(), session.id)
+                    .await?;
+            }
+        }
+        Ok(())
+    }
+
     /// Save a device card (opaque JSON). True asks the device for the whole card.
     ///
     /// # Errors
