@@ -1,0 +1,52 @@
+[project]
+name = "databuild"
+version = "0.1.0"
+description = "Builds and proves the catalogue data set: pull, clean, embed, group, name, export, manifest."
+readme = "README.md"
+requires-python = "==3.13.*"
+license = "MIT OR Apache-2.0"
+dependencies = [
+    "cryptography==48.0.1",
+    "jsonschema==4.26.0",
+    "numpy==2.5.4",
+    "pillow==13.0.0",
+]
+
+[project.optional-dependencies]
+# Grouping at full size. leidenalg and python-igraph are GPL, so they stay out of a default install.
+full = [
+    "leidenalg==0.12.0",
+    "python-igraph==1.0.0",
+    "usearch==2.26.6",
+]
+# A local embedding model, for a machine with a GPU.
+local-model = [
+    "sentence-transformers==6.2.0",
+]
+
+[project.scripts]
+databuild = "databuild.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest==9.2.0",
+    "reuse==6.3.0",
+    "ruff==0.17.3",
+]
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = ["full: needs the full extra (Leiden and usearch)"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "B", "UP", "C4", "SIM", "RUF"]
+ignore = ["SIM905"]
