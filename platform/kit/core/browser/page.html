@@ -1,0 +1,88 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Session run</title>
+<pre id="result"></pre>
+<script id="tapes" type="application/json">/*TAPES*/</script>
+<script type="module">
+/*CORE*/
+/*PLAYER*/
+
+const CONFIG = /*CONFIG*/;
+const STEP = /*STEP*/;
+
+function hex(text) {
+  const bytes = new TextEncoder().encode(text);
+  const parts = new Array(bytes.length);
+  for (let at = 0; at < bytes.length; at++) {
+    parts[at] = bytes[at].toString(16).padStart(2, "0");
+  }
+  return parts.join("");
+}
+
+function fails(work, kind) {
+  try {
+    work();
+  } catch (error) {
+    return error instanceof kind;
+  }
+  return false;
+}
+
+/** The loader's own promises, on the real module. */
+async function checks(bytes, longest) {
+  const repeat = await CoreModule.load(bytes);
+  for (let round = 0; round < 50; round++) {
+    playTape(repeat, longest);
+  }
+  const settled = repeat.memoryBytes;
+  for (let round = 0; round < 200; round++) {
+    playTape(repeat, longest);
+  }
+  const module = await CoreModule.load(bytes);
+  const core = module.open(CONFIG);
+  const first = core.step(STEP);
+  const seen = {
+    a_repeated_session_stops_growing_memory: repeat.memoryBytes === settled,
+    a_config_that_does_not_read_is_refused: fails(() => module.open("{"), CoreRefused),
+    an_empty_config_is_refused: fails(() => module.open(""), CoreRefused),
+    a_message_that_does_not_read_is_refused: fails(() => core.step("{"), CoreRefused),
+    the_core_still_steps_after_a_refusal: core.step(STEP).startsWith('{"contract"'),
+    the_first_step_gave_a_core_out_message: first.includes('"type":"core_out"'),
+  };
+  core.handle = 0x7ffffff0;
+  seen.a_trap_comes_back_as_trapped = fails(() => core.step(STEP), CoreTrapped);
+  seen.a_trapped_module_stays_refused = fails(() => module.open(CONFIG), CoreTrapped);
+  const again = await CoreModule.load(bytes);
+  const fresh = again.open(CONFIG);
+  seen.a_new_load_runs_after_a_trap = fresh.step(STEP) === first;
+  fresh.close();
+  return seen;
+}
+
+async function main() {
+  const tapes = JSON.parse(document.getElementById("tapes").textContent);
+  document.getElementById("tapes").remove();
+  const bytes = Uint8Array.from(atob("/*WASM*/"), (c) => c.charCodeAt(0));
+  const module = await CoreModule.load(bytes);
+  const runs = {};
+  let steps = 0;
+  let longest = "";
+  for (const [name, tape] of Object.entries(tapes)) {
+    const run = playTape(module, tape);
+    runs[name] = hex(run.transcript);
+    steps += run.steps;
+    longest = tape.length > longest.length ? tape : longest;
+  }
+  const stats = {
+    agent: navigator.userAgent,
+    checks: await checks(bytes, longest),
+    memory_bytes: module.memoryBytes,
+    steps,
+  };
+  document.getElementById("result").textContent = hex(JSON.stringify({ runs, stats }));
+}
+
+main().catch((error) => {
+  document.getElementById("result").textContent = hex(JSON.stringify({ error: String(error && error.stack || error) }));
+});
+</script>
