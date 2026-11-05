@@ -1,0 +1,377 @@
+{
+"labels": {
+"christmas": "Christmas",
+"halloween": "Halloween",
+"valentines": "Valentine's Day",
+"thanksgiving": "Thanksgiving",
+"new_year": "New Year",
+"easter": "Easter",
+"summer": "Summer",
+"back_to_school": "Back to School",
+"autumn": "Autumn",
+"winter_cozy": "Winter",
+"spring": "Spring",
+"ramadan_eid": "Ramadan & Eid",
+"diwali": "Diwali",
+"hanukkah": "Hanukkah",
+"pride": "Pride",
+"black_history": "Black History Month",
+"womens_history": "Women's History Month",
+"awards": "Awards Season",
+"july4": "4th of July",
+"st_patricks": "St Patrick's Day",
+"mothers_day": "Mother's Day",
+"fathers_day": "Father's Day",
+"cinco_de_mayo": "Cinco de Mayo",
+"independence_india": "Independence Day",
+"lunar_new_year": "Lunar New Year"
+},
+"languages": {
+"lunar_new_year": [
+"zh",
+"cn"
+],
+"ramadan_eid": [
+"ar",
+"tr",
+"ur",
+"fa",
+"ms",
+"id"
+],
+"hanukkah": [
+"he"
+]
+},
+"extra_keywords": {
+"pride": [
+"coming out",
+"drag queen",
+"gay",
+"gay theme",
+"lesbian",
+"lesbian relationship",
+"lgbt",
+"queer",
+"transgender"
+],
+"black_history": [
+"african american",
+"black cinema",
+"black history",
+"blaxploitation",
+"civil rights",
+"civil rights movement",
+"hip-hop",
+"racism",
+"slavery"
+],
+"halloween": [
+"creature",
+"demon",
+"exorcism",
+"haunted",
+"monster",
+"occult",
+"paranormal",
+"possession",
+"slasher",
+"spooky",
+"supernatural"
+],
+"womens_history": [
+"female athlete",
+"female empowerment",
+"female politician",
+"female scientist",
+"feminism",
+"gender equality",
+"girl power",
+"sexism",
+"suffragette",
+"woman director",
+"women's rights"
+],
+"mothers_day": [
+"mother daughter relationship",
+"mother son relationship",
+"mother's day",
+"motherhood",
+"mothers day",
+"single mother",
+"stepmother",
+"working mother"
+],
+"fathers_day": [
+"father daughter relationship",
+"father son relationship",
+"father's day",
+"fatherhood",
+"fathers day",
+"single father",
+"stepfather"
+],
+"back_to_school": [
+"back to school",
+"boarding school",
+"campus",
+"coming of age",
+"elementary school",
+"graduation",
+"high school",
+"middle school",
+"school life",
+"student",
+"teacher",
+"teen"
+],
+"easter": [
+"bunny",
+"chocolate",
+"easter",
+"easter bunny",
+"egg hunt",
+"jesus christ",
+"passover",
+"rabbit",
+"resurrection",
+"spring"
+],
+"lunar_new_year": [
+"chinese culture",
+"chinese family",
+"chinese new year",
+"chinese zodiac",
+"lunar new year",
+"reunion dinner",
+"spring festival"
+],
+"hanukkah": [
+"bar mitzvah",
+"hanukkah",
+"hebrew",
+"israel",
+"jewish",
+"jewish culture",
+"jewish family",
+"jewish life",
+"judaism",
+"rabbi",
+"yiddish"
+],
+"ramadan_eid": [
+"arab",
+"eid",
+"islam",
+"islamic",
+"middle east",
+"mosque",
+"muslim",
+"muslim family",
+"pilgrimage",
+"quran",
+"ramadan"
+],
+"thanksgiving": [
+"dinner party",
+"dysfunctional family",
+"family dinner",
+"family gathering",
+"family reunion",
+"harvest",
+"homecoming",
+"thanksgiving"
+],
+"new_year": [
+"champagne",
+"countdown",
+"fireworks",
+"fresh start",
+"midnight",
+"new beginning",
+"new year",
+"new year's day",
+"new year's eve",
+"party"
+],
+"july4": [
+"american dream",
+"american flag",
+"american history",
+"american revolution",
+"fireworks",
+"founding fathers",
+"fourth of july",
+"independence day",
+"patriotism",
+"us army"
+]
+},
+"drop_keywords": {
+"mothers_day": [
+"mother"
+],
+"fathers_day": [
+"father"
+],
+"womens_history": [
+"female protagonist"
+],
+"back_to_school": [
+"college",
+"school"
+]
+},
+"genres": {
+"christmas": [
+"Adventure",
+"Animation",
+"Comedy",
+"Drama",
+"Family",
+"Fantasy",
+"Romance"
+],
+"halloween": [
+"Animation",
+"Comedy",
+"Family",
+"Fantasy",
+"Horror",
+"Mystery",
+"Thriller"
+],
+"valentines": [
+"Comedy",
+"Drama",
+"Romance"
+],
+"thanksgiving": [
+"Comedy",
+"Drama",
+"Family"
+],
+"new_year": [
+"Comedy",
+"Drama",
+"Romance"
+],
+"summer": [
+"Adventure",
+"Comedy",
+"Drama",
+"Family",
+"Romance"
+],
+"back_to_school": [
+"Animation",
+"Comedy",
+"Drama",
+"Family",
+"Romance"
+],
+"autumn": [
+"Comedy",
+"Drama",
+"Horror",
+"Mystery",
+"Romance"
+],
+"winter_cozy": [
+"Animation",
+"Comedy",
+"Drama",
+"Family",
+"Romance"
+],
+"spring": [
+"Comedy",
+"Drama",
+"Romance"
+],
+"easter": [
+"Animation",
+"Comedy",
+"Family"
+],
+"ramadan_eid": [
+"Comedy",
+"Documentary",
+"Drama",
+"Family"
+],
+"diwali": [
+"Action",
+"Comedy",
+"Drama",
+"Family",
+"Romance"
+],
+"hanukkah": [
+"Comedy",
+"Drama",
+"Family"
+],
+"pride": [
+"Comedy",
+"Documentary",
+"Drama",
+"Romance"
+],
+"black_history": [
+"Comedy",
+"Documentary",
+"Drama",
+"History"
+],
+"womens_history": [
+"Comedy",
+"Documentary",
+"Drama",
+"History"
+],
+"awards": [
+"Documentary",
+"Drama",
+"History"
+],
+"july4": [
+"Action",
+"Comedy",
+"Drama",
+"History"
+],
+"st_patricks": [
+"Comedy",
+"Crime",
+"Drama"
+],
+"mothers_day": [
+"Comedy",
+"Drama",
+"Family"
+],
+"fathers_day": [
+"Adventure",
+"Comedy",
+"Drama",
+"Family"
+],
+"cinco_de_mayo": [
+"Action",
+"Comedy",
+"Drama"
+],
+"independence_india": [
+"Action",
+"Drama",
+"History"
+],
+"lunar_new_year": [
+"Action",
+"Comedy",
+"Drama",
+"Family"
+]
+}
+}

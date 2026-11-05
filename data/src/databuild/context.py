@@ -19,6 +19,7 @@ class Context:
     work: Path
     out: Path
     commit: str = "unknown"
+    votes: bool = True
     transport: Transport = field(default_factory=NoTransport)
     say: Callable[[str], None] = print
 
