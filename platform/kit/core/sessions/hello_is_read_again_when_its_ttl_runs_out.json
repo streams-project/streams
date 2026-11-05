@@ -1,0 +1,163 @@
+{
+ "about": "A long running device reads hello again at its ttl, so a switch reaches it. A read that changes nothing moves nothing on screen.",
+ "covers": [
+  "C108",
+  "C131"
+ ],
+ "moments": [
+  {
+   "at_ms": 299000,
+   "want": {
+    "sent": []
+   }
+  },
+  {
+   "at_ms": 300100,
+   "want": {
+    "routes": [],
+    "sent": [
+     "GET /v1/hello"
+    ]
+   }
+  },
+  {
+   "at_ms": 600200,
+   "want": {
+    "routes": [
+     {
+      "target": "upgrade"
+     }
+    ],
+    "sent": [
+     "GET /v1/hello"
+    ]
+   }
+  }
+ ],
+ "name": "hello_is_read_again_when_its_ttl_runs_out",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "brand": {
+     "name": "Sample Video",
+     "support_email": "support@host.example"
+    },
+    "client_min": [
+     {
+      "class": "web",
+      "version": "1.0.0"
+     },
+     {
+      "class": "tv",
+      "version": "1.0.0"
+     }
+    ],
+    "contract": {
+     "max": "2026-11-05",
+     "min": "2026-11-05"
+    },
+    "features": {
+     "accounts_required": true,
+     "clips": false,
+     "games": false,
+     "original_audio": false
+    },
+    "killed_builds": [
+     "1.0.0"
+    ],
+    "limits": {
+     "blocked_title_max": 100,
+     "blocked_titles_max": 200,
+     "code_digits": 8,
+     "code_valid_s": 600,
+     "command_batch_max": 500,
+     "handle_max": 16,
+     "handle_min": 3,
+     "name_max": 60,
+     "password_min": 8,
+     "phone_digits_max": 15,
+     "phone_digits_min": 6,
+     "pin_digits": 4,
+     "profile_name_max": 30,
+     "profiles_max": 5,
+     "step_up_s": 300
+    },
+    "playback": true,
+    "start_deadline_ms": [
+     {
+      "class": "web",
+      "value": 8000
+     },
+     {
+      "class": "tv",
+      "value": 12000
+     }
+    ],
+    "ttl_s": 300
+   },
+   "from_ms": 500000,
+   "method": "GET",
+   "path": "/v1/hello"
+  },
+  {
+   "body": {
+    "brand": {
+     "name": "Sample Video",
+     "support_email": "support@host.example"
+    },
+    "client_min": [
+     {
+      "class": "web",
+      "version": "1.0.0"
+     },
+     {
+      "class": "tv",
+      "version": "1.0.0"
+     }
+    ],
+    "contract": {
+     "max": "2026-11-05",
+     "min": "2026-11-05"
+    },
+    "features": {
+     "accounts_required": true,
+     "clips": false,
+     "games": false,
+     "original_audio": false
+    },
+    "limits": {
+     "blocked_title_max": 100,
+     "blocked_titles_max": 200,
+     "code_digits": 8,
+     "code_valid_s": 600,
+     "command_batch_max": 500,
+     "handle_max": 16,
+     "handle_min": 3,
+     "name_max": 60,
+     "password_min": 8,
+     "phone_digits_max": 15,
+     "phone_digits_min": 6,
+     "pin_digits": 4,
+     "profile_name_max": 30,
+     "profiles_max": 5,
+     "step_up_s": 300
+    },
+    "playback": true,
+    "start_deadline_ms": [
+     {
+      "class": "web",
+      "value": 8000
+     },
+     {
+      "class": "tv",
+      "value": 12000
+     }
+    ],
+    "ttl_s": 300
+   },
+   "method": "GET",
+   "path": "/v1/hello"
+  }
+ ]
+}

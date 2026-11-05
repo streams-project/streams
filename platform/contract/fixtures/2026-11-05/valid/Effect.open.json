@@ -2,7 +2,7 @@
   "id": "e8",
   "kind": "open",
   "target": {
-    "next": "/browse",
+    "next": "/home",
     "target": "sign_in"
   }
 }

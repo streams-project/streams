@@ -29,6 +29,9 @@ const AGE_CARD_MS: u64 = 5_000;
 /// A skip button hides this long before the end it moves to.
 const SKIP_HIDES_EARLY_MS: u64 = 1_000;
 
+/// The credits offer hides this long before the end of the video.
+const CREDITS_HIDES_EARLY_MS: u64 = 2_000;
+
 /// The host of an address: the text after `://` up to the first `/`, lower cased.
 #[must_use]
 pub fn host_of(url: &str) -> String {
@@ -62,6 +65,8 @@ pub(crate) struct Tick {
     pub more: Option<String>,
     /// Ask for skip marks of this play id.
     pub marks: Option<(String, MarksRequest)>,
+    /// The next episode starts by itself.
+    pub next: Option<(TitleKey, EpisodeRef)>,
     pub view: bool,
     pub failed: bool,
 }
@@ -75,6 +80,8 @@ struct Play {
     active: Option<usize>,
     more: bool,
     age_card: Option<AgeCard>,
+    next_episode: Option<EpisodeRef>,
+    autoplay_next: bool,
     state: PlayState,
     /// Kept across every source change.
     position_ms: u64,
@@ -152,6 +159,7 @@ impl Player {
                 .and_then(|index| play.attempts.get(index))
                 .map(|attempt| attempt.id.clone()),
             windows: play.windows.clone(),
+            next_episode: play.next_episode.clone(),
         })
     }
 
@@ -173,6 +181,8 @@ impl Player {
             active: None,
             more: false,
             age_card: None,
+            next_episode: None,
+            autoplay_next: false,
             state: PlayState::Resolving,
             position_ms: 0,
             duration_ms: 0,
@@ -232,6 +242,8 @@ impl Player {
         play.position_ms = answer.start_at_ms;
         play.more = answer.more;
         play.age_card = answer.age_card;
+        play.next_episode = answer.next_episode;
+        play.autoplay_next = answer.autoplay_next;
         if play.attempts.is_empty() {
             self.out_of_attempts(tick);
         } else {
@@ -278,7 +290,12 @@ impl Player {
     /// player time to these windows.
     pub(crate) fn marks(&mut self, serial: u32, windows: Vec<TimeWindow>, tick: &mut Tick) {
         if let Some(play) = self.current(serial) {
-            play.windows.extend(windows.into_iter().filter_map(shown));
+            let (duration_ms, last_episode) = (play.duration_ms, play.next_episode.is_none());
+            play.windows.extend(
+                windows
+                    .into_iter()
+                    .filter_map(|window| shown(window, duration_ms, last_episode)),
+            );
             tick.view = true;
         }
     }
@@ -421,6 +438,9 @@ impl Player {
                 play.heartbeat_mono = None;
                 save(play, tick);
                 tick.view = true;
+                if play.autoplay_next {
+                    tick.next = play.next_episode.clone().map(|next| (play.title, next));
+                }
                 self.close(tick);
             }
             DriverEvent::Error { .. } => self.failover(mono_ms, deadline_ms, tick),
@@ -580,11 +600,21 @@ fn save(play: &Play, tick: &mut Tick) {
     }
 }
 
-/// The span a screen compares to player time. `None` when nothing is left to show.
-fn shown(mut window: TimeWindow) -> Option<TimeWindow> {
-    if matches!(window.kind, WindowKind::Recap | WindowKind::Intro) {
-        window.seek_to_ms = window.seek_to_ms.or(Some(window.end_ms));
-        window.end_ms = window.end_ms.saturating_sub(SKIP_HIDES_EARLY_MS);
+/// The span a screen compares to player time. `None` when nothing is left to show. The
+/// credits offer leads to the next episode, so the last episode has none.
+fn shown(mut window: TimeWindow, duration_ms: u64, last_episode: bool) -> Option<TimeWindow> {
+    match window.kind {
+        WindowKind::Recap | WindowKind::Intro => {
+            window.seek_to_ms = window.seek_to_ms.or(Some(window.end_ms));
+            window.end_ms = window.end_ms.saturating_sub(SKIP_HIDES_EARLY_MS);
+        }
+        WindowKind::Credits if last_episode => return None,
+        WindowKind::Credits => {
+            window.end_ms = window
+                .end_ms
+                .min(duration_ms.saturating_sub(CREDITS_HIDES_EARLY_MS));
+        }
+        _ => {}
     }
     (window.start_ms < window.end_ms).then_some(window)
 }

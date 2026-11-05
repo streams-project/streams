@@ -97,7 +97,10 @@ pub struct Core {
     secrets: BTreeMap<String, SecretWait>,
     secret_store: bool,
     hello_backoff: Backoff,
-    hello_retry_mono: Option<u64>,
+    /// Monotonic time of the next read of hello.
+    hello_next_mono: Option<u64>,
+    /// True while that read is a retry, which a network return or a play press cuts short.
+    hello_failing: bool,
     upgrade: bool,
     /// The address asked for, kept across sign in and the profile picker.
     asked: Option<String>,
@@ -131,7 +134,8 @@ impl Core {
             secrets: BTreeMap::new(),
             secret_store: true,
             hello_backoff: Backoff::default(),
-            hello_retry_mono: None,
+            hello_next_mono: None,
+            hello_failing: false,
             upgrade: false,
             asked: None,
             route: None,
@@ -174,7 +178,7 @@ impl Core {
     }
 
     fn keep_session(&mut self, out: &mut Out) {
-        if let Some(text) = self.session.kept_text() {
+        if let Some(text) = self.session.kept_text(self.gate.last_seen()) {
             self.secret(
                 SecretOp::Put,
                 SESSION_SECRET,
@@ -201,7 +205,7 @@ impl Core {
     }
 
     fn send_hello(&mut self, now: Now, out: &mut Out) {
-        self.hello_retry_mono = None;
+        self.hello_next_mono = None;
         let request = Request::new(HttpMethod::Get, "/v1/hello", Purpose::Hello);
         self.send(now, request, out);
     }
@@ -480,6 +484,11 @@ impl Core {
         if tick.view {
             out.view.play = self.player.view();
         }
+        if let Some((title, next)) = tick.next {
+            let (kind, id) = (title.kind().word(), title.id());
+            let address = format!("/watch/{kind}/{id}/{}/{}", next.season, next.episode);
+            self.open_address(now, address, false, out);
+        }
     }
 
     fn play(
@@ -635,9 +644,7 @@ impl Core {
                 }
             }
             Action::Play { title, episode } => {
-                // a play press cuts any wait
-                self.hello_retry_mono = self.hello_retry_mono.map(|_| now.mono_ms);
-                self.session.cut_wait();
+                self.cut_waits(now);
                 self.play(now, title, episode, out);
             }
             Action::Command { command } => self.command(now, command, out),
@@ -712,8 +719,12 @@ impl Core {
             EventBody::Activity => self.used(now, out),
             EventBody::Network { online } => {
                 if online {
-                    self.hello_retry_mono = self.hello_retry_mono.map(|_| now.mono_ms);
-                    self.session.cut_wait();
+                    self.cut_waits(now);
+                }
+            }
+            EventBody::EndedElsewhere => {
+                if self.session.signed_in() {
+                    self.end(now, EndReason::Elsewhere, out);
                 }
             }
             EventBody::Address { address } => self.open_address(now, address, true, out),
@@ -755,6 +766,9 @@ impl Core {
             SecretWait::Session => {
                 match value.and_then(|text| serde_json::from_str::<Kept>(&text).ok()) {
                     Some(kept) => {
+                        if let Some(seen_ms) = kept.seen_ms {
+                            self.gate.restore(seen_ms);
+                        }
                         self.session.restore(kept);
                         self.gate.set_active(self.session.profile().is_some());
                         out.view.session = Some(self.session.view());
@@ -798,6 +812,7 @@ impl Core {
             self.player.pause(&mut tick);
             self.run_tick(now, tick, out);
         }
+        self.keep_seen(out);
     }
 
     fn left(&mut self, now: Now, out: &mut Out) {
@@ -805,6 +820,22 @@ impl Core {
         let mut tick = Tick::default();
         self.player.save_now(&mut tick);
         self.run_tick(now, tick, out);
+        self.keep_seen(out);
+    }
+
+    /// The last activity is written with the session, at most every 30 s.
+    fn keep_seen(&mut self, out: &mut Out) {
+        if self.gate.take_moved() {
+            self.keep_session(out);
+        }
+    }
+
+    /// A network return or a play press cuts any wait.
+    fn cut_waits(&mut self, now: Now) {
+        if self.hello_failing {
+            self.hello_next_mono = Some(now.mono_ms);
+        }
+        self.session.cut_wait();
     }
 
     fn http_done(
@@ -874,16 +905,7 @@ impl Core {
         let text = body.unwrap_or_default();
         match purpose {
             Purpose::Hello => match serde_json::from_str::<Hello>(&text) {
-                Ok(hello) => {
-                    self.hello_backoff.reset();
-                    let standing = self.config.take_hello(hello);
-                    self.upgrade = standing == Standing::Upgrade;
-                    if self.upgrade {
-                        self.go(now, target(Target::Upgrade), false, out);
-                    } else {
-                        self.settle(now, out);
-                    }
-                }
+                Ok(hello) => self.hello_read(now, hello, out),
                 Err(_) => self.hello_failed(now, Problem::Failed, out),
             },
             Purpose::Refresh => match serde_json::from_str::<SignedIn>(&text) {
@@ -906,6 +928,8 @@ impl Core {
                 if let Ok(list) = serde_json::from_str::<ProfileList>(&text) {
                     self.gate.set_profiles(list.profiles.len());
                     out.view.profiles = Some(list);
+                    // the question needs this count, and after a restart it may be due now
+                    self.used(now, out);
                 }
             }
             Purpose::Enter => {
@@ -1057,14 +1081,38 @@ impl Core {
         }
     }
 
+    /// Hold a hello. The screen moves only when an address could decide differently, because
+    /// this runs again at every ttl.
+    fn hello_read(&mut self, now: Now, hello: Hello, out: &mut Out) {
+        let facts = |config: &Config| (config.accounts_required(), config.moved().to_vec());
+        let before = facts(&self.config);
+        let ttl_ms = u64::from(hello.ttl_s) * 1_000;
+        let upgrade = self.config.take_hello(hello) == Standing::Upgrade;
+        self.hello_backoff.reset();
+        self.hello_failing = false;
+        self.hello_next_mono = (ttl_ms > 0).then_some(now.mono_ms + ttl_ms);
+        out.view.hello = self.config.hello().cloned();
+        let changed = upgrade != self.upgrade || before != facts(&self.config);
+        self.upgrade = upgrade;
+        if upgrade {
+            self.go(now, target(Target::Upgrade), false, out);
+        } else if changed {
+            self.settle(now, out);
+        }
+    }
+
     fn hello_failed(&mut self, now: Now, problem: Problem, out: &mut Out) {
+        let before = self.config.accounts_required();
         self.config.unreachable();
         let wait = match problem {
             Problem::Budget { wait_ms } => wait_ms,
             _ => self.hello_backoff.next_wait(),
         };
-        self.hello_retry_mono = Some(now.mono_ms + wait);
-        self.settle(now, out);
+        self.hello_failing = true;
+        self.hello_next_mono = Some(now.mono_ms + wait);
+        if before != self.config.accounts_required() {
+            self.settle(now, out);
+        }
     }
 
     fn http_failed(&mut self, now: Now, pending: Pending, reason: NoAnswerReason, out: &mut Out) {
@@ -1077,7 +1125,7 @@ impl Core {
     }
 
     fn tick(&mut self, now: Now, out: &mut Out) {
-        if self.hello_retry_mono.is_some_and(|at| now.mono_ms >= at) {
+        if self.hello_next_mono.is_some_and(|at| now.mono_ms >= at) {
             self.send_hello(now, out);
         }
         if self.session.renewal_due(now) {
@@ -1091,7 +1139,7 @@ impl Core {
 
     fn next_wake(&self) -> Option<u64> {
         [
-            self.hello_retry_mono,
+            self.hello_next_mono,
             self.session.next_wake(),
             self.player.next_wake(),
         ]

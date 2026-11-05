@@ -142,7 +142,7 @@ fn c131_an_address_waits_while_the_kept_session_is_unknown_even_with_hello_in_ha
             {"type": "address", "address": "/my-list"},
         ]),
     );
-    assert_eq!(out.get("view"), None, "{out}");
+    assert_eq!(out["view"]["route"], Value::Null, "{out}");
     let out = step(
         &mut core,
         2,

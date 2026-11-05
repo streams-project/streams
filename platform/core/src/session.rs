@@ -32,6 +32,9 @@ pub(crate) struct Kept {
     /// True when the kept profile's home is the Kids home.
     #[serde(default, skip_serializing_if = "core::ops::Not::not")]
     pub kids: bool,
+    /// Wall time of the last activity, so time away reaches across a restart.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub seen_ms: Option<u64>,
 }
 
 /// One owner of tokens, so one refresher per device.
@@ -157,13 +160,14 @@ impl Session {
         !self.refresh.is_empty()
     }
 
-    pub(crate) fn kept_text(&self) -> Option<String> {
+    pub(crate) fn kept_text(&self, seen_ms: Option<u64>) -> Option<String> {
         let kept = Kept {
             refresh_token: self.refresh.clone(),
             user_id: self.user_id.clone()?,
             email: self.email.clone().unwrap_or_default(),
             profile: self.profile.clone(),
             kids: self.kids,
+            seen_ms,
         };
         serde_json::to_string(&kept).ok()
     }

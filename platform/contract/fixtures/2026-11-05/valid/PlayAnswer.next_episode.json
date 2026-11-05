@@ -1,0 +1,50 @@
+{
+  "age_card": {
+    "label": "15",
+    "reasons": [
+      "language",
+      "threat"
+    ]
+  },
+  "attempts": [
+    {
+      "audio": [
+        "en"
+      ],
+      "codecs": [
+        "avc1",
+        "mp4a"
+      ],
+      "container": "ts",
+      "expires_at_ms": 1793840400000,
+      "group": "g1",
+      "headers": {
+        "Referer": "https://site.example/"
+      },
+      "height": 1080,
+      "id": "a1",
+      "kind": "hls",
+      "url": "https://media.example/a/master.m3u8",
+      "verified": true
+    },
+    {
+      "group": "g2",
+      "headers": {},
+      "id": "a2",
+      "kind": "file",
+      "url": "https://media2.example/b.mp4",
+      "verified": false
+    }
+  ],
+  "audio_default": "en",
+  "autoplay_next": true,
+  "dropped": 1,
+  "more": true,
+  "next_episode": {
+    "episode": 1,
+    "season": 2
+  },
+  "play_id": "pl1",
+  "start_at_ms": 61000,
+  "subtitle_default": "en"
+}

@@ -1,0 +1,145 @@
+{
+ "about": "With no next episode the end stays the end, and the credits offer never appears, so no button leads to an episode that does not exist.",
+ "covers": [
+  "H43",
+  "C58"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p1"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "episode": {
+       "episode": 10,
+       "season": 5
+      },
+      "title": "tv:9"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 2000,
+   "events": [
+    {
+     "event": {
+      "kind": "first_frame"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 100000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "sent": [
+     "POST /v1/play/pl1/marks"
+    ],
+    "view": {
+     "play": {
+      "next_episode": null,
+      "windows": [
+       {
+        "end_ms": 89000,
+        "kind": "intro",
+        "seek_to_ms": 90000
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 3001,
+   "events": [
+    {
+     "event": {
+      "kind": "ended"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "bodies": {
+     "/v1/play": []
+    },
+    "player": [
+     {
+      "op": "close"
+     }
+    ],
+    "routes": [],
+    "view": {
+     "play": {
+      "state": "ended"
+     }
+    }
+   }
+  }
+ ],
+ "name": "the_last_episode_ends_and_nothing_more_opens",
+ "server": [
+  {
+   "body": {
+    "windows": [
+     {
+      "end_ms": 90000,
+      "kind": "intro",
+      "start_ms": 30000
+     },
+     {
+      "end_ms": 6000000,
+      "kind": "credits",
+      "start_ms": 5800000
+     }
+    ]
+   },
+   "method": "POST",
+   "path": "/v1/play/pl1/marks"
+  }
+ ]
+}

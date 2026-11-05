@@ -242,10 +242,13 @@ fn c112_no_type_a_screen_reads_can_hold_a_token() {
     while let Some(name) = queue.pop() {
         walk(&all[name.as_str()], &mut |map| {
             if let Some(Value::Object(properties)) = map.get("properties") {
-                for field in properties.keys() {
+                for (field, shape) in properties {
                     assert!(!field.contains("token"), "{name}.{field}");
                     assert!(!field.contains("secret"), "{name}.{field}");
-                    assert!(!field.contains("password"), "{name}.{field}");
+                    // A minimum length reaches the sign in screen, and a number holds no password.
+                    let a_length =
+                        name == "Limits" && field == "password_min" && shape["type"] == "integer";
+                    assert!(!field.contains("password") || a_length, "{name}.{field}");
                 }
             }
             if let Some(Value::String(target)) = map.get("$ref") {

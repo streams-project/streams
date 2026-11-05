@@ -105,6 +105,12 @@ impl Config {
         }
     }
 
+    /// The last hello read.
+    #[must_use]
+    pub const fn hello(&self) -> Option<&Hello> {
+        self.hello.as_ref()
+    }
+
     #[must_use]
     pub fn limits(&self) -> Option<&Limits> {
         self.hello.as_ref().map(|hello| &hello.limits)

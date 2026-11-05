@@ -151,7 +151,7 @@
       "value": 12000
      }
     ],
-    "ttl_s": 300
+    "ttl_s": 86400
    },
    "method": "GET",
    "path": "/v1/hello"

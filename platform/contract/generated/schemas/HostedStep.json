@@ -1022,6 +1022,19 @@
           "type": "object"
         },
         {
+          "description": "Another tab of this browser ended the session. The server has heard already.",
+          "properties": {
+            "type": {
+              "const": "ended_elsewhere",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
           "description": "An address or deep link to open.",
           "properties": {
             "address": {

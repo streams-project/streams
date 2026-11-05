@@ -92,8 +92,12 @@ wire! {
         pub audio_default: Option<String>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub subtitle_default: Option<String>,
+        /// The next episode in the server's order, across seasons. Absent on the last one.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub next_episode: Option<EpisodeRef>,
+        /// This profile's setting: the next episode starts by itself at the end of play.
+        #[serde(default, skip_serializing_if = "core::ops::Not::not")]
+        pub autoplay_next: bool,
         /// Attempts removed by the capability card.
         pub dropped: u32,
         /// True when more attempts may arrive through `/v1/play/{id}/more`.

@@ -741,6 +741,11 @@ export type Event =
       id?: string;
     }
   | {
+      /** Another tab of this browser ended the session. The server has heard already. */
+      type: "ended_elsewhere";
+      id?: string;
+    }
+  | {
       /** An address or deep link to open. */
       type: "address";
       id?: string;
@@ -984,10 +989,13 @@ export interface PlayAnswer {
   age_card?: AgeCard;
   attempts: Attempt[];
   audio_default?: string;
+  /** This profile's setting: the next episode starts by itself at the end of play. */
+  autoplay_next?: boolean;
   /** Attempts removed by the capability card. */
   dropped: number;
   /** True when more attempts may arrive through `/v1/play/{id}/more`. */
   more: boolean;
+  /** The next episode in the server's order, across seasons. Absent on the last one. */
   next_episode?: EpisodeRef;
   play_id: string;
   /** Where to start. */
@@ -1027,6 +1035,8 @@ export type PlayState = "resolving" | "starting" | "playing" | "paused" | "stall
 export interface PlayView {
   attempt?: string;
   episode?: EpisodeRef;
+  /** Absent on the last episode, so no screen offers one that does not exist. */
+  next_episode?: EpisodeRef;
   state: PlayState;
   title: TitleKey;
   windows?: TimeWindow[];
@@ -1360,6 +1370,8 @@ export interface VersionRange {
 /** Changed screen state. A part that is absent did not change. */
 export interface View {
   gate?: GateView;
+  /** The last hello read, so a screen takes limits and features from one place. */
+  hello?: Hello;
   play?: PlayView;
   /** The account's profiles, for the picker. No PIN is ever held here. */
   profiles?: ProfileList;

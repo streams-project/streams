@@ -127,6 +127,10 @@
     "audio_default": {
       "type": "string"
     },
+    "autoplay_next": {
+      "description": "This profile's setting: the next episode starts by itself at the end of play.",
+      "type": "boolean"
+    },
     "dropped": {
       "description": "Attempts removed by the capability card.",
       "maximum": 4294967295,
@@ -138,7 +142,8 @@
       "type": "boolean"
     },
     "next_episode": {
-      "$ref": "#/$defs/EpisodeRef"
+      "$ref": "#/$defs/EpisodeRef",
+      "description": "The next episode in the server's order, across seasons. Absent on the last one."
     },
     "play_id": {
       "type": "string"

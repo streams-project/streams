@@ -1,0 +1,28 @@
+{
+ "about": "Limits and feature values come from hello and reach a screen through the view, so no client holds a copy.",
+ "covers": [
+  "C110",
+  "C108"
+ ],
+ "moments": [
+  {
+   "at_ms": 0,
+   "want": {
+    "view": {
+     "hello": {
+      "brand": {
+       "name": "Sample Video"
+      },
+      "features": {
+       "games": false
+      },
+      "limits": {
+       "profiles_max": 5
+      }
+     }
+    }
+   }
+  }
+ ],
+ "name": "limits_and_features_reach_the_screen_through_the_view"
+}

@@ -25,6 +25,8 @@ pub struct Gate {
     profiles: usize,
     active: bool,
     ask: bool,
+    /// True when `last_seen` moved since it was last kept.
+    moved: bool,
 }
 
 impl Gate {
@@ -36,6 +38,7 @@ impl Gate {
             profiles: 0,
             active: false,
             ask: false,
+            moved: false,
         }
     }
 
@@ -55,6 +58,18 @@ impl Gate {
     #[must_use]
     pub const fn last_seen(&self) -> Option<u64> {
         self.last_seen
+    }
+
+    /// Time away reaches across a restart, so the last activity comes back from what was kept.
+    pub const fn restore(&mut self, wall_ms: u64) {
+        self.last_seen = Some(wall_ms);
+    }
+
+    /// True once after `last_seen` moved, so the core writes it at most every 30 s.
+    pub const fn take_moved(&mut self) -> bool {
+        let moved = self.moved;
+        self.moved = false;
+        moved
     }
 
     #[must_use]
@@ -79,6 +94,7 @@ impl Gate {
             .is_none_or(|seen| wall_ms.saturating_sub(seen) > WRITE_EVERY_MS);
         if due {
             self.last_seen = Some(wall_ms);
+            self.moved = true;
         }
         ask_now
     }
@@ -86,6 +102,7 @@ impl Gate {
     /// The viewer left. Time away counts from now.
     pub const fn left(&mut self, wall_ms: u64) {
         self.last_seen = Some(wall_ms);
+        self.moved = true;
     }
 
     /// A profile was entered.
@@ -93,6 +110,7 @@ impl Gate {
         self.ask = false;
         self.active = true;
         self.last_seen = Some(wall_ms);
+        self.moved = true;
     }
 
     /// The session ended.
@@ -100,5 +118,6 @@ impl Gate {
         self.ask = false;
         self.active = false;
         self.profiles = 0;
+        self.moved = false;
     }
 }

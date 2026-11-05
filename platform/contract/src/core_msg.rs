@@ -13,6 +13,7 @@ use crate::client::{CapabilityCard, CoreMode, DeviceClass, Form};
 use crate::command::Command;
 use crate::driver::{DriverCommand, DriverEvent};
 use crate::error::Notice;
+use crate::hello::Hello;
 use crate::play::TimeWindow;
 use crate::screen::ScreenName;
 use crate::title::{EpisodeRef, TitleKey};
@@ -275,6 +276,8 @@ wire! {
         Network { online: bool },
         /// Touch, key, wheel or playing video in view.
         Activity,
+        /// Another tab of this browser ended the session. The server has heard already.
+        EndedElsewhere,
         /// An address or deep link to open.
         Address { address: String },
         Action { action: Action },
@@ -430,6 +433,9 @@ wire! {
         pub attempt: Option<String>,
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         pub windows: Vec<TimeWindow>,
+        /// Absent on the last episode, so no screen offers one that does not exist.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub next_episode: Option<EpisodeRef>,
     }
 
     /// Changed screen state. A part that is absent did not change.
@@ -446,6 +452,9 @@ wire! {
         /// The account's profiles, for the picker. No PIN is ever held here.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub profiles: Option<ProfileList>,
+        /// The last hello read, so a screen takes limits and features from one place.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub hello: Option<Hello>,
     }
 
     /// One step of output.

@@ -1,6 +1,6 @@
 {
   "route": {
-    "next": "/browse",
+    "next": "/home",
     "target": "sign_in"
   },
   "session": {

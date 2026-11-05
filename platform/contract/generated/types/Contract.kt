@@ -1097,6 +1097,13 @@ data class EventActivity(
     @SerialName("id") override val id: String? = null,
 ) : Event
 
+/** Another tab of this browser ended the session. The server has heard already. */
+@Serializable
+@SerialName("ended_elsewhere")
+data class EventEndedElsewhere(
+    @SerialName("id") override val id: String? = null,
+) : Event
+
 /** An address or deep link to open. */
 @Serializable
 @SerialName("address")
@@ -1472,10 +1479,13 @@ data class PlayAnswer(
     @SerialName("age_card") val ageCard: AgeCard? = null,
     @SerialName("attempts") val attempts: List<Attempt>,
     @SerialName("audio_default") val audioDefault: String? = null,
+    /** This profile's setting: the next episode starts by itself at the end of play. */
+    @SerialName("autoplay_next") val autoplayNext: Boolean? = null,
     /** Attempts removed by the capability card. */
     @SerialName("dropped") val dropped: Long,
     /** True when more attempts may arrive through `/v1/play/{id}/more`. */
     @SerialName("more") val more: Boolean,
+    /** The next episode in the server's order, across seasons. Absent on the last one. */
     @SerialName("next_episode") val nextEpisode: EpisodeRef? = null,
     @SerialName("play_id") val playId: String,
     /** Where to start. */
@@ -1541,6 +1551,8 @@ value class PlayState(val value: String) {
 data class PlayView(
     @SerialName("attempt") val attempt: String? = null,
     @SerialName("episode") val episode: EpisodeRef? = null,
+    /** Absent on the last episode, so no screen offers one that does not exist. */
+    @SerialName("next_episode") val nextEpisode: EpisodeRef? = null,
     @SerialName("state") val state: PlayState,
     @SerialName("title") val title: TitleKey,
     @SerialName("windows") val windows: List<TimeWindow>? = null,
@@ -2042,6 +2054,8 @@ data class VersionRange(
 @Serializable
 data class View(
     @SerialName("gate") val gate: GateView? = null,
+    /** The last hello read, so a screen takes limits and features from one place. */
+    @SerialName("hello") val hello: Hello? = null,
     @SerialName("play") val play: PlayView? = null,
     /** The account's profiles, for the picker. No PIN is ever held here. */
     @SerialName("profiles") val profiles: ProfileList? = null,

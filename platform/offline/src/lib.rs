@@ -91,7 +91,7 @@ impl Merged {
                 })+
             };
         }
-        newest!(session, route, gate, play, profiles);
+        newest!(session, route, gate, play, profiles, hello);
     }
 }
 

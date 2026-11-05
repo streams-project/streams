@@ -2352,6 +2352,13 @@ public struct EventActivity: Codable, Equatable, Sendable {
     }
 }
 
+/// Another tab of this browser ended the session. The server has heard already.
+public struct EventEndedElsewhere: Codable, Equatable, Sendable {
+
+    public init() {
+    }
+}
+
 /// An address or deep link to open.
 public struct EventAddress: Codable, Equatable, Sendable {
     public var address: String
@@ -2406,6 +2413,7 @@ public enum EventBody: Codable, Equatable, Sendable {
     case visibility(EventVisibility)
     case network(EventNetwork)
     case activity(EventActivity)
+    case endedElsewhere(EventEndedElsewhere)
     case address(EventAddress)
     case action(EventAction)
     case driver(EventDriver)
@@ -2430,6 +2438,7 @@ public enum EventBody: Codable, Equatable, Sendable {
         case "visibility": self = .visibility(try EventVisibility(from: decoder))
         case "network": self = .network(try EventNetwork(from: decoder))
         case "activity": self = .activity(try EventActivity(from: decoder))
+        case "ended_elsewhere": self = .endedElsewhere(try EventEndedElsewhere(from: decoder))
         case "address": self = .address(try EventAddress(from: decoder))
         case "action": self = .action(try EventAction(from: decoder))
         case "driver": self = .driver(try EventDriver(from: decoder))
@@ -2475,6 +2484,9 @@ public enum EventBody: Codable, Equatable, Sendable {
             try value.encode(to: encoder)
         case .activity(let value):
             try tagged.encode("activity", forKey: .tag)
+            try value.encode(to: encoder)
+        case .endedElsewhere(let value):
+            try tagged.encode("ended_elsewhere", forKey: .tag)
             try value.encode(to: encoder)
         case .address(let value):
             try tagged.encode("address", forKey: .tag)
@@ -3107,10 +3119,13 @@ public struct PlayAnswer: Codable, Equatable, Sendable {
     public var ageCard: AgeCard?
     public var attempts: [Attempt]
     public var audioDefault: String?
+    /// This profile's setting: the next episode starts by itself at the end of play.
+    public var autoplayNext: Bool?
     /// Attempts removed by the capability card.
     public var dropped: Int
     /// True when more attempts may arrive through `/v1/play/{id}/more`.
     public var more: Bool
+    /// The next episode in the server's order, across seasons. Absent on the last one.
     public var nextEpisode: EpisodeRef?
     public var playId: String
     /// Where to start.
@@ -3121,6 +3136,7 @@ public struct PlayAnswer: Codable, Equatable, Sendable {
         case ageCard = "age_card"
         case attempts = "attempts"
         case audioDefault = "audio_default"
+        case autoplayNext = "autoplay_next"
         case dropped = "dropped"
         case more = "more"
         case nextEpisode = "next_episode"
@@ -3129,10 +3145,11 @@ public struct PlayAnswer: Codable, Equatable, Sendable {
         case subtitleDefault = "subtitle_default"
     }
 
-    public init(ageCard: AgeCard? = nil, attempts: [Attempt], audioDefault: String? = nil, dropped: Int, more: Bool, nextEpisode: EpisodeRef? = nil, playId: String, startAtMs: Int, subtitleDefault: String? = nil) {
+    public init(ageCard: AgeCard? = nil, attempts: [Attempt], audioDefault: String? = nil, autoplayNext: Bool? = nil, dropped: Int, more: Bool, nextEpisode: EpisodeRef? = nil, playId: String, startAtMs: Int, subtitleDefault: String? = nil) {
         self.ageCard = ageCard
         self.attempts = attempts
         self.audioDefault = audioDefault
+        self.autoplayNext = autoplayNext
         self.dropped = dropped
         self.more = more
         self.nextEpisode = nextEpisode
@@ -3230,6 +3247,8 @@ public struct PlayState: RawRepresentable, Codable, Hashable, Sendable {
 public struct PlayView: Codable, Equatable, Sendable {
     public var attempt: String?
     public var episode: EpisodeRef?
+    /// Absent on the last episode, so no screen offers one that does not exist.
+    public var nextEpisode: EpisodeRef?
     public var state: PlayState
     public var title: TitleKey
     public var windows: [TimeWindow]?
@@ -3237,14 +3256,16 @@ public struct PlayView: Codable, Equatable, Sendable {
     enum CodingKeys: String, CodingKey {
         case attempt = "attempt"
         case episode = "episode"
+        case nextEpisode = "next_episode"
         case state = "state"
         case title = "title"
         case windows = "windows"
     }
 
-    public init(attempt: String? = nil, episode: EpisodeRef? = nil, state: PlayState, title: TitleKey, windows: [TimeWindow]? = nil) {
+    public init(attempt: String? = nil, episode: EpisodeRef? = nil, nextEpisode: EpisodeRef? = nil, state: PlayState, title: TitleKey, windows: [TimeWindow]? = nil) {
         self.attempt = attempt
         self.episode = episode
+        self.nextEpisode = nextEpisode
         self.state = state
         self.title = title
         self.windows = windows
@@ -4186,6 +4207,8 @@ public struct VersionRange: Codable, Equatable, Sendable {
 /// Changed screen state. A part that is absent did not change.
 public struct View: Codable, Equatable, Sendable {
     public var gate: GateView?
+    /// The last hello read, so a screen takes limits and features from one place.
+    public var hello: Hello?
     public var play: PlayView?
     /// The account's profiles, for the picker. No PIN is ever held here.
     public var profiles: ProfileList?
@@ -4194,14 +4217,16 @@ public struct View: Codable, Equatable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case gate = "gate"
+        case hello = "hello"
         case play = "play"
         case profiles = "profiles"
         case route = "route"
         case session = "session"
     }
 
-    public init(gate: GateView? = nil, play: PlayView? = nil, profiles: ProfileList? = nil, route: RouteTarget? = nil, session: SessionView? = nil) {
+    public init(gate: GateView? = nil, hello: Hello? = nil, play: PlayView? = nil, profiles: ProfileList? = nil, route: RouteTarget? = nil, session: SessionView? = nil) {
         self.gate = gate
+        self.hello = hello
         self.play = play
         self.profiles = profiles
         self.route = route

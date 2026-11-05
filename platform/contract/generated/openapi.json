@@ -2448,6 +2448,19 @@
             "type": "object"
           },
           {
+            "description": "Another tab of this browser ended the session. The server has heard already.",
+            "properties": {
+              "type": {
+                "const": "ended_elsewhere",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          {
             "description": "An address or deep link to open.",
             "properties": {
               "address": {
@@ -3250,6 +3263,10 @@
           "audio_default": {
             "type": "string"
           },
+          "autoplay_next": {
+            "description": "This profile's setting: the next episode starts by itself at the end of play.",
+            "type": "boolean"
+          },
           "dropped": {
             "description": "Attempts removed by the capability card.",
             "maximum": 4294967295,
@@ -3261,7 +3278,8 @@
             "type": "boolean"
           },
           "next_episode": {
-            "$ref": "#/components/schemas/EpisodeRef"
+            "$ref": "#/components/schemas/EpisodeRef",
+            "description": "The next episode in the server's order, across seasons. Absent on the last one."
           },
           "play_id": {
             "type": "string"
@@ -3382,6 +3400,10 @@
           },
           "episode": {
             "$ref": "#/components/schemas/EpisodeRef"
+          },
+          "next_episode": {
+            "$ref": "#/components/schemas/EpisodeRef",
+            "description": "Absent on the last episode, so no screen offers one that does not exist."
           },
           "state": {
             "$ref": "#/components/schemas/PlayState"
@@ -4425,6 +4447,10 @@
         "properties": {
           "gate": {
             "$ref": "#/components/schemas/GateView"
+          },
+          "hello": {
+            "$ref": "#/components/schemas/Hello",
+            "description": "The last hello read, so a screen takes limits and features from one place."
           },
           "play": {
             "$ref": "#/components/schemas/PlayView"
@@ -7435,6 +7461,9 @@
                 "examples": {
                   "basic": {
                     "externalValue": "../fixtures/2026-11-05/valid/PlayAnswer.basic.json"
+                  },
+                  "next_episode": {
+                    "externalValue": "../fixtures/2026-11-05/valid/PlayAnswer.next_episode.json"
                   }
                 },
                 "schema": {
