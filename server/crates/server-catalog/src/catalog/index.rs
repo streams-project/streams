@@ -10,7 +10,7 @@ pub struct Catalog {
     pub attr_keys: HashMap<&'static str, Vec<u32>>,
     /// Quality titles that few have found yet (`quality::is_gem`), best quality first
     pub gem_keys: Vec<u32>,
-    /// Per topic slug (`topics_v1.json`) the titles the judge accepted, best quality first
+    /// Per topic slug the titles the judge accepted, best quality first
     pub topic_keys: HashMap<String, Vec<u32>>,
     /// True when judged page memberships were loaded
     pub judged: bool,

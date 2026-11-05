@@ -432,6 +432,8 @@ pub fn write_sample(dir: &Path) -> PathBuf {
         dimensions: SAMPLE_DIMS as u32,
         quantisation: String::from("f16"),
         row_count: titles.len() as u64,
+        key_scheme: crate::manifest::KEY_SCHEME.to_owned(),
+        as_of: None,
         files,
     };
     let path = dir.join("manifest.json");

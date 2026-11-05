@@ -4,13 +4,13 @@ use server_catalog::catalog::CatalogItem;
 
 #[derive(Debug, Clone, Default, Deserialize)]
 pub struct Rules {
-    /// At least one of these TMDB genres (movie and series names, such as "Science Fiction" and "Sci-Fi & Fantasy")
+    /// At least one of these source genres (movie and series names, such as "Science Fiction" and "Sci-Fi & Fantasy")
     #[serde(default)]
     pub genres_any: Vec<String>,
     /// None of these genres
     #[serde(default)]
     pub genres_none: Vec<String>,
-    /// At least one of these TMDB keywords (lower case, whole keyword)
+    /// At least one of these source keywords (lower case, whole keyword)
     #[serde(default)]
     pub keywords_any: Vec<String>,
     /// Release year from and to, inclusive
@@ -30,13 +30,13 @@ pub struct Rules {
     pub genres_all: Vec<Vec<String>>,
     /// Longest runtime in minutes (film runtime or median episode runtime); a title without a known runtime does not pass
     pub runtime_max: Option<u32>,
-    /// Every one of these groups: a title carries at least one keyword of each group (a subject, a mood, an award tag), composed rows (requests_v2.json)
+    /// Every one of these groups: a title carries at least one keyword of each group (a subject, a mood, an award tag), for composed rows
     #[serde(default)]
     pub keyword_groups: Vec<Vec<String>>,
     /// None of these original languages ("International": not English)
     #[serde(default)]
     pub languages_none: Vec<String>,
-    /// One of these TMDB series types (Miniseries, Scripted, Documentary, Reality ...); a film never passes
+    /// One of these source series types (Miniseries, Scripted, Documentary, Reality ...); a film never passes
     #[serde(default)]
     pub tv_types_any: Vec<String>,
     /// Rating floor with 200 votes or more behind it ("Critically Acclaimed")

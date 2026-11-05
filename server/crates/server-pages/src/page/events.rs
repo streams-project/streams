@@ -469,7 +469,7 @@ impl<'a> PageContext<'a> {
             % 360;
         Some((
             rows,
-            serde_json::json!({ "id": id, "label_key": "collection.topic", "label": "Streams Collection", "title": topic.name, "description": topic.definition, "images": images, "hue": hue }),
+            serde_json::json!({ "id": id, "label_key": "collection.topic", "label": "Collection", "title": topic.name, "description": topic.definition, "images": images, "hue": hue }),
         ))
     }
 

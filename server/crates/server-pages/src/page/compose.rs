@@ -213,7 +213,8 @@ impl<'a> PageContext<'a> {
     }
 
     /// Personal rows, New Releases and collections: added here, placed by slot in `place_charts`.
-    /// On a page of composed rows every page gets them, children's pages included, and every page gets New Releases and Everyone's Watching filtered to its scope.
+    /// On a page of composed rows every page gets them, children's pages included, and every page gets New Releases and Everyone's Watching filtered to its scope
+    ///.
     fn layer_personal(&self, rows: &mut Vec<Row>) {
         let composed = self.composed_rows();
         if (self.is_kids() && !composed) || self.language.is_some() || self.animation.is_some() {

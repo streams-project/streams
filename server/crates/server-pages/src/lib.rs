@@ -23,5 +23,5 @@ pub mod suggest;
 pub mod tags;
 pub mod titles;
 
-pub use build::{PageError, Pages, Personal, ScreenAsk};
+pub use build::{PageCheck, PageError, Pages, Personal, ScreenAsk};
 pub use reading::personal_of;

@@ -61,8 +61,8 @@ pub enum RefreshOutcome {
 }
 
 impl DeviceSession {
-    /// How a presented token relates to this row. Anything that is neither current nor next is
-    /// an older token of this session, which ends it.
+    /// How a presented token relates to this row. Anything that is neither current
+    /// nor next is an older token of this session, which ends it.
     #[must_use]
     pub fn classify_refresh(
         &self,

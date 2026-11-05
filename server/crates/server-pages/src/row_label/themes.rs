@@ -1,6 +1,6 @@
-//! The theme vocabulary: TMDB keyword, the phrase a row title uses for it, and whether the phrase is a whole title.
+//! The theme vocabulary: source keyword, the phrase a row title uses for it, and whether the phrase is a whole title.
 
-/// (TMDB keyword, phrase, standalone). Standalone phrases are a whole title; the others go before a genre noun.
+/// (source keyword, phrase, standalone). Standalone phrases are a whole title; the others go before a genre noun.
 pub(crate) const THEMES: &[(&str, &str, bool)] = &[
     ("based on true story", "Based on True Stories", true),
     ("true crime", "True Crime", true),

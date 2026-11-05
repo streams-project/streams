@@ -5,14 +5,14 @@ pub(crate) fn genre_key(g: &str) -> &str {
     match g {
         "Action & Adventure" => "Action",
         "Sci-Fi & Fantasy" => "Science Fiction",
-        // TMDB's TV genre is mostly political drama (Bodyguard, The Politician's Husband), not war
+        // source's TV genre is mostly political drama (Bodyguard, The Politician's Husband), not war
         "War & Politics" => "Politics",
         "Kids" => "Family",
         other => other,
     }
 }
 
-/// One name for a genre whatever TMDB calls it on films and on series ("Sci-Fi & Fantasy" and "Science Fiction" are one family, "Action & Adventure" and "Action" too).
+/// One name for a genre whatever source calls it on films and on series ("Sci-Fi & Fantasy" and "Science Fiction" are one family, "Action & Adventure" and "Action" too).
 pub fn genre_family(g: &str) -> &str {
     match g {
         "Action & Adventure" | "Adventure" => "Action",
@@ -23,7 +23,7 @@ pub fn genre_family(g: &str) -> &str {
     }
 }
 
-/// The title ready noun of a genre as TMDB names it ("Science Fiction" gives "Sci-Fi"). None for genres that do not make a row name.
+/// The title ready noun of a genre as source names it ("Science Fiction" gives "Sci-Fi"). None for genres that do not make a row name.
 pub fn genre_noun(g: &str) -> Option<&'static str> {
     noun(genre_key(g))
 }

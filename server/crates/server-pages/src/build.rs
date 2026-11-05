@@ -23,7 +23,7 @@ use thiserror::Error;
 use crate::cursor::{CursorError, CursorKey, Position};
 use crate::genre_pages::{Surface, page as genre_page};
 use crate::genre_spec::{GenreSpec, resolve};
-use crate::page::{FIRST_SCREEN, PageAsk, PageContext, Row, RowItem};
+use crate::page::{FIRST_SCREEN, PageAsk, PageContext, Row, RowItem, SLOT_MS};
 use crate::plan::{INITIAL_ROWS, INITIAL_ROWS_GENRE, MIN_ROWS_FLOOR, PagePlan, ROWS_CAP, page_cap};
 use crate::requests::RequestStore;
 use crate::search::{TitleIndex, load_aliases, search_keys};
@@ -40,8 +40,6 @@ const ROW_PAGE_MAX: usize = 150;
 const MIN_ROW_ITEMS: usize = 4;
 /// A profile's own list makes a row from this many titles.
 const MIN_OWN_ROW_ITEMS: usize = 3;
-/// The choice of rows rotates every six hours.
-const SLOT_MS: u64 = 6 * 3_600_000;
 /// Full rows are kept for paging.
 const ROWS_KEPT_S: u64 = 600;
 /// Bytes the rows of all pages may hold, as an estimate.
@@ -92,6 +90,8 @@ pub struct ScreenAsk {
     /// Seeds a session's rotation. Empty with consent off.
     pub seed: String,
     pub personal: Personal,
+    /// Row titles the operator took off every page, lower case.
+    pub blocked_rows: Vec<String>,
 }
 
 /// Facts built once per data set.
@@ -406,13 +406,17 @@ impl Pages {
         data: &DataSet,
         viewer: &Viewer,
         rows: &[Row],
-        seen: &[u32],
+        ask: &ScreenAsk,
         composed: bool,
     ) -> Vec<Shown> {
+        let seen = &ask.personal.seen;
         let seen: HashSet<u32> = seen.iter().copied().collect();
         let mut shown_before: HashSet<u32> = HashSet::default();
         let mut out = Vec::new();
         for (position, row) in rows.iter().enumerate() {
+            if ask.blocked_rows.contains(&row.title.to_lowercase()) {
+                continue;
+            }
             let own_list = row.is_own_list();
             let chart = row.archetype == "trending";
             let fresh = |item: &&RowItem| own_list || !seen.contains(&item.id);
@@ -635,7 +639,7 @@ impl Pages {
             self.rows(data, ask, shape, slot, ROWS_CAP.max(MIN_ROWS_FLOOR))
         };
         let composed = self.facts(data).requests.version >= 2;
-        let shown = Self::share_out(data, viewer, &rows, &ask.personal.seen, composed);
+        let shown = Self::share_out(data, viewer, &rows, ask, composed);
         (rows, shown)
     }
 
@@ -862,6 +866,43 @@ impl Pages {
                 more_like_this,
             },
         )
+    }
+}
+
+/// One line of `server check pages`.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PageCheck {
+    pub id: String,
+    pub surface: &'static str,
+    pub cap: usize,
+    pub offered: bool,
+}
+
+impl Pages {
+    /// How every genre page stands for a tier, so an operator sees which pages can fill.
+    #[must_use]
+    pub fn check_pages(&self, data: &DataSet, tier: Tier) -> Vec<PageCheck> {
+        let composed = self.facts(data).requests.version >= 2;
+        crate::genre_pages::PAGES
+            .iter()
+            .filter(|page| page.kids == tier.is_kids())
+            .map(|page| {
+                let shape = Shape {
+                    surface: page.surface,
+                    spec: Some(resolve(page.name, page.surface.word(), &data.events)),
+                    language: None,
+                    collection: None,
+                    tier,
+                };
+                let cap = self.cap(data, &shape, composed);
+                PageCheck {
+                    id: page.id.to_owned(),
+                    surface: page.surface.word(),
+                    cap,
+                    offered: PagePlan::new(cap, true, false, INITIAL_ROWS_GENRE).supported(),
+                }
+            })
+            .collect()
     }
 }
 

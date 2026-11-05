@@ -328,7 +328,7 @@ impl GenreSpec {
         }
     }
 
-    /// Whether the page's members come from the judged lists (`categories_v1.json` is loaded and this page is one of its categories).
+    /// Whether the page's members come from the judged lists (the judged file is loaded and this page is one of its categories).
     pub fn is_judged(&self, facts: &SpecFacts<'_>) -> bool {
         use GenreSpec::*;
         facts.judged

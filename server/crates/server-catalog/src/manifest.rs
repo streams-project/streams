@@ -12,6 +12,9 @@ use thiserror::Error;
 /// The manifest shape this build reads.
 pub const SCHEMA_VERSION: u32 = 1;
 
+/// The key packing this build reads.
+pub const KEY_SCHEME: &str = "kind_top_bit_u32_le";
+
 /// File roles. A file with no role is never read.
 pub mod role {
     pub const CATALOG: &str = "catalog";
@@ -62,6 +65,11 @@ pub struct DatasetManifest {
     pub dimensions: u32,
     pub quantisation: String,
     pub row_count: u64,
+    /// How item keys are packed. A set packed another way would read as the wrong titles.
+    pub key_scheme: String,
+    /// The date the catalogue view was built for, when the builder states one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub as_of: Option<String>,
     pub files: BTreeMap<String, FileEntry>,
 }
 
@@ -85,6 +93,12 @@ pub enum ManifestError {
     WrongHash(String),
     #[error("the vectors do not fit {0} rows of {1} dimensions")]
     WrongShape(u64, u32),
+    #[error("key scheme {0} is not one this build reads")]
+    KeyScheme(String),
+    #[error("file path {0} leaves the set's folder")]
+    OutsideSet(String),
+    #[error("the signature does not fit a key this server holds")]
+    Signature,
 }
 
 /// Paths of the files that passed, by role.
@@ -135,6 +149,15 @@ pub fn sha256_file(path: &Path) -> std::io::Result<String> {
     Ok(text)
 }
 
+/// True for a path that stays inside the set's folder.
+fn inside_set(path: &str) -> bool {
+    !path.is_empty()
+        && !path.starts_with('/')
+        && Path::new(path)
+            .components()
+            .all(|part| matches!(part, std::path::Component::Normal(_)))
+}
+
 fn check_file(dir: &Path, entry: &FileEntry) -> Result<PathBuf, ManifestError> {
     let path = dir.join(&entry.path);
     let meta =
@@ -174,6 +197,12 @@ impl DatasetManifest {
         if self.quantisation != "f16" {
             return Err(ManifestError::Quantisation(self.quantisation.clone()));
         }
+        if self.key_scheme != KEY_SCHEME {
+            return Err(ManifestError::KeyScheme(self.key_scheme.clone()));
+        }
+        if let Some(entry) = self.files.values().find(|entry| !inside_set(&entry.path)) {
+            return Err(ManifestError::OutsideSet(entry.path.clone()));
+        }
         for required in [role::CATALOG, role::VECTORS, role::VECTOR_KEYS] {
             if !self.files.contains_key(required) {
                 return Err(ManifestError::MissingRole(required));
@@ -206,5 +235,77 @@ impl DatasetManifest {
             }
         }
         Ok((files, dropped))
+    }
+}
+
+/// The public keys a server accepts sets from. With none, sets are taken unsigned, and the server
+/// says so at start.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct DataTrust {
+    keys: Vec<[u8; 32]>,
+}
+
+/// Bytes of the fixed header of an ed25519 public key in PEM.
+const SPKI_HEADER: usize = 12;
+
+impl DataTrust {
+    /// Trust from PEM public keys.
+    ///
+    /// # Errors
+    /// A key that is not an ed25519 public key.
+    pub fn from_pem(pems: &[String]) -> Result<Self, ManifestError> {
+        use base64::Engine;
+        let mut keys = Vec::new();
+        for pem in pems {
+            let body: String = pem
+                .lines()
+                .filter(|line| !line.starts_with("-----"))
+                .collect();
+            let der = base64::engine::general_purpose::STANDARD
+                .decode(body.trim())
+                .map_err(|_| ManifestError::Signature)?;
+            let raw = der.get(SPKI_HEADER..).ok_or(ManifestError::Signature)?;
+            keys.push(<[u8; 32]>::try_from(raw).map_err(|_| ManifestError::Signature)?);
+        }
+        Ok(Self { keys })
+    }
+
+    /// Trust from raw keys.
+    #[must_use]
+    pub const fn from_keys(keys: Vec<[u8; 32]>) -> Self {
+        Self { keys }
+    }
+
+    /// Check `manifest.sig` over the exact bytes of the manifest.
+    ///
+    /// # Errors
+    /// `Signature` for a missing, wrong or unknown signature when any key is held.
+    pub fn check(&self, manifest_path: &Path) -> Result<(), ManifestError> {
+        use base64::Engine;
+        use ed25519_dalek::{Signature, Verifier, VerifyingKey};
+        if self.keys.is_empty() {
+            return Ok(());
+        }
+        let bytes = std::fs::read(manifest_path).map_err(|_| ManifestError::Signature)?;
+        let signature = std::fs::read(manifest_path.with_extension("sig"))
+            .map_err(|_| ManifestError::Signature)?;
+        let signature: serde_json::Value =
+            serde_json::from_slice(&signature).map_err(|_| ManifestError::Signature)?;
+        let text = signature["signature"]
+            .as_str()
+            .ok_or(ManifestError::Signature)?;
+        let raw = base64::engine::general_purpose::STANDARD
+            .decode(text)
+            .map_err(|_| ManifestError::Signature)?;
+        let raw = <[u8; 64]>::try_from(raw.as_slice()).map_err(|_| ManifestError::Signature)?;
+        let signature = Signature::from_bytes(&raw);
+        let good = self.keys.iter().any(|key| {
+            VerifyingKey::from_bytes(key).is_ok_and(|key| key.verify(&bytes, &signature).is_ok())
+        });
+        if good {
+            Ok(())
+        } else {
+            Err(ManifestError::Signature)
+        }
     }
 }

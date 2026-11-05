@@ -123,7 +123,7 @@ impl<'a> PageContext<'a> {
                         r.meta = Some(collection_meta(
                             &format!("topic_{slug}"),
                             "collection.topic",
-                            "Streams Collection",
+                            "Collection",
                             &topic.definition,
                             json!({ "collection": format!("topic_{slug}") }),
                             &r,

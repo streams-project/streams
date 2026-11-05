@@ -18,7 +18,7 @@ pub fn genre_ok_with(
     spec.matches(item, facts)
 }
 
-/// Whether a title's original language belongs to a language page: TMDB writes Chinese as `zh` or `cn` and Norwegian as `no` or `nb`.
+/// Whether a title's original language belongs to a language page: source writes Chinese as `zh` or `cn` and Norwegian as `no` or `nb`.
 pub fn language_matches(page: &str, original: &str) -> bool {
     page == original || matches!((page, original), ("zh", "cn") | ("no", "nb"))
 }
@@ -28,7 +28,7 @@ pub fn meets_vote_floor(item: &CatalogItem, genre_page: bool) -> bool {
     item.vote_count == 0 || item.vote_count >= if genre_page { 5 } else { 10 }
 }
 
-/// The quality gate of a page: a page whose members the Colab judge vetted (Stand-up, Cult, Independent ...) accepts less known titles (rating 5.5, popularity 0.5), since
+/// The quality gate of a page: a page whose members the judge vetted (Stand-up, Cult, Independent ...) accepts less known titles (rating 5.5, popularity 0.5), since
 /// the niche is made of them; every other page uses `passes_member_quality`.
 pub fn member_quality_for(
     spec: Option<&crate::genre_spec::GenreSpec>,
@@ -151,7 +151,7 @@ impl<'a> PageContext<'a> {
             && (self.allowed_by_nets(item))
     }
 
-    /// A title made for children (TMDB Kids genre, or a US TV-Y or TV-Y7 rating): on a page that is not a child's it stays out of the personal rows, the popular row and
+    /// A title made for children (source Kids genre, or a US TV-Y or TV-Y7 rating): on a page that is not a child's it stays out of the personal rows, the popular row and
     /// the composed rows that are not about children or animation (Miraculous next to Breaking Bad in Top Picks, iCarly next to The Boys in US Series).
     pub(crate) fn childrens_title(&self, item: &CatalogItem) -> bool {
         is_childrens_title(item)

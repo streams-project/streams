@@ -145,6 +145,14 @@ pub trait AccountStore: Send + Sync {
     async fn update_device_code(&self, row: &DeviceCodeRow) -> StoreResult<()>;
     /// Remove a waiting sign in.
     async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<()>;
+    /// Delete what has lapsed: sessions unused since a time, audit rows older than a time, and
+    /// device codes past their life.
+    async fn prune(
+        &self,
+        idle_before_ms: u64,
+        events_before_ms: u64,
+        now_ms: u64,
+    ) -> StoreResult<u64>;
     /// The device card of a session, as sent.
     async fn card(&self, session: SessionId) -> StoreResult<Option<serde_json::Value>>;
     /// Save a device card as opaque JSON, returning true when the hash is new.

@@ -17,7 +17,7 @@ use crate::events::EventStore;
 use crate::fresh::FreshStore;
 use crate::groups::{self, GroupMap, GroupNames};
 use crate::index::{HnswIndex, read_stamp};
-use crate::manifest::{DataFiles, DatasetManifest, ManifestError, role};
+use crate::manifest::{DataFiles, DataTrust, DatasetManifest, ManifestError, role};
 use crate::people::PeopleIndex;
 use crate::profiles::ProfileStore;
 use crate::taxonomy::TaxonomyStore;
@@ -99,6 +99,15 @@ impl DataSet {
     /// # Errors
     /// The manifest refuses a file, or a required file does not load.
     pub fn load(manifest_path: &Path) -> Result<Self, SwapError> {
+        Self::load_trusted(manifest_path, &DataTrust::default())
+    }
+
+    /// Validate and load one set against the keys this server holds.
+    ///
+    /// # Errors
+    /// A signature does not fit, a file is refused, or a required file does not load.
+    pub fn load_trusted(manifest_path: &Path, trust: &DataTrust) -> Result<Self, SwapError> {
+        trust.check(manifest_path)?;
         let (manifest, data_hash) = DatasetManifest::read(manifest_path)?;
         let dir = manifest_path.parent().unwrap_or_else(|| Path::new("."));
         let (files, dropped) = manifest.validate(dir)?;
@@ -119,6 +128,10 @@ impl DataSet {
             .get(role::PROFILES)
             .map_or_else(ProfileStore::empty, ProfileStore::load);
         let mean = vectors.compute_mean();
+        let coverage = crate::coverage::Coverage::of(&catalog, &vectors);
+        if let Some(advice) = coverage.advice() {
+            warn!("{advice}");
+        }
         let mut dropped = dropped;
         let seeds = load_seeds(&files, dims, &mut dropped);
         let vault = CentroidVault::compute(&catalog, &vectors);
@@ -292,6 +305,7 @@ fn load_taxonomy(
 pub struct DataSlot {
     current: ArcSwap<DataSet>,
     manifest_path: PathBuf,
+    trust: DataTrust,
     swap_lock: Mutex<()>,
 }
 
@@ -301,9 +315,18 @@ impl DataSlot {
     /// # Errors
     /// The set was refused. With no good set there is nothing to serve.
     pub fn open(manifest_path: &Path) -> Result<Self, SwapError> {
+        Self::open_trusted(manifest_path, DataTrust::default())
+    }
+
+    /// Load the first set against the keys this server holds.
+    ///
+    /// # Errors
+    /// The set was refused.
+    pub fn open_trusted(manifest_path: &Path, trust: DataTrust) -> Result<Self, SwapError> {
         Ok(Self {
-            current: ArcSwap::from_pointee(DataSet::load(manifest_path)?),
+            current: ArcSwap::from_pointee(DataSet::load_trusted(manifest_path, &trust)?),
             manifest_path: manifest_path.to_path_buf(),
+            trust,
             swap_lock: Mutex::new(()),
         })
     }
@@ -328,7 +351,7 @@ impl DataSlot {
         if hash == self.load().data_hash {
             return Ok(false);
         }
-        let next = DataSet::load(&self.manifest_path)?;
+        let next = DataSet::load_trusted(&self.manifest_path, &self.trust)?;
         info!("Data set {} in use", next.manifest.dataset_version);
         self.current.store(Arc::new(next));
         Ok(true)

@@ -2,7 +2,7 @@
 use super::*;
 
 /// Prior weight per row type, mirroring the page policy type mix in
-/// ai-engine/config/row_architecture.json (vibe and theme rows dominate).
+/// (vibe and theme rows dominate).
 pub(crate) fn kind_weight(kind: &str) -> f32 {
     match kind {
         "vibe" => 1.0,

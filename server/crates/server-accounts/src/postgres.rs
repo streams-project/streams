@@ -736,6 +736,31 @@ impl AccountStore for PgStore {
         Ok(())
     }
 
+    async fn prune(
+        &self,
+        idle_before_ms: u64,
+        events_before_ms: u64,
+        now_ms: u64,
+    ) -> StoreResult<u64> {
+        let mut gone = 0;
+        for (statement, time) in [
+            (
+                "delete from device_sessions where last_seen_at < $1",
+                idle_before_ms,
+            ),
+            ("delete from account_events where ts < $1", events_before_ms),
+            ("delete from device_codes where expires_at <= $1", now_ms),
+        ] {
+            let done = sqlx::query(statement)
+                .bind(to_time(time))
+                .execute(&self.pool)
+                .await
+                .map_err(fail)?;
+            gone += done.rows_affected();
+        }
+        Ok(gone)
+    }
+
     async fn card(&self, session: SessionId) -> StoreResult<Option<serde_json::Value>> {
         let found: Option<Option<serde_json::Value>> =
             sqlx::query_scalar("select card from device_sessions where id = $1")

@@ -11,20 +11,9 @@ const POPULAR_ROW: usize = 60;
 /// The scope's own titles a thin page draws its session rows from (best quality first)
 const SCOPE_POOL: usize = 3000;
 /// How much a title's closeness to its genre page counts next to its closeness to the profile when a genre page ranks its personal rows.
-/// OFF_PAGE_FIT_WEIGHT overrides it for calibration runs.
 const PAGE_FIT_WEIGHT: f32 = 0.1;
 /// A genre page's centre is the mean of this many of its row titles at most.
 const PAGE_CENTRE_TITLES: usize = 4000;
-
-fn page_fit_weight() -> f32 {
-    static W: std::sync::OnceLock<f32> = std::sync::OnceLock::new();
-    *W.get_or_init(|| {
-        std::env::var("OFF_PAGE_FIT_WEIGHT")
-            .ok()
-            .and_then(|v| v.parse().ok())
-            .unwrap_or(PAGE_FIT_WEIGHT)
-    })
-}
 
 /// What a genre page's personal rows choose from: the titles of the page's own rows, and the page's centre, the mean of their vectors centred on the corpus mean.
 pub(crate) struct PageScope {
@@ -157,7 +146,7 @@ impl<'a> PageContext<'a> {
         gems_only: bool,
         page: Option<&PageScope>,
     ) -> Vec<&CatalogItem> {
-        let w = page_fit_weight();
+        let w = PAGE_FIT_WEIGHT;
         let mut cands: Vec<(f32, &CatalogItem)> = self
             .eligible(keys, taken, false)
             .into_iter()

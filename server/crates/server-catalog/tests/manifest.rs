@@ -2,7 +2,7 @@
 
 use server_catalog::manifest::{DatasetManifest, ManifestError, role};
 use server_catalog::sample::{SAMPLE_DIMS, sample_titles, special, write_sample};
-use server_catalog::{DataSet, DataSlot, SwapError, item_key};
+use server_catalog::{DataSet, DataSlot, DataTrust, SwapError, item_key};
 
 fn folder(name: &str) -> std::path::PathBuf {
     let dir = std::env::temp_dir().join(format!("manifest_{name}_{}", std::process::id()));
@@ -176,4 +176,73 @@ fn s151_the_sample_reads_its_seeds_events_and_fresh_list() {
     assert!(!set.fresh.items.is_empty());
     assert_eq!(set.events.all().len(), 2);
     assert!(set.dropped.is_empty());
+}
+
+fn signed(dir: &std::path::Path, manifest: &std::path::Path, key: &ed25519_dalek::SigningKey) {
+    use base64::Engine;
+    use ed25519_dalek::Signer;
+    let signature = key.sign(&std::fs::read(manifest).unwrap());
+    let text = base64::engine::general_purpose::STANDARD.encode(signature.to_bytes());
+    let body = serde_json::json!({ "algorithm": "ed25519", "key_id": "x", "signature": text });
+    std::fs::write(dir.join("manifest.sig"), body.to_string()).unwrap();
+}
+
+#[test]
+fn c3_a_held_key_refuses_an_unsigned_or_wrongly_signed_set() {
+    let dir = folder("signed");
+    let manifest = write_sample(&dir);
+    let key = ed25519_dalek::SigningKey::from_bytes(&[7; 32]);
+    let trust = DataTrust::from_keys(vec![key.verifying_key().to_bytes()]);
+    assert!(matches!(
+        DataSet::load_trusted(&manifest, &trust),
+        Err(SwapError::Manifest(ManifestError::Signature))
+    ));
+    signed(&dir, &manifest, &key);
+    assert!(DataSet::load_trusted(&manifest, &trust).is_ok());
+    let other = ed25519_dalek::SigningKey::from_bytes(&[8; 32]);
+    signed(&dir, &manifest, &other);
+    assert!(DataSet::load_trusted(&manifest, &trust).is_err());
+    signed(&dir, &manifest, &key);
+    let text = std::fs::read(&manifest).unwrap();
+    std::fs::write(&manifest, [text.as_slice(), b" "].concat()).unwrap();
+    assert!(
+        DataSet::load_trusted(&manifest, &trust).is_err(),
+        "the signature covers the bytes"
+    );
+}
+
+#[test]
+fn c3_a_pem_public_key_reads() {
+    let key = ed25519_dalek::SigningKey::from_bytes(&[9; 32]);
+    use base64::Engine;
+    let mut der = vec![
+        0x30, 0x2a, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70, 0x03, 0x21, 0x00,
+    ];
+    der.extend_from_slice(&key.verifying_key().to_bytes());
+    let body = base64::engine::general_purpose::STANDARD.encode(der);
+    let pem = format!("-----BEGIN PUBLIC KEY-----\n{body}\n-----END PUBLIC KEY-----\n");
+    assert_eq!(
+        DataTrust::from_pem(&[pem]).unwrap(),
+        DataTrust::from_keys(vec![key.verifying_key().to_bytes()])
+    );
+}
+
+#[test]
+fn h63_a_key_scheme_or_a_path_outside_the_set_is_refused() {
+    let dir = folder("scheme");
+    let manifest = write_sample(&dir);
+    rewrite(&manifest, |m| m.key_scheme = String::from("other"));
+    assert!(matches!(
+        DataSet::load(&manifest),
+        Err(SwapError::Manifest(ManifestError::KeyScheme(_)))
+    ));
+    let dir = folder("outside");
+    let manifest = write_sample(&dir);
+    rewrite(&manifest, |m| {
+        m.files.get_mut(role::FRESH).unwrap().path = String::from("../secret");
+    });
+    assert!(matches!(
+        DataSet::load(&manifest),
+        Err(SwapError::Manifest(ManifestError::OutsideSet(_)))
+    ));
 }

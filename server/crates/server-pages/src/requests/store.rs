@@ -1,5 +1,4 @@
-//! The requests the engine can make rows from (`requests_v1.json` next to the database, written by ai-engine/pipeline/make_requests.py), with what is worked out once at start:
-//! the titles that pass each request's rules (best quality first) and the centre of those titles in the vector space (the anchor rows are ranked by).
+//! The requests the engine can make rows from (a data file) and the centre of those titles in the vector space (the anchor rows are ranked by).
 use super::rules::Rules;
 use rayon::prelude::*;
 use serde::Deserialize;
@@ -72,7 +71,7 @@ pub struct Request {
 #[derive(Default)]
 pub struct RequestStore {
     pub requests: Vec<Request>,
-    /// 2 for composed rows (requests_v2.json), 1 for the older request file, 0 when empty
+    /// 2 for composed rows, 1 for the older request file, 0 when empty
     pub version: u32,
 }
 
@@ -149,7 +148,7 @@ fn parse_md(s: &str) -> Option<(u8, u8)> {
 }
 
 impl RequestStore {
-    /// Reads `requests_v2.json` (composed rows), else `requests_v1.json`, next to `db_path`; an empty store when neither is readable (request rows are then off
+    /// Reads the requests file; an empty store when it does not read, and request rows are then off.
     /// whatever the switch says).
     pub fn load(
         path: &std::path::Path,

@@ -66,6 +66,13 @@ async fn ask_of(
 ) -> ApiResult<ScreenAsk> {
     let now_ms = state.clock.now_ms();
     let class = client_class(headers);
+    let blocked_rows: Vec<String> = state
+        .live
+        .values()
+        .blocked_rows
+        .iter()
+        .map(|title| title.to_lowercase())
+        .collect();
     let Some(watching) = &reader.watching else {
         return Ok(ScreenAsk {
             screen,
@@ -75,6 +82,7 @@ async fn ask_of(
             owner: String::from("visitor"),
             seed: String::new(),
             personal: Personal::default(),
+            blocked_rows,
         });
     };
     let scope = &watching.scope;
@@ -96,6 +104,7 @@ async fn ask_of(
         owner: format!("{}:{}", scope.session(), scope.profile()),
         seed,
         personal,
+        blocked_rows,
     })
 }
 

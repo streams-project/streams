@@ -97,7 +97,7 @@ pub struct Row {
 pub struct RowItem {
     /// Internal key (`catalog::item_key`), used for dedup and session state
     pub id: u32,
-    /// TMDB id, what clients get as `id` (only unique together with `media_type`)
+    /// source id, what clients get as `id` (only unique together with `media_type`)
     pub title_id: u32,
     pub title: String,
     pub media_type: String,
@@ -108,7 +108,7 @@ pub struct RowItem {
     pub popularity: f32,
     pub release_year: Option<i32>,
     pub genres: Vec<String>,
-    /// TMDB tv type (Scripted, Reality, Talk Show, ...) and original language, for clients and checks
+    /// source tv type (Scripted, Reality, Talk Show, ...) and original language, for clients and checks
     pub tv_type: Option<String>,
     pub language: String,
     /// British age rank of the title (0 unknown), see `catalog::cert_rank`

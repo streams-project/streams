@@ -1,5 +1,5 @@
-//! The nearest neighbour index. The server is its only writer, so its options live here once,
-//! and a stamp ties an index file to the data set it was built from.
+//! The nearest neighbour index. The server is its only writer, so its
+//! options live here once, and a stamp ties an index file to the data set it was built from.
 
 use crate::manifest::sha256_file;
 use crate::vectors::VectorStore;

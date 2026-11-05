@@ -1,5 +1,6 @@
 //! The one binary: `serve`, `migrate`, and `index build` for the index this server owns.
 
+use std::io::Write;
 use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
@@ -8,15 +9,33 @@ use anyhow::{Context, Result, bail};
 use server_accounts::limits::DEFAULT_LIMITS;
 use server_accounts::{AccountStore, Door, HttpAuth, PgStore, SystemClock};
 use server_api::{AppState, Config};
-use server_catalog::DataSlot;
+use server_catalog::{DataSlot, DataTrust};
 use server_library::{Library, LibraryStore, PgLibrary};
+use server_pages::Pages;
 use server_play::{HttpFinder, Play};
+use server_rules::Tier;
+use server_rules::answer::Images;
 use tracing::{info, warn};
 use tracing_subscriber::EnvFilter;
 
 fn open_data(config: &Config) -> Option<Arc<DataSlot>> {
     let manifest = config.data_manifest.as_deref()?;
-    match DataSlot::open(manifest) {
+    let pems: Result<Vec<String>, _> = config
+        .data_keys
+        .iter()
+        .map(std::fs::read_to_string)
+        .collect();
+    let trust = pems
+        .map_err(|error| error.to_string())
+        .and_then(|pems| DataTrust::from_pem(&pems).map_err(|error| error.to_string()));
+    let trust = match trust {
+        Ok(trust) => trust,
+        Err(error) => {
+            warn!("Data signing keys did not read, titles stay off: {error}");
+            return None;
+        }
+    };
+    match DataSlot::open_trusted(manifest, trust) {
         Ok(slot) => Some(Arc::new(slot)),
         Err(error) => {
             warn!("Data set refused, titles stay off: {error}");
@@ -87,6 +106,7 @@ async fn serve(config: Config) -> Result<()> {
     let mut state = AppState::new(config, door, data, library);
     state.play = play;
     let state = Arc::new(state);
+    server_api::jobs::start(&state);
     let app = server_api::router(state).into_make_service_with_connect_info::<SocketAddr>();
     let listener = tokio::net::TcpListener::bind(&listen).await?;
     info!("Listening");
@@ -106,6 +126,39 @@ async fn migrate(config: &Config) -> Result<()> {
         .context("the database did not answer")?;
     sqlx::migrate!("../../migrations").run(&pool).await?;
     info!("Migrated");
+    Ok(())
+}
+
+/// Print how every genre page stands for each tier: `check pages`.
+fn check_pages(config: &Config) -> Result<()> {
+    let manifest = config
+        .data_manifest
+        .as_deref()
+        .context("DATA_MANIFEST is not set")?;
+    let slot = DataSlot::open(manifest)?;
+    let set = slot.load();
+    let pages = Pages::new(Images::new(None));
+    let tiers = [
+        Tier::Adult,
+        Tier::Fifteen,
+        Tier::Twelve,
+        Tier::OlderKids,
+        Tier::LittleKids,
+    ];
+    let mut out = std::io::stdout().lock();
+    for tier in tiers {
+        for line in pages.check_pages(&set, tier) {
+            writeln!(
+                out,
+                "{} {} {} cap={} {}",
+                tier.as_str(),
+                line.surface,
+                line.id,
+                line.cap,
+                if line.offered { "offered" } else { "too thin" }
+            )?;
+        }
+    }
     Ok(())
 }
 
@@ -137,6 +190,7 @@ async fn main() -> Result<()> {
         [] | ["serve"] => serve(config).await,
         ["migrate"] => migrate(&config).await,
         ["index", "build"] => build_index(&config),
-        _ => bail!("use: server [serve | migrate | index build]"),
+        ["check", "pages"] => check_pages(&config),
+        _ => bail!("use: server [serve | migrate | index build | check pages]"),
     }
 }

@@ -84,7 +84,7 @@ fn index_state(state: &AppState) -> ServiceState {
     }
 }
 
-/// `/v1/ready`: plain state words only, so an outsider reads no provider or meter (S216, critic).
+/// `/v1/ready`: plain state words only, so an outsider reads no provider or meter.
 #[must_use]
 pub fn ready_value(state: &AppState) -> Ready {
     let data = state.data.as_ref().map(|slot| slot.load());

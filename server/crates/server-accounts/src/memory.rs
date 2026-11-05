@@ -502,6 +502,15 @@ impl AccountStore for MemoryStore {
         Ok(())
     }
 
+    async fn prune(&self, idle_before_ms: u64, _: u64, now_ms: u64) -> StoreResult<u64> {
+        let mut rows = self.guard()?;
+        let before = rows.sessions.len() + rows.device_codes.len();
+        rows.sessions
+            .retain(|_, row| row.last_seen_ms >= idle_before_ms);
+        rows.device_codes.retain(|row| row.expires_ms > now_ms);
+        Ok((before - rows.sessions.len() - rows.device_codes.len()) as u64)
+    }
+
     async fn card(&self, session: SessionId) -> StoreResult<Option<serde_json::Value>> {
         let rows = self.guard()?;
         Ok(rows.cards.get(&session).and_then(|(_, card)| card.clone()))

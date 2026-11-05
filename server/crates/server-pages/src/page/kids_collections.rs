@@ -179,7 +179,7 @@ impl<'a> PageContext<'a> {
                 r.meta = Some(crate::personal::collection_meta(
                     &id,
                     "collection.kids",
-                    "Streams Kids",
+                    "Kids Collection",
                     &sentence(&e.vibe_query),
                     serde_json::json!({ "collection": id }),
                     &r,
@@ -232,7 +232,7 @@ impl<'a> PageContext<'a> {
             % 360;
         Some((
             rows,
-            serde_json::json!({ "id": id, "label_key": "collection.kids", "label": "Streams Kids", "title": e.title, "description": sentence(&e.vibe_query), "images": images, "hue": hue }),
+            serde_json::json!({ "id": id, "label_key": "collection.kids", "label": "Kids Collection", "title": e.title, "description": sentence(&e.vibe_query), "images": images, "hue": hue }),
         ))
     }
 }

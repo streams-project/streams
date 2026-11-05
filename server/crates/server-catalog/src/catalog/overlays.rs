@@ -40,7 +40,7 @@ pub fn apply_popularity_overlay(
     }
 }
 
-/// Adds the awards of `awards_v1.json` (next to the database) to the keywords of the titles as `award:<family>:won` or `award:<family>:nominated`, so any
+/// Adds the awards file to the keywords of the titles as `award:<family>:won` or `award:<family>:nominated`, so any
 /// page rule or banner line can ask for them. The file is `{ "emmy": { "<title id>": { "won": n, "nominated": n } }, "oscar": ..., "bafta": ..., "globe": ... }`
 /// with `_tv` after the family name for series ids (`emmy` is series only). A missing file adds nothing.
 pub fn apply_awards(map: &mut HashMap<u32, CatalogItem>, files: &crate::manifest::DataFiles) {
@@ -84,7 +84,7 @@ pub fn apply_awards(map: &mut HashMap<u32, CatalogItem>, files: &crate::manifest
     info!("Awards: {added} titles marked from {}", path.display());
 }
 
-/// Adds the judged memberships of `categories_v1.json` (page categories) and `topics_v1.json` (topic rows) next to the database to the keywords of the titles as
+/// Adds the judged memberships of page categories and topic rows to the keywords of the titles as
 /// `cat:<slug>` and `topic:<slug>`. Both files are `{ "<slug>": { "<movie|tv>:<title id>": probability } }`, only titles the judge accepted. A missing file adds nothing.
 /// True when page categories were marked, so those pages use the judged list alone.
 pub fn apply_categories(

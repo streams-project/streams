@@ -384,7 +384,7 @@ impl<'a> PageContext<'a> {
     /// The rows of a page made from requests: requests by score, each turned into a row while it is unlike the rows placed (centre and kind share) and its titles are not
     /// on the page yet (version 2: not in the first screen of a row yet). The Top 10 rows are added later by `place_charts`, which also takes their titles out of these
     /// rows. Each row records the order it was built in (`request_order`), so a check can rebuild it with exactly the titles that were taken before it
-    /// (ai-engine/scripts/verify_rows.py).
+    ///.
     pub(crate) fn build_request_page(&self) -> Vec<Row> {
         let composed = self.composed_rows();
         let taste: Option<Vec<f32>> = self.taste.iter().any(|x| x.abs() > 1e-6).then(|| {

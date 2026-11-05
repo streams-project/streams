@@ -2,6 +2,9 @@
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
+/// The choice of rows rotates every six hours.
+pub const SLOT_MS: u64 = 6 * 3_600_000;
+
 /// Titles in the Top 10 row
 pub(crate) const TOP_N: usize = 10;
 
@@ -15,7 +18,7 @@ pub(crate) const NONSCRIPTED_ROW_CAP: u32 = 2;
 pub(crate) const SEED_NOISE: f32 = 0.30;
 pub(crate) const MEMBER_DROP: f32 = 0.22;
 
-/// Coherence gate thresholds. Set by percentile matching (ai-engine/scripts/calibrate.py): each gate keeps the strictness it had
+/// Coherence gate thresholds. Set by percentile matching: each gate keeps the strictness it had
 /// in the first Qwen3-Embedding-4B space, translated to the current space (title free text with tagline, people and cast,
 /// seeds trained on the quality pool). Rerun the script after any embedding change; thresholds from another space do not transfer.
 /// Measured 2026-10-04: old to new COHERENCE_OK 0.55 to 0.60 (item to medoid cosine), COHERENCE_WEAK 0.50 to 0.56 (mean pairwise

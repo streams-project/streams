@@ -11,7 +11,7 @@ use crate::session::IssuedTokens;
 use crate::store::{AccountNames, DeviceCodeRow};
 use crate::token::{hash_token, new_token};
 
-/// A device sign in lives this long, and polls this often.
+/// A device sign in lives this long, and polls this often (RFC 8628).
 pub const DEVICE_CODE_S: u32 = 900;
 pub const DEVICE_POLL_S: u32 = 5;
 /// Letters of a user code: no vowels, so no word appears, about 34.5 bits over 8 letters.

@@ -82,6 +82,7 @@ pub struct Off {
 pub struct Config {
     pub listen: Option<String>,
     pub data_manifest: Option<PathBuf>,
+    pub data_keys: Vec<PathBuf>,
     pub index_path: Option<PathBuf>,
     pub database_url: Option<String>,
     pub image_base: Option<String>,
@@ -130,6 +131,19 @@ impl Config {
         let data_manifest = value("DATA_MANIFEST").map(PathBuf::from);
         if data_manifest.is_none() {
             note("titles", "DATA_MANIFEST is not set");
+        }
+        let data_keys: Vec<PathBuf> = value("DATA_PUBLIC_KEYS")
+            .map(|list| {
+                list.split(',')
+                    .map(|path| PathBuf::from(path.trim()))
+                    .collect()
+            })
+            .unwrap_or_default();
+        if data_keys.is_empty() {
+            note(
+                "data signatures",
+                "DATA_PUBLIC_KEYS is not set, sets are taken unsigned",
+            );
         }
         let index_path = value("INDEX_PATH").map(PathBuf::from);
         if index_path.is_none() {
@@ -195,6 +209,7 @@ impl Config {
         Self {
             listen,
             data_manifest,
+            data_keys,
             index_path,
             database_url,
             image_base,

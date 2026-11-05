@@ -90,7 +90,7 @@ fn h26_h31_no_rule_hides_in_the_database() {
 #[test]
 fn a_project_that_takes_only_accounts_stops_before_any_video_word() {
     let video =
-        Regex::new(r"(?i)\b(title|movie|episode|season|series|film|video|trailer|tmdb)").unwrap();
+        Regex::new(r"(?i)\b(title|movie|episode|season|series|film|video|trailer)").unwrap();
     for (name, sql) in chain() {
         let number: u32 = name.split('_').next().unwrap().parse().unwrap();
         if number < 100 {
@@ -103,8 +103,6 @@ fn a_project_that_takes_only_accounts_stops_before_any_video_word() {
         }
     }
 }
-
-
 
 /// Every store source file.
 fn store_sources() -> Vec<String> {

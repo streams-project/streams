@@ -24,6 +24,8 @@ pub struct PageContext<'a> {
     pub today_ymd: String,
     /// Today as days since 1970
     pub today_days: i64,
+    /// The time of this page, in milliseconds since 1970
+    pub now_ms: u64,
     /// Original language code (a language page); every row holds only titles in that language
     pub language: Option<&'a str>,
     /// Children's home only: build the page from the animated titles (`Some(true)`) or from the live action ones (`Some(false)`)
@@ -107,6 +109,7 @@ impl<'a> PageContext<'a> {
             events: &data.events,
             today_ymd: server_catalog::fresh::ymd(today_days),
             today_days,
+            now_ms: ask.now_ms,
             language: ask.language,
             animation: None,
             kids_entries,

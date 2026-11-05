@@ -147,7 +147,7 @@ impl std::fmt::Debug for Door {
 const CALLS_PER_MINUTE: u32 = 600;
 /// Password or code tries per minute on one account name or address.
 const SIGN_INS_PER_MINUTE: u32 = 10;
-/// Typed device codes per minute.
+/// Typed device codes per minute .
 const DEVICE_TRIES_PER_MINUTE: u32 = 5;
 
 impl Door {
@@ -767,6 +767,18 @@ impl Door {
             }
         }
         Ok(())
+    }
+
+    /// Delete lapsed sessions, audit rows and device codes.
+    ///
+    /// # Errors
+    /// The store's refusal.
+    pub async fn prune(&self) -> Result<u64, DoorError> {
+        const DAY_MS: u64 = 86_400_000;
+        let now = self.now();
+        let idle_before = now.saturating_sub(u64::from(self.limits.idle_s) * 1000);
+        let events_before = now.saturating_sub(365 * DAY_MS);
+        Ok(self.store.prune(idle_before, events_before, now).await?)
     }
 
     /// The device card of this session, as sent.
