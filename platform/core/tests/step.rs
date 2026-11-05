@@ -113,3 +113,29 @@ fn step_takes_typed_messages_for_a_host_written_in_rust() {
     let out = core.step(typed);
     assert_eq!(out.effects.len(), 4);
 }
+
+#[test]
+fn c131_an_address_waits_while_the_kept_session_is_unknown_even_with_hello_in_hand() {
+    let hello = include_str!("../../contract/fixtures/2026-11-05/valid/Hello.basic.json");
+    let mut core = core();
+    let first = step(&mut core, 0, &json!([]));
+    let hello_id = first["effects"][2]["id"].clone();
+    let session_id = first["effects"][1]["id"].clone();
+    // a host answers hello first and the secret later
+    let out = step(
+        &mut core,
+        1,
+        &json!([
+            {"id": hello_id, "type": "http_done", "status": 200, "body": hello},
+            {"type": "address", "address": "/my-list"},
+        ]),
+    );
+    assert_eq!(out.get("view"), None, "{out}");
+    let out = step(
+        &mut core,
+        2,
+        &json!([{"id": session_id, "type": "secret_done"}]),
+    );
+    assert_eq!(out["view"]["route"]["target"], "sign_in");
+    assert_eq!(out["view"]["route"]["next"], "/my-list");
+}

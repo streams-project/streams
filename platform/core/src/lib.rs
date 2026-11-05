@@ -102,8 +102,6 @@ pub struct Core {
     /// The address asked for, kept across sign in and the profile picker.
     asked: Option<String>,
     route: Option<RouteTarget>,
-    /// The profile's own home.
-    home: Target,
     nav_loaded: bool,
     visible: bool,
     run: String,
@@ -137,7 +135,6 @@ impl Core {
             upgrade: false,
             asked: None,
             route: None,
-            home: Target::Home,
             nav_loaded: false,
             visible: true,
             run,
@@ -268,11 +265,21 @@ impl Core {
         }
     }
 
+    /// Where this profile starts. The profile answer named it.
+    const fn home(&self) -> Target {
+        if self.session.kids() {
+            Target::KidsHome
+        } else {
+            Target::Home
+        }
+    }
+
     fn who(&self) -> Who<'_> {
         Who {
             member: self.session.signed_in(),
             accounts_required: self.config.accounts_required(),
             moved: self.config.moved(),
+            home: self.home(),
         }
     }
 
@@ -288,6 +295,12 @@ impl Core {
     fn open_address(&mut self, now: Now, address: String, force: bool, out: &mut Out) {
         if self.upgrade {
             self.go(now, target(Target::Upgrade), false, out);
+            return;
+        }
+        // Who is asking is not known yet, so nothing is drawn.
+        if self.session.state() == SessionState::Starting {
+            self.asked = Some(address);
+            self.go(now, target(Target::Wait), false, out);
             return;
         }
         let route = decide(&address, &self.who());
@@ -500,7 +513,6 @@ impl Core {
         self.net.forget_session();
         self.gate.clear();
         self.nav_loaded = false;
-        self.home = Target::Home;
         self.secret(
             SecretOp::Delete,
             SESSION_SECRET,
@@ -742,6 +754,7 @@ impl Core {
                 match value.and_then(|text| serde_json::from_str::<Kept>(&text).ok()) {
                     Some(kept) => {
                         self.session.restore(kept);
+                        self.gate.set_active(self.session.profile().is_some());
                         out.view.session = Some(self.session.view());
                         self.refresh(out);
                         self.send(
@@ -943,12 +956,8 @@ impl Core {
 
     fn entered(&mut self, now: Now, entered: ProfileEntered, out: &mut Out) {
         let from_gate = self.session.profile().is_none() || self.gate.asking();
-        self.session.set_profile(entered.profile.id);
-        self.home = if entered.home == ScreenName::Kids {
-            Target::KidsHome
-        } else {
-            Target::Home
-        };
+        let kids = entered.home == ScreenName::Kids;
+        self.session.set_profile(entered.profile.id, kids);
         self.nav_loaded = false;
         self.gate.answered(now.wall_ms);
         out.view.gate = Some(GateView { ask: false });
@@ -956,7 +965,7 @@ impl Core {
         self.keep_session(out);
         let asked = self.asked.clone().filter(|_| from_gate);
         let route = asked.map(|address| decide(&address, &self.who()));
-        let mut home = target(self.home);
+        let mut home = target(self.home());
         match route {
             Some(route)
                 if !matches!(
@@ -996,9 +1005,10 @@ impl Core {
                 ErrorCode::ProfileRequired => {
                     self.go(now, target(Target::Profiles), false, out);
                 }
-                ErrorCode::Refused => {
-                    let home = target(self.home);
-                    self.go(now, home, false, out);
+                ErrorCode::Refused
+                    if self.route.as_ref().map(|r| r.target) != Some(self.home()) =>
+                {
+                    self.go(now, target(self.home()), false, out);
                 }
                 ErrorCode::NotFound | ErrorCode::NoLongerAvailable => {
                     self.go(now, target(Target::NotFound), false, out);

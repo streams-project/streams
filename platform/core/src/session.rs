@@ -29,6 +29,9 @@ pub(crate) struct Kept {
     pub email: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub profile: Option<String>,
+    /// True when the kept profile's home is the Kids home.
+    #[serde(default, skip_serializing_if = "core::ops::Not::not")]
+    pub kids: bool,
 }
 
 /// One owner of tokens, so one refresher per device.
@@ -37,6 +40,7 @@ pub(crate) struct Session {
     user_id: Option<String>,
     email: Option<String>,
     profile: Option<String>,
+    kids: bool,
     ended: Option<EndReason>,
     access: String,
     refresh: String,
@@ -56,6 +60,7 @@ impl Session {
             user_id: None,
             email: None,
             profile: None,
+            kids: false,
             ended: None,
             access: String::new(),
             refresh: String::new(),
@@ -99,6 +104,7 @@ impl Session {
         self.user_id = Some(kept.user_id);
         self.email = Some(kept.email);
         self.profile = kept.profile;
+        self.kids = kept.kids;
         self.refresh = kept.refresh_token;
         self.expires_mono = None;
     }
@@ -108,6 +114,7 @@ impl Session {
         let same_user = self.user_id.as_deref() == Some(signed_in.user_id.as_str());
         if !same_user {
             self.profile = None;
+            self.kids = false;
         }
         let life_ms = u64::from(signed_in.expires_in) * 1_000;
         self.state = SessionState::SignedIn;
@@ -125,8 +132,13 @@ impl Session {
         self.retry_at_mono = 0;
     }
 
-    pub(crate) fn set_profile(&mut self, profile: String) {
+    pub(crate) fn set_profile(&mut self, profile: String, kids: bool) {
         self.profile = Some(profile);
+        self.kids = kids;
+    }
+
+    pub(crate) const fn kids(&self) -> bool {
+        self.kids
     }
 
     pub(crate) fn access_token(&self) -> &str {
@@ -151,6 +163,7 @@ impl Session {
             user_id: self.user_id.clone()?,
             email: self.email.clone().unwrap_or_default(),
             profile: self.profile.clone(),
+            kids: self.kids,
         };
         serde_json::to_string(&kept).ok()
     }
@@ -216,6 +229,7 @@ impl Session {
         self.user_id = None;
         self.email = None;
         self.profile = None;
+        self.kids = false;
         self.ended = Some(reason);
         self.access.clear();
         self.refresh.clear();

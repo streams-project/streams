@@ -21,6 +21,8 @@ pub struct Who<'a> {
     /// `None` while the answer is unknown.
     pub accounts_required: Option<bool>,
     pub moved: &'a [MovedAddress],
+    /// Where this profile starts, as the server named it.
+    pub home: Target,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -237,9 +239,9 @@ pub fn decide(address: &str, who: &Who<'_>) -> RouteTarget {
     };
     // 3. who may open it
     match found {
-        Place::Start if who.member => target(Target::Home),
+        Place::Start if who.member => target(who.home),
         Place::SignIn if who.member => {
-            next_of(query).map_or(target(Target::Home), |next| decide(&next, who))
+            next_of(query).map_or(target(who.home), |next| decide(&next, who))
         }
         Place::SignIn => {
             let mut route = target(Target::SignIn);

@@ -833,13 +833,13 @@ const fn refused_token(body: &EventBody) -> bool {
     matches!(body, EventBody::HttpDone { status: 401, .. })
 }
 
-/// The answer to a prepared request is the layer's. The core only needs its status.
+/// A good answer to a prepared request is the layer's. The core reads only an error body.
 fn without_body(event: Event) -> Event {
     let Event { id, body } = event;
     let body = match body {
         EventBody::HttpDone {
             status, headers, ..
-        } => EventBody::HttpDone {
+        } if (200..300).contains(&status) => EventBody::HttpDone {
             status,
             headers,
             body: None,

@@ -10,11 +10,13 @@ const VISITOR: Who<'_> = Who {
     member: false,
     accounts_required: Some(true),
     moved: &[],
+    home: Target::Home,
 };
 const MEMBER: Who<'_> = Who {
     member: true,
     accounts_required: Some(true),
     moved: &[],
+    home: Target::Home,
 };
 
 fn key(kind: TitleKind, id: u32) -> TitleKey {
@@ -31,6 +33,7 @@ fn c131_a_moved_address_comes_first_then_unknown_then_access() {
         member: false,
         accounts_required: Some(true),
         moved: &moved,
+        home: Target::Home,
     };
     // moved, then the visitor rule sends the final address on to sign in
     let route = decide("/browse/latest", &who);
@@ -57,6 +60,7 @@ fn c131_an_unknown_answer_waits_and_nothing_is_drawn() {
         member: false,
         accounts_required: None,
         moved: &[],
+        home: Target::Home,
     };
     assert_eq!(decide("/home", &who).target, Target::Wait);
     assert_eq!(decide("/", &who).target, Target::Start);
@@ -69,6 +73,7 @@ fn c108_with_accounts_off_a_visitor_stays_on_a_members_page() {
         member: false,
         accounts_required: Some(false),
         moved: &[],
+        home: Target::Home,
     };
     assert_eq!(decide("/home", &who).target, Target::Home);
 }
@@ -182,4 +187,14 @@ fn p35_a_pending_title_goes_along() {
     assert_eq!(route.title, Some(key(TitleKind::Tv, 9)));
     // a bare id has no kind, so it is left behind
     assert_eq!(decide("/home?title=9", &MEMBER).title, None);
+}
+
+#[test]
+fn p35_the_root_and_sign_in_lead_a_member_to_the_profiles_own_home() {
+    let kids = Who {
+        home: Target::KidsHome,
+        ..MEMBER
+    };
+    assert_eq!(decide("/", &kids).target, Target::KidsHome);
+    assert_eq!(decide("/sign-in", &kids).target, Target::KidsHome);
 }

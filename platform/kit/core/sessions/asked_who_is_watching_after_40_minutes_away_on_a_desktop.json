@@ -23,7 +23,13 @@
      "type": "activity"
     }
    ],
-   "want": {}
+   "want": {
+    "view": {
+     "gate": {
+      "ask": false
+     }
+    }
+   }
   },
   {
    "at_ms": 4800400,

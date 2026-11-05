@@ -85,8 +85,9 @@ fn h61_age_comes_from_monotonic_time_and_a_boot_change_makes_it_unknown() {
         Some(8_000)
     );
     queue.failed(9_000);
+    // the new boot's clock is past the old value, so only the boot id can tell
     assert_eq!(
-        queue.batch(SCOPE, "boot-2", 50).unwrap().ops[0].age_ms,
+        queue.batch(SCOPE, "boot-2", 50_000).unwrap().ops[0].age_ms,
         None
     );
 }

@@ -1,0 +1,85 @@
+{
+ "about": "A hello that arrives after the pick decides the address again and lands on the profile's own home.",
+ "covers": [
+  "C102",
+  "P35"
+ ],
+ "moments": [
+  {
+   "at_ms": 0,
+   "want": {
+    "sent": [
+     "GET /v1/hello"
+    ],
+    "wake": 2000
+   }
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p2"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "view": {
+     "route": {
+      "target": "kids_home"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 2500,
+   "want": {
+    "routes": [],
+    "view": {
+     "route": {
+      "target": "kids_home"
+     }
+    }
+   },
+   "want_off": {
+    "sent": [
+     "GET /v1/hello"
+    ]
+   },
+   "want_on": {
+    "sent": [
+     "GET /v1/hello"
+    ]
+   }
+  }
+ ],
+ "name": "a_late_hello_keeps_a_kids_profile_on_its_home",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "overloaded",
+    "label": "busy"
+   },
+   "method": "GET",
+   "path": "/v1/hello",
+   "status": 503,
+   "times": 1
+  }
+ ]
+}

@@ -4,7 +4,6 @@
 use std::collections::BTreeMap;
 
 use contract::api::{self, Auth};
-use contract::client::CoreMode;
 use contract::core_msg::{BodyTarget, CoreOut, Effect, EffectBody, HttpClass, HttpMethod, StoreOp};
 use contract::version::{API_VERSION_HEADER, WIRE_VERSION};
 use core_rules::net::class_of;
@@ -798,9 +797,6 @@ pub fn run(script: &Script, common: &Common, mode: Mode) -> Result<Report, Strin
         .config
         .clone()
         .unwrap_or_else(|| common.config.clone());
-    if config["mode"] == json!(CoreMode::Hosted) && mode == Mode::LayerOn {
-        return Err("a hosted device has no layer".to_string());
-    }
     let mut rules = script.server.clone();
     rules.extend(common.server.iter().cloned());
     let prologue = match &script.prologue {
