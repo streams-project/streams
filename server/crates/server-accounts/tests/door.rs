@@ -4,8 +4,8 @@ use std::sync::Arc;
 
 use server_accounts::limits::DEFAULT_LIMITS;
 use server_accounts::{
-    AccountId, Door, DoorError, IssuedTokens, ManualClock, Member, MemoryStore, NewAccount,
-    ProfileId, ProfileKind, ProfileLimitsRow, ProfilePatch, StepUpMethod,
+    AccountId, Consent, Door, DoorError, IssuedTokens, ManualClock, Member, MemoryStore,
+    NewAccount, ProfileId, ProfileKind, ProfileLimitsRow, ProfilePatch, StepUpMethod,
 };
 
 struct Bench {
@@ -408,4 +408,37 @@ async fn t1_a_device_many_steps_behind_a_thief_ends_the_session() {
         bench.door.refresh(&thief.refresh).await,
         Err(DoorError::SessionEnded)
     );
+}
+
+#[tokio::test]
+async fn h31_a_stale_copy_of_a_session_cannot_undo_a_consent_or_a_profile() {
+    let bench = bench().await;
+    let (held, tokens) = bench.sign_in().await;
+    let door = &bench.door;
+    door.set_consent(&held, Consent { personal: true })
+        .await
+        .unwrap();
+    let profile = bench.profile(&held, ProfileKind::Adult).await;
+    door.enter_profile(&held, profile, None).await.unwrap();
+    door.record_step_up(&held, StepUpMethod::Code)
+        .await
+        .unwrap();
+    let scope = door
+        .scope(&door.member(&tokens.access).await.unwrap())
+        .await
+        .unwrap();
+    assert!(scope.consent().personal, "entering a profile kept consent");
+    door.refresh(&tokens.refresh).await.unwrap();
+    let after = door
+        .store()
+        .session(held.session_id())
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(
+        after.active_profile,
+        Some(profile),
+        "a refresh kept the profile"
+    );
+    assert!(after.consent.personal, "a refresh kept consent");
 }

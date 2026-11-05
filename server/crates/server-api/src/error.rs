@@ -13,7 +13,7 @@ pub struct ApiError {
     pub code: ErrorCode,
     pub label: String,
     pub retry_after_s: Option<u32>,
-    pub notice: Option<Notice>,
+    pub notice: Option<Box<Notice>>,
 }
 
 impl ApiError {
@@ -56,12 +56,12 @@ impl ApiError {
             ErrorCode::Unsupported,
             &format!("off.{feature}"),
         );
-        error.notice = Some(Notice {
+        error.notice = Some(Box::new(Notice {
             label: format!("notice.off.{feature}"),
             text: format!("This server has {feature} turned off."),
             action_label: None,
             action_address: None,
-        });
+        }));
         error
     }
 
@@ -77,7 +77,7 @@ impl ApiError {
     #[must_use]
     pub fn upgrade(notice: Notice) -> Self {
         let mut error = Self::new(StatusCode::CONFLICT, ErrorCode::UpgradeRequired, "upgrade");
-        error.notice = Some(notice);
+        error.notice = Some(Box::new(notice));
         error
     }
 }
@@ -144,7 +144,7 @@ impl IntoResponse for ApiError {
             label: self.label,
             build: String::new(),
             retry_after_s: self.retry_after_s,
-            notice: self.notice,
+            notice: self.notice.map(|notice| *notice),
         };
         let mut response = self.status.into_response();
         if let Some(seconds) = self.retry_after_s {

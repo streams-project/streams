@@ -354,10 +354,9 @@ impl Door {
                 }
             }
         }
-        let mut session = member.session.clone();
-        session.active_profile = Some(profile);
-        session.entered_at_ms = Some(self.now());
-        self.store.update_session(&session).await?;
+        self.store
+            .set_active_profile(member.session_id(), profile, self.now())
+            .await?;
         Ok(row)
     }
 
@@ -408,7 +407,7 @@ impl Door {
         next.access_hash = hash_token(&access);
         next.access_expires_ms = now + u64::from(self.limits.access_s) * 1000;
         next.last_seen_ms = now;
-        self.store.update_session(&next).await?;
+        self.store.update_tokens(&next).await?;
         Ok(IssuedTokens {
             access,
             refresh,
@@ -425,10 +424,9 @@ impl Door {
         member: &Member,
         method: StepUpMethod,
     ) -> Result<u32, DoorError> {
-        let mut session = member.session.clone();
-        session.step_up_at_ms = Some(self.now());
-        session.step_up_method = Some(method.word().to_owned());
-        self.store.update_session(&session).await?;
+        self.store
+            .set_step_up(member.session_id(), self.now(), method.word())
+            .await?;
         Ok(self.limits.step_up_s)
     }
 

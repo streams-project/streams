@@ -259,6 +259,7 @@ pub struct PlayExtras {
     pub audio_default: Option<String>,
     pub subtitle_default: Option<String>,
     pub next_episode: Option<EpisodeRef>,
+    pub autoplay_next: bool,
     pub dropped: u32,
     pub more: bool,
 }
@@ -275,6 +276,7 @@ impl SafePlayAnswer {
             audio_default: extras.audio_default,
             subtitle_default: extras.subtitle_default,
             next_episode: extras.next_episode,
+            autoplay_next: extras.autoplay_next,
             dropped: extras.dropped,
             more: extras.more,
         })

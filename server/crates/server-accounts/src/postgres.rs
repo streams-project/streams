@@ -217,12 +217,11 @@ impl AccountStore for PgStore {
         row.as_ref().map(session_row).transpose()
     }
 
-    async fn update_session(&self, s: &DeviceSession) -> StoreResult<()> {
+    async fn update_tokens(&self, s: &DeviceSession) -> StoreResult<()> {
         sqlx::query(
             "update device_sessions set access_hash = $2, access_expires_at = $3, \
              refresh_current = $4, refresh_next = $5, refresh_first_used_at = $6, \
-             active_profile = $7, entered_at = $8, step_up_at = $9, step_up_method = $10, \
-             consent_personal = $11, last_seen_at = $12 where id = $1",
+             last_seen_at = $7 where id = $1",
         )
         .bind(s.id.0)
         .bind(s.access_hash.0.as_slice())
@@ -230,12 +229,38 @@ impl AccountStore for PgStore {
         .bind(s.refresh_current.0.as_slice())
         .bind(s.refresh_next.0.as_slice())
         .bind(s.refresh_first_used_ms.map(to_time))
-        .bind(s.active_profile.map(|id| id.0))
-        .bind(s.entered_at_ms.map(to_time))
-        .bind(s.step_up_at_ms.map(to_time))
-        .bind(s.step_up_method.as_deref())
-        .bind(s.consent.personal)
         .bind(to_time(s.last_seen_ms))
+        .execute(&self.pool)
+        .await
+        .map_err(fail)?;
+        Ok(())
+    }
+
+    async fn set_active_profile(
+        &self,
+        session: SessionId,
+        profile: ProfileId,
+        at_ms: u64,
+    ) -> StoreResult<()> {
+        sqlx::query(
+            "update device_sessions set active_profile = $2, entered_at = $3 where id = $1",
+        )
+        .bind(session.0)
+        .bind(profile.0)
+        .bind(to_time(at_ms))
+        .execute(&self.pool)
+        .await
+        .map_err(fail)?;
+        Ok(())
+    }
+
+    async fn set_step_up(&self, session: SessionId, at_ms: u64, method: &str) -> StoreResult<()> {
+        sqlx::query(
+            "update device_sessions set step_up_at = $2, step_up_method = $3 where id = $1",
+        )
+        .bind(session.0)
+        .bind(to_time(at_ms))
+        .bind(method)
         .execute(&self.pool)
         .await
         .map_err(fail)?;

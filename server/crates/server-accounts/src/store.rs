@@ -43,8 +43,18 @@ pub trait AccountStore: Send + Sync {
     async fn session_by_access(&self, hash: &TokenHash) -> StoreResult<Option<DeviceSession>>;
     /// One session by id.
     async fn session(&self, id: SessionId) -> StoreResult<Option<DeviceSession>>;
-    /// Replace a session row (tokens, step up, consent, last seen).
-    async fn update_session(&self, session: &DeviceSession) -> StoreResult<()>;
+    /// Write only the token fields and last seen of a session. Each field group has its own write,
+    /// so a refresh racing a profile change or a consent change loses neither.
+    async fn update_tokens(&self, session: &DeviceSession) -> StoreResult<()>;
+    /// Write the active profile of a session. Nothing else writes it.
+    async fn set_active_profile(
+        &self,
+        session: SessionId,
+        profile: ProfileId,
+        at_ms: u64,
+    ) -> StoreResult<()>;
+    /// Record a step up on a session.
+    async fn set_step_up(&self, session: SessionId, at_ms: u64, method: &str) -> StoreResult<()>;
     /// Remove a session of this account.
     async fn delete_session(&self, account: AccountId, id: SessionId) -> StoreResult<()>;
     /// Remove every session of this account.

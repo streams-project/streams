@@ -110,13 +110,45 @@ impl AccountStore for MemoryStore {
         Ok(self.guard()?.sessions.get(&id).cloned())
     }
 
-    async fn update_session(&self, session: &DeviceSession) -> StoreResult<()> {
+    async fn update_tokens(&self, session: &DeviceSession) -> StoreResult<()> {
         let mut rows = self.guard()?;
         let row = rows
             .sessions
             .get_mut(&session.id)
             .ok_or(StoreError::NotFound)?;
-        *row = session.clone();
+        row.access_hash = session.access_hash;
+        row.access_expires_ms = session.access_expires_ms;
+        row.refresh_current = session.refresh_current;
+        row.refresh_next = session.refresh_next;
+        row.refresh_first_used_ms = session.refresh_first_used_ms;
+        row.last_seen_ms = session.last_seen_ms;
+        Ok(())
+    }
+
+    async fn set_active_profile(
+        &self,
+        session: SessionId,
+        profile: ProfileId,
+        at_ms: u64,
+    ) -> StoreResult<()> {
+        let mut rows = self.guard()?;
+        let row = rows
+            .sessions
+            .get_mut(&session)
+            .ok_or(StoreError::NotFound)?;
+        row.active_profile = Some(profile);
+        row.entered_at_ms = Some(at_ms);
+        Ok(())
+    }
+
+    async fn set_step_up(&self, session: SessionId, at_ms: u64, method: &str) -> StoreResult<()> {
+        let mut rows = self.guard()?;
+        let row = rows
+            .sessions
+            .get_mut(&session)
+            .ok_or(StoreError::NotFound)?;
+        row.step_up_at_ms = Some(at_ms);
+        row.step_up_method = Some(method.to_owned());
         Ok(())
     }
 
