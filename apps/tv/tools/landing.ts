@@ -6,6 +6,7 @@
 //   node tools/landing.ts frames --out DIR     render still frames
 //   node tools/landing.ts video --out FILE     render a preview video (WebM)
 //   node tools/landing.ts measure              measure frame time
+//   node tools/landing.ts phases --out FILE    measure every phase from the pixels
 //
 // Options: --images DIR, --headlines FILE, --config FILE, --dist DIR.
 // frames, video and measure need CHROME_PATH set to a Chrome binary.
@@ -21,6 +22,7 @@ import { bundle } from "./bundle.ts";
 import { launchChrome } from "./chrome.ts";
 import type { Chrome } from "./chrome.ts";
 import { writeCards } from "./sample-cards.ts";
+import * as ph from "./phases.ts";
 import { webm } from "./webm.ts";
 import { cycleStartMs, FRAME_MS, makePlan } from "../src/landing/timeline.ts";
 
@@ -47,6 +49,8 @@ const { values: args, positionals } = parseArgs({
     times: { type: "string" },
     throttle: { type: "string", default: "1" },
     count: { type: "string", default: "48" },
+    frames: { type: "string", default: "1000" },
+    signals: { type: "string" },
     seconds: { type: "string", default: "45" }
   }
 });
@@ -55,6 +59,17 @@ function readHeadlines(file: string): string[][] {
   return readFileSync(file, "utf8").split("\n")
     .map((l) => l.trim()).filter((l) => l && !l.startsWith("#"))
     .map((l) => l.split("|").map((p) => p.trim()));
+}
+
+// A mark from brand/: its box and its drawing, without the file's own wrapper.
+function readDrawing(file: string): { viewBox: number[]; body: string } {
+  const text = readFileSync(file, "utf8").trim();
+  const open = /^<svg\b[^>]*>/.exec(text);
+  const box = /\bviewBox="([^"]+)"/.exec(open?.[0] ?? "");
+  if (!open || !box) throw new Error(`${file} is not an SVG with a viewBox`);
+  const viewBox = box[1].trim().split(/\s+/).map(Number);
+  if (viewBox.length !== 4 || viewBox.some((n) => !Number.isFinite(n))) throw new Error(`${file} has a bad viewBox`);
+  return { viewBox, body: text.slice(open[0].length).replace(/<\/svg>$/, "") };
 }
 
 function build(): void {
@@ -66,6 +81,9 @@ function build(): void {
     ? readdirSync(args.images).filter((f) => IMAGE_TYPES.has(extname(f).toLowerCase())).sort()
     : [];
   if (!images.length) throw new Error(`no title images in ${args.images}`);
+  const brandDir = dirname(resolve(args.config));
+  config.brand.wordmarkSvg = readDrawing(resolve(brandDir, config.brand.wordmark));
+  config.brand.markSvg = readDrawing(resolve(brandDir, config.brand.mark));
 
   rmSync(dist, { recursive: true, force: true });
   mkdirSync(join(dist, "titles"), { recursive: true });
@@ -111,7 +129,9 @@ function serve(root: string, port: number): Promise<Server> {
   return new Promise((ok) => server.listen(port, "127.0.0.1", () => ok(server)));
 }
 
-async function withPage<T>(job: (chrome: Chrome, config: { size: { width: number; height: number }; logoRestMs: number }, headlineCount: number) => Promise<T>): Promise<T> {
+export type PageConfig = { size: { width: number; height: number } };
+
+async function withPage<T>(job: (chrome: Chrome, config: PageConfig, headlineCount: number) => Promise<T>): Promise<T> {
   const path = process.env.CHROME_PATH;
   if (!path || !existsSync(path)) throw new Error("set CHROME_PATH to a Chrome binary");
   build();
@@ -130,50 +150,55 @@ async function withPage<T>(job: (chrome: Chrome, config: { size: { width: number
   }
 }
 
-// Stills that cover each stage of the sequence.
-function keyFrames(logoRestMs: number, headlineCount: number): { name: string; ms: number }[] {
-  const plan = makePlan(logoRestMs, headlineCount);
-  const open = (f: number): number => plan.openingStartMs + f * FRAME_MS;
+// Stills that cover each stage of the sequence. Frame numbers count from the
+// first wordmark frame, the same numbering as src/landing/timeline.ts.
+export function keyFrames(headlineCount: number): { name: string; ms: number }[] {
+  const plan = makePlan(headlineCount);
+  const open = (f: number): number => f * FRAME_MS;
   const land = (f: number): number => plan.landingStartMs + f * FRAME_MS;
   const cycle = (c: number, f: number): number => cycleStartMs(plan, c) + f * FRAME_MS;
   return [
-    { name: "01-logo-ring", ms: 900 },
-    { name: "02-stretch", ms: open(14) },
-    { name: "03-stretch-late", ms: open(19) },
-    { name: "04-column", ms: open(24) },
-    { name: "05-column-wide", ms: open(29) },
-    { name: "06-burst", ms: open(31) },
-    { name: "07-full-width", ms: open(33) },
-    { name: "08-colour-split", ms: open(35) },
-    { name: "09-stripes-run", ms: open(39) },
-    { name: "10-stripes-run-late", ms: open(43) },
-    { name: "11-stripes-fade", ms: open(47) },
-    { name: "12-black-ring", ms: open(54) },
-    { name: "13-card-slide", ms: land(1) },
-    { name: "14-empty-card", ms: land(12) },
-    { name: "15-wall", ms: land(40) },
-    { name: "16-wall-to-logo", ms: land(68) },
-    { name: "17-logo-on-card", ms: land(78) },
-    { name: "18-first-layer-entry", ms: land(92) },
-    { name: "19-first-headline", ms: land(135) },
-    { name: "20-headline-change", ms: land(156) },
-    { name: "21-second-headline", ms: land(190) },
-    { name: "22-third-headline", ms: land(250) },
-    { name: "23-peek", ms: land(290) },
-    { name: "24-fourth-headline", ms: land(315) },
-    { name: "25-exit-start", ms: cycle(0, 12) },
-    { name: "26-exit-blur", ms: cycle(0, 19) },
-    { name: "27-exit-late", ms: cycle(0, 22) },
-    { name: "28-gap", ms: cycle(0, 25) },
-    { name: "29-entry-first", ms: cycle(0, 29) },
-    { name: "30-entry-blur", ms: cycle(0, 33) },
-    { name: "31-entry-settle", ms: cycle(0, 41) },
-    { name: "32-fifth-headline", ms: cycle(0, 62) },
-    { name: "33-sixth-headline", ms: cycle(1, 62) },
-    { name: "34-seventh-headline", ms: cycle(2, 62) },
-    { name: "35-eighth-headline", ms: cycle(3, 62) },
-    { name: "36-ninth-headline", ms: cycle(4, 62) },
-    { name: "37-tenth-headline", ms: cycle(5, 62) }
+    { name: "01-wordmark-rest", ms: open(60) },
+    { name: "02-collapse-early", ms: open(114) },
+    { name: "03-collapse-mid", ms: open(122) },
+    { name: "04-collapse-late", ms: open(131) },
+    { name: "05-mark-rest", ms: open(260) },
+    { name: "06-stretch", ms: open(406) },
+    { name: "07-stretch-late", ms: open(413) },
+    { name: "08-column", ms: open(419) },
+    { name: "09-column-wide", ms: open(423) },
+    { name: "10-burst", ms: open(425) },
+    { name: "11-full-width", ms: open(427) },
+    { name: "12-colour-split", ms: open(428) },
+    { name: "13-stripes-run", ms: open(434) },
+    { name: "14-stripes-run-late", ms: open(438) },
+    { name: "15-stripes-fade", ms: open(441) },
+    { name: "16-black-ring", ms: open(448) },
+    { name: "17-card-slide", ms: land(2) },
+    { name: "18-empty-card", ms: land(12) },
+    { name: "19-wall", ms: land(40) },
+    { name: "20-wall-to-wordmark", ms: land(69) },
+    { name: "21-wordmark-on-card", ms: land(79) },
+    { name: "22-first-layer-entry", ms: land(92) },
+    { name: "23-first-headline", ms: land(135) },
+    { name: "24-headline-change", ms: land(157) },
+    { name: "25-second-headline", ms: land(190) },
+    { name: "26-third-headline", ms: land(250) },
+    { name: "27-peek", ms: land(290) },
+    { name: "28-fourth-headline", ms: land(316) },
+    { name: "29-exit-start", ms: cycle(0, 12) },
+    { name: "30-exit-blur", ms: cycle(0, 19) },
+    { name: "31-exit-late", ms: cycle(0, 22) },
+    { name: "32-gap", ms: cycle(0, 25) },
+    { name: "33-entry-first", ms: cycle(0, 29) },
+    { name: "34-entry-blur", ms: cycle(0, 33) },
+    { name: "35-entry-settle", ms: cycle(0, 41) },
+    { name: "36-fifth-headline", ms: cycle(0, 62) },
+    { name: "37-sixth-headline", ms: cycle(1, 62) },
+    { name: "38-seventh-headline", ms: cycle(2, 62) },
+    { name: "39-eighth-headline", ms: cycle(3, 62) },
+    { name: "40-ninth-headline", ms: cycle(4, 62) },
+    { name: "41-tenth-headline", ms: cycle(5, 62) }
   ];
 }
 
@@ -182,8 +207,8 @@ const CAPTURE = `function(ms){landingPreview.seek(ms);var c=document.getElementB
 async function frames(): Promise<void> {
   const out = resolve(args.out ?? join(ROOT, "dist/preview"));
   mkdirSync(out, { recursive: true });
-  await withPage(async (chrome, config, count) => {
-    let list = keyFrames(config.logoRestMs, count);
+  await withPage(async (chrome, _config, count) => {
+    let list = keyFrames(count);
     if (args.times) {
       list = args.times.split(",").map((t) => ({ name: `t${t.padStart(6, "0")}`, ms: Number(t) }));
     } else if (args.fps) {
@@ -226,6 +251,38 @@ async function video(): Promise<void> {
   });
 }
 
+// Renders every frame at 24 fps and reads each phase back out of the pixels.
+async function phases(): Promise<void> {
+  const out = resolve(args.out ?? join(ROOT, "test/phases.json"));
+  const count = Number(args.frames);
+  await withPage(async (chrome, _config, headlines) => {
+    await chrome.evaluate(ph.REDUCER);
+    const raws: unknown[] = [];
+    const batch = 8;
+    for (let i = 0; i < count; i += batch) {
+      const take = Math.min(batch, count - i);
+      const part = await chrome.evaluate<unknown[]>(`__phase.many(${i},${take},${ph.FRAME_MS})`);
+      for (const p of part) raws.push(p);
+      if (i % 200 === 0) process.stderr.write(`  ${i}/${count}\r`);
+    }
+    const frames = raws.map((r) => ph.decode(r as never));
+    if (args.signals) writeFileSync(resolve(args.signals), ph.signalRows(frames));
+    const found = ph.findPhases(frames);
+    const report = {
+      madeBy: "node tools/landing.ts phases",
+      sourceHash: ph.sourceHash(ROOT),
+      fps: 24, framesRendered: count, headlines, phases: found
+    };
+    writeFileSync(out, JSON.stringify(report, null, 2) + "\n");
+    const pad = (t: string, w: number): string => (t + " ".repeat(w)).slice(0, w);
+    console.log(`${pad("phase", 50)}${pad("frames", 10)}${pad("measured", 11)}${pad("spec", 10)}off`);
+    for (const p of found) {
+      console.log(`${pad(p.what, 50)}${pad(`${p.from}-${p.to}`, 10)}${pad(`${p.frames}f ${p.ms}`, 14)}${pad(`${p.specFrames}f ${p.specMs}`, 13)}${p.offFrames > 0 ? "+" : ""}${p.offFrames}f ${p.offMs > 0 ? "+" : ""}${p.offMs} ms`);
+    }
+    console.log(`wrote ${out}`);
+  });
+}
+
 function percentile(sorted: number[], p: number): number {
   if (!sorted.length) return 0;
   return sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))];
@@ -244,17 +301,17 @@ async function measure(): Promise<void> {
     if (throttle > 1) await chrome.send("Emulation.setCPUThrottlingRate", { rate: throttle });
     const gpu = await chrome.evaluate<string>(`landingPreview.gpu()`);
     const startup = await chrome.evaluate<Record<string, number>>(`landingPreview.startup()`);
-    const plan = makePlan(config.logoRestMs, count);
+    const plan = makePlan(count);
     const run = (): Promise<number[][]> =>
       chrome.evaluate<number[][]>(`new Promise(function(ok){landingPreview.run(0,${seconds * 1000},ok)})`);
     await run(); // warm up shaders and textures, not counted
     const rows = await run();
-    const stage = (r: number[]): string => (r[3] < plan.openingStartMs ? "logo" : r[3] < plan.landingStartMs ? "opening" : "landing");
+    const stage = (r: number[]): string => (r[3] < plan.holdMs ? "logo" : r[3] < plan.landingStartMs ? "opening" : "landing");
     const pick = (s: string, col: number, drawnOnly: boolean): number[] =>
       rows.filter((r) => stage(r) === s && (!drawnOnly || r[2] === 1)).map((r) => r[col]);
     const intervals = rows.slice(1).map((r) => r[0]);
     const gpuPerFrame: Record<string, number> = {};
-    for (const item of keyFrames(config.logoRestMs, count)) {
+    for (const item of keyFrames(count)) {
       const ms = await chrome.evaluate<number>(`landingPreview.bench(${item.ms},120)`);
       gpuPerFrame[item.name] = Math.round(ms * 1000) / 1000;
     }
@@ -294,8 +351,10 @@ async function main(): Promise<void> {
     await video();
   } else if (command === "measure") {
     await measure();
+  } else if (command === "phases") {
+    await phases();
   } else {
-    console.log("commands: cards, build, serve, frames, video, measure");
+    console.log("commands: cards, build, serve, frames, video, measure, phases");
     process.exitCode = 1;
   }
 }

@@ -2,20 +2,25 @@
 
 import { audioSlot } from "./audio.ts";
 import type { AudioSlot } from "./audio.ts";
-import { buildAtlas, buildButtons, buildPeek, buildText, hexToRgb, loadImage, logoImage, MARK_CENTRE, MARK_HEIGHT, setOptions } from "./assets.ts";
+import { brandImages, buildAtlas, buildButtons, buildPeek, buildText, hexToRgb, loadImage, MARK_CENTRE, MARK_HEIGHT, setOptions } from "./assets.ts";
 import type { LandingData } from "./assets.ts";
 import { buildGeometry } from "./layout.ts";
 import { Renderer } from "./renderer.ts";
 import type { Palette } from "./renderer.ts";
 import { buildStripes } from "./stripes.ts";
-import { LOGO_REST_V, makePlan, newScene, sceneAt } from "./timeline.ts";
+import { makePlan, markHeightOf, newScene, sceneAt, WORD_REST } from "./timeline.ts";
 import type { Plan, Scene } from "./timeline.ts";
 
 interface Fonts { load(font: string): { then(ok: () => void, bad: () => void): void }; }
 
 var state: {
-  plan: Plan; scene: Scene; renderer: Renderer; restWidth: number; ready: boolean; audio: AudioSlot; startup: { [k: string]: number };
+  plan: Plan; scene: Scene; renderer: Renderer; wordHalf: number; markHalf: number;
+  ready: boolean; audio: AudioSlot; startup: { [k: string]: number };
 } | null = null;
+
+function draw(s: NonNullable<typeof state>, ms: number): boolean {
+  return s.renderer.draw(sceneAt(s.plan, ms, s.wordHalf, s.markHalf, s.scene));
+}
 
 function fetchJson(url: string, done: (data: LandingData) => void): void {
   var x = new XMLHttpRequest();
@@ -90,17 +95,19 @@ function live(): void {
   function tick(now: number): void {
     if (start < 0) start = now;
     var ms = now - start;
-    // The logo and ring wait for the images, as a splash does.
-    if (!s.ready && ms >= s.plan.logoRestMs) {
-      ms = s.plan.logoRestMs - 1;
+    // The mark and its ring wait for the title art, as a splash does.
+    if (!s.ready && ms >= s.plan.holdMs) {
+      ms = s.plan.holdMs - 1;
       start = now - ms;
     }
-    s.renderer.draw(sceneAt(s.plan, ms, s.restWidth, s.scene));
+    draw(s, ms);
     s.audio.sync(ms);
     window.requestAnimationFrame(tick);
   }
   window.requestAnimationFrame(tick);
 }
+
+var readback: Uint8Array | null = null;
 
 // Hooks for the preview tool. Present only when the page is opened with ?preview.
 function previewHooks(): void {
@@ -111,8 +118,21 @@ function previewHooks(): void {
     startup: function (): { [k: string]: number } { return s.startup; },
     seek: function (ms: number): void {
       s.renderer.last[0] = -1;
-      s.renderer.draw(sceneAt(s.plan, ms, s.restWidth, s.scene));
+      draw(s, ms);
     },
+    // Draws the frame at ms and hands back the canvas as it was drawn, bottom
+    // row first. The buffer is reused, so a caller reads it before the next call.
+    pixels: function (ms: number): Uint8Array {
+      s.renderer.last[0] = -1;
+      draw(s, ms);
+      var gl = s.renderer.gl;
+      var w = s.renderer.input.width;
+      var h = s.renderer.input.height;
+      if (!readback || readback.length !== w * h * 4) readback = new Uint8Array(w * h * 4);
+      gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, readback);
+      return readback;
+    },
+    size: function (): number[] { return [s.renderer.input.width, s.renderer.input.height]; },
     gpu: function (): string {
       var gl = s.renderer.gl;
       var info = gl.getExtension("WEBGL_debug_renderer_info");
@@ -123,14 +143,13 @@ function previewHooks(): void {
     bench: function (ms: number, count: number): number {
       var gl = s.renderer.gl;
       var pixel = new Uint8Array(4);
-      var scene = sceneAt(s.plan, ms, s.restWidth, s.scene);
       s.renderer.last[0] = -1;
-      s.renderer.draw(scene);
+      draw(s, ms);
       gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
       var t0 = performance.now();
       for (var i = 0; i < count; i++) {
         s.renderer.last[0] = -1;
-        s.renderer.draw(scene);
+        draw(s, ms);
       }
       gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
       return (performance.now() - t0) / count;
@@ -145,7 +164,7 @@ function previewHooks(): void {
         if (start < 0) { start = now; last = now; }
         var ms = fromMs + (now - start);
         var t0 = performance.now();
-        var drew = s.renderer.draw(sceneAt(s.plan, ms, s.restWidth, s.scene));
+        var drew = draw(s, ms);
         var cost = performance.now() - t0;
         rows.push([now - last, cost, drew ? 1 : 0, ms]);
         last = now;
@@ -165,17 +184,22 @@ function boot(): void {
     var size = data.config.size;
     canvasEl.width = size.width;
     canvasEl.height = size.height;
-    logoImage(data.config, function (logo, aspect) {
-      var plan = makePlan(data.config.logoRestMs, data.headlines.length);
+    brandImages(data.config, function (word, wordAspect, mark, markAspect) {
+      var plan = makePlan(data.headlines.length);
       var renderer = new Renderer(canvasEl, {
         width: size.width, height: size.height, palette: palette(data),
         stripes: buildStripes(data.config.colours, data.config.seed),
-        logo: logo, logoAspect: aspect, atlas: null, text: null, ui: null, uiRect: [0, 0, 0, 0], peek: null,
+        word: word, mark: mark, wordAspect: wordAspect, atlas: null, text: null, ui: null,
+        uiRect: [0, 0, 0, 0], peek: null,
         geometry: null, lines: [], markCentre: MARK_CENTRE, markHeight: MARK_HEIGHT
       }, preview);
+      // Half the rest width of each, from its own shape at the measured height.
+      var wordV = WORD_REST.v1 - WORD_REST.v0;
       state = {
         plan: plan, scene: newScene(), renderer: renderer, ready: false,
-        restWidth: (LOGO_REST_V * 1080 * aspect) / 1920, audio: audioSlot(data.config.audio), startup: {}
+        wordHalf: (wordV * 1080 * wordAspect) / 1920 / 2,
+        markHalf: (markHeightOf() * 1080 * markAspect) / 1920 / 2,
+        audio: audioSlot(data.config.audio), startup: {}
       };
       if (preview) previewHooks();
       else live();

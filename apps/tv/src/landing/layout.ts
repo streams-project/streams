@@ -19,7 +19,8 @@ export interface Rect {
 export interface SetOptions {
   tileW: number;
   tileH: number;
-  gap: number;
+  gapX: number;
+  gapY: number;
   rowDeg: number;
   columnDeg: number;
   shrink: number; // one over the distance to the vanishing point, in px
@@ -136,7 +137,7 @@ export function buildGeometry(options: SetOptions[], atlas: Atlas, seed: number)
     var kx = Math.sin(colRad);
     var ky = -Math.cos(colRad);
     var first = idx.length;
-    var pitchY = o.tileH + o.gap;
+    var pitchY = o.tileH + o.gapY;
     var rows = Math.ceil(1400 / pitchY);
 
     for (var row = -rows; row <= rows; row++) {
@@ -148,7 +149,7 @@ export function buildGeometry(options: SetOptions[], atlas: Atlas, seed: number)
         var w = o.tileW * (pick < 0.18 ? 1.45 : pick < 0.36 ? 0.72 : 1);
         var a0 = a;
         var a1 = a + w;
-        a = a1 + o.gap;
+        a = a1 + o.gapX;
 
         var view = { cx: cx, cy: cy, rx: rx, ry: ry, kx: kx, ky: ky, shrink: o.shrink };
         var corners = [project(view, a0, b0), project(view, a1, b0), project(view, a1, b1), project(view, a0, b1)];

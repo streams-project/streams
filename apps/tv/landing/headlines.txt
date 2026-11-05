@@ -1,12 +1,14 @@
 # One headline per line. A bar splits a headline into two lines.
 # The first three use two lines, the rest use one.
+# They are set in capitals, so keep a line inside about twenty letters: the
+# measured cap height only holds while a line fits in 0.62 of the width.
 Open video | for every screen
 Free to copy, | free to run
-One library | on all your devices
-Films worth staying up for
-Stories that stay with you
-Laughs for a long night
+One library | every device
+Worth staying up for
+Stories that stay
+Laughs all night
 Worlds far from here
-Small films, big feelings
+Big feelings, small films
 Scares after dark
-Good picks for everyone
+Picks for everyone

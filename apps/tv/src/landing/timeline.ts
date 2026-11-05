@@ -5,10 +5,15 @@
 // design choice) or "assumed" (the reading could not settle it). Frame counts
 // are kept as read, so a duration is good to plus or minus 42 ms.
 //
+// Frames are counted from the first frame of the wordmark, at 24 fps, and every
+// phase boundary below is a whole frame. `tools/phases.ts` renders the sequence
+// and reads each boundary back out of the pixels; `test/phases.test.ts` fails if
+// any phase is more than one frame away from the reading it came from.
+//
 // sceneAt() fills a reused Scene object and allocates nothing, so a slow TV
 // does not collect garbage in the middle of a move.
 
-import { bezier, clamp01, smooth, table } from "./curves.ts";
+import { bezier, clamp01, lerp, smooth, table } from "./curves.ts";
 
 export var FRAME_MS = 1000 / 24;
 
@@ -20,53 +25,122 @@ export var HEADLINE_U = 0.431;
 export var TWO_LINE_V = [0.463, 0.582];
 export var ONE_LINE_V = [0.558, 0.668, 0.357, 0.558, 0.668, 0.357, 0.271];
 export var CAP_HEIGHT = { twoLine: 0.072, oneLine: 0.063 };
-export var LOGO_REST_V = 0.175;
 
-// Opening. Frames count from the start of the logo stretch.
-export var OPENING_FRAMES = 60;
-var HEIGHT = [0, 1, 1, 1.012, 3, 1.05, 6, 1.15, 9, 1.37, 12, 1.77, 15, 2.39, 18, 3.39, 20, 4.35, 22, 5.05, 23, 6.2];
-var EXTRA_WIDTH = [0, 0, 3, 0.0021, 6, 0.0094, 9, 0.0177, 12, 0.0395, 15, 0.0739, 18, 0.1213];
+// Wordmark rest box: u 0.302 to 0.695, v 0.411 to 0.60. The width follows from
+// our own wordmark's shape, so only the height and the centre are taken.
+export var WORD_REST = { v0: 0.411, v1: 0.600, u: 0.4985 };
+// Mark rest box: v 0.411 to 0.586, centre (0.4987, 0.4985).
+export var MARK_REST = { v0: 0.411, v1: 0.586, u: 0.4987 };
+
+// ---------------------------------------------------------------------------
+// Opening. Frames from the first wordmark frame.
+// ---------------------------------------------------------------------------
+// 108 f, 4,500 ms  wordmark rest
+export var F_COLLAPSE = 108;
+// 28 f, 1,167 ms   wordmark collapses to the mark
+export var F_MARK_REST = 136;
+// 258 f, 10,750 ms mark rest
+export var F_STRETCH = 394;
+// 23 f, 958 ms     mark stretches and folds into a column
+export var F_COLUMN = 417;
+// 6 f, 250 ms      column widens, 0.105 to 0.305 W
+export var F_BURST = 423;
+// 3 f, 125 ms      burst to full width (reached at F_FULL)
+export var F_FULL = 426;
+// 3 f, 125 ms      full width, one colour, from the first frame at 0.99 W
+export var F_SPLIT = 428;
+// 1 f              colour split
+// 15 f, 625 ms     stripes run outward from a dark centre gap
+export var F_BLACK = 443;
+// 6 f, 250 ms      fade to black: 437 is the first dimmed frame, 443 the first black one
+var FADE_FROM = 436;
+var FADE_SPAN = 7;
+// 10 f, 417 ms     black with ring, then the hard cut
+export var F_CUT = 453;
+
+// Wordmark to mark, frames from F_COLLAPSE.
+var COLLAPSE_FRAMES = 28;
+// Slide of the first letter: Bezier (0.59, 0.21, 0.54, 0.92), rms 0.005.
+var collapseEase = bezier(0.59, 0.21, 0.54, 0.92);
+// Right edge of the word as letters go, scaled from the reference's 0.695 to
+// 0.527 onto our own rest and mark edges.
+var WORD_RIGHT_REF = [0, 0.695, 6, 0.697, 9, 0.659, 12, 0.624, 16, 0.594, 19, 0.569, 22, 0.546, 28, 0.527];
+var WORD_BOTTOM = [0, 0.600, 28, 0.586];
+// Own: our wordmark has no letter that is already the mark, so the stub hands
+// over to the mark in the last third of the collapse.
+var MARK_IN = [19, 0, 26, 1];
+var WORD_OUT = [22, 1, 28, 0];
+
+// Mark stretch, frames from F_STRETCH. Height as a multiple of the rest height,
+// kept so the test can check the box against the reading it came from.
+export var STRETCH_HEIGHT = [0, 1, 3, 1.05, 6, 1.15, 9, 1.37, 12, 1.77, 15, 2.39, 18, 3.39, 20, 4.35, 22, 5.05, 23, 6.2];
+// Top and bottom read straight off the reference, which rests in the same box.
+var STRETCH_TOP = [0, 0.411, 3, 0.4065, 6, 0.3954, 9, 0.3741, 12, 0.3333, 15, 0.2694, 18, 0.1731, 20, 0.0926, 22, 0.0847, 23, 0];
+var STRETCH_BOTTOM = [0, 0.586, 3, 0.5898, 6, 0.5963, 9, 0.6130, 12, 0.6426, 15, 0.6880, 18, 0.7657, 20, 0.8546, 22, 0.9685, 23, 1];
+// Half width and centre of the reference glyph, frame by frame.
+var STRETCH_HALF = [0, 0.0284, 3, 0.02945, 6, 0.0331, 9, 0.03725, 12, 0.04815, 15, 0.06535, 18, 0.08905, 20, 0.0839, 22, 0.0654, 23, 0.05075];
+var STRETCH_MID = [0, 0.4987, 3, 0.49975, 6, 0.50080, 9, 0.50335, 12, 0.50755, 15, 0.51485, 18, 0.52605, 20, 0.50990, 22, 0.47840, 23, 0.46015];
+// Our mark is wider than the reference glyph, so its box starts 1.733 times as
+// wide and is drawn back to the reference's own width as it folds, which is
+// where the column picks it up at 0.105 W.
+var MARK_WIDE = 1.733;
+var FOLD_FROM = 12;
+var FILAMENT = [11, 0, 18, 1];
+var LINES = [16, 0, 22, 1];
+
+// Column width, frames from F_STRETCH. 0.105 W at the fold, 1.0 W at the burst.
 var COLUMN = [23, 0.105, 25, 0.137, 27, 0.171, 28, 0.241, 29, 0.305, 30, 0.638, 31, 0.994, 32, 1];
-// Own: before frame 23 the column grows out of the folding logo, from the
-// width of its first bar, the way the reference's stem widens into it.
+// Own: before the fold ends the column grows out of the folding mark.
 var COLUMN_GROW = [17, 0.02, 20, 0.045, 22, 0.08, 23, 0.105];
-var FOLD_START = 18;
-var FOLD_END = 23;
-var SPLIT = 34;
-var RUN_FRAMES = 15;
-var FADE_START = 44;
-var FADE_END = 50;
 
-// Stripe push. Rate per second rises through the run; the fit reproduces the
-// measured group edges within 0.03 W (see test/timeline.test.ts).
-var RUN_RATE_START = 2.5;
-var RUN_RATE_GAIN = 5.5;
+// Stripe push. Two families, each pushed out from the centre by its own zoom,
+// fitted to the measured group edges: the violet family's right edge runs at
+// 0.27 W per second and the blue family's left edge at 0.73 W per second, both
+// read between 6 and 10 frames after the colour split. Z = exp(a t + b t cubed),
+// t in seconds from the split, so a point's speed is its distance from the
+// centre times the rate: the push gets faster the further out you look.
+var WARM_A = 2.7106;
+var WARM_B = 0.9922;
+var COOL_A = 2.3487;
+var COOL_B = 6.7830;
 
-// Landing. Frames count from the hard cut to the card.
-var SLIDE_FRAMES = 9;
-var SLIDE_START = 0.97; // assumed: card starts just off the right edge
-var SLIDE_HALVING = 1.1;
-var WALL_IN = [15, 0, 16, 0.49, 17, 0.9, 18, 1];
-var WALL_OUT = [62, 0.06, 64, 0.19, 66, 0.29, 68, 0.39, 70, 0.52, 72, 0.67, 74, 0.84, 76, 0.97, 77, 1];
-var MARK_COVER = [62, 0, 64, 0.3, 68, 1];
-var MARK_SCALE = [76, 1, 80, 0.958, 84, 0.868, 92, 0.62];
-var MARK_FADE = [84, 1, 92, 0];
-var FIRST_ENTRY = 84;
-var FIRST_REST = 126;
-var FIRST_SCALE = [84, 2.8, 88, 2.36, 92, 1.85, 96, 1.48, 100, 1.31, 104, 1.22, 108, 1.16, 112, 1.09, 116, 1.04, 120, 1.015, 124, 1.004, 126, 1];
-var FIRST_TEXT_IN = 104;
+// ---------------------------------------------------------------------------
+// Landing. Frames from the hard cut.
+// ---------------------------------------------------------------------------
+// 8 f, 333 ms      card slides in from the right
+var SLIDE = [0, 0.647, 1, 0.323, 2, 0.106, 3, 0.077, 4, 0.039, 5, 0.017, 6, 0.005, 7, 0.001, 8, 0];
+export var SLIDE_FRAMES = 8;
+// 8 f, 333 ms      empty card rest, then 3 f, 125 ms, the wall fades in
+var WALL_IN = [16, 0, 17, 0.45, 18, 0.85, 19, 1];
+export var F_WALL_IN = 16;
+// 44 f, 1,833 ms   wall rest, then 14 f, 583 ms, the wall goes and the wordmark comes
+export var F_WALL_OUT = 63;
+var WALL_OUT = [62, 0, 63, 0.06, 65, 0.19, 67, 0.29, 69, 0.39, 71, 0.52, 73, 0.67, 75, 0.84, 77, 1];
+var MARK_COVER = [63, 0, 65, 0.3, 69, 1];
+// 42 f, 1,750 ms   the wordmark leaves and the first tile layer settles
+export var F_FIRST_ENTRY = 85;
+export var F_FIRST_REST = 127;
+var MARK_SCALE = [77, 1, 81, 0.9575, 85, 0.8679, 93, 0.58];
+var MARK_FADE = [85, 1, 93, 0];
+var FIRST_SCALE = [85, 2.80, 89, 2.36, 93, 1.85, 97, 1.48, 101, 1.31, 105, 1.22, 109, 1.16, 113, 1.09, 117, 1.04, 121, 1.015, 125, 1.004, 127, 1];
+// 8 f, 333 ms      the first headline fades in
+export var F_TEXT_IN = 105;
 var TEXT_OUT_FRAMES = 7;
 var TEXT_IN_FRAMES = 6;
 var LINE_LAG = 3;
-var SECOND_TEXT_OUT = 153;
-var SECOND_CROSSFADE = 159;
+// 15 f, 625 ms each, 57 frames apart
+export var F_TEXT_OUT_2 = 154;
+export var F_TEXT_OUT_3 = 211;
+export var F_TEXT_OUT_4 = 268;
+var SECOND_CROSSFADE = 160;
 var CROSSFADE_FRAMES = 3;
-var THIRD_TEXT_OUT = 210;
-var FOURTH_TEXT_OUT = 267;
-var FOURTH_ENTRY = 273;
-var FOURTH_ENTRY_FRAMES = 31;
-var PEEK_IN = [260, 0, 274, 1];
-var CYCLE_START = 322;
+var FOURTH_ENTRY = 274;
+var FOURTH_ENTRY_FRAMES = 32;
+// 14 f, 583 ms     the right peek fades in, first pass only
+export var F_PEEK_IN = 261;
+var PEEK_IN = [261, 0, 275, 1];
+// one change every 70 frames, 2,917 ms
+export var CYCLE_START = 323;
 
 // Layer cycle: 70 frames. Exit plus gap plus entry plus rest, means of six reads.
 export var CYCLE_FRAMES = 70;
@@ -92,10 +166,22 @@ var OUT_G = [0, 1, 2, 0.8, 3, 0.62, 4, 0.42, 5, 0.32, 7, 0.28];
 var OUT_B = [0, 1, 2, 0.92, 3, 0.8, 4, 0.58, 5, 0.46, 7, 0.38];
 var OUT_A = [0, 1, 4, 1, 7, 0];
 
+// Ring A, the splash ring: centre (0.498, 0.804), radius 33 px at 1920, stroke
+// 8 px. Clockwise, 347 degrees per second. Three spells, all tied to loading.
+var RING_A = { u: 0.498, v: 0.804, radius: 33, stroke: 8, speed: 347 };
+var SPELL_1 = [2, 71];
+var SPELL_2 = [192, 202];
+var SPELL_3 = [254, 402];
+// Ring B, on black before the landing: centre (0.500, 0.497), radius 44 px,
+// stroke 9 px, arc 288 degrees, clockwise at 446 degrees per second. It is
+// first seen over the stripes and holds still for its last four frames.
+var RING_B = { u: 0.5, v: 0.497, radius: 44, stroke: 9, speed: 446, arc: 288 };
+var RING_B_IN = 433;
+var RING_B_STOP = 450;
+
 export interface Plan {
-  logoRestMs: number;
   headlineCount: number;
-  openingStartMs: number;
+  holdMs: number; // the sequence waits here while the title art loads
   landingStartMs: number;
   wallSet: number;
   setCount: number;
@@ -122,15 +208,25 @@ export interface TextDraw {
 
 export interface Scene {
   stage: number; // 0 opening, 1 landing
-  // Opening
-  logoAlpha: number;
-  logoWidth: number; // share of width, 0 means the rest width
-  logoHeight: number; // multiple of rest height
+  // Opening wordmark: a box in u and v, clipped on the right as letters go.
+  wordAlpha: number;
+  wordU0: number;
+  wordU1: number;
+  wordClip: number;
+  wordV0: number;
+  wordV1: number;
+  // Opening mark.
+  markAlpha: number;
+  markU0: number;
+  markU1: number;
+  markV0: number;
+  markV1: number;
   filament: number;
   lines: number;
-  column: number;
+  column: number; // half width of the column, share of picture width
   columnAlpha: number;
-  zoom: number;
+  zoomWarm: number;
+  zoomCool: number;
   split: number;
   fade: number;
   ringAlpha: number;
@@ -145,8 +241,8 @@ export interface Scene {
   emptyFill: number;
   band: number;
   peek: number;
-  markAlpha: number;
-  markScale: number;
+  cardWordAlpha: number;
+  cardWordScale: number;
   layerCount: number;
   layers: LayerDraw[];
   textCount: number;
@@ -159,10 +255,12 @@ export function newScene(): Scene {
   for (var i = 0; i < 2; i++) layers.push({ set: 0, scale: 1, sigma: 0, alpha: 0, gain: 1, scatter: 0, underText: 0 });
   for (var j = 0; j < 4; j++) texts.push({ headline: 0, line: 0, alpha: 0, r: 1, g: 1, b: 1 });
   return {
-    stage: 0, logoAlpha: 1, logoWidth: 0, logoHeight: 1, filament: 0, lines: 0, column: 0, columnAlpha: 0, zoom: 1,
+    stage: 0, wordAlpha: 0, wordU0: 0, wordU1: 0, wordClip: 1, wordV0: 0, wordV1: 0,
+    markAlpha: 0, markU0: 0, markU1: 0, markV0: 0, markV1: 0,
+    filament: 0, lines: 0, column: 0, columnAlpha: 0, zoomWarm: 1, zoomCool: 1,
     split: 0, fade: 1, ringAlpha: 0, ringU: 0.5, ringV: 0.5, ringRadiusPx: 0, ringStrokePx: 0,
-    ringArcDeg: 0, ringAngleDeg: 0, cardShift: 0, emptyFill: 0, band: 0, peek: 0, markAlpha: 0,
-    markScale: 1, layerCount: 0, layers: layers, textCount: 0, texts: texts
+    ringArcDeg: 0, ringAngleDeg: 0, cardShift: 0, emptyFill: 0, band: 0, peek: 0, cardWordAlpha: 0,
+    cardWordScale: 1, layerCount: 0, layers: layers, textCount: 0, texts: texts
   };
 }
 
@@ -174,13 +272,12 @@ export function setForHeadline(index: number): number {
   return index - 1;
 }
 
-export function makePlan(logoRestMs: number, headlineCount: number): Plan {
+export function makePlan(headlineCount: number): Plan {
   var wall = headlineCount > 3 ? headlineCount - 1 : 2;
   return {
-    logoRestMs: logoRestMs,
     headlineCount: headlineCount,
-    openingStartMs: logoRestMs,
-    landingStartMs: logoRestMs + OPENING_FRAMES * FRAME_MS,
+    holdMs: F_STRETCH * FRAME_MS,
+    landingStartMs: F_CUT * FRAME_MS,
     wallSet: wall,
     setCount: wall + 1
   };
@@ -191,67 +288,143 @@ export function cycleStartMs(plan: Plan, cycle: number): number {
   return plan.landingStartMs + (CYCLE_START + cycle * CYCLE_FRAMES) * FRAME_MS;
 }
 
-function ringAt(s: Scene, alpha: number, u: number, v: number, radius: number, stroke: number, arc: number, degPerSecond: number, seconds: number): void {
-  s.ringAlpha = alpha;
-  s.ringU = u;
-  s.ringV = v;
-  s.ringRadiusPx = radius;
-  s.ringStrokePx = stroke;
+function ringAt(s: Scene, r: { u: number; v: number; radius: number; stroke: number; speed: number }, arc: number, seconds: number): void {
+  s.ringAlpha = 1;
+  s.ringU = r.u;
+  s.ringV = r.v;
+  s.ringRadiusPx = r.radius;
+  s.ringStrokePx = r.stroke;
   s.ringArcDeg = arc;
-  s.ringAngleDeg = (seconds * degPerSecond) % 360;
+  s.ringAngleDeg = (seconds * r.speed) % 360;
 }
 
-function logoRestAt(ms: number, s: Scene): void {
+// Ring A runs in three spells. Spell 3 outlasts the stretch onset by 8 frames.
+function ringAAt(s: Scene, f: number): void {
+  s.ringAlpha = 0;
+  if (f >= SPELL_1[0] && f < SPELL_1[1]) ringAt(s, RING_A, 172, f / 24);
+  else if (f >= SPELL_2[0] && f < SPELL_2[1]) ringAt(s, RING_A, table([192, 195, 202, 250], f), f / 24);
+  else if (f >= SPELL_3[0] && f < SPELL_3[1]) {
+    ringAt(s, RING_A, table([254, 190, 269, 280, 396, 280, 402, 200], f), f / 24);
+  }
+}
+
+function logoBox(s: Scene, wordHalf: number): void {
+  s.wordU0 = WORD_REST.u - wordHalf;
+  s.wordU1 = WORD_REST.u + wordHalf;
+  s.wordClip = s.wordU1;
+  s.wordV0 = WORD_REST.v0;
+  s.wordV1 = WORD_REST.v1;
+  s.wordAlpha = 1;
+  s.markAlpha = 0;
+  s.markU0 = 0;
+  s.markU1 = 0;
+  s.markV0 = MARK_REST.v0;
+  s.markV1 = MARK_REST.v1;
+}
+
+function markBox(s: Scene, half: number): void {
+  s.markAlpha = 1;
+  s.markU0 = MARK_REST.u - half;
+  s.markU1 = MARK_REST.u + half;
+  s.markV0 = MARK_REST.v0;
+  s.markV1 = MARK_REST.v1;
+  s.wordAlpha = 0;
+}
+
+function clearOpening(s: Scene): void {
   s.stage = 0;
-  s.logoAlpha = 1;
-  s.logoWidth = 0;
-  s.logoHeight = 1;
   s.filament = 0;
   s.lines = 0;
   s.column = 0;
   s.columnAlpha = 0;
-  s.zoom = 1;
+  s.zoomWarm = 1;
+  s.zoomCool = 1;
   s.split = 0;
   s.fade = 1;
-  var arc = table([0, 190, 15, 280], ms / FRAME_MS);
-  ringAt(s, 1, 0.5, 0.804, 33, 8, arc, 347, ms / 1000);
 }
 
-function runZoom(f: number): number {
-  // Integral of the rising rate from the colour split to frame f.
-  var t = (f - SPLIT) / 24;
-  var total = RUN_FRAMES / 24;
-  return Math.exp(RUN_RATE_START * t + (RUN_RATE_GAIN * t * t * t) / (3 * total * total));
+// Frames 0 to F_COLLAPSE: the wordmark rests.
+function wordRestAt(s: Scene, f: number, wordHalf: number, markHalf: number): void {
+  clearOpening(s);
+  logoBox(s, wordHalf);
+  s.markU0 = MARK_REST.u - markHalf;
+  s.markU1 = MARK_REST.u + markHalf;
+  ringAAt(s, f);
 }
 
-function openingAt(plan: Plan, f: number, logoRestWidth: number, s: Scene): void {
+// F_COLLAPSE to F_MARK_REST: the word slides right and loses letters from the
+// right, the mark takes over its box.
+function collapseAt(s: Scene, f: number, wordHalf: number, markHalf: number): void {
+  clearOpening(s);
+  var e = f - F_COLLAPSE;
+  var rest0 = WORD_REST.u - wordHalf;
+  var rest1 = WORD_REST.u + wordHalf;
+  var mark0 = MARK_REST.u - markHalf;
+  var mark1 = MARK_REST.u + markHalf;
+  var slide = collapseEase(e / COLLAPSE_FRAMES) * (mark0 - rest0);
+  var refSpan = 0.695 - 0.527;
+  var ourSpan = rest1 - mark1;
+  var clip = rest1 - (0.695 - table(WORD_RIGHT_REF, e)) * (ourSpan / refSpan);
+  s.wordU0 = rest0 + slide;
+  s.wordU1 = rest1 + slide;
+  s.wordClip = Math.min(rest1, Math.max(mark1, clip));
+  s.wordV0 = WORD_REST.v0;
+  s.wordV1 = table(WORD_BOTTOM, e);
+  s.wordAlpha = table(WORD_OUT, e);
+  s.markAlpha = table(MARK_IN, e);
+  s.markU0 = mark0;
+  s.markU1 = mark1;
+  s.markV0 = MARK_REST.v0;
+  s.markV1 = MARK_REST.v1;
+  ringAAt(s, f);
+}
+
+// F_MARK_REST to F_STRETCH: the mark rests.
+function markRestAt(s: Scene, f: number, markHalf: number): void {
+  clearOpening(s);
+  markBox(s, markHalf);
+  ringAAt(s, f);
+}
+
+// Each family is pushed out from the centre by its own accelerating zoom.
+function zoomOf(a: number, b: number, t: number): number {
+  return Math.exp(a * t + b * t * t * t);
+}
+
+// F_STRETCH to F_CUT: the mark stretches, folds into a column, bursts to full
+// width, splits into two colour families, runs outward, fades, then the ring.
+function openingAt(s: Scene, f: number): void {
   s.stage = 0;
-  s.logoHeight = table(HEIGHT, f);
-  if (f <= FOLD_START) {
-    s.logoWidth = logoRestWidth + table(EXTRA_WIDTH, f);
-  } else {
-    var fold = clamp01((f - FOLD_START) / (FOLD_END - FOLD_START));
-    s.logoWidth = logoRestWidth + 0.1213 + (0.105 - logoRestWidth - 0.1213) * Math.pow(fold, 1.4);
-  }
-  s.logoAlpha = 1 - smooth(FOLD_START + 1, FOLD_END + 1, f);
-  s.filament = smooth(11, 18, f);
-  s.lines = smooth(16, 22, f);
-  s.column = (f < FOLD_END ? table(COLUMN_GROW, f) : table(COLUMN, f)) / 2;
-  s.columnAlpha = smooth(16, 21, f);
-  // Below full width the stripe pattern is held at a third of its final size.
-  s.zoom = f < 32 ? Math.max(0.35, table(COLUMN, f)) : f < SPLIT ? 1 : runZoom(f);
-  s.split = f >= SPLIT ? 1 : 0;
-  s.fade = 1 - clamp01((f - FADE_START) / (FADE_END - FADE_START));
-  // Ring A outlasts the stretch onset by seven frames, shrinking over the last six.
-  if (f < 7) {
-    ringAt(s, 1, 0.5, 0.804, 33, 8, table([1, 260, 7, 200], f), 347, plan.logoRestMs / 1000 + f / 24);
-  } else if (f >= 39) {
-    // Ring B holds still for its last four frames.
-    var spin = Math.min(f, 56);
-    ringAt(s, 1, 0.5, 0.497, 44, 9, 288, 446, spin / 24);
-  } else {
-    s.ringAlpha = 0;
-  }
+  var e = f - F_STRETCH;
+  // Our mark is drawn back to the reference glyph's own width as it folds.
+  var wide = e < FOLD_FROM ? MARK_WIDE : lerp(MARK_WIDE, 1, (e - FOLD_FROM) / (23 - FOLD_FROM));
+  var half = table(STRETCH_HALF, e) * wide;
+  var mid = table(STRETCH_MID, e);
+  s.wordAlpha = 0;
+  s.wordClip = 1;
+  s.markAlpha = 1 - smooth(FOLD_FROM + 6, 23, e);
+  s.markU0 = mid - half;
+  s.markU1 = mid + half;
+  s.markV0 = table(STRETCH_TOP, e);
+  s.markV1 = table(STRETCH_BOTTOM, e);
+  s.filament = smooth(FILAMENT[0], FILAMENT[2], e);
+  s.lines = smooth(LINES[0], LINES[2], e);
+  s.column = (e < 23 ? table(COLUMN_GROW, e) : table(COLUMN, e)) / 2;
+  s.columnAlpha = smooth(16, 21, e);
+  // Below full width the pattern is held squeezed to the column's own width.
+  var t = (f - F_SPLIT) / 24;
+  var squeeze = Math.max(0.35, table(COLUMN, e));
+  s.zoomWarm = f < F_FULL ? squeeze : f < F_SPLIT ? 1 : zoomOf(WARM_A, WARM_B, t);
+  s.zoomCool = f < F_FULL ? squeeze : f < F_SPLIT ? 1 : zoomOf(COOL_A, COOL_B, t);
+  s.split = f >= F_SPLIT ? 1 : 0;
+  s.fade = clamp01(1 - (f - FADE_FROM) / FADE_SPAN);
+  if (f < SPELL_3[1]) ringAAt(s, f);
+  else if (f >= RING_B_IN) ringAt(s, RING_B, RING_B.arc, Math.min(f, RING_B_STOP) / 24);
+  else s.ringAlpha = 0;
+}
+
+export function markHeightOf(): number {
+  return MARK_REST.v1 - MARK_REST.v0;
 }
 
 function tint(t: TextDraw, frame: number, alpha: number): void {
@@ -319,33 +492,34 @@ function landingAt(plan: Plan, f: number, s: Scene): void {
   var n = plan.headlineCount;
   s.stage = 1;
   s.ringAlpha = 0;
-  s.logoAlpha = 0;
+  s.wordAlpha = 0;
+  s.markAlpha = 0;
   s.layerCount = 0;
   s.textCount = 0;
-  s.cardShift = f < SLIDE_FRAMES ? SLIDE_START * Math.pow(2, -SLIDE_HALVING * f) : 0;
+  s.cardShift = table(SLIDE, f);
   s.emptyFill = 1 - table(WALL_IN, f);
   s.band = 1 - smooth(PEEK_IN[0], PEEK_IN[2], f);
   s.peek = table(PEEK_IN, f);
-  s.markAlpha = table(MARK_COVER, f) * table(MARK_FADE, f);
-  s.markScale = table(MARK_SCALE, f);
+  s.cardWordAlpha = table(MARK_COVER, f) * table(MARK_FADE, f);
+  s.cardWordScale = table(MARK_SCALE, f);
 
-  if (f >= WALL_IN[0] && f < 77) {
+  if (f >= F_WALL_IN && f < 77) {
     layerOf(s, plan.wallSet, 1, 0, table(WALL_IN, f) * (1 - table(WALL_OUT, f)), 1, 0, 1);
   }
 
-  if (f >= FIRST_ENTRY && f < FOURTH_ENTRY) {
-    var sigma = table(ENTRY_SIGMA, f - FIRST_ENTRY);
+  if (f >= F_FIRST_ENTRY && f < FOURTH_ENTRY) {
+    var sigma = table(ENTRY_SIGMA, f - F_FIRST_ENTRY);
     var scale = table(FIRST_SCALE, f);
     var xfade = clamp01((f - SECOND_CROSSFADE) / CROSSFADE_FRAMES);
-    var leave = clamp01((f - FOURTH_TEXT_OUT) / (FOURTH_ENTRY - FOURTH_TEXT_OUT));
-    var firstGain = f < FIRST_REST ? table(ENTRY_GAIN, f - FIRST_ENTRY) : 1;
-    // Tiles under the first headline leave as its text arrives.
-    var underText = 1 - smooth(FIRST_TEXT_IN - 6, FIRST_TEXT_IN + 2, f);
+    var leave = clamp01((f - F_TEXT_OUT_4) / (FOURTH_ENTRY - F_TEXT_OUT_4));
+    var firstGain = f < F_FIRST_REST ? table(ENTRY_GAIN, f - F_FIRST_ENTRY) : 1;
+    // Tiles under the first headline leave just before its text arrives.
+    var underText = 1 - smooth(F_TEXT_IN - 11, F_TEXT_IN - 1, f);
     if (xfade < 1) layerOf(s, setForHeadline(0), scale, sigma, Math.min(1, firstGain), Math.max(1, firstGain), 0, underText);
     if (xfade > 0) layerOf(s, setForHeadline(1 % n), 1, 0, xfade * (1 - leave), 1, 0, 0);
-    flatText(s, 0, FIRST_TEXT_IN, SECOND_TEXT_OUT, f);
-    if (n > 1) flatText(s, 1, SECOND_CROSSFADE, THIRD_TEXT_OUT, f);
-    if (n > 2) flatText(s, 2, THIRD_TEXT_OUT + 6, FOURTH_TEXT_OUT, f);
+    flatText(s, 0, F_TEXT_IN, F_TEXT_OUT_2, f);
+    if (n > 1) flatText(s, 1, SECOND_CROSSFADE, F_TEXT_OUT_3, f);
+    if (n > 2) flatText(s, 2, F_TEXT_OUT_3 + 6, F_TEXT_OUT_4, f);
   } else if (f >= FOURTH_ENTRY) {
     if (f < CYCLE_START) {
       var first = 3 % n;
@@ -385,13 +559,18 @@ function landingAt(plan: Plan, f: number, s: Scene): void {
   }
 }
 
-export function sceneAt(plan: Plan, ms: number, logoRestWidth: number, s: Scene): Scene {
-  if (ms < plan.openingStartMs) {
-    logoRestAt(ms, s);
-  } else if (ms < plan.landingStartMs) {
-    openingAt(plan, (ms - plan.openingStartMs) / FRAME_MS, logoRestWidth, s);
-  } else {
-    landingAt(plan, (ms - plan.landingStartMs) / FRAME_MS, s);
-  }
+// wordHalf and markHalf are half the rest width of each, which follows from the
+// shape of the files in brand/ and so is not a measured value.
+export function sceneAt(plan: Plan, ms: number, wordHalf: number, markHalf: number, s: Scene): Scene {
+  var f = ms / FRAME_MS;
+  // A time meant to be a whole frame can come back a hair under it, and a phase
+  // that starts on that frame would then start one frame late.
+  var whole = Math.round(f);
+  if (Math.abs(f - whole) < 1e-4) f = whole;
+  if (f < F_COLLAPSE) wordRestAt(s, f, wordHalf, markHalf);
+  else if (f < F_MARK_REST) collapseAt(s, f, wordHalf, markHalf);
+  else if (f < F_STRETCH) markRestAt(s, f, markHalf);
+  else if (f < F_CUT) openingAt(s, f);
+  else landingAt(plan, f - F_CUT, s);
   return s;
 }

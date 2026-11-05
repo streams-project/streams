@@ -1,15 +1,9 @@
 {
   "seed": 20261105,
   "size": { "width": 1920, "height": 1080 },
-  "logoRestMs": 1800,
-  "logo": {
-    "viewBox": [0, 0, 120, 120],
-    "shapes": [
-      { "d": "M12 6h12a6 6 0 0 1 6 6v96a6 6 0 0 1-6 6H12a6 6 0 0 1-6-6V12a6 6 0 0 1 6-6z", "fill": "#7a3cff" },
-      { "d": "M42 21h12a6 6 0 0 1 6 6v66a6 6 0 0 1-6 6H42a6 6 0 0 1-6-6V27a6 6 0 0 1 6-6z", "fill": "#6250ff" },
-      { "d": "M72 36h12a6 6 0 0 1 6 6v36a6 6 0 0 1-6 6H72a6 6 0 0 1-6-6V42a6 6 0 0 1 6-6z", "fill": "#4a5fff" },
-      { "d": "M102 51h6a6 6 0 0 1 6 6v6a6 6 0 0 1-6 6h-6a6 6 0 0 1-6-6v-6a6 6 0 0 1 6-6z", "fill": "#2f6bff" }
-    ]
+  "brand": {
+    "wordmark": "../brand/wordmark.svg",
+    "mark": "../brand/mark.svg"
   },
   "colours": {
     "nearBlack": "#07070d",
@@ -34,6 +28,9 @@
     "family": "Inter",
     "headlineWeight": 800,
     "buttonWeight": 600,
+    "uppercase": true,
+    "tracking": -0.014,
+    "maxWidth": 0.62,
     "files": [
       { "weight": 800, "file": "@fontsource/inter/files/inter-latin-800-normal.woff2" },
       { "weight": 600, "file": "@fontsource/inter/files/inter-latin-600-normal.woff2" }
