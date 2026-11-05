@@ -26,6 +26,9 @@ const NO_PICTURE_MEDIA_MS: u64 = 2_500;
 /// How long the age card stays up.
 const AGE_CARD_MS: u64 = 5_000;
 
+/// A skip button hides this long before the end it moves to.
+const SKIP_HIDES_EARLY_MS: u64 = 1_000;
+
 /// The host of an address: the text after `://` up to the first `/`, lower cased.
 #[must_use]
 pub fn host_of(url: &str) -> String {
@@ -119,6 +122,14 @@ impl Player {
     #[must_use]
     pub const fn serial(&self) -> u32 {
         self.serial
+    }
+
+    /// True while this request still belongs to the session in use.
+    #[must_use]
+    pub fn in_use(&self, serial: u32) -> bool {
+        self.play
+            .as_ref()
+            .is_some_and(|play| play.serial == serial && play.state != PlayState::Ended)
     }
 
     /// True while a frame is on screen and the viewer has not paused.
@@ -267,7 +278,7 @@ impl Player {
     /// player time to these windows.
     pub(crate) fn marks(&mut self, serial: u32, windows: Vec<TimeWindow>, tick: &mut Tick) {
         if let Some(play) = self.current(serial) {
-            play.windows.extend(windows);
+            play.windows.extend(windows.into_iter().filter_map(shown));
             tick.view = true;
         }
     }
@@ -395,7 +406,8 @@ impl Player {
                 }
             }
             DriverEvent::Stalled => {
-                if play.frame_seen {
+                // Paused time does not move, so a stall reported then could only run out.
+                if play.frame_seen && !play.paused {
                     play.state = PlayState::Stalled;
                     play.heartbeat_mono = None;
                     play.deadline_mono = Some(mono_ms + u64::from(deadline_ms));
@@ -533,9 +545,14 @@ impl Player {
         }
     }
 
-    /// Going to the background or suspending saves where the viewer is.
+    /// Going to the background or suspending saves where the viewer is. A session that ended
+    /// has saved already, and sending that old position again could undo a newer one.
     pub(crate) fn save_now(&self, tick: &mut Tick) {
-        if let Some(play) = &self.play {
+        if let Some(play) = self
+            .play
+            .as_ref()
+            .filter(|play| play.state != PlayState::Ended)
+        {
             save(play, tick);
         }
     }
@@ -561,6 +578,15 @@ fn save(play: &Play, tick: &mut Tick) {
             duration_s: seconds(play.duration_ms),
         });
     }
+}
+
+/// The span a screen compares to player time. `None` when nothing is left to show.
+fn shown(mut window: TimeWindow) -> Option<TimeWindow> {
+    if matches!(window.kind, WindowKind::Recap | WindowKind::Intro) {
+        window.seek_to_ms = window.seek_to_ms.or(Some(window.end_ms));
+        window.end_ms = window.end_ms.saturating_sub(SKIP_HIDES_EARLY_MS);
+    }
+    (window.start_ms < window.end_ms).then_some(window)
 }
 
 fn seconds(ms: u64) -> u32 {

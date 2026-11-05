@@ -1,7 +1,6 @@
 {
- "about": "The age card window starts at the first frame for 5,000 ms. Marks are asked once, after first frame with a known length, series only.",
+ "about": "The age card window starts at the first frame for 5,000 ms. Marks are asked once, after first frame with a known length, series only. A skip button shows until 1 s before its end and still moves to that end.",
  "covers": [
-  "C52",
   "C58",
   "C60"
  ],
@@ -100,7 +99,7 @@
         "kind": "age_card"
        },
        {
-        "end_ms": 90000,
+        "end_ms": 89000,
         "kind": "intro",
         "seek_to_ms": 90000,
         "start_ms": 30000

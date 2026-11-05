@@ -1,0 +1,117 @@
+{
+ "about": "A seek while paused can report a stall. Paused time does not advance, so that stall must not run into the deadline and move a healthy source.",
+ "covers": [
+  "H39",
+  "H42"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 100000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 3100,
+   "events": [
+    {
+     "action": {
+      "action": "pause"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "pause"
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 3200,
+   "events": [
+    {
+     "action": {
+      "action": "seek",
+      "to_ms": 200000
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "seek",
+      "to_ms": 200000
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 3300,
+   "events": [
+    {
+     "event": {
+      "kind": "stalled"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "view": {
+     "play": {
+      "state": "paused"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 20000,
+   "want": {
+    "player": [],
+    "view": {
+     "play": {
+      "attempt": "a1",
+      "state": "paused"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 20100,
+   "events": [
+    {
+     "action": {
+      "action": "unpause"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "play"
+     }
+    ],
+    "view": {
+     "play": {
+      "state": "playing"
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_stall_while_paused_moves_nothing",
+ "prologue": "playing"
+}
