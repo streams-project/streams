@@ -1,0 +1,18 @@
+{
+  "name": "tv",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT OR Apache-2.0",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "landing": "node tools/landing.ts",
+    "check": "tsc -p tsconfig.json && tsc -p tsconfig.tools.json",
+    "test": "node --test test/*.test.ts"
+  },
+  "devDependencies": {
+    "@fontsource/inter": "5.3.0",
+    "@types/node": "24.10.1",
+    "typescript": "5.9.3"
+  }
+}

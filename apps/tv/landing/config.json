@@ -1,0 +1,47 @@
+{
+  "seed": 20261105,
+  "size": { "width": 1920, "height": 1080 },
+  "logoRestMs": 1800,
+  "logo": {
+    "viewBox": [0, 0, 120, 120],
+    "shapes": [
+      { "d": "M12 6h12a6 6 0 0 1 6 6v96a6 6 0 0 1-6 6H12a6 6 0 0 1-6-6V12a6 6 0 0 1 6-6z", "fill": "#7a3cff" },
+      { "d": "M42 21h12a6 6 0 0 1 6 6v66a6 6 0 0 1-6 6H42a6 6 0 0 1-6-6V27a6 6 0 0 1 6-6z", "fill": "#6250ff" },
+      { "d": "M72 36h12a6 6 0 0 1 6 6v36a6 6 0 0 1-6 6H72a6 6 0 0 1-6-6V42a6 6 0 0 1 6-6z", "fill": "#4a5fff" },
+      { "d": "M102 51h6a6 6 0 0 1 6 6v6a6 6 0 0 1-6 6h-6a6 6 0 0 1-6-6v-6a6 6 0 0 1 6-6z", "fill": "#2f6bff" }
+    ]
+  },
+  "colours": {
+    "nearBlack": "#07070d",
+    "violet": ["#7a3cff", "#5a22d9", "#9a5cff", "#4315b0"],
+    "blue": ["#2f6bff", "#1c4fe6", "#5a8cff", "#1238c4"],
+    "white": "#ffffff",
+    "pink": "#ff6fc8",
+    "cyan": "#3fe9ff",
+    "ring": "#2f6bff",
+    "glassEdge": "#c4e4fb",
+    "bandLeft": "#6a2cf0",
+    "bandRight": "#2450c8",
+    "fillTop": "#2b3a78",
+    "fillMid": "#42549c",
+    "fillLow": "#141730",
+    "darkTop": "#0c1438",
+    "darkLow": "#1b1038",
+    "primaryButton": "#2f6bff",
+    "secondaryButton": "#ffffff38"
+  },
+  "font": {
+    "family": "Inter",
+    "headlineWeight": 800,
+    "buttonWeight": 600,
+    "files": [
+      { "weight": 800, "file": "@fontsource/inter/files/inter-latin-800-normal.woff2" },
+      { "weight": 600, "file": "@fontsource/inter/files/inter-latin-600-normal.woff2" }
+    ]
+  },
+  "buttons": [
+    { "id": "sign-in", "label": "Sign in" },
+    { "id": "create-account", "label": "Create account" }
+  ],
+  "audio": { "src": null, "startAtMs": 0, "volume": 1 }
+}
