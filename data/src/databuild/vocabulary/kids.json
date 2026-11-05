@@ -1,0 +1,2578 @@
+{
+"entries": [
+{
+"title": "Little Learners",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Gentle, colourful shows for toddlers and preschoolers that teach colours, shapes, numbers, letters and kindness through songs and play."
+},
+{
+"title": "Preschool Pals",
+"media_type": "tv",
+"kind": "audience",
+"vibe_query": "Cheerful preschool series with friendly animal and child characters, simple stories, repeating songs and short episodes for ages two to four."
+},
+{
+"title": "Sing, Dance and Play",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Musical shows and films for young children with catchy songs, dancing, sing-along moments and joyful movement."
+},
+{
+"title": "Bedtime Calm",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Soft, soothing, slow paced stories with quiet music and gentle animals, made to wind down before sleep."
+},
+{
+"title": "Short and Sweet Episodes",
+"media_type": "tv",
+"kind": "audience",
+"vibe_query": "Very short episodes for small children, a few minutes each, with one simple idea and a happy ending."
+},
+{
+"title": "Big Kid Adventures",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Exciting adventures for children aged seven to eleven with brave heroes, daring quests, humour and nothing too scary."
+},
+{
+"title": "Just for Tweens",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Stories for ages ten to thirteen about friendships, school life, first crushes handled gently, talents and growing up, with humour and heart."
+},
+{
+"title": "Watch Together",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Films and series the whole family enjoys together, funny and warm, with something for adults as well as children."
+},
+{
+"title": "Family Movie Night",
+"media_type": "movie",
+"kind": "audience",
+"vibe_query": "Feel good family films with laughs, heart and a happy ending, ideal for a cosy movie night with children of all ages."
+},
+{
+"title": "First Time Watchers",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Easy first films and series for the youngest viewers: simple plots, clear characters, bright pictures and a calm pace."
+},
+{
+"title": "Dinosaur Days",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Dinosaurs, prehistoric adventures, fossils, time travel to the age of dinosaurs and friendly dinosaur characters for children."
+},
+{
+"title": "Pirates and Treasure",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Pirate adventures with treasure maps, sea voyages, silly captains, parrots and islands, fun and not frightening."
+},
+{
+"title": "Space Explorers",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Children and aliens exploring space, rockets, planets, astronauts and friendly robots, curiosity and wonder."
+},
+{
+"title": "Robots and Gadgets",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Friendly robots, inventors, clever gadgets and machines that come to life in playful stories for children."
+},
+{
+"title": "Magic School Adventures",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Young wizards and witches learning magic at school, spells, potions, enchanted creatures and friendship."
+},
+{
+"title": "Princess Tales",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Princesses, castles, kind queens, brave heroines and royal adventures with magic and humour for children."
+},
+{
+"title": "Fairy Tale Twists",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Classic fairy tales retold with a funny or surprising twist, talking animals and storybook heroes."
+},
+{
+"title": "Superhero Squads",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Young superheroes and their teams saving the day with powers and teamwork, action without graphic violence."
+},
+{
+"title": "Mystery Kids",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Child detectives and clever friends solving puzzles and gentle mysteries, clues, secret passages and funny suspects."
+},
+{
+"title": "Haunted and Hilarious",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Silly ghosts, friendly monsters, spooky houses and playful scares that are funny rather than frightening, for children."
+},
+{
+"title": "Wild Animal Adventures",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Lions, elephants, tigers, wolves and other wild animals in the jungle and savannah, nature stories for children."
+},
+{
+"title": "Pets and Their People",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Dogs, cats, hamsters and other pets and the children who love them, heartwarming and funny pet stories."
+},
+{
+"title": "Puppies on Patrol",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Rescue pups, brave dogs and animal helpers saving the day in simple cheerful adventures for young children."
+},
+{
+"title": "Underwater Worlds",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Oceans, coral reefs, fish, mermaids, whales and sea creatures in colourful underwater adventures for children."
+},
+{
+"title": "Farm and Countryside",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Farm animals, tractors, barns, harvest time and village life, gentle stories for young children."
+},
+{
+"title": "Trucks, Trains and Machines",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Cars, trucks, trains, planes and construction machines with faces and personalities, racing and teamwork for children."
+},
+{
+"title": "Race to the Finish",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Races, kart racing, competitions and sporting challenges for children with friendly rivals and big laughs."
+},
+{
+"title": "Cooking and Baking Fun",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Children and families cooking, baking contests, kitchen adventures and food that comes to life, warm and funny."
+},
+{
+"title": "Art and Crafts",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Drawing, painting, making things and creative projects with children, imagination and colourful creations."
+},
+{
+"title": "Music Makers",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Young musicians, bands, singing talent and music schools, stories about performing, songs and finding your voice."
+},
+{
+"title": "Sports Heroes",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Children and teams playing football, basketball, baseball and other sports, training, teamwork and fair play."
+},
+{
+"title": "Dance Floor",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Dancing talents, ballet, street dance, dance competitions and musicals about moving to the beat, for children."
+},
+{
+"title": "Camp Capers",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Summer camp, campfires, treehouses, scout troops and outdoor adventures with friends, funny and warm."
+},
+{
+"title": "School Days",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Everyday school life, teachers, classmates, first days, school trips and class clowns told with humour and heart."
+},
+{
+"title": "Best Friends Forever",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Stories about friendship between children or characters, loyalty, making up after arguments and standing by each other."
+},
+{
+"title": "Brothers, Sisters and Cousins",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Siblings and cousins growing up together, family fun, rivalry and love, in everyday funny family stories."
+},
+{
+"title": "Big Feelings",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Stories that help children understand emotions such as anger, sadness, fear and joy, with kind characters and clear lessons."
+},
+{
+"title": "Kindness Counts",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Stories about being kind, sharing, helping others, honesty and bravery, with gentle lessons and warm endings."
+},
+{
+"title": "Brave Little Heroes",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Small, unlikely heroes who find courage, overcome fears and save their friends or their village."
+},
+{
+"title": "Epic Worlds and Unreal Stories",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Huge fantasy worlds, magical kingdoms, quests, dragons and heroes in imaginative stories for older children."
+},
+{
+"title": "Dragons and Quests",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Dragons, knights, wizards, maps and quests in fantasy adventures with humour and friendship for children."
+},
+{
+"title": "Time Travel Fun",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Children who travel through time, meet historical figures and fix mistakes of the past, funny and exciting."
+},
+{
+"title": "Secret Powers",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Ordinary children who discover they have hidden powers, abilities and secret identities, with school and family life too."
+},
+{
+"title": "Mythical Creatures",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Unicorns, dragons, phoenixes, sea monsters and legendary beasts in magical, child friendly stories."
+},
+{
+"title": "Jungle Journeys",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Jungle adventures with talking animals, explorers and hidden temples for children, thrilling but gentle."
+},
+{
+"title": "Arctic and Snow Adventures",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Penguins, polar bears, snowy mountains, ice kingdoms and winter adventures for children."
+},
+{
+"title": "Island Escapes",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Tropical islands, castaways, volcanoes, beaches and lost worlds, adventures for children."
+},
+{
+"title": "City Kids",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Children growing up in the city, neighbourhood friends, markets, subways and everyday adventures."
+},
+{
+"title": "Wild West Fun",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Cowboys, sheriffs, ponies and ranches played for laughs, fun western adventures for the family."
+},
+{
+"title": "Knights and Castles",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Medieval castles, brave knights, jousting, kings and dragons told with humour for children."
+},
+{
+"title": "Circus and Carnival",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Circus performers, clowns, acrobats, fairgrounds and carnivals in colourful, joyful family stories."
+},
+{
+"title": "Toys Come Alive",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Toys, dolls and stuffed animals that come to life when nobody is looking, adventures of toy friends."
+},
+{
+"title": "Monsters Next Door",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Friendly monsters, goofy creatures and misunderstood beasts who become friends with children."
+},
+{
+"title": "Tiny Worlds",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Miniature people, insects and tiny creatures in big worlds, small heroes and bug adventures for children."
+},
+{
+"title": "Weather and Seasons",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Rain, snow, sunshine, windy days and the four seasons in gentle stories and learning shows for young children."
+},
+{
+"title": "Planet Protectors",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Children and animals protecting nature, recycling, saving forests and oceans, with hopeful and funny stories."
+},
+{
+"title": "Science and Discovery",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Experiments, curious scientists, inventions, how things work and exploring nature for curious children."
+},
+{
+"title": "Numbers and Letters",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Counting, the alphabet, reading, spelling and maths made playful with songs and characters for early learners."
+},
+{
+"title": "Real Kids, Real Life",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Documentaries and real life series with children doing amazing things, hobbies, talents, animals and travel."
+},
+{
+"title": "Based on Beloved Books",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Series and films based on popular children's books, picture books and classic stories."
+},
+{
+"title": "Classic Cartoons",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Timeless classic cartoons with slapstick, chases and silly characters that generations of children have loved."
+},
+{
+"title": "Stop Motion and Clay",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Handmade stop motion and clay animation with charming characters, quirky humour and craftsmanship."
+},
+{
+"title": "Anime for Kids",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Japanese animated series and films suitable for children, adventures, friendship, magic and humour."
+},
+{
+"title": "Cute Overload",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Adorable characters, fluffy animals, babies and tiny creatures in sweet and funny stories."
+},
+{
+"title": "Laugh Out Loud",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Silly, slapstick and joke filled shows and films that make children laugh, with goofy characters and funny situations."
+},
+{
+"title": "Giggles for Grown-Ups Too",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Clever, witty family comedies with jokes both children and parents enjoy."
+},
+{
+"title": "Imaginative Worlds",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Make believe, imaginary friends, dreams and fantasy lands that come from a child's imagination."
+},
+{
+"title": "Shh, Secrets and Mysteries",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Secret doors, hidden clubs, treasure hunts and gentle mysteries children can solve together."
+},
+{
+"title": "Heart-warming Tales",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Moving, tender stories about family, friendship and belonging that leave children smiling and parents teary."
+},
+{
+"title": "Adventures With Animals",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Children and animals going on journeys together, rescues, road trips and animals who talk."
+},
+{
+"title": "Underdogs and Dreamers",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Children and animals chasing a big dream against the odds, determination, practice and friends who believe in them."
+},
+{
+"title": "Little Detectives",
+"media_type": "tv",
+"kind": "theme",
+"vibe_query": "Short mystery series for younger children with a cheerful detective, simple clues and a satisfying solution."
+},
+{
+"title": "Helpers and Heroes",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Firefighters, doctors, builders, rescuers and other helpers doing important jobs, for young children."
+},
+{
+"title": "Big City, Small Heroes",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Small animals or children saving the day in busy cities with humour and heart."
+},
+{
+"title": "Music and Magic",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Musicals and magical stories where songs carry the story, with spells, fairies and dancing creatures."
+},
+{
+"title": "Friends From Faraway",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Children and animals from different countries and cultures meeting, travelling and learning from each other."
+},
+{
+"title": "Growing Up Funny",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Everyday family sitcoms and comedies about growing up, school and siblings with warmth and jokes for older children."
+},
+{
+"title": "Gamers and Gadgets",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Kids who love video games, apps and technology, adventures inside games and clever tech inventions."
+},
+{
+"title": "Spy Kids and Secret Agents",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Children and teens as spies and secret agents with gadgets and missions, thrilling but family safe."
+},
+{
+"title": "Monster Mash",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Monster families, vampires, mummies and witches who are goofy and lovable, for children."
+},
+{
+"title": "Fantastic Voyages",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Journeys across seas, skies and magical lands with a crew of friends, maps, ships and airships."
+},
+{
+"title": "Pony Pals",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Horses, ponies and unicorns, stables, riding, friendship and adventures for children who love horses."
+},
+{
+"title": "Cat and Dog Capers",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Cats and dogs as heroes or rivals in funny adventures, pet rivalries, rescues and misadventures."
+},
+{
+"title": "Bug Buddies",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Ants, bees, butterflies, ladybirds and other bugs as characters in small scale adventures for children."
+},
+{
+"title": "Lost and Found",
+"media_type": "both",
+"kind": "theme",
+"vibe_query": "Lost pets, lost toys and lost children finding their way home with the help of new friends."
+},
+{
+"title": "Talking Animals",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Animals who talk, wear clothes and live like people, in funny animal towns and animal families."
+},
+{
+"title": "Superheroes in Training",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Teen and child heroes learning to use their powers at hero school with humour and teamwork."
+},
+{
+"title": "Fairies and Pixies",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Fairies, pixies and woodland creatures with wings and tiny magic, in sparkling gentle adventures."
+},
+{
+"title": "Mermaids and Sea Magic",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Mermaids, sea princesses, shell magic and ocean kingdoms in sparkling stories for children."
+},
+{
+"title": "Witches and Wizards",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Friendly young witches and wizards, spell books, broomsticks and magical mishaps told for children."
+},
+{
+"title": "Ghost Friends",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Friendly ghosts and ghost hunters, funny hauntings and misunderstood spirits who make friends."
+},
+{
+"title": "Pirates Ahoy",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Funny pirate crews, sea shanties, ships and treasure for young children, playful and safe."
+},
+{
+"title": "Cowboy and Cowgirl Fun",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Cowboy and cowgirl characters, horses and ranches in light hearted adventures."
+},
+{
+"title": "Giants, Trolls and Goblins",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Gentle giants, silly trolls and goblins in funny fairy tale stories and quests for children."
+},
+{
+"title": "Aliens Among Us",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Friendly aliens who land on Earth, visit children or live secretly, comedy and wonder."
+},
+{
+"title": "Penguins, Pandas and Polar Pals",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Penguins, pandas, polar bears and other lovable animals in funny and heartwarming stories."
+},
+{
+"title": "Bears and Bunnies",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Cuddly bears, bunnies, foxes and woodland friends in gentle stories about everyday life."
+},
+{
+"title": "Heroes With Four Paws",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Brave dogs, cats and animals who rescue, protect and help, courageous and loyal."
+},
+{
+"title": "Little Dragons",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Baby dragons and friendly dragons who learn to fly, breathe fire and make friends."
+},
+{
+"title": "Funny Families",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Cartoon and live action families with quirky parents, clever children and chaotic days, warm comedy."
+},
+{
+"title": "Squads and Teams",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "A team of children or animals, each with a different talent, working together to solve problems."
+},
+{
+"title": "Teen Idols and Pop Stars",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Young stars, bands and singers living double lives or chasing fame, music and friendship stories for tweens."
+},
+{
+"title": "Children of Myth",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Mythology, gods and legendary heroes retold for children, brave demigods and ancient quests."
+},
+{
+"title": "Superpet Squads",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Pets and animals with powers who protect their city, comedy and action for children."
+},
+{
+"title": "Inventors and Tinkerers",
+"media_type": "both",
+"kind": "character",
+"vibe_query": "Clever children and eccentric inventors building contraptions that go wonderfully wrong."
+},
+{
+"title": "Bright and Colourful",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Vivid, candy coloured, eye catching animation with joyful bright worlds for children."
+},
+{
+"title": "Hand-Drawn Heart",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Traditional hand drawn 2D animation with warmth, charm and painterly backgrounds."
+},
+{
+"title": "Dazzling 3D Animation",
+"media_type": "movie",
+"kind": "style",
+"vibe_query": "Big, glossy computer animated films with spectacular worlds, humour and heart."
+},
+{
+"title": "Storybook Style",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Animation that looks like a picture book, soft watercolours, narrators and cosy storytelling."
+},
+{
+"title": "Funny Voices",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Comedy led by great voice performances, silly accents and talking characters for children."
+},
+{
+"title": "Sing-Along Musicals",
+"media_type": "movie",
+"kind": "style",
+"vibe_query": "Animated and live action musical films with big memorable songs children sing along to."
+},
+{
+"title": "Short Films and Shorts",
+"media_type": "movie",
+"kind": "style",
+"vibe_query": "Short animated films and shorts, quick, clever, charming stories children can watch in minutes."
+},
+{
+"title": "Live-Action Family Fun",
+"media_type": "movie",
+"kind": "style",
+"vibe_query": "Live action films for families with real children and animals, adventure, comedy and heart."
+},
+{
+"title": "Behind the Magic",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Making of shows and children's behind the scenes looks at how animation and films are made."
+},
+{
+"title": "Gentle Pace",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Slow, calm, soft spoken shows with plenty of space, good for sensitive children and quiet time."
+},
+{
+"title": "Fast and Furious Fun",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Fast paced, energetic, high-energy comedy adventures with chases, gags and constant action for children."
+},
+{
+"title": "Cosy and Warm",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Cosy, comforting stories in snug homes, villages and kitchens with warm characters."
+},
+{
+"title": "Silly and Surreal",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Absurd, nonsensical and surreal cartoon humour with odd characters and wacky logic."
+},
+{
+"title": "Dreamlike and Magical",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Dreamy, wondrous, beautiful animation with floating worlds, fantasy and gentle awe."
+},
+{
+"title": "Classic Tales Retold",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Fables, nursery rhymes and folk tales retold for children with new humour and visuals."
+},
+{
+"title": "Under the Sea",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Stories set beneath the ocean among fish, mermaids, shipwrecks and coral cities for children."
+},
+{
+"title": "In the Sky",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Adventures in clouds, airships, planes, flying islands and balloon journeys for children."
+},
+{
+"title": "Fantasy Kingdoms",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Magical kingdoms, castles, enchanted forests and royal courts, light hearted fantasy adventures."
+},
+{
+"title": "In the Wild",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Forests, jungles, mountains and savannahs with animals, survival and exploration for children."
+},
+{
+"title": "Down on the Farm",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Farm life with animals, tractors, barns and fields, charming stories for small children."
+},
+{
+"title": "Out in Space",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Planets, stars, spaceships and aliens, cosmic adventures for children."
+},
+{
+"title": "Back to School",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Classrooms, playgrounds, school buses and lunch tables, school stories for children."
+},
+{
+"title": "At the Seaside",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Beaches, rock pools, boats, lighthouses and seaside holidays in sunny family stories."
+},
+{
+"title": "Winter Wonderland",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Snow, ice, sledging, mittens and winter adventures for children, cosy and magical."
+},
+{
+"title": "Holiday Adventures",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Family trips, holidays, road trips, camping and holiday mishaps told with humour for children."
+},
+{
+"title": "Haunted Houses (Not Too Scary)",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Spooky mansions and creaky castles full of friendly ghosts and funny surprises, safe for children."
+},
+{
+"title": "Giant Cities of Animals",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Animal metropolises, cities where animals live like people, funny and clever."
+},
+{
+"title": "In the Neighbourhood",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Streets, parks and neighbours, everyday adventures close to home for children."
+},
+{
+"title": "Beyond the Rainbow",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Colourful magical lands beyond rainbows, candy worlds and toy kingdoms for children."
+},
+{
+"title": "Mountains and Valleys",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Mountain villages, alpine adventures, goats, hikes and valleys in family stories."
+},
+{
+"title": "Deserts and Pyramids",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Desert adventures, ancient Egypt for children, camels, treasure and sand dune quests."
+},
+{
+"title": "Ancient Worlds",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Ancient Greece, Rome and Egypt told for children with humour, gods, heroes and puzzles."
+},
+{
+"title": "Big Top Dreams",
+"media_type": "both",
+"kind": "setting",
+"vibe_query": "Circus tents, fairs, magicians and street performers in colourful stories for children."
+},
+{
+"title": "Feel-Good Favourites",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Warm, uplifting, happy stories that leave children smiling, friendship, love and small triumphs."
+},
+{
+"title": "Adventure Awaits",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Exciting quests and journeys with brave friends, cliffhangers and discoveries for children."
+},
+{
+"title": "Wonder and Whimsy",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Whimsical, charming, wide-eyed stories full of wonder, odd inventions and curious creatures."
+},
+{
+"title": "Pure Silliness",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Pure goofy, ridiculous, joyful silliness with funny faces, pranks and wild ideas for children."
+},
+{
+"title": "Cheer Up!",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Light, joyful shows that lift the mood on a rainy day, with songs, jokes and friendly characters."
+},
+{
+"title": "Thrills for Little Ones",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Gentle suspense and exciting chases for children with safe stakes and quick happy endings."
+},
+{
+"title": "Clever Kids",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Smart, resourceful children who solve problems with brains, puzzles, inventions and teamwork."
+},
+{
+"title": "Girls Take the Lead",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Strong, funny, brave girls as the heroes of adventures, mysteries, sports and magic."
+},
+{
+"title": "Boys and Girls, Together",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Groups of friends of every kind having adventures and solving problems together."
+},
+{
+"title": "Brilliant Sidekicks",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Funny and loyal sidekicks who steal the show alongside brave heroes."
+},
+{
+"title": "Underdog Stories",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "A small, unlikely hero who wins through heart, with cheering crowds and loyal friends."
+},
+{
+"title": "Journeys Home",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Characters trying to find their way home across lands and seas with help from friends."
+},
+{
+"title": "First Adventures",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "A child's or animal's first big adventure away from home, growing braver step by step."
+},
+{
+"title": "Stories of Courage",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Characters who face their fears with help from family and friends, courage and kindness."
+},
+{
+"title": "Family Is Everything",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Stories about family bonds, grandparents, parents and children, warm and heartfelt."
+},
+{
+"title": "Heroes and Helpers",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "People and animals who help others, rescuers and kind neighbours, uplifting action and comedy."
+},
+{
+"title": "Wacky Races and Chases",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Chase scenes, races and slapstick pursuits, cartoon chaos with happy endings."
+},
+{
+"title": "Magic and Mischief",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Magical tricks, naughty sprites and spells that go hilariously wrong."
+},
+{
+"title": "Smart and Silly Mix",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Funny shows that sneak in facts, jokes with learning, puns and clever wordplay."
+},
+{
+"title": "Dream Big",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Children who dream of being astronauts, artists, chefs, athletes and inventors, inspiring stories."
+},
+{
+"title": "Mystery and Giggles",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Light mysteries with lots of comedy, funny clues and goofy culprits, safe for children."
+},
+{
+"title": "Hidden Worlds",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Secret worlds beneath streets, inside trees and behind doors that children discover."
+},
+{
+"title": "Daring Escapes",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Characters planning clever escapes and daring getaways, tense but light and funny."
+},
+{
+"title": "Good Vibes Only",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Positive, friendly, happy shows with no meanness, kindness and teamwork throughout."
+},
+{
+"title": "Everyone's Watching",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Popular shows and films that children everywhere are watching right now."
+},
+{
+"title": "Animated Movie Night",
+"media_type": "movie",
+"kind": "animation",
+"vibe_query": "Animated feature films for the whole family, big adventures, songs and laughs."
+},
+{
+"title": "Animated Series Marathon",
+"media_type": "tv",
+"kind": "animation",
+"vibe_query": "Animated series with many episodes to binge, cartoon adventures and comedies."
+},
+{
+"title": "Live-Action Series for Kids",
+"media_type": "tv",
+"kind": "animation",
+"vibe_query": "Live action series with children and young teens, sitcoms, adventures and mysteries for kids."
+},
+{
+"title": "Cartoon Comedy Hits",
+"media_type": "tv",
+"kind": "animation",
+"vibe_query": "Funny animated series with slapstick and witty dialogue loved by children."
+},
+{
+"title": "Epic Animated Adventures",
+"media_type": "movie",
+"kind": "animation",
+"vibe_query": "Sweeping animated films with heroes, journeys and spectacle, for older children."
+},
+{
+"title": "Tiny Tales",
+"media_type": "tv",
+"kind": "animation",
+"vibe_query": "Series of tiny stories, each episode a small complete adventure for little viewers."
+},
+{
+"title": "Animals in Animation",
+"media_type": "both",
+"kind": "animation",
+"vibe_query": "Animated animals as the heroes, voiced by great actors, funny and heartfelt."
+},
+{
+"title": "Toys and Games Come Alive",
+"media_type": "both",
+"kind": "animation",
+"vibe_query": "Animated adventures built around toys, building blocks and board games."
+},
+{
+"title": "Animated Musicals",
+"media_type": "movie",
+"kind": "animation",
+"vibe_query": "Animated musicals with princesses, animals and magic, songs at the heart of the story."
+},
+{
+"title": "Rewatch Favourites",
+"media_type": "both",
+"kind": "animation",
+"vibe_query": "Beloved classics children watch again and again, comforting and familiar."
+},
+{
+"title": "Preschool Hits",
+"media_type": "tv",
+"kind": "animation",
+"vibe_query": "The most popular preschool series, bright songs, simple stories and lovable characters."
+},
+{
+"title": "Next Up for Tweens",
+"media_type": "tv",
+"kind": "animation",
+"vibe_query": "Series for tweens and young teens mixing school, humour, mystery and music, live action and animated."
+},
+{
+"title": "We Think You'll Love These",
+"media_type": "both",
+"kind": "editorial",
+"vibe_query": "Popular and well liked titles for children across ages and genres, the best of the pool."
+},
+{
+"title": "New This Month",
+"media_type": "both",
+"kind": "editorial",
+"vibe_query": "Recently released and recently added children's films and series."
+},
+{
+"title": "Award-Winning for Kids",
+"media_type": "both",
+"kind": "editorial",
+"vibe_query": "Children's films and series that won awards, acclaimed for storytelling and animation."
+},
+{
+"title": "Critics' Choice for Families",
+"media_type": "both",
+"kind": "editorial",
+"vibe_query": "Critically acclaimed family films and series with high ratings from reviewers and audiences."
+},
+{
+"title": "Short Films, Big Smiles",
+"media_type": "movie",
+"kind": "editorial",
+"vibe_query": "Short running family films under ninety minutes, easy to finish in one sitting."
+},
+{
+"title": "Binge-Worthy Series",
+"media_type": "tv",
+"kind": "editorial",
+"vibe_query": "Series with many episodes that children can binge, with a story or fun that continues."
+},
+{
+"title": "Sequels and Series Favourites",
+"media_type": "movie",
+"kind": "editorial",
+"vibe_query": "Sequels, franchises and film series children love, return to favourite characters."
+},
+{
+"title": "Leaving the Nest",
+"media_type": "both",
+"kind": "editorial",
+"vibe_query": "Stories about growing up, moving schools, leaving home and starting something new."
+},
+{
+"title": "Stories From Around the World",
+"media_type": "both",
+"kind": "editorial",
+"vibe_query": "Children's films and series from around the world, other languages, cultures and styles."
+},
+{
+"title": "Classic Family Films",
+"media_type": "movie",
+"kind": "editorial",
+"vibe_query": "Older family films that have lasted, loved by generations, with warm humour and heart."
+},
+{
+"title": "Modern Favourites",
+"media_type": "both",
+"kind": "editorial",
+"vibe_query": "Recent hits children and families love, fresh humour, modern animation and current stars."
+},
+{
+"title": "Hidden Gems for Kids",
+"media_type": "both",
+"kind": "editorial",
+"vibe_query": "Lesser known, charming children's films and series that deserve more viewers."
+},
+{
+"title": "Spooky Fun for Kids",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Halloween themed children's shows and films with friendly ghosts, pumpkins, costumes and gentle scares.",
+"season": {
+"start": "10-01",
+"end": "10-31"
+}
+},
+{
+"title": "Christmas Magic",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Christmas films and series for children with Santa, elves, snow, presents and festive songs.",
+"season": {
+"start": "11-25",
+"end": "12-31"
+}
+},
+{
+"title": "Winter Holidays",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Winter celebrations, Hanukkah, Diwali lights, New Year and cosy snowy holiday stories for children.",
+"season": {
+"start": "11-20",
+"end": "01-05"
+}
+},
+{
+"title": "Easter and Spring Fun",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Spring, Easter, bunnies, chicks, gardens and flowers in cheerful children's stories.",
+"season": {
+"start": "03-15",
+"end": "04-25"
+}
+},
+{
+"title": "Summer Holiday Fun",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Summer holidays, beaches, camps, ice cream and long sunny days in children's stories.",
+"season": {
+"start": "06-15",
+"end": "09-05"
+}
+},
+{
+"title": "Back-to-School Season",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Starting a new school year, new classes, friends and nerves, children's stories about school.",
+"season": {
+"start": "08-20",
+"end": "09-30"
+}
+},
+{
+"title": "Autumn Cosiness",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Autumn leaves, harvest, pumpkins, cosy sweaters and woodland animals in gentle children's stories.",
+"season": {
+"start": "09-15",
+"end": "11-10"
+}
+},
+{
+"title": "Valentine's Kindness",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Friendship, love and kindness, sweet stories about caring for others, for children.",
+"season": {
+"start": "02-01",
+"end": "02-16"
+}
+},
+{
+"title": "Pride and Belonging for Kids",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Stories about being yourself, families of all kinds and belonging, for children.",
+"season": {
+"start": "06-01",
+"end": "06-30"
+}
+},
+{
+"title": "Lunar New Year Celebrations",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Lunar New Year, dragons, lanterns, red envelopes and family celebrations in children's stories.",
+"season": {
+"start": "01-15",
+"end": "02-20"
+}
+},
+{
+"title": "Babies and Toddlers",
+"media_type": "tv",
+"kind": "audience",
+"vibe_query": "Very gentle shows for babies and toddlers up to age three: slow pace, big shapes, lullabies, peekaboo and first words."
+},
+{
+"title": "Ages 2 to 4: Play and Learn",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Playful learning for two to four year olds: counting, colours, animals, daily routines and songs with lovable characters."
+},
+{
+"title": "Ages 4 to 6: Story Time",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Simple story driven shows and films for four to six year olds: school beginnings, friendship, small mysteries and clear lessons."
+},
+{
+"title": "Ages 5 to 7: First Chapters",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Stories for five to seven year olds with a little more plot: sibling squabbles, school plays, lost things and playground drama."
+},
+{
+"title": "Ages 7 to 9: Bigger Quests",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Adventures for seven to nine year olds with real stakes: quests, clubs, secret missions, team sports and clever villains."
+},
+{
+"title": "Ages 8 to 10: Mysteries and Mayhem",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Mysteries, mad inventions and daring escapes for eight to ten year olds, with humour and mild peril."
+},
+{
+"title": "Ages 9 to 11: Epic Heroes",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Heroic fantasy and superhero stories for nine to eleven year olds with bigger worlds and brave choices."
+},
+{
+"title": "Tween Friendships",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Friendship groups, cliques, falling out and making up, school dances and secrets for tweens."
+},
+{
+"title": "Tween Talent Shows",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Tweens chasing dreams in singing, dancing, acting and band competitions with rivalry and support."
+},
+{
+"title": "Growing Up Gently",
+"media_type": "both",
+"kind": "audience",
+"vibe_query": "Gentle coming of age stories about changing bodies, new schools and big feelings for tweens and young teens."
+},
+{
+"title": "Elephants and Their Herds",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Elephants, baby elephants and their herds in warm adventures about family and memory."
+},
+{
+"title": "Lions and Big Cats",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Lions, tigers, leopards and cheetahs as heroes in stories of pride, family and courage for children."
+},
+{
+"title": "Monkeys and Apes",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Cheeky monkeys, gorillas and apes in jungle mischief and clever escapes."
+},
+{
+"title": "Bears and Honey",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Bears, cubs and honey hunts in cuddly, funny forest adventures."
+},
+{
+"title": "Foxes and Wolves",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Clever foxes and friendly wolves in woodland tales of cunning and loyalty for children."
+},
+{
+"title": "Rabbits and Hares",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Rabbits and hares hopping through gardens, burrows and races in sweet funny stories."
+},
+{
+"title": "Mice and Tiny Heroes",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Mice and other tiny rodents with big courage, living in walls, mills and barns."
+},
+{
+"title": "Pigs, Cows and Chickens",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Farmyard pigs, cows and chickens with big personalities, escapes and barnyard songs."
+},
+{
+"title": "Sheep, Goats and Llamas",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Woolly sheep, goats and llamas causing gentle chaos in fields and mountains."
+},
+{
+"title": "Ducks, Geese and Swans",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Ducklings, geese and swans on ponds and rivers, migration and friendship stories."
+},
+{
+"title": "Owls and Night Creatures",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Owls, bats, hedgehogs and night animals exploring after dark in cosy, not scary, adventures."
+},
+{
+"title": "Frogs, Turtles and Lizards",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Frogs, turtles, lizards and snakes in swamps and ponds, funny reptile and amphibian tales."
+},
+{
+"title": "Sharks, Whales and Dolphins",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Whales, dolphins and friendly sharks in ocean adventures, songs and rescues."
+},
+{
+"title": "Octopus and Sea Friends",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Octopuses, crabs, starfish and seahorses in reef adventures and rock pool stories."
+},
+{
+"title": "Penguin Parades",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Penguins waddling, sliding and dancing in icy colonies, funny and warm."
+},
+{
+"title": "Kittens and Cats",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Kittens and cats at home and on the loose, pampered pets, alley cats and cat families."
+},
+{
+"title": "Puppy Love",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Puppies and dogs growing up, being adopted, learning tricks and loving their families."
+},
+{
+"title": "Horses and Foals",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Horses, foals and ponies, ranch life, riding schools and wild herds."
+},
+{
+"title": "Birds of a Feather",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Birds learning to fly, singing, nesting and migrating in colourful adventures."
+},
+{
+"title": "Butterflies and Caterpillars",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Caterpillars becoming butterflies, gardens, flowers and small insect journeys."
+},
+{
+"title": "Giraffes, Zebras and Safari Friends",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Safari animals on the savannah: giraffes, zebras, hippos and rhinos in funny group adventures."
+},
+{
+"title": "Koalas, Kangaroos and the Outback",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Australian animals and outback adventures with koalas, kangaroos and wombats."
+},
+{
+"title": "Dinosaur Babies",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Baby dinosaurs hatching, growing up, getting lost and finding their herds."
+},
+{
+"title": "Pandas and Bamboo Forests",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Pandas, red pandas and bamboo forests in gentle, cuddly stories."
+},
+{
+"title": "Hedgehogs, Squirrels and Woodland Folk",
+"media_type": "both",
+"kind": "animal",
+"vibe_query": "Woodland creatures in tiny villages, acorn feasts, seasons and small adventures."
+},
+{
+"title": "Firefighters to the Rescue",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Firefighters, fire engines and rescue crews saving the day in stories for young children."
+},
+{
+"title": "Doctors, Nurses and Vets",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Doctors, nurses and animal doctors caring for patients, hospital visits explained kindly for children."
+},
+{
+"title": "Builders and Diggers",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Builders, diggers, cranes and construction crews making buildings and roads, teamwork and big machines."
+},
+{
+"title": "Chefs in the Kitchen",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Young chefs, restaurants and food adventures, from lunch boxes to big cooking contests."
+},
+{
+"title": "Farmers and Gardeners",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Growing vegetables, tending gardens, harvests and farm chores in gentle stories."
+},
+{
+"title": "Teachers and Classrooms",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Teachers, school staff and classrooms seen through children's eyes, funny and kind."
+},
+{
+"title": "Explorers and Scientists",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Explorers, biologists, geologists and astronomers on field trips and expeditions."
+},
+{
+"title": "Astronauts and Pilots",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Astronauts, pilots and air crews, flying lessons, rocket launches and journeys through the sky."
+},
+{
+"title": "Police, Detectives and Safety",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Police officers, guards and safety helpers keeping towns safe, with a gentle friendly tone for children."
+},
+{
+"title": "Artists and Makers",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Painters, sculptors, potters and makers creating things, inspiring creativity."
+},
+{
+"title": "Sailors and Captains",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Sailors, boat crews and harbour life, ships, tides and sea voyages for children."
+},
+{
+"title": "Postal Workers and Delivery Heroes",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Postmen, couriers and delivery drivers on their rounds meeting neighbours and solving small problems."
+},
+{
+"title": "Zookeepers and Park Rangers",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Zookeepers, rangers and wildlife rescuers caring for animals and nature."
+},
+{
+"title": "Mechanics and Racers",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Mechanics, pit crews and racing teams fixing cars and chasing trophies."
+},
+{
+"title": "Little Entrepreneurs",
+"media_type": "both",
+"kind": "job",
+"vibe_query": "Children starting lemonade stands, pet services and little businesses, learning about money and teamwork."
+},
+{
+"title": "Football Fever",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Children and teams playing football, school matches, big tournaments and fair play."
+},
+{
+"title": "Basketball and Hoops",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Basketball courts, teams, pickup games and big games for young players."
+},
+{
+"title": "Swimming and Water Fun",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Swimming lessons, pool days, lifeguards and water sports adventures."
+},
+{
+"title": "Skateboards, Bikes and Scooters",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Skate parks, BMX, bike rides and scooter tricks, stunts and friendship."
+},
+{
+"title": "Martial Arts Kids",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Young martial artists in dojos, belts, discipline, respect and friendly competition, no graphic violence."
+},
+{
+"title": "Gymnastics and Ice Skating",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Gymnasts and skaters training for routines, competitions and big performances."
+},
+{
+"title": "Ballet and Tutus",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Ballet schools, recitals, auditions and stage nerves for children."
+},
+{
+"title": "Rock Bands and Guitars",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Kids forming bands, writing songs, garage rehearsals and battles of the bands."
+},
+{
+"title": "Pianos, Violins and Orchestras",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Young classical musicians, orchestras and music teachers, practice and performance."
+},
+{
+"title": "Magic Tricks and Illusions",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Young magicians, card tricks, stage magic and illusions that go wrong."
+},
+{
+"title": "Gardening and Growing",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Seeds, plants, flower beds and vegetable patches, patience and nature."
+},
+{
+"title": "Building Blocks and Bricks",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Stories around building bricks and construction toys, big builds and creative challenges."
+},
+{
+"title": "Board Games and Puzzles",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Board games, jigsaws and puzzles, game nights and clever challenges."
+},
+{
+"title": "Video Game Worlds",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Kids who play video games and get pulled into them, levels, bosses and friendships."
+},
+{
+"title": "Camping and Stargazing",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Tents, campfires, star charts and nature walks, outdoor family fun."
+},
+{
+"title": "Fishing and Boats",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Fishing trips, rowing boats, rivers and lakes, gentle outdoor stories."
+},
+{
+"title": "Cooking Competitions for Kids",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Baking and cooking contests with young chefs, timers, tasting and encouragement."
+},
+{
+"title": "Drawing and Doodle Worlds",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Doodles, comics and drawings that come to life, creative kids and sketchbook adventures."
+},
+{
+"title": "Dress Up and Costumes",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Costumes, make believe, play acting and dressing up for adventures."
+},
+{
+"title": "Reading and Libraries",
+"media_type": "both",
+"kind": "hobby",
+"vibe_query": "Libraries, bookworms, story time and characters stepping out of books."
+},
+{
+"title": "Treehouses and Hideouts",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Treehouses, dens and secret hideouts where friends plan adventures."
+},
+{
+"title": "Lighthouses and Harbours",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Lighthouses, fishing boats and harbour towns with sea breezes and small mysteries."
+},
+{
+"title": "Tiny Villages",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Small villages with cosy shops, village fairs, neighbours and friendly animals."
+},
+{
+"title": "Castles and Palaces",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Castles, palaces, thrones and royal balls for children, kings, queens and quiet humour."
+},
+{
+"title": "Volcanoes and Caves",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Caves, volcanoes and underground worlds with explorers and hidden treasure."
+},
+{
+"title": "Rainforest Canopy",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Rainforest treetops, parrots, waterfalls and hidden trails, wildlife adventures."
+},
+{
+"title": "On the Farm at Night",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Barnyard secrets after dark, sleepy animals and night time farm adventures, cosy."
+},
+{
+"title": "Theme Parks and Fairs",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Rollercoasters, fairs, carousels and ice cream, big days out."
+},
+{
+"title": "Zoos and Aquariums",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Animals escaping or living in zoos and aquariums, keepers and visitors, comedy and heart."
+},
+{
+"title": "Museums and Magic Galleries",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Museums where statues and exhibits come alive at night."
+},
+{
+"title": "Candy Lands and Sweet Shops",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Worlds made of sweets, chocolate rivers and bakeries, sugary fantasy."
+},
+{
+"title": "Floating Islands and Sky Cities",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Islands in the clouds, flying cities and airship ports for children."
+},
+{
+"title": "Snowy Mountains and Ski Slopes",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Ski resorts, sledges, yeti legends and snowy peaks, wintry fun."
+},
+{
+"title": "Deep Space Stations",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Space stations, moon bases and Mars colonies, curious children among the stars."
+},
+{
+"title": "Pirate Coves and Hidden Islands",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Secret coves, shipwrecks and hidden islands where treasure waits."
+},
+{
+"title": "Big Apple Adventures",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "New York and other big cities seen through children's eyes, skyscrapers, subways and street life."
+},
+{
+"title": "London and Beyond",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "British towns, London adventures, villages and seaside, with a British voice."
+},
+{
+"title": "Paris, Rome and Old Europe",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "European cities, bakeries, canals and cobbled streets, travel stories for children."
+},
+{
+"title": "Tokyo, Seoul and East Asia",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Stories set in Japan, Korea, China and other parts of East Asia, school life, festivals and magic."
+},
+{
+"title": "India and South Asia",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Stories set in India and South Asia, family life, festivals, music and mythology for children."
+},
+{
+"title": "Africa, Savannah to City",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Stories set in Africa, folk tales, wildlife, family and cities."
+},
+{
+"title": "Latin American Tales",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Stories from Latin America, music, family, festivals and folk legends for children."
+},
+{
+"title": "Arabian Nights and Deserts",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Desert caravans, lamps, markets and old tales of Arabia for children."
+},
+{
+"title": "Down Under and the Pacific",
+"media_type": "both",
+"kind": "place",
+"vibe_query": "Australia, New Zealand and Pacific islands: beaches, wildlife and legends for children."
+},
+{
+"title": "Maths Made Fun",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Counting, adding, shapes and puzzles taught with games and characters."
+},
+{
+"title": "Letters and First Words",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Learning letters, phonics and first words through rhymes and songs."
+},
+{
+"title": "Read Along",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Shows that read stories aloud with highlighted words and gentle narration for early readers."
+},
+{
+"title": "Science Experiments",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Fizzing, bubbling, building and testing experiments that explain how the world works."
+},
+{
+"title": "Planet Earth for Kids",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Animals, habitats, weather and the planet explained simply for curious children."
+},
+{
+"title": "Space and Stars Explained",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Planets, stars, rockets and the universe explained for children with wonder."
+},
+{
+"title": "History for Young Minds",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Kings, knights, pharaohs and explorers explained for children with humour."
+},
+{
+"title": "Geography and Travel",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Maps, flags, countries and cultures explored through friendly guides and travel."
+},
+{
+"title": "Learn a Language",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Shows that teach another language through songs, stories and characters."
+},
+{
+"title": "Music Lessons",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Instruments, rhythm and notes explained playfully for beginners."
+},
+{
+"title": "How Things Work",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Machines, engines, bridges and everyday objects taken apart and explained for curious children."
+},
+{
+"title": "Healthy Habits",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Brushing teeth, washing hands, eating well, sleeping and staying active taught through stories and songs."
+},
+{
+"title": "Manners and Kindness",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Please, thank you, sharing and respect taught gently through stories and songs."
+},
+{
+"title": "Mindfulness for Kids",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Breathing, stretching and calm moments for children, guided relaxation and gentle stories."
+},
+{
+"title": "Coding and Robots",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Programming, logic puzzles and robotics for children explained through play."
+},
+{
+"title": "Nature Walks",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Walks through woods and gardens spotting animals, leaves and tracks, outdoor learning."
+},
+{
+"title": "Money and Making Choices",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Saving, sharing and making choices explained to children through stories."
+},
+{
+"title": "Feelings and Friends",
+"media_type": "both",
+"kind": "learning",
+"vibe_query": "Shows that name emotions and show how to be a good friend."
+},
+{
+"title": "Eid Celebrations",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Eid, Ramadan, family feasts, lanterns, giving and togetherness in stories for children.",
+"season": {
+"start": "03-01",
+"end": "04-30"
+}
+},
+{
+"title": "Diwali Lights",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Diwali lamps, sweets, rangoli and family stories of light winning over dark, for children.",
+"season": {
+"start": "10-10",
+"end": "11-15"
+}
+},
+{
+"title": "Hanukkah Stories",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Hanukkah candles, dreidels and family celebration stories for children.",
+"season": {
+"start": "12-01",
+"end": "12-31"
+}
+},
+{
+"title": "Lunar New Year Fun",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Dragon dances, lanterns, red envelopes and family dinners for Lunar New Year, for children.",
+"season": {
+"start": "01-10",
+"end": "02-25"
+}
+},
+{
+"title": "World Book Day",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Stories about books, readers and libraries, characters from storybooks, for children.",
+"season": {
+"start": "02-25",
+"end": "03-10"
+}
+},
+{
+"title": "Mother's Day and Mum Stories",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Mums, mother figures and the families who love them, warm stories for children.",
+"season": {
+"start": "03-01",
+"end": "05-15"
+}
+},
+{
+"title": "Father's Day and Dad Stories",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Dads, father figures, funny and loving family stories for children.",
+"season": {
+"start": "06-01",
+"end": "06-25"
+}
+},
+{
+"title": "Earth Day for Kids",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Nature, recycling and caring for the planet, hopeful stories for children.",
+"season": {
+"start": "04-15",
+"end": "04-30"
+}
+},
+{
+"title": "Bonfire Night and Fireworks",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Fireworks, sparklers, autumn evenings and festival lights in cosy stories.",
+"season": {
+"start": "10-28",
+"end": "11-08"
+}
+},
+{
+"title": "Thanksgiving Table",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Family dinners, gratitude and togetherness stories for children.",
+"season": {
+"start": "11-15",
+"end": "11-30"
+}
+},
+{
+"title": "New Year, New Adventures",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Fresh starts, resolutions and new beginnings, hopeful stories for children.",
+"season": {
+"start": "12-26",
+"end": "01-15"
+}
+},
+{
+"title": "Spring Break Escapes",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Spring holidays, trips and adventures at home or away, cheerful stories for children.",
+"season": {
+"start": "03-20",
+"end": "04-20"
+}
+},
+{
+"title": "Summer Camp Season",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Camp, canoes, campfires and lifelong friends, summer camp stories for children.",
+"season": {
+"start": "06-10",
+"end": "08-20"
+}
+},
+{
+"title": "Rainy Day Watchlist",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Cosy films and series for a rainy day indoors: blanket forts, hot chocolate and comfort.",
+"season": {
+"start": "10-01",
+"end": "03-31"
+}
+},
+{
+"title": "Holi Colours",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Spring colours, festivals and joyful celebrations for children.",
+"season": {
+"start": "03-01",
+"end": "03-31"
+}
+},
+{
+"title": "Fairy Tale Season",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Once upon a time, classic fairy tales retold, for children.",
+"season": {
+"start": "11-01",
+"end": "12-31"
+}
+},
+{
+"title": "Pet Appreciation",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Pets and the people who love them, rescue dogs and cats finding homes, for children.",
+"season": {
+"start": "04-01",
+"end": "04-30"
+}
+},
+{
+"title": "Space Week",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Rockets, moon landings and astronaut dreams, for children.",
+"season": {
+"start": "07-15",
+"end": "07-25"
+}
+},
+{
+"title": "Ocean Month",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Whales, reefs and sea heroes, for children.",
+"season": {
+"start": "06-01",
+"end": "06-20"
+}
+},
+{
+"title": "Friendship Week",
+"media_type": "both",
+"kind": "calendar",
+"vibe_query": "Friends, kindness and standing by each other, for children.",
+"season": {
+"start": "07-25",
+"end": "08-05"
+}
+},
+{
+"title": "Slow Mornings",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Calm, sunny, slow paced shows for relaxed mornings, soft songs and easy company."
+},
+{
+"title": "Bouncy and Bright",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Energetic, bouncing characters, upbeat songs and colourful chaos."
+},
+{
+"title": "Sleepy Time Stories",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Sleepy bedtime tales: hushed narration, soft lullabies, sleepy animals, ending with someone falling asleep."
+},
+{
+"title": "Gently Spooky",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Candlelit cosiness with friendly spooks, owls, ghosts and creaky doors, never truly scary."
+},
+{
+"title": "Super Silly Songs",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Silly, catchy songs with funny words, dances and chorus lines for children."
+},
+{
+"title": "Tearjerkers for Tweens",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Emotional, heartfelt stories about loss, loyalty and love handled gently for older children."
+},
+{
+"title": "Big Laughs Together",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Group comedies with ensemble families and friends and non stop gags for the whole family."
+},
+{
+"title": "Plucky Heroines",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Brave, funny, determined girls and young women leading adventures."
+},
+{
+"title": "Gentle Heroes",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Soft spoken, kind heroes who solve problems with patience instead of fighting."
+},
+{
+"title": "Wild Imaginations",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Stories that begin in a child's imagination: made up friends, wild worlds, cardboard spaceships."
+},
+{
+"title": "Teamwork Wins",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Stories where a group beats the odds by combining different strengths."
+},
+{
+"title": "Mischief Makers",
+"media_type": "both",
+"kind": "vibe",
+"vibe_query": "Naughty, cheeky children and creatures who cause trouble and learn from it."
+},
+{
+"title": "Colour Pop",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Strong saturated colour, graphic shapes and bold design, eye catching modern animation."
+},
+{
+"title": "Paper and Puppets",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Paper cut outs, puppets and handmade characters with tactile charm."
+},
+{
+"title": "Felt and Wool",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Felt, wool and woolly craft characters in tactile, cosy worlds."
+},
+{
+"title": "Watercolour Wonder",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Soft watercolour pictures, gentle painterly worlds and quiet stories."
+},
+{
+"title": "Retro Cartoons",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Hand drawn mid century cartoon looks, bouncy and funny, a classic style."
+},
+{
+"title": "Pixel and Blocky Worlds",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Blocky, pixel and game styled worlds that kids recognise from playing games."
+},
+{
+"title": "Mini Movies",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Self contained movie length stories under eighty minutes, made for small children."
+},
+{
+"title": "Documentary for Kids",
+"media_type": "both",
+"kind": "style",
+"vibe_query": "Nature and real life documentaries made for children, with child friendly narration."
+},
+{
+"title": "Dinosaurs: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Dinosaurs, prehistoric adventures and friendly dinosaur characters, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Dinosaurs: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Dinosaurs, prehistoric adventures and friendly dinosaur characters, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Princesses: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Princesses, castles and brave heroines, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Princesses: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Princesses, castles and brave heroines, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Superheroes: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Young superheroes and their teams, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Superheroes: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Young superheroes and their teams, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Pirates: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Pirates, treasure maps and sea voyages, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Pirates: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Pirates, treasure maps and sea voyages, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Space: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Space travel, rockets, planets and aliens, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Space: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Space travel, rockets, planets and aliens, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Robots: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Friendly robots and inventions, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Robots: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Friendly robots and inventions, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Dragons: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Dragons, knights and quests, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Dragons: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Dragons, knights and quests, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Mermaids and Ocean Life: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Mermaids and sea creatures, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Mermaids and Ocean Life: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Mermaids and sea creatures, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Dogs: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Dogs and puppies as heroes, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Dogs: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Dogs and puppies as heroes, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Cats: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Cats and kittens as heroes, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Cats: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Cats and kittens as heroes, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Horses: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Horses and ponies, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Horses: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Horses and ponies, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Wizards: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Young wizards and magic school, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Wizards: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Young wizards and magic school, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Monsters: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Friendly monsters and goofy creatures, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Monsters: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Friendly monsters and goofy creatures, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Ghosts: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Friendly ghosts and gentle spooks, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Ghosts: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Friendly ghosts and gentle spooks, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Detectives: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Child detectives and gentle mysteries, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Detectives: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Child detectives and gentle mysteries, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Cars and Racing: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Cars, racing and speed, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Cars and Racing: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Cars, racing and speed, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Trains: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Trains, tracks and stations, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Trains: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Trains, tracks and stations, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Toys: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Toys that come alive, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Toys: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Toys that come alive, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Fairies: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Fairies and tiny magic, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Fairies: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Fairies and tiny magic, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Bears: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Bears and cuddly animals, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Bears: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Bears and cuddly animals, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Winter and Snow: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Snow, ice and winter adventures, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Winter and Snow: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Snow, ice and winter adventures, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Camping and Outdoors: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Camping and outdoor adventures, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Camping and Outdoors: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Camping and outdoor adventures, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "School Life: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "School, classmates and teachers, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "School Life: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "School, classmates and teachers, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Music and Bands: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Music, singing and bands, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Music and Bands: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Music, singing and bands, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Sports: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Sports, teams and competitions, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Sports: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Sports, teams and competitions, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Cooking: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Cooking, baking and food, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Cooking: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Cooking, baking and food, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Time Travel: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Time travel and history, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Time Travel: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Time travel and history, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Magic: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Magic, spells and enchanted objects, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Magic: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Magic, spells and enchanted objects, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Heists and Capers: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Daring capers and clever schemes, family safe, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Heists and Capers: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Daring capers and clever schemes, family safe, in children's series with many episodes, recurring characters and running jokes."
+},
+{
+"title": "Sisters and Brothers: Family Films",
+"media_type": "movie",
+"kind": "variant",
+"vibe_query": "Siblings and cousins growing up, in feature films of ninety minutes or so for children and families, big finish and heart."
+},
+{
+"title": "Sisters and Brothers: Series to Binge",
+"media_type": "tv",
+"kind": "variant",
+"vibe_query": "Siblings and cousins growing up, in children's series with many episodes, recurring characters and running jokes."
+}
+]
+}
