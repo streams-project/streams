@@ -89,10 +89,13 @@ fn c77_a_server_change_marks_only_that_scopes_pages_for_reading_again() {
 #[test]
 fn a_304_renews_a_kept_copy() {
     let mut cache = Cache::default();
-    store(&mut cache, "k", None);
-    cache.mark_stale("none");
+    // the scope is the one marked, or the mark would miss this entry and prove nothing
+    store(&mut cache, "k", Some("u1/p1"));
+    cache.mark_stale("u1/p1");
+    assert!(cache.index.entries["k"].stale);
     cache.renewed("k", 90_000, BOOT);
     let entry = cache.index.entries["k"].clone();
+    assert!(!entry.stale, "a 304 clears the mark");
     assert!(entry.fresh(BOOT, 90_000));
 }
 
