@@ -1,0 +1,69 @@
+{
+ "about": "Kept pages and kept commands belong to one account, so a sign in by another clears them first. Hello belongs to no account and stays.",
+ "covers": [
+  "C73",
+  "C118"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:7"
+      }
+     },
+     "type": "action"
+    }
+   ],
+   "want_on": {
+    "queued": 1
+   }
+  },
+  {
+   "at_ms": 1100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "second@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "view": {
+     "session": {
+      "profile": null,
+      "user_id": "u2"
+     }
+    }
+   },
+   "want_on": {
+    "kept_pages": 1,
+    "queued": 0
+   }
+  }
+ ],
+ "name": "a_sign_in_by_another_account_clears_what_the_last_one_left",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "access_token": "access-9",
+    "email": "second@host.example",
+    "expires_in": 900,
+    "refresh_token": "refresh-9",
+    "user_id": "u2"
+   },
+   "from_ms": 1000,
+   "method": "POST",
+   "path": "/v1/auth/password"
+  }
+ ]
+}

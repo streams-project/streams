@@ -1,0 +1,43 @@
+{
+ "about": "Pull on focus: a phone says resume and a page says visible, and each one pulls.",
+ "covers": [
+  "C77"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "type": "resume"
+    }
+   ],
+   "want_off": {
+    "sent": []
+   },
+   "want_on": {
+    "sent": [
+     "GET /v1/changes?cursor=c1"
+    ]
+   }
+  },
+  {
+   "at_ms": 1100,
+   "events": [
+    {
+     "type": "visibility",
+     "visible": true
+    }
+   ],
+   "want_off": {
+    "sent": []
+   },
+   "want_on": {
+    "sent": [
+     "GET /v1/changes?cursor=c1"
+    ]
+   }
+  }
+ ],
+ "name": "coming_back_pulls_what_changed_elsewhere",
+ "prologue": "home"
+}

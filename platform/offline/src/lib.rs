@@ -136,6 +136,8 @@ pub struct Layer<S: Step> {
     loaded: Vec<Kept>,
     queue: Queue,
     cache: Cache,
+    /// The account everything kept belongs to.
+    owner: Option<String>,
     scope: Option<String>,
     pulling: bool,
     inner_wake: Option<u64>,
@@ -154,6 +156,7 @@ impl<S: Step> Layer<S> {
             loaded: Vec::new(),
             queue: Queue::default(),
             cache: Cache::default(),
+            owner: None,
             scope: None,
             pulling: false,
             inner_wake: None,
@@ -411,9 +414,13 @@ impl<S: Step> Layer<S> {
         answers: &mut Vec<Event>,
         out: &mut Merged,
     ) {
-        if session.state == SessionState::SignedOut {
+        // A sign in by another account clears what the last one left.
+        let other_account =
+            self.owner.is_some() && session.user_id.is_some() && session.user_id != self.owner;
+        if session.state == SessionState::SignedOut || other_account {
             self.wipe(out);
         }
+        self.owner.clone_from(&session.user_id);
         if session.scope == self.scope {
             return;
         }
@@ -789,7 +796,8 @@ impl<S: Step> Layer<S> {
                     }
                     events.push(event);
                 }
-                EventBody::Suspend => {
+                // A hidden page can be killed with no further event, as a suspended app can.
+                EventBody::Suspend | EventBody::Visibility { visible: false } => {
                     *flush_after = true;
                     events.push(event);
                 }
@@ -801,7 +809,8 @@ impl<S: Step> Layer<S> {
                     *flush_after = true;
                     events.push(event);
                 }
-                EventBody::Visibility { visible: true } => {
+                // Focus: a page says visible and a phone says resume.
+                EventBody::Resume | EventBody::Visibility { visible: true } => {
                     if let Some(scope) = self.scope.clone() {
                         self.pull(&scope, events);
                     }
