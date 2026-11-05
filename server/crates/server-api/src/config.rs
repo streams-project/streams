@@ -91,6 +91,11 @@ pub struct Config {
     pub auth_address: Option<String>,
     pub auth_admin_token: Option<String>,
     pub site_address: Option<String>,
+    pub mail_hook_secret: Option<String>,
+    pub mail_address: Option<String>,
+    pub mail_token: Option<String>,
+    pub mail_sender: Option<String>,
+    pub help_address: Option<String>,
     pub brand_name: String,
     pub support_email: String,
     pub visitor_tier: Option<Tier>,
@@ -178,6 +183,20 @@ impl Config {
         if site_address.is_none() {
             note("device sign in", "SITE_ADDRESS is not set");
         }
+        let mail_hook_secret = value("MAIL_HOOK_SECRET");
+        let mail_address = value("MAIL_ADDRESS");
+        let mail_token = value("MAIL_TOKEN");
+        let mail_sender = value("MAIL_SENDER");
+        let mail_ready = mail_hook_secret.is_some()
+            && mail_address.is_some()
+            && mail_token.is_some()
+            && mail_sender.is_some();
+        if !mail_ready {
+            note(
+                "mail",
+                "MAIL_HOOK_SECRET, MAIL_ADDRESS, MAIL_TOKEN or MAIL_SENDER is not set",
+            );
+        }
         let brand_name = value("BRAND_NAME").unwrap_or_default();
         if brand_name.is_empty() {
             note("brand", "BRAND_NAME is not set");
@@ -218,6 +237,11 @@ impl Config {
             auth_address,
             auth_admin_token,
             site_address,
+            mail_hook_secret,
+            mail_address,
+            mail_token,
+            mail_sender,
+            help_address: value("HELP_ADDRESS"),
             brand_name,
             support_email,
             visitor_tier,

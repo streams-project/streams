@@ -5,8 +5,9 @@ use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
 
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result, anyhow, bail};
 use server_accounts::limits::DEFAULT_LIMITS;
+use server_accounts::mail::{HttpMail, MailSender};
 use server_accounts::{AccountStore, Door, HttpAuth, PgStore, SystemClock};
 use server_api::{AppState, Config};
 use server_catalog::{DataSlot, DataTrust};
@@ -90,6 +91,18 @@ fn open_play(config: &Config) -> Result<Option<Play>> {
     Ok(Some(Play::new(Arc::new(finder))))
 }
 
+fn open_mail(config: &Config) -> Result<Option<Arc<dyn MailSender>>> {
+    let (Some(address), Some(token), Some(sender)) = (
+        &config.mail_address,
+        &config.mail_token,
+        &config.mail_sender,
+    ) else {
+        return Ok(None);
+    };
+    let mail = HttpMail::new(address, token, sender).map_err(|error| anyhow!("{error}"))?;
+    Ok(Some(Arc::new(mail)))
+}
+
 async fn serve(config: Config) -> Result<()> {
     for off in &config.off {
         warn!("Off: {} ({})", off.feature, off.reason);
@@ -103,8 +116,10 @@ async fn serve(config: Config) -> Result<()> {
     }
     let (door, library) = open_accounts(&config).await?.unzip();
     let play = open_play(&config)?;
+    let mail = open_mail(&config)?;
     let mut state = AppState::new(config, door, data, library);
     state.play = play;
+    state.mail = mail;
     let state = Arc::new(state);
     server_api::jobs::start(&state);
     let app = server_api::router(state).into_make_service_with_connect_info::<SocketAddr>();

@@ -14,7 +14,7 @@ use tower_http::cors::{Any, CorsLayer};
 
 use crate::error::ApiError;
 use crate::guard::guard;
-use crate::routes::{account, auth, commands, devices, pages, play, profiles, start, titles};
+use crate::routes::{account, auth, commands, devices, mail, pages, play, profiles, start, titles};
 use crate::state::Shared;
 
 /// Bearer only and no cookies, so any origin may call, and `Origin: null` from a packaged TV app is
@@ -62,6 +62,7 @@ async fn nothing_here() -> ApiError {
 /// Every route, with the layers every route shares.
 pub fn router(state: Shared) -> Router {
     Router::new()
+        .route("/internal/mail", post(mail::hook))
         .route("/v1/hello", get(start::hello))
         .route("/v1/ready", get(start::ready))
         .route("/v1/strings/{lang}", get(start::strings))

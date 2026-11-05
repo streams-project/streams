@@ -19,10 +19,10 @@ use crate::error::{ApiError, ApiResult, finish_failure};
 use crate::live::LiveValues;
 use crate::state::Shared;
 
-/// Routes any client may read at any version, so an old client can learn it is old. Open, and not
-/// counted, as `/api/health` and `/api/features` were.
+/// Routes any client may read at any version, so an old client can learn it is old. Open and not
+/// counted. The mail hook comes from the auth service and proves itself by signature.
 fn is_start_route(path: &str) -> bool {
-    matches!(path, "/v1/hello" | "/v1/ready")
+    matches!(path, "/v1/hello" | "/v1/ready" | "/internal/mail")
 }
 
 /// The wire dates this build answers.

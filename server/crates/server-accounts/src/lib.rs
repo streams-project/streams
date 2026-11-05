@@ -6,6 +6,7 @@ mod door;
 mod error;
 pub mod flows;
 pub mod limits;
+pub mod mail;
 mod memory;
 mod meter;
 pub mod pin;

@@ -2,6 +2,7 @@
 
 use std::sync::Arc;
 
+use server_accounts::mail::MailSender;
 use server_accounts::{Clock, Door, Meter, SystemClock};
 use server_catalog::DataSlot;
 use server_library::Library;
@@ -37,6 +38,8 @@ pub struct AppState {
     pub play_log: Option<Arc<dyn PlayLog>>,
     /// Off with no subtitle source.
     pub subtitles: Option<Subtitles>,
+    /// Off with no mail provider.
+    pub mail: Option<Arc<dyn MailSender>>,
     pub live: LiveFile,
     pub images: Images,
     pub calls: Meter,
@@ -67,6 +70,7 @@ impl AppState {
             play: None,
             play_log: None,
             subtitles: None,
+            mail: None,
             live,
             images,
             calls: Meter::new(CALLS_PER_MINUTE),

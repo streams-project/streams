@@ -160,6 +160,7 @@ pub struct Call {
     path: String,
     token: Option<String>,
     body: Option<serde_json::Value>,
+    raw: Option<String>,
     headers: Vec<(String, String)>,
     version: bool,
 }
@@ -172,6 +173,7 @@ pub fn call(method: Method, path: &str) -> Call {
         path: path.to_owned(),
         token: None,
         body: None,
+        raw: None,
         headers: Vec::new(),
         version: true,
     }
@@ -193,6 +195,12 @@ impl Call {
     #[must_use]
     pub fn json(mut self, body: serde_json::Value) -> Self {
         self.body = Some(body);
+        self
+    }
+
+    #[must_use]
+    pub fn raw(mut self, body: &str) -> Self {
+        self.raw = Some(body.to_owned());
         self
     }
 
@@ -224,7 +232,7 @@ impl Call {
                 request = request.header("content-type", "application/json");
                 Body::from(serde_json::to_vec(&value).expect("json"))
             }
-            None => Body::empty(),
+            None => self.raw.map_or_else(Body::empty, Body::from),
         };
         let response = server_api::router(state.clone())
             .oneshot(request.body(body).expect("request"))
