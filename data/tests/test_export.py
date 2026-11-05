@@ -149,6 +149,14 @@ def test_s154_an_open_set_with_no_votes_counts_every_member():
     assert seeds[0].mass > seeds[1].mass > 0
 
 
+def test_s154_a_title_with_a_bad_popularity_adds_nothing_and_stops_nothing():
+    rows = unit(np.eye(2, dtype=np.float32))
+    keys = np.array([1, 2], dtype="<u4")
+    members = {1: Member(-5.0, 7.0, 60), 2: Member(0.0, 7.0, 60)}
+    seeds = make_seeds(rows, keys, np.array([0, 0]), members)
+    assert seeds[0].mass == 0.0
+
+
 def test_s154_groups_of_equal_mass_keep_a_fixed_order():
     rows = unit(np.eye(2, dtype=np.float32))
     keys = np.array([1, 2], dtype="<u4")

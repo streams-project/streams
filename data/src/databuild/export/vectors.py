@@ -62,7 +62,7 @@ def make_seeds(
                 continue
             good = member.rating >= SEED_MIN_RATING and member.votes >= SEED_MIN_VOTES
             if good or not votes:
-                mass += math.log1p(member.popularity)
+                mass += math.log1p(max(member.popularity, 0.0))
         seeds.append(Seed(group, mass, centre.astype("<f4"), keys[index].astype("<u4")))
     seeds.sort(key=lambda s: (-s.mass, s.group))
     return seeds

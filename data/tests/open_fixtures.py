@@ -82,13 +82,13 @@ class FakeOpen:
             for i in range(1, self.films + 1):
                 rows.append(
                     {"item": f"https://wd.fake.test/entity/{self._film_item(i)}", "id": 100 + i}
-                    | {"links": 200 - i}
+                    | {"links": max(2, 200 - i)}
                 )
         else:
             for i in range(1, self.series + 1):
                 item = self._series_item(i)
                 row = {"item": f"https://wd.fake.test/entity/{item}", "id": 300 + i}
-                row |= {"links": 150 - i, "imdb": f"tt{9000 + i}"}
+                row |= {"links": max(2, 150 - i), "imdb": f"tt{9000 + i}"}
                 if item not in self.maze_less:
                     row["maze"] = 700 + i
                 rows.append(row)
