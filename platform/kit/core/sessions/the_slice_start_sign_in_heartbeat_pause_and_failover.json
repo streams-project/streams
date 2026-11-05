@@ -1,0 +1,430 @@
+{
+ "about": "The whole slice in one run: start, one sign in, Home, play, a heartbeat at 30 s, a pause, a source error, a dead source at the start deadline, with the position kept through both moves.",
+ "covers": [
+  "C4",
+  "C17",
+  "C28",
+  "C32",
+  "H25",
+  "H39",
+  "H40",
+  "H42",
+  "H52"
+ ],
+ "moments": [
+  {
+   "at_ms": 0,
+   "want": {
+    "sent": [
+     "GET /v1/hello"
+    ],
+    "view": {
+     "route": {
+      "target": "start"
+     },
+     "session": {
+      "state": "signed_out"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "sent": [
+     "POST /v1/auth/password",
+     "GET /v1/profiles"
+    ],
+    "view": {
+     "route": {
+      "target": "profiles"
+     },
+     "session": {
+      "state": "signed_in"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p1"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "pages": [
+     {
+      "page": {
+       "ttl_s": 600
+      }
+     },
+     {
+      "page": {
+       "name": "home"
+      }
+     }
+    ],
+    "view": {
+     "route": {
+      "target": "home"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "title": "movie:7"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "generation": 1,
+      "op": "open",
+      "start_at_ms": 0,
+      "url": "https://media.example/a.m3u8"
+     }
+    ],
+    "view": {
+     "play": {
+      "attempt": "a1",
+      "state": "starting"
+     }
+    },
+    "wake": 9000
+   }
+  },
+  {
+   "at_ms": 2000,
+   "events": [
+    {
+     "event": {
+      "kind": "first_frame"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "view": {
+     "play": {
+      "state": "playing"
+     }
+    }
+   },
+   "want_off": {
+    "wake": 32000
+   },
+   "want_on": {
+    "wake": 6000
+   }
+  },
+  {
+   "at_ms": 31000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 29000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 32100,
+   "want_off": {
+    "ops": [
+     {
+      "command": "position",
+      "duration_s": 6000,
+      "position_s": 29
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 36100,
+   "want_on": {
+    "ops": [
+     {
+      "command": "position",
+      "duration_s": 6000,
+      "position_s": 29
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 40000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 60000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 40100,
+   "events": [
+    {
+     "action": {
+      "action": "pause"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "pause"
+     }
+    ],
+    "view": {
+     "play": {
+      "state": "paused"
+     }
+    }
+   },
+   "want_off": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 60
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 44200,
+   "want_on": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 60
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 50000,
+   "events": [
+    {
+     "action": {
+      "action": "unpause"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "play"
+     }
+    ],
+    "view": {
+     "play": {
+      "state": "playing"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 51000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 61000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 51100,
+   "events": [
+    {
+     "event": {
+      "class": "network",
+      "kind": "error"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     },
+     {
+      "generation": 2,
+      "op": "open",
+      "start_at_ms": 61000,
+      "url": "https://media2.example/b.m3u8"
+     }
+    ],
+    "view": {
+     "play": {
+      "attempt": "a2",
+      "state": "switching"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 59000,
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 59200,
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     },
+     {
+      "generation": 3,
+      "op": "open",
+      "start_at_ms": 61000,
+      "url": "https://media3.example/c.m3u8"
+     }
+    ],
+    "view": {
+     "play": {
+      "attempt": "a3",
+      "state": "switching"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 59300,
+   "events": [
+    {
+     "event": {
+      "kind": "first_frame"
+     },
+     "generation": 3,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "view": {
+     "play": {
+      "attempt": "a3",
+      "state": "playing"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 60000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 61700
+     },
+     "generation": 3,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 89400,
+   "want_off": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 61
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 93400,
+   "want_on": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 61
+     }
+    ]
+   }
+  }
+ ],
+ "name": "the_slice_start_sign_in_heartbeat_pause_and_failover",
+ "server": [
+  {
+   "body": {
+    "attempts": [
+     {
+      "group": "g1",
+      "headers": {},
+      "id": "a1",
+      "kind": "hls",
+      "url": "https://media.example/a.m3u8",
+      "verified": true
+     },
+     {
+      "group": "g2",
+      "headers": {},
+      "id": "a2",
+      "kind": "hls",
+      "url": "https://media2.example/b.m3u8",
+      "verified": true
+     },
+     {
+      "group": "g3",
+      "headers": {},
+      "id": "a3",
+      "kind": "hls",
+      "url": "https://media3.example/c.m3u8",
+      "verified": true
+     }
+    ],
+    "dropped": 0,
+    "more": false,
+    "play_id": "pl1",
+    "start_at_ms": 0
+   },
+   "method": "POST",
+   "path": "/v1/play"
+  }
+ ]
+}
