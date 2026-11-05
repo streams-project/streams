@@ -77,11 +77,23 @@ create table profile_settings (
   gender            text check (gender is null or gender in ('woman', 'man', 'none')),
   trailers_watched  jsonb not null default '[]'::jsonb
     check (jsonb_typeof(trailers_watched) = 'array' and jsonb_array_length(trailers_watched) <= 40),
+  -- Change time of each field, so an older write to one setting never undoes a newer one.
+  field_times       jsonb not null default '{}'::jsonb check (jsonb_typeof(field_times) = 'object'),
   version           bigint not null default 0,
   updated_at        timestamptz not null default now(),
   seq               bigint not null default 0
 );
 create unique index profile_settings_game_handle_key on profile_settings (lower(game_handle)) where game_handle is not null;
+
+-- Trailers that refused to play for this title. The newest 300 of a profile are kept.
+create table refused_trailers (
+  profile_id uuid not null references profiles (id) on delete cascade,
+  kind       text not null check (kind in ('movie', 'tv')),
+  title_id   integer not null check (title_id > 0),
+  at         timestamptz not null,
+  primary key (profile_id, kind, title_id)
+);
+create index refused_trailers_recent_idx on refused_trailers (profile_id, at desc);
 
 create table profile_taste (
   profile_id    uuid primary key references profiles (id) on delete cascade,
