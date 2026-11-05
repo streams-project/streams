@@ -10,6 +10,7 @@ use server_accounts::{AccountStore, Door, HttpAuth, PgStore, SystemClock};
 use server_api::{AppState, Config};
 use server_catalog::DataSlot;
 use server_library::{Library, LibraryStore, PgLibrary};
+use server_play::{HttpFinder, Play};
 use tracing::{info, warn};
 use tracing_subscriber::EnvFilter;
 
@@ -57,6 +58,19 @@ async fn open_accounts(config: &Config) -> Result<Option<(Door, Library)>> {
     Ok(Some((door, Library::new(books, clock))))
 }
 
+fn open_play(config: &Config) -> Result<Option<Play>> {
+    let Some(token) = config
+        .finder_token
+        .as_deref()
+        .filter(|_| config.playback_ready())
+    else {
+        return Ok(None);
+    };
+    let finder =
+        HttpFinder::new(&config.finder_urls, token).context("the finder client did not build")?;
+    Ok(Some(Play::new(Arc::new(finder))))
+}
+
 async fn serve(config: Config) -> Result<()> {
     for off in &config.off {
         warn!("Off: {} ({})", off.feature, off.reason);
@@ -69,7 +83,10 @@ async fn serve(config: Config) -> Result<()> {
         start_index(&config, data);
     }
     let (door, library) = open_accounts(&config).await?.unzip();
-    let state = Arc::new(AppState::new(config, door, data, library));
+    let play = open_play(&config)?;
+    let mut state = AppState::new(config, door, data, library);
+    state.play = play;
+    let state = Arc::new(state);
     let app = server_api::router(state).into_make_service_with_connect_info::<SocketAddr>();
     let listener = tokio::net::TcpListener::bind(&listen).await?;
     info!("Listening");

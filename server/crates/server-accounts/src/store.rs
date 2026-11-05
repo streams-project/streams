@@ -145,6 +145,8 @@ pub trait AccountStore: Send + Sync {
     async fn update_device_code(&self, row: &DeviceCodeRow) -> StoreResult<()>;
     /// Remove a waiting sign in.
     async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<()>;
+    /// The device card of a session, as sent.
+    async fn card(&self, session: SessionId) -> StoreResult<Option<serde_json::Value>>;
     /// Save a device card as opaque JSON, returning true when the hash is new.
     async fn save_card(
         &self,

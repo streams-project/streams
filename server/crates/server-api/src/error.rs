@@ -6,6 +6,7 @@ use contract::error::{ErrorBody, ErrorCode, Notice};
 use server_accounts::DoorError;
 use server_library::LibraryError;
 use server_pages::PageError;
+use server_play::PlayError;
 use server_rules::RuleError;
 
 /// An answer that is not a success.
@@ -146,6 +147,30 @@ impl From<PageError> for ApiError {
             PageError::Refused => Self::refused("page_refused"),
             PageError::Off(feature) => Self::off(feature),
             PageError::BadCursor => Self::bad("cursor"),
+            _ => Self::new(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                ErrorCode::Internal,
+                "internal",
+            ),
+        }
+    }
+}
+
+impl From<PlayError> for ApiError {
+    fn from(error: PlayError) -> Self {
+        match error {
+            PlayError::Gone => Self::new(
+                StatusCode::NOT_FOUND,
+                ErrorCode::NoLongerAvailable,
+                "no_longer_available",
+            ),
+            PlayError::Refused => Self::refused("title_refused"),
+            PlayError::Bad => Self::bad("play"),
+            PlayError::NoSource => {
+                Self::new(StatusCode::NOT_FOUND, ErrorCode::NoSource, "no_source")
+            }
+            PlayError::NoFinder => Self::busy(ErrorCode::NoSource, "no_finder", 30),
+            PlayError::Unknown => Self::not_found(),
             _ => Self::new(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 ErrorCode::Internal,

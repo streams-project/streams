@@ -5,6 +5,7 @@ pub mod auth;
 pub mod commands;
 pub mod devices;
 pub mod pages;
+pub mod play;
 pub mod profiles;
 pub mod start;
 pub mod titles;

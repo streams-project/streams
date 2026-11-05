@@ -736,6 +736,16 @@ impl AccountStore for PgStore {
         Ok(())
     }
 
+    async fn card(&self, session: SessionId) -> StoreResult<Option<serde_json::Value>> {
+        let found: Option<Option<serde_json::Value>> =
+            sqlx::query_scalar("select card from device_sessions where id = $1")
+                .bind(session.0)
+                .fetch_optional(&self.pool)
+                .await
+                .map_err(fail)?;
+        Ok(found.flatten())
+    }
+
     async fn save_card(
         &self,
         session: SessionId,

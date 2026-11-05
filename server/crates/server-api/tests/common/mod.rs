@@ -64,6 +64,21 @@ pub fn harness_on(pairs: &[(&str, &str)], auth: Arc<dyn AuthService>) -> Harness
     make(pairs, Some(&manifest), dir, Some(auth))
 }
 
+/// A server whose finder a test scripts.
+#[must_use]
+pub fn harness_play(finder: Arc<dyn server_play::Finder>) -> Harness {
+    let dir = folder("play");
+    let manifest = write_sample(&dir);
+    let settings = [
+        ("FINDER_URLS", "http://unused.invalid"),
+        ("FINDER_TOKEN", "unused"),
+    ];
+    let mut server = make(&settings, Some(&manifest), dir, None);
+    let state = Arc::get_mut(&mut server.state).expect("one owner");
+    state.play = Some(server_play::Play::new(finder));
+    server
+}
+
 /// A server on the sample with composed rows.
 #[must_use]
 pub fn harness_composed(pairs: &[(&str, &str)]) -> Harness {

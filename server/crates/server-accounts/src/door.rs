@@ -769,6 +769,14 @@ impl Door {
         Ok(())
     }
 
+    /// The device card of this session, as sent.
+    ///
+    /// # Errors
+    /// The store's refusal.
+    pub async fn card(&self, session: SessionId) -> Result<Option<serde_json::Value>, DoorError> {
+        Ok(self.store.card(session).await?)
+    }
+
     /// Save a device card (opaque JSON). True asks the device for the whole card.
     ///
     /// # Errors

@@ -14,7 +14,7 @@ use tower_http::cors::{Any, CorsLayer};
 
 use crate::error::ApiError;
 use crate::guard::guard;
-use crate::routes::{account, auth, commands, devices, pages, profiles, start, titles};
+use crate::routes::{account, auth, commands, devices, pages, play, profiles, start, titles};
 use crate::state::Shared;
 
 /// Bearer only and no cookies, so any origin may call, and `Origin: null` from a packaged TV app is
@@ -114,6 +114,11 @@ pub fn router(state: Shared) -> Router {
         .route("/v1/search/suggest", get(pages::suggest))
         .route("/v1/commands", post(commands::commands))
         .route("/v1/changes", get(commands::changes))
+        .route("/v1/play", post(play::play))
+        .route("/v1/play/{id}/more", post(play::more))
+        .route("/v1/play/{id}/marks", post(play::marks))
+        .route("/v1/play/{id}/events", post(play::events))
+        .route("/v1/reports", post(play::report))
         .fallback(nothing_here)
         .layer(CatchPanicLayer::custom(panicked))
         .layer(from_fn_with_state(state.clone(), guard))

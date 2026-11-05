@@ -2068,6 +2068,7 @@ dependencies = [
  "server-api",
  "server-catalog",
  "server-library",
+ "server-play",
  "sqlparser",
  "sqlx",
  "tokio",
@@ -2108,6 +2109,7 @@ dependencies = [
  "server-catalog",
  "server-library",
  "server-pages",
+ "server-play",
  "server-rules",
  "sha2",
  "thiserror",
@@ -2175,6 +2177,29 @@ dependencies = [
  "thiserror",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "server-play"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
+ "contract",
+ "moka",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "server-accounts",
+ "server-catalog",
+ "server-library",
+ "server-rules",
+ "sha2",
+ "sqlx",
+ "thiserror",
+ "time",
+ "tokio",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]

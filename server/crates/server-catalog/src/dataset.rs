@@ -12,6 +12,7 @@ use tracing::{info, warn};
 use crate::catalog::{CatalogMap, load_catalog};
 use crate::centroid::CentroidVault;
 use crate::cluster::ClusterSeeds;
+use crate::det::HashMap;
 use crate::events::EventStore;
 use crate::fresh::FreshStore;
 use crate::groups::{self, GroupMap, GroupNames};
@@ -43,6 +44,7 @@ pub struct DataSet {
     pub fresh: FreshStore,
     pub people: PeopleIndex,
     pub events: EventStore,
+    pub play_facts: PlayFacts,
     /// Row definitions, centred on the corpus mean. Empty when the files are absent.
     pub taxonomy: Arc<TaxonomyStore>,
     /// Row definitions of the Kids pages.
@@ -51,6 +53,34 @@ pub struct DataSet {
     pub index: ArcSwapOption<HnswIndex>,
     /// Optional files that failed their check.
     pub dropped: Vec<String>,
+}
+
+/// Per title facts of a video, as lines of JSON keyed by title key.
+#[derive(Debug, Default)]
+pub struct PlayFacts {
+    /// Skip marks as ratios of a video's length.
+    pub marks: HashMap<String, serde_json::Value>,
+    /// Content reasons.
+    pub reasons: HashMap<String, serde_json::Value>,
+}
+
+fn keyed_lines(path: Option<&Path>) -> HashMap<String, serde_json::Value> {
+    let text = path
+        .and_then(|path| std::fs::read_to_string(path).ok())
+        .unwrap_or_default();
+    text.lines()
+        .filter_map(|line| serde_json::from_str::<serde_json::Value>(line).ok())
+        .filter_map(|value| Some((value.get("k")?.as_str()?.to_owned(), value)))
+        .collect()
+}
+
+impl PlayFacts {
+    fn load(files: &DataFiles) -> Self {
+        Self {
+            marks: keyed_lines(files.get(role::SKIP_MARKS)),
+            reasons: keyed_lines(files.get(role::CONTENT_REASONS)),
+        }
+    }
 }
 
 /// Why a swap was refused. The last good set keeps serving.
@@ -123,6 +153,7 @@ impl DataSet {
             events: files
                 .get(role::EVENTS)
                 .map_or_else(EventStore::default, EventStore::load),
+            play_facts: PlayFacts::load(&files),
             people: PeopleIndex::load(&db),
             files,
             catalog,

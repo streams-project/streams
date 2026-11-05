@@ -15,6 +15,7 @@ server-accounts.workspace = true
 server-api.workspace = true
 server-catalog.workspace = true
 server-library.workspace = true
+server-play.workspace = true
 sqlx.workspace = true
 tokio.workspace = true
 tracing.workspace = true

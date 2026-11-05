@@ -502,6 +502,11 @@ impl AccountStore for MemoryStore {
         Ok(())
     }
 
+    async fn card(&self, session: SessionId) -> StoreResult<Option<serde_json::Value>> {
+        let rows = self.guard()?;
+        Ok(rows.cards.get(&session).and_then(|(_, card)| card.clone()))
+    }
+
     async fn save_card(
         &self,
         session: SessionId,

@@ -35,6 +35,8 @@ pub mod role {
     pub const REQUESTS: &str = "row_requests";
     pub const REMOVED_ROWS: &str = "removed_rows";
     pub const ALIASES: &str = "search_aliases";
+    pub const SKIP_MARKS: &str = "skip_marks";
+    pub const CONTENT_REASONS: &str = "content_reasons";
 }
 
 /// One file of a set.

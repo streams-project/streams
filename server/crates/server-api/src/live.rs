@@ -31,6 +31,8 @@ pub struct LiveValues {
     pub start_deadline_ms: Vec<ClassValue>,
     /// Row titles the operator took off every page, lower case.
     pub blocked_rows: Vec<String>,
+    /// The operator allows embeds. Off by default and in store builds.
+    pub embeds: bool,
 }
 
 impl Default for LiveValues {
@@ -46,6 +48,7 @@ impl Default for LiveValues {
             moved: Vec::new(),
             start_deadline_ms: Vec::new(),
             blocked_rows: Vec::new(),
+            embeds: false,
         }
     }
 }

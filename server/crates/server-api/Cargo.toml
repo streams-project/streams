@@ -21,6 +21,7 @@ server-accounts.workspace = true
 server-catalog.workspace = true
 server-library.workspace = true
 server-pages.workspace = true
+server-play.workspace = true
 server-rules.workspace = true
 sha2.workspace = true
 thiserror.workspace = true
