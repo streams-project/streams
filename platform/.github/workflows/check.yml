@@ -13,3 +13,5 @@ jobs:
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - run: cargo test --workspace --locked
       - run: cargo build --locked -p core -p contract -p offline --target wasm32v1-none
+      - run: python3 tools/ledger.py check
+      - run: python3 tools/test_ledger.py
