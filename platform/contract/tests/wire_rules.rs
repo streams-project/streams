@@ -338,3 +338,29 @@ fn outcome_words_are_the_three_the_note_names() {
         );
     }
 }
+
+#[test]
+fn every_route_is_found_by_its_own_path() {
+    use contract::api::{ROUTES, find};
+    for route in ROUTES {
+        let path = route
+            .path
+            .replace("{kind}", "movie")
+            .replace("{id}", "x1")
+            .replace("{name}", "home")
+            .replace("{lang}", "en")
+            .replace("{n}", "2")
+            .replace("{cursor}", "c")
+            .replace("{file}", "f1")
+            .replace("{job}", "j1");
+        let found = find(route.method, &path).expect(route.path);
+        assert_eq!(found.method, route.method);
+    }
+    assert_eq!(
+        find("GET", "/v1/profiles/me/settings").map(|route| route.name),
+        Some("getSettings"),
+    );
+    assert!(find("GET", "/v1/nowhere").is_none());
+    assert!(find("GET", "/v1/profiles/").is_none());
+    assert!(find("DELETE", "/v1/hello").is_none());
+}

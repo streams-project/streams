@@ -1,0 +1,9 @@
+{
+  "body": {
+    "body": "{\"name\":\"home\",\"sections\":[],\"ttl_s\":60}",
+    "request": "e9",
+    "stale": true
+  },
+  "id": "l4",
+  "kind": "view"
+}

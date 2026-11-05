@@ -8,7 +8,8 @@ use alloc::string::String;
 use alloc::vec::Vec;
 use serde::{Deserialize, Serialize};
 
-use crate::client::{CoreMode, DeviceClass, Form};
+use crate::account::ProfileList;
+use crate::client::{CapabilityCard, CoreMode, DeviceClass, Form};
 use crate::command::Command;
 use crate::driver::{DriverCommand, DriverEvent};
 use crate::error::Notice;
@@ -81,7 +82,8 @@ words! {
 }
 
 words! {
-    /// Where the body of an answer goes.
+    /// Where the body of an answer goes. An answer outside 200 to 299 always comes to the core,
+    /// because the core reads its error code.
     pub enum BodyTarget {
         Core,
         Screen,
@@ -189,6 +191,9 @@ wire! {
         pub os: String,
         /// Hex digits, at least 32.
         pub seed: String,
+        /// What this device can do. The core sends its hash after sign in.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub card: Option<CapabilityCard>,
     }
 
     /// What a screen asks for.
@@ -220,6 +225,15 @@ wire! {
         NextSubtitleFile,
         Stop,
         Command { command: Command },
+        /// Send a prepared request with this session's token. The http effect takes the id of
+        /// this event and its class is always plain, so whoever prepared it gets the answer
+        /// under that id. Tokens stay in the core.
+        Request {
+            method: HttpMethod,
+            path: String,
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            body: Option<String>,
+        },
         #[serde(other)]
         #[cfg_attr(feature = "schema", schemars(skip))]
         Unknown,
@@ -329,8 +343,13 @@ wire! {
             after_ms: Option<u64>,
         },
         Player { command: DriverCommand },
-        /// A one time notice. Lasting state travels in `view`.
-        View { notice: Notice },
+        /// A one time notice or a kept page. Lasting state travels in `view`.
+        View {
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            notice: Option<Notice>,
+            #[serde(default, skip_serializing_if = "Option::is_none")]
+            body: Option<ScreenBody>,
+        },
         Open { target: RouteTarget },
         Log {
             level: LogLevel,
@@ -341,6 +360,17 @@ wire! {
         #[serde(other)]
         #[cfg_attr(feature = "schema", schemars(skip))]
         Unknown,
+    }
+
+    /// A page body handed to a screen. It stands in for the answer to an http effect whose
+    /// body was going to the screen.
+    pub struct ScreenBody {
+        /// Id of the http effect this answers.
+        pub request: String,
+        pub body: String,
+        /// True when this copy is past its ttl and was kept for when the network is gone.
+        #[serde(default)]
+        pub stale: bool,
     }
 
     /// One effect. The result comes back as an event with this id.
@@ -355,6 +385,9 @@ wire! {
         pub target: Target,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub screen: Option<ScreenName>,
+        /// The genre, for the genre screen.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub genre: Option<String>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub title: Option<TitleKey>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -375,6 +408,9 @@ wire! {
         pub expires_at_ms: Option<u64>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub profile: Option<String>,
+        /// Opaque scope of this account and profile, the same value http effects carry.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub scope: Option<String>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub ended: Option<EndReason>,
     }
@@ -397,6 +433,7 @@ wire! {
     }
 
     /// Changed screen state. A part that is absent did not change.
+    #[derive(Default)]
     pub struct View {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub session: Option<SessionView>,
@@ -406,6 +443,9 @@ wire! {
         pub gate: Option<GateView>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub play: Option<PlayView>,
+        /// The account's profiles, for the picker. No PIN is ever held here.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub profiles: Option<ProfileList>,
     }
 
     /// One step of output.

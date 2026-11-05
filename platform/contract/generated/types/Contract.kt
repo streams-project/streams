@@ -139,6 +139,15 @@ data class ActionCommand(
     @SerialName("command") val command: Command,
 ) : Action
 
+/** Send a prepared request with this session's token. The http effect takes the id of this event and its class is always plain, so whoever prepared it gets the answer under that id. Tokens stay in the core. */
+@Serializable
+@SerialName("request")
+data class ActionRequest(
+    @SerialName("body") val body: String? = null,
+    @SerialName("method") val method: HttpMethod,
+    @SerialName("path") val path: String,
+) : Action
+
 /** A tag this build does not know. */
 @Serializable
 data object ActionUnknown : Action
@@ -198,7 +207,7 @@ value class BadgeKind(val value: String) {
     }
 }
 
-/** Where the body of an answer goes. */
+/** Where the body of an answer goes. An answer outside 200 to 299 always comes to the core, because the core reads its error code. */
 @Serializable
 @JvmInline
 value class BodyTarget(val value: String) {
@@ -534,6 +543,8 @@ data class Consent(
 @Serializable
 data class CoreConfig(
     @SerialName("app") val app: String,
+    /** What this device can do. The core sends its hash after sign in. */
+    @SerialName("card") val card: CapabilityCard? = null,
     @SerialName("class") val `class`: DeviceClass,
     @SerialName("contract") val contract: WireDate,
     @SerialName("form") val form: Form,
@@ -870,12 +881,13 @@ data class EffectPlayer(
     @SerialName("command") val command: DriverCommand,
 ) : Effect
 
-/** A one time notice. Lasting state travels in `view`. */
+/** A one time notice or a kept page. Lasting state travels in `view`. */
 @Serializable
 @SerialName("view")
 data class EffectView(
     @SerialName("id") override val id: String,
-    @SerialName("notice") val notice: Notice,
+    @SerialName("body") val body: ScreenBody? = null,
+    @SerialName("notice") val notice: Notice? = null,
 ) : Effect
 
 @Serializable
@@ -1691,6 +1703,8 @@ data class Rollout(
 @Serializable
 data class RouteTarget(
     @SerialName("episode") val episode: EpisodeRef? = null,
+    /** The genre, for the genre screen. */
+    @SerialName("genre") val genre: String? = null,
     /** A safe address to return to after sign in. */
     @SerialName("next") val next: String? = null,
     @SerialName("screen") val screen: ScreenName? = null,
@@ -1708,6 +1722,16 @@ data class Screen(
     @SerialName("sections") val sections: List<Section>,
     /** Seconds this answer stays good. */
     @SerialName("ttl_s") val ttlS: Long,
+)
+
+/** A page body handed to a screen. It stands in for the answer to an http effect whose body was going to the screen. */
+@Serializable
+data class ScreenBody(
+    @SerialName("body") val body: String,
+    /** Id of the http effect this answers. */
+    @SerialName("request") val request: String,
+    /** True when this copy is past its ttl and was kept for when the network is gone. */
+    @SerialName("stale") val stale: Boolean? = null,
 )
 
 /** The screens the server builds. */
@@ -1813,6 +1837,8 @@ data class SessionView(
     @SerialName("ended") val ended: EndReason? = null,
     @SerialName("expires_at_ms") val expiresAtMs: Long? = null,
     @SerialName("profile") val profile: String? = null,
+    /** Opaque scope of this account and profile, the same value http effects carry. */
+    @SerialName("scope") val scope: String? = null,
     @SerialName("state") val state: SessionState,
     @SerialName("user_id") val userId: String? = null,
 )
@@ -2017,6 +2043,8 @@ data class VersionRange(
 data class View(
     @SerialName("gate") val gate: GateView? = null,
     @SerialName("play") val play: PlayView? = null,
+    /** The account's profiles, for the picker. No PIN is ever held here. */
+    @SerialName("profiles") val profiles: ProfileList? = null,
     @SerialName("route") val route: RouteTarget? = null,
     @SerialName("session") val session: SessionView? = null,
 )

@@ -1,5 +1,145 @@
 {
   "$defs": {
+    "AttemptKind": {
+      "description": "How an attempt is played.",
+      "enum": [
+        "hls",
+        "file",
+        "embed"
+      ],
+      "type": "string"
+    },
+    "CapabilityCard": {
+      "description": "What a device can do. The server filters attempts and sections by this card.",
+      "properties": {
+        "adaptive": {
+          "description": "True when the player switches variants during play.",
+          "type": "boolean"
+        },
+        "app": {
+          "type": "string"
+        },
+        "attempt_kinds": {
+          "description": "Attempt kinds this player opens. An embed appears only when listed here.",
+          "items": {
+            "$ref": "#/$defs/AttemptKind"
+          },
+          "type": "array"
+        },
+        "class": {
+          "$ref": "#/$defs/DeviceClass"
+        },
+        "codecs": {
+          "description": "Codecs this player opens, such as avc1, hvc1, mp4a.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "containers": {
+          "description": "Containers this player opens, such as ts, fmp4, mp4.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "form": {
+          "$ref": "#/$defs/Form"
+        },
+        "input": {
+          "items": {
+            "$ref": "#/$defs/InputKind"
+          },
+          "type": "array"
+        },
+        "languages": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "max_height": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "media_headers": {
+          "description": "Request headers the player can set on media, such as Referer.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "os": {
+          "type": "string"
+        },
+        "os_version": {
+          "type": "string"
+        },
+        "reports_picture": {
+          "description": "True when the driver reports video width or has_picture.",
+          "type": "boolean"
+        },
+        "screen_height": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "screen_width": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "secret_store": {
+          "description": "True when the device has a durable secret store.",
+          "type": "boolean"
+        },
+        "section_kinds": {
+          "description": "Section kinds this build draws. Others fall back to a plain row.",
+          "items": {
+            "$ref": "#/$defs/SectionKind"
+          },
+          "type": "array"
+        },
+        "side_subtitles": {
+          "description": "True when the player can load a side subtitle file.",
+          "type": "boolean"
+        },
+        "storage_bytes": {
+          "description": "Bytes this device gives to kept commands and screens. 0 means none.",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "app",
+        "version",
+        "class",
+        "form",
+        "os",
+        "os_version",
+        "screen_width",
+        "screen_height",
+        "section_kinds",
+        "attempt_kinds",
+        "containers",
+        "codecs",
+        "max_height",
+        "adaptive",
+        "media_headers",
+        "reports_picture",
+        "side_subtitles",
+        "secret_store",
+        "storage_bytes",
+        "input",
+        "languages"
+      ],
+      "type": "object"
+    },
     "CoreConfigTag": {
       "description": "Type tag of `CoreConfig`.",
       "enum": [
@@ -38,6 +178,30 @@
       ],
       "type": "string"
     },
+    "InputKind": {
+      "description": "Input a device has.",
+      "enum": [
+        "touch",
+        "pointer",
+        "keyboard",
+        "remote",
+        "gamepad",
+        "rotary"
+      ],
+      "type": "string"
+    },
+    "SectionKind": {
+      "description": "Section kinds. A kind this build does not draw falls back to a plain row.",
+      "enum": [
+        "hero",
+        "row",
+        "ranked",
+        "continue",
+        "grid",
+        "notice"
+      ],
+      "type": "string"
+    },
     "WireDate": {
       "description": "A wire date, YYYY-MM-DD.",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
@@ -49,6 +213,10 @@
   "properties": {
     "app": {
       "type": "string"
+    },
+    "card": {
+      "$ref": "#/$defs/CapabilityCard",
+      "description": "What this device can do. The core sends its hash after sign in."
     },
     "class": {
       "$ref": "#/$defs/DeviceClass"

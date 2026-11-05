@@ -223,6 +223,25 @@ public struct ActionCommand: Codable, Equatable, Sendable {
     }
 }
 
+/// Send a prepared request with this session's token. The http effect takes the id of this event and its class is always plain, so whoever prepared it gets the answer under that id. Tokens stay in the core.
+public struct ActionRequest: Codable, Equatable, Sendable {
+    public var body: String?
+    public var method: HttpMethod
+    public var path: String
+
+    enum CodingKeys: String, CodingKey {
+        case body = "body"
+        case method = "method"
+        case path = "path"
+    }
+
+    public init(body: String? = nil, method: HttpMethod, path: String) {
+        self.body = body
+        self.method = method
+        self.path = path
+    }
+}
+
 public enum Action: Codable, Equatable, Sendable {
     case signIn(ActionSignIn)
     case sendCode(ActionSendCode)
@@ -238,6 +257,7 @@ public enum Action: Codable, Equatable, Sendable {
     case nextSubtitleFile(ActionNextSubtitleFile)
     case stop(ActionStop)
     case command(ActionCommand)
+    case request(ActionRequest)
     /// A tag this build does not know.
     case unknown(String)
 
@@ -261,6 +281,7 @@ public enum Action: Codable, Equatable, Sendable {
         case "next_subtitle_file": self = .nextSubtitleFile(try ActionNextSubtitleFile(from: decoder))
         case "stop": self = .stop(try ActionStop(from: decoder))
         case "command": self = .command(try ActionCommand(from: decoder))
+        case "request": self = .request(try ActionRequest(from: decoder))
         default: self = .unknown(tag)
         }
     }
@@ -309,6 +330,9 @@ public enum Action: Codable, Equatable, Sendable {
             try value.encode(to: encoder)
         case .command(let value):
             try tagged.encode("command", forKey: .tag)
+            try value.encode(to: encoder)
+        case .request(let value):
+            try tagged.encode("request", forKey: .tag)
             try value.encode(to: encoder)
         case .unknown(let tag):
             try tagged.encode(tag, forKey: .tag)
@@ -412,7 +436,7 @@ public struct BadgeKind: RawRepresentable, Codable, Hashable, Sendable {
     public static let new = BadgeKind(rawValue: "new")
 }
 
-/// Where the body of an answer goes.
+/// Where the body of an answer goes. An answer outside 200 to 299 always comes to the core, because the core reads its error code.
 public struct BodyTarget: RawRepresentable, Codable, Hashable, Sendable {
     public var rawValue: String
     public init(rawValue: String) { self.rawValue = rawValue }
@@ -1197,6 +1221,8 @@ public struct Consent: Codable, Equatable, Sendable {
 /// Given to `core_open`, once. The seed is the only random input the core ever gets.
 public struct CoreConfig: Codable, Equatable, Sendable {
     public var app: String
+    /// What this device can do. The core sends its hash after sign in.
+    public var card: CapabilityCard?
     public var `class`: DeviceClass
     public var contract: WireDate
     public var form: Form
@@ -1209,6 +1235,7 @@ public struct CoreConfig: Codable, Equatable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case app = "app"
+        case card = "card"
         case `class` = "class"
         case contract = "contract"
         case form = "form"
@@ -1219,8 +1246,9 @@ public struct CoreConfig: Codable, Equatable, Sendable {
         case version = "version"
     }
 
-    public init(app: String, `class`: DeviceClass, contract: WireDate, form: Form, mode: CoreMode, os: String, seed: String, type: CoreConfigTag, version: String) {
+    public init(app: String, card: CapabilityCard? = nil, `class`: DeviceClass, contract: WireDate, form: Form, mode: CoreMode, os: String, seed: String, type: CoreConfigTag, version: String) {
         self.app = app
+        self.card = card
         self.`class` = `class`
         self.contract = contract
         self.form = form
@@ -1934,15 +1962,18 @@ public struct EffectPlayer: Codable, Equatable, Sendable {
     }
 }
 
-/// A one time notice. Lasting state travels in `view`.
+/// A one time notice or a kept page. Lasting state travels in `view`.
 public struct EffectView: Codable, Equatable, Sendable {
-    public var notice: Notice
+    public var body: ScreenBody?
+    public var notice: Notice?
 
     enum CodingKeys: String, CodingKey {
+        case body = "body"
         case notice = "notice"
     }
 
-    public init(notice: Notice) {
+    public init(body: ScreenBody? = nil, notice: Notice? = nil) {
+        self.body = body
         self.notice = notice
     }
 }
@@ -3561,6 +3592,8 @@ public struct Rollout: Codable, Equatable, Sendable {
 /// What an address opens.
 public struct RouteTarget: Codable, Equatable, Sendable {
     public var episode: EpisodeRef?
+    /// The genre, for the genre screen.
+    public var genre: String?
     /// A safe address to return to after sign in.
     public var next: String?
     public var screen: ScreenName?
@@ -3569,14 +3602,16 @@ public struct RouteTarget: Codable, Equatable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case episode = "episode"
+        case genre = "genre"
         case next = "next"
         case screen = "screen"
         case target = "target"
         case title = "title"
     }
 
-    public init(episode: EpisodeRef? = nil, next: String? = nil, screen: ScreenName? = nil, target: Target, title: TitleKey? = nil) {
+    public init(episode: EpisodeRef? = nil, genre: String? = nil, next: String? = nil, screen: ScreenName? = nil, target: Target, title: TitleKey? = nil) {
         self.episode = episode
+        self.genre = genre
         self.next = next
         self.screen = screen
         self.target = target
@@ -3608,6 +3643,27 @@ public struct Screen: Codable, Equatable, Sendable {
         self.refreshOn = refreshOn
         self.sections = sections
         self.ttlS = ttlS
+    }
+}
+
+/// A page body handed to a screen. It stands in for the answer to an http effect whose body was going to the screen.
+public struct ScreenBody: Codable, Equatable, Sendable {
+    public var body: String
+    /// Id of the http effect this answers.
+    public var request: String
+    /// True when this copy is past its ttl and was kept for when the network is gone.
+    public var stale: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case body = "body"
+        case request = "request"
+        case stale = "stale"
+    }
+
+    public init(body: String, request: String, stale: Bool? = nil) {
+        self.body = body
+        self.request = request
+        self.stale = stale
     }
 }
 
@@ -3740,6 +3796,8 @@ public struct SessionView: Codable, Equatable, Sendable {
     public var ended: EndReason?
     public var expiresAtMs: Int?
     public var profile: String?
+    /// Opaque scope of this account and profile, the same value http effects carry.
+    public var scope: String?
     public var state: SessionState
     public var userId: String?
 
@@ -3748,15 +3806,17 @@ public struct SessionView: Codable, Equatable, Sendable {
         case ended = "ended"
         case expiresAtMs = "expires_at_ms"
         case profile = "profile"
+        case scope = "scope"
         case state = "state"
         case userId = "user_id"
     }
 
-    public init(email: String? = nil, ended: EndReason? = nil, expiresAtMs: Int? = nil, profile: String? = nil, state: SessionState, userId: String? = nil) {
+    public init(email: String? = nil, ended: EndReason? = nil, expiresAtMs: Int? = nil, profile: String? = nil, scope: String? = nil, state: SessionState, userId: String? = nil) {
         self.email = email
         self.ended = ended
         self.expiresAtMs = expiresAtMs
         self.profile = profile
+        self.scope = scope
         self.state = state
         self.userId = userId
     }
@@ -4127,19 +4187,23 @@ public struct VersionRange: Codable, Equatable, Sendable {
 public struct View: Codable, Equatable, Sendable {
     public var gate: GateView?
     public var play: PlayView?
+    /// The account's profiles, for the picker. No PIN is ever held here.
+    public var profiles: ProfileList?
     public var route: RouteTarget?
     public var session: SessionView?
 
     enum CodingKeys: String, CodingKey {
         case gate = "gate"
         case play = "play"
+        case profiles = "profiles"
         case route = "route"
         case session = "session"
     }
 
-    public init(gate: GateView? = nil, play: PlayView? = nil, route: RouteTarget? = nil, session: SessionView? = nil) {
+    public init(gate: GateView? = nil, play: PlayView? = nil, profiles: ProfileList? = nil, route: RouteTarget? = nil, session: SessionView? = nil) {
         self.gate = gate
         self.play = play
+        self.profiles = profiles
         self.route = route
         self.session = session
     }

@@ -1,7 +1,7 @@
 {
   "$defs": {
     "BodyTarget": {
-      "description": "Where the body of an answer goes.",
+      "description": "Where the body of an answer goes. An answer outside 200 to 299 always comes to the core,\nbecause the core reads its error code.",
       "enum": [
         "core",
         "screen"
@@ -270,6 +270,10 @@
         "episode": {
           "$ref": "#/$defs/EpisodeRef"
         },
+        "genre": {
+          "description": "The genre, for the genre screen.",
+          "type": "string"
+        },
         "next": {
           "description": "A safe address to return to after sign in.",
           "type": "string"
@@ -286,6 +290,28 @@
       },
       "required": [
         "target"
+      ],
+      "type": "object"
+    },
+    "ScreenBody": {
+      "description": "A page body handed to a screen. It stands in for the answer to an http effect whose\nbody was going to the screen.",
+      "properties": {
+        "body": {
+          "type": "string"
+        },
+        "request": {
+          "description": "Id of the http effect this answers.",
+          "type": "string"
+        },
+        "stale": {
+          "default": false,
+          "description": "True when this copy is past its ttl and was kept for when the network is gone.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "request",
+        "body"
       ],
       "type": "object"
     },
@@ -492,8 +518,11 @@
       "type": "object"
     },
     {
-      "description": "A one time notice. Lasting state travels in `view`.",
+      "description": "A one time notice or a kept page. Lasting state travels in `view`.",
       "properties": {
+        "body": {
+          "$ref": "#/$defs/ScreenBody"
+        },
         "kind": {
           "const": "view",
           "type": "string"
@@ -503,8 +532,7 @@
         }
       },
       "required": [
-        "kind",
-        "notice"
+        "kind"
       ],
       "type": "object"
     },

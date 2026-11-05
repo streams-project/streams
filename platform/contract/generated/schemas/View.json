@@ -84,11 +84,60 @@
       ],
       "type": "object"
     },
+    "Profile": {
+      "description": "One profile.",
+      "properties": {
+        "avatar": {
+          "type": "string"
+        },
+        "has_pin": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kids": {
+          "type": "boolean"
+        },
+        "main": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kids",
+        "main",
+        "has_pin"
+      ],
+      "type": "object"
+    },
+    "ProfileList": {
+      "properties": {
+        "profiles": {
+          "items": {
+            "$ref": "#/$defs/Profile"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "profiles"
+      ],
+      "type": "object"
+    },
     "RouteTarget": {
       "description": "What an address opens.",
       "properties": {
         "episode": {
           "$ref": "#/$defs/EpisodeRef"
+        },
+        "genre": {
+          "description": "The genre, for the genre screen.",
+          "type": "string"
         },
         "next": {
           "description": "A safe address to return to after sign in.",
@@ -152,6 +201,10 @@
           "type": "integer"
         },
         "profile": {
+          "type": "string"
+        },
+        "scope": {
+          "description": "Opaque scope of this account and profile, the same value http effects carry.",
           "type": "string"
         },
         "state": {
@@ -241,6 +294,10 @@
     },
     "play": {
       "$ref": "#/$defs/PlayView"
+    },
+    "profiles": {
+      "$ref": "#/$defs/ProfileList",
+      "description": "The account's profiles, for the picker. No PIN is ever held here."
     },
     "route": {
       "$ref": "#/$defs/RouteTarget"

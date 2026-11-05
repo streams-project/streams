@@ -336,6 +336,30 @@
               "command"
             ],
             "type": "object"
+          },
+          {
+            "description": "Send a prepared request with this session's token. The http effect takes the id of\nthis event and its class is always plain, so whoever prepared it gets the answer\nunder that id. Tokens stay in the core.",
+            "properties": {
+              "action": {
+                "const": "request",
+                "type": "string"
+              },
+              "body": {
+                "type": "string"
+              },
+              "method": {
+                "$ref": "#/components/schemas/HttpMethod"
+              },
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "method",
+              "path"
+            ],
+            "type": "object"
           }
         ]
       },
@@ -456,7 +480,7 @@
         "type": "string"
       },
       "BodyTarget": {
-        "description": "Where the body of an answer goes.",
+        "description": "Where the body of an answer goes. An answer outside 200 to 299 always comes to the core,\nbecause the core reads its error code.",
         "enum": [
           "core",
           "screen"
@@ -1228,6 +1252,10 @@
         "properties": {
           "app": {
             "type": "string"
+          },
+          "card": {
+            "$ref": "#/components/schemas/CapabilityCard",
+            "description": "What this device can do. The core sends its hash after sign in."
           },
           "class": {
             "$ref": "#/components/schemas/DeviceClass"
@@ -2013,8 +2041,11 @@
             "type": "object"
           },
           {
-            "description": "A one time notice. Lasting state travels in `view`.",
+            "description": "A one time notice or a kept page. Lasting state travels in `view`.",
             "properties": {
+              "body": {
+                "$ref": "#/components/schemas/ScreenBody"
+              },
               "kind": {
                 "const": "view",
                 "type": "string"
@@ -2024,8 +2055,7 @@
               }
             },
             "required": [
-              "kind",
-              "notice"
+              "kind"
             ],
             "type": "object"
           },
@@ -3741,6 +3771,10 @@
           "episode": {
             "$ref": "#/components/schemas/EpisodeRef"
           },
+          "genre": {
+            "description": "The genre, for the genre screen.",
+            "type": "string"
+          },
           "next": {
             "description": "A safe address to return to after sign in.",
             "type": "string"
@@ -3793,6 +3827,28 @@
           "name",
           "sections",
           "ttl_s"
+        ],
+        "type": "object"
+      },
+      "ScreenBody": {
+        "description": "A page body handed to a screen. It stands in for the answer to an http effect whose\nbody was going to the screen.",
+        "properties": {
+          "body": {
+            "type": "string"
+          },
+          "request": {
+            "description": "Id of the http effect this answers.",
+            "type": "string"
+          },
+          "stale": {
+            "default": false,
+            "description": "True when this copy is past its ttl and was kept for when the network is gone.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "request",
+          "body"
         ],
         "type": "object"
       },
@@ -3946,6 +4002,10 @@
             "type": "integer"
           },
           "profile": {
+            "type": "string"
+          },
+          "scope": {
+            "description": "Opaque scope of this account and profile, the same value http effects carry.",
             "type": "string"
           },
           "state": {
@@ -4368,6 +4428,10 @@
           },
           "play": {
             "$ref": "#/components/schemas/PlayView"
+          },
+          "profiles": {
+            "$ref": "#/components/schemas/ProfileList",
+            "description": "The account's profiles, for the picker. No PIN is ever held here."
           },
           "route": {
             "$ref": "#/components/schemas/RouteTarget"

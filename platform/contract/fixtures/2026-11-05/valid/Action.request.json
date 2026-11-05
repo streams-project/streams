@@ -1,0 +1,6 @@
+{
+  "action": "request",
+  "body": "{\"ops\":[]}",
+  "method": "POST",
+  "path": "/v1/commands"
+}

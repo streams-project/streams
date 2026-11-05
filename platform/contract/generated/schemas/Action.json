@@ -198,6 +198,17 @@
       ],
       "type": "string"
     },
+    "HttpMethod": {
+      "description": "Methods of an http effect.",
+      "enum": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "type": "string"
+    },
     "Rating": {
       "description": "Rating words on the wire. Screens use the words like, love and dislike.",
       "enum": [
@@ -450,6 +461,30 @@
       "required": [
         "action",
         "command"
+      ],
+      "type": "object"
+    },
+    {
+      "description": "Send a prepared request with this session's token. The http effect takes the id of\nthis event and its class is always plain, so whoever prepared it gets the answer\nunder that id. Tokens stay in the core.",
+      "properties": {
+        "action": {
+          "const": "request",
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "method": {
+          "$ref": "#/$defs/HttpMethod"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "action",
+        "method",
+        "path"
       ],
       "type": "object"
     }

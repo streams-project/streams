@@ -81,6 +81,13 @@ export type Action =
       action: "command";
       command: Command;
     }
+  | {
+      /** Send a prepared request with this session's token. The http effect takes the id of this event and its class is always plain, so whoever prepared it gets the answer under that id. Tokens stay in the core. */
+      action: "request";
+      body?: string;
+      method: HttpMethod;
+      path: string;
+    }
   ;
 
 /** Age card shown once at the start of play. */
@@ -120,7 +127,7 @@ export interface Badge {
 /** Marks on a tile. */
 export type BadgeKind = "ranked" | "new" | (string & {});
 
-/** Where the body of an answer goes. */
+/** Where the body of an answer goes. An answer outside 200 to 299 always comes to the core, because the core reads its error code. */
 export type BodyTarget = "core" | "screen" | (string & {});
 
 /** Name and contact, filled into text at render time. */
@@ -370,6 +377,8 @@ export interface Consent {
 /** Given to `core_open`, once. The seed is the only random input the core ever gets. */
 export interface CoreConfig {
   app: string;
+  /** What this device can do. The core sends its hash after sign in. */
+  card?: CapabilityCard;
   class: DeviceClass;
   contract: WireDate;
   form: Form;
@@ -605,10 +614,11 @@ export type Effect =
       command: DriverCommand;
     }
   | {
-      /** A one time notice. Lasting state travels in `view`. */
+      /** A one time notice or a kept page. Lasting state travels in `view`. */
       kind: "view";
       id: string;
-      notice: Notice;
+      body?: ScreenBody;
+      notice?: Notice;
     }
   | {
       kind: "open";
@@ -1143,6 +1153,8 @@ export interface Rollout {
 /** What an address opens. */
 export interface RouteTarget {
   episode?: EpisodeRef;
+  /** The genre, for the genre screen. */
+  genre?: string;
   /** A safe address to return to after sign in. */
   next?: string;
   screen?: ScreenName;
@@ -1159,6 +1171,15 @@ export interface Screen {
   sections: Section[];
   /** Seconds this answer stays good. */
   ttl_s: number;
+}
+
+/** A page body handed to a screen. It stands in for the answer to an http effect whose body was going to the screen. */
+export interface ScreenBody {
+  body: string;
+  /** Id of the http effect this answers. */
+  request: string;
+  /** True when this copy is past its ttl and was kept for when the network is gone. */
+  stale?: boolean;
 }
 
 /** The screens the server builds. */
@@ -1207,6 +1228,8 @@ export interface SessionView {
   ended?: EndReason;
   expires_at_ms?: number;
   profile?: string;
+  /** Opaque scope of this account and profile, the same value http effects carry. */
+  scope?: string;
   state: SessionState;
   user_id?: string;
 }
@@ -1338,6 +1361,8 @@ export interface VersionRange {
 export interface View {
   gate?: GateView;
   play?: PlayView;
+  /** The account's profiles, for the picker. No PIN is ever held here. */
+  profiles?: ProfileList;
   route?: RouteTarget;
   session?: SessionView;
 }

@@ -117,6 +117,32 @@ const fn with_text(route: Route, text_form: &'static str) -> Route {
     }
 }
 
+/// True when `path` fits the `template`, whose `{name}` parts match one segment each.
+fn fits(template: &str, path: &str) -> bool {
+    let mut wanted = template.split('/');
+    let mut given = path.split('/');
+    loop {
+        match (wanted.next(), given.next()) {
+            (None, None) => return true,
+            (Some(want), Some(have)) => {
+                let any = want.starts_with('{') && !have.is_empty();
+                if !any && want != have {
+                    return false;
+                }
+            }
+            _ => return false,
+        }
+    }
+}
+
+/// The route for a method and a path with no query.
+#[must_use]
+pub fn find(method: &str, path: &str) -> Option<&'static Route> {
+    ROUTES
+        .iter()
+        .find(|route| route.method == method && fits(route.path, path))
+}
+
 const START: (Auth, Group) = (Auth::Open, Group::Start);
 const SIGN_IN: (Auth, Group) = (Auth::Open, Group::Auth);
 const SIGNED_IN: (Auth, Group) = (Auth::Member, Group::Auth);

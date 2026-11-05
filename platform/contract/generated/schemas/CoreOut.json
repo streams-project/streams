@@ -1,7 +1,7 @@
 {
   "$defs": {
     "BodyTarget": {
-      "description": "Where the body of an answer goes.",
+      "description": "Where the body of an answer goes. An answer outside 200 to 299 always comes to the core,\nbecause the core reads its error code.",
       "enum": [
         "core",
         "screen"
@@ -320,8 +320,11 @@
           "type": "object"
         },
         {
-          "description": "A one time notice. Lasting state travels in `view`.",
+          "description": "A one time notice or a kept page. Lasting state travels in `view`.",
           "properties": {
+            "body": {
+              "$ref": "#/$defs/ScreenBody"
+            },
             "kind": {
               "const": "view",
               "type": "string"
@@ -331,8 +334,7 @@
             }
           },
           "required": [
-            "kind",
-            "notice"
+            "kind"
           ],
           "type": "object"
         },
@@ -535,11 +537,60 @@
       ],
       "type": "object"
     },
+    "Profile": {
+      "description": "One profile.",
+      "properties": {
+        "avatar": {
+          "type": "string"
+        },
+        "has_pin": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kids": {
+          "type": "boolean"
+        },
+        "main": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kids",
+        "main",
+        "has_pin"
+      ],
+      "type": "object"
+    },
+    "ProfileList": {
+      "properties": {
+        "profiles": {
+          "items": {
+            "$ref": "#/$defs/Profile"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "profiles"
+      ],
+      "type": "object"
+    },
     "RouteTarget": {
       "description": "What an address opens.",
       "properties": {
         "episode": {
           "$ref": "#/$defs/EpisodeRef"
+        },
+        "genre": {
+          "description": "The genre, for the genre screen.",
+          "type": "string"
         },
         "next": {
           "description": "A safe address to return to after sign in.",
@@ -557,6 +608,28 @@
       },
       "required": [
         "target"
+      ],
+      "type": "object"
+    },
+    "ScreenBody": {
+      "description": "A page body handed to a screen. It stands in for the answer to an http effect whose\nbody was going to the screen.",
+      "properties": {
+        "body": {
+          "type": "string"
+        },
+        "request": {
+          "description": "Id of the http effect this answers.",
+          "type": "string"
+        },
+        "stale": {
+          "default": false,
+          "description": "True when this copy is past its ttl and was kept for when the network is gone.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "request",
+        "body"
       ],
       "type": "object"
     },
@@ -612,6 +685,10 @@
           "type": "integer"
         },
         "profile": {
+          "type": "string"
+        },
+        "scope": {
+          "description": "Opaque scope of this account and profile, the same value http effects carry.",
           "type": "string"
         },
         "state": {
@@ -707,6 +784,10 @@
         },
         "play": {
           "$ref": "#/$defs/PlayView"
+        },
+        "profiles": {
+          "$ref": "#/$defs/ProfileList",
+          "description": "The account's profiles, for the picker. No PIN is ever held here."
         },
         "route": {
           "$ref": "#/$defs/RouteTarget"
