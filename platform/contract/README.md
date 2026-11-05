@@ -42,6 +42,12 @@ Fixture files are named `<Type>.<case>.json`.
   plain row. An unknown event is answered in `unsupported`, by its id when it has one.
 - An optional field is left out and never sent as null.
 - A title key is `movie:<id>` or `tv:<id>`. A bare id does not parse.
+- An http effect sent to the screen brings a 2xx body to the screen only. Any other answer comes
+  to the core, because the core reads its error code.
+- `next_wake_ms` is the one timer a host keeps. The timer effect stays in the shape, and the core
+  takes `timer_fired` as a plain wake.
+- `Action::Request` sends a prepared request with the session's token, under the id of its event.
+  This is how anything around the core reaches the server without ever holding a token.
 - Three versions, kept apart: the wire by date in `Api-Version`, the C boundary by number, crates
   by semver. Clients are compared against a range, never for equality.
 

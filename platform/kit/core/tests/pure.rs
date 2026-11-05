@@ -82,7 +82,8 @@ fn tree(krate: &str, extra: &[&str]) -> Vec<String> {
 }
 
 #[test]
-fn h1_h106_h130_sources_hold_no_std_async_thread_clock_io_or_foreign_code() {
+fn h1_h2_h3_h9_h106_h107_h108_h109_h113_h114_h118_h130_sources_hold_no_std_async_thread_clock_io_or_foreign_code()
+ {
     let mut hits = Vec::new();
     for krate in CRATES {
         for file in sources(krate) {
