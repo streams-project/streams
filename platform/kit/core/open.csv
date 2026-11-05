@@ -8,3 +8,12 @@ C51,no,Subtitle timing and delay,step 9 subtitle fixtures
 C52,no,Cues as time windows and the subtitle length check against driver duration,step 9 subtitle fixtures
 C58,part,Watch credits hiding the offer for one play has no action yet; the phone lock screen stays a device rule,an action in the contract
 C59,part,Seek is clamped; skip steps and volume and speed have no action yet,actions in the contract
+H20,part,One device sessions only: the two device fixture of the commands gate needs a second device in the kit host,a second device and a server model in kit/core
+H39,part,Every error class moves to the next attempt since no note names a class that differs; the cap step before failover on an adaptive false player is not written,a measured case from kit/device in step 7
+H47,part,One device sessions only: the two device fixture of the commands gate needs a second device in the kit host,a second device and a server model in kit/core
+H48,part,One device sessions only: the two device fixture of the commands gate needs a second device in the kit host,a second device and a server model in kit/core
+H53,part,One device sessions only: web tab locks live in the web host and the two device fixture is not written,the web host and a second device in kit/core
+H54,part,One device sessions only: web tab locks live in the web host and the two device fixture is not written,the web host and a second device in kit/core
+H61,part,One device sessions only: the two device fixture of the commands gate needs a second device in the kit host,a second device and a server model in kit/core
+H82,part,The core holds the deadline and the way out; capability and sandbox and order sit with the server and the web host,the server and web steps
+H85,part,One device sessions only: the two device fixture of the commands gate needs a second device in the kit host,a second device and a server model in kit/core
