@@ -121,6 +121,50 @@ fn playing() -> Core {
     core
 }
 
+/// A core that signed in and entered a profile, so a saved position can leave the core.
+fn watching() -> Core {
+    let mut core = Core::open_json(CONFIG).unwrap();
+    let first = step(&mut core, 0, &json!([]));
+    let kept = first["effects"][1]["id"].clone();
+    step(&mut core, 1, &json!([{"id": kept, "type": "secret_done"}]));
+    let out = step(
+        &mut core,
+        2,
+        &action(
+            "s1",
+            json!({"action": "sign_in", "email": "a@b.example", "password": "x"}),
+        ),
+    );
+    let sign_in = effect_id(&out, "/v1/auth/password");
+    let tokens = json!({
+        "user_id": "u1",
+        "email": "a@b.example",
+        "access_token": "at",
+        "refresh_token": "rt",
+        "expires_in": 3_600,
+    })
+    .to_string();
+    step(
+        &mut core,
+        3,
+        &json!([{"id": sign_in, "type": "http_done", "status": 200, "body": tokens}]),
+    );
+    let out = step(
+        &mut core,
+        4,
+        &action("p1", json!({"action": "enter_profile", "profile": "p1"})),
+    );
+    let enter = effect_id(&out, "/v1/profiles/p1/enter");
+    let profile = json!({"id": "p1", "name": "A", "kids": false, "main": true, "has_pin": false});
+    let entered = json!({"profile": profile, "home": "home"}).to_string();
+    step(
+        &mut core,
+        5,
+        &json!([{"id": enter, "type": "http_done", "status": 200, "body": entered}]),
+    );
+    core
+}
+
 #[test]
 fn c30_p39_no_picture_moves_on_only_past_3_s_by_the_clock_and_2_5_s_of_video() {
     let mut core = playing();
@@ -178,4 +222,85 @@ fn c103_p35_entering_a_profile_stops_what_plays() {
     );
     assert_eq!(moved["view"]["play"]["state"], "ended");
     assert_eq!(http_paths(&moved), ["/v1/profiles/p1/enter"]);
+}
+
+#[test]
+fn c32_c68_h42_nothing_is_saved_before_the_first_frame() {
+    let mut core = watching();
+    let out = step(
+        &mut core,
+        6,
+        &action("a1", json!({"action": "play", "title": "movie:7"})),
+    );
+    let play = effect_id(&out, "/v1/play");
+    // the answer carries a position another device left
+    let answer = json!({
+        "play_id": "p1",
+        "attempts": [attempt("one", FIRST, "g1")],
+        "start_at_ms": 30_000,
+        "dropped": 0,
+        "more": false,
+    });
+    let out = step(
+        &mut core,
+        7,
+        &json!([{"id": play, "type": "http_done", "status": 200, "body": answer.to_string()}]),
+    );
+    assert_eq!(player_ops(&out), [open(1, 30_000, FIRST)]);
+    // the viewer leaves before any frame, so this device saw nothing to save
+    let out = step(&mut core, 8, &action("a2", json!({"action": "stop"})));
+    assert_eq!(player_ops(&out), [json!({"op": "close"})]);
+    assert!(
+        http_paths(&out).is_empty(),
+        "no position may go out, or the server's own value would be written back: {out}"
+    );
+}
+
+#[test]
+fn c58_a_skip_window_with_nothing_left_to_show_is_dropped() {
+    let mut core = Core::open_json(CONFIG).unwrap();
+    step(&mut core, 0, &json!([]));
+    let out = step(
+        &mut core,
+        1,
+        &action(
+            "a1",
+            json!({"action": "play", "title": "tv:9",
+                   "episode": {"season": 1, "episode": 2}}),
+        ),
+    );
+    let play = effect_id(&out, "/v1/play");
+    let answer = json!({
+        "play_id": "p1",
+        "attempts": [attempt("one", FIRST, "g1")],
+        "start_at_ms": 0,
+        "next_episode": {"season": 1, "episode": 3},
+        "dropped": 0,
+        "more": false,
+    });
+    step(
+        &mut core,
+        2,
+        &json!([{"id": play, "type": "http_done", "status": 200, "body": answer.to_string()}]),
+    );
+    step(&mut core, 3, &driver(1, &json!({"kind": "first_frame"})));
+    // a known length makes the core ask for the marks, series only
+    let out = step(&mut core, 4, &driver(1, &position(10_000, 1_920)));
+    let marks = effect_id(&out, "/v1/play/p1/marks");
+    // the recap runs 500 ms, so hiding its button 1 s early leaves nothing to show
+    let windows = json!({"windows": [
+        {"kind": "recap", "start_ms": 1_000, "end_ms": 1_500},
+        {"kind": "intro", "start_ms": 5_000, "end_ms": 20_000},
+    ]})
+    .to_string();
+    let out = step(
+        &mut core,
+        5,
+        &json!([{"id": marks, "type": "http_done", "status": 200, "body": windows}]),
+    );
+    let shown = out["view"]["play"]["windows"].as_array().unwrap().clone();
+    assert_eq!(shown.len(), 1, "{shown:?}");
+    assert_eq!(shown[0]["kind"], "intro");
+    assert_eq!(shown[0]["end_ms"], 19_000);
+    assert_eq!(shown[0]["seek_to_ms"], 20_000);
 }
