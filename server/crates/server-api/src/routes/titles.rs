@@ -8,7 +8,7 @@ use contract::error::ErrorCode;
 use contract::{TitleKey, TitleKind};
 use server_catalog::{DataSet, item_key};
 use server_rules::Viewer;
-use server_rules::answer::{DetailExtras, SafeTitleDetail};
+use server_rules::answer::SafeTitleDetail;
 
 use crate::answer::{Keep, send_cleared};
 use crate::caller::Reader;
@@ -23,7 +23,11 @@ fn key_of(kind: &str, id: &str) -> ApiResult<TitleKey> {
     TitleKey::parse(&format!("{kind}:{id}")).map_err(|_| ApiError::not_found())
 }
 
-fn data(state: &AppState) -> ApiResult<std::sync::Arc<DataSet>> {
+/// The data set in use.
+///
+/// # Errors
+/// The feature is off with no data set.
+pub fn data(state: &AppState) -> ApiResult<std::sync::Arc<DataSet>> {
     let slot = state.data.as_ref().ok_or_else(|| ApiError::off("titles"))?;
     Ok(slot.load())
 }
@@ -59,7 +63,9 @@ fn detail(
     let visible = viewer
         .see(set, packed)
         .ok_or_else(|| ApiError::refused("title_refused"))?;
-    SafeTitleDetail::new(visible, &state.images, DetailExtras::default())
+    state
+        .pages
+        .title_page(set, viewer, visible)
         .ok_or_else(no_longer_available)
 }
 

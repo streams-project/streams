@@ -17,12 +17,13 @@ impl<'a> PageContext<'a> {
             .iter()
             .flat_map(|c| c.items.iter().map(|i| i.id))
             .collect();
-        for row in body.iter_mut() {
+        // a profile's own lists keep what they hold (S91: three titles make a row)
+        for row in body.iter_mut().filter(|row| !row.is_own_list()) {
             if row.items.iter().any(|i| chart_ids.contains(&i.id)) {
                 row.items.retain(|i| !chart_ids.contains(&i.id));
             }
         }
-        body.retain(|r| r.items.len() >= COHERENCE_MIN_ITEMS);
+        body.retain(|r| r.is_own_list() || r.items.len() >= COHERENCE_MIN_ITEMS);
 
         // Fixed slots: the rows of the catalog layer (Top 10, New Releases, collections) and of the personal layer sit at the same positions in every session and on every profile
         // that has them; the topic rows keep their order around them. Positions are zero based and apply once the rows exist.

@@ -18,6 +18,8 @@ pub mod role {
     pub const VECTORS: &str = "vectors";
     pub const VECTOR_KEYS: &str = "vector_keys";
     pub const SEEDS: &str = "seeds";
+    pub const SEED_NAMES: &str = "seed_names";
+    pub const SEED_GROUPS: &str = "seed_groups";
     pub const TAXONOMY_VECTORS: &str = "taxonomy_vectors";
     pub const TAXONOMY_ENTRIES: &str = "taxonomy_entries";
     pub const KIDS_VECTORS: &str = "kids_taxonomy_vectors";

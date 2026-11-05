@@ -119,6 +119,14 @@ pub struct RowItem {
     pub runtime: u32,
 }
 
+impl Row {
+    /// True for a row of the profile's own titles.
+    #[must_use]
+    pub fn is_own_list(&self) -> bool {
+        matches!(self.archetype.as_str(), "continue" | "list" | "favourites")
+    }
+}
+
 impl RowItem {
     pub fn from_catalog(item: &CatalogItem) -> Self {
         Self {

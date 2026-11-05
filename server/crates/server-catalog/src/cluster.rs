@@ -53,7 +53,7 @@ impl<'b> Reader<'b> {
 }
 
 impl ClusterSeeds {
-    /// Read a seed file of this width, with its optional `.names` and `.ids` files beside it.
+    /// Read a seed file of this width.
     ///
     /// # Errors
     /// The file cannot be read, is cut short, or has another width.
@@ -80,38 +80,34 @@ impl ClusterSeeds {
                 group: -1,
             });
         }
-        let mut set = Self { seeds };
-        set.read_names(path);
-        info!("Seeds loaded: {}", set.seeds.len());
-        Ok(set)
+        info!("Seeds loaded: {}", seeds.len());
+        Ok(Self { seeds })
     }
 
-    fn read_names(&mut self, path: &Path) {
-        let sidecar = |suffix: &str| {
-            let mut name = path.as_os_str().to_owned();
-            name.push(suffix);
-            std::fs::read_to_string(name).ok()
-        };
-        if let Some(text) = sidecar(".names")
-            && let Ok(names) = serde_json::from_str::<Vec<String>>(&text)
+    /// Add the names and groups of the seeds. A file of another length is left out.
+    pub fn read_names(&mut self, names: Option<&Path>, groups: Option<&Path>) {
+        if let Some(found) = names
+            .and_then(|path| std::fs::read_to_string(path).ok())
+            .and_then(|text| serde_json::from_str::<Vec<String>>(&text).ok())
         {
-            if names.len() == self.seeds.len() {
-                for (seed, name) in self.seeds.iter_mut().zip(names) {
+            if found.len() == self.seeds.len() {
+                for (seed, name) in self.seeds.iter_mut().zip(found) {
                     seed.name = name;
                 }
             } else {
                 warn!(
                     "Seed names left out: {} for {} seeds",
-                    names.len(),
+                    found.len(),
                     self.seeds.len()
                 );
             }
         }
-        if let Some(text) = sidecar(".ids")
-            && let Ok(ids) = serde_json::from_str::<Vec<i32>>(&text)
-            && ids.len() == self.seeds.len()
+        if let Some(found) = groups
+            .and_then(|path| std::fs::read_to_string(path).ok())
+            .and_then(|text| serde_json::from_str::<Vec<i32>>(&text).ok())
+            && found.len() == self.seeds.len()
         {
-            for (seed, id) in self.seeds.iter_mut().zip(ids) {
+            for (seed, id) in self.seeds.iter_mut().zip(found) {
                 seed.group = id;
             }
         }

@@ -7,7 +7,7 @@ use std::time::Duration;
 
 use contract::EpisodeRef;
 use contract::client::DeviceClass;
-use contract::screen::{Cursor, RefreshTrigger, ScreenName, SectionKind};
+use contract::screen::{Cursor, Nav, NavItem, RefreshTrigger, ScreenName, SectionKind};
 use moka::sync::Cache;
 use server_catalog::DataSet;
 use server_catalog::catalog::CatalogItem;
@@ -38,6 +38,8 @@ const ROW_PAGE: usize = 24;
 const ROW_PAGE_MAX: usize = 150;
 /// A row with fewer titles after sharing out is dropped.
 const MIN_ROW_ITEMS: usize = 4;
+/// A profile's own list makes a row from this many titles.
+const MIN_OWN_ROW_ITEMS: usize = 3;
 /// The choice of rows rotates every six hours.
 const SLOT_MS: u64 = 6 * 3_600_000;
 /// Full rows are kept for paging.
@@ -411,7 +413,7 @@ impl Pages {
         let mut shown_before: HashSet<u32> = HashSet::default();
         let mut out = Vec::new();
         for (position, row) in rows.iter().enumerate() {
-            let own_list = matches!(row.archetype.as_str(), "continue" | "list" | "favourites");
+            let own_list = row.is_own_list();
             let chart = row.archetype == "trending";
             let fresh = |item: &&RowItem| own_list || !seen.contains(&item.id);
             // the blocked names apply here too, so a row is judged on what this viewer will get
@@ -433,11 +435,17 @@ impl Pages {
                     .iter()
                     .filter(fresh)
                     .filter(allowed)
-                    .filter(|item| !shown_before.contains(&item.id))
+                    .filter(|item| chart || own_list || !shown_before.contains(&item.id))
                     .map(|item| item.id)
                     .collect()
             };
-            if kept.len() < MIN_ROW_ITEMS {
+            if kept.len()
+                < if own_list {
+                    MIN_OWN_ROW_ITEMS
+                } else {
+                    MIN_ROW_ITEMS
+                }
+            {
                 continue;
             }
             let titles: Vec<&CatalogItem> = kept
@@ -854,6 +862,67 @@ impl Pages {
                 more_like_this,
             },
         )
+    }
+}
+
+/// One entry of a menu, offered from eight rows, an event only in season.
+fn nav_item(id: &str, label: &str, screen: ScreenName, genre: Option<&str>) -> NavItem {
+    NavItem {
+        id: id.to_owned(),
+        label: label.to_owned(),
+        screen,
+        genre: genre.map(str::to_owned),
+    }
+}
+
+impl Pages {
+    /// The menu for this tier. Kids get their own home and pages.
+    #[must_use]
+    pub fn nav(&self, data: &DataSet, tier: Tier) -> Nav {
+        let kids = tier.is_kids();
+        let mut items = if kids {
+            vec![nav_item("kids", "Home", ScreenName::Kids, None)]
+        } else {
+            vec![nav_item("home", "Home", ScreenName::Home, None)]
+        };
+        items.extend([
+            nav_item("series", "Series", ScreenName::Series, None),
+            nav_item("films", "Films", ScreenName::Films, None),
+            nav_item("new", "New & Popular", ScreenName::New, None),
+            nav_item("my-list", "My List", ScreenName::MyList, None),
+        ]);
+        let composed = self.facts(data).requests.version >= 2;
+        for page in crate::genre_pages::PAGES
+            .iter()
+            .filter(|page| page.kids == kids)
+        {
+            let spec = resolve(page.name, page.surface.word(), &data.events);
+            let shape = Shape {
+                surface: page.surface,
+                spec: Some(spec),
+                language: None,
+                collection: None,
+                tier,
+            };
+            let plan = PagePlan::new(
+                self.cap(data, &shape, composed),
+                true,
+                false,
+                INITIAL_ROWS_GENRE,
+            );
+            if plan.supported() {
+                items.push(nav_item(
+                    page.id,
+                    page.name,
+                    ScreenName::Genre,
+                    Some(page.id),
+                ));
+            }
+        }
+        Nav {
+            items,
+            ttl_s: SCREEN_TTL_S,
+        }
     }
 }
 

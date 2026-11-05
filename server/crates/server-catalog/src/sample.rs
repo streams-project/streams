@@ -32,25 +32,28 @@ pub struct SampleTitle {
     pub other_names: Vec<String>,
 }
 
-const WORDS: [&str; 12] = [
-    "Copper", "Harbor", "Velvet", "Quiet", "Amber", "Northern", "Paper", "Silver", "Hollow",
-    "Crimson", "Salt", "Glass",
+const FIRST: [&str; 7] = ["Cop", "Har", "Vel", "Qui", "Am", "Nor", "Pap"];
+const SECOND: [&str; 11] = [
+    "ber", "den", "lin", "mor", "pen", "ric", "sun", "tor", "vex", "wyn", "zal",
 ];
-const THINGS: [&str; 12] = [
-    "Lantern",
-    "Orchard",
-    "Station",
-    "Meadow",
-    "Compass",
-    "Letters",
-    "Bridge",
-    "Kite",
-    "Tide",
-    "Clockwork",
-    "Garden",
-    "Signal",
+const THIRD: [&str; 5] = ["Lan", "Orch", "Stat", "Mead", "Comp"];
+const FOURTH: [&str; 13] = [
+    "ard", "bel", "cot", "dun", "eth", "fel", "gan", "hol", "ion", "jar", "kel", "lom", "mir",
 ];
-const GENRES: [(&str, &str); 8] = [
+
+/// An invented name. Its words differ from title to title, as real names do.
+fn invented_name(n: u32) -> String {
+    let at = |count: usize| n as usize % count;
+    format!(
+        "{}{} {}{}",
+        FIRST[at(FIRST.len())],
+        SECOND[at(SECOND.len())],
+        THIRD[at(THIRD.len())],
+        FOURTH[at(FOURTH.len())]
+    )
+}
+
+const GENRES: [(&str, &str); 12] = [
     ("Drama", "15"),
     ("Comedy", "12"),
     ("Action", "15"),
@@ -59,7 +62,14 @@ const GENRES: [(&str, &str); 8] = [
     ("Romance", "15"),
     ("Family", "U"),
     ("Animation", "PG"),
+    ("Crime", "15"),
+    ("History", "12"),
+    ("Music", "PG"),
+    ("Mystery", "12"),
 ];
+
+/// Invented titles of the regular kind.
+const REGULAR_TITLES: u32 = 480;
 
 /// Fixed key numbers of the titles with a special part in tests.
 pub mod special {
@@ -81,10 +91,8 @@ pub mod special {
 #[must_use]
 pub fn sample_titles() -> Vec<SampleTitle> {
     let mut titles = Vec::new();
-    for n in 0..144u32 {
+    for n in 0..REGULAR_TITLES {
         let (genre, cert) = GENRES[n as usize % GENRES.len()];
-        let word = WORDS[n as usize % WORDS.len()];
-        let thing = THINGS[(n as usize / WORDS.len()) % THINGS.len()];
         let kind = if n % 3 == 2 { "tv" } else { "movie" };
         let cert_cell = if kind == "tv" {
             serde_json::json!({ "GB": cert, "US": "TV-14" })
@@ -94,7 +102,7 @@ pub fn sample_titles() -> Vec<SampleTitle> {
         titles.push(SampleTitle {
             id: 100 + n,
             kind,
-            name: format!("The {word} {thing}"),
+            name: invented_name(n),
             genres: if genre == "Animation" {
                 vec![genre, "Family"]
             } else {
@@ -104,7 +112,7 @@ pub fn sample_titles() -> Vec<SampleTitle> {
             keywords: Vec::new(),
             adult: false,
             vote: 6.2 + f64::from(n % 27) / 10.0,
-            popularity: 3.0 + f64::from(144 - n),
+            popularity: 3.0 + f64::from(REGULAR_TITLES - n),
             votes: 40 + n * 25,
             year: 1975 + n % 50,
             other_names: Vec::new(),
@@ -319,6 +327,48 @@ fn entry(dir: &Path, name: &str, required: bool) -> std::io::Result<FileEntry> {
     })
 }
 
+/// One row request per genre, as a data set with composed rows holds.
+fn requests_json() -> String {
+    let requests: Vec<serde_json::Value> = GENRES
+        .iter()
+        .enumerate()
+        .map(|(n, (genre, _))| {
+            serde_json::json!({
+                "id": format!("sample-{n}"),
+                "name": format!("{genre} Stories"),
+                "kind": "theme",
+                "rules": { "genres_any": [genre] },
+                "page": "home",
+                "format": "both",
+                "profile": "any",
+            })
+        })
+        .collect();
+    serde_json::json!({ "version": 2, "requests": requests }).to_string()
+}
+
+/// The sample, with composed row requests. Deep rows page through cursors.
+///
+/// # Panics
+/// A test folder cannot be written.
+#[must_use]
+pub fn write_composed_sample(dir: &Path) -> PathBuf {
+    let path = write_sample(dir);
+    std::fs::write(dir.join("requests.json"), requests_json()).expect("sample requests");
+    let text = std::fs::read(&path).expect("manifest");
+    let mut manifest: DatasetManifest = serde_json::from_slice(&text).expect("manifest");
+    manifest.files.insert(
+        role::REQUESTS.to_owned(),
+        entry(dir, "requests.json", false).expect("sample entry"),
+    );
+    std::fs::write(
+        &path,
+        serde_json::to_vec_pretty(&manifest).expect("manifest"),
+    )
+    .expect("manifest file");
+    path
+}
+
 /// Write the sample into `dir` and return the manifest path.
 ///
 /// # Panics
@@ -346,6 +396,15 @@ pub fn write_sample(dir: &Path) -> PathBuf {
     });
     std::fs::write(dir.join("profiles.jsonl"), format!("{profile}\n")).expect("sample profiles");
     std::fs::write(dir.join("seeds.bin"), seed_bytes(&titles)).expect("sample seeds");
+    let names: Vec<String> = GENRES
+        .iter()
+        .map(|(genre, _)| format!("{genre} Evenings"))
+        .collect();
+    std::fs::write(
+        dir.join("seeds.names"),
+        serde_json::to_vec(&names).expect("names"),
+    )
+    .expect("sample names");
     std::fs::write(dir.join("fresh.json"), fresh_json(&titles)).expect("sample fresh list");
     std::fs::write(dir.join("events.json"), EVENTS_JSON).expect("sample events");
     let mut files = BTreeMap::new();
@@ -355,6 +414,7 @@ pub fn write_sample(dir: &Path) -> PathBuf {
         (role::VECTOR_KEYS, "vectors.keys", true),
         (role::PROFILES, "profiles.jsonl", false),
         (role::SEEDS, "seeds.bin", false),
+        (role::SEED_NAMES, "seeds.names", false),
         (role::FRESH, "fresh.json", false),
         (role::EVENTS, "events.json", false),
     ] {

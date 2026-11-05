@@ -98,6 +98,16 @@ pub async fn set_consent(
         personal: asked.personal,
     };
     door(&state)?.set_consent(&member, consent).await?;
+    // withdrawal deletes what was learned for the profile on this session
+    if let (false, Some(library), Some(profile)) =
+        (asked.personal, &state.library, member.active_profile())
+    {
+        library
+            .store()
+            .forget_taste(profile)
+            .await
+            .map_err(ApiError::from)?;
+    }
     send(&headers, &asked, Keep::Never)
 }
 

@@ -4,6 +4,8 @@ use axum::http::{HeaderValue, StatusCode, header};
 use axum::response::{IntoResponse, Response};
 use contract::error::{ErrorBody, ErrorCode, Notice};
 use server_accounts::DoorError;
+use server_library::LibraryError;
+use server_pages::PageError;
 use server_rules::RuleError;
 
 /// An answer that is not a success.
@@ -122,6 +124,32 @@ impl From<DoorError> for ApiError {
                 Self::busy(Code::Overloaded, "try_again", retry_after_s)
             }
             _ => Self::new(Status::INTERNAL_SERVER_ERROR, Code::Internal, "internal"),
+        }
+    }
+}
+
+impl From<LibraryError> for ApiError {
+    /// A failed store read keeps every token, and the op stays queued on the device.
+    fn from(error: LibraryError) -> Self {
+        match error {
+            LibraryError::BatchTooLarge => Self::bad("batch_too_large"),
+            _ => Self::busy(ErrorCode::Overloaded, "try_again", 5),
+        }
+    }
+}
+
+impl From<PageError> for ApiError {
+    fn from(error: PageError) -> Self {
+        match error {
+            PageError::NotFound => Self::not_found(),
+            PageError::Refused => Self::refused("page_refused"),
+            PageError::Off(feature) => Self::off(feature),
+            PageError::BadCursor => Self::bad("cursor"),
+            _ => Self::new(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                ErrorCode::Internal,
+                "internal",
+            ),
         }
     }
 }

@@ -9,6 +9,7 @@ use server_accounts::limits::DEFAULT_LIMITS;
 use server_accounts::{AccountStore, Door, PgStore, SystemClock};
 use server_api::{AppState, Config};
 use server_catalog::DataSlot;
+use server_library::{Library, LibraryStore, PgLibrary};
 use tracing::{info, warn};
 use tracing_subscriber::EnvFilter;
 
@@ -38,19 +39,18 @@ fn start_index(config: &Config, data: &Arc<DataSlot>) {
     });
 }
 
-async fn open_door(config: &Config) -> Result<Option<Door>> {
+async fn open_accounts(config: &Config) -> Result<Option<(Door, Library)>> {
     let Some(url) = &config.database_url else {
         return Ok(None);
     };
     let pool = sqlx::PgPool::connect(url)
         .await
         .context("the database did not answer")?;
-    let store: Arc<dyn AccountStore> = Arc::new(PgStore::new(pool));
-    Ok(Some(Door::new(
-        store,
-        Arc::new(SystemClock),
-        DEFAULT_LIMITS,
-    )))
+    let store: Arc<dyn AccountStore> = Arc::new(PgStore::new(pool.clone()));
+    let books: Arc<dyn LibraryStore> = Arc::new(PgLibrary::new(pool));
+    let clock = Arc::new(SystemClock);
+    let door = Door::new(store, clock.clone(), DEFAULT_LIMITS);
+    Ok(Some((door, Library::new(books, clock))))
 }
 
 async fn serve(config: Config) -> Result<()> {
@@ -64,8 +64,8 @@ async fn serve(config: Config) -> Result<()> {
     if let Some(data) = &data {
         start_index(&config, data);
     }
-    let door = open_door(&config).await?;
-    let state = Arc::new(AppState::new(config, door, data));
+    let (door, library) = open_accounts(&config).await?.unzip();
+    let state = Arc::new(AppState::new(config, door, data, library));
     let app = server_api::router(state).into_make_service_with_connect_info::<SocketAddr>();
     let listener = tokio::net::TcpListener::bind(&listen).await?;
     info!("Listening");

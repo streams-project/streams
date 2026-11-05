@@ -14,7 +14,7 @@ use tower_http::cors::{Any, CorsLayer};
 
 use crate::error::ApiError;
 use crate::guard::guard;
-use crate::routes::{devices, profiles, start, titles};
+use crate::routes::{commands, devices, pages, profiles, start, titles};
 use crate::state::Shared;
 
 /// Bearer only and no cookies, so any origin may call, and `Origin: null` from a packaged TV app is
@@ -82,7 +82,15 @@ pub fn router(state: Shared) -> Router {
             "/v1/profiles/{id}/limits",
             get(profiles::limits).put(profiles::set_limits),
         )
+        .route("/v1/profiles/me/settings", get(commands::settings))
         .route("/v1/titles/{kind}/{id}", get(titles::title))
+        .route("/v1/nav", get(pages::nav))
+        .route("/v1/screens/{name}", get(pages::screen))
+        .route("/v1/more/{cursor}", get(pages::more))
+        .route("/v1/search", get(pages::search))
+        .route("/v1/search/suggest", get(pages::suggest))
+        .route("/v1/commands", post(commands::commands))
+        .route("/v1/changes", get(commands::changes))
         .fallback(nothing_here)
         .layer(CatchPanicLayer::custom(panicked))
         .layer(from_fn_with_state(state.clone(), guard))

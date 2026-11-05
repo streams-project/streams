@@ -172,7 +172,7 @@ fn h70_a_catalogue_with_no_text_index_is_refused_at_load() {
 fn s151_the_sample_reads_its_seeds_events_and_fresh_list() {
     let dir = folder("extras");
     let set = DataSet::load(&write_sample(&dir)).unwrap();
-    assert_eq!(set.seeds.seeds.len(), 8);
+    assert_eq!(set.seeds.seeds.len(), 12);
     assert!(!set.fresh.items.is_empty());
     assert_eq!(set.events.all().len(), 2);
     assert!(set.dropped.is_empty());

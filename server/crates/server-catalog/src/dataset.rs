@@ -222,11 +222,13 @@ fn load_seeds(files: &DataFiles, dims: usize, dropped: &mut Vec<String>) -> Clus
     let Some(path) = files.get(role::SEEDS) else {
         return ClusterSeeds::default();
     };
-    ClusterSeeds::load(path, dims).unwrap_or_else(|error| {
+    let mut seeds = ClusterSeeds::load(path, dims).unwrap_or_else(|error| {
         warn!("Seeds left out: {error}");
         dropped.push(role::SEEDS.to_owned());
         ClusterSeeds::default()
-    })
+    });
+    seeds.read_names(files.get(role::SEED_NAMES), files.get(role::SEED_GROUPS));
+    seeds
 }
 
 /// Row definitions, centred on the corpus mean, with an empty store when absent or bad.

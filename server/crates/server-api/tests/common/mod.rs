@@ -14,7 +14,8 @@ use server_accounts::{
 };
 use server_api::{AppState, Config, Shared};
 use server_catalog::DataSlot;
-use server_catalog::sample::write_sample;
+use server_catalog::sample::{write_composed_sample, write_sample};
+use server_library::{Library, LibraryStore, MemoryLibrary};
 use tower::ServiceExt;
 
 static NEXT: AtomicU32 = AtomicU32::new(0);
@@ -48,6 +49,14 @@ pub fn harness(pairs: &[(&str, &str)]) -> Harness {
     harness_with(pairs, Some(&manifest), dir)
 }
 
+/// A server on the sample with composed rows.
+#[must_use]
+pub fn harness_composed(pairs: &[(&str, &str)]) -> Harness {
+    let dir = folder("composed");
+    let manifest = write_composed_sample(&dir);
+    harness_with(pairs, Some(&manifest), dir)
+}
+
 /// A server with no data set.
 #[must_use]
 pub fn harness_no_data(pairs: &[(&str, &str)]) -> Harness {
@@ -61,7 +70,14 @@ fn harness_with(pairs: &[(&str, &str)], manifest: Option<&Path>, dir: PathBuf) -
     let data = manifest.map(|path| Arc::new(DataSlot::open(path).expect("sample set")));
     let mut settings: Vec<(&str, &str)> = vec![("BUILD_ID", "test-build")];
     settings.extend_from_slice(pairs);
-    let mut state = AppState::new(Config::from_pairs(&settings), Some(door.clone()), data);
+    let books: Arc<dyn LibraryStore> = Arc::new(Arc::new(MemoryLibrary::default()));
+    let library = Library::new(books, clock.clone());
+    let mut state = AppState::new(
+        Config::from_pairs(&settings),
+        Some(door.clone()),
+        data,
+        Some(library),
+    );
     state.clock = clock.clone();
     Harness {
         state: Arc::new(state),

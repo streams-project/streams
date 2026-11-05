@@ -14,6 +14,7 @@ pub mod noise;
 pub mod page;
 pub mod personal;
 pub mod plan;
+mod reading;
 pub mod requests;
 pub mod row_label;
 pub mod search;
@@ -23,3 +24,4 @@ pub mod tags;
 pub mod titles;
 
 pub use build::{PageError, Pages, Personal, ScreenAsk};
+pub use reading::personal_of;
