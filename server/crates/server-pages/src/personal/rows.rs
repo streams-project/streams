@@ -2,15 +2,20 @@
 use super::*;
 
 const NEW_RELEASE_DAYS: i64 = 45;
+/// A title is a gem when it is rated well by enough people but few have found it yet.
 const GEM_MIN_RATING: f32 = 7.4;
 const GEM_MAX_POPULARITY: f32 = 30.0;
 
-/// A title is a gem when it is rated well by enough people but few have found it yet.
-/// Titles in the Everyone's Watching row.
-const POPULAR_ROW: usize = 60;
+/// Titles in the Everyone's Watching row: four rows of ROW_SIZE, the depth a popular row is paged
+/// to before the same titles start coming round again.
+const POPULAR_ROW: usize = crate::page::ROW_SIZE * 4;
 /// The scope's own titles a thin page draws its session rows from (best quality first)
 const SCOPE_POOL: usize = 3000;
-/// How much a title's closeness to its genre page counts next to its closeness to the profile when a genre page ranks its personal rows.
+/// How much a title's closeness to its genre page counts next to its closeness to the profile when
+/// a genre page ranks its personal rows. A personal row is the profile's row, so taste leads by an
+/// order of magnitude: a tenth of the taste weight, which also keeps page fit under the quality
+/// term of the same score (0.25 in `rank_by_taste`). A decision of this repository, not a fit to
+/// anyone else's pages.
 const PAGE_FIT_WEIGHT: f32 = 0.1;
 /// A genre page's centre is the mean of this many of its row titles at most.
 const PAGE_CENTRE_TITLES: usize = 4000;

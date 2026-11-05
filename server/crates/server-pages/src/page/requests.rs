@@ -16,18 +16,34 @@ const REQUEST_RANKED: usize = 60;
 const REQUEST_LOOK: usize = 400;
 /// The tiles of a row a viewer sees before paging it: unique across the page (version 2).
 pub const FIRST_SCREEN: usize = 6;
-/// The deepest a composed row goes.
-pub const MAX_ROW_DEPTH: usize = 150;
-/// The first tiles of a composed row are made diverse (MMR); the rest follow the ranking.
+/// The first tiles of a composed row are made diverse (MMR); the rest follow the ranking. The same
+/// count `build` sends with a row, so the diverse head is exactly the tiles a viewer gets at once.
 const DIVERSE_HEAD: usize = 24;
-/// Composed pages keep rows named for a place or an era to this share each.
-const PLACE_SHARE: f32 = 0.10;
-const ERA_SHARE: f32 = 0.08;
+/// Pages of its own size a composed row is held for. `request_row` widens its look to `depth * 3`,
+/// and five pages is the deepest whole number of pages whose look still fits inside REQUEST_LOOK,
+/// so a composed row is always drawn from the eligible pool that constant names.
+const ROW_PAGES: usize = 5;
+/// The deepest a composed row goes: whole pages of DIVERSE_HEAD tiles, because a viewer reads the
+/// row a page at a time through its cursor and a depth that is not a whole number of pages ends in
+/// a short last page. Derived, so the depth moves with the paging unit and the look.
+pub const MAX_ROW_DEPTH: usize = DIVERSE_HEAD * ROW_PAGES;
 
 /// Share of animated titles a row that is not about animation may hold on a page that is not a child's.
 const ANIMATION_SHARE: f32 = 0.25;
 
-/// Moods that sink down a page.
+/// What a mood or origin row starts from in `request_score`, and what the plainest kind of row
+/// starts from. The scale of the kind priors in that function.
+const PRIOR_MOOD: f32 = 0.7;
+const PRIOR_PLAIN: f32 = 0.6;
+/// How far the session's rotation may lift a request (`entry_noise` answers 0 to 1).
+const NOISE_WEIGHT: f32 = 0.35;
+/// What a row named for a harsh mood loses. A harsh mood row must stay under the plainest kind of
+/// row even when the session's rotation lifts it as far as it can go, so the penalty is the gap
+/// from the mood prior down to the plain prior plus the whole of the rotation's weight.
+const HARSH_PENALTY: f32 = PRIOR_MOOD - PRIOR_PLAIN + NOISE_WEIGHT;
+
+/// Mood words of an adult tone, which sink down a page. This repository's own list: a mood row
+/// named by one of these words is not what a page should lead with when anyone may be watching.
 const HARSH_MOODS: &[&str] = &[
     "Violent",
     "Raunchy",
@@ -179,8 +195,14 @@ const EVENT_PAGE_OWN_ROW: f32 = 0.8;
 const GENRE_PAGE_MIN_SHARE: f32 = 0.15;
 /// Or this many of its first REQUEST_LOOK titles inside the page.
 const GENRE_PAGE_MIN_FIT: usize = 25;
-/// Rows a composed page holds at most.
-const COMPOSED_ROWS_CAP: usize = 40; // plus the personal and chart rows the page adds, about 48 in all
+/// Slots the page keeps for its own rows, so composed rows never claim them: the distinct indices
+/// of the SLOT_ constants in `tuning` (Continue, Top Picks, the two charts, the list, the four
+/// collections, New, the three about rows, Next, Gems, Love, Favourites, Popular). A test counts
+/// them from those constants, so this number cannot drift from the slot table.
+const RESERVED_SLOTS: usize = 18;
+/// Rows of composed requests a page holds at most: the page's own cap less the slots it keeps for
+/// its own rows. Derived from this repository's two row caps, not from any outside page count.
+const COMPOSED_ROWS_CAP: usize = crate::plan::ROWS_CAP - RESERVED_SLOTS;
 /// Rows named for an award or acclaim (Award-Winning Films, Critically Acclaimed Series) per page: one, because rows that loop one word
 /// over every genre read as copies.
 const AWARD_ROWS_PER_PAGE: usize = 1;
@@ -337,8 +359,8 @@ impl<'a> PageContext<'a> {
             // an animation tier row is curated by audience and rhythm: it leads like a calendar row
             "tier" => 0.95,
             "theme" => 0.8,
-            "origin" | "mood" => 0.7,
-            _ => 0.6,
+            "origin" | "mood" => PRIOR_MOOD,
+            _ => PRIOR_PLAIN,
         };
         // a row whose format matches the page exactly leads on Films and Series
         let fits = if r.free && self.surface != "both" && r.owner_surface == self.surface {
@@ -348,7 +370,7 @@ impl<'a> PageContext<'a> {
         };
         // harsher moods sit in the lower half of a page
         let harsh = if r.free && HARSH_MOODS.iter().any(|m| r.def.name.starts_with(m)) {
-            0.45
+            HARSH_PENALTY
         } else {
             0.0
         };
@@ -363,7 +385,7 @@ impl<'a> PageContext<'a> {
         let noise = if self.session.is_empty() {
             0.0
         } else {
-            0.35 * entry_noise(self.session, id_number(&r.def.id))
+            NOISE_WEIGHT * entry_noise(self.session, id_number(&r.def.id))
         };
         prior + fits + taste_fit + appeal - children - harsh + noise
     }
@@ -383,8 +405,7 @@ impl<'a> PageContext<'a> {
 
     /// The rows of a page made from requests: requests by score, each turned into a row while it is unlike the rows placed (centre and kind share) and its titles are not
     /// on the page yet (version 2: not in the first screen of a row yet). The Top 10 rows are added later by `place_charts`, which also takes their titles out of these
-    /// rows. Each row records the order it was built in (`request_order`), so a check can rebuild it with exactly the titles that were taken before it
-    ///.
+    /// rows. Each row records the order it was built in (`request_order`), so a check can rebuild it with exactly the titles that were taken before it.
     pub(crate) fn build_request_page(&self) -> Vec<Row> {
         let composed = self.composed_rows();
         let taste: Option<Vec<f32>> = self.taste.iter().any(|x| x.abs() > 1e-6).then(|| {
@@ -473,11 +494,13 @@ impl<'a> PageContext<'a> {
         } else {
             ((self.target_rows as f32 * REQUEST_KIND_SHARE).ceil() as usize).max(2)
         };
-        // composed pages keep a rhythm: rows named for a place or an era are a small share of the page; the rest are topic rows
+        // composed pages keep a rhythm: a row named for a place or an era changes the subject, so
+        // at most one of each per screen of rows the page builds at once (INITIAL_ROWS); the rest
+        // are topic rows. One rule from this repository's own row budget, in place of two shares.
+        let per_screen = (self.target_rows / crate::plan::INITIAL_ROWS).max(1);
         let family_cap = |fam: &str| -> usize {
             match fam {
-                "place" => ((self.target_rows as f32 * PLACE_SHARE).ceil() as usize).max(1),
-                "era" => ((self.target_rows as f32 * ERA_SHARE).ceil() as usize).max(1),
+                "place" | "era" => per_screen,
                 "award" => AWARD_ROWS_PER_PAGE,
                 _ => usize::MAX,
             }
@@ -724,5 +747,77 @@ impl<'a> PageContext<'a> {
             items,
             meta: Some(serde_json::json!({ "request": req.def.id })),
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Every number in this file that used to carry an outside page count now comes from one of
+    /// this repository's own constants. These checks fail if a number drifts from its reason.
+    #[test]
+    fn s75_the_row_depth_and_the_row_caps_follow_from_this_repository_s_own_numbers() {
+        assert_eq!(
+            DIVERSE_HEAD,
+            crate::build::ROW_PAGE,
+            "the diverse head is the tiles a row is sent with, so a viewer's first page is the diverse one"
+        );
+        assert_eq!(
+            MAX_ROW_DEPTH % DIVERSE_HEAD,
+            0,
+            "a row is read a page at a time, so its depth is whole pages"
+        );
+        assert!(
+            MAX_ROW_DEPTH * 3 <= REQUEST_LOOK,
+            "request_row widens its look to depth * 3, which must stay inside REQUEST_LOOK ({REQUEST_LOOK}), else a composed row is drawn from a wider pool than the constant names"
+        );
+        assert!(
+            (MAX_ROW_DEPTH + DIVERSE_HEAD) * 3 > REQUEST_LOOK,
+            "ROW_PAGES is the deepest whole number of pages that fits, so one more page must not fit"
+        );
+        assert_eq!(
+            COMPOSED_ROWS_CAP + RESERVED_SLOTS,
+            crate::plan::ROWS_CAP,
+            "composed rows take the page's cap less the slots the page keeps for its own rows"
+        );
+    }
+
+    #[test]
+    fn s75_the_reserved_slots_are_counted_from_the_slot_table() {
+        let mut slots: Vec<usize> = vec![
+            SLOT_CONTINUE,
+            SLOT_TOP_PICKS,
+            SLOT_LIST,
+            SLOT_NEW,
+            SLOT_NEXT,
+            SLOT_GEMS,
+            SLOT_LOVE,
+            SLOT_FAVOURITES,
+            SLOT_POPULAR,
+        ];
+        slots.extend(SLOT_CHART);
+        slots.extend(SLOT_COLLECTION);
+        slots.extend(SLOT_ABOUT);
+        slots.sort_unstable();
+        slots.dedup();
+        assert_eq!(
+            slots.len(),
+            RESERVED_SLOTS,
+            "RESERVED_SLOTS must equal the distinct SLOT_ indices in tuning.rs"
+        );
+    }
+
+    #[test]
+    fn s75_a_harsh_mood_row_cannot_outrank_the_plainest_row_even_at_full_rotation() {
+        let lifted = PRIOR_MOOD + NOISE_WEIGHT - HARSH_PENALTY;
+        assert!(
+            lifted <= PRIOR_PLAIN,
+            "a harsh mood row lifted as far as the rotation can lift it ({lifted}) must stay at or under the plain prior ({PRIOR_PLAIN})"
+        );
+        assert!(
+            PRIOR_MOOD + NOISE_WEIGHT - (HARSH_PENALTY - 0.01) > PRIOR_PLAIN,
+            "the penalty is the smallest that does it, so a hundredth less must not"
+        );
     }
 }

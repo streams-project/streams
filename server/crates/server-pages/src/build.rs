@@ -32,10 +32,9 @@ use crate::tags::{item_badges, item_tags};
 
 /// Seconds a screen stays good on a client.
 const SCREEN_TTL_S: u32 = 30;
-/// Tiles sent with a row. The rest are read through its cursor.
-const ROW_PAGE: usize = 24;
-/// Most tiles one page of a row holds.
-const ROW_PAGE_MAX: usize = 150;
+/// Tiles sent with a row, and the most one page of a row holds. The rest are read through its
+/// cursor, a page at a time.
+pub(crate) const ROW_PAGE: usize = 24;
 /// A row with fewer titles after sharing out is dropped.
 const MIN_ROW_ITEMS: usize = 4;
 /// A profile's own list makes a row from this many titles.
@@ -721,7 +720,7 @@ impl Pages {
                 .iter()
                 .find(|row| row.id == *section)
                 .ok_or(PageError::BadCursor)?;
-            let end = (offset + ROW_PAGE_MAX.min(ROW_PAGE)).min(row.keys.len());
+            let end = (offset + ROW_PAGE).min(row.keys.len());
             let source = &rows[row.position];
             let ranked = source.archetype == "trending";
             let tiles: Vec<SafeTile> = row
