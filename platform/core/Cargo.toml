@@ -7,6 +7,9 @@ publish.workspace = true
 
 [lib]
 path = "src/lib.rs"
+# rustdoc passes this crate as `--extern core`, which hides the real core
+# prelude, so any doctest run here fails. Tests live in tests/ and fixtures.
+doctest = false
 
 [dependencies]
 contract = { path = "../contract" }
