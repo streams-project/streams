@@ -46,6 +46,11 @@ Fixture files are named `<Type>.<case>.json`.
   to the core, because the core reads its error code.
 - `next_wake_ms` is the one timer a host keeps. The timer effect stays in the shape, and the core
   takes `timer_fired` as a plain wake.
+- Hello is read again at its `ttl_s`, and the view carries the last one, so a screen takes limits
+  and features from one place.
+- The server names the next episode, season rollover included, and `autoplay_next` carries the
+  profile's setting. With no `next_episode` the end of play stays the end.
+- `ended_elsewhere` is how a host says another tab ended the session.
 - `Action::Request` sends a prepared request with the session's token, under the id of its event.
   This is how anything around the core reaches the server without ever holding a token.
 - Three versions, kept apart: the wire by date in `Api-Version`, the C boundary by number, crates

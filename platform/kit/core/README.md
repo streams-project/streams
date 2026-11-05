@@ -14,6 +14,10 @@ Proof that the core works, and that the offline layer changes nothing the core d
   mutable globals. It also builds a copy of the core with a planted `extern crate std` and checks
   that the wasm32v1-none build refuses it, while a clean copy passes.
 
+- `tests/coverage.rs` holds every ledger row homed in the core or the layer to a test or session
+  that names it, or to a line in `open.csv` that says what is missing and what unblocks it. A row
+  marked `no` there may have no test claiming it, and a row marked `part` must have one.
+
 ## A session
 
 Plain JSON with scripted time, tied to ledger ids by `covers`. `common.json` holds the config, the

@@ -1,0 +1,10 @@
+id,built,missing,unblocks
+C3,no,Pick up from another device: changes reach only the layer so the core sees no foreign position,a change event from the layer to the core or a position in the play answer
+C37,no,Audio list: the Tracks event and attempt audio tags are read by nothing yet,a list shape in the play view and the base tag rule
+C38,no,Move to another source for its language after C37,C37
+C49,no,Keeping a subtitle choice and the subtitle_default of the play answer,step 9 subtitle fixtures
+C50,no,Another version of a subtitle: next_subtitle_file answers unsupported,step 9 subtitle fixtures
+C51,no,Subtitle timing and delay,step 9 subtitle fixtures
+C52,no,Cues as time windows and the subtitle length check against driver duration,step 9 subtitle fixtures
+C58,part,Watch credits hiding the offer for one play has no action yet; the phone lock screen stays a device rule,an action in the contract
+C59,part,Seek is clamped; skip steps and volume and speed have no action yet,actions in the contract
