@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "avatar": {
+      "type": "string"
+    },
+    "kids": {
+      "type": "boolean"
+    },
+    "name": {
+      "type": "string"
+    }
+  },
+  "title": "ProfileUpdate",
+  "type": "object"
+}

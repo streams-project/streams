@@ -1,0 +1,43 @@
+{
+  "$defs": {
+    "ServiceState": {
+      "description": "State of a part of the service.",
+      "enum": [
+        "ready",
+        "degraded",
+        "down"
+      ],
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`/v1/ready`, for outside checks.",
+  "properties": {
+    "build": {
+      "type": "string"
+    },
+    "data_age_s": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "data_hash": {
+      "type": "string"
+    },
+    "finder": {
+      "$ref": "#/$defs/ServiceState"
+    },
+    "index": {
+      "$ref": "#/$defs/ServiceState"
+    }
+  },
+  "required": [
+    "build",
+    "data_hash",
+    "data_age_s",
+    "index",
+    "finder"
+  ],
+  "title": "Ready",
+  "type": "object"
+}

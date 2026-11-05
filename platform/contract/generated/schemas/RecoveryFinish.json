@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "code": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "new_password": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "email",
+    "code",
+    "new_password"
+  ],
+  "title": "RecoveryFinish",
+  "type": "object"
+}

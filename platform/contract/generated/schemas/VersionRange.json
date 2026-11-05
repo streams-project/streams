@@ -1,0 +1,25 @@
+{
+  "$defs": {
+    "WireDate": {
+      "description": "A wire date, YYYY-MM-DD.",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "The wire dates a server answers. Never compared for equality.",
+  "properties": {
+    "max": {
+      "$ref": "#/$defs/WireDate"
+    },
+    "min": {
+      "$ref": "#/$defs/WireDate"
+    }
+  },
+  "required": [
+    "min",
+    "max"
+  ],
+  "title": "VersionRange",
+  "type": "object"
+}

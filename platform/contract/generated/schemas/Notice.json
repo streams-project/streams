@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Text a client can draw with no other knowledge, including a client below the floor.",
+  "properties": {
+    "action_address": {
+      "type": "string"
+    },
+    "action_label": {
+      "type": "string"
+    },
+    "label": {
+      "description": "Label key, for clients with the strings.",
+      "type": "string"
+    },
+    "text": {
+      "description": "Plain text in the viewer's language.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "label",
+    "text"
+  ],
+  "title": "Notice",
+  "type": "object"
+}

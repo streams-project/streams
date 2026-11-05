@@ -1,0 +1,274 @@
+{
+  "$defs": {
+    "Change": {
+      "description": "One change a device reads.",
+      "oneOf": [
+        {
+          "properties": {
+            "change": {
+              "const": "title",
+              "type": "string"
+            },
+            "list": {
+              "$ref": "#/$defs/ListState"
+            },
+            "rating": {
+              "$ref": "#/$defs/RatingState"
+            },
+            "title": {
+              "$ref": "#/$defs/TitleKey"
+            }
+          },
+          "required": [
+            "change",
+            "title",
+            "list",
+            "rating"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "change": {
+              "const": "progress",
+              "type": "string"
+            },
+            "state": {
+              "$ref": "#/$defs/ProgressState"
+            }
+          },
+          "required": [
+            "change",
+            "state"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Hidden as a whole, every episode of a series included.",
+          "properties": {
+            "change": {
+              "const": "hidden",
+              "type": "string"
+            },
+            "title": {
+              "$ref": "#/$defs/TitleKey"
+            }
+          },
+          "required": [
+            "change",
+            "title"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "change": {
+              "const": "history_cleared",
+              "type": "string"
+            },
+            "changed_at_ms": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "change",
+            "changed_at_ms"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "change": {
+              "const": "setting",
+              "type": "string"
+            },
+            "key": {
+              "$ref": "#/$defs/SettingKey"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "change",
+            "key",
+            "value"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Cursor": {
+      "description": "An opaque position in a list. Clients hand it back and never read it.",
+      "type": "string"
+    },
+    "EpisodeRef": {
+      "description": "One episode of a series. A film has none.",
+      "properties": {
+        "episode": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "season": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "season",
+        "episode"
+      ],
+      "type": "object"
+    },
+    "ListState": {
+      "description": "List state of a title, versioned apart from its rating.",
+      "properties": {
+        "changed_at_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "in_list": {
+          "type": "boolean"
+        },
+        "version": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "in_list",
+        "version",
+        "changed_at_ms"
+      ],
+      "type": "object"
+    },
+    "ProgressState": {
+      "description": "A position, key by title and episode.",
+      "properties": {
+        "changed_at_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "completed": {
+          "type": "boolean"
+        },
+        "duration_s": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "episode": {
+          "$ref": "#/$defs/EpisodeRef"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "position_s": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "title": {
+          "$ref": "#/$defs/TitleKey"
+        },
+        "version": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "title",
+        "position_s",
+        "duration_s",
+        "completed",
+        "hidden",
+        "version",
+        "changed_at_ms"
+      ],
+      "type": "object"
+    },
+    "Rating": {
+      "description": "Rating words on the wire. Screens use the words like, love and dislike.",
+      "enum": [
+        "down",
+        "up",
+        "love"
+      ],
+      "type": "string"
+    },
+    "RatingState": {
+      "description": "Rating state of a title, versioned apart from its list state.",
+      "properties": {
+        "changed_at_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rating": {
+          "$ref": "#/$defs/Rating",
+          "description": "Absent when no rating is set."
+        },
+        "version": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "version",
+        "changed_at_ms"
+      ],
+      "type": "object"
+    },
+    "SettingKey": {
+      "description": "Settings a queued command may change. Age rating and blocked titles are absent on\npurpose: they need a step up, so a queued write can never touch them.",
+      "enum": [
+        "autoplay_next",
+        "autoplay_previews",
+        "audio_language",
+        "subtitle_language",
+        "subtitle_style",
+        "ui_language",
+        "handle",
+        "gender"
+      ],
+      "type": "string"
+    },
+    "TitleKey": {
+      "description": "movie:<id> or tv:<id>. A bare id does not parse.",
+      "pattern": "^(movie|tv):[1-9][0-9]{0,9}$",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`GET /v1/changes`.",
+  "properties": {
+    "changes": {
+      "items": {
+        "$ref": "#/$defs/Change"
+      },
+      "type": "array"
+    },
+    "cursor": {
+      "$ref": "#/$defs/Cursor"
+    },
+    "has_more": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "changes",
+    "cursor",
+    "has_more"
+  ],
+  "title": "Changes",
+  "type": "object"
+}

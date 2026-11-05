@@ -1,0 +1,29 @@
+{
+  "$defs": {
+    "ServiceState": {
+      "description": "State of a part of the service.",
+      "enum": [
+        "ready",
+        "degraded",
+        "down"
+      ],
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`/v1/health` of a finder.",
+  "properties": {
+    "build": {
+      "type": "string"
+    },
+    "state": {
+      "$ref": "#/$defs/ServiceState"
+    }
+  },
+  "required": [
+    "build",
+    "state"
+  ],
+  "title": "FinderHealth",
+  "type": "object"
+}

@@ -1,0 +1,49 @@
+{
+  "$defs": {
+    "Cue": {
+      "description": "One cue.",
+      "properties": {
+        "end_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "start_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "start_ms",
+        "end_ms",
+        "text"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`/v1/subtitles/{file}`. The core checks `last_end_ms` against the driver's duration.",
+  "properties": {
+    "cues": {
+      "items": {
+        "$ref": "#/$defs/Cue"
+      },
+      "type": "array"
+    },
+    "last_end_ms": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "cues",
+    "last_end_ms"
+  ],
+  "title": "SubtitleBody",
+  "type": "object"
+}

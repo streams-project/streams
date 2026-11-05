@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "device_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "device_name"
+  ],
+  "title": "DeviceCodeRequest",
+  "type": "object"
+}

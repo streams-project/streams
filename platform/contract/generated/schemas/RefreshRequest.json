@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "refresh_token": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "refresh_token"
+  ],
+  "title": "RefreshRequest",
+  "type": "object"
+}

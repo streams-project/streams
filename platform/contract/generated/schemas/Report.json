@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`/v1/reports`.",
+  "properties": {
+    "build": {
+      "type": "string"
+    },
+    "code": {
+      "type": "string"
+    },
+    "detail": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "code",
+    "build"
+  ],
+  "title": "Report",
+  "type": "object"
+}

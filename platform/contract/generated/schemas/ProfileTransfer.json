@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "to_account_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "to_account_email"
+  ],
+  "title": "ProfileTransfer",
+  "type": "object"
+}

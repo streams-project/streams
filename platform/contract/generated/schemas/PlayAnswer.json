@@ -1,0 +1,165 @@
+{
+  "$defs": {
+    "AgeCard": {
+      "description": "Age card shown once at the start of play.",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "label"
+      ],
+      "type": "object"
+    },
+    "Attempt": {
+      "description": "One way to play. Attempts arrive in the order to try, ranked once on the server.\n`headers` is required, even when empty, and no provider name is carried.",
+      "properties": {
+        "audio": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "codecs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "container": {
+          "type": "string"
+        },
+        "expires_at_ms": {
+          "description": "Wall time, ms since 1970, after which the address stops working.",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "group": {
+          "description": "Opaque group. After a failure the core skips other attempts of this group.",
+          "type": "string"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Headers the player must send, such as Referer, Origin, User-Agent.",
+          "type": "object"
+        },
+        "height": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/AttemptKind"
+        },
+        "url": {
+          "type": "string"
+        },
+        "verified": {
+          "description": "True when the finder fetched and read this address.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "url",
+        "kind",
+        "group",
+        "headers",
+        "verified"
+      ],
+      "type": "object"
+    },
+    "AttemptKind": {
+      "description": "How an attempt is played.",
+      "enum": [
+        "hls",
+        "file",
+        "embed"
+      ],
+      "type": "string"
+    },
+    "EpisodeRef": {
+      "description": "One episode of a series. A film has none.",
+      "properties": {
+        "episode": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "season": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "season",
+        "episode"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Answer to a play request.",
+  "properties": {
+    "age_card": {
+      "$ref": "#/$defs/AgeCard"
+    },
+    "attempts": {
+      "items": {
+        "$ref": "#/$defs/Attempt"
+      },
+      "type": "array"
+    },
+    "audio_default": {
+      "type": "string"
+    },
+    "dropped": {
+      "description": "Attempts removed by the capability card.",
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "more": {
+      "description": "True when more attempts may arrive through `/v1/play/{id}/more`.",
+      "type": "boolean"
+    },
+    "next_episode": {
+      "$ref": "#/$defs/EpisodeRef"
+    },
+    "play_id": {
+      "type": "string"
+    },
+    "start_at_ms": {
+      "description": "Where to start.",
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "subtitle_default": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "play_id",
+    "attempts",
+    "start_at_ms",
+    "dropped",
+    "more"
+  ],
+  "title": "PlayAnswer",
+  "type": "object"
+}

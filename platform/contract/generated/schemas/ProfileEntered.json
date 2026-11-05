@@ -1,0 +1,70 @@
+{
+  "$defs": {
+    "Profile": {
+      "description": "One profile.",
+      "properties": {
+        "avatar": {
+          "type": "string"
+        },
+        "has_pin": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kids": {
+          "type": "boolean"
+        },
+        "main": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kids",
+        "main",
+        "has_pin"
+      ],
+      "type": "object"
+    },
+    "ScreenName": {
+      "description": "The screens the server builds.",
+      "enum": [
+        "home",
+        "films",
+        "series",
+        "genre",
+        "new",
+        "my-list",
+        "kids",
+        "search",
+        "notifications",
+        "activity",
+        "games",
+        "clips",
+        "language"
+      ],
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "The profile answer names its home, so the core can map it to a target.",
+  "properties": {
+    "home": {
+      "$ref": "#/$defs/ScreenName"
+    },
+    "profile": {
+      "$ref": "#/$defs/Profile"
+    }
+  },
+  "required": [
+    "profile",
+    "home"
+  ],
+  "title": "ProfileEntered",
+  "type": "object"
+}

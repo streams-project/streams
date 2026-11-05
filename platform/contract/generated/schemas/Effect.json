@@ -1,0 +1,561 @@
+{
+  "$defs": {
+    "BodyTarget": {
+      "description": "Where the body of an answer goes.",
+      "enum": [
+        "core",
+        "screen"
+      ],
+      "type": "string"
+    },
+    "DriverCommand": {
+      "description": "A command to the player. Attempts carry their headers here.",
+      "oneOf": [
+        {
+          "properties": {
+            "generation": {
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "headers": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "max_bitrate": {
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "max_height": {
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "op": {
+              "const": "open",
+              "type": "string"
+            },
+            "start_at_ms": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "op",
+            "url",
+            "headers",
+            "start_at_ms",
+            "generation"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "op": {
+              "const": "play",
+              "type": "string"
+            }
+          },
+          "required": [
+            "op"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "op": {
+              "const": "pause",
+              "type": "string"
+            }
+          },
+          "required": [
+            "op"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "op": {
+              "const": "seek",
+              "type": "string"
+            },
+            "to_ms": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "op",
+            "to_ms"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "op": {
+              "const": "rate",
+              "type": "string"
+            },
+            "percent": {
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "op",
+            "percent"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "op": {
+              "const": "volume",
+              "type": "string"
+            },
+            "percent": {
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "op",
+            "percent"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "op": {
+              "const": "select_audio",
+              "type": "string"
+            },
+            "track": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "op",
+            "track"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "op": {
+              "const": "select_text",
+              "type": "string"
+            },
+            "track": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "op"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "op": {
+              "const": "close",
+              "type": "string"
+            }
+          },
+          "required": [
+            "op"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "EpisodeRef": {
+      "description": "One episode of a series. A film has none.",
+      "properties": {
+        "episode": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "season": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "season",
+        "episode"
+      ],
+      "type": "object"
+    },
+    "HttpClass": {
+      "description": "How an http effect may be handled.",
+      "oneOf": [
+        {
+          "const": "command",
+          "description": "Must reach the server. The offline layer keeps it when one is present.",
+          "type": "string"
+        },
+        {
+          "const": "cacheable",
+          "description": "May be answered from a kept copy.",
+          "type": "string"
+        },
+        {
+          "const": "plain",
+          "description": "The host performs it as it arrives.",
+          "type": "string"
+        }
+      ]
+    },
+    "HttpMethod": {
+      "description": "Methods of an http effect.",
+      "enum": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "type": "string"
+    },
+    "LogLevel": {
+      "description": "Log levels.",
+      "enum": [
+        "debug",
+        "info",
+        "warn",
+        "error"
+      ],
+      "type": "string"
+    },
+    "Notice": {
+      "description": "Text a client can draw with no other knowledge, including a client below the floor.",
+      "properties": {
+        "action_address": {
+          "type": "string"
+        },
+        "action_label": {
+          "type": "string"
+        },
+        "label": {
+          "description": "Label key, for clients with the strings.",
+          "type": "string"
+        },
+        "text": {
+          "description": "Plain text in the viewer's language.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "text"
+      ],
+      "type": "object"
+    },
+    "RouteTarget": {
+      "description": "What an address opens.",
+      "properties": {
+        "episode": {
+          "$ref": "#/$defs/EpisodeRef"
+        },
+        "next": {
+          "description": "A safe address to return to after sign in.",
+          "type": "string"
+        },
+        "screen": {
+          "$ref": "#/$defs/ScreenName"
+        },
+        "target": {
+          "$ref": "#/$defs/Target"
+        },
+        "title": {
+          "$ref": "#/$defs/TitleKey"
+        }
+      },
+      "required": [
+        "target"
+      ],
+      "type": "object"
+    },
+    "ScreenName": {
+      "description": "The screens the server builds.",
+      "enum": [
+        "home",
+        "films",
+        "series",
+        "genre",
+        "new",
+        "my-list",
+        "kids",
+        "search",
+        "notifications",
+        "activity",
+        "games",
+        "clips",
+        "language"
+      ],
+      "type": "string"
+    },
+    "SecretOp": {
+      "description": "Secret operations.",
+      "enum": [
+        "get",
+        "put",
+        "delete"
+      ],
+      "type": "string"
+    },
+    "StoreOp": {
+      "description": "Store operations. Only the offline layer uses store.",
+      "enum": [
+        "get",
+        "put",
+        "delete",
+        "list"
+      ],
+      "type": "string"
+    },
+    "Target": {
+      "description": "A semantic target. Each device maps it to one of its own screens.",
+      "enum": [
+        "start",
+        "sign_in",
+        "profiles",
+        "home",
+        "kids_home",
+        "screen",
+        "title",
+        "watch",
+        "not_found",
+        "wait",
+        "upgrade"
+      ],
+      "type": "string"
+    },
+    "TimerOp": {
+      "description": "Timer operations. A clear uses the id of the timer it clears.",
+      "enum": [
+        "set",
+        "clear"
+      ],
+      "type": "string"
+    },
+    "TitleKey": {
+      "description": "movie:<id> or tv:<id>. A bare id does not parse.",
+      "pattern": "^(movie|tv):[1-9][0-9]{0,9}$",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One effect. The result comes back as an event with this id.",
+  "oneOf": [
+    {
+      "description": "A path, never an address. The host holds the base address.",
+      "properties": {
+        "body": {
+          "type": "string"
+        },
+        "class": {
+          "$ref": "#/$defs/HttpClass"
+        },
+        "deadline_ms": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "kind": {
+          "const": "http",
+          "type": "string"
+        },
+        "method": {
+          "$ref": "#/$defs/HttpMethod"
+        },
+        "path": {
+          "type": "string"
+        },
+        "scope": {
+          "description": "Opaque scope of an account and profile, for kept copies.",
+          "type": "string"
+        },
+        "to": {
+          "$ref": "#/$defs/BodyTarget"
+        }
+      },
+      "required": [
+        "kind",
+        "method",
+        "path",
+        "deadline_ms",
+        "class",
+        "to"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "kind": {
+          "const": "store",
+          "type": "string"
+        },
+        "op": {
+          "$ref": "#/$defs/StoreOp"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "op"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "secret",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "op": {
+          "$ref": "#/$defs/SecretOp"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "op",
+        "name"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "after_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kind": {
+          "const": "timer",
+          "type": "string"
+        },
+        "op": {
+          "$ref": "#/$defs/TimerOp"
+        }
+      },
+      "required": [
+        "kind",
+        "op"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "command": {
+          "$ref": "#/$defs/DriverCommand"
+        },
+        "kind": {
+          "const": "player",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "command"
+      ],
+      "type": "object"
+    },
+    {
+      "description": "A one time notice. Lasting state travels in `view`.",
+      "properties": {
+        "kind": {
+          "const": "view",
+          "type": "string"
+        },
+        "notice": {
+          "$ref": "#/$defs/Notice"
+        }
+      },
+      "required": [
+        "kind",
+        "notice"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "open",
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/RouteTarget"
+        }
+      },
+      "required": [
+        "kind",
+        "target"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "kind": {
+          "const": "log",
+          "type": "string"
+        },
+        "level": {
+          "$ref": "#/$defs/LogLevel"
+        }
+      },
+      "required": [
+        "kind",
+        "level",
+        "code"
+      ],
+      "type": "object"
+    }
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "Effect",
+  "type": "object"
+}

@@ -1,0 +1,151 @@
+{
+  "$defs": {
+    "ErrorClass": {
+      "description": "Failure classes a driver reports. The core picks the next attempt from these.",
+      "enum": [
+        "network",
+        "manifest",
+        "segment",
+        "decode",
+        "key",
+        "format",
+        "refused"
+      ],
+      "type": "string"
+    },
+    "Track": {
+      "description": "One audio or text track, with the tag the manifest gave it.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "lang": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "What the driver reports. No driver decides failover or no picture by itself.",
+  "oneOf": [
+    {
+      "properties": {
+        "kind": {
+          "const": "first_frame",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "duration_ms": {
+          "description": "0 or absent when not known.",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "has_picture": {
+          "description": "Absent means unknown, and the no picture rule stays off.",
+          "type": "boolean"
+        },
+        "kind": {
+          "const": "position",
+          "type": "string"
+        },
+        "time_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "video_width": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "time_ms"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "stalled",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "ended",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "audio": {
+          "items": {
+            "$ref": "#/$defs/Track"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "const": "tracks",
+          "type": "string"
+        },
+        "text": {
+          "items": {
+            "$ref": "#/$defs/Track"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "audio",
+        "text"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "class": {
+          "$ref": "#/$defs/ErrorClass"
+        },
+        "kind": {
+          "const": "error",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "class"
+      ],
+      "type": "object"
+    }
+  ],
+  "title": "DriverEvent"
+}

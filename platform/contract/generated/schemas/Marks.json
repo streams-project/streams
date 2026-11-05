@@ -1,0 +1,63 @@
+{
+  "$defs": {
+    "TimeWindow": {
+      "description": "A span of a video the host compares to player time. Nothing ticks across the boundary.",
+      "properties": {
+        "end_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/$defs/WindowKind"
+        },
+        "seek_to_ms": {
+          "description": "Where a skip button moves to.",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "start_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "start_ms",
+        "end_ms"
+      ],
+      "type": "object"
+    },
+    "WindowKind": {
+      "description": "Windows of time inside a video.",
+      "enum": [
+        "recap",
+        "intro",
+        "credits",
+        "age_card",
+        "cue"
+      ],
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Skip marks.",
+  "properties": {
+    "windows": {
+      "items": {
+        "$ref": "#/$defs/TimeWindow"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "windows"
+  ],
+  "title": "Marks",
+  "type": "object"
+}

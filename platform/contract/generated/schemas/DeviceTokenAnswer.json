@@ -1,0 +1,56 @@
+{
+  "$defs": {
+    "DevicePoll": {
+      "description": "Answers while a device waits for approval.",
+      "enum": [
+        "authorization_pending",
+        "slow_down",
+        "access_denied",
+        "expired_token"
+      ],
+      "type": "string"
+    },
+    "SignedIn": {
+      "description": "Opaque tokens. `expires_in` is seconds, so no device clock decides anything.",
+      "properties": {
+        "access_token": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "expires_in": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "refresh_token": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "user_id",
+        "email",
+        "access_token",
+        "refresh_token",
+        "expires_in"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Either tokens or a word saying to wait or stop.",
+  "properties": {
+    "poll": {
+      "$ref": "#/$defs/DevicePoll"
+    },
+    "signed_in": {
+      "$ref": "#/$defs/SignedIn"
+    }
+  },
+  "title": "DeviceTokenAnswer",
+  "type": "object"
+}

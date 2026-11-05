@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "True when the server wants the whole card.",
+  "properties": {
+    "send_card": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "send_card"
+  ],
+  "title": "DeviceCardAnswer",
+  "type": "object"
+}

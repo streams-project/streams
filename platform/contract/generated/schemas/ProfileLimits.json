@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Needs a step up. Never reachable through a queued command.",
+  "properties": {
+    "age_rating": {
+      "type": "string"
+    },
+    "blocked_titles": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "age_rating",
+    "blocked_titles"
+  ],
+  "title": "ProfileLimits",
+  "type": "object"
+}

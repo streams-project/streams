@@ -53,7 +53,17 @@ pub struct Route {
     pub query: &'static [Query],
     /// True when a client may hold the answer and ask again with `If-None-Match`.
     pub cacheable: bool,
+    /// A text media type this route may answer in place of JSON.
+    pub text_form: Option<&'static str>,
 }
+
+/// Headers every request to the server carries, with what each holds.
+pub const CLIENT_HEADERS: &[(&str, &str)] = &[
+    ("Client-App", "The app name."),
+    ("Client-Version", "The app version."),
+    ("Client-Class", "The device class."),
+    ("Client-Os", "The operating system."),
+];
 
 const fn read(
     path: &'static str,
@@ -85,6 +95,7 @@ const fn write(
         response,
         query: &[],
         cacheable: false,
+        text_form: None,
     }
 }
 
@@ -97,6 +108,13 @@ const fn cached(route: Route) -> Route {
 
 const fn with_query(route: Route, query: &'static [Query]) -> Route {
     Route { query, ..route }
+}
+
+const fn with_text(route: Route, text_form: &'static str) -> Route {
+    Route {
+        text_form: Some(text_form),
+        ..route
+    }
 }
 
 const START: (Auth, Group) = (Auth::Open, Group::Start);
@@ -610,12 +628,15 @@ pub const ROUTES: &[Route] = &[
             },
         ],
     ),
-    read(
-        "/v1/subtitles/{file}",
-        "getSubtitle",
-        "Clean cues of one file.",
-        "SubtitleBody",
-        PLAY,
+    with_text(
+        read(
+            "/v1/subtitles/{file}",
+            "getSubtitle",
+            "Clean cues of one file, or WebVTT shifted by the delay.",
+            "SubtitleBody",
+            PLAY,
+        ),
+        "text/vtt",
     ),
     write(
         "POST",

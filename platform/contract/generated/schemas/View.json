@@ -1,0 +1,254 @@
+{
+  "$defs": {
+    "EndReason": {
+      "description": "Why a session ended.",
+      "enum": [
+        "signed_out",
+        "everywhere",
+        "refused",
+        "elsewhere"
+      ],
+      "type": "string"
+    },
+    "EpisodeRef": {
+      "description": "One episode of a series. A film has none.",
+      "properties": {
+        "episode": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "season": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "season",
+        "episode"
+      ],
+      "type": "object"
+    },
+    "GateView": {
+      "description": "True while the who is watching prompt should show.",
+      "properties": {
+        "ask": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ask"
+      ],
+      "type": "object"
+    },
+    "PlayState": {
+      "description": "Where the play session stands.",
+      "enum": [
+        "resolving",
+        "starting",
+        "playing",
+        "paused",
+        "stalled",
+        "switching",
+        "ended",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "PlayView": {
+      "description": "Play session state for screens.",
+      "properties": {
+        "attempt": {
+          "type": "string"
+        },
+        "episode": {
+          "$ref": "#/$defs/EpisodeRef"
+        },
+        "state": {
+          "$ref": "#/$defs/PlayState"
+        },
+        "title": {
+          "$ref": "#/$defs/TitleKey"
+        },
+        "windows": {
+          "items": {
+            "$ref": "#/$defs/TimeWindow"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "state",
+        "title"
+      ],
+      "type": "object"
+    },
+    "RouteTarget": {
+      "description": "What an address opens.",
+      "properties": {
+        "episode": {
+          "$ref": "#/$defs/EpisodeRef"
+        },
+        "next": {
+          "description": "A safe address to return to after sign in.",
+          "type": "string"
+        },
+        "screen": {
+          "$ref": "#/$defs/ScreenName"
+        },
+        "target": {
+          "$ref": "#/$defs/Target"
+        },
+        "title": {
+          "$ref": "#/$defs/TitleKey"
+        }
+      },
+      "required": [
+        "target"
+      ],
+      "type": "object"
+    },
+    "ScreenName": {
+      "description": "The screens the server builds.",
+      "enum": [
+        "home",
+        "films",
+        "series",
+        "genre",
+        "new",
+        "my-list",
+        "kids",
+        "search",
+        "notifications",
+        "activity",
+        "games",
+        "clips",
+        "language"
+      ],
+      "type": "string"
+    },
+    "SessionState": {
+      "description": "Where sign in stands.",
+      "enum": [
+        "starting",
+        "signed_out",
+        "signed_in"
+      ],
+      "type": "string"
+    },
+    "SessionView": {
+      "description": "Sign in state for screens. Tokens never appear here.",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "ended": {
+          "$ref": "#/$defs/EndReason"
+        },
+        "expires_at_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "profile": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/SessionState"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "state"
+      ],
+      "type": "object"
+    },
+    "Target": {
+      "description": "A semantic target. Each device maps it to one of its own screens.",
+      "enum": [
+        "start",
+        "sign_in",
+        "profiles",
+        "home",
+        "kids_home",
+        "screen",
+        "title",
+        "watch",
+        "not_found",
+        "wait",
+        "upgrade"
+      ],
+      "type": "string"
+    },
+    "TimeWindow": {
+      "description": "A span of a video the host compares to player time. Nothing ticks across the boundary.",
+      "properties": {
+        "end_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/$defs/WindowKind"
+        },
+        "seek_to_ms": {
+          "description": "Where a skip button moves to.",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "start_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "start_ms",
+        "end_ms"
+      ],
+      "type": "object"
+    },
+    "TitleKey": {
+      "description": "movie:<id> or tv:<id>. A bare id does not parse.",
+      "pattern": "^(movie|tv):[1-9][0-9]{0,9}$",
+      "type": "string"
+    },
+    "WindowKind": {
+      "description": "Windows of time inside a video.",
+      "enum": [
+        "recap",
+        "intro",
+        "credits",
+        "age_card",
+        "cue"
+      ],
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Changed screen state. A part that is absent did not change.",
+  "properties": {
+    "gate": {
+      "$ref": "#/$defs/GateView"
+    },
+    "play": {
+      "$ref": "#/$defs/PlayView"
+    },
+    "route": {
+      "$ref": "#/$defs/RouteTarget"
+    },
+    "session": {
+      "$ref": "#/$defs/SessionView"
+    }
+  },
+  "title": "View",
+  "type": "object"
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A code was sent, or would have been. The answer never says whether the account exists.",
+  "properties": {
+    "expires_in": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "expires_in"
+  ],
+  "title": "CodeSent",
+  "type": "object"
+}

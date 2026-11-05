@@ -1,0 +1,92 @@
+{
+  "$defs": {
+    "CoreConfigTag": {
+      "description": "Type tag of `CoreConfig`.",
+      "enum": [
+        "core_config"
+      ],
+      "type": "string"
+    },
+    "CoreMode": {
+      "description": "Where the core runs for this device.",
+      "enum": [
+        "local",
+        "hosted"
+      ],
+      "type": "string"
+    },
+    "DeviceClass": {
+      "description": "Client class. Minimum versions, start deadlines and reachability are kept per class.",
+      "enum": [
+        "web",
+        "phone",
+        "tablet",
+        "desktop",
+        "tv",
+        "box",
+        "car"
+      ],
+      "type": "string"
+    },
+    "Form": {
+      "description": "The form a client draws in. A browser on a phone is class web, form phone.",
+      "enum": [
+        "phone",
+        "tablet",
+        "desktop",
+        "tv"
+      ],
+      "type": "string"
+    },
+    "WireDate": {
+      "description": "A wire date, YYYY-MM-DD.",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Given to `core_open`, once. The seed is the only random input the core ever gets.",
+  "properties": {
+    "app": {
+      "type": "string"
+    },
+    "class": {
+      "$ref": "#/$defs/DeviceClass"
+    },
+    "contract": {
+      "$ref": "#/$defs/WireDate"
+    },
+    "form": {
+      "$ref": "#/$defs/Form"
+    },
+    "mode": {
+      "$ref": "#/$defs/CoreMode"
+    },
+    "os": {
+      "type": "string"
+    },
+    "seed": {
+      "description": "Hex digits, at least 32.",
+      "type": "string"
+    },
+    "type": {
+      "$ref": "#/$defs/CoreConfigTag"
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "contract",
+    "type",
+    "class",
+    "form",
+    "mode",
+    "app",
+    "version",
+    "os",
+    "seed"
+  ],
+  "title": "CoreConfig",
+  "type": "object"
+}

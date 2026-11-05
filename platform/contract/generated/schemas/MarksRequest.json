@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Ask for skip marks, after first frame, series only.",
+  "properties": {
+    "attempt": {
+      "type": "string"
+    },
+    "delay_ms": {
+      "default": 0,
+      "maximum": 2147483647,
+      "minimum": -2147483648,
+      "type": "integer"
+    },
+    "duration_ms": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "file": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "attempt",
+    "duration_ms"
+  ],
+  "title": "MarksRequest",
+  "type": "object"
+}

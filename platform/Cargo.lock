@@ -26,6 +26,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "contract-gen"
+version = "0.0.0"
+dependencies = [
+ "contract",
+ "schemars",
+ "serde_json",
+]
+
+[[package]]
 name = "core"
 version = "0.0.0"
 dependencies = [
