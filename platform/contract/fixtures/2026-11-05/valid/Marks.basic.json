@@ -1,0 +1,15 @@
+{
+  "windows": [
+    {
+      "end_ms": 90000,
+      "kind": "intro",
+      "seek_to_ms": 90000,
+      "start_ms": 30000
+    },
+    {
+      "end_ms": 1200000,
+      "kind": "credits",
+      "start_ms": 1150000
+    }
+  ]
+}

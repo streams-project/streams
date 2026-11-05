@@ -1,0 +1,9 @@
+{
+  "body": "{\"done\":true}",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "id": "e1",
+  "status": 200,
+  "type": "http_done"
+}

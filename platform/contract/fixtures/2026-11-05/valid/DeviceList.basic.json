@@ -1,0 +1,11 @@
+{
+  "devices": [
+    {
+      "class": "tv",
+      "current": true,
+      "id": "d1",
+      "last_seen_ms": 1793836800000,
+      "name": "Living room"
+    }
+  ]
+}

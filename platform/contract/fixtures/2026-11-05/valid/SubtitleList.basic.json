@@ -1,0 +1,18 @@
+{
+  "languages": [
+    {
+      "files": [
+        {
+          "hearing_impaired": false,
+          "id": "f1"
+        },
+        {
+          "hearing_impaired": true,
+          "id": "f2"
+        }
+      ],
+      "label": "English",
+      "lang": "en"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "id": "s1",
+  "kind": "kind_from_the_future",
+  "tiles": [
+    {
+      "badges": [
+        {
+          "kind": "new"
+        }
+      ],
+      "images": [
+        {
+          "role": "poster",
+          "url": "https://images.example/p/1001.jpg",
+          "width": 342
+        }
+      ],
+      "name": "Sample Film",
+      "tags": [
+        "Drama"
+      ],
+      "title": "movie:1001"
+    }
+  ],
+  "title": "Row"
+}

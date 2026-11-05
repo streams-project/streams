@@ -1,0 +1,35 @@
+{
+  "account": {
+    "email": "viewer@host.example",
+    "first_name": "Sam",
+    "id": "u1",
+    "last_name": "Ple",
+    "phone": "15550100"
+  },
+  "devices": [
+    {
+      "class": "tv",
+      "current": true,
+      "id": "d1",
+      "last_seen_ms": 1793836800000,
+      "name": "Living room"
+    }
+  ],
+  "profiles": [
+    {
+      "has_pin": false,
+      "id": "p1",
+      "kids": false,
+      "main": true,
+      "name": "Sam"
+    },
+    {
+      "avatar": "a2",
+      "has_pin": false,
+      "id": "p2",
+      "kids": true,
+      "main": false,
+      "name": "Kids"
+    }
+  ]
+}

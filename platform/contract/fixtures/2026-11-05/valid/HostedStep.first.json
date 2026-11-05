@@ -1,0 +1,24 @@
+{
+  "config": {
+    "app": "sample-web",
+    "class": "tv",
+    "contract": "2026-11-05",
+    "form": "tv",
+    "mode": "hosted",
+    "os": "sample-os",
+    "seed": "00112233445566778899aabbccddeeff",
+    "type": "core_config",
+    "version": "1.0.0"
+  },
+  "input": {
+    "contract": "2026-11-05",
+    "events": [
+      {
+        "type": "activity"
+      }
+    ],
+    "mono_ms": 5000,
+    "now_ms": 1793836800000,
+    "type": "core_in"
+  }
+}

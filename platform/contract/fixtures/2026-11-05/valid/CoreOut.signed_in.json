@@ -1,0 +1,29 @@
+{
+  "contract": "2026-11-05",
+  "effects": [
+    {
+      "id": "e4",
+      "kind": "secret",
+      "name": "refresh",
+      "op": "put",
+      "value": "sample-refresh"
+    },
+    {
+      "after_ms": 30000,
+      "id": "e5",
+      "kind": "timer",
+      "op": "set"
+    }
+  ],
+  "next_wake_ms": 905000,
+  "type": "core_out",
+  "view": {
+    "session": {
+      "email": "viewer@host.example",
+      "expires_at_ms": 1793837700000,
+      "profile": "p1",
+      "state": "signed_in",
+      "user_id": "u1"
+    }
+  }
+}

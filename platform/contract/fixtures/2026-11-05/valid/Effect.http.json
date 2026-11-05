@@ -1,0 +1,13 @@
+{
+  "body": "{}",
+  "class": "plain",
+  "deadline_ms": 15000,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "id": "e1",
+  "kind": "http",
+  "method": "POST",
+  "path": "/v1/auth/password",
+  "to": "core"
+}

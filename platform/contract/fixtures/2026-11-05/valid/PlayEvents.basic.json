@@ -1,0 +1,18 @@
+{
+  "events": [
+    {
+      "at_ms": 1793836800000,
+      "attempt": "a1",
+      "first_frame_ms": 1800,
+      "name": "first_frame",
+      "rung": "local"
+    },
+    {
+      "at_ms": 1793836801000,
+      "attempt": "a1",
+      "failure": "manifest",
+      "host": "media.example",
+      "name": "failure"
+    }
+  ]
+}

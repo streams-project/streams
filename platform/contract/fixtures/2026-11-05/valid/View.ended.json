@@ -1,0 +1,10 @@
+{
+  "route": {
+    "next": "/browse",
+    "target": "sign_in"
+  },
+  "session": {
+    "ended": "refused",
+    "state": "signed_out"
+  }
+}

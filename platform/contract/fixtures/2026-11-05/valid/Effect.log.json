@@ -1,0 +1,7 @@
+{
+  "code": "source_failed",
+  "detail": "an invented detail",
+  "id": "e9",
+  "kind": "log",
+  "level": "warn"
+}

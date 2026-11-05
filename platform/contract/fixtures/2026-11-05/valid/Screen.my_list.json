@@ -1,0 +1,46 @@
+{
+  "name": "my-list",
+  "sections": [
+    {
+      "id": "s1",
+      "kind": "grid",
+      "tiles": [
+        {
+          "badges": [
+            {
+              "kind": "new"
+            }
+          ],
+          "images": [
+            {
+              "role": "poster",
+              "url": "https://images.example/p/1001.jpg",
+              "width": 342
+            }
+          ],
+          "name": "Sample Film",
+          "tags": [
+            "Drama"
+          ],
+          "title": "movie:1001"
+        },
+        {
+          "badges": [
+            {
+              "kind": "ranked",
+              "rank": 2
+            }
+          ],
+          "episode": {
+            "episode": 3,
+            "season": 1
+          },
+          "name": "Sample Series",
+          "percent": 40,
+          "title": "tv:1001"
+        }
+      ]
+    }
+  ],
+  "ttl_s": 30
+}

@@ -1,0 +1,8 @@
+{
+  "id": "e8",
+  "kind": "open",
+  "target": {
+    "next": "/browse",
+    "target": "sign_in"
+  }
+}

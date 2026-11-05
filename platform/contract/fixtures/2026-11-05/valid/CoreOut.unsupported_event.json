@@ -1,0 +1,8 @@
+{
+  "contract": "2026-11-05",
+  "effects": [],
+  "type": "core_out",
+  "unsupported": [
+    "e7"
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "action": "sign_in_code",
+  "code": "12345678",
+  "email": "viewer@host.example"
+}

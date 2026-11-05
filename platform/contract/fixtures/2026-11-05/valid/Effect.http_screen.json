@@ -1,0 +1,10 @@
+{
+  "class": "cacheable",
+  "deadline_ms": 15000,
+  "id": "e2",
+  "kind": "http",
+  "method": "GET",
+  "path": "/v1/screens/home",
+  "scope": "u1/p1",
+  "to": "screen"
+}

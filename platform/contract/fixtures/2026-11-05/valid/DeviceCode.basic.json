@@ -1,0 +1,8 @@
+{
+  "device_code": "sample-device-code",
+  "expires_in": 900,
+  "interval": 5,
+  "user_code": "BCDFGHJK",
+  "verification_uri": "https://sign.example/tv",
+  "verification_uri_complete": "https://sign.example/tv?code=BCDFGHJK"
+}

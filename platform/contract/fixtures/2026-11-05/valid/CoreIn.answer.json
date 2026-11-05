@@ -1,0 +1,17 @@
+{
+  "contract": "2026-11-05",
+  "events": [
+    {
+      "body": "{\"done\":true}",
+      "headers": {
+        "content-type": "application/json"
+      },
+      "id": "e1",
+      "status": 200,
+      "type": "http_done"
+    }
+  ],
+  "mono_ms": 5000,
+  "now_ms": 1793836800000,
+  "type": "core_in"
+}

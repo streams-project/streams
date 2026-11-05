@@ -1,0 +1,49 @@
+{
+  "card": {
+    "adaptive": true,
+    "app": "sample-web",
+    "attempt_kinds": [
+      "hls",
+      "file"
+    ],
+    "class": "web",
+    "codecs": [
+      "avc1",
+      "mp4a"
+    ],
+    "containers": [
+      "ts",
+      "fmp4",
+      "mp4"
+    ],
+    "form": "desktop",
+    "input": [
+      "pointer",
+      "keyboard"
+    ],
+    "languages": [
+      "en"
+    ],
+    "max_height": 1080,
+    "media_headers": [],
+    "os": "sample-os",
+    "os_version": "1",
+    "reports_picture": true,
+    "screen_height": 1080,
+    "screen_width": 1920,
+    "secret_store": false,
+    "section_kinds": [
+      "hero",
+      "row",
+      "ranked",
+      "continue",
+      "grid",
+      "notice"
+    ],
+    "side_subtitles": true,
+    "storage_bytes": 50000000,
+    "version": "1.0.0"
+  },
+  "card_hash": "h1",
+  "device_key": "0123456789abcdef0123456789abcdef"
+}

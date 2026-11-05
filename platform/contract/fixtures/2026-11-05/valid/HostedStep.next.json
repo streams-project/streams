@@ -1,0 +1,13 @@
+{
+  "input": {
+    "contract": "2026-11-05",
+    "events": [
+      {
+        "type": "activity"
+      }
+    ],
+    "mono_ms": 5000,
+    "now_ms": 1793836800000,
+    "type": "core_in"
+  }
+}

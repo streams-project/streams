@@ -1,0 +1,16 @@
+{
+  "contract": "2026-11-05",
+  "events": [
+    {
+      "action": {
+        "action": "sign_in",
+        "email": "viewer@host.example",
+        "password": "sample-password"
+      },
+      "type": "action"
+    }
+  ],
+  "mono_ms": 5000,
+  "now_ms": 1793836800000,
+  "type": "core_in"
+}

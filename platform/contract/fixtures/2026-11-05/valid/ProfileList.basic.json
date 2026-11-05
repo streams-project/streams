@@ -1,0 +1,19 @@
+{
+  "profiles": [
+    {
+      "has_pin": false,
+      "id": "p1",
+      "kids": false,
+      "main": true,
+      "name": "Sam"
+    },
+    {
+      "avatar": "a2",
+      "has_pin": false,
+      "id": "p2",
+      "kids": true,
+      "main": false,
+      "name": "Kids"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "home",
+  "sections": [
+    {
+      "id": "s",
+      "kind": "row",
+      "tiles": [
+        {
+          "name": "x",
+          "title": 1001
+        }
+      ]
+    }
+  ],
+  "ttl_s": 1
+}

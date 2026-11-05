@@ -1,0 +1,10 @@
+{
+  "route": {
+    "episode": {
+      "episode": 3,
+      "season": 1
+    },
+    "target": "watch",
+    "title": "tv:1001"
+  }
+}

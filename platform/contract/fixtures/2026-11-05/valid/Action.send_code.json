@@ -1,0 +1,4 @@
+{
+  "action": "send_code",
+  "email": "viewer@host.example"
+}

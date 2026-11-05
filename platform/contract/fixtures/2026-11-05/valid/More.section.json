@@ -1,0 +1,20 @@
+{
+  "cursor": "c-row-2",
+  "tiles": [
+    {
+      "badges": [
+        {
+          "kind": "ranked",
+          "rank": 2
+        }
+      ],
+      "episode": {
+        "episode": 3,
+        "season": 1
+      },
+      "name": "Sample Series",
+      "percent": 40,
+      "title": "tv:1001"
+    }
+  ]
+}
