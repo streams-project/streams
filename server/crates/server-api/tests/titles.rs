@@ -60,7 +60,11 @@ async fn s108_a_title_reads_as_the_contract_type_with_facts_from_the_catalogue()
             .starts_with("https://images.host.example/t/")
     );
     assert!(!page.more_like_this.is_empty(), "S104");
-    assert!(page.more_like_this.iter().all(|tile| tile.title != page.title));
+    assert!(
+        page.more_like_this
+            .iter()
+            .all(|tile| tile.title != page.title)
+    );
 }
 
 #[tokio::test]

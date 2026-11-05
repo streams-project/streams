@@ -1,4 +1,4 @@
-//! The one binary: `serve`, and `index build` for the index this server owns.
+//! The one binary: `serve`, `migrate`, and `index build` for the index this server owns.
 
 use std::net::SocketAddr;
 use std::path::Path;
@@ -73,6 +73,18 @@ async fn serve(config: Config) -> Result<()> {
     Ok(())
 }
 
+/// Bring the database up to this build. The chain only goes forward, and each file leaves the
+/// previous release working.
+async fn migrate(config: &Config) -> Result<()> {
+    let url = config.database_url.as_deref().context("DATABASE_URL is not set")?;
+    let pool = sqlx::PgPool::connect(url)
+        .await
+        .context("the database did not answer")?;
+    sqlx::migrate!("../../migrations").run(&pool).await?;
+    info!("Migrated");
+    Ok(())
+}
+
 fn build_index(config: &Config) -> Result<()> {
     let manifest = config
         .data_manifest
@@ -99,7 +111,8 @@ async fn main() -> Result<()> {
     let words: Vec<&str> = args.iter().map(String::as_str).collect();
     match words.as_slice() {
         [] | ["serve"] => serve(config).await,
+        ["migrate"] => migrate(&config).await,
         ["index", "build"] => build_index(&config),
-        _ => bail!("use: server [serve | index build]"),
+        _ => bail!("use: server [serve | migrate | index build]"),
     }
 }
