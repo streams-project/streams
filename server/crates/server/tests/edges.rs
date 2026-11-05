@@ -142,3 +142,10 @@ fn a_project_that_takes_only_accounts_gets_no_video_word() {
         }
     }
 }
+
+#[test]
+fn h77_handlers_live_in_a_library_so_tests_reach_them() {
+    let binary = Path::new(env!("CARGO_MANIFEST_DIR")).join("src/main.rs");
+    let text = std::fs::read_to_string(binary).expect("source");
+    assert!(!text.contains(".route("), "routes belong in server-api");
+}

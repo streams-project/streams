@@ -44,7 +44,7 @@ async fn h30_k1_a_session_with_no_profile_reads_no_title() {
 }
 
 #[tokio::test]
-async fn s108_a_title_reads_as_the_contract_type_with_facts_from_the_catalogue() {
+async fn s108_h131_a_title_reads_as_the_contract_type_with_facts_from_the_catalogue() {
     let server = harness(&[("IMAGE_BASE", "https://images.host.example/t/")]);
     let token = watching(&server, false).await;
     let answer = get("/v1/titles/movie/100")

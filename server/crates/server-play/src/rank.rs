@@ -343,7 +343,7 @@ mod tests {
     }
 
     #[test]
-    fn t4_only_three_headers_pass_and_h45_h81_no_provider_name_leaves() {
+    fn t4_h80_only_three_headers_pass_and_h45_h81_no_provider_name_leaves() {
         let mut one = source("https://a.example/1.m3u8", AttemptKind::Hls, None, &[]);
         one.group = String::from("provider-name");
         one.headers

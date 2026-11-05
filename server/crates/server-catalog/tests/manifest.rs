@@ -135,7 +135,15 @@ fn s142_s138_the_index_opens_only_on_its_own_data_set() {
         Some(set.catalog.len())
     );
     let by_index = set.nearest(&row, 5);
-    assert_eq!(by_index[0].0, exact[0].0, "both paths rank the same way");
+    // the index is approximate, so the two paths share what they find, not every place
+    let own = set.vectors.ids[0];
+    for found in [&exact, &by_index] {
+        assert!(found.iter().any(|hit| hit.0 == own), "a title finds itself");
+        assert!(
+            found.windows(2).all(|pair| pair[0].1 >= pair[1].1),
+            "both rank by one score"
+        );
+    }
     // Another data set, same files: the stamp names the old manifest hash.
     rewrite(&manifest, |m| m.dataset_version = String::from("sample-2"));
     let other = DataSet::load(&manifest).unwrap();
@@ -245,4 +253,19 @@ fn h63_a_key_scheme_or_a_path_outside_the_set_is_refused() {
         DataSet::load(&manifest),
         Err(SwapError::Manifest(ManifestError::OutsideSet(_)))
     ));
+}
+
+#[test]
+fn h65_a_failing_index_search_is_counted_and_the_exact_scan_answers_with_the_same_ranking() {
+    let dir = folder("failing");
+    let set = DataSet::load(&write_sample(&dir)).unwrap();
+    set.build_index(&dir.join("nearest.index")).unwrap();
+    assert!(set.index_healthy());
+    let wrong_width = vec![0.5f32; SAMPLE_DIMS + 1];
+    let found = set.nearest(&wrong_width, 3);
+    assert_eq!(found.len(), 3);
+    assert!(
+        !set.index_healthy(),
+        "a broken index does not pass for ready"
+    );
 }

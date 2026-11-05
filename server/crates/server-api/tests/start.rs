@@ -86,7 +86,7 @@ async fn g10_ready_carries_no_meter_or_service_name() {
 }
 
 #[tokio::test]
-async fn s2_an_old_wire_date_is_told_to_upgrade_and_hello_still_answers() {
+async fn s2_h98_an_old_wire_date_is_told_to_upgrade_and_hello_still_answers() {
     let server = harness(&[]);
     let refused = get("/v1/profiles")
         .no_version()

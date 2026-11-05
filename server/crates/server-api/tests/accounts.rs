@@ -396,3 +396,109 @@ async fn t10_an_auth_outage_answers_503_and_keeps_tokens() {
     assert!(answer.headers.contains_key("retry-after"));
     assert!(auth.find_email("x").await.is_err());
 }
+
+#[tokio::test]
+async fn h51_h87_h22_an_edit_on_a_stale_device_changes_one_profile_and_deletes_none() {
+    let server = harness_with_auth(&[]);
+    let signed = new_account(&server, "ada@example.test").await;
+    let token = signed.access_token.as_str();
+    let made = post("/v1/profiles")
+        .token(token)
+        .json(json!({ "name": "New One" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(made.status, StatusCode::OK, "{}", made.body);
+    let list = get("/v1/profiles").token(token).on(&server.state).await;
+    let first = list.body["profiles"][0]["id"].as_str().unwrap();
+    let edit = call(Method::PATCH, &format!("/v1/profiles/{first}"))
+        .token(token)
+        .json(json!({ "name": "Renamed" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(edit.status, StatusCode::OK, "{}", edit.body);
+    let after = get("/v1/profiles").token(token).on(&server.state).await;
+    assert_eq!(
+        after.body["profiles"].as_array().unwrap().len(),
+        3,
+        "no route deletes by a list"
+    );
+}
+
+#[tokio::test]
+async fn h59_s40_the_main_profile_moves_on_the_account_with_a_step_up() {
+    let server = harness_with_auth(&[]);
+    let signed = new_account(&server, "ada@example.test").await;
+    let token = signed.access_token.as_str();
+    let made = post("/v1/profiles")
+        .token(token)
+        .json(json!({ "name": "Grace" }))
+        .on(&server.state)
+        .await;
+    let id = made.body["id"].as_str().unwrap().to_owned();
+    let moved = post(&format!("/v1/profiles/{id}/main"))
+        .token(token)
+        .on(&server.state)
+        .await;
+    assert_eq!(moved.status, StatusCode::OK, "{}", moved.body);
+    let list = get("/v1/profiles").token(token).on(&server.state).await;
+    let main: Vec<&serde_json::Value> = list.body["profiles"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|p| p["main"] == true)
+        .collect();
+    assert_eq!(main.len(), 1);
+    assert_eq!(main[0]["name"], "Grace");
+    server.clock.advance_ms(301_000);
+    let kids = list.body["profiles"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|p| p["kids"] == true)
+        .unwrap();
+    let late = post(&format!(
+        "/v1/profiles/{}/main",
+        kids["id"].as_str().unwrap()
+    ))
+    .token(token)
+    .on(&server.state)
+    .await;
+    assert_eq!(late.code(), "step_up_required");
+}
+
+#[tokio::test]
+async fn t12_p8_a_transfer_needs_a_step_up_and_leaves_the_pin_behind() {
+    let server = harness_with_auth(&[]);
+    let first = new_account(&server, "ada@example.test").await;
+    let second = new_account(&server, "grace@example.test").await;
+    let token = first.access_token.as_str();
+    let made = post("/v1/profiles")
+        .token(token)
+        .json(json!({ "name": "Moving" }))
+        .on(&server.state)
+        .await;
+    let id = made.body["id"].as_str().unwrap().to_owned();
+    let pin = call(Method::PUT, &format!("/v1/profiles/{id}/pin"))
+        .token(token)
+        .json(json!({ "pin": "1234" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(pin.status, StatusCode::OK, "{}", pin.body);
+    let moved = post(&format!("/v1/profiles/{id}/transfer"))
+        .token(token)
+        .json(json!({ "to_account_email": "grace@example.test" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(moved.status, StatusCode::OK, "{}", moved.body);
+    let theirs = get("/v1/profiles")
+        .token(&second.access_token)
+        .on(&server.state)
+        .await;
+    let found = theirs.body["profiles"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|p| p["id"] == id.as_str())
+        .unwrap();
+    assert_eq!(found["has_pin"], false, "the PIN never travels");
+}

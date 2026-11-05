@@ -79,7 +79,7 @@ async fn s112_a_play_answers_ranked_attempts_with_where_to_start() {
 }
 
 #[tokio::test]
-async fn k2_h35_h46_a_refused_title_reaches_no_finder() {
+async fn k2_h35_h46_h79_h90_a_refused_title_reaches_no_finder() {
     let finder = Arc::new(MemoryFinder::answering(found(&[
         "https://host.example/1.m3u8",
     ])));
@@ -93,6 +93,25 @@ async fn k2_h35_h46_a_refused_title_reaches_no_finder() {
         finder.seen.lock().unwrap().is_empty(),
         "no provider work for a refused title"
     );
+}
+
+#[tokio::test]
+async fn h78_title_facts_come_from_the_catalogue_and_the_client_cannot_steer_a_search() {
+    let finder = Arc::new(MemoryFinder::answering(found(&[
+        "https://host.example/1.m3u8",
+    ])));
+    let server = harness_play(finder.clone());
+    let token = enter(&server, false).await;
+    let body = json!({ "title": "movie:9002", "name": "Something Else", "year": 1900 });
+    let answer = call(Method::POST, "/v1/play")
+        .token(&token)
+        .json(body)
+        .on(&server.state)
+        .await;
+    assert_eq!(answer.status, StatusCode::OK, "{}", answer.body);
+    let seen = finder.seen.lock().unwrap();
+    assert_eq!(seen[0].name, "Twin Film");
+    assert_eq!(seen[0].year, Some(2020));
 }
 
 #[tokio::test]

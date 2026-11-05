@@ -2,6 +2,7 @@
 //! one, and the old one keeps serving when the new one is refused.
 
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 
 use anyhow::Result;
@@ -53,6 +54,8 @@ pub struct DataSet {
     pub index: ArcSwapOption<HnswIndex>,
     /// Optional files that failed their check.
     pub dropped: Vec<String>,
+    /// Index searches that failed and fell back to the exact scan.
+    pub index_errors: AtomicU64,
 }
 
 /// Per title facts of a video, as lines of JSON keyed by title key.
@@ -182,7 +185,14 @@ impl DataSet {
             kids_taxonomy,
             index: ArcSwapOption::empty(),
             dropped,
+            index_errors: AtomicU64::new(0),
         })
+    }
+
+    /// True when the index holds and has not failed.
+    #[must_use]
+    pub fn index_healthy(&self) -> bool {
+        self.index.load().is_some() && self.index_errors.load(Ordering::Relaxed) == 0
     }
 
     /// Width of the vectors.
@@ -227,7 +237,17 @@ impl DataSet {
     #[must_use]
     pub fn nearest(&self, query: &[f32], k: usize) -> Vec<(u32, f32)> {
         let guard = self.index.load();
-        let found = guard.as_ref().and_then(|index| index.search(query, k).ok());
+        let found = guard
+            .as_ref()
+            .and_then(|index| match index.search(query, k) {
+                Ok(found) => Some(found),
+                Err(error) => {
+                    // counted and logged, so a broken index cannot pass for a ready one
+                    warn!("Index search failed, the exact scan answers: {error}");
+                    self.index_errors.fetch_add(1, Ordering::Relaxed);
+                    None
+                }
+            });
         let mut results = found.unwrap_or_else(|| self.vectors.brute_force_topk(query, k));
         for (id, sim) in &mut results {
             if let Some(item) = self.catalog.get(id) {

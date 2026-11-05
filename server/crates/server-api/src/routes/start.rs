@@ -79,7 +79,7 @@ pub async fn hello(State(state): State<Shared>, headers: HeaderMap) -> ApiResult
 fn index_state(state: &AppState) -> ServiceState {
     match &state.data {
         None => ServiceState::Down,
-        Some(slot) if slot.load().index.load().is_some() => ServiceState::Ready,
+        Some(slot) if slot.load().index_healthy() => ServiceState::Ready,
         Some(_) => ServiceState::Degraded,
     }
 }
