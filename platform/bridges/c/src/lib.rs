@@ -59,7 +59,7 @@ pub extern "C" fn core_abi() -> u32 {
 /// Room for `len` bytes, or null when there is none.
 #[unsafe(no_mangle)]
 pub extern "C" fn core_alloc(len: usize) -> *mut u8 {
-    let mut bytes = Vec::new();
+    let mut bytes: Vec<u8> = Vec::new();
     if bytes.try_reserve_exact(len).is_err() {
         return ptr::null_mut();
     }

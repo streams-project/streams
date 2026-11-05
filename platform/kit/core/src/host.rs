@@ -2,15 +2,16 @@
 //! from the script, and checks the rules that must hold in every session.
 
 use std::collections::BTreeMap;
+use std::fmt::Write as _;
 
 use contract::api::{self, Auth};
 use contract::core_msg::{BodyTarget, CoreOut, Effect, EffectBody, HttpClass, HttpMethod, StoreOp};
 use contract::version::{API_VERSION_HEADER, WIRE_VERSION};
 use core_rules::net::class_of;
-use core_rules::{Core, step_json};
-use offline::{Config as LayerConfig, Layer};
 use serde::Deserialize;
 use serde_json::{Value, json};
+
+use crate::boundary::Boundary;
 
 const WALL_START_MS: u64 = 1_793_836_800_000;
 
@@ -143,42 +144,32 @@ pub struct Sent {
 /// What one run left behind.
 #[derive(Debug, Default)]
 pub struct Report {
-    /// Every message pair, in order, as JSON text.
-    pub transcript: Vec<(String, String)>,
+    /// Every message, one per line: `open`, `in` and `out`. Every host must write these bytes.
+    pub transcript: String,
+    /// What a host in another language needs to run this session. See `kit/core/README.md`.
+    pub tape: String,
     pub sent: Vec<Sent>,
     pub ops: Vec<Value>,
     pub view: Value,
     pub steps: usize,
 }
 
-enum Machine {
-    Bare(Box<Core>),
-    Wrapped(Box<Layer<Core>>),
-}
-
-impl Machine {
-    fn open(script: &Script, config: &Value, mode: Mode, boot: u64) -> Result<Self, String> {
-        let core =
-            Core::open_json(&config.to_string()).map_err(|_| "config refused".to_string())?;
-        Ok(match mode {
-            Mode::LayerOff => Self::Bare(Box::new(core)),
-            Mode::LayerOn => Self::Wrapped(Box::new(Layer::new(
-                core,
-                LayerConfig {
-                    boot_id: format!("boot-{boot}"),
-                    storage_bytes: script.device.storage_bytes,
-                },
-            ))),
-        })
+/// Open the real boundary for this run, with the text a host would give `core_open`.
+fn open_machine(
+    script: &Script,
+    config: &Value,
+    mode: Mode,
+    boot: u64,
+) -> Result<(Boundary, String), String> {
+    let mut start = config.clone();
+    if mode == Mode::LayerOn {
+        start["layer"] = json!({
+            "boot_id": format!("boot-{boot}"),
+            "storage_bytes": script.device.storage_bytes,
+        });
     }
-
-    fn step(&mut self, input: &str) -> Result<String, String> {
-        let bad = |_| format!("the machine refused a message: {input}");
-        match self {
-            Self::Bare(core) => step_json(core.as_mut(), input).map_err(bad),
-            Self::Wrapped(layer) => step_json(layer.as_mut(), input).map_err(bad),
-        }
-    }
+    let text = start.to_string();
+    Ok((Boundary::open(&text)?, text))
 }
 
 /// `want` must be inside `have`. An object key may be null to mean absent.
@@ -226,7 +217,7 @@ struct Host<'a> {
     rules: Vec<Rule>,
     config: Value,
     mode: Mode,
-    machine: Machine,
+    machine: Boundary,
     boot: u64,
     /// Scripted time, which never restarts.
     clock_ms: u64,
@@ -298,7 +289,7 @@ impl Host<'_> {
             let output = self.machine.step(&input)?;
             let parsed: CoreOut = serde_json::from_str(&output)
                 .map_err(|error| format!("bad out message: {error}: {output}"))?;
-            self.report.transcript.push((input, output));
+            let _ = writeln!(self.report.transcript, "in {input}\nout {output}");
             self.report.steps += 1;
             if let Some(view) = &parsed.view {
                 self.fold_view(view)?;
@@ -550,7 +541,8 @@ impl Host<'_> {
             at_ms: self.clock_ms,
         });
         if !self.net_up {
-            results.push(json!({"id": id, "type": "http_failed", "reason": "offline"}));
+            let answer = json!({"id": id, "type": "http_failed", "reason": "offline"});
+            self.answered(id, word, path, answer, results);
             return Ok(());
         }
         let found = self.rules.iter().position(|rule| {
@@ -575,7 +567,8 @@ impl Host<'_> {
         if let Some(etag) = &rule.etag
             && headers.get("If-None-Match") == Some(etag)
         {
-            results.push(json!({"id": id, "type": "http_done", "status": 304}));
+            let answer = json!({"id": id, "type": "http_done", "status": 304});
+            self.answered(id, word, path, answer, results);
             return Ok(());
         }
         collect_tokens(&rule.body, &mut self.tokens);
@@ -591,8 +584,27 @@ impl Host<'_> {
         } else if !rule.body.is_null() {
             answer["body"] = json!(rule.body.to_string());
         }
-        results.push(answer);
+        self.answered(id, word, path, answer, results);
         Ok(())
+    }
+
+    /// The fake server's answer goes to the core, and onto the tape for other hosts.
+    fn answered(
+        &mut self,
+        id: &str,
+        word: &str,
+        path: &str,
+        answer: Value,
+        results: &mut Vec<Value>,
+    ) {
+        let _ = writeln!(
+            self.report.tape,
+            "http\t{}\t{}\t{}\t{answer}",
+            json!(id),
+            json!(word),
+            json!(path)
+        );
+        results.push(answer);
     }
 
     fn commands(
@@ -610,7 +622,8 @@ impl Host<'_> {
             self.report.ops.push(op.clone());
         }
         let answer = json!({"answers": answers}).to_string();
-        results.push(json!({"id": id, "type": "http_done", "status": 200, "body": answer}));
+        let answer = json!({"id": id, "type": "http_done", "status": 200, "body": answer});
+        self.answered(id, "POST", "/v1/commands", answer, results);
         Ok(())
     }
 
@@ -636,12 +649,19 @@ impl Host<'_> {
         Ok(())
     }
 
+    fn opened(&mut self, new_boot: u8, start: &str) {
+        let _ = writeln!(self.report.tape, "open {new_boot} {start}");
+        let _ = writeln!(self.report.transcript, "open {start}");
+    }
+
     fn restart(&mut self, new_boot: bool) -> Result<(), String> {
         if new_boot {
             self.boot += 1;
             self.mono_base_ms = self.clock_ms;
         }
-        self.machine = Machine::open(self.script, &self.config, self.mode, self.boot)?;
+        let (machine, start) = open_machine(self.script, &self.config, self.mode, self.boot)?;
+        self.machine = machine;
+        self.opened(u8::from(new_boot), &start);
         self.source_open = false;
         self.generation = 0;
         self.wake = None;
@@ -763,8 +783,10 @@ impl Host<'_> {
     }
 
     fn moment(&mut self, moment: &Moment) -> Result<(), String> {
+        let _ = writeln!(self.report.tape, "at {}", moment.at_ms);
         self.advance_to(moment.at_ms)?;
         if moment.forget_secrets {
+            let _ = writeln!(self.report.tape, "forget");
             self.secrets.clear();
         }
         if let Some(new_boot) = moment.restart {
@@ -776,6 +798,11 @@ impl Host<'_> {
             Some(other) => return Err(format!("unknown net state {other}")),
             None => {}
         }
+        let _ = writeln!(
+            self.report.tape,
+            "step {}",
+            Value::from(moment.events.clone())
+        );
         self.step(moment.events.clone())?;
         self.check(&moment.want, moment.at_ms)?;
         let by_mode = match self.mode {
@@ -807,8 +834,9 @@ pub fn run(script: &Script, common: &Common, mode: Mode) -> Result<Report, Strin
             .clone(),
         None => Vec::new(),
     };
+    let (machine, start) = open_machine(script, &config, mode, 0)?;
     let mut host = Host {
-        machine: Machine::open(script, &config, mode, 0)?,
+        machine,
         script,
         rules,
         config,
@@ -827,6 +855,13 @@ pub fn run(script: &Script, common: &Common, mode: Mode) -> Result<Report, Strin
         generation: 0,
         report: Report::default(),
     };
+    let wall = host.wall();
+    let tape = &mut host.report.tape;
+    let _ = writeln!(tape, "contract {WIRE_VERSION}");
+    let _ = writeln!(tape, "wall {wall}");
+    let (store, secret) = (script.device.store, script.device.secret);
+    let _ = writeln!(tape, "device {} {}", u8::from(store), u8::from(secret));
+    host.opened(0, &start);
     for moment in prologue.iter().chain(&script.moments) {
         host.moment(moment)
             .map_err(|error| format!("{}: {error}", script.name))?;

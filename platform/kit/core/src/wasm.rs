@@ -1,7 +1,8 @@
 //! Walks WebAssembly code and names every feature it finds beyond the first version of the
-//! format. Reads archives, objects and linked modules, so the scan sees compiled code.
+//! format. Reads archives, objects and linked modules, so the scan sees compiled code. Also reads
+//! what a linked module exposes, so a test can hold it to the six exports.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 /// One thing a module needs beyond the first version.
 pub type Feature = String;
@@ -209,6 +210,90 @@ pub fn scan_module(bytes: &[u8], found: &mut BTreeSet<Feature>) -> Result<(), St
         }
     }
     Ok(())
+}
+
+/// A value type of the 32 bit integer kind, as the format writes it.
+pub const I32: u8 = 0x7f;
+
+/// Parameter and result types of one function.
+pub type Signature = (Vec<u8>, Vec<u8>);
+
+/// What a linked module exposes.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Shape {
+    pub imports: usize,
+    /// Exported functions by name.
+    pub functions: BTreeMap<String, Signature>,
+    /// Exports of any other kind.
+    pub others: Vec<String>,
+}
+
+fn signatures(section: &[u8]) -> Result<Vec<Signature>, String> {
+    let mut reader = Reader::new(section);
+    let mut found = Vec::new();
+    for _ in 0..reader.size()? {
+        if reader.byte()? != 0x60 {
+            return Err("a type that is no function".to_string());
+        }
+        let params = reader.size()?;
+        let params = reader.take(params)?.to_vec();
+        let results = reader.size()?;
+        found.push((params, reader.take(results)?.to_vec()));
+    }
+    Ok(found)
+}
+
+fn indexes(section: &[u8]) -> Result<Vec<usize>, String> {
+    let mut reader = Reader::new(section);
+    let count = reader.size()?;
+    (0..count).map(|_| reader.size()).collect()
+}
+
+/// Read the imports and exports of a linked module.
+///
+/// # Errors
+/// Bytes that do not read, or a function import, which a linked core must not have.
+pub fn shape(bytes: &[u8]) -> Result<Shape, String> {
+    let mut reader = Reader::new(bytes);
+    if reader.take(8)? != b"\0asm\x01\0\0\0" {
+        return Err("not a module of the first version".to_string());
+    }
+    let mut kinds = Vec::new();
+    let mut declared = Vec::new();
+    let mut exports = Vec::new();
+    let mut shape = Shape::default();
+    while !reader.done() {
+        let id = reader.byte()?;
+        let size = reader.size()?;
+        let section = reader.take(size)?;
+        match id {
+            1 => kinds = signatures(section)?,
+            2 => shape.imports = Reader::new(section).size()?,
+            3 => declared = indexes(section)?,
+            7 => exports.push(section),
+            _ => {}
+        }
+    }
+    if shape.imports > 0 {
+        return Ok(shape);
+    }
+    for section in exports {
+        let mut reader = Reader::new(section);
+        for _ in 0..reader.size()? {
+            let len = reader.size()?;
+            let name = String::from_utf8_lossy(reader.take(len)?).into_owned();
+            let kind = reader.byte()?;
+            let index = reader.size()?;
+            if kind == 0 {
+                let kind = declared.get(index).ok_or("export of no function")?;
+                let signature = kinds.get(*kind).ok_or("function of no type")?.clone();
+                shape.functions.insert(name, signature);
+            } else {
+                shape.others.push(name);
+            }
+        }
+    }
+    Ok(shape)
 }
 
 /// Scan an archive of objects, or a single module. Returns how many held code.

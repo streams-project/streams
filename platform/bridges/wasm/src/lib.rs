@@ -3,8 +3,7 @@
 
 #![cfg_attr(target_arch = "wasm32", no_std)]
 
-#[cfg(any(test, target_arch = "wasm32"))]
-mod heap;
+pub mod heap;
 
 #[cfg(target_arch = "wasm32")]
 pub mod exports {
@@ -75,7 +74,7 @@ pub mod exports {
     /// Room for `len` bytes, or 0 when there is none.
     #[unsafe(no_mangle)]
     pub extern "C" fn core_alloc(len: usize) -> *mut u8 {
-        let mut bytes = Vec::new();
+        let mut bytes: Vec<u8> = Vec::new();
         if bytes.try_reserve_exact(len).is_err() {
             return ptr::null_mut();
         }
