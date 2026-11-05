@@ -80,6 +80,18 @@ fn an_unknown_event_is_answered_unsupported_and_an_unknown_action_too() {
 }
 
 #[test]
+fn an_action_with_no_rule_yet_says_so_and_is_never_swallowed() {
+    let mut core = core();
+    step(&mut core, 0, &json!([]));
+    let out = step(
+        &mut core,
+        1,
+        &json!([{"id": "x1", "type": "action", "action": {"action": "next_subtitle_file"}}]),
+    );
+    assert_eq!(out["unsupported"], json!(["x1"]));
+}
+
+#[test]
 fn a_timer_fired_is_a_plain_wake_and_the_core_arms_no_timer_of_its_own() {
     let mut core = core();
     step(&mut core, 0, &json!([]));

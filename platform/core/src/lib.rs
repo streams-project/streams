@@ -364,7 +364,8 @@ impl Core {
     }
 
     fn load_screen(&mut self, now: Now, name: ScreenName, genre: Option<&str>, out: &mut Out) {
-        if !self.session.signed_in() {
+        // With accounts off a visitor has screens too, and the server answers for its tier.
+        if !self.session.signed_in() && self.config.accounts_required() != Some(false) {
             return;
         }
         if !self.nav_loaded {
@@ -634,7 +635,9 @@ impl Core {
                 }
             }
             Action::Play { title, episode } => {
+                // a play press cuts any wait
                 self.hello_retry_mono = self.hello_retry_mono.map(|_| now.mono_ms);
+                self.session.cut_wait();
                 self.play(now, title, episode, out);
             }
             Action::Command { command } => self.command(now, command, out),
@@ -654,7 +657,6 @@ impl Core {
                     Action::SelectAudio { track } => self.player.select_audio(track, &mut tick),
                     Action::SelectText { track } => self.player.select_text(track, &mut tick),
                     Action::Stop => self.player.stop(&mut tick),
-                    Action::NextSubtitleFile => {}
                     _ => out.unsupported.extend(id),
                 }
                 self.run_tick(now, tick, out);
@@ -871,9 +873,9 @@ impl Core {
     fn answer(&mut self, now: Now, purpose: Purpose, body: Option<String>, out: &mut Out) {
         let text = body.unwrap_or_default();
         match purpose {
-            Purpose::Hello => {
-                self.hello_backoff.reset();
-                if let Ok(hello) = serde_json::from_str::<Hello>(&text) {
+            Purpose::Hello => match serde_json::from_str::<Hello>(&text) {
+                Ok(hello) => {
+                    self.hello_backoff.reset();
                     let standing = self.config.take_hello(hello);
                     self.upgrade = standing == Standing::Upgrade;
                     if self.upgrade {
@@ -882,7 +884,8 @@ impl Core {
                         self.settle(now, out);
                     }
                 }
-            }
+                Err(_) => self.hello_failed(now, Problem::Failed, out),
+            },
             Purpose::Refresh => match serde_json::from_str::<SignedIn>(&text) {
                 Ok(answer) => {
                     self.session.accept(answer, now);
@@ -1026,11 +1029,14 @@ impl Core {
             }
             Purpose::Hello => self.hello_failed(now, problem, out),
             Purpose::Play(serial) | Purpose::More(serial) => {
+                let in_use = self.player.in_use(serial);
                 let mut tick = Tick::default();
                 self.player.request_failed(serial, &mut tick);
                 tick.failed = false;
                 self.run_tick(now, tick, out);
-                self.problem(problem, error, out);
+                if in_use {
+                    self.problem(problem, error, out);
+                }
             }
             Purpose::Command => self.log(LogLevel::Warn, "command-dropped", out),
             Purpose::SignIn | Purpose::CodeSent | Purpose::Enter | Purpose::Profiles => {

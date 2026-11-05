@@ -198,3 +198,18 @@ fn p35_the_root_and_sign_in_lead_a_member_to_the_profiles_own_home() {
     assert_eq!(decide("/", &kids).target, Target::KidsHome);
     assert_eq!(decide("/sign-in", &kids).target, Target::KidsHome);
 }
+
+#[test]
+fn c131_a_moved_table_that_leads_back_to_itself_ends_at_home() {
+    let moved = [MovedAddress {
+        from: "/home".to_string(),
+        to: "/sign-in?next=/home".to_string(),
+    }];
+    let who = Who {
+        member: true,
+        accounts_required: Some(true),
+        moved: &moved,
+        home: Target::Home,
+    };
+    assert_eq!(decide("/home", &who).target, Target::Home);
+}

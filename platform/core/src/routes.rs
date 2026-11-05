@@ -218,6 +218,12 @@ fn next_of(query: &str) -> Option<String> {
 /// Decide what an address opens.
 #[must_use]
 pub fn decide(address: &str, who: &Who<'_>) -> RouteTarget {
+    decide_from(address, who, true)
+}
+
+/// `next` is followed once. The moved table is data from a server, and a row that leads back to
+/// itself must not hang a device.
+fn decide_from(address: &str, who: &Who<'_>, follow_next: bool) -> RouteTarget {
     let (path, query) = split(address);
     // 1. an address that moved. The query stays with it.
     let moved = moved_path(path, who.moved);
@@ -240,9 +246,9 @@ pub fn decide(address: &str, who: &Who<'_>) -> RouteTarget {
     // 3. who may open it
     match found {
         Place::Start if who.member => target(who.home),
-        Place::SignIn if who.member => {
-            next_of(query).map_or(target(who.home), |next| decide(&next, who))
-        }
+        Place::SignIn if who.member => next_of(query)
+            .filter(|_| follow_next)
+            .map_or(target(who.home), |next| decide_from(&next, who, false)),
         Place::SignIn => {
             let mut route = target(Target::SignIn);
             route.next = next_of(query);

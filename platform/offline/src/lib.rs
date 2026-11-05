@@ -793,7 +793,11 @@ impl<S: Step> Layer<S> {
                     *flush_after = true;
                     events.push(event);
                 }
-                EventBody::Network { online: true } => {
+                // a network return or a play press cuts any wait
+                EventBody::Network { online: true }
+                | EventBody::Action {
+                    action: Action::Play { .. },
+                } => {
                     *flush_after = true;
                     events.push(event);
                 }

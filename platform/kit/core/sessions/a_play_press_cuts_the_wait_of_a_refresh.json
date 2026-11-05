@@ -1,0 +1,46 @@
+{
+ "about": "A refresh that got no answer waits 300 s, and a play press cuts that wait.",
+ "covers": [
+  "C5",
+  "C88"
+ ],
+ "moments": [
+  {
+   "at_ms": 780050,
+   "net": "down"
+  },
+  {
+   "at_ms": 780200,
+   "want": {
+    "sent": [
+     "POST /v1/auth/refresh"
+    ],
+    "wake": 1080100
+   }
+  },
+  {
+   "at_ms": 790000,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "title": "movie:7"
+     },
+     "type": "action"
+    }
+   ],
+   "net": "up",
+   "want": {
+    "bearers": [
+     "access-2"
+    ],
+    "sent": [
+     "POST /v1/auth/refresh",
+     "POST /v1/play"
+    ]
+   }
+  }
+ ],
+ "name": "a_play_press_cuts_the_wait_of_a_refresh",
+ "prologue": "home"
+}
