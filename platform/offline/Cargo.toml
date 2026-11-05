@@ -10,5 +10,6 @@ path = "src/lib.rs"
 
 [dependencies]
 contract = { path = "../contract" }
+core-rules = { path = "../core", package = "core" }
 serde.workspace = true
 serde_json.workspace = true

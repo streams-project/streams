@@ -70,6 +70,7 @@ name = "offline"
 version = "0.0.0"
 dependencies = [
  "contract",
+ "core",
  "serde",
  "serde_json",
 ]
