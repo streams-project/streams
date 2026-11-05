@@ -1,0 +1,20 @@
+# brand
+
+The two marks the signed out opening scene draws. Both are our own; they ship
+under this repository's licence (MIT OR Apache-2.0, see `REUSE.toml`).
+
+| File | What | Source |
+|---|---|---|
+| `mark.svg` | Stream play glyph: a blue gradient arrow with a salmon ribbon behind it. 1024 square. | The systemic icon set `source-icon.svg` (set D53). Copied byte for byte. |
+| `wordmark.svg` | The Streams wordmark, white, 3712 by 1024 in its own units (3.625 to 1). | `brand/logo/streams-wordmark-white.svg` in the frontend. Copied byte for byte. |
+
+The icon set carries no licence file of its own, so there was none to carry
+over. Only these two files were taken: the rasterised favicons, touch icons,
+tiles and the small and mono drawings are not needed here, and the earlier
+pixel cube mark is not used anywhere.
+
+The opening uses them as two separate things, as the motion reading does: the
+wordmark rests first and collapses into the mark, and the mark then stretches
+and folds into the column of stripes. Both are loaded as SVG and drawn into one
+square texture with `preserveAspectRatio="none"`, so the renderer sets the shape
+from its own measured box rather than from the file.
