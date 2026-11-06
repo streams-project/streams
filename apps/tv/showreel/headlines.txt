@@ -1,0 +1,12 @@
+# One headline per line, in the order they play. A bar splits a headline into two lines.
+# The first three use two lines. Keep each line under about twenty letters.
+Every story | in one place
+Films, series, | anime & more
+One library | every device
+Worth staying up for
+Big screen action
+Stories that stay
+Laughs all night
+Edge of your seat
+Family favourites
+Hits from everywhere
