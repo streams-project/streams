@@ -1,0 +1,11 @@
+{
+  "generation": 3,
+  "headers": {
+    "Referer": "https://site.example/"
+  },
+  "max_bitrate": 5000000,
+  "max_height": 1080,
+  "op": "open",
+  "start_at_ms": 61000,
+  "url": "https://media.example/a/master.m3u8"
+}

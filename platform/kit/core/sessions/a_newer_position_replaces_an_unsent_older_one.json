@@ -1,0 +1,82 @@
+{
+ "about": "A long offline run keeps one position per title.",
+ "covers": [
+  "C2",
+  "H89"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 31000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 3100,
+   "net": "down"
+  },
+  {
+   "at_ms": 32000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 60000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 100000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 120000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want_on": {
+    "queued": 2
+   }
+  },
+  {
+   "at_ms": 130000,
+   "events": [
+    {
+     "online": true,
+     "type": "network"
+    }
+   ],
+   "net": "up",
+   "want_on": {
+    "ops": [
+     {
+      "command": "feedback"
+     },
+     {
+      "command": "position",
+      "position_s": 120
+     }
+    ],
+    "queued": 0
+   }
+  }
+ ],
+ "name": "a_newer_position_replaces_an_unsent_older_one",
+ "prologue": "playing"
+}

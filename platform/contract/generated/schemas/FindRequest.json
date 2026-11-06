@@ -1,0 +1,60 @@
+{
+  "$defs": {
+    "EpisodeRef": {
+      "description": "One episode of a series. A film has none.",
+      "properties": {
+        "episode": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "season": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "season",
+        "episode"
+      ],
+      "type": "object"
+    },
+    "TitleKey": {
+      "description": "movie:<id> or tv:<id>. A bare id does not parse.",
+      "pattern": "^(movie|tv):[1-9][0-9]{0,9}$",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Title facts come from the server, so a finder never looks them up.",
+  "properties": {
+    "budget_ms": {
+      "description": "Total time this search may take.",
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "episode": {
+      "$ref": "#/$defs/EpisodeRef"
+    },
+    "name": {
+      "type": "string"
+    },
+    "title": {
+      "$ref": "#/$defs/TitleKey"
+    },
+    "year": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "title",
+    "name",
+    "budget_ms"
+  ],
+  "title": "FindRequest",
+  "type": "object"
+}

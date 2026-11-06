@@ -1,0 +1,138 @@
+{
+ "about": "A playing video in view counts as activity, so no question comes.",
+ "covers": [
+  "C74",
+  "C103"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 1000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 603000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 601000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 1203000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 1201000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 1803000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 1801000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 2403000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 2401000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 3003000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 3001000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 3603000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 3601000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 4203000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 4201000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 4900000,
+   "events": [
+    {
+     "type": "activity"
+    }
+   ],
+   "want": {
+    "view": {
+     "gate": {
+      "ask": false
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_watching_viewer_is_not_away",
+ "prologue": "playing"
+}

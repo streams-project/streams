@@ -1,0 +1,20 @@
+[package]
+name = "contract"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[features]
+# Only the generator turns this on. A normal build stays serde only and no_std.
+schema = ["dep:schemars"]
+
+[dependencies]
+serde.workspace = true
+schemars = { version = "=1.2.3", default-features = false, features = ["derive"], optional = true }
+
+[dev-dependencies]
+serde_json.workspace = true

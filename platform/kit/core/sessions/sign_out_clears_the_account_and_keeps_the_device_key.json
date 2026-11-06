@@ -1,0 +1,70 @@
+{
+ "about": "Sign out closes the player, tells the server, drops the session and goes to the start page.",
+ "covers": [
+  "C9",
+  "C72",
+  "C73",
+  "C89",
+  "C95",
+  "C114",
+  "C118",
+  "P34"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 20000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 3100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_out",
+      "everywhere": false
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     }
+    ],
+    "secrets": [
+     "device"
+    ],
+    "view": {
+     "gate": {
+      "ask": false
+     },
+     "profiles": {
+      "profiles": []
+     },
+     "route": {
+      "target": "start"
+     },
+     "session": {
+      "ended": "signed_out",
+      "profile": null,
+      "scope": null,
+      "state": "signed_out"
+     }
+    }
+   }
+  }
+ ],
+ "name": "sign_out_clears_the_account_and_keeps_the_device_key",
+ "prologue": "playing"
+}

@@ -1,0 +1,12 @@
+{
+  "audio_language": "en",
+  "autoplay_next": true,
+  "autoplay_previews": false,
+  "gender": "none",
+  "handle": "sam123",
+  "subtitle_language": "en",
+  "subtitle_style": {
+    "size": "large"
+  },
+  "ui_language": "en"
+}

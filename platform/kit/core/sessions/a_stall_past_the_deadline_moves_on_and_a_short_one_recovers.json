@@ -1,0 +1,111 @@
+{
+ "about": "A short stall recovers by position. One past the deadline fails over from the same second.",
+ "covers": [
+  "H39",
+  "H42"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 10000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 3100,
+   "events": [
+    {
+     "event": {
+      "kind": "stalled"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "view": {
+     "play": {
+      "state": "stalled"
+     }
+    }
+   },
+   "want_off": {
+    "wake": 11100
+   },
+   "want_on": {
+    "wake": 6000
+   }
+  },
+  {
+   "at_ms": 4000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 10500
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "view": {
+     "play": {
+      "state": "playing"
+     }
+    }
+   },
+   "want_off": {
+    "wake": 34000
+   },
+   "want_on": {
+    "wake": 6000
+   }
+  },
+  {
+   "at_ms": 5000,
+   "events": [
+    {
+     "event": {
+      "kind": "stalled"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want_off": {
+    "wake": 13000
+   },
+   "want_on": {
+    "wake": 6000
+   }
+  },
+  {
+   "at_ms": 13500,
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     },
+     {
+      "generation": 2,
+      "op": "open",
+      "start_at_ms": 10500,
+      "url": "https://media2.example/b.mp4"
+     }
+    ]
+   }
+  }
+ ],
+ "name": "a_stall_past_the_deadline_moves_on_and_a_short_one_recovers",
+ "prologue": "playing"
+}

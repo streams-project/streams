@@ -1,0 +1,202 @@
+{
+  "$defs": {
+    "Badge": {
+      "description": "A mark on a tile.",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/BadgeKind"
+        },
+        "rank": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "BadgeKind": {
+      "description": "Marks on a tile.",
+      "enum": [
+        "ranked",
+        "new"
+      ],
+      "type": "string"
+    },
+    "Cursor": {
+      "description": "An opaque position in a list. Clients hand it back and never read it.",
+      "type": "string"
+    },
+    "EpisodeRef": {
+      "description": "One episode of a series. A film has none.",
+      "properties": {
+        "episode": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "season": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "season",
+        "episode"
+      ],
+      "type": "object"
+    },
+    "Image": {
+      "description": "One image address. Images go straight from the host to the viewer.",
+      "properties": {
+        "role": {
+          "$ref": "#/$defs/ImageRole"
+        },
+        "url": {
+          "type": "string"
+        },
+        "width": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "role",
+        "url"
+      ],
+      "type": "object"
+    },
+    "ImageRole": {
+      "description": "What an image is for.",
+      "enum": [
+        "poster",
+        "backdrop",
+        "logo",
+        "still",
+        "avatar"
+      ],
+      "type": "string"
+    },
+    "Notice": {
+      "description": "Text a client can draw with no other knowledge, including a client below the floor.",
+      "properties": {
+        "action_address": {
+          "type": "string"
+        },
+        "action_label": {
+          "type": "string"
+        },
+        "label": {
+          "description": "Label key, for clients with the strings.",
+          "type": "string"
+        },
+        "text": {
+          "description": "Plain text in the viewer's language.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "text"
+      ],
+      "type": "object"
+    },
+    "SectionKind": {
+      "description": "Section kinds. A kind this build does not draw falls back to a plain row.",
+      "enum": [
+        "hero",
+        "row",
+        "ranked",
+        "continue",
+        "grid",
+        "notice"
+      ],
+      "type": "string"
+    },
+    "Tile": {
+      "description": "One title in a section.",
+      "properties": {
+        "badges": {
+          "items": {
+            "$ref": "#/$defs/Badge"
+          },
+          "type": "array"
+        },
+        "episode": {
+          "$ref": "#/$defs/EpisodeRef"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/Image"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "percent": {
+          "description": "Whole percent watched.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "title": {
+          "$ref": "#/$defs/TitleKey"
+        }
+      },
+      "required": [
+        "title",
+        "name"
+      ],
+      "type": "object"
+    },
+    "TitleKey": {
+      "description": "movie:<id> or tv:<id>. A bare id does not parse.",
+      "pattern": "^(movie|tv):[1-9][0-9]{0,9}$",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One row, hero, grid or notice of a screen.",
+  "properties": {
+    "cursor": {
+      "$ref": "#/$defs/Cursor",
+      "description": "Reads more of this section through `/v1/more/{cursor}`."
+    },
+    "id": {
+      "type": "string"
+    },
+    "kind": {
+      "$ref": "#/$defs/SectionKind"
+    },
+    "notice": {
+      "$ref": "#/$defs/Notice"
+    },
+    "tiles": {
+      "items": {
+        "$ref": "#/$defs/Tile"
+      },
+      "type": "array"
+    },
+    "title": {
+      "description": "Translated title.",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "kind"
+  ],
+  "title": "Section",
+  "type": "object"
+}

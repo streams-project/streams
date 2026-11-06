@@ -1,0 +1,34 @@
+{
+  "genres": [
+    "Drama"
+  ],
+  "images": [
+    {
+      "role": "poster",
+      "url": "https://images.example/p/1001.jpg",
+      "width": 342
+    }
+  ],
+  "more_like_this": [
+    {
+      "badges": [
+        {
+          "kind": "ranked",
+          "rank": 2
+        }
+      ],
+      "episode": {
+        "episode": 3,
+        "season": 1
+      },
+      "name": "Sample Series",
+      "percent": 40,
+      "title": "tv:1001"
+    }
+  ],
+  "name": "Sample Film",
+  "overview": "An invented film for tests.",
+  "runtime_min": 101,
+  "title": "movie:1001",
+  "year": 2024
+}

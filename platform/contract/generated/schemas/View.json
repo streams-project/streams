@@ -1,0 +1,631 @@
+{
+  "$defs": {
+    "BrandValues": {
+      "description": "Name and contact, filled into text at render time.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "support_email": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "support_email"
+      ],
+      "type": "object"
+    },
+    "ClassValue": {
+      "description": "One value per client class.",
+      "properties": {
+        "class": {
+          "$ref": "#/$defs/DeviceClass"
+        },
+        "value": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "class",
+        "value"
+      ],
+      "type": "object"
+    },
+    "ClientFloor": {
+      "description": "Lowest app version a class may run.",
+      "properties": {
+        "class": {
+          "$ref": "#/$defs/DeviceClass"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "class",
+        "version"
+      ],
+      "type": "object"
+    },
+    "DeviceClass": {
+      "description": "Client class. Minimum versions, start deadlines and reachability are kept per class.",
+      "enum": [
+        "web",
+        "phone",
+        "tablet",
+        "desktop",
+        "tv",
+        "box",
+        "car"
+      ],
+      "type": "string"
+    },
+    "EndReason": {
+      "description": "Why a session ended.",
+      "enum": [
+        "signed_out",
+        "everywhere",
+        "refused",
+        "elsewhere"
+      ],
+      "type": "string"
+    },
+    "EpisodeRef": {
+      "description": "One episode of a series. A film has none.",
+      "properties": {
+        "episode": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "season": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "season",
+        "episode"
+      ],
+      "type": "object"
+    },
+    "Features": {
+      "description": "Feature values. With no answer from the server, accounts are required.",
+      "properties": {
+        "accounts_required": {
+          "default": true,
+          "type": "boolean"
+        },
+        "clips": {
+          "default": false,
+          "type": "boolean"
+        },
+        "games": {
+          "default": false,
+          "type": "boolean"
+        },
+        "original_audio": {
+          "default": false,
+          "type": "boolean"
+        },
+        "visitor_tier": {
+          "description": "Tier for visitors. Present only when accounts are not required.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "GateView": {
+      "description": "True while the who is watching prompt should show.",
+      "properties": {
+        "ask": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ask"
+      ],
+      "type": "object"
+    },
+    "Hello": {
+      "description": "First answer a client reads.",
+      "properties": {
+        "brand": {
+          "$ref": "#/$defs/BrandValues"
+        },
+        "client_min": {
+          "items": {
+            "$ref": "#/$defs/ClientFloor"
+          },
+          "type": "array"
+        },
+        "contract": {
+          "$ref": "#/$defs/VersionRange",
+          "description": "Wire dates this server answers."
+        },
+        "features": {
+          "$ref": "#/$defs/Features"
+        },
+        "killed_builds": {
+          "description": "Builds refused by name.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "limits": {
+          "$ref": "#/$defs/Limits"
+        },
+        "moved": {
+          "items": {
+            "$ref": "#/$defs/MovedAddress"
+          },
+          "type": "array"
+        },
+        "playback": {
+          "description": "False stops playback everywhere with a notice.",
+          "type": "boolean"
+        },
+        "rollouts": {
+          "items": {
+            "$ref": "#/$defs/Rollout"
+          },
+          "type": "array"
+        },
+        "start_deadline_ms": {
+          "items": {
+            "$ref": "#/$defs/ClassValue"
+          },
+          "type": "array"
+        },
+        "ttl_s": {
+          "description": "Seconds this answer stays good.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "contract",
+        "client_min",
+        "features",
+        "limits",
+        "playback",
+        "start_deadline_ms",
+        "brand",
+        "ttl_s"
+      ],
+      "type": "object"
+    },
+    "Limits": {
+      "description": "Limits served from one place, so no client holds a copy.",
+      "properties": {
+        "blocked_title_max": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "blocked_titles_max": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "code_digits": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "code_valid_s": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "command_batch_max": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "handle_max": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "handle_min": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name_max": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "password_min": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "phone_digits_max": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "phone_digits_min": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pin_digits": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "profile_name_max": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "profiles_max": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "step_up_s": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "profiles_max",
+        "profile_name_max",
+        "pin_digits",
+        "password_min",
+        "step_up_s",
+        "phone_digits_min",
+        "phone_digits_max",
+        "blocked_title_max",
+        "blocked_titles_max",
+        "name_max",
+        "handle_min",
+        "handle_max",
+        "code_digits",
+        "code_valid_s",
+        "command_batch_max"
+      ],
+      "type": "object"
+    },
+    "MovedAddress": {
+      "description": "One row of the moved address table.",
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "from",
+        "to"
+      ],
+      "type": "object"
+    },
+    "PlayState": {
+      "description": "Where the play session stands.",
+      "enum": [
+        "resolving",
+        "starting",
+        "playing",
+        "paused",
+        "stalled",
+        "switching",
+        "ended",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "PlayView": {
+      "description": "Play session state for screens.",
+      "properties": {
+        "attempt": {
+          "type": "string"
+        },
+        "episode": {
+          "$ref": "#/$defs/EpisodeRef"
+        },
+        "next_episode": {
+          "$ref": "#/$defs/EpisodeRef",
+          "description": "Absent on the last episode, so no screen offers one that does not exist."
+        },
+        "state": {
+          "$ref": "#/$defs/PlayState"
+        },
+        "title": {
+          "$ref": "#/$defs/TitleKey"
+        },
+        "windows": {
+          "items": {
+            "$ref": "#/$defs/TimeWindow"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "state",
+        "title"
+      ],
+      "type": "object"
+    },
+    "Profile": {
+      "description": "One profile.",
+      "properties": {
+        "avatar": {
+          "type": "string"
+        },
+        "has_pin": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kids": {
+          "type": "boolean"
+        },
+        "main": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kids",
+        "main",
+        "has_pin"
+      ],
+      "type": "object"
+    },
+    "ProfileList": {
+      "properties": {
+        "profiles": {
+          "items": {
+            "$ref": "#/$defs/Profile"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "profiles"
+      ],
+      "type": "object"
+    },
+    "Rollout": {
+      "description": "A staged rollout. The bucket comes from the household, so a home moves together.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "percent": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "percent"
+      ],
+      "type": "object"
+    },
+    "RouteTarget": {
+      "description": "What an address opens.",
+      "properties": {
+        "episode": {
+          "$ref": "#/$defs/EpisodeRef"
+        },
+        "genre": {
+          "description": "The genre, for the genre screen.",
+          "type": "string"
+        },
+        "next": {
+          "description": "A safe address to return to after sign in.",
+          "type": "string"
+        },
+        "screen": {
+          "$ref": "#/$defs/ScreenName"
+        },
+        "target": {
+          "$ref": "#/$defs/Target"
+        },
+        "title": {
+          "$ref": "#/$defs/TitleKey"
+        }
+      },
+      "required": [
+        "target"
+      ],
+      "type": "object"
+    },
+    "ScreenName": {
+      "description": "The screens the server builds.",
+      "enum": [
+        "home",
+        "films",
+        "series",
+        "genre",
+        "new",
+        "my-list",
+        "kids",
+        "search",
+        "notifications",
+        "activity",
+        "games",
+        "clips",
+        "language"
+      ],
+      "type": "string"
+    },
+    "SessionState": {
+      "description": "Where sign in stands.",
+      "enum": [
+        "starting",
+        "signed_out",
+        "signed_in"
+      ],
+      "type": "string"
+    },
+    "SessionView": {
+      "description": "Sign in state for screens. Tokens never appear here.",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "ended": {
+          "$ref": "#/$defs/EndReason"
+        },
+        "expires_at_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "profile": {
+          "type": "string"
+        },
+        "scope": {
+          "description": "Opaque scope of this account and profile, the same value http effects carry.",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/SessionState"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "state"
+      ],
+      "type": "object"
+    },
+    "Target": {
+      "description": "A semantic target. Each device maps it to one of its own screens.",
+      "enum": [
+        "start",
+        "sign_in",
+        "profiles",
+        "home",
+        "kids_home",
+        "screen",
+        "title",
+        "watch",
+        "not_found",
+        "wait",
+        "upgrade"
+      ],
+      "type": "string"
+    },
+    "TimeWindow": {
+      "description": "A span of a video the host compares to player time. Nothing ticks across the boundary.",
+      "properties": {
+        "end_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/$defs/WindowKind"
+        },
+        "seek_to_ms": {
+          "description": "Where a skip button moves to.",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "start_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "start_ms",
+        "end_ms"
+      ],
+      "type": "object"
+    },
+    "TitleKey": {
+      "description": "movie:<id> or tv:<id>. A bare id does not parse.",
+      "pattern": "^(movie|tv):[1-9][0-9]{0,9}$",
+      "type": "string"
+    },
+    "VersionRange": {
+      "description": "The wire dates a server answers. Never compared for equality.",
+      "properties": {
+        "max": {
+          "$ref": "#/$defs/WireDate"
+        },
+        "min": {
+          "$ref": "#/$defs/WireDate"
+        }
+      },
+      "required": [
+        "min",
+        "max"
+      ],
+      "type": "object"
+    },
+    "WindowKind": {
+      "description": "Windows of time inside a video.",
+      "enum": [
+        "recap",
+        "intro",
+        "credits",
+        "age_card",
+        "cue"
+      ],
+      "type": "string"
+    },
+    "WireDate": {
+      "description": "A wire date, YYYY-MM-DD.",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Changed screen state. A part that is absent did not change.",
+  "properties": {
+    "gate": {
+      "$ref": "#/$defs/GateView"
+    },
+    "hello": {
+      "$ref": "#/$defs/Hello",
+      "description": "The last hello read, so a screen takes limits and features from one place."
+    },
+    "play": {
+      "$ref": "#/$defs/PlayView"
+    },
+    "profiles": {
+      "$ref": "#/$defs/ProfileList",
+      "description": "The account's profiles, for the picker. No PIN is ever held here."
+    },
+    "route": {
+      "$ref": "#/$defs/RouteTarget"
+    },
+    "session": {
+      "$ref": "#/$defs/SessionView"
+    }
+  },
+  "title": "View",
+  "type": "object"
+}

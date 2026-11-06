@@ -1,0 +1,55 @@
+{
+  "brand": {
+    "name": "Sample Video",
+    "support_email": "support@host.example"
+  },
+  "client_min": [
+    {
+      "class": "web",
+      "version": "1.0.0"
+    },
+    {
+      "class": "tv",
+      "version": "1.0.0"
+    }
+  ],
+  "contract": {
+    "max": "2026-11-05",
+    "min": "2026-11-05"
+  },
+  "features": {
+    "accounts_required": true,
+    "clips": false,
+    "games": false,
+    "original_audio": false
+  },
+  "limits": {
+    "blocked_title_max": 100,
+    "blocked_titles_max": 200,
+    "code_digits": 8,
+    "code_valid_s": 600,
+    "command_batch_max": 500,
+    "handle_max": 16,
+    "handle_min": 3,
+    "name_max": 60,
+    "password_min": 8,
+    "phone_digits_max": 15,
+    "phone_digits_min": 6,
+    "pin_digits": 4,
+    "profile_name_max": 30,
+    "profiles_max": 5,
+    "step_up_s": 300
+  },
+  "playback": true,
+  "start_deadline_ms": [
+    {
+      "class": "web",
+      "value": 8000
+    },
+    {
+      "class": "tv",
+      "value": 12000
+    }
+  ],
+  "ttl_s": 300
+}

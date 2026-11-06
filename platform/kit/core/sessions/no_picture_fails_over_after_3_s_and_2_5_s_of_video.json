@@ -1,0 +1,93 @@
+{
+ "about": "Width 0 past 2 s of video while playing, for more than 3,000 ms and more than 2.5 s of video, moves on.",
+ "covers": [
+  "C30",
+  "P39"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 1500,
+      "video_width": 0
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 4000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 2500,
+      "video_width": 0
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 7000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 5500,
+      "video_width": 0
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 7001,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 5501,
+      "video_width": 0
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     },
+     {
+      "generation": 2,
+      "op": "open",
+      "start_at_ms": 5501,
+      "url": "https://media2.example/b.mp4"
+     }
+    ]
+   }
+  }
+ ],
+ "name": "no_picture_fails_over_after_3_s_and_2_5_s_of_video",
+ "prologue": "playing"
+}

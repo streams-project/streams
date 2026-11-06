@@ -1,0 +1,11 @@
+{
+  "home": "kids",
+  "profile": {
+    "avatar": "a2",
+    "has_pin": false,
+    "id": "p2",
+    "kids": true,
+    "main": false,
+    "name": "Kids"
+  }
+}

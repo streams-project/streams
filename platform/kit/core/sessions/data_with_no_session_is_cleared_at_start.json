@@ -1,0 +1,53 @@
+{
+ "about": "A store left behind with no session is emptied at start, except answers with no scope.",
+ "covers": [
+  "C73",
+  "C117",
+  "C118",
+  "P13"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "net": "down"
+  },
+  {
+   "at_ms": 1100,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:7"
+      }
+     },
+     "type": "action"
+    }
+   ],
+   "want_on": {
+    "kept_pages": 3,
+    "queued": 1
+   }
+  },
+  {
+   "at_ms": 2000,
+   "forget_secrets": true,
+   "restart": false,
+   "want": {
+    "view": {
+     "session": {
+      "state": "signed_out"
+     }
+    }
+   },
+   "want_on": {
+    "kept_pages": 1,
+    "queued": 0
+   }
+  }
+ ],
+ "name": "data_with_no_session_is_cleared_at_start",
+ "prologue": "home"
+}

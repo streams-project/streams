@@ -1,0 +1,10 @@
+{
+  "budget_ms": 8000,
+  "episode": {
+    "episode": 3,
+    "season": 1
+  },
+  "name": "Sample Series",
+  "title": "tv:1001",
+  "year": 2024
+}

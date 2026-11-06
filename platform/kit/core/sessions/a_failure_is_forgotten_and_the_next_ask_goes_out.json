@@ -1,0 +1,62 @@
+{
+ "about": "A failed answer is never kept.",
+ "covers": [
+  "C100",
+  "C122"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "notices": [
+     "busy"
+    ],
+    "sent": [
+     "GET /v1/screens/my-list"
+    ]
+   }
+  },
+  {
+   "at_ms": 2000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "pages": [
+     {
+      "page": {
+       "name": "my-list"
+      }
+     }
+    ],
+    "sent": [
+     "GET /v1/screens/my-list"
+    ]
+   }
+  }
+ ],
+ "name": "a_failure_is_forgotten_and_the_next_ask_goes_out",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "overloaded",
+    "label": "busy"
+   },
+   "method": "GET",
+   "path": "/v1/screens/my-list",
+   "status": 503,
+   "times": 1
+  }
+ ]
+}

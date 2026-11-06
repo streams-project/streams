@@ -1,0 +1,82 @@
+{
+  "$defs": {
+    "ErrorCode": {
+      "description": "Stable error code. A code this build does not know reads as `Unknown`.",
+      "enum": [
+        "bad_request",
+        "unauthorized",
+        "session_ended",
+        "profile_required",
+        "pin_required",
+        "step_up_required",
+        "refused",
+        "not_found",
+        "no_longer_available",
+        "conflict",
+        "rate_limited",
+        "overloaded",
+        "deadline_exceeded",
+        "upgrade_required",
+        "unsupported",
+        "no_source",
+        "clock_wrong",
+        "internal"
+      ],
+      "type": "string"
+    },
+    "Notice": {
+      "description": "Text a client can draw with no other knowledge, including a client below the floor.",
+      "properties": {
+        "action_address": {
+          "type": "string"
+        },
+        "action_label": {
+          "type": "string"
+        },
+        "label": {
+          "description": "Label key, for clients with the strings.",
+          "type": "string"
+        },
+        "text": {
+          "description": "Plain text in the viewer's language.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "text"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Body of every error answer.",
+  "properties": {
+    "build": {
+      "description": "The build that answered.",
+      "type": "string"
+    },
+    "code": {
+      "$ref": "#/$defs/ErrorCode"
+    },
+    "label": {
+      "description": "Label key for this error.",
+      "type": "string"
+    },
+    "notice": {
+      "$ref": "#/$defs/Notice"
+    },
+    "retry_after_s": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "code",
+    "label",
+    "build"
+  ],
+  "title": "ErrorBody",
+  "type": "object"
+}

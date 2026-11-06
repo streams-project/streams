@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "email": {
+      "type": "string"
+    },
+    "first_name": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "email",
+    "first_name",
+    "last_name"
+  ],
+  "title": "Account",
+  "type": "object"
+}

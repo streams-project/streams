@@ -1,0 +1,6 @@
+{
+  "build": "b0001",
+  "code": "rate_limited",
+  "label": "error.rate_limited",
+  "retry_after_s": 30
+}

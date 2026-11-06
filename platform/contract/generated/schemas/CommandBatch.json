@@ -1,0 +1,259 @@
+{
+  "$defs": {
+    "CommandOp": {
+      "description": "One queued op. A missing `age_ms` means age unknown, and the server orders by arrival.",
+      "oneOf": [
+        {
+          "description": "Add to or remove from My List. Leaves the rating alone.",
+          "properties": {
+            "command": {
+              "const": "list",
+              "type": "string"
+            },
+            "in_list": {
+              "type": "boolean"
+            },
+            "title": {
+              "$ref": "#/$defs/TitleKey"
+            }
+          },
+          "required": [
+            "command",
+            "title",
+            "in_list"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Set or clear a rating. Leaves the list entry alone.",
+          "properties": {
+            "command": {
+              "const": "rate",
+              "type": "string"
+            },
+            "rating": {
+              "$ref": "#/$defs/Rating"
+            },
+            "title": {
+              "$ref": "#/$defs/TitleKey"
+            }
+          },
+          "required": [
+            "command",
+            "title"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Hide a title from history. For a series this covers every episode.",
+          "properties": {
+            "command": {
+              "const": "hide",
+              "type": "string"
+            },
+            "title": {
+              "$ref": "#/$defs/TitleKey"
+            }
+          },
+          "required": [
+            "command",
+            "title"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Clear all history of this profile, as one operation.",
+          "properties": {
+            "command": {
+              "const": "clear_history",
+              "type": "string"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Save a position, in whole seconds.",
+          "properties": {
+            "command": {
+              "const": "position",
+              "type": "string"
+            },
+            "duration_s": {
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "episode": {
+              "$ref": "#/$defs/EpisodeRef"
+            },
+            "position_s": {
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "title": {
+              "$ref": "#/$defs/TitleKey"
+            }
+          },
+          "required": [
+            "command",
+            "title",
+            "position_s",
+            "duration_s"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Change one profile setting. Booleans as true or false, style as JSON text.",
+          "properties": {
+            "command": {
+              "const": "setting",
+              "type": "string"
+            },
+            "key": {
+              "$ref": "#/$defs/SettingKey"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "command",
+            "key",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "A viewer signal. Discarded by the server when consent is off.",
+          "properties": {
+            "command": {
+              "const": "feedback",
+              "type": "string"
+            },
+            "event": {
+              "$ref": "#/$defs/FeedbackEvent"
+            },
+            "title": {
+              "$ref": "#/$defs/TitleKey"
+            }
+          },
+          "required": [
+            "command",
+            "title",
+            "event"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "A trailer failed to play for this title.",
+          "properties": {
+            "command": {
+              "const": "trailer_refused",
+              "type": "string"
+            },
+            "title": {
+              "$ref": "#/$defs/TitleKey"
+            }
+          },
+          "required": [
+            "command",
+            "title"
+          ],
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "age_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "op_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "op_id"
+      ],
+      "type": "object"
+    },
+    "EpisodeRef": {
+      "description": "One episode of a series. A film has none.",
+      "properties": {
+        "episode": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "season": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "season",
+        "episode"
+      ],
+      "type": "object"
+    },
+    "FeedbackEvent": {
+      "description": "Signals a viewer gives.",
+      "enum": [
+        "click",
+        "start",
+        "complete",
+        "like",
+        "skip"
+      ],
+      "type": "string"
+    },
+    "Rating": {
+      "description": "Rating words on the wire. Screens use the words like, love and dislike.",
+      "enum": [
+        "down",
+        "up",
+        "love"
+      ],
+      "type": "string"
+    },
+    "SettingKey": {
+      "description": "Settings a queued command may change. Age rating and blocked titles are absent on\npurpose: they need a step up, so a queued write can never touch them.",
+      "enum": [
+        "autoplay_next",
+        "autoplay_previews",
+        "audio_language",
+        "subtitle_language",
+        "subtitle_style",
+        "ui_language",
+        "handle",
+        "gender"
+      ],
+      "type": "string"
+    },
+    "TitleKey": {
+      "description": "movie:<id> or tv:<id>. A bare id does not parse.",
+      "pattern": "^(movie|tv):[1-9][0-9]{0,9}$",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`POST /v1/commands`. Idempotent by op id.",
+  "properties": {
+    "ops": {
+      "items": {
+        "$ref": "#/$defs/CommandOp"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "ops"
+  ],
+  "title": "CommandBatch",
+  "type": "object"
+}

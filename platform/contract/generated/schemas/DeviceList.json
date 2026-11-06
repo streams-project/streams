@@ -1,0 +1,61 @@
+{
+  "$defs": {
+    "DeviceClass": {
+      "description": "Client class. Minimum versions, start deadlines and reachability are kept per class.",
+      "enum": [
+        "web",
+        "phone",
+        "tablet",
+        "desktop",
+        "tv",
+        "box",
+        "car"
+      ],
+      "type": "string"
+    },
+    "DeviceSession": {
+      "description": "One signed in device.",
+      "properties": {
+        "class": {
+          "$ref": "#/$defs/DeviceClass"
+        },
+        "current": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "last_seen_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "class",
+        "last_seen_ms",
+        "current"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "devices": {
+      "items": {
+        "$ref": "#/$defs/DeviceSession"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "devices"
+  ],
+  "title": "DeviceList",
+  "type": "object"
+}

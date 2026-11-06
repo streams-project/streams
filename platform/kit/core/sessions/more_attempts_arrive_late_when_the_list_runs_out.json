@@ -1,0 +1,97 @@
+{
+ "about": "When the answer says more may come, the core asks for them and walks on.",
+ "covers": [
+  "H39"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p1"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "title": "movie:7"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "open",
+      "url": "https://late.example/1"
+     }
+    ],
+    "sent": [
+     "POST /v1/play",
+     "POST /v1/play/pl1/more"
+    ],
+    "view": {
+     "play": {
+      "attempt": "a9",
+      "state": "switching"
+     }
+    }
+   }
+  }
+ ],
+ "name": "more_attempts_arrive_late_when_the_list_runs_out",
+ "server": [
+  {
+   "body": {
+    "attempts": [],
+    "dropped": 0,
+    "more": true,
+    "play_id": "pl1",
+    "start_at_ms": 0
+   },
+   "method": "POST",
+   "path": "/v1/play"
+  },
+  {
+   "body": {
+    "attempts": [
+     {
+      "group": "g9",
+      "headers": {},
+      "id": "a9",
+      "kind": "hls",
+      "url": "https://late.example/1",
+      "verified": true
+     }
+    ],
+    "more": false
+   },
+   "method": "POST",
+   "path": "/v1/play/pl1/more"
+  }
+ ]
+}

@@ -1,0 +1,67 @@
+{
+ "about": "With no answer a members page goes to sign in. Hello retries at 2 s then doubles, and a network return cuts the wait.",
+ "covers": [
+  "C5",
+  "C108",
+  "C111"
+ ],
+ "moments": [
+  {
+   "at_ms": 0,
+   "events": [
+    {
+     "address": "/home",
+     "type": "address"
+    }
+   ],
+   "net": "down",
+   "want": {
+    "sent": [
+     "GET /v1/hello"
+    ],
+    "view": {
+     "route": {
+      "next": "/home",
+      "target": "sign_in"
+     }
+    },
+    "wake": 2000
+   }
+  },
+  {
+   "at_ms": 3000,
+   "want": {
+    "sent": [
+     "GET /v1/hello"
+    ],
+    "wake": 6000
+   }
+  },
+  {
+   "at_ms": 6500,
+   "want": {
+    "sent": [
+     "GET /v1/hello"
+    ],
+    "wake": 14000
+   }
+  },
+  {
+   "at_ms": 7000,
+   "events": [
+    {
+     "online": true,
+     "type": "network"
+    }
+   ],
+   "net": "up",
+   "want": {
+    "sent": [
+     "GET /v1/hello"
+    ],
+    "wake": null
+   }
+  }
+ ],
+ "name": "start_an_unreachable_server_counts_as_accounts_required"
+}

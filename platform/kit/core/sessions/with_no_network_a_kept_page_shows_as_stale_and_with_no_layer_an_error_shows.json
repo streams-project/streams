@@ -1,0 +1,52 @@
+{
+ "about": "The layer serves the last copy past its ttl. Without it, offline shows an error.",
+ "covers": [
+  "C100",
+  "C108"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "sent": [
+     "GET /v1/screens/my-list"
+    ]
+   }
+  },
+  {
+   "at_ms": 70000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "net": "down",
+   "want_off": {
+    "notices": [
+     "problem-offline"
+    ],
+    "pages": []
+   },
+   "want_on": {
+    "notices": [],
+    "pages": [
+     {
+      "page": {
+       "name": "my-list"
+      },
+      "stale": true
+     }
+    ]
+   }
+  }
+ ],
+ "name": "with_no_network_a_kept_page_shows_as_stale_and_with_no_layer_an_error_shows",
+ "prologue": "home"
+}

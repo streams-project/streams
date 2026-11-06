@@ -1,0 +1,62 @@
+{
+  "contract": "2026-11-05",
+  "effects": [
+    {
+      "command": {
+        "op": "close"
+      },
+      "id": "e11",
+      "kind": "player"
+    },
+    {
+      "command": {
+        "generation": 4,
+        "headers": {},
+        "max_bitrate": 5000000,
+        "max_height": 1080,
+        "op": "open",
+        "start_at_ms": 61000,
+        "url": "https://media2.example/b.mp4"
+      },
+      "id": "e12",
+      "kind": "player"
+    }
+  ],
+  "type": "core_out",
+  "view": {
+    "play": {
+      "attempt": "a2",
+      "episode": {
+        "episode": 3,
+        "season": 1
+      },
+      "state": "switching",
+      "title": "tv:1001",
+      "windows": [
+        {
+          "end_ms": 90000,
+          "kind": "intro",
+          "seek_to_ms": 90000,
+          "start_ms": 30000
+        },
+        {
+          "end_ms": 1200000,
+          "kind": "credits",
+          "start_ms": 1150000
+        },
+        {
+          "end_ms": 5000,
+          "kind": "age_card",
+          "start_ms": 0,
+          "text": "15"
+        },
+        {
+          "end_ms": 2500,
+          "kind": "cue",
+          "start_ms": 1000,
+          "text": "An invented line."
+        }
+      ]
+    }
+  }
+}

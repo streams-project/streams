@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "The two kinds of title. Closed on purpose: a new kind reaches old clients only through a\ndated transform, so a key always names a kind this build can open.",
+  "enum": [
+    "movie",
+    "tv"
+  ],
+  "title": "TitleKind",
+  "type": "string"
+}

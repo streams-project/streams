@@ -1,0 +1,88 @@
+{
+ "about": "Each new change starts the 4,000 ms wait again, and the ops go together.",
+ "covers": [
+  "C19"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000
+  },
+  {
+   "at_ms": 1100,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:7"
+      }
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:8"
+      }
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 5000,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:9"
+      }
+     },
+     "type": "action"
+    }
+   ],
+   "want_on": {
+    "sent": [],
+    "wake": 9000
+   }
+  },
+  {
+   "at_ms": 9100,
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 7900,
+      "title": "movie:7"
+     },
+     {
+      "age_ms": 6000,
+      "title": "movie:8"
+     },
+     {
+      "age_ms": 4000,
+      "title": "movie:9"
+     }
+    ],
+    "queued": 0,
+    "sent": [
+     "POST /v1/commands"
+    ]
+   }
+  }
+ ],
+ "name": "changes_within_the_debounce_restart_it_and_go_in_one_batch",
+ "prologue": "home"
+}

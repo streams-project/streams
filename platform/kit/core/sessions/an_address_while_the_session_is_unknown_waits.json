@@ -1,0 +1,31 @@
+{
+ "about": "With a kept session on its way back, a members page waits and never shows sign in.",
+ "covers": [
+  "C131"
+ ],
+ "moments": [
+  {
+   "at_ms": 5000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "restart": false,
+   "want": {
+    "routes": [
+     {
+      "target": "wait"
+     },
+     {
+      "screen": "my-list",
+      "target": "screen"
+     }
+    ]
+   }
+  }
+ ],
+ "name": "an_address_while_the_session_is_unknown_waits",
+ "prologue": "home"
+}

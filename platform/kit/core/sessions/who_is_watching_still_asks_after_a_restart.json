@@ -1,0 +1,38 @@
+{
+ "about": "A kept profile counts as active, so the question comes after a restart too.",
+ "covers": [
+  "C74",
+  "C130",
+  "P11"
+ ],
+ "moments": [
+  {
+   "at_ms": 5000,
+   "restart": false,
+   "want": {
+    "view": {
+     "session": {
+      "profile": "p1"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 2405001,
+   "events": [
+    {
+     "type": "activity"
+    }
+   ],
+   "want": {
+    "view": {
+     "gate": {
+      "ask": true
+     }
+    }
+   }
+  }
+ ],
+ "name": "who_is_watching_still_asks_after_a_restart",
+ "prologue": "home"
+}

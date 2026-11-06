@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A command to the player. Attempts carry their headers here.",
+  "oneOf": [
+    {
+      "properties": {
+        "generation": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "max_bitrate": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_height": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "op": {
+          "const": "open",
+          "type": "string"
+        },
+        "start_at_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "url",
+        "headers",
+        "start_at_ms",
+        "generation"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "op": {
+          "const": "play",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "op": {
+          "const": "pause",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "op": {
+          "const": "seek",
+          "type": "string"
+        },
+        "to_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "op",
+        "to_ms"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "op": {
+          "const": "rate",
+          "type": "string"
+        },
+        "percent": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "op",
+        "percent"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "op": {
+          "const": "volume",
+          "type": "string"
+        },
+        "percent": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "op",
+        "percent"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "op": {
+          "const": "select_audio",
+          "type": "string"
+        },
+        "track": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "track"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "op": {
+          "const": "select_text",
+          "type": "string"
+        },
+        "track": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "op"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "op": {
+          "const": "close",
+          "type": "string"
+        }
+      },
+      "required": [
+        "op"
+      ],
+      "type": "object"
+    }
+  ],
+  "title": "DriverCommand"
+}

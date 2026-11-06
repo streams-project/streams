@@ -1,0 +1,66 @@
+{
+ "about": "The last position joins the queue and goes before the session ends. Nothing stays for the next account.",
+ "covers": [
+  "H48",
+  "C9",
+  "P13"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 20000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 3100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_out",
+      "everywhere": false
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "view": {
+     "session": {
+      "state": "signed_out"
+     }
+    }
+   },
+   "want_off": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 20
+     }
+    ]
+   },
+   "want_on": {
+    "kept_pages": 1,
+    "ops": [
+     {
+      "command": "feedback"
+     },
+     {
+      "command": "position",
+      "position_s": 20
+     }
+    ],
+    "queued": 0
+   }
+  }
+ ],
+ "name": "sign_out_sends_the_last_batch_then_wipes_the_queue",
+ "prologue": "playing"
+}

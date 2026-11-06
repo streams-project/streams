@@ -1,0 +1,250 @@
+{
+ "about": "A source that never shows a frame ends at the start deadline. Close comes before open, the group is skipped, the position stays, and a late event of the old generation is dropped.",
+ "covers": [
+  "H39",
+  "H40",
+  "H42",
+  "C1",
+  "C17",
+  "C28",
+  "C84",
+  "C98"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p1"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "title": "movie:7"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "generation": 1,
+      "op": "open",
+      "start_at_ms": 61000,
+      "url": "https://a.example/1"
+     }
+    ],
+    "view": {
+     "play": {
+      "attempt": "a1",
+      "state": "starting"
+     }
+    },
+    "wake": 9000
+   }
+  },
+  {
+   "at_ms": 8999,
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 9500,
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     },
+     {
+      "generation": 2,
+      "op": "open",
+      "start_at_ms": 61000,
+      "url": "https://c.example/1"
+     }
+    ],
+    "view": {
+     "play": {
+      "attempt": "a4",
+      "state": "switching"
+     }
+    },
+    "wake": 17000
+   }
+  },
+  {
+   "at_ms": 9600,
+   "events": [
+    {
+     "event": {
+      "class": "manifest",
+      "kind": "error"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": [],
+    "view": {
+     "play": {
+      "state": "switching"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 9650,
+   "events": [
+    {
+     "event": {
+      "kind": "first_frame"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": [],
+    "view": {
+     "play": {
+      "state": "switching"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 9700,
+   "events": [
+    {
+     "event": {
+      "kind": "first_frame"
+     },
+     "generation": 2,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "view": {
+     "play": {
+      "state": "playing"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 12000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 64000
+     },
+     "generation": 2,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 12100,
+   "events": [
+    {
+     "event": {
+      "class": "segment",
+      "kind": "error"
+     },
+     "generation": 2,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "notices": [
+     "play-failed"
+    ],
+    "player": [
+     {
+      "op": "close"
+     }
+    ],
+    "view": {
+     "play": {
+      "state": "failed"
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_dead_source_fails_over_at_the_start_deadline_with_the_position_kept",
+ "server": [
+  {
+   "body": {
+    "attempts": [
+     {
+      "group": "g1",
+      "headers": {},
+      "id": "a1",
+      "kind": "hls",
+      "url": "https://a.example/1",
+      "verified": true
+     },
+     {
+      "group": "g1",
+      "headers": {},
+      "id": "a2",
+      "kind": "hls",
+      "url": "https://a.example/2",
+      "verified": true
+     },
+     {
+      "group": "g1",
+      "headers": {},
+      "id": "a3",
+      "kind": "hls",
+      "url": "https://b.example/1",
+      "verified": true
+     },
+     {
+      "group": "g2",
+      "headers": {},
+      "id": "a4",
+      "kind": "file",
+      "url": "https://c.example/1",
+      "verified": true
+     }
+    ],
+    "dropped": 0,
+    "more": false,
+    "play_id": "pl1",
+    "start_at_ms": 61000
+   },
+   "method": "POST",
+   "path": "/v1/play"
+  }
+ ]
+}

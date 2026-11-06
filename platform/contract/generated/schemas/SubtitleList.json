@@ -1,0 +1,58 @@
+{
+  "$defs": {
+    "SubtitleFile": {
+      "description": "One subtitle file of a language, in the order to try.",
+      "properties": {
+        "hearing_impaired": {
+          "default": false,
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "SubtitleLanguage": {
+      "description": "One language.",
+      "properties": {
+        "files": {
+          "items": {
+            "$ref": "#/$defs/SubtitleFile"
+          },
+          "type": "array"
+        },
+        "label": {
+          "type": "string"
+        },
+        "lang": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "lang",
+        "label",
+        "files"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`/v1/subtitles`.",
+  "properties": {
+    "languages": {
+      "items": {
+        "$ref": "#/$defs/SubtitleLanguage"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "languages"
+  ],
+  "title": "SubtitleList",
+  "type": "object"
+}

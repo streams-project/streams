@@ -1,0 +1,109 @@
+{
+ "about": "An embed has no failure of its own, so the start deadline is its way out, and walking goes on past it.",
+ "covers": [
+  "H82"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p1"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "title": "movie:7"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "generation": 1,
+      "op": "open",
+      "url": "https://embed.example/1"
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 9500,
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     },
+     {
+      "generation": 2,
+      "op": "open",
+      "url": "https://b.example/1"
+     }
+    ],
+    "view": {
+     "play": {
+      "attempt": "a2",
+      "state": "switching"
+     }
+    }
+   }
+  }
+ ],
+ "name": "an_embed_that_never_loads_ends_at_the_deadline_and_moves_on",
+ "server": [
+  {
+   "body": {
+    "attempts": [
+     {
+      "group": "g1",
+      "headers": {},
+      "id": "a1",
+      "kind": "embed",
+      "url": "https://embed.example/1",
+      "verified": true
+     },
+     {
+      "group": "g1",
+      "headers": {},
+      "id": "a2",
+      "kind": "hls",
+      "url": "https://b.example/1",
+      "verified": true
+     }
+    ],
+    "dropped": 0,
+    "more": false,
+    "play_id": "pl1",
+    "start_at_ms": 0
+   },
+   "method": "POST",
+   "path": "/v1/play"
+  }
+ ]
+}

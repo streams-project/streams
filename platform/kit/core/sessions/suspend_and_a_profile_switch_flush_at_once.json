@@ -1,0 +1,99 @@
+{
+ "about": "Suspend sends what waits with no debounce. A profile switch sends the last batch first, so a change never lands on the next profile.",
+ "covers": [
+  "H48",
+  "C2"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:7"
+      }
+     },
+     "type": "action"
+    }
+   ],
+   "want_on": {
+    "sent": []
+   }
+  },
+  {
+   "at_ms": 1100,
+   "events": [
+    {
+     "type": "suspend"
+    }
+   ],
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 100,
+      "title": "movie:7"
+     }
+    ],
+    "sent": [
+     "POST /v1/commands"
+    ]
+   }
+  },
+  {
+   "at_ms": 1200,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:8"
+      }
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 1300,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p2"
+     },
+     "type": "action"
+    }
+   ],
+   "want_off": {
+    "sent": [
+     "POST /v1/profiles/p2/enter",
+     "GET /v1/nav",
+     "GET /v1/screens/kids"
+    ]
+   },
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 100,
+      "title": "movie:8"
+     }
+    ],
+    "sent": [
+     "POST /v1/commands",
+     "POST /v1/profiles/p2/enter",
+     "GET /v1/nav",
+     "GET /v1/screens/kids",
+     "GET /v1/changes"
+    ]
+   }
+  }
+ ],
+ "name": "suspend_and_a_profile_switch_flush_at_once",
+ "prologue": "home"
+}

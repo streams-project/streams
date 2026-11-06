@@ -1,0 +1,67 @@
+{
+  "$defs": {
+    "NavItem": {
+      "description": "One entry of the menu.",
+      "properties": {
+        "genre": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "screen": {
+          "$ref": "#/$defs/ScreenName"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "screen"
+      ],
+      "type": "object"
+    },
+    "ScreenName": {
+      "description": "The screens the server builds.",
+      "enum": [
+        "home",
+        "films",
+        "series",
+        "genre",
+        "new",
+        "my-list",
+        "kids",
+        "search",
+        "notifications",
+        "activity",
+        "games",
+        "clips",
+        "language"
+      ],
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "The menu for this class and profile.",
+  "properties": {
+    "items": {
+      "items": {
+        "$ref": "#/$defs/NavItem"
+      },
+      "type": "array"
+    },
+    "ttl_s": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "items",
+    "ttl_s"
+  ],
+  "title": "Nav",
+  "type": "object"
+}

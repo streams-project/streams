@@ -1,0 +1,31 @@
+{
+ "about": "Coming back inside the limit is the same viewer.",
+ "covers": [
+  "C74",
+  "C130"
+ ],
+ "moments": [
+  {
+   "at_ms": 5000,
+   "events": [
+    {
+     "type": "suspend"
+    }
+   ]
+  },
+  {
+   "at_ms": 2404000,
+   "restart": false,
+   "want": {
+    "view": {
+     "gate": null,
+     "session": {
+      "profile": "p1"
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_restart_inside_the_limit_asks_nothing",
+ "prologue": "home"
+}

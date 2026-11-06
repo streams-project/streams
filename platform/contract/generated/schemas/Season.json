@@ -1,0 +1,98 @@
+{
+  "$defs": {
+    "Episode": {
+      "description": "One episode.",
+      "properties": {
+        "images": {
+          "items": {
+            "$ref": "#/$defs/Image"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "number": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "overview": {
+          "type": "string"
+        },
+        "percent": {
+          "description": "Whole percent watched.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "runtime_min": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "number",
+        "name"
+      ],
+      "type": "object"
+    },
+    "Image": {
+      "description": "One image address. Images go straight from the host to the viewer.",
+      "properties": {
+        "role": {
+          "$ref": "#/$defs/ImageRole"
+        },
+        "url": {
+          "type": "string"
+        },
+        "width": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "role",
+        "url"
+      ],
+      "type": "object"
+    },
+    "ImageRole": {
+      "description": "What an image is for.",
+      "enum": [
+        "poster",
+        "backdrop",
+        "logo",
+        "still",
+        "avatar"
+      ],
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One season with its episodes.",
+  "properties": {
+    "episodes": {
+      "items": {
+        "$ref": "#/$defs/Episode"
+      },
+      "type": "array"
+    },
+    "name": {
+      "type": "string"
+    },
+    "number": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "number",
+    "episodes"
+  ],
+  "title": "Season",
+  "type": "object"
+}

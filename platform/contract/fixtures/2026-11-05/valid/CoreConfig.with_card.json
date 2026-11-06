@@ -1,0 +1,53 @@
+{
+  "app": "sample-web",
+  "card": {
+    "adaptive": false,
+    "app": "sample-tv",
+    "attempt_kinds": [
+      "hls",
+      "file"
+    ],
+    "class": "tv",
+    "codecs": [
+      "avc1",
+      "mp4a"
+    ],
+    "containers": [
+      "ts",
+      "fmp4",
+      "mp4"
+    ],
+    "form": "tv",
+    "input": [
+      "remote"
+    ],
+    "languages": [
+      "en"
+    ],
+    "max_height": 1080,
+    "media_headers": [
+      "Referer"
+    ],
+    "os": "sample-os",
+    "os_version": "1",
+    "reports_picture": false,
+    "screen_height": 720,
+    "screen_width": 1280,
+    "secret_store": false,
+    "section_kinds": [
+      "hero",
+      "row"
+    ],
+    "side_subtitles": false,
+    "storage_bytes": 0,
+    "version": "1.0.0"
+  },
+  "class": "web",
+  "contract": "2026-11-05",
+  "form": "desktop",
+  "mode": "local",
+  "os": "sample-os",
+  "seed": "00112233445566778899aabbccddeeff",
+  "type": "core_config",
+  "version": "1.0.0"
+}

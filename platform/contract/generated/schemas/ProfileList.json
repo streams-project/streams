@@ -1,0 +1,49 @@
+{
+  "$defs": {
+    "Profile": {
+      "description": "One profile.",
+      "properties": {
+        "avatar": {
+          "type": "string"
+        },
+        "has_pin": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kids": {
+          "type": "boolean"
+        },
+        "main": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kids",
+        "main",
+        "has_pin"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "profiles": {
+      "items": {
+        "$ref": "#/$defs/Profile"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "profiles"
+  ],
+  "title": "ProfileList",
+  "type": "object"
+}

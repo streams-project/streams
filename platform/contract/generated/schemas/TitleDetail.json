@@ -1,0 +1,203 @@
+{
+  "$defs": {
+    "Badge": {
+      "description": "A mark on a tile.",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/BadgeKind"
+        },
+        "rank": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "BadgeKind": {
+      "description": "Marks on a tile.",
+      "enum": [
+        "ranked",
+        "new"
+      ],
+      "type": "string"
+    },
+    "EpisodeRef": {
+      "description": "One episode of a series. A film has none.",
+      "properties": {
+        "episode": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "season": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "season",
+        "episode"
+      ],
+      "type": "object"
+    },
+    "Image": {
+      "description": "One image address. Images go straight from the host to the viewer.",
+      "properties": {
+        "role": {
+          "$ref": "#/$defs/ImageRole"
+        },
+        "url": {
+          "type": "string"
+        },
+        "width": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "role",
+        "url"
+      ],
+      "type": "object"
+    },
+    "ImageRole": {
+      "description": "What an image is for.",
+      "enum": [
+        "poster",
+        "backdrop",
+        "logo",
+        "still",
+        "avatar"
+      ],
+      "type": "string"
+    },
+    "SeasonSummary": {
+      "description": "A season named on a title page.",
+      "properties": {
+        "episode_count": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "number": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "number",
+        "episode_count"
+      ],
+      "type": "object"
+    },
+    "Tile": {
+      "description": "One title in a section.",
+      "properties": {
+        "badges": {
+          "items": {
+            "$ref": "#/$defs/Badge"
+          },
+          "type": "array"
+        },
+        "episode": {
+          "$ref": "#/$defs/EpisodeRef"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/Image"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "percent": {
+          "description": "Whole percent watched.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "title": {
+          "$ref": "#/$defs/TitleKey"
+        }
+      },
+      "required": [
+        "title",
+        "name"
+      ],
+      "type": "object"
+    },
+    "TitleKey": {
+      "description": "movie:<id> or tv:<id>. A bare id does not parse.",
+      "pattern": "^(movie|tv):[1-9][0-9]{0,9}$",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Facts of one title.",
+  "properties": {
+    "genres": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "images": {
+      "items": {
+        "$ref": "#/$defs/Image"
+      },
+      "type": "array"
+    },
+    "more_like_this": {
+      "description": "Hidden when empty.",
+      "items": {
+        "$ref": "#/$defs/Tile"
+      },
+      "type": "array"
+    },
+    "name": {
+      "type": "string"
+    },
+    "overview": {
+      "type": "string"
+    },
+    "runtime_min": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "seasons": {
+      "items": {
+        "$ref": "#/$defs/SeasonSummary"
+      },
+      "type": "array"
+    },
+    "title": {
+      "$ref": "#/$defs/TitleKey"
+    },
+    "year": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "title",
+    "name"
+  ],
+  "title": "TitleDetail",
+  "type": "object"
+}

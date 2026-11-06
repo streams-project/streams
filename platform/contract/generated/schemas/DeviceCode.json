@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Device sign in. The screen shows `user_code` even when it shows a QR code.",
+  "properties": {
+    "device_code": {
+      "type": "string"
+    },
+    "expires_in": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "interval": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "user_code": {
+      "type": "string"
+    },
+    "verification_uri": {
+      "type": "string"
+    },
+    "verification_uri_complete": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "device_code",
+    "user_code",
+    "verification_uri",
+    "verification_uri_complete",
+    "expires_in",
+    "interval"
+  ],
+  "title": "DeviceCode",
+  "type": "object"
+}

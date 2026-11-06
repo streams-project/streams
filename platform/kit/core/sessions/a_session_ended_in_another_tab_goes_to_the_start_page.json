@@ -1,0 +1,41 @@
+{
+ "about": "Another tab ended this session, so this one clears what it holds and goes to the start page, with no call to the server. Only hello stays kept.",
+ "covers": [
+  "C89",
+  "C114",
+  "P34",
+  "C118"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "type": "ended_elsewhere"
+    }
+   ],
+   "want": {
+    "routes": [
+     {
+      "target": "start"
+     }
+    ],
+    "secrets": [
+     "device"
+    ],
+    "sent": [],
+    "view": {
+     "session": {
+      "ended": "elsewhere",
+      "state": "signed_out"
+     }
+    }
+   },
+   "want_on": {
+    "kept_pages": 1
+   }
+  }
+ ],
+ "name": "a_session_ended_in_another_tab_goes_to_the_start_page",
+ "prologue": "home"
+}

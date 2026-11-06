@@ -1,0 +1,113 @@
+{
+ "about": "The profile answer names its home. A refused screen maps to that home, with no list of allowed pages in the core.",
+ "covers": [
+  "C102",
+  "P35"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p2"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "pages": [
+     {
+      "page": {
+       "ttl_s": 600
+      }
+     },
+     {
+      "page": {
+       "name": "kids"
+      }
+     }
+    ],
+    "view": {
+     "route": {
+      "target": "kids_home"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "address": "/films",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "routes": [
+     {
+      "screen": "films",
+      "target": "screen"
+     },
+     {
+      "target": "kids_home"
+     }
+    ],
+    "view": {
+     "route": {
+      "target": "kids_home"
+     }
+    }
+   },
+   "want_off": {
+    "sent": [
+     "GET /v1/screens/films",
+     "GET /v1/screens/kids"
+    ]
+   },
+   "want_on": {
+    "pages": [
+     {
+      "page": {
+       "name": "kids"
+      },
+      "stale": false
+     }
+    ],
+    "sent": [
+     "GET /v1/screens/films"
+    ]
+   }
+  }
+ ],
+ "name": "a_kids_profile_starts_at_its_home_and_a_refused_screen_comes_back",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "refused",
+    "label": "refused"
+   },
+   "method": "GET",
+   "path": "/v1/screens/films",
+   "status": 403
+  }
+ ]
+}

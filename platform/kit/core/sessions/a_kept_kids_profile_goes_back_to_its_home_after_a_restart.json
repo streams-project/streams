@@ -1,0 +1,59 @@
+{
+ "about": "The home of the kept profile survives a restart, so a Kids profile never starts on the normal home.",
+ "covers": [
+  "C102",
+  "P35"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p2"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "view": {
+     "route": {
+      "target": "kids_home"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 5000,
+   "restart": false,
+   "want": {
+    "view": {
+     "route": {
+      "target": "kids_home"
+     },
+     "session": {
+      "profile": "p2"
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_kept_kids_profile_goes_back_to_its_home_after_a_restart"
+}

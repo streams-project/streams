@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A step up holds for this many seconds and a refresh never renews it.",
+  "properties": {
+    "valid_s": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "valid_s"
+  ],
+  "title": "Confirmed",
+  "type": "object"
+}

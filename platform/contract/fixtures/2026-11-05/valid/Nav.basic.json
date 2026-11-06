@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "id": "n1",
+      "label": "Home",
+      "screen": "home"
+    },
+    {
+      "genre": "drama",
+      "id": "n2",
+      "label": "Drama",
+      "screen": "genre"
+    }
+  ],
+  "ttl_s": 600
+}

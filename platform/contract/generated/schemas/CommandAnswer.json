@@ -1,0 +1,44 @@
+{
+  "$defs": {
+    "OpAnswer": {
+      "description": "Answer for one op.",
+      "properties": {
+        "op_id": {
+          "type": "string"
+        },
+        "outcome": {
+          "$ref": "#/$defs/Outcome"
+        }
+      },
+      "required": [
+        "op_id",
+        "outcome"
+      ],
+      "type": "object"
+    },
+    "Outcome": {
+      "description": "Answer per op.",
+      "enum": [
+        "applied",
+        "superseded",
+        "rejected"
+      ],
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Answer for a batch, one entry per op.",
+  "properties": {
+    "answers": {
+      "items": {
+        "$ref": "#/$defs/OpAnswer"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "answers"
+  ],
+  "title": "CommandAnswer",
+  "type": "object"
+}

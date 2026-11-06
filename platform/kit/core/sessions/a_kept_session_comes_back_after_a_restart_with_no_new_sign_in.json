@@ -1,0 +1,31 @@
+{
+ "about": "After a restart the refresh token signs back in, the kept profile holds, and the device key stays.",
+ "covers": [
+  "C113",
+  "C7",
+  "C132"
+ ],
+ "moments": [
+  {
+   "at_ms": 5000,
+   "restart": true,
+   "want": {
+    "secrets": [
+     "device",
+     "session"
+    ],
+    "view": {
+     "route": {
+      "target": "home"
+     },
+     "session": {
+      "profile": "p1",
+      "state": "signed_in"
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_kept_session_comes_back_after_a_restart_with_no_new_sign_in",
+ "prologue": "home"
+}

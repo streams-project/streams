@@ -1,0 +1,132 @@
+{
+ "about": "Monotonic time restarts at boot, so the op goes with no age and the server orders by arrival. A restart of the app in the same boot keeps the age.",
+ "covers": [
+  "C2",
+  "H61"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "net": "down"
+  },
+  {
+   "at_ms": 1100,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:7"
+      }
+     },
+     "type": "action"
+    }
+   ],
+   "want_on": {
+    "queued": 1
+   }
+  },
+  {
+   "at_ms": 1200,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "hide",
+       "title": "movie:8"
+      }
+     },
+     "type": "action"
+    }
+   ],
+   "want_on": {
+    "queued": 2
+   }
+  },
+  {
+   "at_ms": 2000,
+   "restart": false,
+   "want_on": {
+    "queued": 2
+   }
+  },
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "online": true,
+     "type": "network"
+    }
+   ],
+   "net": "up",
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 1900,
+      "command": "list"
+     },
+     {
+      "age_ms": 1800,
+      "command": "hide"
+     }
+    ],
+    "queued": 0
+   }
+  },
+  {
+   "at_ms": 4000,
+   "net": "down"
+  },
+  {
+   "at_ms": 4100,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:9"
+      }
+     },
+     "type": "action"
+    }
+   ],
+   "want_on": {
+    "queued": 1
+   }
+  },
+  {
+   "at_ms": 5000,
+   "restart": true,
+   "want_on": {
+    "queued": 1
+   }
+  },
+  {
+   "at_ms": 20000,
+   "events": [
+    {
+     "online": true,
+     "type": "network"
+    }
+   ],
+   "net": "up",
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": null,
+      "command": "list",
+      "title": "movie:9"
+     }
+    ],
+    "queued": 0
+   }
+  }
+ ],
+ "name": "a_reboot_makes_the_age_unknown_and_a_restart_keeps_it",
+ "prologue": "home"
+}

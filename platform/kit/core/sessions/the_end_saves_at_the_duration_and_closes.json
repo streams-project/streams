@@ -1,0 +1,73 @@
+{
+ "about": "A driver's end saves the whole length and closes.",
+ "covers": [
+  "H43",
+  "C4"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 5990000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 3001,
+   "events": [
+    {
+     "event": {
+      "kind": "ended"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     }
+    ],
+    "view": {
+     "play": {
+      "state": "ended"
+     }
+    }
+   },
+   "want_off": {
+    "ops": [
+     {
+      "command": "position",
+      "duration_s": 6000,
+      "position_s": 6000
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 7100,
+   "want_on": {
+    "ops": [
+     {
+      "command": "feedback",
+      "event": "start"
+     },
+     {
+      "command": "position",
+      "position_s": 6000
+     }
+    ]
+   }
+  }
+ ],
+ "name": "the_end_saves_at_the_duration_and_closes",
+ "prologue": "playing"
+}

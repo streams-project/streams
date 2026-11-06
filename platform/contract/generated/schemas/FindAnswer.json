@@ -1,0 +1,91 @@
+{
+  "$defs": {
+    "AttemptKind": {
+      "description": "How an attempt is played.",
+      "enum": [
+        "hls",
+        "file",
+        "embed"
+      ],
+      "type": "string"
+    },
+    "FindOutcome": {
+      "description": "How a search for sources ended.",
+      "enum": [
+        "found",
+        "partial",
+        "not_found",
+        "pending"
+      ],
+      "type": "string"
+    },
+    "FoundSource": {
+      "description": "One source as facts. The server turns these into ranked attempts.",
+      "properties": {
+        "audio": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "container": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "height": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/$defs/AttemptKind"
+        },
+        "url": {
+          "type": "string"
+        },
+        "verified": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "url",
+        "kind",
+        "group",
+        "headers",
+        "verified"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Answer, possibly partial when the budget ran out.",
+  "properties": {
+    "job": {
+      "description": "Read the rest through `/v1/find/{job}`.",
+      "type": "string"
+    },
+    "outcome": {
+      "$ref": "#/$defs/FindOutcome"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/FoundSource"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "outcome",
+    "sources"
+  ],
+  "title": "FindAnswer",
+  "type": "object"
+}

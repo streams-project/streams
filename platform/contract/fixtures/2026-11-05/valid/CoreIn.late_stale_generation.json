@@ -1,0 +1,19 @@
+{
+  "contract": "2026-11-05",
+  "events": [
+    {
+      "event": {
+        "duration_ms": 1200000,
+        "has_picture": true,
+        "kind": "position",
+        "time_ms": 61000,
+        "video_width": 1920
+      },
+      "generation": 2,
+      "type": "driver"
+    }
+  ],
+  "mono_ms": 5000,
+  "now_ms": 1793836800000,
+  "type": "core_in"
+}

@@ -1,0 +1,9 @@
+{
+  "session": {
+    "email": "viewer@host.example",
+    "expires_at_ms": 1793837700000,
+    "profile": "p1",
+    "state": "signed_in",
+    "user_id": "u1"
+  }
+}

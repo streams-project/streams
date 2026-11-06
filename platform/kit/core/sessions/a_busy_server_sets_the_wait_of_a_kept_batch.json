@@ -1,0 +1,62 @@
+{
+ "about": "A 429 holds the batch for the server's value, clamped to 30 to 600 s.",
+ "covers": [
+  "C5"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:7"
+      }
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 5100,
+   "want_on": {
+    "queued": 1,
+    "sent": [
+     "POST /v1/commands"
+    ],
+    "wake": 50000
+   }
+  },
+  {
+   "at_ms": 50100,
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 49000,
+      "title": "movie:7"
+     }
+    ],
+    "queued": 0
+   }
+  }
+ ],
+ "name": "a_busy_server_sets_the_wait_of_a_kept_batch",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "rate_limited",
+    "label": "busy",
+    "retry_after_s": 45
+   },
+   "method": "POST",
+   "path": "/v1/commands",
+   "status": 429,
+   "times": 1
+  }
+ ]
+}

@@ -1,0 +1,24 @@
+{
+  "contract": "2026-11-05",
+  "effects": [
+    {
+      "body": "{\"ops\":[]}",
+      "class": "command",
+      "deadline_ms": 15000,
+      "id": "e10",
+      "kind": "http",
+      "method": "POST",
+      "path": "/v1/commands",
+      "scope": "u1/p1",
+      "to": "core"
+    },
+    {
+      "after_ms": 30000,
+      "id": "e5",
+      "kind": "timer",
+      "op": "set"
+    }
+  ],
+  "next_wake_ms": 65000,
+  "type": "core_out"
+}

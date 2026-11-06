@@ -1,0 +1,11 @@
+{
+  "event": {
+    "duration_ms": 1200000,
+    "has_picture": true,
+    "kind": "position",
+    "time_ms": 61000,
+    "video_width": 1920
+  },
+  "generation": 3,
+  "type": "driver"
+}

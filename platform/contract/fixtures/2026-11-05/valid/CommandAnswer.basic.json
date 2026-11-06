@@ -1,0 +1,16 @@
+{
+  "answers": [
+    {
+      "op_id": "op1",
+      "outcome": "applied"
+    },
+    {
+      "op_id": "op2",
+      "outcome": "superseded"
+    },
+    {
+      "op_id": "op3",
+      "outcome": "rejected"
+    }
+  ]
+}

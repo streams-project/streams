@@ -1,0 +1,288 @@
+{
+ "about": "The same run when the device says it has bytes but every store effect comes back unsupported.",
+ "covers": [
+  "H1",
+  "H106",
+  "C112"
+ ],
+ "device": {
+  "secret": false,
+  "storage_bytes": 100000,
+  "store": false
+ },
+ "moments": [
+  {
+   "at_ms": 0,
+   "want": {
+    "secrets": [],
+    "sent": [
+     "GET /v1/hello"
+    ],
+    "view": {
+     "route": {
+      "target": "start"
+     },
+     "session": {
+      "state": "signed_out"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "bearers": [
+     "access-1"
+    ],
+    "secrets": [],
+    "sent": [
+     "POST /v1/auth/password",
+     "GET /v1/profiles"
+    ],
+    "view": {
+     "profiles": {
+      "profiles": [
+       {
+        "id": "p1"
+       },
+       {
+        "id": "p2"
+       }
+      ]
+     },
+     "route": {
+      "target": "profiles"
+     },
+     "session": {
+      "profile": null,
+      "state": "signed_in",
+      "user_id": "u1"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p1"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "pages": [
+     {
+      "page": {
+       "ttl_s": 600
+      }
+     },
+     {
+      "page": {
+       "name": "home"
+      }
+     }
+    ],
+    "view": {
+     "route": {
+      "target": "home"
+     },
+     "session": {
+      "profile": "p1",
+      "scope": "u1/p1"
+     }
+    }
+   },
+   "want_off": {
+    "sent": [
+     "POST /v1/profiles/p1/enter",
+     "GET /v1/nav",
+     "GET /v1/screens/home"
+    ]
+   },
+   "want_on": {
+    "sent": [
+     "POST /v1/profiles/p1/enter",
+     "GET /v1/nav",
+     "GET /v1/screens/home",
+     "GET /v1/changes"
+    ]
+   }
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "title": "movie:7"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "generation": 1,
+      "headers": {
+       "Referer": "https://site.example/"
+      },
+      "op": "open",
+      "start_at_ms": 0,
+      "url": "https://media.example/a.m3u8"
+     }
+    ],
+    "sent": [
+     "POST /v1/play"
+    ],
+    "view": {
+     "play": {
+      "attempt": "a1",
+      "state": "starting",
+      "title": "movie:7"
+     }
+    },
+    "wake": 9000
+   }
+  },
+  {
+   "at_ms": 2000,
+   "events": [
+    {
+     "event": {
+      "kind": "first_frame"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "view": {
+     "play": {
+      "state": "playing"
+     }
+    }
+   },
+   "want_off": {
+    "ops": [
+     {
+      "command": "feedback",
+      "event": "start",
+      "title": "movie:7"
+     }
+    ],
+    "wake": 32000
+   },
+   "want_on": {
+    "ops": [],
+    "wake": 6000
+   }
+  },
+  {
+   "at_ms": 6100,
+   "want_off": {
+    "ops": []
+   },
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 4000,
+      "command": "feedback",
+      "event": "start",
+      "title": "movie:7"
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 31000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 30000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 32500,
+   "want_off": {
+    "ops": [
+     {
+      "command": "position",
+      "duration_s": 6000,
+      "position_s": 30,
+      "title": "movie:7"
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 36500,
+   "want_on": {
+    "ops": [
+     {
+      "age_ms": 4000,
+      "command": "position",
+      "duration_s": 6000,
+      "position_s": 30
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 40000,
+   "events": [
+    {
+     "action": {
+      "action": "stop"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     }
+    ],
+    "view": {
+     "play": {
+      "state": "ended"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 44100,
+   "want_on": {
+    "ops": [
+     {
+      "command": "position",
+      "position_s": 30
+     }
+    ]
+   }
+  }
+ ],
+ "name": "a_store_that_answers_unsupported_is_the_same_as_none"
+}

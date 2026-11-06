@@ -1,0 +1,85 @@
+{
+  "$defs": {
+    "CoreMode": {
+      "description": "Where the core runs for this device.",
+      "enum": [
+        "local",
+        "hosted"
+      ],
+      "type": "string"
+    },
+    "ErrorClass": {
+      "description": "Failure classes a driver reports. The core picks the next attempt from these.",
+      "enum": [
+        "network",
+        "manifest",
+        "segment",
+        "decode",
+        "key",
+        "format",
+        "refused"
+      ],
+      "type": "string"
+    },
+    "PlayEvent": {
+      "description": "One thing that happened during play.",
+      "properties": {
+        "at_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "attempt": {
+          "type": "string"
+        },
+        "failure": {
+          "$ref": "#/$defs/ErrorClass"
+        },
+        "first_frame_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "host": {
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/PlayEventName"
+        },
+        "rung": {
+          "$ref": "#/$defs/CoreMode"
+        }
+      },
+      "required": [
+        "name",
+        "at_ms"
+      ],
+      "type": "object"
+    },
+    "PlayEventName": {
+      "description": "What a play report says happened.",
+      "enum": [
+        "first_frame",
+        "rebuffer",
+        "failure",
+        "ended"
+      ],
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`/v1/play/{id}/events`.",
+  "properties": {
+    "events": {
+      "items": {
+        "$ref": "#/$defs/PlayEvent"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "events"
+  ],
+  "title": "PlayEvents",
+  "type": "object"
+}

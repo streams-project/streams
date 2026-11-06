@@ -1,0 +1,182 @@
+{
+ "about": "A driver may report 0 before its first frame. That must not replace the kept position, so the next source still opens at the same second.",
+ "covers": [
+  "H42",
+  "C1"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p1"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "title": "movie:7"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 1500,
+   "events": [
+    {
+     "event": {
+      "kind": "first_frame"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 2000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 120000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 2100,
+   "events": [
+    {
+     "event": {
+      "class": "network",
+      "kind": "error"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     },
+     {
+      "generation": 2,
+      "op": "open",
+      "start_at_ms": 120000,
+      "url": "https://b.example/1"
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 2200,
+   "events": [
+    {
+     "event": {
+      "kind": "position",
+      "time_ms": 0
+     },
+     "generation": 2,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 2300,
+   "events": [
+    {
+     "event": {
+      "class": "manifest",
+      "kind": "error"
+     },
+     "generation": 2,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     },
+     {
+      "generation": 3,
+      "op": "open",
+      "start_at_ms": 120000,
+      "url": "https://c.example/1"
+     }
+    ]
+   }
+  }
+ ],
+ "name": "a_second_failure_before_any_frame_still_keeps_the_position",
+ "server": [
+  {
+   "body": {
+    "attempts": [
+     {
+      "group": "g1",
+      "headers": {},
+      "id": "a1",
+      "kind": "hls",
+      "url": "https://a.example/1",
+      "verified": true
+     },
+     {
+      "group": "g2",
+      "headers": {},
+      "id": "a2",
+      "kind": "hls",
+      "url": "https://b.example/1",
+      "verified": true
+     },
+     {
+      "group": "g3",
+      "headers": {},
+      "id": "a3",
+      "kind": "hls",
+      "url": "https://c.example/1",
+      "verified": true
+     }
+    ],
+    "dropped": 0,
+    "more": false,
+    "play_id": "pl1",
+    "start_at_ms": 0
+   },
+   "method": "POST",
+   "path": "/v1/play"
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+{
+  "app": "sample-web",
+  "class": "web",
+  "contract": "2026-11-05",
+  "form": "desktop",
+  "mode": "local",
+  "os": "sample-os",
+  "seed": "00112233445566778899aabbccddeeff",
+  "type": "core_config",
+  "version": "1.0.0"
+}

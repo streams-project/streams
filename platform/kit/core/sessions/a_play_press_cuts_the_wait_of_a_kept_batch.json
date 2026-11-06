@@ -1,0 +1,73 @@
+{
+ "about": "A refused batch waits for a nudge, and a play press is one.",
+ "covers": [
+  "C5",
+  "H48"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:7"
+      }
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 5100,
+   "want_on": {
+    "queued": 1,
+    "sent": [
+     "POST /v1/commands"
+    ]
+   }
+  },
+  {
+   "at_ms": 6000,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "title": "movie:7"
+     },
+     "type": "action"
+    }
+   ],
+   "want_on": {
+    "ops": [
+     {
+      "title": "movie:7"
+     }
+    ],
+    "queued": 0,
+    "sent": [
+     "POST /v1/play",
+     "POST /v1/commands"
+    ]
+   }
+  }
+ ],
+ "name": "a_play_press_cuts_the_wait_of_a_kept_batch",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "bad_request",
+    "label": "bad"
+   },
+   "method": "POST",
+   "path": "/v1/commands",
+   "status": 400,
+   "times": 1
+  }
+ ]
+}

@@ -1,0 +1,51 @@
+{
+ "about": "With no answer the session stays, the next try waits 300 s, and a network return cuts the wait.",
+ "covers": [
+  "C5",
+  "C71",
+  "C88"
+ ],
+ "moments": [
+  {
+   "at_ms": 780050,
+   "net": "down"
+  },
+  {
+   "at_ms": 780200,
+   "want": {
+    "sent": [
+     "POST /v1/auth/refresh"
+    ],
+    "view": {
+     "session": {
+      "state": "signed_in"
+     }
+    },
+    "wake": 1080100
+   }
+  },
+  {
+   "at_ms": 790000,
+   "events": [
+    {
+     "online": true,
+     "type": "network"
+    }
+   ],
+   "net": "up",
+   "want": {
+    "sent": [
+     "POST /v1/auth/refresh"
+    ],
+    "view": {
+     "session": {
+      "state": "signed_in"
+     }
+    },
+    "wake": 1570000
+   }
+  }
+ ],
+ "name": "a_refresh_with_no_answer_keeps_the_session_and_tries_later",
+ "prologue": "home"
+}

@@ -1,0 +1,71 @@
+{
+ "about": "After exit nothing is playing, so going to the background sends no position and an old one cannot land on a newer save from another device.",
+ "covers": [
+  "H52",
+  "C4"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 100000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 3100,
+   "events": [
+    {
+     "action": {
+      "action": "stop"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "view": {
+     "play": {
+      "state": "ended"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 8000
+  },
+  {
+   "at_ms": 9000,
+   "events": [
+    {
+     "type": "suspend"
+    }
+   ],
+   "want": {
+    "ops": [],
+    "sent": []
+   }
+  },
+  {
+   "at_ms": 9100,
+   "events": [
+    {
+     "type": "visibility",
+     "visible": false
+    }
+   ],
+   "want": {
+    "ops": [],
+    "sent": []
+   }
+  }
+ ],
+ "name": "leaving_after_the_end_saves_nothing",
+ "prologue": "playing"
+}

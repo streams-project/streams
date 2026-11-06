@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One episode of a series. A film has none.",
+  "properties": {
+    "episode": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "season": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "season",
+    "episode"
+  ],
+  "title": "EpisodeRef",
+  "type": "object"
+}

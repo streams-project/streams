@@ -1,0 +1,76 @@
+{
+ "about": "Under a small cap a new page pushes out the oldest kept pages, and the last good hello stays.",
+ "covers": [
+  "C100"
+ ],
+ "device": {
+  "secret": true,
+  "storage_bytes": 1294,
+  "store": true
+ },
+ "moments": [
+  {
+   "at_ms": 500,
+   "want_on": {
+    "kept_pages": 3
+   }
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want_on": {
+    "kept_pages": 2
+   }
+  },
+  {
+   "at_ms": 2000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want_on": {
+    "sent": []
+   }
+  },
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "address": "/home",
+     "type": "address"
+    }
+   ],
+   "want_on": {
+    "sent": [
+     "GET /v1/screens/home"
+    ]
+   }
+  }
+ ],
+ "name": "the_byte_cap_drops_kept_pages_first",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "name": "my-list",
+    "sections": [
+     {
+      "id": "s1",
+      "kind": "row",
+      "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+     }
+    ],
+    "ttl_s": 60
+   },
+   "method": "GET",
+   "path": "/v1/screens/my-list"
+  }
+ ]
+}

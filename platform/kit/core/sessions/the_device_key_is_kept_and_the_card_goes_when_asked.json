@@ -1,0 +1,143 @@
+{
+ "about": "The key is made once from the seed and kept across runs. Each start sends the card hash, and the whole card only when the server asks.",
+ "config": {
+  "app": "sample-web",
+  "card": {
+   "adaptive": true,
+   "app": "sample-web",
+   "attempt_kinds": [
+    "hls"
+   ],
+   "class": "web",
+   "codecs": [
+    "avc1"
+   ],
+   "containers": [
+    "ts"
+   ],
+   "form": "desktop",
+   "input": [
+    "pointer"
+   ],
+   "languages": [
+    "en"
+   ],
+   "max_height": 1080,
+   "media_headers": [],
+   "os": "sample-os",
+   "os_version": "1",
+   "reports_picture": true,
+   "screen_height": 1080,
+   "screen_width": 1920,
+   "secret_store": true,
+   "section_kinds": [
+    "row"
+   ],
+   "side_subtitles": true,
+   "storage_bytes": 1000000,
+   "version": "1.0.0"
+  },
+  "class": "web",
+  "contract": "2026-11-05",
+  "form": "desktop",
+  "mode": "local",
+  "os": "sample-os",
+  "seed": "00112233445566778899aabbccddeeff",
+  "type": "core_config",
+  "version": "1.0.0"
+ },
+ "covers": [
+  "C132"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "bodies": {
+     "/v1/devices/me": [
+      {
+       "card": null,
+       "device_key": "00112233445566778899aabbccddeeff"
+      },
+      {
+       "card": {
+        "max_height": 1080
+       },
+       "device_key": "00112233445566778899aabbccddeeff"
+      }
+     ]
+    },
+    "secrets": [
+     "device",
+     "session"
+    ],
+    "sent": [
+     "POST /v1/auth/password",
+     "GET /v1/profiles",
+     "POST /v1/devices/me",
+     "POST /v1/devices/me"
+    ]
+   }
+  },
+  {
+   "at_ms": 5000,
+   "restart": false,
+   "want": {
+    "bodies": {
+     "/v1/devices/me": [
+      {
+       "card": null,
+       "device_key": "00112233445566778899aabbccddeeff"
+      }
+     ]
+    }
+   },
+   "want_off": {
+    "sent": [
+     "GET /v1/hello",
+     "POST /v1/auth/refresh",
+     "GET /v1/profiles",
+     "POST /v1/devices/me"
+    ]
+   },
+   "want_on": {
+    "sent": [
+     "POST /v1/auth/refresh",
+     "GET /v1/profiles",
+     "POST /v1/devices/me"
+    ]
+   }
+  }
+ ],
+ "name": "the_device_key_is_kept_and_the_card_goes_when_asked",
+ "server": [
+  {
+   "body": {
+    "send_card": true
+   },
+   "method": "POST",
+   "path": "/v1/devices/me",
+   "times": 1
+  },
+  {
+   "body": {
+    "send_card": false
+   },
+   "method": "POST",
+   "path": "/v1/devices/me"
+  }
+ ]
+}

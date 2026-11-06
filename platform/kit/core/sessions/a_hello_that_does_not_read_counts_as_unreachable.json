@@ -1,0 +1,54 @@
+{
+ "about": "A good status with a body the build cannot read is no answer: the visitor must not wait forever, and hello is asked again.",
+ "covers": [
+  "C108",
+  "C5"
+ ],
+ "moments": [
+  {
+   "at_ms": 0,
+   "events": [
+    {
+     "address": "/home",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "sent": [
+     "GET /v1/hello"
+    ],
+    "view": {
+     "route": {
+      "next": "/home",
+      "target": "sign_in"
+     }
+    },
+    "wake": 2000
+   }
+  },
+  {
+   "at_ms": 2100,
+   "want": {
+    "sent": [
+     "GET /v1/hello"
+    ],
+    "view": {
+     "route": {
+      "target": "sign_in"
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_hello_that_does_not_read_counts_as_unreachable",
+ "server": [
+  {
+   "body": {
+    "bad": true
+   },
+   "method": "GET",
+   "path": "/v1/hello",
+   "times": 1
+  }
+ ]
+}

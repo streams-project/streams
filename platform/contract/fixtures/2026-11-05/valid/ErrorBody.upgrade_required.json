@@ -1,0 +1,11 @@
+{
+  "build": "b0001",
+  "code": "upgrade_required",
+  "label": "error.upgrade",
+  "notice": {
+    "action_address": "/help/update",
+    "action_label": "Update",
+    "label": "notice.upgrade",
+    "text": "This app needs an update."
+  }
+}

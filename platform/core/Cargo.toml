@@ -1,0 +1,17 @@
+[package]
+name = "core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+# A library called core would hide the language's own core in anything that
+# names it as a dependency, its own tests included.
+name = "platform_core"
+path = "src/lib.rs"
+
+[dependencies]
+contract = { path = "../contract" }
+serde.workspace = true
+serde_json.workspace = true

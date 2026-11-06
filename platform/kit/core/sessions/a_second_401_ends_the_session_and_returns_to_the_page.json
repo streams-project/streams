@@ -1,0 +1,55 @@
+{
+ "about": "A second 401 ends the session as refused: sign in, then back to the page. The secret is gone and the device key stays.",
+ "covers": [
+  "C7",
+  "C89",
+  "C114",
+  "P34"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "secrets": [
+     "device"
+    ],
+    "sent": [
+     "GET /v1/screens/my-list",
+     "POST /v1/auth/refresh",
+     "GET /v1/screens/my-list"
+    ],
+    "view": {
+     "route": {
+      "next": "/my-list",
+      "target": "sign_in"
+     },
+     "session": {
+      "ended": "refused",
+      "state": "signed_out",
+      "user_id": null
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_second_401_ends_the_session_and_returns_to_the_page",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "unauthorized",
+    "label": "signed-out"
+   },
+   "method": "GET",
+   "path": "/v1/screens/my-list",
+   "status": 401
+  }
+ ]
+}

@@ -1,0 +1,5 @@
+{
+  "action": "sign_in",
+  "email": "viewer@host.example",
+  "password": "sample-password"
+}

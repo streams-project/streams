@@ -1,0 +1,34 @@
+{
+ "about": "Time away counts from the last activity even when the app was closed, so the question comes at the next start.",
+ "covers": [
+  "C74",
+  "C130",
+  "P11"
+ ],
+ "moments": [
+  {
+   "at_ms": 5000,
+   "events": [
+    {
+     "type": "suspend"
+    }
+   ]
+  },
+  {
+   "at_ms": 2405100,
+   "restart": false,
+   "want": {
+    "view": {
+     "gate": {
+      "ask": true
+     },
+     "session": {
+      "profile": "p1"
+     }
+    }
+   }
+  }
+ ],
+ "name": "asked_who_is_watching_after_a_restart_past_the_limit",
+ "prologue": "home"
+}

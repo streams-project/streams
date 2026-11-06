@@ -1,0 +1,49 @@
+{
+ "about": "A build the server no longer takes is told so on any request, a kept batch included.",
+ "covers": [
+  "C6",
+  "C7"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:7"
+      }
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 5100,
+   "want": {
+    "view": {
+     "route": {
+      "target": "upgrade"
+     }
+    }
+   }
+  }
+ ],
+ "name": "an_upgrade_answer_on_a_command_reaches_the_core",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "upgrade_required",
+    "label": "upgrade"
+   },
+   "method": "POST",
+   "path": "/v1/commands",
+   "status": 426
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "code": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "email",
+    "code"
+  ],
+  "title": "CodeSignIn",
+  "type": "object"
+}

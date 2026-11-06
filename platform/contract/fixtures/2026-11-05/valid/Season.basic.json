@@ -1,0 +1,17 @@
+{
+  "episodes": [
+    {
+      "name": "First",
+      "number": 1,
+      "percent": 100,
+      "runtime_min": 42
+    },
+    {
+      "name": "Second",
+      "number": 2,
+      "overview": "An invented episode."
+    }
+  ],
+  "name": "Season 1",
+  "number": 1
+}

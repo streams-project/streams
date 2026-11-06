@@ -1,0 +1,12 @@
+{
+  "contract": "2026-11-05",
+  "events": [
+    {
+      "id": "e5",
+      "type": "timer_fired"
+    }
+  ],
+  "mono_ms": 35000,
+  "now_ms": 1793836830000,
+  "type": "core_in"
+}

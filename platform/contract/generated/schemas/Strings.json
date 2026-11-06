@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`/v1/strings/{lang}`. Text holds the placeholders below.",
+  "properties": {
+    "lang": {
+      "type": "string"
+    },
+    "texts": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object"
+    }
+  },
+  "required": [
+    "lang",
+    "texts"
+  ],
+  "title": "Strings",
+  "type": "object"
+}

@@ -1,0 +1,33 @@
+{
+ "about": "A late hello decides the same address again, so a page that does not exist stays that way.",
+ "covers": [
+  "C131"
+ ],
+ "moments": [
+  {
+   "at_ms": 0,
+   "events": [
+    {
+     "address": "/nowhere",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "routes": [
+     {
+      "target": "wait"
+     },
+     {
+      "target": "not_found"
+     }
+    ],
+    "view": {
+     "route": {
+      "target": "not_found"
+     }
+    }
+   }
+  }
+ ],
+ "name": "an_unknown_address_stays_not_found_when_hello_arrives"
+}

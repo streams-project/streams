@@ -1,0 +1,24 @@
+{
+  "changes": [
+    {
+      "change": "title",
+      "list": {
+        "changed_at_ms": 1793836800000,
+        "in_list": false,
+        "version": 4
+      },
+      "rating": {
+        "changed_at_ms": 1793836700000,
+        "rating": "love",
+        "version": 9
+      },
+      "title": "tv:1001"
+    },
+    {
+      "change": "hidden",
+      "title": "tv:1001"
+    }
+  ],
+  "cursor": "c-changes-2",
+  "has_more": false
+}

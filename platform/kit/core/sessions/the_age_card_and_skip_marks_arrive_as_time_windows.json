@@ -1,0 +1,180 @@
+{
+ "about": "The age card window starts at the first frame for 5,000 ms. Marks are asked once, after first frame with a known length, series only. A skip button shows until 1 s before its end and still moves to that end.",
+ "covers": [
+  "C58",
+  "C60"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "enter_profile",
+      "profile": "p1"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "play",
+      "episode": {
+       "episode": 2,
+       "season": 1
+      },
+      "title": "tv:9"
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 2000,
+   "events": [
+    {
+     "event": {
+      "kind": "first_frame"
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "view": {
+     "play": {
+      "windows": [
+       {
+        "end_ms": 95000,
+        "kind": "age_card",
+        "start_ms": 90000,
+        "text": "15"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 1200000,
+      "kind": "position",
+      "time_ms": 91000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "sent": [
+     "POST /v1/play/pl1/marks"
+    ],
+    "view": {
+     "play": {
+      "windows": [
+       {
+        "kind": "age_card"
+       },
+       {
+        "end_ms": 89000,
+        "kind": "intro",
+        "seek_to_ms": 90000,
+        "start_ms": 30000
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 3100,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 1200000,
+      "kind": "position",
+      "time_ms": 91100
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "sent": []
+   }
+  }
+ ],
+ "name": "the_age_card_and_skip_marks_arrive_as_time_windows",
+ "server": [
+  {
+   "body": {
+    "age_card": {
+     "label": "15"
+    },
+    "attempts": [
+     {
+      "group": "g1",
+      "headers": {
+       "Referer": "https://site.example/"
+      },
+      "id": "a1",
+      "kind": "hls",
+      "url": "https://media.example/a.m3u8",
+      "verified": true
+     },
+     {
+      "group": "g2",
+      "headers": {},
+      "id": "a2",
+      "kind": "file",
+      "url": "https://media2.example/b.mp4",
+      "verified": true
+     }
+    ],
+    "dropped": 0,
+    "more": false,
+    "play_id": "pl1",
+    "start_at_ms": 90000
+   },
+   "method": "POST",
+   "path": "/v1/play"
+  },
+  {
+   "body": {
+    "windows": [
+     {
+      "end_ms": 90000,
+      "kind": "intro",
+      "seek_to_ms": 90000,
+      "start_ms": 30000
+     }
+    ]
+   },
+   "method": "POST",
+   "path": "/v1/play/pl1/marks"
+  }
+ ]
+}

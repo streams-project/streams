@@ -1,0 +1,130 @@
+{
+  "$defs": {
+    "Account": {
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "first_name",
+        "last_name"
+      ],
+      "type": "object"
+    },
+    "DeviceClass": {
+      "description": "Client class. Minimum versions, start deadlines and reachability are kept per class.",
+      "enum": [
+        "web",
+        "phone",
+        "tablet",
+        "desktop",
+        "tv",
+        "box",
+        "car"
+      ],
+      "type": "string"
+    },
+    "DeviceSession": {
+      "description": "One signed in device.",
+      "properties": {
+        "class": {
+          "$ref": "#/$defs/DeviceClass"
+        },
+        "current": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "last_seen_ms": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "class",
+        "last_seen_ms",
+        "current"
+      ],
+      "type": "object"
+    },
+    "Profile": {
+      "description": "One profile.",
+      "properties": {
+        "avatar": {
+          "type": "string"
+        },
+        "has_pin": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "kids": {
+          "type": "boolean"
+        },
+        "main": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kids",
+        "main",
+        "has_pin"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Everything held about an account, in plain JSON.",
+  "properties": {
+    "account": {
+      "$ref": "#/$defs/Account"
+    },
+    "devices": {
+      "items": {
+        "$ref": "#/$defs/DeviceSession"
+      },
+      "type": "array"
+    },
+    "profiles": {
+      "items": {
+        "$ref": "#/$defs/Profile"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "account",
+    "profiles",
+    "devices"
+  ],
+  "title": "AccountExport",
+  "type": "object"
+}

@@ -1,0 +1,47 @@
+{
+ "about": "Two asks in one step make one request with the layer.",
+ "covers": [
+  "C100",
+  "C122"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    },
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want_off": {
+    "sent": [
+     "GET /v1/screens/my-list",
+     "GET /v1/screens/my-list"
+    ]
+   },
+   "want_on": {
+    "pages": [
+     {
+      "page": {
+       "name": "my-list"
+      }
+     },
+     {
+      "page": {
+       "name": "my-list"
+      }
+     }
+    ],
+    "sent": [
+     "GET /v1/screens/my-list"
+    ]
+   }
+  }
+ ],
+ "name": "one_shared_request_per_key",
+ "prologue": "home"
+}

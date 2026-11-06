@@ -1,0 +1,60 @@
+{
+ "about": "The layer holds no token. The core refreshes and sends the same batch under the same id.",
+ "covers": [
+  "C7",
+  "C2"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "command",
+      "command": {
+       "command": "list",
+       "in_list": true,
+       "title": "movie:7"
+      }
+     },
+     "type": "action"
+    }
+   ]
+  },
+  {
+   "at_ms": 5100,
+   "want_on": {
+    "bearers": [
+     "access-1",
+     "access-2"
+    ],
+    "ops": [
+     {
+      "title": "movie:7"
+     }
+    ],
+    "queued": 0,
+    "sent": [
+     "POST /v1/commands",
+     "POST /v1/auth/refresh",
+     "POST /v1/commands"
+    ]
+   }
+  }
+ ],
+ "name": "a_401_on_a_kept_batch_refreshes_through_the_core_and_sends_it_again",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "unauthorized",
+    "label": "signed-out"
+   },
+   "method": "POST",
+   "path": "/v1/commands",
+   "status": 401,
+   "times": 1
+  }
+ ]
+}

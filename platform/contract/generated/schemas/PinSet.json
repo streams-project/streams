@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Absent clears the PIN.",
+  "properties": {
+    "pin": {
+      "type": "string"
+    }
+  },
+  "title": "PinSet",
+  "type": "object"
+}

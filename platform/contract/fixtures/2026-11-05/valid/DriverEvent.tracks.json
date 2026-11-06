@@ -1,0 +1,16 @@
+{
+  "audio": [
+    {
+      "id": "t1",
+      "label": "English",
+      "lang": "en"
+    }
+  ],
+  "kind": "tracks",
+  "text": [
+    {
+      "id": "t2",
+      "lang": "pt-BR"
+    }
+  ]
+}

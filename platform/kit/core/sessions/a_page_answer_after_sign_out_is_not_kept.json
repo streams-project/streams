@@ -1,0 +1,38 @@
+{
+ "about": "An answer on its way when the session ends never lands in the store.",
+ "covers": [
+  "C117",
+  "P13",
+  "C118"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    },
+    {
+     "action": {
+      "action": "sign_out",
+      "everywhere": false
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "view": {
+     "session": {
+      "state": "signed_out"
+     }
+    }
+   },
+   "want_on": {
+    "kept_pages": 1
+   }
+  }
+ ],
+ "name": "a_page_answer_after_sign_out_is_not_kept",
+ "prologue": "home"
+}

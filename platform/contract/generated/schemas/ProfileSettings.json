@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "audio_language": {
+      "type": "string"
+    },
+    "autoplay_next": {
+      "type": "boolean"
+    },
+    "autoplay_previews": {
+      "type": "boolean"
+    },
+    "gender": {
+      "type": "string"
+    },
+    "handle": {
+      "type": "string"
+    },
+    "subtitle_language": {
+      "type": "string"
+    },
+    "subtitle_style": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object"
+    },
+    "ui_language": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "autoplay_next",
+    "autoplay_previews"
+  ],
+  "title": "ProfileSettings",
+  "type": "object"
+}

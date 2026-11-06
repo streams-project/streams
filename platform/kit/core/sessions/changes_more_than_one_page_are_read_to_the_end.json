@@ -1,0 +1,46 @@
+{
+ "about": "A pull goes on while the server says more and the cursor moves.",
+ "covers": [
+  "C77"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "type": "visibility",
+     "visible": true
+    }
+   ],
+   "want_on": {
+    "sent": [
+     "GET /v1/changes?cursor=c1",
+     "GET /v1/changes?cursor=c2"
+    ]
+   }
+  }
+ ],
+ "name": "changes_more_than_one_page_are_read_to_the_end",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "changes": [],
+    "cursor": "c2",
+    "has_more": true
+   },
+   "method": "GET",
+   "path": "/v1/changes?cursor=c1",
+   "times": 1
+  },
+  {
+   "body": {
+    "changes": [],
+    "cursor": "c2",
+    "has_more": false
+   },
+   "method": "GET",
+   "path": "/v1/changes?cursor=c2"
+  }
+ ]
+}

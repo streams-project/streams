@@ -1,0 +1,76 @@
+{
+ "about": "A refused token with a refresh that got no answer is not a second 401. The session stays, the request waits, and it goes again with the new token.",
+ "covers": [
+  "C7",
+  "C88"
+ ],
+ "moments": [
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "address": "/my-list",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "bearers": [
+     "access-1"
+    ],
+    "sent": [
+     "GET /v1/screens/my-list",
+     "POST /v1/auth/refresh"
+    ],
+    "view": {
+     "session": {
+      "state": "signed_in"
+     }
+    },
+    "wake": 301000
+   }
+  },
+  {
+   "at_ms": 301100,
+   "want": {
+    "bearers": [
+     "access-2"
+    ],
+    "sent": [
+     "POST /v1/auth/refresh",
+     "GET /v1/screens/my-list"
+    ],
+    "view": {
+     "session": {
+      "state": "signed_in"
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_401_with_no_refresh_answer_holds_the_request",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "signed_out",
+    "label": "signed-out"
+   },
+   "method": "GET",
+   "path": "/v1/screens/my-list",
+   "status": 401,
+   "times": 1
+  },
+  {
+   "body": {
+    "build": "sample",
+    "code": "server_error",
+    "label": "broke"
+   },
+   "method": "POST",
+   "path": "/v1/auth/refresh",
+   "status": 500,
+   "times": 1
+  }
+ ]
+}

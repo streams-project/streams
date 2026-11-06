@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Step up. Send a password or an emailed code.",
+  "properties": {
+    "code": {
+      "type": "string"
+    },
+    "password": {
+      "type": "string"
+    }
+  },
+  "title": "Confirm",
+  "type": "object"
+}

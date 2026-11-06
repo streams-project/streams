@@ -1,0 +1,22 @@
+{
+  "ops": [
+    {
+      "age_ms": 4000,
+      "command": "list",
+      "in_list": true,
+      "op_id": "op1",
+      "title": "tv:1001"
+    },
+    {
+      "command": "position",
+      "duration_s": 1200,
+      "episode": {
+        "episode": 3,
+        "season": 1
+      },
+      "op_id": "op2",
+      "position_s": 61,
+      "title": "tv:1001"
+    }
+  ]
+}

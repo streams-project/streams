@@ -1,0 +1,45 @@
+{
+ "about": "The account refused: session gone, reason refused.",
+ "covers": [
+  "C88",
+  "C113",
+  "C114"
+ ],
+ "moments": [
+  {
+   "at_ms": 780200,
+   "want": {
+    "secrets": [
+     "device"
+    ],
+    "sent": [
+     "POST /v1/auth/refresh"
+    ],
+    "view": {
+     "route": {
+      "target": "sign_in"
+     },
+     "session": {
+      "ended": "refused",
+      "state": "signed_out"
+     }
+    },
+    "wake": null
+   }
+  }
+ ],
+ "name": "a_refresh_refused_with_400_to_403_ends_the_session",
+ "prologue": "home",
+ "server": [
+  {
+   "body": {
+    "build": "sample",
+    "code": "refused",
+    "label": "refused"
+   },
+   "method": "POST",
+   "path": "/v1/auth/refresh",
+   "status": 403
+  }
+ ]
+}

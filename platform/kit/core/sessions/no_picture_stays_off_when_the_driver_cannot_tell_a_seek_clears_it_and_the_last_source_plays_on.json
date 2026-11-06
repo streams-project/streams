@@ -1,0 +1,223 @@
+{
+ "about": "No width and no picture report keeps the rule off. A seek starts the check again. With nowhere to go the sound keeps playing.",
+ "covers": [
+  "C30",
+  "P39"
+ ],
+ "moments": [
+  {
+   "at_ms": 3000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 3000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 8000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 8000
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 8100,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 8100,
+      "video_width": 0
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 10000,
+   "events": [
+    {
+     "action": {
+      "action": "seek",
+      "to_ms": 20000
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "seek",
+      "to_ms": 20000
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 10100,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 20100,
+      "video_width": 0
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 12000,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 22000,
+      "video_width": 0
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 12100,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "has_picture": true,
+      "kind": "position",
+      "time_ms": 22100
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 12200,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "has_picture": false,
+      "kind": "position",
+      "time_ms": 22200
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": []
+   }
+  },
+  {
+   "at_ms": 15300,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "has_picture": false,
+      "kind": "position",
+      "time_ms": 25300
+     },
+     "generation": 1,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": [
+     {
+      "op": "close"
+     },
+     {
+      "generation": 2,
+      "op": "open",
+      "url": "https://media2.example/b.mp4"
+     }
+    ]
+   }
+  },
+  {
+   "at_ms": 15400,
+   "events": [
+    {
+     "event": {
+      "kind": "first_frame"
+     },
+     "generation": 2,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 15500,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 25400,
+      "video_width": 0
+     },
+     "generation": 2,
+     "type": "driver"
+    }
+   ]
+  },
+  {
+   "at_ms": 25500,
+   "events": [
+    {
+     "event": {
+      "duration_ms": 6000000,
+      "kind": "position",
+      "time_ms": 35400,
+      "video_width": 0
+     },
+     "generation": 2,
+     "type": "driver"
+    }
+   ],
+   "want": {
+    "player": [],
+    "view": {
+     "play": {
+      "state": "playing"
+     }
+    }
+   }
+  }
+ ],
+ "name": "no_picture_stays_off_when_the_driver_cannot_tell_a_seek_clears_it_and_the_last_source_plays_on",
+ "prologue": "playing"
+}
