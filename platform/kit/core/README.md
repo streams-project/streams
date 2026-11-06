@@ -81,13 +81,15 @@ asked. Store, secret and timer effects are the host's own work, and the tape doe
 
 ## Measured
 
-2026-11-05, with rustc 1.98.1 on x86_64 macOS, headless browser engine 158, 84 sessions with the
+2026-11-06, with rustc 1.98.1 on x86_64 macOS, headless browser engine 158, 89 sessions with the
 layer on and off:
 
-- 168 of 168 runs byte identical on native, through the C host and in the browser.
-- 4,701 steps through the browser run.
-- Linear memory after all 168 runs through one module: 1,638,400 bytes, against a heap target of
+- 178 of 178 runs byte identical on native, through the C host and in the browser.
+- 4,874 steps through the browser run.
+- Linear memory after all 178 runs through one module: 1,638,400 bytes, against a heap target of
   8 MB.
+
+The compiler was TypeScript 7.0.2. TypeScript 5.9.3 refuses the run's empty `--types` value.
 
 Not measured: step time. A browser run uses virtual time, and a Mac says nothing about the 2 ms
 target on a 2021 TV. Not run: an old engine. The floor rests on the feature scan and on the loader
@@ -95,7 +97,8 @@ being built to ES2017. No old build is on this machine, and this step made no do
 
 ## Checked in every run
 
-- No token in a view or the store, and none on a video request or an open route.
+- No token or device code in a view or the store, and no token on a video request or an open
+  route.
 - Every request is a path on a route of the contract, with the client headers, the token its route
   needs, and the class the route table gives.
 - The core never uses the store. No command gets past the layer.

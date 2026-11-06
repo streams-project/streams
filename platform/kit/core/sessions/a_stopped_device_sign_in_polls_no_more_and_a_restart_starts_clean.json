@@ -1,0 +1,198 @@
+{
+ "about": "Stop clears the code from the view and ends polling. The device code is not kept, so a core started again asks for a new one.",
+ "config": {
+  "app": "sample-tv",
+  "class": "tv",
+  "contract": "2026-11-05",
+  "form": "tv",
+  "mode": "local",
+  "os": "sample-os",
+  "seed": "00112233445566778899aabbccddeeff",
+  "type": "core_config",
+  "version": "1.0.0"
+ },
+ "covers": [
+  "N9"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "address": "/sign-in",
+     "type": "address"
+    },
+    {
+     "action": {
+      "action": "device_sign_in",
+      "device_name": "Living room TV"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "sent": [
+     "POST /v1/auth/device/code"
+    ],
+    "view": {
+     "device_sign_in": {
+      "expires_in": 900,
+      "state": "waiting",
+      "user_code": "BCDFGHJK",
+      "verification_uri": "https://sign.example/tv",
+      "verification_uri_complete": "https://sign.example/tv?code=BCDFGHJK"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 1000,
+   "events": [
+    {
+     "action": {
+      "action": "device_sign_in_stop"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "sent": [],
+    "view": {
+     "device_sign_in": {
+      "state": "idle",
+      "user_code": null
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 60000,
+   "want": {
+    "sent": []
+   }
+  },
+  {
+   "at_ms": 61000,
+   "events": [
+    {
+     "action": {
+      "action": "device_sign_in",
+      "device_name": "Living room TV"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "sent": [
+     "POST /v1/auth/device/code"
+    ],
+    "view": {
+     "device_sign_in": {
+      "expires_in": 900,
+      "state": "waiting",
+      "user_code": "LMNPQRST",
+      "verification_uri": "https://sign.example/tv",
+      "verification_uri_complete": "https://sign.example/tv?code=LMNPQRST"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 62000,
+   "restart": false,
+   "want": {
+    "secrets": [
+     "device"
+    ],
+    "view": {
+     "device_sign_in": null
+    }
+   }
+  },
+  {
+   "at_ms": 63000,
+   "events": [
+    {
+     "action": {
+      "action": "device_sign_in",
+      "device_name": "Living room TV"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "sent": [
+     "POST /v1/auth/device/code"
+    ],
+    "view": {
+     "device_sign_in": {
+      "expires_in": 900,
+      "state": "waiting",
+      "user_code": "VWXZBCDF",
+      "verification_uri": "https://sign.example/tv",
+      "verification_uri_complete": "https://sign.example/tv?code=VWXZBCDF"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 64000,
+   "events": [
+    {
+     "action": {
+      "action": "device_sign_in_stop"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "sent": []
+   }
+  }
+ ],
+ "name": "a_stopped_device_sign_in_polls_no_more_and_a_restart_starts_clean",
+ "server": [
+  {
+   "body": {
+    "device_code": "device-code-1",
+    "expires_in": 900,
+    "interval": 5,
+    "user_code": "BCDFGHJK",
+    "verification_uri": "https://sign.example/tv",
+    "verification_uri_complete": "https://sign.example/tv?code=BCDFGHJK"
+   },
+   "method": "POST",
+   "path": "/v1/auth/device/code",
+   "times": 1
+  },
+  {
+   "body": {
+    "device_code": "device-code-2",
+    "expires_in": 900,
+    "interval": 5,
+    "user_code": "LMNPQRST",
+    "verification_uri": "https://sign.example/tv",
+    "verification_uri_complete": "https://sign.example/tv?code=LMNPQRST"
+   },
+   "method": "POST",
+   "path": "/v1/auth/device/code",
+   "times": 1
+  },
+  {
+   "body": {
+    "device_code": "device-code-3",
+    "expires_in": 900,
+    "interval": 5,
+    "user_code": "VWXZBCDF",
+    "verification_uri": "https://sign.example/tv",
+    "verification_uri_complete": "https://sign.example/tv?code=VWXZBCDF"
+   },
+   "method": "POST",
+   "path": "/v1/auth/device/code",
+   "times": 1
+  }
+ ]
+}

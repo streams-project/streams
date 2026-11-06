@@ -171,6 +171,35 @@
             "type": "object"
           },
           {
+            "description": "Start device sign in. The core asks for a code, polls and renews it, and the screen\ndraws `View.device_sign_in`. While a code is live this changes nothing.",
+            "properties": {
+              "action": {
+                "const": "device_sign_in",
+                "type": "string"
+              },
+              "device_name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "device_name"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "action": {
+                "const": "device_sign_in_stop",
+                "type": "string"
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "type": "object"
+          },
+          {
             "properties": {
               "action": {
                 "const": "sign_out",
@@ -1582,6 +1611,65 @@
           "class",
           "last_seen_ms",
           "current"
+        ],
+        "type": "object"
+      },
+      "DeviceSignInState": {
+        "description": "Where a device sign in stands.",
+        "oneOf": [
+          {
+            "const": "idle",
+            "description": "Nothing is running: it was stopped, or a session opened.",
+            "type": "string"
+          },
+          {
+            "const": "waiting",
+            "description": "The core polls. With no `user_code` yet, a code is on its way.",
+            "type": "string"
+          },
+          {
+            "const": "denied",
+            "description": "The viewer said no on the approving screen. `Action::DeviceSignIn` starts again.",
+            "type": "string"
+          },
+          {
+            "const": "expired",
+            "description": "The code ran out and the core is already asking for a new one.",
+            "type": "string"
+          },
+          {
+            "const": "off",
+            "description": "This server cannot do device sign in. `Action::DeviceSignIn` asks it again.",
+            "type": "string"
+          }
+        ]
+      },
+      "DeviceSignInView": {
+        "description": "Device sign in state for screens. A dead code is left out, so no screen can show one, and\nthe device code has no field here.",
+        "properties": {
+          "expires_in": {
+            "description": "Seconds this code lives, counted from when it reached this view.",
+            "maximum": 4294967295,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "state": {
+            "$ref": "#/components/schemas/DeviceSignInState"
+          },
+          "user_code": {
+            "description": "The screen shows this even when it shows a QR code.",
+            "type": "string"
+          },
+          "verification_uri": {
+            "type": "string"
+          },
+          "verification_uri_complete": {
+            "description": "The same address with the code in it, for a QR code.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state"
         ],
         "type": "object"
       },
@@ -4465,6 +4553,9 @@
       "View": {
         "description": "Changed screen state. A part that is absent did not change.",
         "properties": {
+          "device_sign_in": {
+            "$ref": "#/components/schemas/DeviceSignInView"
+          },
           "gate": {
             "$ref": "#/components/schemas/GateView"
           },

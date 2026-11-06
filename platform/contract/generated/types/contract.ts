@@ -40,6 +40,14 @@ export type Action =
       email: string;
     }
   | {
+      /** Start device sign in. The core asks for a code, polls and renews it, and the screen draws `View.device_sign_in`. While a code is live this changes nothing. */
+      action: "device_sign_in";
+      device_name: string;
+    }
+  | {
+      action: "device_sign_in_stop";
+    }
+  | {
       action: "sign_out";
       everywhere: boolean;
     }
@@ -482,6 +490,21 @@ export interface DeviceSession {
   id: string;
   last_seen_ms: number;
   name: string;
+}
+
+/** Where a device sign in stands. */
+export type DeviceSignInState = "idle" | "waiting" | "denied" | "expired" | "off" | (string & {});
+
+/** Device sign in state for screens. A dead code is left out, so no screen can show one, and the device code has no field here. */
+export interface DeviceSignInView {
+  /** Seconds this code lives, counted from when it reached this view. */
+  expires_in?: number;
+  state: DeviceSignInState;
+  /** The screen shows this even when it shows a QR code. */
+  user_code?: string;
+  verification_uri?: string;
+  /** The same address with the code in it, for a QR code. */
+  verification_uri_complete?: string;
 }
 
 /** Either tokens or a word saying to wait or stop. */
@@ -1377,6 +1400,7 @@ export interface VersionRange {
 
 /** Changed screen state. A part that is absent did not change. */
 export interface View {
+  device_sign_in?: DeviceSignInView;
   gate?: GateView;
   /** The last hello read, so a screen takes limits and features from one place. */
   hello?: Hello;

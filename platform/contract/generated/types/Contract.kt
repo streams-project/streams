@@ -79,6 +79,17 @@ data class ActionSignInCode(
     @SerialName("email") val email: String,
 ) : Action
 
+/** Start device sign in. The core asks for a code, polls and renews it, and the screen draws `View.device_sign_in`. While a code is live this changes nothing. */
+@Serializable
+@SerialName("device_sign_in")
+data class ActionDeviceSignIn(
+    @SerialName("device_name") val deviceName: String,
+) : Action
+
+@Serializable
+@SerialName("device_sign_in_stop")
+data object ActionDeviceSignInStop : Action
+
 @Serializable
 @SerialName("sign_out")
 data class ActionSignOut(
@@ -698,6 +709,32 @@ data class DeviceSession(
     @SerialName("id") val id: String,
     @SerialName("last_seen_ms") val lastSeenMs: Long,
     @SerialName("name") val name: String,
+)
+
+/** Where a device sign in stands. */
+@Serializable
+@JvmInline
+value class DeviceSignInState(val value: String) {
+    companion object {
+        val IDLE = DeviceSignInState("idle")
+        val WAITING = DeviceSignInState("waiting")
+        val DENIED = DeviceSignInState("denied")
+        val EXPIRED = DeviceSignInState("expired")
+        val OFF = DeviceSignInState("off")
+    }
+}
+
+/** Device sign in state for screens. A dead code is left out, so no screen can show one, and the device code has no field here. */
+@Serializable
+data class DeviceSignInView(
+    /** Seconds this code lives, counted from when it reached this view. */
+    @SerialName("expires_in") val expiresIn: Long? = null,
+    @SerialName("state") val state: DeviceSignInState,
+    /** The screen shows this even when it shows a QR code. */
+    @SerialName("user_code") val userCode: String? = null,
+    @SerialName("verification_uri") val verificationUri: String? = null,
+    /** The same address with the code in it, for a QR code. */
+    @SerialName("verification_uri_complete") val verificationUriComplete: String? = null,
 )
 
 /** Either tokens or a word saying to wait or stop. */
@@ -2062,6 +2099,7 @@ data class VersionRange(
 /** Changed screen state. A part that is absent did not change. */
 @Serializable
 data class View(
+    @SerialName("device_sign_in") val deviceSignIn: DeviceSignInView? = null,
     @SerialName("gate") val gate: GateView? = null,
     /** The last hello read, so a screen takes limits and features from one place. */
     @SerialName("hello") val hello: Hello? = null,

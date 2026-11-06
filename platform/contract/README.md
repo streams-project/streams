@@ -53,6 +53,10 @@ Fixture files are named `<Type>.<case>.json`.
 - `ended_elsewhere` is how a host says another tab ended the session.
 - `Action::Request` sends a prepared request with the session's token, under the id of its event.
   This is how anything around the core reaches the server without ever holding a token.
+- `Action::DeviceSignIn` hands device sign in to the core, which asks for a code, polls on
+  `next_wake_ms` and renews a code that ran out. The screen draws `View.device_sign_in`, whose
+  `state` always says what to do. The device code travels only in the core's own requests, and
+  `Action::DeviceSignInStop` drops it.
 - Three versions, kept apart: the wire by date in `Api-Version`, the C boundary by number, crates
   by semver. Clients are compared against a range, never for equality.
 

@@ -27,6 +27,10 @@ pub struct Backoff {
 }
 
 impl Backoff {
+    pub(crate) const fn new() -> Self {
+        Self { wait_ms: 0 }
+    }
+
     /// The wait before the next try.
     pub fn next_wait(&mut self) -> u64 {
         self.wait_ms = match self.wait_ms {
@@ -162,6 +166,9 @@ pub(crate) enum Purpose {
     Refresh,
     SignIn,
     CodeSent,
+    /// Device sign in, with the serial of the sign in that sent it.
+    DeviceCode(u32),
+    DevicePoll(u32),
     SignOut,
     Card,
     Profiles,

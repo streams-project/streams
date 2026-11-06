@@ -60,6 +60,35 @@
           "type": "object"
         },
         {
+          "description": "Start device sign in. The core asks for a code, polls and renews it, and the screen\ndraws `View.device_sign_in`. While a code is live this changes nothing.",
+          "properties": {
+            "action": {
+              "const": "device_sign_in",
+              "type": "string"
+            },
+            "device_name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "action",
+            "device_name"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "action": {
+              "const": "device_sign_in_stop",
+              "type": "string"
+            }
+          },
+          "required": [
+            "action"
+          ],
+          "type": "object"
+        },
+        {
           "properties": {
             "action": {
               "const": "sign_out",

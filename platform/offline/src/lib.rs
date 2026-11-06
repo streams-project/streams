@@ -86,7 +86,7 @@ impl Merged {
                 })+
             };
         }
-        newest!(session, route, gate, play, profiles, hello);
+        newest!(session, device_sign_in, route, gate, play, profiles, hello);
     }
 }
 

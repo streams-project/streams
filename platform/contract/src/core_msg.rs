@@ -138,6 +138,22 @@ words! {
 }
 
 words! {
+    /// Where a device sign in stands.
+    pub enum DeviceSignInState {
+        /// Nothing is running: it was stopped, or a session opened.
+        Idle,
+        /// The core polls. With no `user_code` yet, a code is on its way.
+        Waiting,
+        /// The viewer said no on the approving screen. `Action::DeviceSignIn` starts again.
+        Denied,
+        /// The code ran out and the core is already asking for a new one.
+        Expired,
+        /// This server cannot do device sign in. `Action::DeviceSignIn` asks it again.
+        Off,
+    }
+}
+
+words! {
     /// Why a session ended.
     pub enum EndReason {
         SignedOut,
@@ -214,6 +230,10 @@ wire! {
         SignIn { email: String, password: String },
         SendCode { email: String },
         SignInCode { email: String, code: String },
+        /// Start device sign in. The core asks for a code, polls and renews it, and the screen
+        /// draws `View.device_sign_in`. While a code is live this changes nothing.
+        DeviceSignIn { device_name: String },
+        DeviceSignInStop,
         SignOut { everywhere: bool },
         EnterProfile {
             profile: String,
@@ -428,6 +448,23 @@ wire! {
         pub ended: Option<EndReason>,
     }
 
+    /// Device sign in state for screens. A dead code is left out, so no screen can show one, and
+    /// the device code has no field here.
+    pub struct DeviceSignInView {
+        pub state: DeviceSignInState,
+        /// The screen shows this even when it shows a QR code.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub user_code: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub verification_uri: Option<String>,
+        /// The same address with the code in it, for a QR code.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub verification_uri_complete: Option<String>,
+        /// Seconds this code lives, counted from when it reached this view.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub expires_in: Option<u32>,
+    }
+
     /// True while the who is watching prompt should show.
     pub struct GateView {
         pub ask: bool,
@@ -453,6 +490,8 @@ wire! {
     pub struct View {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub session: Option<SessionView>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub device_sign_in: Option<DeviceSignInView>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub route: Option<RouteTarget>,
         #[serde(default, skip_serializing_if = "Option::is_none")]

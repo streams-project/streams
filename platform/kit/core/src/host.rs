@@ -249,9 +249,11 @@ fn collect_tokens(value: &Value, found: &mut Vec<String>) {
     match value {
         Value::Object(map) => {
             for (key, part) in map {
-                if (key == "access_token" || key == "refresh_token")
-                    && let Some(text) = part.as_str()
-                {
+                let secret = matches!(
+                    key.as_str(),
+                    "access_token" | "refresh_token" | "device_code"
+                );
+                if secret && let Some(text) = part.as_str() {
                     found.push(text.to_string());
                 }
                 collect_tokens(part, found);

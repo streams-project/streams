@@ -584,3 +584,4 @@ N5,new,changed,platform_app,swift host,"Subtitles in system picture in picture a
 N6,new,changed,server,server pages,"The games route becomes the games screen behind the existing feature switch, default off.",Route coverage
 N7,new,changed,server,server pages,Clips get a screen: GET /v1/screens/clips.,Route coverage
 N8,new,changed,server,server pages,Original audio gets a screen: GET /v1/screens/language.,Route coverage
+N9,new,changed,core,core session,"Device sign in runs in the core. Action::DeviceSignIn asks for a code, and polling runs on next_wake_ms, one interval from each answer. slow_down adds 5 s. expired_token, or a code past its life, fetches a new code with no press. access_denied waits for a press. A network failure keeps polling with no notice. A 503 unsupported sets off. A session from any path ends it. The device code reaches no view and is not kept.",Sign in

@@ -1,0 +1,9 @@
+{
+  "device_sign_in": {
+    "expires_in": 900,
+    "state": "waiting",
+    "user_code": "BCDFGHJK",
+    "verification_uri": "https://sign.example/tv",
+    "verification_uri_complete": "https://sign.example/tv?code=BCDFGHJK"
+  }
+}

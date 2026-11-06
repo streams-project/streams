@@ -51,6 +51,7 @@ NET = "core/src/net.rs"
 ROUTES = "core/src/routes.rs"
 LIB = "core/src/lib.rs"
 SESSION = "core/src/session.rs"
+PAIRING = "core/src/pairing.rs"
 CONFIG = "core/src/config.rs"
 GATE = "core/src/gate.rs"
 LAYER = "offline/src/lib.rs"
@@ -424,15 +425,17 @@ MUTANTS = [
         44,
         LIB,
         "a cancelled refresh is not answered, so a waiting request hangs",
-        "                Purpose::Hello | Purpose::Refresh | Purpose::Play(_) | Purpose::More(_)",
-        "                Purpose::Hello | Purpose::Play(_) | Purpose::More(_)",
+        """                Purpose::Hello
+                    | Purpose::Refresh""",
+        "                Purpose::Hello",
     ),
     mutant(
         45,
         LIB,
         "a cancelled hello is not answered, so no retry is armed",
-        "                Purpose::Hello | Purpose::Refresh | Purpose::Play(_) | Purpose::More(_)",
-        "                Purpose::Refresh | Purpose::Play(_) | Purpose::More(_)",
+        """                Purpose::Hello
+                    | Purpose::Refresh""",
+        "                Purpose::Refresh",
     ),
     mutant(
         46,
@@ -645,6 +648,103 @@ MUTANTS = [
         "the byte cap drops the oldest page, scope or not",
         "            .min_by_key(|(_, entry)| (entry.scope.is_none(), entry.seq))",
         "            .min_by_key(|(_, entry)| entry.seq)",
+    ),
+    mutant(
+        71,
+        LAYER,
+        "the layer drops the device sign in view",
+        "newest!(session, device_sign_in, route,",
+        "newest!(session, route,",
+    ),
+    mutant(
+        72,
+        PAIRING,
+        "slow_down adds nothing to the interval",
+        "held.interval_ms += POLL_STEP_MS;",
+        "held.interval_ms += 0;",
+    ),
+    mutant(
+        73,
+        PAIRING,
+        "expired_token stops, so a dead code stays until a press",
+        "DevicePoll::ExpiredToken => self.lapse(mono_ms),",
+        "DevicePoll::ExpiredToken => self.clear(DeviceSignInState::Expired),",
+    ),
+    mutant(
+        74,
+        PAIRING,
+        "access_denied keeps polling",
+        "DevicePoll::AccessDenied => self.clear(DeviceSignInState::Denied),",
+        "DevicePoll::AccessDenied => self.send_at_mono = Some(mono_ms + 5_000),",
+    ),
+    mutant(
+        75,
+        PAIRING,
+        "an answer to a stopped sign in still lands",
+        "let current = serial == self.serial && self.on_the_way;",
+        "let current = self.on_the_way;",
+    ),
+    mutant(
+        76,
+        LIB,
+        "tokens that arrive after a stop open a session",
+        """                if self.pairing.is_current(serial) {
+                    self.signed_in(now, answer, out);
+                }""",
+        "                self.signed_in(now, answer, out);",
+    ),
+    mutant(
+        77,
+        PAIRING,
+        "a code past its life stays when no poll reaches the server",
+        ".is_some_and(|held| mono_ms >= held.expires_mono)",
+        ".is_some_and(|held| mono_ms >= held.expires_mono + 1_000_000)",
+    ),
+    mutant(
+        78,
+        LIB,
+        "a cancelled poll is not answered, so polling stops",
+        """                    | Purpose::DeviceCode(_)
+                    | Purpose::DevicePoll(_)
+""",
+        "",
+    ),
+    mutant(
+        79,
+        PAIRING,
+        "a retry can come inside the interval",
+        "self.send_at_mono = Some(mono_ms + wait_ms.max(interval_ms));",
+        "self.send_at_mono = Some(mono_ms + wait_ms);",
+    ),
+    mutant(
+        80,
+        PAIRING,
+        "a network return cuts the interval and earns slow_down",
+        "if self.failing && self.send_at_mono.is_some() {",
+        "if self.send_at_mono.is_some() {",
+    ),
+    mutant(
+        81,
+        LIB,
+        "a session leaves device sign in polling",
+        """        self.pairing.stop();
+        self.session.accept(answer, now);""",
+        "        self.session.accept(answer, now);",
+    ),
+    mutant(
+        82,
+        LIB,
+        "a server with device sign in off is asked again and again",
+        "_ if code == ErrorCode::Unsupported => {",
+        "_ if status == 1 => {",
+    ),
+    mutant(
+        83,
+        LIB,
+        "polling arms no wake",
+        """            self.pairing.next_wake(),
+""",
+        "",
     ),
 ]
 

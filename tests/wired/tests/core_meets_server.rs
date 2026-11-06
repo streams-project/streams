@@ -85,9 +85,50 @@ struct Host {
     answers: Vec<String>,
     bodies: Vec<(String, String)>,
     view: Value,
+    wake: Option<u64>,
 }
 
 impl Host {
+    fn open(base: &str, class: &str, form: &str, seed: &str) -> Self {
+        let config = json!({
+            "app": "wired", "class": class, "contract": WIRE_VERSION, "form": form, "mode": "local",
+            "os": "test", "seed": seed, "type": "core_config", "version": "1.0.0",
+        });
+        Self {
+            machine: Boundary::open(&config.to_string()).expect("the core opens"),
+            base: base.to_owned(),
+            client: reqwest::Client::new(),
+            secrets: BTreeMap::new(),
+            began: Instant::now(),
+            pages: Vec::new(),
+            routes: Vec::new(),
+            player: Vec::new(),
+            sent: Vec::new(),
+            logs: Vec::new(),
+            answers: Vec::new(),
+            bodies: Vec::new(),
+            view: json!({}),
+            wake: None,
+        }
+    }
+
+    /// Step at each wake, as a host does, until this holds.
+    async fn wake_until(&mut self, done: impl Fn(&Self) -> bool) {
+        let began = Instant::now();
+        while !done(self) {
+            assert!(
+                began.elapsed() < Duration::from_secs(30),
+                "still waiting. answers {:?} view {}",
+                self.answers,
+                self.view
+            );
+            let wake = self.wake.expect("the core asked to be woken");
+            let mono = u64::try_from(self.began.elapsed().as_millis()).expect("millis");
+            tokio::time::sleep(Duration::from_millis(wake.saturating_sub(mono))).await;
+            self.step(Vec::new()).await;
+        }
+    }
+
     async fn step(&mut self, mut events: Vec<Value>) {
         for _ in 0..64 {
             let mono = u64::try_from(self.began.elapsed().as_millis()).expect("millis");
@@ -107,6 +148,7 @@ impl Host {
                     self.view[part] = content;
                 }
             }
+            self.wake = out.next_wake_ms;
             events = Vec::new();
             for effect in out.effects {
                 self.perform(effect, &mut events).await;
@@ -218,6 +260,28 @@ impl Host {
     }
 }
 
+/// A real database, migrated from nothing by the server's own command.
+async fn migrated(dir: &Path, server: &Path) -> launcher::postgres::Postgres {
+    let cache = Path::new(env!("CARGO_TARGET_TMPDIR")).join("database");
+    let bin = launcher::postgres::install(&cache)
+        .await
+        .expect("the database installs");
+    let database = launcher::postgres::Postgres::start(&bin, &dir.join("db/data"), free_port())
+        .expect("the database starts");
+    let migrated = Command::new(server)
+        .arg("migrate")
+        .env_clear()
+        .env("DATABASE_URL", &database.url)
+        .output()
+        .expect("the server runs");
+    assert!(
+        migrated.status.success(),
+        "{}",
+        String::from_utf8_lossy(&migrated.stderr)
+    );
+    database
+}
+
 /// The first title key anywhere in a page.
 fn first_title(page: &Value) -> Option<Value> {
     match page {
@@ -251,24 +315,7 @@ async fn a_visitor_opens_the_app_sees_home_and_a_title_starts_playing() {
     let films = dir.join("films.json");
     std::fs::write(&films, Value::from(list).to_string()).expect("the film list");
 
-    // A real database, migrated from nothing by the server's own command.
-    let cache = Path::new(env!("CARGO_TARGET_TMPDIR")).join("database");
-    let bin = launcher::postgres::install(&cache)
-        .await
-        .expect("the database installs");
-    let database = launcher::postgres::Postgres::start(&bin, &dir.join("db/data"), free_port())
-        .expect("the database starts");
-    let migrated = Command::new(&server_binary)
-        .arg("migrate")
-        .env_clear()
-        .env("DATABASE_URL", &database.url)
-        .output()
-        .expect("the server runs");
-    assert!(
-        migrated.status.success(),
-        "{}",
-        String::from_utf8_lossy(&migrated.stderr)
-    );
+    let database = migrated(&dir, &server_binary).await;
 
     let finder_port = free_port();
     let server_port = free_port();
@@ -297,24 +344,7 @@ async fn a_visitor_opens_the_app_sees_home_and_a_title_starts_playing() {
     );
     wait_for(&format!("{base}/v1/ready")).await;
 
-    let mut host = Host {
-        machine: Boundary::open(&json!({
-            "app": "wired", "class": "web", "contract": WIRE_VERSION, "form": "desktop", "mode": "local",
-            "os": "test", "seed": "00112233445566778899aabbccddeeff", "type": "core_config", "version": "1.0.0",
-        }).to_string()).expect("the core opens"),
-        base,
-        client: reqwest::Client::new(),
-        secrets: BTreeMap::new(),
-        began: Instant::now(),
-        pages: Vec::new(),
-        routes: Vec::new(),
-        player: Vec::new(),
-        sent: Vec::new(),
-        logs: Vec::new(),
-        answers: Vec::new(),
-        bodies: Vec::new(),
-        view: json!({}),
-    };
+    let mut host = Host::open(&base, "web", "desktop", "00112233445566778899aabbccddeeff");
 
     // The app opens, then the device asks for the address it was launched at.
     host.step(Vec::new()).await;
@@ -334,6 +364,18 @@ async fn a_visitor_opens_the_app_sees_home_and_a_title_starts_playing() {
         host.view
     );
     let title = first_title(host.pages.last().expect("home")).expect("a title on home");
+
+    // This server has no SITE_ADDRESS, so its 503 reaches the core as off.
+    host.step(vec![json!({"type": "action", "action": {
+        "action": "device_sign_in", "device_name": "Wired TV",
+    }})])
+    .await;
+    assert_eq!(
+        host.view["device_sign_in"],
+        json!({"state": "off"}),
+        "{:?}",
+        host.answers
+    );
 
     // The visitor joins, signs in through the core, and enters the profile the account came with.
     let password = "a-password-for-this-run";
@@ -420,6 +462,132 @@ async fn a_visitor_opens_the_app_sees_home_and_a_title_starts_playing() {
         .find(|section| section["kind"] == "continue")
         .unwrap_or_else(|| panic!("no continue row in {sections:?}"));
     assert_eq!(resumed["tiles"][0]["title"], title, "{resumed}");
+
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// The phone is a second core behind the same boundary, and it approves the way any screen does:
+/// a prepared request sent with its session's token.
+async fn decide(phone: &mut Host, decision: &str, user_code: &Value) {
+    let path = format!("/v1/auth/device/{decision}");
+    phone
+        .step(vec![json!({"type": "action", "id": decision, "action": {
+            "action": "request", "method": "POST", "path": path,
+            "body": json!({"user_code": user_code}).to_string(),
+        }})])
+        .await;
+    let wanted = format!("200 {path} ");
+    assert!(
+        phone.answers.iter().any(|line| line.starts_with(&wanted)),
+        "{:?}",
+        phone.answers
+    );
+}
+
+#[tokio::test]
+async fn a_tv_shows_a_code_a_phone_denies_then_approves_and_the_core_reaches_the_picker() {
+    let server_binary = built("server");
+    let dir = std::env::temp_dir().join(format!("wired_tv_{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    let manifest = server_catalog::sample::write_sample(&dir);
+    let keys = server_catalog::sample::write_sample_key(&dir);
+    let database = migrated(&dir, &server_binary).await;
+    let server_port = free_port();
+    let base = format!("http://127.0.0.1:{server_port}");
+    let site = "http://192.0.2.1:8080";
+    let _server = start(
+        &server_binary,
+        &[
+            ("SERVER_LISTEN", format!("127.0.0.1:{server_port}")),
+            ("DATABASE_URL", database.url.clone()),
+            ("DATA_MANIFEST", manifest.to_string_lossy().into_owned()),
+            ("DATA_PUBLIC_KEYS", keys.to_string_lossy().into_owned()),
+            ("SITE_ADDRESS", String::from(site)),
+            ("BRAND_NAME", String::from("Wired")),
+        ],
+    );
+    wait_for(&format!("{base}/v1/ready")).await;
+
+    let mut phone = Host::open(&base, "web", "phone", "00112233445566778899aabbccddeeff");
+    phone.step(Vec::new()).await;
+    let (email, password) = ("viewer@example.test", "a-password-for-this-run");
+    let join =
+        json!({"email": email, "password": password, "first_name": "Ada", "last_name": "Viewer"});
+    phone
+        .step(vec![json!({"type": "action", "id": "join-1", "action": {
+            "action": "request", "method": "POST", "path": "/v1/auth/signup", "body": join.to_string(),
+        }})])
+        .await;
+    phone
+        .step(vec![json!({"type": "action", "action": {
+            "action": "sign_in", "email": email, "password": password,
+        }})])
+        .await;
+    assert_eq!(phone.view["session"]["state"], "signed_in");
+
+    let mut tv = Host::open(&base, "tv", "tv", "ffeeddccbbaa99887766554433221100");
+    let press = json!({"type": "action", "action": {
+        "action": "device_sign_in", "device_name": "Wired TV",
+    }});
+    tv.step(Vec::new()).await;
+    tv.step(vec![
+        json!({"type": "address", "address": "/sign-in"}),
+        press.clone(),
+    ])
+    .await;
+    assert_eq!(tv.view["route"]["target"], "sign_in");
+    let shown = tv.view["device_sign_in"].clone();
+    let user_code = shown["user_code"].as_str().expect("a user code");
+    assert_eq!(user_code.len(), 8, "{shown}");
+    assert_eq!(
+        shown,
+        json!({
+            "state": "waiting",
+            "user_code": user_code,
+            "verification_uri": format!("{site}/activate"),
+            "verification_uri_complete": format!("{site}/activate?code={user_code}"),
+            "expires_in": 900,
+        })
+    );
+    let answer = tv
+        .bodies
+        .iter()
+        .find(|(path, _)| path == "/v1/auth/device/code")
+        .expect("the code answer");
+    let answer: Value = serde_json::from_str(&answer.1).expect("a code");
+    let device_code = answer["device_code"].as_str().expect("a device code");
+
+    // Nobody has answered, so the server says to wait.
+    tv.wake_until(|tv| {
+        tv.answers
+            .iter()
+            .any(|line| line.contains("authorization_pending"))
+    })
+    .await;
+    assert_eq!(tv.view["device_sign_in"], shown);
+
+    // The phone says no, and the next poll reads it.
+    decide(&mut phone, "deny", &shown["user_code"]).await;
+    tv.wake_until(|tv| tv.view["device_sign_in"]["state"] == "denied")
+        .await;
+    assert_eq!(tv.view["device_sign_in"], json!({"state": "denied"}));
+
+    // A press brings a new code, and this time the phone says yes.
+    tv.step(vec![press]).await;
+    let shown = tv.view["device_sign_in"].clone();
+    assert_eq!(shown["state"], "waiting");
+    decide(&mut phone, "approve", &shown["user_code"]).await;
+    tv.wake_until(|tv| tv.view["session"]["state"] == "signed_in")
+        .await;
+    assert_eq!(tv.view["session"]["email"], email);
+    assert_eq!(tv.view["device_sign_in"], json!({"state": "idle"}));
+    assert_eq!(tv.view["route"]["target"], "profiles", "{:?}", tv.routes);
+    let profiles = tv.view["profiles"]["profiles"]
+        .as_array()
+        .expect("profiles");
+    assert!(!profiles.is_empty(), "{}", tv.view);
+    assert!(tv.secrets.contains_key("session"));
+    assert!(!tv.view.to_string().contains(device_code));
 
     let _ = std::fs::remove_dir_all(&dir);
 }

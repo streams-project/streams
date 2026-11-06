@@ -1,0 +1,211 @@
+{
+ "about": "expired_token fetches a new code with no press, because a lost reply burns a code. access_denied shows denied and asks nothing until a press.",
+ "config": {
+  "app": "sample-tv",
+  "class": "tv",
+  "contract": "2026-11-05",
+  "form": "tv",
+  "mode": "local",
+  "os": "sample-os",
+  "seed": "00112233445566778899aabbccddeeff",
+  "type": "core_config",
+  "version": "1.0.0"
+ },
+ "covers": [
+  "N9"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "address": "/sign-in",
+     "type": "address"
+    },
+    {
+     "action": {
+      "action": "device_sign_in",
+      "device_name": "Living room TV"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "sent": [
+     "POST /v1/auth/device/code"
+    ],
+    "view": {
+     "device_sign_in": {
+      "expires_in": 900,
+      "state": "waiting",
+      "user_code": "BCDFGHJK",
+      "verification_uri": "https://sign.example/tv",
+      "verification_uri_complete": "https://sign.example/tv?code=BCDFGHJK"
+     }
+    },
+    "wake": 5100
+   }
+  },
+  {
+   "at_ms": 5100,
+   "want": {
+    "bodies": {
+     "/v1/auth/device/token": [
+      {
+       "device_code": "device-code-1"
+      }
+     ]
+    },
+    "sent": [
+     "POST /v1/auth/device/token",
+     "POST /v1/auth/device/code"
+    ],
+    "view": {
+     "device_sign_in": {
+      "expires_in": 900,
+      "state": "waiting",
+      "user_code": "LMNPQRST",
+      "verification_uri": "https://sign.example/tv",
+      "verification_uri_complete": "https://sign.example/tv?code=LMNPQRST"
+     }
+    },
+    "wake": 10100
+   }
+  },
+  {
+   "at_ms": 10100,
+   "want": {
+    "bodies": {
+     "/v1/auth/device/token": [
+      {
+       "device_code": "device-code-2"
+      }
+     ]
+    },
+    "sent": [
+     "POST /v1/auth/device/token"
+    ],
+    "view": {
+     "device_sign_in": {
+      "state": "denied",
+      "user_code": null
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 60000,
+   "want": {
+    "sent": []
+   }
+  },
+  {
+   "at_ms": 61000,
+   "events": [
+    {
+     "action": {
+      "action": "device_sign_in",
+      "device_name": "Living room TV"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "sent": [
+     "POST /v1/auth/device/code"
+    ],
+    "view": {
+     "device_sign_in": {
+      "expires_in": 900,
+      "state": "waiting",
+      "user_code": "VWXZBCDF",
+      "verification_uri": "https://sign.example/tv",
+      "verification_uri_complete": "https://sign.example/tv?code=VWXZBCDF"
+     }
+    },
+    "wake": 66000
+   }
+  },
+  {
+   "at_ms": 62000,
+   "events": [
+    {
+     "action": {
+      "action": "device_sign_in_stop"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "sent": [],
+    "view": {
+     "device_sign_in": {
+      "state": "idle",
+      "user_code": null
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_dead_code_renews_itself_and_a_denied_one_waits_for_a_press",
+ "server": [
+  {
+   "body": {
+    "device_code": "device-code-1",
+    "expires_in": 900,
+    "interval": 5,
+    "user_code": "BCDFGHJK",
+    "verification_uri": "https://sign.example/tv",
+    "verification_uri_complete": "https://sign.example/tv?code=BCDFGHJK"
+   },
+   "method": "POST",
+   "path": "/v1/auth/device/code",
+   "times": 1
+  },
+  {
+   "body": {
+    "poll": "expired_token"
+   },
+   "method": "POST",
+   "path": "/v1/auth/device/token",
+   "times": 1
+  },
+  {
+   "body": {
+    "device_code": "device-code-2",
+    "expires_in": 900,
+    "interval": 5,
+    "user_code": "LMNPQRST",
+    "verification_uri": "https://sign.example/tv",
+    "verification_uri_complete": "https://sign.example/tv?code=LMNPQRST"
+   },
+   "method": "POST",
+   "path": "/v1/auth/device/code",
+   "times": 1
+  },
+  {
+   "body": {
+    "poll": "access_denied"
+   },
+   "method": "POST",
+   "path": "/v1/auth/device/token",
+   "times": 1
+  },
+  {
+   "body": {
+    "device_code": "device-code-3",
+    "expires_in": 900,
+    "interval": 5,
+    "user_code": "VWXZBCDF",
+    "verification_uri": "https://sign.example/tv",
+    "verification_uri_complete": "https://sign.example/tv?code=VWXZBCDF"
+   },
+   "method": "POST",
+   "path": "/v1/auth/device/code",
+   "times": 1
+  }
+ ]
+}

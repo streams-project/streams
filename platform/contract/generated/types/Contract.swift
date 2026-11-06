@@ -109,6 +109,25 @@ public struct ActionSignInCode: Codable, Equatable, Sendable {
     }
 }
 
+/// Start device sign in. The core asks for a code, polls and renews it, and the screen draws `View.device_sign_in`. While a code is live this changes nothing.
+public struct ActionDeviceSignIn: Codable, Equatable, Sendable {
+    public var deviceName: String
+
+    enum CodingKeys: String, CodingKey {
+        case deviceName = "device_name"
+    }
+
+    public init(deviceName: String) {
+        self.deviceName = deviceName
+    }
+}
+
+public struct ActionDeviceSignInStop: Codable, Equatable, Sendable {
+
+    public init() {
+    }
+}
+
 public struct ActionSignOut: Codable, Equatable, Sendable {
     public var everywhere: Bool
 
@@ -246,6 +265,8 @@ public enum Action: Codable, Equatable, Sendable {
     case signIn(ActionSignIn)
     case sendCode(ActionSendCode)
     case signInCode(ActionSignInCode)
+    case deviceSignIn(ActionDeviceSignIn)
+    case deviceSignInStop(ActionDeviceSignInStop)
     case signOut(ActionSignOut)
     case enterProfile(ActionEnterProfile)
     case play(ActionPlay)
@@ -270,6 +291,8 @@ public enum Action: Codable, Equatable, Sendable {
         case "sign_in": self = .signIn(try ActionSignIn(from: decoder))
         case "send_code": self = .sendCode(try ActionSendCode(from: decoder))
         case "sign_in_code": self = .signInCode(try ActionSignInCode(from: decoder))
+        case "device_sign_in": self = .deviceSignIn(try ActionDeviceSignIn(from: decoder))
+        case "device_sign_in_stop": self = .deviceSignInStop(try ActionDeviceSignInStop(from: decoder))
         case "sign_out": self = .signOut(try ActionSignOut(from: decoder))
         case "enter_profile": self = .enterProfile(try ActionEnterProfile(from: decoder))
         case "play": self = .play(try ActionPlay(from: decoder))
@@ -297,6 +320,12 @@ public enum Action: Codable, Equatable, Sendable {
             try value.encode(to: encoder)
         case .signInCode(let value):
             try tagged.encode("sign_in_code", forKey: .tag)
+            try value.encode(to: encoder)
+        case .deviceSignIn(let value):
+            try tagged.encode("device_sign_in", forKey: .tag)
+            try value.encode(to: encoder)
+        case .deviceSignInStop(let value):
+            try tagged.encode("device_sign_in_stop", forKey: .tag)
             try value.encode(to: encoder)
         case .signOut(let value):
             try tagged.encode("sign_out", forKey: .tag)
@@ -1497,6 +1526,45 @@ public struct DeviceSession: Codable, Equatable, Sendable {
         self.id = id
         self.lastSeenMs = lastSeenMs
         self.name = name
+    }
+}
+
+/// Where a device sign in stands.
+public struct DeviceSignInState: RawRepresentable, Codable, Hashable, Sendable {
+    public var rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+    public static let idle = DeviceSignInState(rawValue: "idle")
+    public static let waiting = DeviceSignInState(rawValue: "waiting")
+    public static let denied = DeviceSignInState(rawValue: "denied")
+    public static let expired = DeviceSignInState(rawValue: "expired")
+    public static let off = DeviceSignInState(rawValue: "off")
+}
+
+/// Device sign in state for screens. A dead code is left out, so no screen can show one, and the device code has no field here.
+public struct DeviceSignInView: Codable, Equatable, Sendable {
+    /// Seconds this code lives, counted from when it reached this view.
+    public var expiresIn: Int?
+    public var state: DeviceSignInState
+    /// The screen shows this even when it shows a QR code.
+    public var userCode: String?
+    public var verificationUri: String?
+    /// The same address with the code in it, for a QR code.
+    public var verificationUriComplete: String?
+
+    enum CodingKeys: String, CodingKey {
+        case expiresIn = "expires_in"
+        case state = "state"
+        case userCode = "user_code"
+        case verificationUri = "verification_uri"
+        case verificationUriComplete = "verification_uri_complete"
+    }
+
+    public init(expiresIn: Int? = nil, state: DeviceSignInState, userCode: String? = nil, verificationUri: String? = nil, verificationUriComplete: String? = nil) {
+        self.expiresIn = expiresIn
+        self.state = state
+        self.userCode = userCode
+        self.verificationUri = verificationUri
+        self.verificationUriComplete = verificationUriComplete
     }
 }
 
@@ -4224,6 +4292,7 @@ public struct VersionRange: Codable, Equatable, Sendable {
 
 /// Changed screen state. A part that is absent did not change.
 public struct View: Codable, Equatable, Sendable {
+    public var deviceSignIn: DeviceSignInView?
     public var gate: GateView?
     /// The last hello read, so a screen takes limits and features from one place.
     public var hello: Hello?
@@ -4234,6 +4303,7 @@ public struct View: Codable, Equatable, Sendable {
     public var session: SessionView?
 
     enum CodingKeys: String, CodingKey {
+        case deviceSignIn = "device_sign_in"
         case gate = "gate"
         case hello = "hello"
         case play = "play"
@@ -4242,7 +4312,8 @@ public struct View: Codable, Equatable, Sendable {
         case session = "session"
     }
 
-    public init(gate: GateView? = nil, hello: Hello? = nil, play: PlayView? = nil, profiles: ProfileList? = nil, route: RouteTarget? = nil, session: SessionView? = nil) {
+    public init(deviceSignIn: DeviceSignInView? = nil, gate: GateView? = nil, hello: Hello? = nil, play: PlayView? = nil, profiles: ProfileList? = nil, route: RouteTarget? = nil, session: SessionView? = nil) {
+        self.deviceSignIn = deviceSignIn
         self.gate = gate
         self.hello = hello
         self.play = play

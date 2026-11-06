@@ -7,6 +7,7 @@ extern crate alloc;
 pub mod config;
 pub mod gate;
 pub mod net;
+mod pairing;
 pub mod player;
 pub mod routes;
 mod session;
@@ -18,8 +19,9 @@ use alloc::vec;
 use alloc::vec::Vec;
 use contract::TitleKey;
 use contract::account::{
-    CodeSend, CodeSignIn, DeviceCardAnswer, DeviceCardRequest, PasswordSignIn, ProfileEnter,
-    ProfileEntered, ProfileList, RefreshRequest, SignOut, SignedIn,
+    CodeSend, CodeSignIn, DeviceCardAnswer, DeviceCardRequest, DeviceCode, DeviceCodeRequest,
+    DeviceTokenAnswer, DeviceTokenRequest, PasswordSignIn, ProfileEnter, ProfileEntered,
+    ProfileList, RefreshRequest, SignOut, SignedIn,
 };
 use contract::command::{Command, CommandBatch, CommandOp};
 use contract::core_msg::{
@@ -36,6 +38,7 @@ use contract::version::WireDate;
 use config::{Config, Standing};
 use gate::Gate;
 use net::{Backoff, Held, Net, Pending, Problem, Purpose, Request};
+use pairing::{Due, Pairing};
 use player::{Player, Tick};
 use routes::{Who, decide, safe_next, target};
 use session::{DEVICE_SECRET, Kept, SESSION_SECRET, Session};
@@ -91,6 +94,7 @@ pub struct Core {
     config: Config,
     net: Net,
     session: Session,
+    pairing: Pairing,
     player: Player,
     gate: Gate,
     started: bool,
@@ -129,6 +133,7 @@ impl Core {
             gate: Gate::new(config.form()),
             config,
             session,
+            pairing: Pairing::new(),
             player: Player::new(),
             started: false,
             secrets: BTreeMap::new(),
@@ -352,6 +357,10 @@ impl Core {
     }
 
     fn go(&mut self, now: Now, route: RouteTarget, force: bool, out: &mut Out) {
+        // the upgrade screen shows no code, so nothing is left to poll for
+        if route.target == Target::Upgrade {
+            self.pairing.stop();
+        }
         let same = self.route.as_ref() == Some(&route);
         if same && !force {
             return;
@@ -625,6 +634,7 @@ impl Core {
     }
 
     fn signed_in(&mut self, now: Now, answer: SignedIn, out: &mut Out) {
+        self.pairing.stop();
         self.session.accept(answer, now);
         self.after_tokens(now, out);
         self.settle(now, out);
@@ -656,6 +666,12 @@ impl Core {
                     out,
                 );
             }
+            Action::DeviceSignIn { device_name } => {
+                if !self.session.signed_in() && !self.upgrade {
+                    self.pairing.start(device_name, now.mono_ms);
+                }
+            }
+            Action::DeviceSignInStop => self.pairing.stop(),
             Action::SignOut { everywhere } => self.sign_out(now, everywhere, out),
             Action::EnterProfile { profile, pin } => {
                 // nothing plays on into another profile
@@ -780,7 +796,12 @@ impl Core {
         } else if let Some(pending) = self.net.take(id) {
             let waited_on = matches!(
                 pending.request.purpose,
-                Purpose::Hello | Purpose::Refresh | Purpose::Play(_) | Purpose::More(_)
+                Purpose::Hello
+                    | Purpose::Refresh
+                    | Purpose::Play(_)
+                    | Purpose::More(_)
+                    | Purpose::DeviceCode(_)
+                    | Purpose::DevicePoll(_)
             );
             if waited_on {
                 self.http_failed(now, pending, NoAnswerReason::Cancelled, out);
@@ -810,6 +831,7 @@ impl Core {
                             self.gate.restore(seen_ms);
                         }
                         self.session.restore(kept);
+                        self.pairing.stop();
                         self.gate.set_active(self.session.profile().is_some());
                         out.view.session = Some(self.session.view());
                         self.refresh(out);
@@ -876,6 +898,7 @@ impl Core {
             self.hello_next_mono = Some(now.mono_ms);
         }
         self.session.cut_wait();
+        self.pairing.cut_wait(now.mono_ms);
     }
 
     fn http_done(
@@ -962,6 +985,11 @@ impl Core {
                 Ok(answer) => self.signed_in(now, answer, out),
                 Err(_) => self.label_notice(Problem::Failed.label(), out),
             },
+            Purpose::DeviceCode(serial) => match serde_json::from_str::<DeviceCode>(&text) {
+                Ok(code) => self.pairing.code_read(serial, code, now.mono_ms),
+                Err(_) => self.pairing.no_answer(serial, None, now.mono_ms),
+            },
+            Purpose::DevicePoll(serial) => self.device_polled(now, serial, &text, out),
             Purpose::Profiles => {
                 if let Ok(list) = serde_json::from_str::<ProfileList>(&text) {
                     self.gate.set_profiles(list.profiles.len());
@@ -1016,6 +1044,25 @@ impl Core {
             | Purpose::Page
             | Purpose::Command
             | Purpose::Passed => {}
+        }
+    }
+
+    /// One answer to a poll. Tokens that arrive after a stop are dropped, because the viewer left
+    /// this screen, and the session they opened ends with the server's idle limit.
+    fn device_polled(&mut self, now: Now, serial: u32, text: &str, out: &mut Out) {
+        match serde_json::from_str::<DeviceTokenAnswer>(text) {
+            Ok(DeviceTokenAnswer {
+                signed_in: Some(answer),
+                ..
+            }) => {
+                if self.pairing.is_current(serial) {
+                    self.signed_in(now, answer, out);
+                }
+            }
+            Ok(DeviceTokenAnswer {
+                poll: Some(word), ..
+            }) => self.pairing.polled(serial, word, now.mono_ms),
+            _ => self.pairing.no_answer(serial, None, now.mono_ms),
         }
     }
 
@@ -1100,6 +1147,20 @@ impl Core {
                 }
             }
             Purpose::Command => self.log(LogLevel::Warn, "command-dropped", out),
+            Purpose::DeviceCode(serial) | Purpose::DevicePoll(serial) => match problem {
+                _ if code == ErrorCode::Unsupported => {
+                    self.pairing.off(serial);
+                }
+                Problem::Budget { wait_ms } => {
+                    self.pairing.no_answer(serial, Some(wait_ms), now.mono_ms);
+                }
+                Problem::Failed | Problem::SignedOut => {
+                    if self.pairing.off(serial) {
+                        self.problem(problem, error, out);
+                    }
+                }
+                _ => self.pairing.no_answer(serial, None, now.mono_ms),
+            },
             Purpose::SignIn | Purpose::CodeSent | Purpose::Enter | Purpose::Profiles => {
                 self.problem(problem, error, out);
             }
@@ -1168,16 +1229,39 @@ impl Core {
         if self.session.renewal_due(now) {
             self.refresh(out);
         }
+        self.device_tick(now, out);
         let deadline = self.config.start_deadline_ms();
         let mut tick = Tick::default();
         self.player.tick(now.mono_ms, deadline, &mut tick);
         self.run_tick(now, tick, out);
     }
 
+    fn device_tick(&mut self, now: Now, out: &mut Out) {
+        let serial = self.pairing.serial();
+        let (path, purpose, body) = match self.pairing.due(now.mono_ms) {
+            Some(Due::Code(device_name)) => (
+                "/v1/auth/device/code",
+                Purpose::DeviceCode(serial),
+                serde_json::to_string(&DeviceCodeRequest { device_name }),
+            ),
+            Some(Due::Token(device_code)) => (
+                "/v1/auth/device/token",
+                Purpose::DevicePoll(serial),
+                serde_json::to_string(&DeviceTokenRequest { device_code }),
+            ),
+            None => return,
+        };
+        if let Ok(body) = body {
+            let request = Request::new(HttpMethod::Post, path, purpose).with_body(body);
+            self.send(now, request, out);
+        }
+    }
+
     fn next_wake(&self) -> Option<u64> {
         [
             self.hello_next_mono,
             self.session.next_wake(),
+            self.pairing.next_wake(),
             self.player.next_wake(),
         ]
         .into_iter()
@@ -1201,6 +1285,7 @@ impl Step for Core {
             self.event(now, event, &mut out);
         }
         self.tick(now, &mut out);
+        out.view.device_sign_in = self.pairing.take_view();
         CoreOut {
             contract: WireDate::current(),
             tag: CoreOutTag::default(),

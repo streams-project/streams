@@ -1,0 +1,191 @@
+{
+ "about": "With no network it backs off with no notice and the code stays. A code past its life leaves the screen by itself, and the network return cuts the wait.",
+ "config": {
+  "app": "sample-tv",
+  "class": "tv",
+  "contract": "2026-11-05",
+  "form": "tv",
+  "mode": "local",
+  "os": "sample-os",
+  "seed": "00112233445566778899aabbccddeeff",
+  "type": "core_config",
+  "version": "1.0.0"
+ },
+ "covers": [
+  "N9",
+  "C5"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "address": "/sign-in",
+     "type": "address"
+    },
+    {
+     "action": {
+      "action": "device_sign_in",
+      "device_name": "Living room TV"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "sent": [
+     "POST /v1/auth/device/code"
+    ],
+    "wake": 5100
+   }
+  },
+  {
+   "at_ms": 3000,
+   "net": "down",
+   "want": {
+    "sent": []
+   }
+  },
+  {
+   "at_ms": 15000,
+   "want": {
+    "notices": [],
+    "sent": [
+     "POST /v1/auth/device/token",
+     "POST /v1/auth/device/token"
+    ],
+    "view": {
+     "device_sign_in": {
+      "state": "waiting",
+      "user_code": "BCDFGHJK"
+     }
+    },
+    "wake": 15100
+   }
+  },
+  {
+   "at_ms": 29000,
+   "want": {
+    "notices": [],
+    "sent": [
+     "POST /v1/auth/device/token",
+     "POST /v1/auth/device/token"
+    ],
+    "view": {
+     "device_sign_in": {
+      "state": "waiting",
+      "user_code": "BCDFGHJK"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 30200,
+   "want": {
+    "notices": [],
+    "sent": [
+     "POST /v1/auth/device/code"
+    ],
+    "view": {
+     "device_sign_in": {
+      "state": "expired",
+      "user_code": null
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 40000,
+   "events": [
+    {
+     "online": true,
+     "type": "network"
+    }
+   ],
+   "net": "up",
+   "want": {
+    "sent": [
+     "POST /v1/auth/device/code"
+    ],
+    "view": {
+     "device_sign_in": {
+      "expires_in": 900,
+      "state": "waiting",
+      "user_code": "LMNPQRST",
+      "verification_uri": "https://sign.example/tv",
+      "verification_uri_complete": "https://sign.example/tv?code=LMNPQRST"
+     }
+    },
+    "wake": 45000
+   }
+  },
+  {
+   "at_ms": 45000,
+   "want": {
+    "bodies": {
+     "/v1/auth/device/token": [
+      {
+       "device_code": "device-code-2"
+      }
+     ]
+    },
+    "sent": [
+     "POST /v1/auth/device/token"
+    ],
+    "wake": 50000
+   }
+  },
+  {
+   "at_ms": 46000,
+   "events": [
+    {
+     "action": {
+      "action": "device_sign_in_stop"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "sent": []
+   }
+  }
+ ],
+ "name": "device_sign_in_keeps_polling_through_a_lost_network",
+ "server": [
+  {
+   "body": {
+    "device_code": "device-code-1",
+    "expires_in": 30,
+    "interval": 5,
+    "user_code": "BCDFGHJK",
+    "verification_uri": "https://sign.example/tv",
+    "verification_uri_complete": "https://sign.example/tv?code=BCDFGHJK"
+   },
+   "method": "POST",
+   "path": "/v1/auth/device/code",
+   "times": 1
+  },
+  {
+   "body": {
+    "device_code": "device-code-2",
+    "expires_in": 900,
+    "interval": 5,
+    "user_code": "LMNPQRST",
+    "verification_uri": "https://sign.example/tv",
+    "verification_uri_complete": "https://sign.example/tv?code=LMNPQRST"
+   },
+   "method": "POST",
+   "path": "/v1/auth/device/code",
+   "times": 1
+  },
+  {
+   "body": {
+    "poll": "authorization_pending"
+   },
+   "method": "POST",
+   "path": "/v1/auth/device/token"
+  }
+ ]
+}
