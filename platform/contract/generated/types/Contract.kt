@@ -224,6 +224,27 @@ value class AttemptKind(val value: String) {
     }
 }
 
+/** One picture a profile can wear. */
+@Serializable
+data class AvatarPicture(
+    @SerialName("name") val name: String,
+    /** Where the picture sits on this server. */
+    @SerialName("path") val path: String,
+)
+
+/** A row of pictures on one theme. `kids` says a Kids profile may wear them. */
+@Serializable
+data class AvatarSet(
+    @SerialName("kids") val kids: Boolean,
+    @SerialName("name") val name: String,
+    @SerialName("pictures") val pictures: List<AvatarPicture>,
+)
+
+@Serializable
+data class AvatarSets(
+    @SerialName("sets") val sets: List<AvatarSet>,
+)
+
 /** A mark on a tile. */
 @Serializable
 data class Badge(
@@ -381,7 +402,7 @@ data class CodeSignIn(
 @JsonClassDiscriminator("command")
 sealed interface Command
 
-/** Add to or remove from My List. Leaves the rating alone. */
+/** Add to or remove from the saved list. Leaves the rating alone. */
 @Serializable
 @SerialName("list")
 data class CommandList(
@@ -466,7 +487,7 @@ sealed interface CommandOp {
     val opId: String
 }
 
-/** Add to or remove from My List. Leaves the rating alone. */
+/** Add to or remove from the saved list. Leaves the rating alone. */
 @Serializable
 @SerialName("list")
 data class CommandOpList(
@@ -1376,6 +1397,18 @@ value class InputKind(val value: String) {
     }
 }
 
+/** A language this server has text for, named in itself. */
+@Serializable
+data class Language(
+    @SerialName("code") val code: String,
+    @SerialName("name") val name: String,
+)
+
+@Serializable
+data class LanguageList(
+    @SerialName("languages") val languages: List<Language>,
+)
+
 /** Asks `core_open` for the offline layer. A host sets it as the `layer` key of the text it gives `core_open`, next to the `CoreConfig` keys. With no `layer` key the core runs alone, and the core itself never reads this key. */
 @Serializable
 data class LayerConfig(
@@ -1634,6 +1667,8 @@ data class Profile(
     @SerialName("has_pin") val hasPin: Boolean,
     @SerialName("id") val id: String,
     @SerialName("kids") val kids: Boolean,
+    /** A language code from `/v1/languages`, absent until one is chosen. */
+    @SerialName("language") val language: String? = null,
     @SerialName("main") val main: Boolean,
     @SerialName("name") val name: String,
 )
@@ -1689,6 +1724,7 @@ data class ProfileTransfer(
 data class ProfileUpdate(
     @SerialName("avatar") val avatar: String? = null,
     @SerialName("kids") val kids: Boolean? = null,
+    @SerialName("language") val language: String? = null,
     @SerialName("name") val name: String? = null,
 )
 

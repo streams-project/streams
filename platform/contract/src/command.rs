@@ -46,7 +46,7 @@ wire! {
     #[serde(tag = "command", rename_all = "snake_case")]
     #[non_exhaustive]
     pub enum Command {
-        /// Add to or remove from My List. Leaves the rating alone.
+        /// Add to or remove from the saved list. Leaves the rating alone.
         List { title: TitleKey, in_list: bool },
         /// Set or clear a rating. Leaves the list entry alone.
         Rate {

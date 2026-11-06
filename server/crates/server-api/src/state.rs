@@ -60,13 +60,14 @@ impl AppState {
     ) -> Self {
         let live = LiveFile::new(config.live_settings.clone());
         let images = Images::new(config.image_base.as_deref());
+        let brand = config.brand_name.clone();
         Self {
             config,
             clock: Arc::new(SystemClock),
             door,
             data,
             library,
-            pages: Pages::new(images.clone()),
+            pages: Pages::new(images.clone()).branded(&brand),
             play: None,
             play_log: None,
             subtitles: None,

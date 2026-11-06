@@ -4,9 +4,10 @@ use axum::extract::{Path, State};
 use axum::http::HeaderMap;
 use axum::response::Response;
 use contract::account::{
-    Done, PinSet, Profile as ProfileView, ProfileCreate, ProfileEnter, ProfileEntered,
+    AvatarSets, Done, PinSet, Profile as ProfileView, ProfileCreate, ProfileEnter, ProfileEntered,
     ProfileLimits, ProfileList, ProfileTransfer, ProfileUpdate,
 };
+use contract::command::SettingKey;
 use contract::screen::ScreenName;
 use server_rules::{Tier, Viewer};
 use server_accounts::{Door, Profile, ProfileId, ProfileKind, ProfileLimitsRow, ProfilePatch};
@@ -14,6 +15,7 @@ use server_accounts::{Door, Profile, ProfileId, ProfileKind, ProfileLimitsRow, P
 use crate::answer::{Body, Keep, send, send_cleared};
 use crate::caller::Caller;
 use crate::error::{ApiError, ApiResult};
+use crate::routes::start::has_language;
 use crate::routes::titles::data;
 use crate::state::Shared;
 
@@ -31,7 +33,31 @@ pub fn view(row: &Profile) -> ProfileView {
         main: row.is_main,
         has_pin: row.has_pin,
         avatar: Some(row.avatar.clone()),
+        language: None,
     }
+}
+
+/// The wire view with the profile's language, which the library holds.
+async fn shown(state: &Shared, row: &Profile) -> ApiResult<ProfileView> {
+    let mut answer = view(row);
+    if let Some(library) = &state.library {
+        answer.language = library.store().settings(row.id).await?.ui_language;
+    }
+    Ok(answer)
+}
+
+/// The profile being edited need not be the active one, so this writes past the command queue.
+async fn keep_language(state: &Shared, profile: ProfileId, code: &str) -> ApiResult<()> {
+    let library = state
+        .library
+        .as_ref()
+        .ok_or_else(|| ApiError::off("accounts"))?;
+    let mut tx = library.store().begin(profile).await?;
+    let seq = tx.next_seq().await?;
+    let at = state.clock.now_ms();
+    tx.put_setting(SettingKey::UiLanguage, code, at, seq).await?;
+    tx.commit().await?;
+    Ok(())
 }
 
 fn done() -> Done {
@@ -45,7 +71,10 @@ pub async fn list(
     headers: HeaderMap,
 ) -> ApiResult<Response> {
     let rows = door(&state)?.profiles(&member).await?;
-    let profiles = rows.iter().map(view).collect();
+    let mut profiles = Vec::with_capacity(rows.len());
+    for row in &rows {
+        profiles.push(shown(&state, row).await?);
+    }
     send(&headers, &ProfileList { profiles }, Keep::Never)
 }
 
@@ -74,6 +103,34 @@ pub async fn feature(
     send_cleared(&headers, &tile, Keep::Never)
 }
 
+/// `GET /v1/profiles/{id}/avatars`: the published sets, and only the kids sets for a Kids profile.
+pub async fn avatars(
+    State(state): State<Shared>,
+    Caller(member): Caller,
+    Path(id): Path<String>,
+    headers: HeaderMap,
+) -> ApiResult<Response> {
+    let row = door(&state)?
+        .profile(&member, ProfileId::parse(&id)?)
+        .await?;
+    let mut sets = published_avatars(&state).sets;
+    if row.kind == ProfileKind::Kids {
+        sets.retain(|set| set.kids);
+    }
+    send(&headers, &AvatarSets { sets }, Keep::Never)
+}
+
+/// The site's `avatars/sets.json`. A brand with no pictures has none, and that is a normal answer.
+fn published_avatars(state: &Shared) -> AvatarSets {
+    state
+        .config
+        .web_root
+        .as_ref()
+        .and_then(|root| std::fs::read(std::path::Path::new(root).join("avatars/sets.json")).ok())
+        .and_then(|bytes| serde_json::from_slice(&bytes).ok())
+        .unwrap_or(AvatarSets { sets: Vec::new() })
+}
+
 /// `POST /v1/profiles`.
 pub async fn create(
     State(state): State<Shared>,
@@ -95,6 +152,12 @@ pub async fn update(
     headers: HeaderMap,
     Body(asked): Body<ProfileUpdate>,
 ) -> ApiResult<Response> {
+    let profile = ProfileId::parse(&id)?;
+    if let Some(code) = &asked.language {
+        if !has_language(&state, code) {
+            return Err(ApiError::refused("language_refused"));
+        }
+    }
     let patch = ProfilePatch {
         name: asked.name,
         avatar: asked.avatar,
@@ -107,9 +170,12 @@ pub async fn update(
         }),
     };
     let row = door(&state)?
-        .update_profile(&member, ProfileId::parse(&id)?, patch)
+        .update_profile(&member, profile, patch)
         .await?;
-    send(&headers, &view(&row), Keep::Never)
+    if let Some(code) = &asked.language {
+        keep_language(&state, profile, code).await?;
+    }
+    send(&headers, &shown(&state, &row).await?, Keep::Never)
 }
 
 /// `DELETE /v1/profiles/{id}`.
@@ -142,7 +208,7 @@ pub async fn enter(
         ScreenName::Home
     };
     let answer = ProfileEntered {
-        profile: view(&row),
+        profile: shown(&state, &row).await?,
         home,
     };
     send(&headers, &answer, Keep::Never)

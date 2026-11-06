@@ -187,6 +187,9 @@ wire! {
         pub has_pin: bool,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub avatar: Option<String>,
+        /// A language code from `/v1/languages`, absent until one is chosen.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub language: Option<String>,
     }
 
     pub struct ProfileList {
@@ -206,6 +209,26 @@ wire! {
         pub kids: Option<bool>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub avatar: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub language: Option<String>,
+    }
+
+    /// One picture a profile can wear.
+    pub struct AvatarPicture {
+        pub name: String,
+        /// Where the picture sits on this server.
+        pub path: String,
+    }
+
+    /// A row of pictures on one theme. `kids` says a Kids profile may wear them.
+    pub struct AvatarSet {
+        pub name: String,
+        pub kids: bool,
+        pub pictures: Vec<AvatarPicture>,
+    }
+
+    pub struct AvatarSets {
+        pub sets: Vec<AvatarSet>,
     }
 
     pub struct ProfileEnter {

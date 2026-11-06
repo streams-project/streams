@@ -285,7 +285,7 @@
       "description": "One change to a profile's facts.",
       "oneOf": [
         {
-          "description": "Add to or remove from My List. Leaves the rating alone.",
+          "description": "Add to or remove from the saved list. Leaves the rating alone.",
           "properties": {
             "command": {
               "const": "list",

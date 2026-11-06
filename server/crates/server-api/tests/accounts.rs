@@ -643,3 +643,95 @@ async fn tmt12_tmp8_a_transfer_needs_a_step_up_and_leaves_the_pin_behind() {
         .unwrap();
     assert_eq!(found["has_pin"], false, "the PIN never travels");
 }
+
+#[tokio::test]
+async fn a_profile_keeps_a_language_the_server_has_and_refuses_one_it_does_not() {
+    let strings = common::folder("languages");
+    std::fs::write(strings.join("en.json"), r#"{"language.name":"English"}"#).unwrap();
+    std::fs::write(strings.join("de.json"), r#"{"language.name":"Deutsch"}"#).unwrap();
+    std::fs::write(strings.join("xx.json"), r#"{"no.name":"none"}"#).unwrap();
+    let path = strings.to_string_lossy().into_owned();
+    let server = harness_with_auth(&[("STRINGS_DIR", path.as_str())]);
+    let signed = new_account(&server, "lang@example.test").await;
+
+    let list = get("/v1/languages").on(&server.state).await;
+    assert_eq!(list.status, StatusCode::OK, "{}", list.body);
+    let names: Vec<&str> = list.body["languages"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|language| language["name"].as_str().unwrap())
+        .collect();
+    assert_eq!(names, ["Deutsch", "English"], "a file with no name is no language");
+
+    let rows = get("/v1/profiles")
+        .token(&signed.access_token)
+        .on(&server.state)
+        .await;
+    let id = rows.body["profiles"][0]["id"].as_str().unwrap().to_owned();
+    let change = |code: &str| {
+        call(Method::PATCH, &format!("/v1/profiles/{id}"))
+            .token(&signed.access_token)
+            .json(json!({ "language": code }))
+    };
+    let refused = change("xx").on(&server.state).await;
+    assert_ne!(refused.status, StatusCode::OK, "{}", refused.body);
+
+    let kept = change("de").on(&server.state).await;
+    assert_eq!(kept.status, StatusCode::OK, "{}", kept.body);
+    assert_eq!(kept.body["language"], "de");
+    let rows = get("/v1/profiles")
+        .token(&signed.access_token)
+        .on(&server.state)
+        .await;
+    assert_eq!(rows.body["profiles"][0]["language"], "de");
+    assert!(
+        rows.body["profiles"][1].get("language").is_none(),
+        "the other profile did not change"
+    );
+}
+
+#[tokio::test]
+async fn a_kids_profile_is_offered_only_the_kids_pictures() {
+    let site = common::folder("pictures");
+    std::fs::create_dir_all(site.join("avatars")).unwrap();
+    let sets = json!({ "sets": [
+        { "name": "Soft", "kids": true, "pictures": [{ "name": "One", "path": "/avatars/one.webp" }] },
+        { "name": "Dark", "kids": false, "pictures": [{ "name": "Two", "path": "/avatars/two.webp" }] },
+    ]});
+    std::fs::write(site.join("avatars/sets.json"), sets.to_string()).unwrap();
+    let path = site.to_string_lossy().into_owned();
+    let server = harness_with_auth(&[("WEB_ROOT", path.as_str())]);
+    let signed = new_account(&server, "pictures@example.test").await;
+    let rows = get("/v1/profiles")
+        .token(&signed.access_token)
+        .on(&server.state)
+        .await;
+    let pictures = |row: usize| {
+        let id = rows.body["profiles"][row]["id"].as_str().unwrap().to_owned();
+        get(&format!("/v1/profiles/{id}/avatars")).token(&signed.access_token)
+    };
+    let main = pictures(0).on(&server.state).await;
+    assert_eq!(main.status, StatusCode::OK, "{}", main.body);
+    assert_eq!(main.body["sets"].as_array().unwrap().len(), 2);
+    let kids = pictures(1).on(&server.state).await;
+    assert_eq!(kids.body["sets"].as_array().unwrap().len(), 1);
+    assert_eq!(kids.body["sets"][0]["name"], "Soft");
+}
+
+#[tokio::test]
+async fn a_brand_with_no_pictures_answers_an_empty_list() {
+    let server = harness_with_auth(&[]);
+    let signed = new_account(&server, "plain@example.test").await;
+    let rows = get("/v1/profiles")
+        .token(&signed.access_token)
+        .on(&server.state)
+        .await;
+    let id = rows.body["profiles"][0]["id"].as_str().unwrap().to_owned();
+    let answer = get(&format!("/v1/profiles/{id}/avatars"))
+        .token(&signed.access_token)
+        .on(&server.state)
+        .await;
+    assert_eq!(answer.status, StatusCode::OK, "{}", answer.body);
+    assert!(answer.body["sets"].as_array().unwrap().is_empty());
+}

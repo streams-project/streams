@@ -121,6 +121,16 @@ wire! {
         pub lang: String,
         pub texts: BTreeMap<String, String>,
     }
+
+    /// A language this server has text for, named in itself.
+    pub struct Language {
+        pub code: String,
+        pub name: String,
+    }
+
+    pub struct LanguageList {
+        pub languages: Vec<Language>,
+    }
 }
 
 /// Placeholder for the product name in strings.

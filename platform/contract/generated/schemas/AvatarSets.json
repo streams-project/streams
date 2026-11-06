@@ -1,0 +1,58 @@
+{
+  "$defs": {
+    "AvatarPicture": {
+      "description": "One picture a profile can wear.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "path": {
+          "description": "Where the picture sits on this server.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "path"
+      ],
+      "type": "object"
+    },
+    "AvatarSet": {
+      "description": "A row of pictures on one theme. `kids` says a Kids profile may wear them.",
+      "properties": {
+        "kids": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "pictures": {
+          "items": {
+            "$ref": "#/$defs/AvatarPicture"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "kids",
+        "pictures"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "sets": {
+      "items": {
+        "$ref": "#/$defs/AvatarSet"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "sets"
+  ],
+  "title": "AvatarSets",
+  "type": "object"
+}

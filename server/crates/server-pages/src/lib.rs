@@ -22,6 +22,7 @@ pub mod signals;
 pub mod suggest;
 pub mod tags;
 pub mod titles;
+pub mod words;
 
 pub use build::{PageCheck, PageError, Pages, Personal, ScreenAsk};
 pub use reading::personal_of;

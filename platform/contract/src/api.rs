@@ -182,6 +182,13 @@ pub const ROUTES: &[Route] = &[
         START,
     )),
     cached(read(
+        "/v1/languages",
+        "listLanguages",
+        "Every language this server has text for.",
+        "LanguageList",
+        START,
+    )),
+    cached(read(
         "/v1/public/titles/{kind}/{id}",
         "getPublicTitle",
         "A title for a visitor, with no profile.",
@@ -420,6 +427,13 @@ pub const ROUTES: &[Route] = &[
         "profileFeature",
         "One title to show beside a profile on the picker.",
         "Tile",
+        PROFILES,
+    ),
+    read(
+        "/v1/profiles/{id}/avatars",
+        "profileAvatars",
+        "The pictures this profile can wear.",
+        "AvatarSets",
         PROFILES,
     ),
     write(

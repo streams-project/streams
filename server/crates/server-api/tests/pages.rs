@@ -393,7 +393,7 @@ async fn add_to_list(server: &Harness, token: &str, title: &str) {
 
 #[tokio::test]
 async fn h36_s91_my_list_comes_from_the_library_and_shows_on_home_from_three_titles() {
-    let server = harness(&[]);
+    let server = harness(&[("BRAND_NAME", "Sample")]);
     let (token, _) = enter(&server, false).await;
     for title in ["movie:100", "movie:101", "movie:103"] {
         add_to_list(&server, &token, title).await;
@@ -414,7 +414,7 @@ async fn h36_s91_my_list_comes_from_the_library_and_shows_on_home_from_three_tit
     assert!(
         home.sections
             .iter()
-            .any(|s| s.title.as_deref() == Some("My List")),
+            .any(|s| s.title.as_deref() == Some("My Sample")),
         "S91"
     );
 }

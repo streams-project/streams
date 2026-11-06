@@ -6,7 +6,7 @@ use contract::core_msg::{Action, HttpMethod};
 use contract::screen::{ImageRole, Season, Tile, TitleDetail};
 use leptos::prelude::*;
 
-use super::image;
+use super::{image, label_text};
 use crate::host;
 use crate::ports::address;
 use crate::state::Shared;
@@ -125,7 +125,7 @@ pub fn Details() -> impl IntoView {
                             <div class="row-of-buttons">
                                 <button class="solid" on:click=move |_| host::go(&watch)>"Play"</button>
                                 <button class="glass" on:click=toggle>
-                                    {move || if listed.get() { "In My List" } else { "My List" }}
+                                    {move || label_text(shared, if listed.get() { "list.added" } else { "list.add" })}
                                 </button>
                             </div>
                         </div>

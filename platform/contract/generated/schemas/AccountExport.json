@@ -84,6 +84,10 @@
         "kids": {
           "type": "boolean"
         },
+        "language": {
+          "description": "A language code from `/v1/languages`, absent until one is chosen.",
+          "type": "string"
+        },
         "main": {
           "type": "boolean"
         },

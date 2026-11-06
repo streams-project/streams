@@ -5,7 +5,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use contract::account::{
-    Account, AccountExport, AccountUpdate, CodeSend, CodeSent, CodeSignIn, Confirm, Confirmed,
+    Account, AccountExport, AccountUpdate, AvatarSets, CodeSend, CodeSent, CodeSignIn, Confirm, Confirmed,
     Consent, DeviceCardAnswer, DeviceCardRequest, DeviceCode, DeviceCodeRequest, DeviceDecision,
     DeviceList, DeviceTokenAnswer, DeviceTokenRequest, Done, EmailChange, PasswordChange,
     PasswordSignIn, PhoneChange, PinSet, Profile, ProfileCreate, ProfileEnter, ProfileEntered,
@@ -21,7 +21,7 @@ use contract::core_msg::{
 use contract::driver::{DriverCommand, DriverEvent};
 use contract::error::{ErrorBody, ErrorCode, Notice};
 use contract::finder::{FindAnswer, FindRequest, FinderHealth};
-use contract::hello::{Hello, Ready, Strings};
+use contract::hello::{Hello, LanguageList, Ready, Strings};
 use contract::play::{
     Attempt, Marks, MarksRequest, MoreAttempts, PlayAnswer, PlayEvents, PlayRequest, Report,
     SubtitleBody, SubtitleList,
@@ -76,6 +76,7 @@ fn read_as(type_name: &str, value: &Value) -> Result<Value, String> {
         Account,
         AccountExport,
         AccountUpdate,
+        AvatarSets,
         Action,
         Attempt,
         CapabilityCard,
@@ -124,6 +125,7 @@ fn read_as(type_name: &str, value: &Value) -> Result<Value, String> {
         Notice,
         PasswordChange,
         PasswordSignIn,
+        LanguageList,
         PhoneChange,
         PinSet,
         PlayAnswer,

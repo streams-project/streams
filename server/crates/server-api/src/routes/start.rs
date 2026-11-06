@@ -1,9 +1,13 @@
 //! Open routes: `/v1/hello`, `/v1/ready`, strings.
 
+use std::collections::BTreeMap;
+
 use axum::extract::{Path, State};
 use axum::http::HeaderMap;
 use axum::response::Response;
-use contract::hello::{BrandValues, Features, Hello, Limits, Ready, ServiceState, Strings};
+use contract::hello::{
+    BrandValues, Features, Hello, Language, LanguageList, Limits, Ready, ServiceState, Strings,
+};
 
 use crate::answer::{Keep, send};
 use crate::error::{ApiError, ApiResult};
@@ -12,6 +16,12 @@ use crate::state::{AppState, Shared};
 
 /// Seconds a client may keep hello.
 const HELLO_TTL_S: u32 = 300;
+
+/// The key that makes a strings file a language, and names it in itself.
+const LANGUAGE_NAME: &str = "language.name";
+
+/// The file every other language falls back to.
+const FALLBACK_LANGUAGE: &str = "en";
 
 fn limits(state: &AppState) -> Limits {
     let values = state
@@ -116,7 +126,58 @@ fn plain_lang(lang: &str) -> bool {
     (2..=12).contains(&lang.len()) && lang.chars().all(|c| c.is_ascii_alphanumeric() || c == '-')
 }
 
-/// `GET /v1/strings/{lang}`: one file of text, with the brand filled in at render time.
+/// The text of one file, if it is there and readable.
+fn read_texts(dir: &std::path::Path, lang: &str) -> Option<BTreeMap<String, String>> {
+    let bytes = std::fs::read(dir.join(format!("{lang}.json"))).ok()?;
+    serde_json::from_slice(&bytes).ok()
+}
+
+/// True when this server has text for the language.
+pub fn has_language(state: &Shared, code: &str) -> bool {
+    plain_lang(code)
+        && state
+            .config
+            .strings_dir
+            .as_deref()
+            .and_then(|dir| read_texts(dir, code))
+            .is_some_and(|texts| texts.contains_key(LANGUAGE_NAME))
+}
+
+/// `GET /v1/languages`: a file in the strings folder is a language, named in itself.
+pub async fn languages(State(state): State<Shared>, headers: HeaderMap) -> ApiResult<Response> {
+    let dir = state
+        .config
+        .strings_dir
+        .as_ref()
+        .ok_or_else(|| ApiError::off("strings"))?;
+    let entries = std::fs::read_dir(dir).map_err(|_| ApiError::off("strings"))?;
+    let mut languages = Vec::new();
+    for entry in entries.flatten() {
+        let path = entry.path();
+        let Some(code) = path.file_stem().and_then(|stem| stem.to_str()) else {
+            continue;
+        };
+        if !plain_lang(code) || path.extension().is_none_or(|end| end != "json") {
+            continue;
+        }
+        let name = read_texts(dir, code).and_then(|mut texts| texts.remove(LANGUAGE_NAME));
+        if let Some(name) = name {
+            languages.push(Language {
+                code: code.to_owned(),
+                name,
+            });
+        }
+    }
+    languages.sort_by_key(|language| language.name.to_lowercase());
+    send(
+        &headers,
+        &LanguageList { languages },
+        Keep::Public(HELLO_TTL_S),
+    )
+}
+
+/// `GET /v1/strings/{lang}`: one file of text, with the brand filled in at render time. A word a
+/// translation lacks comes back in English, so every family gets a whole set.
 pub async fn strings(
     State(state): State<Shared>,
     Path(lang): Path<String>,
@@ -130,9 +191,9 @@ pub async fn strings(
     if !plain_lang(&lang) {
         return Err(ApiError::not_found());
     }
-    let bytes =
-        std::fs::read(dir.join(format!("{lang}.json"))).map_err(|_| ApiError::not_found())?;
-    let texts = serde_json::from_slice(&bytes).map_err(|_| ApiError::not_found())?;
+    let asked = read_texts(dir, &lang).ok_or_else(ApiError::not_found)?;
+    let mut texts = read_texts(dir, FALLBACK_LANGUAGE).unwrap_or_default();
+    texts.extend(asked);
     send(
         &headers,
         &Strings { lang, texts },

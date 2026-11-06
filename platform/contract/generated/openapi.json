@@ -513,6 +513,60 @@
         ],
         "type": "string"
       },
+      "AvatarPicture": {
+        "description": "One picture a profile can wear.",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "description": "Where the picture sits on this server.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "path"
+        ],
+        "type": "object"
+      },
+      "AvatarSet": {
+        "description": "A row of pictures on one theme. `kids` says a Kids profile may wear them.",
+        "properties": {
+          "kids": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pictures": {
+            "items": {
+              "$ref": "#/components/schemas/AvatarPicture"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "kids",
+          "pictures"
+        ],
+        "type": "object"
+      },
+      "AvatarSets": {
+        "properties": {
+          "sets": {
+            "items": {
+              "$ref": "#/components/schemas/AvatarSet"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "sets"
+        ],
+        "type": "object"
+      },
       "Badge": {
         "description": "A mark on a tile.",
         "properties": {
@@ -894,7 +948,7 @@
         "description": "One change to a profile's facts.",
         "oneOf": [
           {
-            "description": "Add to or remove from My List. Leaves the rating alone.",
+            "description": "Add to or remove from the saved list. Leaves the rating alone.",
             "properties": {
               "command": {
                 "const": "list",
@@ -1091,7 +1145,7 @@
         "description": "One queued op. A missing `age_ms` means age unknown, and the server orders by arrival.",
         "oneOf": [
           {
-            "description": "Add to or remove from My List. Leaves the rating alone.",
+            "description": "Add to or remove from the saved list. Leaves the rating alone.",
             "properties": {
               "command": {
                 "const": "list",
@@ -2986,6 +3040,36 @@
         ],
         "type": "string"
       },
+      "Language": {
+        "description": "A language this server has text for, named in itself.",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ],
+        "type": "object"
+      },
+      "LanguageList": {
+        "properties": {
+          "languages": {
+            "items": {
+              "$ref": "#/components/schemas/Language"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "languages"
+        ],
+        "type": "object"
+      },
       "LayerConfig": {
         "description": "Asks `core_open` for the offline layer. A host sets it as the `layer` key of the text it\ngives `core_open`, next to the `CoreConfig` keys. With no `layer` key the core runs alone,\nand the core itself never reads this key.",
         "properties": {
@@ -3577,6 +3661,10 @@
           "kids": {
             "type": "boolean"
           },
+          "language": {
+            "description": "A language code from `/v1/languages`, absent until one is chosen.",
+            "type": "string"
+          },
           "main": {
             "type": "boolean"
           },
@@ -3719,6 +3807,9 @@
           },
           "kids": {
             "type": "boolean"
+          },
+          "language": {
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -7404,6 +7495,83 @@
         ]
       }
     },
+    "/v1/languages": {
+      "get": {
+        "operationId": "listLanguages",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApiVersion"
+          },
+          {
+            "$ref": "#/components/parameters/Client0"
+          },
+          {
+            "$ref": "#/components/parameters/Client1"
+          },
+          {
+            "$ref": "#/components/parameters/Client2"
+          },
+          {
+            "$ref": "#/components/parameters/Client3"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "basic": {
+                    "externalValue": "../fixtures/2026-11-05/valid/LanguageList.basic.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/LanguageList"
+                }
+              }
+            },
+            "description": "Every language this server has text for."
+          },
+          "304": {
+            "description": "Not changed since the ETag in If-None-Match."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "clock_wrong": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.clock_wrong.json"
+                  },
+                  "no_longer_available": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.no_longer_available.json"
+                  },
+                  "not_found": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.not_found.json"
+                  },
+                  "profile_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.profile_required.json"
+                  },
+                  "rate_limited": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.rate_limited.json"
+                  },
+                  "upgrade_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.upgrade_required.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "An error with a stable code."
+          }
+        },
+        "security": [],
+        "summary": "Every language this server has text for.",
+        "tags": [
+          "start"
+        ]
+      }
+    },
     "/v1/more/{cursor}": {
       "get": {
         "operationId": "getMore",
@@ -8394,6 +8562,92 @@
           }
         ],
         "summary": "Change a profile.",
+        "tags": [
+          "profiles"
+        ]
+      }
+    },
+    "/v1/profiles/{id}/avatars": {
+      "get": {
+        "operationId": "profileAvatars",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApiVersion"
+          },
+          {
+            "$ref": "#/components/parameters/Client0"
+          },
+          {
+            "$ref": "#/components/parameters/Client1"
+          },
+          {
+            "$ref": "#/components/parameters/Client2"
+          },
+          {
+            "$ref": "#/components/parameters/Client3"
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "basic": {
+                    "externalValue": "../fixtures/2026-11-05/valid/AvatarSets.basic.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/AvatarSets"
+                }
+              }
+            },
+            "description": "The pictures this profile can wear."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "clock_wrong": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.clock_wrong.json"
+                  },
+                  "no_longer_available": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.no_longer_available.json"
+                  },
+                  "not_found": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.not_found.json"
+                  },
+                  "profile_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.profile_required.json"
+                  },
+                  "rate_limited": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.rate_limited.json"
+                  },
+                  "upgrade_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.upgrade_required.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "An error with a stable code."
+          }
+        },
+        "security": [
+          {
+            "member": []
+          }
+        ],
+        "summary": "The pictures this profile can wear.",
         "tags": [
           "profiles"
         ]

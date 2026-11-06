@@ -145,6 +145,11 @@ fn publish_site(stack: &Stack) -> Result<PathBuf> {
     }
     let assets = stack.root.join(&stack.brand.assets);
     copy_tv_media(&assets, &site.join("tv"))?;
+    // A brand's profile pictures. Optional: with none, profiles show a letter.
+    let avatars = assets.join("avatars");
+    if avatars.is_dir() {
+        copy_folder(&avatars, &site.join("avatars"))?;
+    }
     for (from, to) in [
         ("mark.svg", "mark.svg"),
         ("lockup-on-dark.svg", "lockup.svg"),
@@ -327,7 +332,10 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
             ("BRAND_NAME", stack.brand.name.clone()),
             ("SUPPORT_EMAIL", stack.brand.support_email.clone()),
             // Where a built catalogue's posters live. A sample has none, so it stays empty.
-            ("IMAGE_BASE", std::env::var("IMAGE_BASE").unwrap_or_default()),
+            (
+                "IMAGE_BASE",
+                std::env::var("IMAGE_BASE").unwrap_or_default(),
+            ),
         ]),
     };
 

@@ -1,0 +1,34 @@
+{
+  "$defs": {
+    "Language": {
+      "description": "A language this server has text for, named in itself.",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "name"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "languages": {
+      "items": {
+        "$ref": "#/$defs/Language"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "languages"
+  ],
+  "title": "LanguageList",
+  "type": "object"
+}

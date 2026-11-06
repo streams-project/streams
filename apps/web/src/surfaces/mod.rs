@@ -35,10 +35,14 @@ const FALLBACK: &str = "That did not work. Try again.";
 
 /// The text of a label, as the server states it.
 pub fn label_text(shared: Shared, label: &str) -> String {
-    shared
+    let text = shared
         .strings
         .with(|strings| strings.get(label).cloned())
-        .unwrap_or_else(|| FALLBACK.to_owned())
+        .unwrap_or_else(|| FALLBACK.to_owned());
+    shared
+        .hello
+        .with(|hello| hello.as_ref().map(|hello| hello.brand.fill(&text)))
+        .unwrap_or(text)
 }
 
 #[component]

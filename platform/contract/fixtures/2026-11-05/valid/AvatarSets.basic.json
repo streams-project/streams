@@ -1,0 +1,14 @@
+{
+  "sets": [
+    {
+      "kids": true,
+      "name": "Fuzzy",
+      "pictures": [
+        {
+          "name": "Orange",
+          "path": "/avatars/orange.webp"
+        }
+      ]
+    }
+  ]
+}

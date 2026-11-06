@@ -471,6 +471,54 @@ public struct AttemptKind: RawRepresentable, Codable, Hashable, Sendable {
     public static let embed = AttemptKind(rawValue: "embed")
 }
 
+/// One picture a profile can wear.
+public struct AvatarPicture: Codable, Equatable, Sendable {
+    public var name: String
+    /// Where the picture sits on this server.
+    public var path: String
+
+    enum CodingKeys: String, CodingKey {
+        case name = "name"
+        case path = "path"
+    }
+
+    public init(name: String, path: String) {
+        self.name = name
+        self.path = path
+    }
+}
+
+/// A row of pictures on one theme. `kids` says a Kids profile may wear them.
+public struct AvatarSet: Codable, Equatable, Sendable {
+    public var kids: Bool
+    public var name: String
+    public var pictures: [AvatarPicture]
+
+    enum CodingKeys: String, CodingKey {
+        case kids = "kids"
+        case name = "name"
+        case pictures = "pictures"
+    }
+
+    public init(kids: Bool, name: String, pictures: [AvatarPicture]) {
+        self.kids = kids
+        self.name = name
+        self.pictures = pictures
+    }
+}
+
+public struct AvatarSets: Codable, Equatable, Sendable {
+    public var sets: [AvatarSet]
+
+    enum CodingKeys: String, CodingKey {
+        case sets = "sets"
+    }
+
+    public init(sets: [AvatarSet]) {
+        self.sets = sets
+    }
+}
+
 /// A mark on a tile.
 public struct Badge: Codable, Equatable, Sendable {
     public var kind: BadgeKind
@@ -813,7 +861,7 @@ public struct CodeSignIn: Codable, Equatable, Sendable {
 }
 
 /// One change to a profile's facts.
-/// Add to or remove from My List. Leaves the rating alone.
+/// Add to or remove from the saved list. Leaves the rating alone.
 public struct CommandList: Codable, Equatable, Sendable {
     public var inList: Bool
     public var title: TitleKey
@@ -1053,7 +1101,7 @@ public struct CommandOp: Codable, Equatable, Sendable {
     }
 }
 
-/// Add to or remove from My List. Leaves the rating alone.
+/// Add to or remove from the saved list. Leaves the rating alone.
 public struct CommandOpList: Codable, Equatable, Sendable {
     public var inList: Bool
     public var title: TitleKey
@@ -2892,6 +2940,34 @@ public struct InputKind: RawRepresentable, Codable, Hashable, Sendable {
     public static let rotary = InputKind(rawValue: "rotary")
 }
 
+/// A language this server has text for, named in itself.
+public struct Language: Codable, Equatable, Sendable {
+    public var code: String
+    public var name: String
+
+    enum CodingKeys: String, CodingKey {
+        case code = "code"
+        case name = "name"
+    }
+
+    public init(code: String, name: String) {
+        self.code = code
+        self.name = name
+    }
+}
+
+public struct LanguageList: Codable, Equatable, Sendable {
+    public var languages: [Language]
+
+    enum CodingKeys: String, CodingKey {
+        case languages = "languages"
+    }
+
+    public init(languages: [Language]) {
+        self.languages = languages
+    }
+}
+
 /// Asks `core_open` for the offline layer. A host sets it as the `layer` key of the text it gives `core_open`, next to the `CoreConfig` keys. With no `layer` key the core runs alone, and the core itself never reads this key.
 public struct LayerConfig: Codable, Equatable, Sendable {
     /// Names this boot. It changes when monotonic time restarts.
@@ -3394,6 +3470,8 @@ public struct Profile: Codable, Equatable, Sendable {
     public var hasPin: Bool
     public var id: String
     public var kids: Bool
+    /// A language code from `/v1/languages`, absent until one is chosen.
+    public var language: String?
     public var main: Bool
     public var name: String
 
@@ -3402,15 +3480,17 @@ public struct Profile: Codable, Equatable, Sendable {
         case hasPin = "has_pin"
         case id = "id"
         case kids = "kids"
+        case language = "language"
         case main = "main"
         case name = "name"
     }
 
-    public init(avatar: String? = nil, hasPin: Bool, id: String, kids: Bool, main: Bool, name: String) {
+    public init(avatar: String? = nil, hasPin: Bool, id: String, kids: Bool, language: String? = nil, main: Bool, name: String) {
         self.avatar = avatar
         self.hasPin = hasPin
         self.id = id
         self.kids = kids
+        self.language = language
         self.main = main
         self.name = name
     }
@@ -3535,17 +3615,20 @@ public struct ProfileTransfer: Codable, Equatable, Sendable {
 public struct ProfileUpdate: Codable, Equatable, Sendable {
     public var avatar: String?
     public var kids: Bool?
+    public var language: String?
     public var name: String?
 
     enum CodingKeys: String, CodingKey {
         case avatar = "avatar"
         case kids = "kids"
+        case language = "language"
         case name = "name"
     }
 
-    public init(avatar: String? = nil, kids: Bool? = nil, name: String? = nil) {
+    public init(avatar: String? = nil, kids: Bool? = nil, language: String? = nil, name: String? = nil) {
         self.avatar = avatar
         self.kids = kids
+        self.language = language
         self.name = name
     }
 }

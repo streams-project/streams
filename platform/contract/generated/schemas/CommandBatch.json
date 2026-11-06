@@ -4,7 +4,7 @@
       "description": "One queued op. A missing `age_ms` means age unknown, and the server orders by arrival.",
       "oneOf": [
         {
-          "description": "Add to or remove from My List. Leaves the rating alone.",
+          "description": "Add to or remove from the saved list. Leaves the rating alone.",
           "properties": {
             "command": {
               "const": "list",

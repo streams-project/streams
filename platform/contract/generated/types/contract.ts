@@ -135,6 +135,24 @@ export interface Attempt {
 /** How an attempt is played. */
 export type AttemptKind = "hls" | "file" | "embed" | (string & {});
 
+/** One picture a profile can wear. */
+export interface AvatarPicture {
+  name: string;
+  /** Where the picture sits on this server. */
+  path: string;
+}
+
+/** A row of pictures on one theme. `kids` says a Kids profile may wear them. */
+export interface AvatarSet {
+  kids: boolean;
+  name: string;
+  pictures: AvatarPicture[];
+}
+
+export interface AvatarSets {
+  sets: AvatarSet[];
+}
+
 /** A mark on a tile. */
 export interface Badge {
   kind: BadgeKind;
@@ -252,7 +270,7 @@ export interface CodeSignIn {
 /** One change to a profile's facts. */
 export type Command =
   | {
-      /** Add to or remove from My List. Leaves the rating alone. */
+      /** Add to or remove from the saved list. Leaves the rating alone. */
       command: "list";
       in_list: boolean;
       title: TitleKey;
@@ -312,7 +330,7 @@ export interface CommandBatch {
 /** One queued op. A missing `age_ms` means age unknown, and the server orders by arrival. */
 export type CommandOp =
   | {
-      /** Add to or remove from My List. Leaves the rating alone. */
+      /** Add to or remove from the saved list. Leaves the rating alone. */
       command: "list";
       age_ms?: number;
       op_id: string;
@@ -901,6 +919,16 @@ export type ImageRole = "poster" | "backdrop" | "logo" | "still" | "avatar" | (s
 /** Input a device has. */
 export type InputKind = "touch" | "pointer" | "keyboard" | "remote" | "gamepad" | "rotary" | (string & {});
 
+/** A language this server has text for, named in itself. */
+export interface Language {
+  code: string;
+  name: string;
+}
+
+export interface LanguageList {
+  languages: Language[];
+}
+
 /** Asks `core_open` for the offline layer. A host sets it as the `layer` key of the text it gives `core_open`, next to the `CoreConfig` keys. With no `layer` key the core runs alone, and the core itself never reads this key. */
 export interface LayerConfig {
   /** Names this boot. It changes when monotonic time restarts. */
@@ -1088,6 +1116,8 @@ export interface Profile {
   has_pin: boolean;
   id: string;
   kids: boolean;
+  /** A language code from `/v1/languages`, absent until one is chosen. */
+  language?: string;
   main: boolean;
   name: string;
 }
@@ -1135,6 +1165,7 @@ export interface ProfileTransfer {
 export interface ProfileUpdate {
   avatar?: string;
   kids?: boolean;
+  language?: string;
   name?: string;
 }
 

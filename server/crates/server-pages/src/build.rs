@@ -30,6 +30,7 @@ use crate::requests::RequestStore;
 use crate::search::{TitleIndex, load_aliases, search_keys};
 use crate::signals::Signals;
 use crate::tags::{item_badges, item_tags};
+use crate::words::Words;
 
 /// Seconds a screen stays good on a client.
 const SCREEN_TTL_S: u32 = 30;
@@ -109,6 +110,7 @@ type KeptRows = Arc<Vec<Row>>;
 pub struct Pages {
     key: CursorKey,
     images: Images,
+    words: Words,
     rows: Cache<String, KeptRows>,
     caps: Cache<String, usize>,
     set: Mutex<Option<Arc<SetFacts>>>,
@@ -162,6 +164,7 @@ impl Pages {
         Self {
             key,
             images,
+            words: Words::default(),
             rows: Cache::builder()
                 .max_capacity(ROWS_KEPT_BYTES)
                 .weigher(|_, rows: &KeptRows| weigh(rows))
@@ -173,6 +176,13 @@ impl Pages {
                 .build(),
             set: Mutex::new(None),
         }
+    }
+
+    /// These pages, with this brand's name in their words.
+    #[must_use]
+    pub fn branded(mut self, name: &str) -> Self {
+        self.words = Words::new(name);
+        self
     }
 
     fn facts(&self, data: &DataSet) -> Arc<SetFacts> {
@@ -520,7 +530,7 @@ impl Pages {
         SafeSection::new(
             shown.id.clone(),
             kind,
-            Some(row.title.clone()),
+            Some(self.words.row_title(row.meta.as_ref(), &row.title)),
             tiles,
             cursor,
         )
@@ -942,21 +952,26 @@ fn nav_item(id: &str, label: &str, screen: ScreenName, genre: Option<&str>) -> N
     }
 }
 
+/// A fixed menu entry. Its words are `nav.{id}` in the strings files.
+fn named_item(words: &Words, id: &str, screen: ScreenName) -> NavItem {
+    nav_item(id, &words.say(&format!("nav.{id}")), screen, None)
+}
+
 impl Pages {
     /// The menu for this tier. Kids get their own home and pages.
     #[must_use]
     pub fn nav(&self, data: &DataSet, tier: Tier) -> Nav {
         let kids = tier.is_kids();
         let mut items = if kids {
-            vec![nav_item("kids", "Home", ScreenName::Kids, None)]
+            vec![named_item(&self.words, "kids", ScreenName::Kids)]
         } else {
-            vec![nav_item("home", "Home", ScreenName::Home, None)]
+            vec![named_item(&self.words, "home", ScreenName::Home)]
         };
         items.extend([
-            nav_item("series", "Series", ScreenName::Series, None),
-            nav_item("films", "Films", ScreenName::Films, None),
-            nav_item("new", "New & Popular", ScreenName::New, None),
-            nav_item("my-list", "My List", ScreenName::MyList, None),
+            named_item(&self.words, "series", ScreenName::Series),
+            named_item(&self.words, "films", ScreenName::Films),
+            named_item(&self.words, "new", ScreenName::New),
+            named_item(&self.words, "my-list", ScreenName::MyList),
         ]);
         let composed = self.facts(data).requests.version >= 2;
         for page in crate::genre_pages::PAGES

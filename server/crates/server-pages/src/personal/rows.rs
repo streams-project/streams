@@ -226,7 +226,6 @@ impl<'a> PageContext<'a> {
         &self,
         least: usize,
         keys: &[u32],
-        title: &str,
         archetype: &str,
         key: &str,
         reason: &str,
@@ -237,7 +236,8 @@ impl<'a> PageContext<'a> {
             .filter(|i| self.personal_ok(i))
             .take(15)
             .collect();
-        let mut r = self.row_of_at_least(least, title, "personal", &items)?;
+        // The title is the key until the page fills in the words.
+        let mut r = self.row_of_at_least(least, key, "personal", &items)?;
         r.archetype = archetype.to_string();
         r.meta = meta(key, json!({}), Some(json!({ "kind": reason })));
         Some(r)
@@ -387,7 +387,6 @@ impl<'a> PageContext<'a> {
             if let Some(r) = self.list_row(
                 1,
                 &own_lists.recent,
-                "Continue Watching",
                 "continue",
                 "row.continue_watching",
                 "continue",
@@ -397,7 +396,6 @@ impl<'a> PageContext<'a> {
             if let Some(r) = self.list_row(
                 1,
                 &own_lists.saved,
-                "My List",
                 "list",
                 "row.my_list",
                 "saved",
@@ -556,7 +554,6 @@ impl<'a> PageContext<'a> {
             if let Some(r) = self.list_row(
                 3,
                 &sig.liked,
-                "Familiar Favourites",
                 "favourites",
                 "row.familiar_favourites",
                 "liked",

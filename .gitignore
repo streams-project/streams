@@ -16,3 +16,6 @@ dist/
 # Rendered films hold title art and stay out of the repository.
 /brand/*/media/
 __pycache__/
+
+# Profile pictures stay private until the owner clears them for the public repository.
+/brand/streams/avatars/

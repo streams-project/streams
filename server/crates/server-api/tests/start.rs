@@ -198,3 +198,15 @@ async fn h66_load_is_shed_with_retry_after_when_no_slot_is_free() {
     assert_eq!(answer.code(), "overloaded");
     assert!(answer.headers.contains_key("retry-after"));
 }
+
+#[tokio::test]
+async fn a_word_a_translation_lacks_comes_back_in_english() {
+    let strings = common::folder("fallback");
+    std::fs::write(strings.join("en.json"), r#"{"a":"one","b":"two"}"#).unwrap();
+    std::fs::write(strings.join("de.json"), r#"{"a":"eins"}"#).unwrap();
+    let path = strings.to_string_lossy().into_owned();
+    let server = harness(&[("STRINGS_DIR", path.as_str())]);
+    let answer = get("/v1/strings/de").on(&server.state).await;
+    assert_eq!(answer.body["texts"]["a"], "eins");
+    assert_eq!(answer.body["texts"]["b"], "two");
+}
