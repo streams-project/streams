@@ -1,6 +1,7 @@
 //! The door and the accounts: who is calling, on which device session, with which profile.
 
 pub mod auth;
+mod built_in;
 mod clock;
 mod door;
 mod error;
@@ -16,7 +17,8 @@ mod session;
 mod store;
 mod token;
 
-pub use auth::{AuthError, AuthService, HttpAuth, Identity, MemoryAuth};
+pub use auth::{AuthError, AuthService, Identity, MemoryAuth};
+pub use built_in::{BuiltInAuth, CODE_DIGITS, CodePost, MailPost};
 pub use clock::{Clock, ManualClock, SystemClock};
 pub use door::{Door, Member, ProfileScope, StepUpMethod};
 pub use error::DoorError;

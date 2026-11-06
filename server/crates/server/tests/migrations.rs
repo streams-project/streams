@@ -53,13 +53,16 @@ fn tables() -> BTreeMap<String, BTreeSet<String>> {
 fn fmg5_every_file_parses_and_the_numbers_only_rise() {
     let files = chain();
     assert!(files.len() >= 3);
-    let mut last = 0u32;
+    let mut last = None;
     for (name, sql) in &files {
         let (number, rest) = name.split_once('_').expect("number and name");
         let number: u32 = number.parse().expect("a number first");
-        assert!(number > last, "{name} does not follow {last}");
+        assert!(
+            last.is_none_or(|last| number > last),
+            "{name} does not follow {last:?}"
+        );
         assert!(rest.ends_with(".sql"));
-        last = number;
+        last = Some(number);
         assert!(!statements(sql).is_empty(), "{name} is empty");
     }
 }

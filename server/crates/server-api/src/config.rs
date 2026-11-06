@@ -43,14 +43,6 @@ pub const SETTINGS: &[(&str, &str)] = &[
         "Service token for finders. Without it playback is off.",
     ),
     (
-        "AUTH_ADDRESS",
-        "Address of the auth service. Without it sign in is off.",
-    ),
-    (
-        "AUTH_ADMIN_TOKEN",
-        "Service token for the auth service. Without it sign in is off.",
-    ),
-    (
         "SITE_ADDRESS",
         "Public address of this site, used in mail links and the device page. Without it device \
          sign in is off.",
@@ -128,8 +120,6 @@ pub struct Config {
     pub image_base: Option<String>,
     pub finder_urls: Vec<String>,
     pub finder_token: Option<String>,
-    pub auth_address: Option<String>,
-    pub auth_admin_token: Option<String>,
     pub site_address: Option<String>,
     pub mail_hook_secret: Option<String>,
     pub mail_address: Option<String>,
@@ -214,11 +204,6 @@ impl Config {
         if finder_urls.is_empty() || finder_token.is_none() {
             note("playback", "FINDER_URLS or FINDER_TOKEN is not set");
         }
-        let auth_address = value("AUTH_ADDRESS");
-        let auth_admin_token = value("AUTH_ADMIN_TOKEN");
-        if auth_address.is_none() || auth_admin_token.is_none() {
-            note("sign in", "AUTH_ADDRESS or AUTH_ADMIN_TOKEN is not set");
-        }
         let site_address = value("SITE_ADDRESS");
         if site_address.is_none() {
             note("device sign in", "SITE_ADDRESS is not set");
@@ -274,8 +259,6 @@ impl Config {
             image_base,
             finder_urls,
             finder_token,
-            auth_address,
-            auth_admin_token,
             site_address,
             mail_hook_secret,
             mail_address,

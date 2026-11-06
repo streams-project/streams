@@ -1,7 +1,6 @@
 -- Accounts, profiles, devices and sessions. This part of the chain holds no video words, so a
--- project that takes only accounts stops at file 0099. The auth service owns `auth.users` and
--- runs its own migrations first (deploy/auth-init). Rules that used to live in functions and
--- triggers moved to Rust (crate server-accounts); constraints stay here.
+-- project that takes only accounts stops at file 0099. File 0000 makes `auth.users`. Rules that
+-- used to live in functions and triggers moved to Rust (crate server-accounts); constraints stay here.
 
 create table account_details (
   user_id            uuid primary key references auth.users (id) on delete cascade,

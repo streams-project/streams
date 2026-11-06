@@ -1,0 +1,24 @@
+[package]
+name = "wired"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+# The parts running together for real: the core behind its real boundary, the server binary and the
+# finder binary as processes on this machine. Nothing here is a stand in.
+[lib]
+path = "src/lib.rs"
+
+[dev-dependencies]
+contract = { workspace = true }
+kit-core = { path = "../../platform/kit/core" }
+launcher = { path = "../../launcher" }
+reqwest = { workspace = true }
+async-trait = { workspace = true }
+bcrypt = { workspace = true }
+server-accounts = { workspace = true }
+sqlx = { workspace = true }
+serde_json = { version = "1", features = ["std"] }
+server-catalog = { workspace = true, features = ["sample"] }
+tokio = { workspace = true }

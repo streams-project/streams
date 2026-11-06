@@ -8,7 +8,7 @@ use std::sync::Arc;
 use anyhow::{Context, Result, anyhow, bail};
 use server_accounts::limits::DEFAULT_LIMITS;
 use server_accounts::mail::{HttpMail, MailSender};
-use server_accounts::{AccountStore, Door, HttpAuth, PgStore, SystemClock};
+use server_accounts::{AccountStore, BuiltInAuth, Door, MailPost, PgStore, SystemClock};
 use server_api::{AppState, Config};
 use server_catalog::{DataSlot, DataTrust};
 use server_library::{Library, LibraryStore, PgLibrary};
@@ -67,13 +67,18 @@ async fn open_accounts(config: &Config) -> Result<Option<(Door, Library)>> {
         .await
         .context("the database did not answer")?;
     let store: Arc<dyn AccountStore> = Arc::new(PgStore::new(pool.clone()));
-    let books: Arc<dyn LibraryStore> = Arc::new(PgLibrary::new(pool));
+    let books: Arc<dyn LibraryStore> = Arc::new(PgLibrary::new(pool.clone()));
     let clock = Arc::new(SystemClock);
-    let mut door = Door::new(store, clock.clone(), DEFAULT_LIMITS);
-    if let (Some(address), Some(token)) = (&config.auth_address, &config.auth_admin_token) {
-        let auth = HttpAuth::new(address, token).context("the auth client did not build")?;
-        door = door.with_auth(Arc::new(auth));
-    }
+    let site = config.site_address.clone().unwrap_or_default();
+    let post = MailPost {
+        mail: open_mail(config)?,
+        name: config.brand_name.clone(),
+        help_email: config.support_email.clone(),
+        help_url: config.help_address.clone().unwrap_or_else(|| site.clone()),
+        site_url: site,
+    };
+    let door = Door::new(store, clock.clone(), DEFAULT_LIMITS)
+        .with_auth(Arc::new(BuiltInAuth::new(pool, Arc::new(post))));
     Ok(Some((door, Library::new(books, clock))))
 }
 
