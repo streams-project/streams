@@ -339,6 +339,14 @@ impl Core {
         if self.session.state() == SessionState::Starting {
             return;
         }
+        // Facts that arrive later do not move a visitor off the sign in screen.
+        let signing_in = self
+            .route
+            .as_ref()
+            .is_some_and(|r| r.target == Target::SignIn);
+        if signing_in && !self.session.signed_in() {
+            return;
+        }
         let address = self.asked.clone().unwrap_or_else(|| "/".to_string());
         self.open_address(now, address, false, out);
     }
@@ -390,6 +398,10 @@ impl Core {
             self.nav_loaded = true;
             let request = Request::new(HttpMethod::Get, "/v1/nav", Purpose::Page).for_screen();
             self.send(now, request, out);
+        }
+        // Search has no page of its own: its results are read once the viewer has typed.
+        if name == ScreenName::Search {
+            return;
         }
         let Some(word) = screen_word(name) else {
             return;

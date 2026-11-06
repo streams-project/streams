@@ -302,6 +302,57 @@ fn c9_c103_after_sign_out_no_one_is_asked_who_is_watching() {
 }
 
 #[test]
+fn the_sign_in_address_holds_when_hello_arrives_after_it() {
+    let mut core = core();
+    let first = step(&mut core, 0, &json!([]));
+    let hello = effect_id(&first, "/v1/hello");
+    let kept = first["effects"][1]["id"].clone();
+    step(&mut core, 1, &json!([{"id": kept, "type": "secret_done"}]));
+    let out = step(
+        &mut core,
+        2,
+        &json!([{"type": "address", "address": "/sign-in"}]),
+    );
+    assert_eq!(out["view"]["route"]["target"], "sign_in", "{out}");
+    let out = step(
+        &mut core,
+        3,
+        &json!([{"id": hello, "type": "http_failed", "reason": "offline"}]),
+    );
+    assert_ne!(out["view"]["route"]["target"], "start", "{out}");
+}
+
+#[test]
+fn search_opens_with_no_page_to_read_so_it_never_lands_on_not_found() {
+    let (mut core, _) = member(3_600);
+    let out = step(
+        &mut core,
+        4,
+        &json!([{"id": "a1", "type": "action",
+                 "action": {"action": "enter_profile", "profile": "p1"}}]),
+    );
+    let enter = effect_id(&out, "/v1/profiles/p1/enter");
+    let entered = json!({"profile": profile("p1"), "home": "home"}).to_string();
+    step(
+        &mut core,
+        5,
+        &json!([{"id": enter, "type": "http_done", "status": 200, "body": entered}]),
+    );
+    let out = step(
+        &mut core,
+        6,
+        &json!([{"type": "address", "address": "/search"}]),
+    );
+    assert_eq!(out["view"]["route"]["screen"], "search", "{out}");
+    assert!(
+        !http_paths(&out)
+            .iter()
+            .any(|path| path.starts_with("/v1/screens/")),
+        "{out}"
+    );
+}
+
+#[test]
 fn p35_a_title_waiting_in_the_address_survives_the_profile_pick() {
     let (mut core, out) = member(3_600);
     assert_eq!(out["view"]["route"]["target"], "profiles");
