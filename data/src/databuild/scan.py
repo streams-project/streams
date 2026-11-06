@@ -1,61 +1,36 @@
 """Refuses what must never be in this repository or in a built data set.
 
-The refused words are kept as hashes, so this file does not hold them. A word is refused alone or as
-part of a compound name. The list covers third party capture names, the old project's names and
-owner values (H122 to H126, H133).
+A word is refused alone or as part of a compound name. The words themselves live in a private file
+named by a setting, so the repository does not hold them (H122 to H126, H133).
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from functools import lru_cache
-from importlib import resources
 from pathlib import Path
 
-REFUSED_WORDS = frozenset(
-    {
-        "0e20679f13df2dc6dd29b1510e24f1924abf700f37d490b7207a7eed0edeef2c",
-        "13ed070478ef62c3a7baa36c8d042a9d1cdc0fcbb2af93a795f2ad20ad6e9cb5",
-        "1aa9b98763075c03379267f738d9fd4ebe2d78346d843992f04915abad0c0a7c",
-        "246aea3c4d0fc25b4e23dc2a766578a2f0e5b6f73491caa2564f543db7df0682",
-        "2afd53183efc5c9cb6cf283cfd91eb481e6a7e566112af7dbe90cc019a56ad62",
-        "2f5a846ea9bf10e33f2edc8c19723d18443590f12106007f0643051121f17677",
-        "34e79ad648889648dfafc878301c00e824d03b09d3689b8c81772a3360d34285",
-        "49db07b32f5c290ed74ae92002a973e3ada5e0c0635a1bbf0b28a9080d3d2dd9",
-        "4bfb4dcad3f443656e331d2503f22fc16ad4991f89c6064b2a8bccb655039ded",
-        "556209d93237fc6f69cf5be6e7ea5bb87d9b48be5a13bd4de33ee63fa449e399",
-        "62a991320f4f22741d9ad7d3590f82a9d2de5c08274419107b8f814724ccf66e",
-        "65bcd7485f6c5682d5e526ee364f45531ece10f5d4aef5091620151e781b540e",
-        "6a5473f459ecb4e34a75a1b726a45ea97edf0f449ec58d7c9da52c1254f42390",
-        "80011e4e5e22faeacaaf9e0f64927880c73c3fd7e8b14b708b44052dfd2019a1",
-        "845065dff35a314a21d484e2729c183ac5ec6d896a7875f61c46f3958b0ea8c4",
-        "8466f0c76f7eace3e6c04bed025ed01c3941e6d37792e2f5b56bf517ed61ef8a",
-        "847f1ace0a9087eb735877b03a712c76582ebee55de7f3d149eb163f845061d5",
-        "84c22cc47f49c246ba161045aab5947df27e0bc410f9c897b898ca435f712b0e",
-        "9099fdafbeb4b2ed7edf02627273078da891f40b83607f1ddb7be0981c83ed3d",
-        "90c2760f8c235e655536925520bf87a93fb0ae4325d39e7a25430150d05f910c",
-        "9711bcc773b67df9d02c1adc26240b1332048ab8ec17a23732ace9e0c030e0bd",
-        "c3e9c1f54501cec82a66ecbbcc590c7c5ffb8139a0edb411cf149b8c46c57e15",
-        "c5539358758140be6c2eca8570dc96eb1bb763e0f5baca3b9e31bb900ce8106a",
-        "c573f42e8a1402d778c665ae8f549324490376e2e8bacf1e1866f4eaa5de6780",
-        "c8cceb018e39f134b5417033ed88799cf3337aafafa54271bbe6463d0479ab24",
-        "d7d614b33fb2c8c847176fdbafecee018d4061237d20f718d188ed222d9339e3",
-        "dc58d38116d58137c3e7b5fcfe086ad23da2be28a588f333b0ecb0fb127ee9bd",
-        "f64fbb06d3936d0344b52a3411c0e6b4bbd820691339a3966089df8fee17a75b",
-        "f78c32f7e929f73506901f1052de6f4b1f0e1b6ee05a2f7389fdca7d8e19d494",
-    }
-)
+# A private file names what is refused: hashes of words and of row names, and a tag prefix. A
+# copy of this project needs none, and then those checks have nothing to refuse.
+REFUSED_FILE = "DATABUILD_REFUSED_FILE"
+
+
+@lru_cache
+def _private() -> dict:
+    path = os.environ.get(REFUSED_FILE)
+    return json.loads(Path(path).read_text("utf-8")) if path else {}
+
 
 # Fields only a capture could fill. A built file holding one came from a refused input.
 CAPTURE_FIELDS = frozenset({"depth", "imported"})
 
 _WORD = re.compile(r"[a-z0-9]+(?:[_.-][a-z0-9]+)*")
 _PART = re.compile(r"[_.-]")
-_TAG_PREFIX = re.compile(r"(?<![a-z0-9])nf:[a-z]")
 _ADDRESS = re.compile(r"\bhttps?://([a-z0-9.-]+)", re.IGNORECASE)
 _SECRETS = (
     re.compile(r"\beyJ[A-Za-z0-9_-]{20,}"),
@@ -90,20 +65,24 @@ def _hash(word: str) -> str:
 
 
 def _refused(word: str) -> bool:
-    if _hash(word) in REFUSED_WORDS:
+    words = _private().get("words", ())
+    if _hash(word) in words:
         return True
-    return any(_hash(part) in REFUSED_WORDS for part in _PART.split(word))
+    return any(_hash(part) in words for part in _PART.split(word))
 
 
-@lru_cache
+def tag_prefix() -> str:
+    """The prefix a capture puts on its tags, or nothing when none is set."""
+    return _private().get("tag_prefix", "")
+
+
 def _capture_names() -> frozenset[str]:
     """Hashes of row names read from third party captures.
 
     A copied name holds no refused word, so a word scan passes it. A plain word that the project's
     own vocabulary also uses is not in this list.
     """
-    text = resources.files("databuild").joinpath("capture_names.json").read_text("utf-8")
-    return frozenset(json.loads(text)["sha256"])
+    return frozenset(_private().get("names", ()))
 
 
 def _strings(value: object) -> Iterator[str]:
@@ -134,7 +113,8 @@ def scan_text(text: str, path: str = "") -> Iterator[Finding]:
             if _refused(word):
                 yield Finding(path, number, "refused word")
                 break
-        if _TAG_PREFIX.search(low):
+        prefix = tag_prefix()
+        if prefix and re.search(rf"(?<![a-z0-9]){re.escape(prefix)}[a-z]", low):
             yield Finding(path, number, "capture tag prefix")
         for host in _ADDRESS.findall(line):
             name = host.lower()

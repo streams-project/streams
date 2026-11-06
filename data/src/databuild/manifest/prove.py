@@ -11,7 +11,7 @@ import sqlite3
 from pathlib import Path
 
 from ..errors import StageFailed
-from ..scan import scan_json_fields, scan_name, scan_text
+from ..scan import scan_json_fields, scan_name, scan_text, tag_prefix
 
 OWN_WORDS = (
     "rows.json",
@@ -22,7 +22,6 @@ OWN_WORDS = (
     "search_aliases.json",
     "kids_channels.json",
 )
-TAG_LIKE = '%"nf:%'
 
 
 def _column_names(db: sqlite3.Connection, table: str) -> list[str]:
@@ -53,9 +52,13 @@ def prove_clean(folder: Path) -> None:
         try:
             if any(scan_name(column) for column in _column_names(db, "titles")):
                 raise StageFailed("manifest: the catalogue has a column from a refused input")
-            tagged = db.execute(
-                "SELECT count(*) FROM titles WHERE keywords LIKE ?", (TAG_LIKE,)
-            ).fetchone()[0]
+            prefix = tag_prefix()
+            tagged = (
+                prefix
+                and db.execute(
+                    "SELECT count(*) FROM titles WHERE keywords LIKE ?", (f'%"{prefix}%',)
+                ).fetchone()[0]
+            )
         finally:
             db.close()
         if tagged:

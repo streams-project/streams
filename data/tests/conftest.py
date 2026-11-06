@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import os
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from datetime import UTC, date, datetime
@@ -11,6 +12,8 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+
+os.environ["DATABUILD_REFUSED_FILE"] = str(Path(__file__).parent / "fixtures" / "refused.json")
 
 from databuild.context import Context
 from databuild.net import NetError, Reply, Request

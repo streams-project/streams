@@ -119,7 +119,7 @@ def test_the_example_file_lists_every_setting_with_no_address_and_no_key():
 def test_h133_a_vocabulary_file_with_a_name_from_a_capture_is_refused(tmp_path):
     folder = tmp_path / "vocabulary"
     folder.mkdir()
-    (folder / "topics.json").write_text(json.dumps({"x": {"name": "Love " + "Hurts"}}))
+    (folder / "topics.json").write_text(json.dumps({"x": {"name": "Borrowed Row Name"}}))
     assert [f.what for f in scan_paths([tmp_path])] == ["name from a capture"]
     assert not list(scan_own_words({"x": {"name": "Quiet Harbour Stories"}}))
 

@@ -360,7 +360,7 @@ def test_h133_a_field_named_after_a_capture_stops_the_manifest(context):
     ctx = built(context())
     path = ctx.out / "rows.json"
     document = json.loads(path.read_text())
-    document["requests"][0]["n" + "etflix_name"] = "x"
+    document["requests"][0]["capturesite_name"] = "x"
     path.write_text(json.dumps(document))
     with pytest.raises(StageFailed, match="capture field"):
         write_manifest(ctx)
@@ -370,7 +370,7 @@ def test_h133_a_refused_word_in_own_words_stops_the_manifest(context):
     ctx = built(context())
     path = ctx.out / "rows.json"
     document = json.loads(path.read_text())
-    document["requests"][0]["name"] = "N" + "etflix Picks"
+    document["requests"][0]["name"] = "Capturesite Picks"
     path.write_text(json.dumps(document))
     with pytest.raises(StageFailed, match="refused word"):
         write_manifest(ctx)
@@ -378,7 +378,7 @@ def test_h133_a_refused_word_in_own_words_stops_the_manifest(context):
 
 def test_h133_a_refused_file_name_stops_the_manifest(context):
     ctx = built(context())
-    (ctx.out / ("n" + "etflix_tags.json")).write_text("{}")
+    (ctx.out / ("capturesite_tags.json")).write_text("{}")
     with pytest.raises(StageFailed, match="refused file"):
         write_manifest(ctx)
 
@@ -386,7 +386,7 @@ def test_h133_a_refused_file_name_stops_the_manifest(context):
 def test_h133_capture_tags_in_the_catalogue_stop_the_manifest(context):
     ctx = built(context())
     db = sqlite3.connect(ctx.out / "catalog.db")
-    db.execute("UPDATE titles SET keywords = ? WHERE tmdb_id = 1", ('["' + "nf:" + 'heist"]',))
+    db.execute("UPDATE titles SET keywords = ? WHERE tmdb_id = 1", ('["' + "cs:" + 'heist"]',))
     db.commit()
     db.close()
     with pytest.raises(StageFailed, match="capture tags"):
@@ -396,7 +396,7 @@ def test_h133_capture_tags_in_the_catalogue_stop_the_manifest(context):
 def test_a_column_from_a_refused_input_stops_the_manifest(context):
     ctx = built(context())
     db = sqlite3.connect(ctx.out / "catalog.db")
-    db.execute("ALTER TABLE titles ADD COLUMN " + "n" + "etflix_listed INTEGER")
+    db.execute("ALTER TABLE titles ADD COLUMN capturesite_listed INTEGER")
     db.commit()
     db.close()
     with pytest.raises(StageFailed, match="refused input"):
