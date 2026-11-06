@@ -352,9 +352,10 @@ class Stack:
             if p[1] - l["reach"] > VH:
                 continue
             poses = [(p[0], p[1], 1.0, 1.0, p[2])]
-            if math.hypot(p[0] - b[0], p[1] - b[1]) > SMEAR_MIN:
+            move = math.hypot(p[0] - b[0], p[1] - b[1])
+            if move > SMEAR_MIN:
                 poses = [(b[0] + (p[0] - b[0]) * u, b[1] + (p[1] - b[1]) * u, 1.0, 1.0, b[2] + (p[2] - b[2]) * u)
-                         for u in (0, 1 / 3, 2 / 3, 1)]
+                         for u in np.linspace(0, 1, min(SMEAR_MOST, 2 + int(move / SMEAR_MIN)))]
             lay(out, l["pic"], poses)
 
     def draw(self, out, n):
@@ -649,10 +650,11 @@ class Ending:
             self.laptop(out, n)
             self.tablet(out, n)
             self.phones(out, n)
-            self.browser(out, n)
             arrive = rise((n - (N0 + 6)) / 24)
             leave = ease((n - (RETURN - 14)) / 14)
             lay(out, self.head, [(CX, HEAD_Y + 22 * (1 - arrive) - 16 * leave, 1.0, 1.0, 0.0)], alpha=arrive * (1 - leave))
+        # The browser leaves after the bar line, under the television coming back.
+        self.browser(out, n)
         if BACK <= n < REL + 22:
             self.comes_back(out, n)
         if BACK <= n < REL + RETREAT_FRAMES:

@@ -28,14 +28,16 @@ class Item:
         self.card = card
         self.__dict__.update(kw)
 
-def sweep(out, items, state, n):
-    """Draw cards far to near. state(item, n) gives x, y, z, degrees, alpha, light, sigma, squash x, squash y."""
+def sweep(out, items, state, n, fixed=False):
+    """Draw cards far to near. state(item, n) gives x, y, z, degrees, alpha, light, sigma, squash x, squash y.
+    fixed keeps the given order, for cards that overlap while each runs its own clock."""
     drawn = []
     for item in items:
         pose = state(item, n)
         if pose is not None:
             drawn.append((pose[2], item, pose))
-    drawn.sort(key=lambda d: -d[0])
+    if not fixed:
+        drawn.sort(key=lambda d: -d[0])
     for _, item, pose in drawn:
         samples = [pose]
         before = state(item, n - SHUTTER)
@@ -93,7 +95,7 @@ class Head:
         elif style == "slam":
             t = (n - self.start - i * 3) / 11
             s = 1.8 - .8 * rise(t); sx = sy = s; alpha = ease(t * 2.5)
-            x -= 1500 * fall(go)
+            x -= 3200 * fall(go)
         elif style == "soft":
             t = (n - self.start - i * 4) / 30
             alpha = ease(t); sigma = 10 * (1 - ease(t)); y += 12 * (1 - ease(t))
@@ -259,6 +261,7 @@ class Depth:
                 i = len(self.items)
                 self.items.append(Item(Card(art.tile(art.next(pool)), 464, 261), x=x + (24 if r % 2 else -24), y=y, near=clamp(d),
                                        seed=i * 3 + 1, deg=jitter(i, 4)))
+        self.items.sort(key=lambda c: -c.near)
 
     def pose(self, c, n):
         wait = 22 * c.near + jitter(c.seed, 3)
@@ -271,7 +274,7 @@ class Depth:
                 1 - .2 * (1 - c.near), 16 * (1 - rise(t)) ** 1.5 + 11 * ease(l), 1.0, 1.0)
 
     def draw(self, out, n):
-        sweep(out, self.items, self.pose, n)
+        sweep(out, self.items, self.pose, n, fixed=True)
 
 class Action:
     """Change 7: one hero card and a stack. They slam in, the hit shakes the rest, and they whip away."""
@@ -463,7 +466,7 @@ class Scenes:
             (838, 926, Depth(art, "wide2" if "wide2" in art.pools else "wide", 838, 896)),
             (904, 990, Action(art, hero_action, 904, 966)),
             (966, 1064, Posters(art, 966, 1036)),
-            (1042, 1130, Scatter(art, 1042, 1106)),
+            (1042, 1134, Scatter(art, 1042, 1106)),
             (1112, 1200, Slits(art, 1112, 1176)),
             (1180, 1272, Tumble(art, 1180, 1246)),
             (1250, 1345, World(art, self.keep_image, 1250, 1316, 1345)),
