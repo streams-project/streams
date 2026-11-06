@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
-"""The whole showreel, frame 590 to the last, rendered in one pass and encoded once.
-
-The headlines come from render.py and the ending from ending.py. Both draw raw frames here, so the
-film has one encode, and the same frames can take any of the music tracks.
-"""
+"""The whole showreel, frame 590 to the last, rendered in one pass and encoded once, at 60 frames a
+second. scenes.py draws the headlines and ending.py the end. The same frames can take any music."""
 import argparse, json, multiprocessing as mp, subprocess
 from pathlib import Path
 import cv2, numpy as np
-from ending import N_END, STEP, Ending, load
-from render import F0, VH, VW, Film
+from ending import N0, N_END, STEP, Ending, load
+from render import F0
+from scenes import Scenes
+from stage import VH, VW
 
-HEADLINES_LAST = 1345  # the last headline's blur runs a few frames past where the old cut ended
 FPS = 60
 state = {}
 
 def draw(n):
-    return (state["film"].frame(n) if n < HEADLINES_LAST else state["ending"].frame(n)).tobytes()
+    return (state["scenes"].frame(n) if n < N0 else state["ending"].frame(n)).tobytes()
 
 def main():
     ap = argparse.ArgumentParser()
@@ -26,13 +24,15 @@ def main():
     ap.add_argument("--brand", required=True)
     ap.add_argument("--ffmpeg", required=True)
     ap.add_argument("--out", required=True)
-    ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--workers", type=int, default=9)
     ap.add_argument("--stills", default="")
     a = ap.parse_args()
     cv2.setNumThreads(0)
     name = json.loads(Path(a.brand).read_text())["name"]
-    state["film"] = Film(a.art, a.font, a.logo)
-    state["ending"] = Ending(a.font, load(a.logo), load(a.mark), name, state["film"].genre)
+    logo = load(a.logo)
+    scenes = Scenes(a.art, a.font, logo)
+    state["scenes"] = scenes
+    state["ending"] = Ending(a.font, logo, load(a.mark), name, scenes.art, scenes.keep_image)
     if a.stills:
         for n in (float(x) for x in a.stills.split(",")):
             frame = np.frombuffer(draw(n), np.uint8).reshape(VH, VW, 3)
