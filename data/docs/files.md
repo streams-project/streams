@@ -18,6 +18,7 @@ the manifest stage refuses any file this table does not list.
 | kids_taxonomy_vectors | `taxonomy_kids.bin` | yes | name | vocabulary/kids.json, the embedding model | Yes, from this repository alone | No set. The stage fails. |
 | kids_taxonomy_entries | `taxonomy_kids.json` | yes | name | vocabulary/kids.json | Yes, from this repository alone | No set. The stage fails. |
 | search_aliases | `search_aliases.json` | yes | export | vocabulary/search_aliases.json | Yes, from this repository alone | No set. The stage fails. |
+| kids_channels | `kids_channels.json` | yes | export | vocabulary/kids_channels.json | Yes, from this repository alone | No set. The stage fails. A set that names no such file leaves the channel part of the children's title rule off, and the server says so. |
 | removed_rows | `removed_rows.json` | yes | export | export.removed_rows, an operator list | Yes, from this repository alone | An empty list. |
 | title_profiles | `profiles.jsonl` | no | name | titles.db, a text model | Yes, with a text model of their own | No written profiles. Age rules use certificates, and an unrated title is refused below 18. |
 | categories | `categories.json` | no | name | vocabulary/categories.json, vectors, a text model | Yes, with a text model of their own | Category pages fall back to their keyword rules. |

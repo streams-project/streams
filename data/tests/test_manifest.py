@@ -16,7 +16,7 @@ import pytest
 from databuild.embed.run import embed
 from databuild.errors import StageFailed
 from databuild.export.files import BY_PATH, BY_ROLE, FILES, table
-from databuild.export.run import export
+from databuild.export.run import export, kids_channel_names
 from databuild.group.run import group
 from databuild.manifest.age import check_age
 from databuild.manifest.schema import MANIFEST_SCHEMA, SIGNATURE_SCHEMA, check, load_schema
@@ -28,12 +28,11 @@ from databuild.settings import Age, Contract, Embed, Group, Secret, Sign
 
 from .conftest import NOW
 from .fixtures import make_titles
+from .siblings import within
 
 DIM = 64
-REPOS = Path(__file__).resolve().parents[2]
-CONTRACT_SCHEMAS = REPOS / "platform" / "contract" / "generated" / "schemas"
-SERVER_MANIFEST = REPOS / "server" / "crates" / "server-catalog" / "src" / "manifest.rs"
 DOCS = Path(__file__).resolve().parents[1] / "docs" / "files.md"
+REQUEST = Path(__file__).resolve().parents[1] / "docs" / "contract-request.md"
 
 
 def built(ctx, count=120):
@@ -510,28 +509,73 @@ def test_a_named_schema_folder_is_used_and_a_missing_one_is_refused(tmp_path, co
         write_manifest(ctx)
 
 
-def test_the_contract_holds_this_schema_or_none_yet():
-    """The shape lives in the contract once it is there, so the two copies can never differ."""
-    if not CONTRACT_SCHEMAS.is_dir():
-        pytest.skip("the platform repository is not next to this one")
-    path = CONTRACT_SCHEMAS / MANIFEST_SCHEMA
+def test_the_contract_holds_this_schema_or_the_request_names_it():
+    """The shape lives in the contract once it is there, so the two copies can never differ.
+
+    Until then the written request names it, so the second copy here is never silent.
+    """
+    schemas = within("platform", "contract", "generated", "schemas")
+    path = schemas / MANIFEST_SCHEMA
     if path.exists():
         contract = json.loads(path.read_text())
         assert set(load_schema(MANIFEST_SCHEMA)["required"]) <= set(contract["required"])
+    else:
+        assert MANIFEST_SCHEMA in REQUEST.read_text()
 
 
 def test_every_field_and_role_the_server_reads_is_written_here(signed):
-    if not SERVER_MANIFEST.is_file():
-        pytest.skip("the server repository is not next to this one")
-    text = SERVER_MANIFEST.read_text()
+    manifest = within("server", "crates", "server-catalog", "src", "manifest.rs")
+    text = manifest.read_text()
     roles = re.findall(r'pub const [A-Z_]+: &str = "([a-z_]+)";', text)
     assert roles
-    assert set(roles) <= set(BY_ROLE)
+    assert set(roles) <= set(BY_ROLE), "the server reads a file this repository does not write"
+    required = {spec.role for spec in FILES if spec.required}
+    assert required <= set(roles), "this repository requires a file the server never reads"
     body = text[text.index("pub struct DatasetManifest") :]
     fields = re.findall(r"pub ([a-z_]+):", body[: body.index("}")])
     assert set(fields) <= set(manifest_of(signed))
     assert 'self.quantisation != "f16"' in text
     assert re.search(r"SCHEMA_VERSION: u32 = 1;", text)
+
+
+def test_the_children_channel_file_is_read_in_the_shape_this_repository_writes_it(signed):
+    """A plain JSON array of names, under the role the server's loader asks the manifest for."""
+    written = json.loads((signed.out / BY_ROLE["kids_channels"].path).read_text())
+    assert isinstance(written, list) and all(isinstance(name, str) for name in written)
+    assert written == kids_channel_names()
+    channels = within("server", "crates", "server-catalog", "src", "channels.rs").read_text()
+    assert "from_str::<Vec<String>>" in channels
+    loader = within("server", "crates", "server-catalog", "src", "dataset.rs").read_text()
+    assert "role::KIDS_CHANNELS" in loader
+    role = BY_ROLE["kids_channels"].role
+    manifest = within("server", "crates", "server-catalog", "src", "manifest.rs").read_text()
+    assert f'KIDS_CHANNELS: &str = "{role}";' in manifest
+    assert manifest_of(signed)["files"][role]["path"] == BY_ROLE["kids_channels"].path
+
+
+def test_the_server_holds_no_copy_of_the_children_channel_list():
+    """The names are facts about broadcasters, so they belong in a set. A second copy compiled into
+    the binary is the drift this check exists to stop: it is what the first code review found.
+
+    The one rule allowed to name a channel in code is the after-school cartoon clause, a different
+    rule that names three of these channels inline. A longer list in that file still fails here,
+    and moving those three names into a vocabulary of their own is an open item.
+    """
+    names = {name.lower() for name in kids_channel_names()}
+    assert len(names) >= 10
+    allowed = {
+        "crates/server-pages/src/genre_spec.rs": {"cartoon network", "boomerang", "disney xd"},
+    }
+    literal = re.compile(r'"((?:[^"\\\n]|\\.)*)"')
+    root = within("server", "crates").parent
+    found = {}
+    for path in sorted(root.glob("crates/*/**/*.rs")):
+        shown = path.relative_to(root).as_posix()
+        held = {m.lower() for m in literal.findall(path.read_text(encoding="utf-8"))} & names
+        extra = sorted(held - allowed.get(shown, set()))
+        if extra:
+            found[shown] = extra
+    assert found == {}
 
 
 def test_h132_the_table_lists_each_file_once_and_docs_match_it():

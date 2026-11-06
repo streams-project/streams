@@ -14,7 +14,7 @@ from databuild.embed.run import embed, read_master
 from databuild.errors import StageFailed
 from databuild.export.catalog import APPLICATION_ID, SCHEMA_VERSION
 from databuild.export.files import BY_ROLE, EXPORT_RECORD, FILES
-from databuild.export.run import export
+from databuild.export.run import export, kids_channel_names
 from databuild.export.vectors import Member, make_seeds, read_seeds, seed_bytes
 from databuild.group.run import group
 from databuild.keys import TV_BIT, unpack
@@ -257,6 +257,32 @@ def test_a_bad_removed_rows_file_stops_the_export(context, tmp_path, text):
     ctx.settings = replace(ctx.settings, export=ExportSettings(removed_rows=str(listed)))
     with pytest.raises(StageFailed, match="removed rows"):
         export(ctx)
+
+
+def test_the_children_channel_names_reach_the_set_as_a_plain_list_of_names(context):
+    """The one home of the list is the vocabulary, and the set carries it as the server reads it."""
+    ctx = built(context())
+    export(ctx)
+    written = json.loads((ctx.out / BY_ROLE["kids_channels"].path).read_text())
+    assert written == kids_channel_names()
+    assert len(written) >= 10
+    assert all(isinstance(name, str) and name.strip() == name and name for name in written)
+    assert any("children's channels" in line for line in ctx.said)
+
+
+@pytest.mark.parametrize(
+    "held",
+    [
+        {"channels": []},
+        {"channels": ["A Kids Channel", " a kids channel "]},
+        {"channels": ["A Kids Channel", ""]},
+        {"channels": ["A Kids Channel", 7]},
+    ],
+)
+def test_a_children_channel_vocabulary_that_is_not_unique_names_stops_the_export(monkeypatch, held):
+    monkeypatch.setattr("databuild.export.run.load", lambda _name: held)
+    with pytest.raises(StageFailed, match="kids channel"):
+        kids_channel_names()
 
 
 def test_h132_a_private_input_passes_through_only_when_named(context, tmp_path):

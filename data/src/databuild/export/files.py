@@ -149,6 +149,16 @@ FILES: tuple[FileSpec, ...] = (
         "No set. The stage fails.",
     ),
     FileSpec(
+        "kids_channels",
+        "kids_channels.json",
+        True,
+        "export",
+        "vocabulary/kids_channels.json",
+        ANYONE,
+        "No set. The stage fails. A set that names no such file leaves the channel part of the "
+        "children's title rule off, and the server says so.",
+    ),
+    FileSpec(
         "removed_rows",
         "removed_rows.json",
         True,

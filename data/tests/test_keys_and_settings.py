@@ -13,7 +13,9 @@ from databuild.keys import TV_BIT, item_key, parse_title_key, title_key, unpack
 from databuild.net import NetError, Request, UrlTransport
 from databuild.scan import scan_own_words, scan_paths
 
-CONTRACT = Path(__file__).resolve().parents[2] / "platform" / "contract"
+from .siblings import within
+
+FIXTURES = ("contract", "fixtures", "2026-11-05", "refused")
 
 
 def test_movie_keeps_its_id_and_a_series_sets_the_top_bit():
@@ -34,9 +36,7 @@ def test_keys_round_trip():
 
 
 def test_every_refused_title_key_in_the_contract_is_refused_here():
-    folder = CONTRACT / "fixtures" / "2026-11-05" / "refused"
-    if not folder.is_dir():
-        pytest.skip("the platform repository is not next to this one")
+    folder = within("platform", *FIXTURES)
     files = sorted(folder.glob("TitleKey.*.json"))
     assert files
     for path in files:

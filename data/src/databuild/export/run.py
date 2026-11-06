@@ -68,6 +68,21 @@ def clear_earlier(ctx: Context) -> None:
             (ctx.out / spec.path).unlink(missing_ok=True)
 
 
+def kids_channel_names() -> list[str]:
+    """The children's channel names, from this repository's own vocabulary, in written order.
+
+    The server holds no channel name, so this vocabulary is the one home of the list and the
+    exported file is a plain JSON array of names, which is what the server's loader reads.
+    """
+    held = load("kids_channels")["channels"]
+    if not held or not all(isinstance(name, str) and name.strip() for name in held):
+        raise StageFailed("export: the kids channel vocabulary must be a list of names")
+    folded = [name.strip().lower() for name in held]
+    if len(set(folded)) != len(folded):
+        raise StageFailed("export: the kids channel vocabulary names a channel twice")
+    return [name.strip() for name in held]
+
+
 def read_removed(ctx: Context) -> list[str]:
     path = ctx.settings.export.removed_rows
     if not path:
@@ -208,6 +223,9 @@ def export(ctx: Context) -> None:
 
     copy_named(ctx)
     put(ctx.out / "search_aliases.json", json.dumps(load("search_aliases")).encode())
+    channels = kids_channel_names()
+    put(ctx.out / BY_ROLE["kids_channels"].path, (json.dumps(channels, indent=1) + "\n").encode())
+    ctx.say(f"export: {len(channels)} children's channels")
     put(ctx.out / "removed_rows.json", (json.dumps(removed, indent=1) + "\n").encode())
     copy_operator_files(ctx)
     second = write_open_set(ctx, shown)

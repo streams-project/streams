@@ -20,6 +20,7 @@ OWN_WORDS = (
     "taxonomy_kids.json",
     "topics_meta.json",
     "search_aliases.json",
+    "kids_channels.json",
 )
 TAG_LIKE = '%"nf:%'
 
