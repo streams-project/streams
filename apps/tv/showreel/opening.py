@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The Streams opening, in two separate parts with loading between them.
+"""The opening, in two separate parts with loading between them.
 
 The play mark is the logo. The text is only text set beside it, the way YouTube works, so the text
 always comes out of the mark.
@@ -9,7 +9,7 @@ Loading: mark and text rest with the loading circle while the app does its work.
 Stage 2, the secondary splash: starts when loading ends. The text goes back and the mark opens the landing.
 
 Directions:
-  A  the ribbon unfolds from behind the arrow, the text slides out. Streams leave the arrow where it sits.
+  A  the ribbon unfolds from behind the arrow, the text slides out. Lines leave the arrow where it sits.
   B  nothing slides. The mark pours into place where it stays, the letters ripple out of it, and in
      stage two the letters stretch into the streams.
   C  a line pulls back into the arrow, the text slides out. The film is seen through the growing arrow.
@@ -116,7 +116,7 @@ def ring(out, t, alpha):
     out[y0:y0 + n, x0:x0 + n] = out[y0:y0 + n, x0:x0 + n] * (1 - a) + np.array([255, 107, 47], np.float32) * a
     return out
 
-class Streams:
+class Lines:
     """Bands that open out of the arrow's nose, fill the picture and run off to the right."""
     PAL = [(255, 107, 47), (242, 63, 123), (224, 56, 67), (189, 75, 29), (255, 160, 110), (190, 163, 247), (255, 255, 255)]
     WEIGHT = [.32, .3, .14, .12, .06, .04, .02]
@@ -213,7 +213,7 @@ class Poured:
         self.ty = np.linspace(-30, VH + 30, len(pick)) + r.uniform(-9, 9, len(pick))
         r.shuffle(self.ty)
         self.th = r.choice([4, 7, 11, 18, 28, 42, 62], len(pick), p=[.2, .2, .2, .16, .12, .08, .04]).astype(float)
-        self.col = r.choice(len(Streams.PAL), len(pick), p=[.34, .3, .14, .12, .06, .03, .01])
+        self.col = r.choice(len(Lines.PAL), len(pick), p=[.34, .3, .14, .12, .06, .03, .01])
         self.flow = r.uniform(0, VW + 900, (len(pick), 3))
         self.lag = r.uniform(0, .34, len(pick))
         self.leave = r.uniform(0, .3, len(pick))
@@ -283,7 +283,7 @@ class Poured:
             q = np.clip((xs - tail) / tp, 0, 1) * np.clip((head - xs) / tp, 0, 1) ** .6
             wd = th * np.sqrt(q)
             pts = np.vstack([np.stack([xs, y0 - wd / 2], 1), np.stack([xs[::-1], (y0 + wd / 2)[::-1]], 1)])
-            col = Streams.PAL[self.col[i]]
+            col = Lines.PAL[self.col[i]]
             cv2.fillPoly(layer, [np.int32(pts * 16)], col, cv2.LINE_AA, shift=4)
             # Light keeps moving along each stream, so the full picture still flows.
             hi = tuple(int(c + (255 - c) * .62) for c in col)
@@ -343,7 +343,7 @@ class Film:
         self.total = self.t_film + FILM_SECONDS
         nose = (self.a.mark_x + self.a.mw * .46, self.cy + 3)
         if kind == "A":
-            self.streams = Streams(False, nose)
+            self.streams = Lines(False, nose)
         if kind == "B":
             self.pour = Poured(art)
 

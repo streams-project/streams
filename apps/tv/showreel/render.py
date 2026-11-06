@@ -492,4 +492,5 @@ def main():
     p.wait()
     print("wrote", a.out)
 
-main()
+if __name__ == "__main__":
+    main()
