@@ -100,6 +100,13 @@ def blurred(pic, sigma):
     pic = cv2.copyMakeBorder(pic, m, m, m, m, cv2.BORDER_CONSTANT, value=0)
     return cv2.GaussianBlur(pic, (0, 0), sigma), shrink
 
+def soft_shadow(pic, pad=48, sigma=16):
+    """The picture's shape as a soft shadow, padded first so the blur is never cut off into a rectangle."""
+    soft = np.zeros_like(pic)
+    soft[..., 3] = pic[..., 3]
+    soft = cv2.copyMakeBorder(soft, pad, pad, pad, pad, cv2.BORDER_CONSTANT, value=0)
+    return cv2.GaussianBlur(soft, (0, 0), sigma)
+
 def lay(canvas, pic, poses, alpha=1.0, light=1.0, sigma=0.0):
     """Lay a premultiplied BGRA picture at each pose, averaged, which is motion blur when they differ.
     A pose is (x, y, sx, sy, degrees), with x and y the centre on screen."""

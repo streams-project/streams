@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 """The headlines of the showreel, each topic with its own layout and its own way of moving.
 
-Frame numbers are the film's, and may be fractions. The change of topic stays on the bar lines of
-the music, 70 frames apart from frame 896. Every card has its own clock, depth, focus and shadow.
+Frame numbers are the film's, and may be fractions. The wall and the opening logo read the film's
+own frame. Everything after them reads that frame minus OPEN, the one bar added for the logo, so a
+change of topic stays on the bar lines of the music, 70 frames apart from frame 896 on that clock.
+Every card has its own clock, depth, focus and shadow.
 """
 import math
 from pathlib import Path
 import cv2, numpy as np
 from render import Art, backdrop, foot, smooth, wall_light, wall_tiles
 from stage import (CX, CY, VH, VW, Card, bounce, clamp, cover, ease, fall, glow, lay, lay_card, lockup, project,
-                   rise, rounded, split_lockup, spring, word)
+                   rise, rounded, soft_shadow, split_lockup, spring, word)
 
 SHUTTER = .38  # film frames a fast card smears across
+OPEN = 70  # frames added so the opening logo can stand
+LOGO_IN, LOGO_LEAVE, LOGO_OUT = 636, 728, 738
+LOGO_SCALE, LOGO_PUSH = 1.32, .03
 
 def jitter(seed, a=1.0):
     """A fixed small number for this seed, so a card always keeps its own timing."""
@@ -56,9 +61,7 @@ class Head:
             width = sum(p.shape[1] for p in pics) + gap * (len(pics) - 1)
             x = (VW - width) / 2
             for p in pics:
-                soft = np.zeros_like(p)
-                soft[..., 3] = p[..., 3]
-                self.words.append(dict(pic=p, soft=cv2.GaussianBlur(soft, (0, 0), 16), x=x + p.shape[1] / 2, y=y, line=len(self.words)))
+                self.words.append(dict(pic=p, soft=soft_shadow(p), x=x + p.shape[1] / 2, y=y, line=len(self.words)))
                 x += p.shape[1] + gap
         for i, w in enumerate(self.words):
             w["i"] = i
@@ -152,11 +155,13 @@ class Wall:
         for t in self.tiles:
             wait = 22 * t["wave"] + jitter(t["seed"], 1.8)
             u = (n - 590 - wait) / 18
-            l = (n - 634 - 14 * (1 - t["wave"]) - jitter(t["seed"] + 9, 1.5)) / 15
-            if u <= 0 or l >= 1:
+            # The lights fall in the wall's own wave, then it drains away behind the standing logo.
+            l = (n - 622 - 14 * (1 - t["wave"]) - jitter(t["seed"] + 9, 1.5)) / 15
+            go = (n - 696 - 22 * t["wave"] - jitter(t["seed"] + 9, 1.5)) / 18
+            if u <= 0 or go >= 1:
                 continue
-            s = (1 + .2 * (1 - rise(u))) * (1 - .08 * ease(l)) * (1 + .0007 * (n - 610))
-            alpha = ease(u * 1.7) * (1 - ease(l))
+            s = (1 + .2 * (1 - rise(u))) * (1 - .04 * ease(l)) * (1 + .0007 * (n - 610))
+            alpha = ease(u * 1.7) * (1 - .74 * ease(l)) * (1 - ease(go))
             cx, cy = t["c"]
             M = np.array([[s, 0, cx - s * cx], [0, s, cy - s * cy], [0, 0, 1]], np.float64) @ t["H"]
             b = t["box"]
@@ -486,22 +491,25 @@ class Scenes:
         print("scenes ready", flush=True)
 
     def frame(self, n):
-        out = self.back * float(smooth(656, 672, n))
+        m = n - OPEN
+        out = self.back * float(smooth(656, 672, m))
         for a, b, light in self.lights:
-            k = ease((n - a) / 24) * (1 - ease((n - b + 22) / 22))
+            k = ease((m - a) / 24) * (1 - ease((m - b + 22) / 22))
             if k > 0:
                 out = out + light * k
-        if n <= 668:
+        if n <= LOGO_OUT:
             self.wall.draw(out, n)
-            if n >= 636:
-                lockup(out, self.mark, self.name, n, 636, 658, 668)
-        if 654 <= n <= 812:
-            self.grid.draw(out, n)
-        if 788 <= n <= 864:
-            self.rows.draw(out, n)
+        if 654 <= m <= 812:
+            self.grid.draw(out, m)
+        if 788 <= m <= 864:
+            self.rows.draw(out, m)
         for a, b, layer in self.layers:
-            if a <= n <= b:
-                layer.draw(out, n)
+            if a <= m <= b:
+                layer.draw(out, m)
+        if LOGO_IN <= n <= LOGO_OUT:
+            # A slow push that lands on the closing logo's size as the fade starts.
+            scale = LOGO_SCALE * (1 - LOGO_PUSH * (1 - clamp((n - LOGO_IN) / (LOGO_LEAVE - LOGO_IN))))
+            lockup(out, self.mark, self.name, n, LOGO_IN, LOGO_LEAVE, LOGO_OUT, scale=scale, y=CY - 40)
         for head in self.heads:
-            head.draw(out, n)
+            head.draw(out, m)
         return np.clip(out * self.foot, 0, 255).astype(np.uint8)

@@ -3,6 +3,8 @@
 
 A clip is dropped if it is silent, clipped, or off the tempo. The bar is 70 frames at 24 fps,
 2.917 s, and the first layer change in the film falls 12.75 s in. The stretch runs through ffmpeg.
+Arguments after the root and ffmpeg: length, reprise bars, take, output folder, fixed cut in seconds.
+With a fixed cut the report is written next to the output, so earlier reports stay as they are.
 """
 import glob, json, subprocess, sys, tempfile
 from pathlib import Path
@@ -18,6 +20,8 @@ REPRISE = int(sys.argv[4]) if len(sys.argv) > 4 else 0
 TAKE = sys.argv[5] if len(sys.argv) > 5 else "*"
 out = root / ("fitted" if len(sys.argv) < 7 else sys.argv[6])
 out.mkdir(exist_ok=True)
+# A cut in seconds of the stretched take. Given, it replaces the search for the evenest part.
+START = float(sys.argv[7]) if len(sys.argv) > 7 else None
 
 def onset(mono, sr):
     hop = 512
@@ -70,7 +74,7 @@ for path in sorted(glob.glob(str(root / "music" / TAKE / "*.flac"))):
         hop = sr // 4
         lv = np.sqrt(np.convolve(seg ** 2, np.ones(hop) / hop, "valid")[::hop] + 1e-12)
         return float(lv.std() / lv.mean())
-    b = min(cands, key=uneven)
+    b = min(cands, key=uneven) if START is None else START + bar_in
     start = b - bar_in
     clip = s[int(start * sr):int(start * sr) + int(LENGTH * sr)].copy()
     if REPRISE:
@@ -91,6 +95,6 @@ for path in sorted(glob.glob(str(root / "music" / TAKE / "*.flac"))):
     name = f"{item['prompt']}-{item['file']}"
     sf.write(out / f"{name}.wav", clip, sr, subtype="PCM_24")
     item.update(name=name, start=round(float(start), 2), speed=round(float(speed), 4), lufs=round(meter.integrated_loudness(clip), 1), uneven=round(uneven(b), 3))
-(root / "music-report.json").write_text(json.dumps(report, indent=1))
+(root if START is None else out).joinpath("music-report.json").write_text(json.dumps(report, indent=1))
 for r in report:
     print(r)

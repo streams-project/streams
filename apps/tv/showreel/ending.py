@@ -7,26 +7,70 @@ Change 14: each screen has its own logic, its own content and its own way of nam
   tablet      arrives upright and turns on its side, a shelf of posters runs across it
   phones      one from each side, each scrolling its own feed
   browser     a window opens, a pointer presses play
-Change 15: the television comes back and fills the picture, the names pour in, the floor tilts and
-they run off it, then the ask, a word at a time, and the mark with the name sliding out of it.
-Parts start on bar lines of the music. film.py renders this and scenes.py as one film.
+Change 15: the television comes back and fills the picture, its progress bar drops to become the
+floor, the names land on it row by row into one ordered wall and stand still while the bar fills.
+Then the bar runs out from under them, left to right, and they peel off as chains of letters. The
+ask follows, a word at a time, and the mark with the name sliding out from behind it.
+Frames here run on the ending clock, the film's raw frame minus OPEN in scenes.py. Parts start on bar
+lines of the music. film.py renders this and scenes.py as one film.
 """
-import math, random
+import math
 import cv2, numpy as np, pymunk
 from PIL import Image, ImageDraw
 from render import backdrop, foot, smooth
 from stage import (CX, CY, VH, VW, WHITE, Card, clamp, cover, ease, fall, glow, lay, lay_card, lockup, rise, rounded,
-                   split_lockup, spring, word)
+                   soft_shadow, split_lockup, spring, word)
 
 N0 = 1345
-RETURN, DROP, ASK, MARK, N_END = 1596, 1666, 1694, 1736, 1806
+RETURN, REL, ASK, MARK, N_END = 1596, 1736, 1765, 1806, 1876
 BACK = RETURN - 10
+HOLD_LINE, ALL_STILL = 1666, 1672  # the last name lands, and every name is at rest
+CLOSE_LEAVE, CLOSE_END = 1868, 1875
 STEP = 0.4  # film frames between drawn frames, 60 a second
 TV_Y = 490.0
 BLUE, SALMON = (255, 120, 60), (170, 150, 250)
 SHELL, EDGE = (38, 30, 28), (120, 100, 92)
 TV_NAMES = ["Apple TV", "Samsung", "LG", "Fire TV", "Roku", "Android TV"]
-ALL_NAMES = TV_NAMES + ["Mac", "Windows", "Linux", "iPad", "Android tablets", "iPhone", "Android", "Any browser"]
+
+# The wall of names. Each row is justified, ink to ink, from x 100 to x 1820. Sizes and the numbers
+# below come from the spec in notes/raw/169-names-wall. Stack checks its own solve against them.
+LINES = [(("Apple TV", "Samsung", "LG"), 324.5, 140), (("Fire TV", "Roku", "Android TV"), 437.5, 124),
+         (("Mac", "Windows", "Linux"), 566.5, 146), (("iPad", "Android tablets"), 701.5, 141),
+         (("iPhone", "Android", "Any browser"), 820.5, 102)]
+WALL_LEFT, WALL_RIGHT, WALL_BASE = 100, 1820, 858
+ROW_GAPS = (16, 30, 30, 30)  # ink between rows, tighter inside the television family
+CAPS = ((273, 376), (392, 483), (513, 620), (650, 753), (783, 858))
+BANDS = ((265, 384), (384, 498), (498, 635), (635, 768), (768, 858))  # the hull of each row
+# A name's rest: centre x, ink left, ink right.
+REST = {"Apple TV": (435.0, 100, 770), "Samsung": (1211.0, 853, 1568), "LG": (1734.5, 1651, 1820),
+        "Fire TV": (324.0, 100, 554), "Roku": (802.0, 632, 973), "Android TV": (1435.0, 1050, 1820),
+        "Mac": (268.5, 100, 441), "Windows": (914.5, 535, 1293), "Linux": (1600.0, 1386, 1820),
+        "iPad": (260.0, 100, 423), "Android tablets": (1166.5, 510, 1820),
+        "iPhone": (285.5, 100, 474), "Android": (769.0, 536, 1000), "Any browser": (1440.5, 1063, 1820)}
+ROW_HITS = (1666, 1657.25, 1648.5, 1639.75, 1631)  # the last name of a row lands on these half beats
+HIT_STAGGER = 2
+TILT = {"iPhone": 3, "Android": -2.5, "Any browser": 2, "iPad": -3, "Android tablets": 2, "Mac": 3, "Windows": -2.5,
+        "Linux": 3, "Fire TV": -3, "Roku": 3, "Android TV": -2, "Apple TV": 2.5, "Samsung": -2.5, "LG": 4}
+FALL = 6.34  # px per frame per frame
+TILT_FLATTEN, REBOUND_PX, REBOUND_TAU, REBOUND_WAVE, REBOUND_END = 6, 11, 1.6, 4.5, 6
+PRESS_PX, PRESS_TAU, PRESS_FRAMES = 3.5, 1.5, 3
+SMEAR_MIN, SMEAR_MOST = 7, 8
+
+# The film's bar, which is the floor and the clock of the wall.
+BAR_LEFT, BAR_RIGHT, BAR_Y, BAR_H = 54, 1866, 864, 12
+BAR_START = .114
+BAR_LIFT, BAR_LIFT_FRAMES = 1600, 22
+CARD_END = VW * 1.02 / 960  # the returning television's scale once it fills the picture
+ART_PUSH, ART_PUSH_START = .0004, 1634
+SHADOW_Y, SHADOW_ALPHA, SHADOW_FADE = 6, .55, 14
+HEAD_Y = 104
+
+# The release.
+GRAVITY, ITERATIONS, SUBSTEPS, PRE_ROLL = 2400, 30, 4, 240
+RETREAT_FRAMES, RETREAT_TO, FLOOR_FAR, ROUND = 34, 2400, 2800, 6
+SPRING_HZ, SPRING_ZETA = 4, .7
+RESIDUAL_BLEND = 8
+TRACK_END = 1812
 
 def shell(w, h, pad, radius, top=0):
     """A plain dark body with a thin light rim, leaving a screen of w by h."""
@@ -64,82 +108,273 @@ def stand(pic, W, body):
     out[..., 3] = np.maximum(out[..., 3], a * 255)
     return out
 
-class Pour:
-    """Names and marks as bodies on a floor that tilts, stepped ahead so a frame only reads positions."""
-    def __init__(self, items, seed, spawn, width, gravity, elastic, first):
-        self.items, self.first = items, first
-        space = pymunk.Space()
-        space.gravity = (0, gravity)
-        space.iterations = 40
-        floor = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
-        floor.position = (-30, VH + 24)
-        plate = pymunk.Segment(floor, (0, 0), (VW + 400, 0), 24)
-        plate.elasticity, plate.friction = elastic, .12
-        left = pymunk.Segment(space.static_body, (-24, -4000), (-24, VH + 24), 24)
-        right = pymunk.Segment(space.static_body, (VW + 24, -4000), (VW + 24, VH + 24), 24)
-        for w in (left, right):
-            w.elasticity, w.friction = .4, .4
-        space.add(floor, plate, left, right)
-        r = random.Random(seed)
-        bodies = []
-        self.track = []
-        n = float(first)
-        tipped = False
-        while n <= ASK + 34:
-            due = int(len(items) * min(1.0, (n - first) / spawn) ** .8)
-            while len(bodies) < due:
-                h, w = items[len(bodies)].shape[:2]
-                body = pymunk.Body(1, pymunk.moment_for_box(1, (w, h)))
-                # They left to the left, so they come back from that side, over the top.
-                body.position = (r.uniform(w / 2 + 10, VW * width), -h - r.uniform(0, 320))
-                body.angle = r.uniform(-.6, .6)
-                body.angular_velocity = r.uniform(-4.5, 4.5)
-                body.velocity = (r.uniform(700, 1900), r.uniform(300, 800))
-                shape = pymunk.Poly.create_box(body, (w * .97, h * .92))
-                shape.elasticity, shape.friction = .4, .28
-                space.add(body, shape)
-                bodies.append(body)
-            if n >= DROP and not tipped:
-                tipped = True
-                space.remove(right)
-                floor.angular_velocity = 1.7
-                space.gravity = (0, gravity * 2.2)
-            if tipped and floor.angle > 1.05:
-                floor.angular_velocity = 0
-            for _ in range(4):
-                space.step(STEP / 24 / 4)
-            self.track.append([(b.position.x, b.position.y, b.angle) for b in bodies])
-            n += STEP
+def ink_box(pic):
+    """Left, right, top and bottom of a word's ink inside its picture."""
+    a = pic[..., 3] > 8
+    xs, ys = np.where(a.any(0))[0], np.where(a.any(1))[0]
+    return int(xs[0]), int(xs[-1]) + 1, int(ys[0]), int(ys[-1]) + 1
 
-    def draw(self, out, n, alpha=1.0, light=1.0, sigma=0.0, smear=True):
-        spot = (n - self.first) / STEP
-        if spot < 0:
-            return
+def snap(c, size):
+    """A centre that starts the picture on a whole pixel, so no row looks softer than another."""
+    return round(c - size / 2) + size / 2
+
+def letters_of(pic):
+    """Each letter of a word as its own sprite, cut from the same picture so it sits on the same pixels."""
+    count, labels, boxes, _ = cv2.connectedComponentsWithStats((pic[..., 3] > 0).astype(np.uint8), connectivity=8)
+    parts = sorted(tuple(int(v) for v in boxes[j][:4]) + (j,) for j in range(1, count) if boxes[j][4] >= 6)
+    out = []
+    for x, y, w, h, j in parts:
+        sprite = np.zeros_like(pic)
+        sprite[labels == j] = pic[labels == j]
+        sprite = sprite[y:y + h, x:x + w].copy()
+        out.append(dict(pic=sprite, soft=soft_shadow(sprite)[..., 3] / 255, w=w, h=h,
+                        dx=x + w / 2 - pic.shape[1] / 2, dy=y + h / 2 - pic.shape[0] / 2))
+    return out
+
+def stamp(plane, soft, x, y, deg=0.0):
+    """Add a soft shape to a plane of shadow, so at rest the letters add up to exactly their word."""
+    h, w = soft.shape
+    c, s = math.cos(math.radians(deg)), math.sin(math.radians(deg))
+    rx, ry = (w * abs(c) + h * abs(s)) / 2 + 3, (w * abs(s) + h * abs(c)) / 2 + 3
+    x0, y0, x1, y1 = max(int(x - rx), 0), max(int(y - ry), 0), min(int(x + rx), VW), min(int(y + ry), VH)
+    if x1 <= x0 or y1 <= y0:
+        return
+    M = np.array([[c, -s, x - x0 - c * w / 2 + s * h / 2], [s, c, y - y0 - s * w / 2 - c * h / 2]], np.float64)
+    plane[y0:y1, x0:x1] += cv2.warpAffine(soft, M, (x1 - x0, y1 - y0), flags=cv2.INTER_LINEAR)
+
+def pill(out, x0, x1, y, h, colour, alpha=1.0):
+    """A rounded bar. Its edge is worked out per pixel, so it can move by less than a pixel."""
+    r = h / 2
+    left, right = max(int(x0) - 1, 0), min(int(x1) + 2, VW)
+    top, bottom = max(int(y - r) - 1, 0), min(int(y + r) + 2, VH)
+    if right <= left or bottom <= top or x1 - x0 < h:
+        return
+    xs = np.arange(left, right, dtype=np.float32) + .5
+    ys = np.arange(top, bottom, dtype=np.float32) + .5
+    dx = np.maximum(np.maximum(x0 + r - xs, xs - (x1 - r)), 0)[None, :]
+    k = (np.clip(r + .5 - np.hypot(dx, (ys - y)[:, None]), 0, 1) * alpha)[..., None]
+    out[top:bottom, left:right] = out[top:bottom, left:right] * (1 - k) + np.array(colour, np.float32) * k
+
+def floor_left(n):
+    """The left end of the bar and of the floor under it, once it starts to run out."""
+    return BAR_LEFT + (RETREAT_TO - BAR_LEFT) * ease((n - REL) / RETREAT_FRAMES)
+
+class Stack:
+    """The 14 names. Scripted poses until the release, then the physics track, in one set of pictures."""
+    def __init__(self, font):
+        self.font = font
+        self.solve()
+        self.hits = sorted(t["hit"] for t in self.names)
+        self.build_still()
+        self.simulate()
+
+    def solve(self):
+        """Lay out the wall from the ink, and stop the build if a font or Pillow change moved it."""
+        tops, bottom, caps = [], float(WALL_BASE), []
+        for i in range(4, -1, -1):
+            _, _, a, b = ink_box(word(self.font, "H", LINES[i][2]))
+            tops.insert(0, (a, bottom - (b - a), bottom))
+            if i:
+                bottom = bottom - (b - a) - ROW_GAPS[i - 1]
+        self.names, self.letters = [], []
+        for r, (names, y, size) in enumerate(LINES):
+            lift, top, base = tops[r]
+            pics = [word(self.font, name, size) for name in names]
+            inks = [ink_box(p) for p in pics]
+            gap = (WALL_RIGHT - WALL_LEFT - sum(i[1] - i[0] for i in inks)) / (len(names) - 1)
+            x = float(WALL_LEFT)
+            band = BANDS[r]
+            for k, (name, pic, ink) in enumerate(zip(names, pics, inks)):
+                h, w = pic.shape[:2]
+                cx, cy = snap(x - ink[0] + w / 2, w), snap(top - lift + h / 2, h)
+                t = dict(name=name, pic=pic, soft=soft_shadow(pic)[..., 3] / 255, cx=cx, cy=cy, w=w, h=h, row=r, size=size,
+                         ink=(cx - w / 2 + ink[0], cx - w / 2 + ink[1]), band=band, cap=(top, base), letters=letters_of(pic),
+                         hit=ROW_HITS[r] - HIT_STAGGER * (len(names) - 1 - k), tilt=TILT[name], first=len(self.letters))
+                self.names.append(t)
+                self.letters += t["letters"]
+                x += ink[1] - ink[0] + gap
+            # The row must match the table to the pixel.
+            if (top, base) != CAPS[r]:
+                raise RuntimeError(f"row {r + 1} cap band {(top, base)} is not {CAPS[r]}")
+        for t in self.names:
+            want = (t["cx"], t["ink"][0], t["ink"][1])
+            if want != REST[t["name"]] or t["cy"] != LINES[t["row"]][1]:
+                raise RuntimeError(f"{t['name']} rests at {want}, {t['cy']}, not {REST[t['name']]}")
+            if len(t["letters"]) != len(t["name"].replace(" ", "")):
+                raise RuntimeError(f"{t['name']} cut into {len(t['letters'])} letters")
+
+    def build_still(self):
+        """One layer of the whole wall with its shadows, drawn the same way as every other frame."""
+        plane = np.zeros((VH, VW), np.float32)
+        ink = np.zeros((VH, VW, 3), np.float32)
+        keep = np.ones((VH, VW, 3), np.float32)
+        for t in self.names:
+            stamp(plane, t["soft"], t["cx"], t["cy"] + SHADOW_Y)
+        keep *= (1 - SHADOW_ALPHA * np.clip(plane, 0, 1))[..., None]
+        for t in self.names:
+            place = [(t["cx"], t["cy"], 1.0, 1.0, 0.0)]
+            lay(ink, t["pic"], place)
+            lay(keep, t["pic"], place, light=0.0)
+        rows, cols = np.where(np.abs(keep - 1).max(2) > 1e-4)
+        self.box = int(cols.min()), int(rows.min()), int(cols.max()) + 1, int(rows.max()) + 1
+        x0, y0, x1, y1 = self.box
+        self.still_keep, self.still_ink = keep[y0:y1, x0:x1].copy(), ink[y0:y1, x0:x1].copy()
+
+    def simulate(self):
+        """Rigid names settle, swap to chains of letters in the same space, and the floor runs out from under them."""
+        space = pymunk.Space()
+        space.gravity = (0, GRAVITY)
+        space.iterations = ITERATIONS
+        dt = STEP / 24 / SUBSTEPS
+        floor = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
+        seg = pymunk.Segment(floor, (BAR_LEFT, BAR_Y), (FLOOR_FAR, BAR_Y), ROUND)
+        seg.friction, seg.elasticity = .8, .02
+        space.add(floor, seg)
+        boxes = []
+        for t in self.names:
+            w, h = t["ink"][1] - t["ink"][0], t["band"][1] - t["band"][0]
+            mass = w * h / 8000
+            body = pymunk.Body(mass, pymunk.moment_for_box(mass, (w, h)))
+            body.position = (t["ink"][0] + t["ink"][1]) / 2, (t["band"][0] + t["band"][1]) / 2
+            hw, hh = w / 2 - ROUND, h / 2 - ROUND
+            shape = pymunk.Poly(body, [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)], radius=ROUND)
+            shape.friction, shape.elasticity = .8, .05
+            space.add(body, shape)
+            boxes.append((body, shape, tuple(body.position)))
+        for _ in range(PRE_ROLL):
+            space.step(dt)
+        self.settle = max(max(abs(b.position.x - h[0]), abs(b.position.y - h[1])) for b, _, h in boxes)
+        chains = []
+        reach = 2 * math.pi * SPRING_HZ
+        for i, (t, (box, shape, home)) in enumerate(zip(self.names, boxes)):
+            space.remove(box, shape)
+            ox, oy = box.position.x - home[0], box.position.y - home[1]
+            h, centre = t["band"][1] - t["band"][0], (t["band"][0] + t["band"][1]) / 2
+            bodies = []
+            for l in t["letters"]:
+                w = l["w"]
+                mass = max(w, 8) * h / 8000
+                body = pymunk.Body(mass, pymunk.moment_for_box(mass, (w, h)))
+                body.position = t["cx"] + l["dx"] + ox, centre + oy
+                hw, hh = max(w / 2 - ROUND, 1), h / 2 - ROUND
+                part = pymunk.Poly(body, [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)], radius=ROUND)
+                part.friction, part.elasticity = .08, .05
+                part.filter = pymunk.ShapeFilter(group=i + 1)
+                space.add(body, part)
+                bodies.append(body)
+                l["oy"] = t["cy"] + l["dy"] - centre
+                l["rest"] = t["cx"] + l["dx"], centre
+                l["reach"] = math.hypot(l["w"], l["h"]) / 2 + abs(l["oy"]) + 8
+            for a, b, la, lb in zip(bodies, bodies[1:], t["letters"], t["letters"][1:]):
+                # Neighbours join in the middle of the gap between them, across a space too.
+                mid = t["cx"] + (la["dx"] + la["w"] / 2 + lb["dx"] - lb["w"] / 2) / 2
+                pin = pymunk.PivotJoint(a, b, (mid + ox, centre + oy))
+                moment = (a.moment + b.moment) / 2
+                twist = pymunk.DampedRotarySpring(a, b, 0, moment * reach * reach, 2 * SPRING_ZETA * moment * reach)
+                pin.collide_bodies = twist.collide_bodies = False
+                space.add(pin, twist)
+            chains.append(bodies)
+        seg.friction = .08
+        bodies = [b for chain in chains for b in chain]
+        # The first step is the solver settling the swap, about .13 px. The track starts after it,
+        # at REL + STEP, and the residual blend takes that up with the rest of the settling.
+        track = []
+        for step in range(round((TRACK_END - REL) / STEP)):
+            for k in range(SUBSTEPS):
+                seg.unsafe_set_endpoints((floor_left(REL + (step + (k + 1) / SUBSTEPS) * STEP), BAR_Y), (FLOOR_FAR, BAR_Y))
+                space.reindex_shape(seg)
+                space.step(dt)
+            track.append([(b.position.x, b.position.y, b.angle) for b in bodies])
+        self.track = np.array(track, np.float64)
+        rest = np.array([(l["rest"][0], l["rest"][1], 0.0) for l in self.letters], np.float64)
+        self.residual = rest - self.track[0]
+
+    def press(self, n, after=0.0):
+        """The quick dip a landing sends through everything beneath it."""
+        total = 0.0
+        for h in self.hits:
+            v = n - h
+            if h > after and 0 <= v < PRESS_FRAMES:
+                total += PRESS_PX * math.exp(-v / PRESS_TAU) * math.sin(math.pi * v / PRESS_FRAMES)
+        return total
+
+    def scripted(self, t, n):
+        """A name's y and tilt before the release: a straight fall, one small rebound, then rest."""
+        before = t["hit"] - n
+        if before > 0:
+            return t["cy"] - .5 * FALL * before * before, t["tilt"] * min(1.0, before / TILT_FLATTEN)
+        u = -before
+        rebound = REBOUND_PX * math.exp(-u / REBOUND_TAU) * abs(math.sin(math.pi * u / REBOUND_WAVE)) * (1 - ease(u / REBOUND_END))
+        return t["cy"] - rebound + self.press(n, t["hit"]), 0.0
+
+    def at(self, n):
+        """Every letter's body at n, read between two steps. The residual blend makes REL the still frame exactly."""
+        spot = max(n - REL - STEP, 0.0) / STEP
         i = min(int(spot), len(self.track) - 2)
-        part = spot - i
-        now = self.track[i + 1]
-        before = self.track[i]
-        for k, pose in enumerate(now):
-            if k >= len(before):
+        pose = self.track[i] + (self.track[i + 1] - self.track[i]) * (spot - i)
+        return pose + self.residual * (1 - ease((n - REL) / RESIDUAL_BLEND))
+
+    def sprites(self, n):
+        """Where each letter's sprite sits at n: x, y and degrees, offset from its body and rotated with it."""
+        pose = self.at(n)
+        oy = np.array([l["oy"] for l in self.letters])
+        return np.stack([pose[:, 0] - oy * np.sin(pose[:, 2]), pose[:, 1] + oy * np.cos(pose[:, 2]), np.degrees(pose[:, 2])], 1)
+
+    def draw_fall(self, out, n):
+        plane = np.zeros((VH, VW), np.float32)
+        shots = []
+        for t in self.names:
+            y, deg = self.scripted(t, n)
+            if y + t["h"] / 2 + 60 < 0:
                 continue
-            ox, oy, oa = before[k]
-            # The film can run slower than the steps, so a body is read between two of them.
-            x, y, a = ox + (pose[0] - ox) * part, oy + (pose[1] - oy) * part, oa + (pose[2] - oa) * part
-            d = math.degrees(a)
-            poses = [(x, y, 1.0, 1.0, d)]
-            if smear:
-                bx, by, ba = ox, oy, oa
-                if math.hypot(x - bx, y - by) > 7:
-                    poses = [(bx + (x - bx) * t, by + (y - by) * t, 1.0, 1.0, math.degrees(ba + (a - ba) * t)) for t in (0, .33, .66, 1)]
-            lay(out, self.items[k], poses, alpha=alpha, light=light, sigma=sigma)
+            y0, deg0 = self.scripted(t, n - STEP)
+            move = abs(y - y0)
+            poses = [(t["cx"], y, 1.0, 1.0, deg)]
+            if move > SMEAR_MIN:
+                poses = [(t["cx"], y0 + (y - y0) * u, 1.0, 1.0, deg0 + (deg - deg0) * u)
+                         for u in np.linspace(0, 1, min(SMEAR_MOST, 2 + int(move / SMEAR_MIN)))]
+            stamp(plane, t["soft"], t["cx"], y + SHADOW_Y, deg)
+            shots.append((t["pic"], poses))
+        out *= (1 - SHADOW_ALPHA * np.clip(plane, 0, 1))[..., None]
+        for pic, poses in shots:
+            lay(out, pic, poses)
+
+    def draw_letters(self, out, n):
+        now, before = self.sprites(n), self.sprites(n - STEP)
+        fade = 1 - ease((n - REL) / SHADOW_FADE)
+        if fade > 0:
+            plane = np.zeros((VH, VW), np.float32)
+            for l, p in zip(self.letters, now):
+                if p[1] - l["reach"] - 60 < VH:
+                    stamp(plane, l["soft"], p[0], p[1] + SHADOW_Y, p[2])
+            out *= (1 - SHADOW_ALPHA * fade * np.clip(plane, 0, 1))[..., None]
+        for l, p, b in zip(self.letters, now, before):
+            if p[1] - l["reach"] > VH:
+                continue
+            poses = [(p[0], p[1], 1.0, 1.0, p[2])]
+            if math.hypot(p[0] - b[0], p[1] - b[1]) > SMEAR_MIN:
+                poses = [(b[0] + (p[0] - b[0]) * u, b[1] + (p[1] - b[1]) * u, 1.0, 1.0, b[2] + (p[2] - b[2]) * u)
+                         for u in (0, 1 / 3, 2 / 3, 1)]
+            lay(out, l["pic"], poses)
+
+    def draw(self, out, n):
+        if n > REL:
+            self.draw_letters(out, n)
+        elif n >= ALL_STILL:
+            x0, y0, x1, y1 = self.box
+            out[y0:y1, x0:x1] = out[y0:y1, x0:x1] * self.still_keep + self.still_ink
+        else:
+            self.draw_fall(out, n)
 
 class Ending:
-    def __init__(self, font, logo, mark, name, art, keep_image):
+    def __init__(self, font, logo, name, art, keep_image):
         self.back, self.foot = backdrop(), foot()
         self.light = glow((46, 22, 14), .5, .46, .34, .34)
         self.font, self.art = font, art
         self.logo_mark, self.logo_word = split_lockup(logo)
         self.head = word(font, "On every screen", 92)
+        self.head_soft = soft_shadow(self.head)
+        self.head_x, self.head_rest = snap(CX, self.head.shape[1]), snap(HEAD_Y, self.head.shape[0])
         self.keep = cover(keep_image, 960, 540).astype(np.float32)
         self.keep_full = cover(keep_image, VW, VH).astype(np.float32)
         self.build_tv()
@@ -147,7 +382,8 @@ class Ending:
         self.build_tablet()
         self.build_phones()
         self.build_browser()
-        self.build_pour(mark)
+        self.tv_soft = cv2.GaussianBlur(cv2.copyMakeBorder(self.tv_screen.pic, 48, 48, 48, 48, cv2.BORDER_CONSTANT, value=0), (0, 0), 7)
+        self.stack = Stack(font)
         self.ask_words = [word(font, "Try", 210), word(font, name, 210, ((255, 107, 47), (255, 170, 120))), word(font, "today.", 210)]
 
     # ---- television
@@ -190,7 +426,7 @@ class Ending:
         if show > 0:
             bar = rgb[510:516, 36:924]
             bar[:] = bar * (1 - .55 * show) + 170 * .55 * show
-            done = int(888 * clamp((n - N0) / 120))
+            done = int(888 * BAR_START * clamp((n - N0) / 91))
             rgb[510:516, 36:36 + done] = rgb[510:516, 36:36 + done] * (1 - show) + np.array(BLUE, np.float32) * show
         a = self.tv_mask
         return np.dstack([rgb * a[..., None], a * 255])
@@ -345,32 +581,47 @@ class Ending:
         nt = (n - a - 6) / 14
         lay(out, self.br_name, [(CX, 860 + 26 * (1 - rise(nt)), 1.0, 1.0, 0.0)], alpha=ease(nt * 1.5) * (1 - away))
 
-    # ---- the return and the pour
-    def build_pour(self, mark):
-        r = random.Random(11)
-        near = []
-        for size in (172, 136, 108):
-            for name in ALL_NAMES:
-                colour = r.choices([WHITE, BLUE, SALMON], [.68, .22, .10])[0]
-                near.append(word(self.font, name, size, colour))
-        r.shuffle(near)
-        marks = [cv2.resize(mark, (s, s), interpolation=cv2.INTER_AREA) for s in (200, 150, 250)]
-        for i in range(9):
-            near.insert(r.randrange(len(near)), marks[i % 3])
-        far = [word(self.font, n, s, WHITE) for s in (70, 56) for n in ALL_NAMES]
-        r.shuffle(far)
-        self.far = Pour(far, 3, 50.0, .6, 1800, .3, RETURN + 8)
-        self.near = Pour(near, 23, 46.0, .4, 2500, .5, RETURN + 14)
+    # ---- the return, the bar and the wall
+    def card_place(self, n):
+        """The returning television, from the left, growing until its screen is the picture."""
+        t = ease((n - BACK) / 48)
+        return -600 + (CX + 600) * ease((n - BACK) / 38), TV_Y + (CY - TV_Y) * t, 1 + (CARD_END - 1) * t, t
 
     def comes_back(self, out, n):
-        """The television again, from the left, growing until its screen is the picture."""
-        t = ease((n - BACK) / 48)
-        s = 1 + (VW * 1.02 / 960 - 1) * t
-        x = -600 + (CX + 600) * ease((n - BACK) / 38)
-        y = TV_Y + (CY - TV_Y) * t
-        fade = 1 - float(smooth(DROP, DROP + 20, n))
-        dim = 1 - .55 * ease((n - BACK - 36) / 30)
-        lay(out, self.tv_screen.pic, [(x, y, s, s, 0.0)], alpha=fade, light=dim)
+        """The art dims and softens behind the wall, and only the art keeps pushing in."""
+        x, y, s, _ = self.card_place(n)
+        s *= 1 + ART_PUSH * max(n - ART_PUSH_START, 0)
+        fade = 1 - float(smooth(REL, REL + 20, n))
+        dim = 1 - .7 * ease((n - 1604) / 44)
+        soft = ease((n - 1612) / 36)
+        if soft < 1:
+            lay(out, self.tv_screen.pic, [(x, y, s, s, 0.0)], alpha=fade, light=dim)
+        if soft > 0:
+            lay(out, self.tv_soft, [(x, y, s, s, 0.0)], alpha=fade * soft, light=dim)
+
+    def bar(self, out, n):
+        """The film's bar: it arrives on the television, drops to the floor, fills, then runs out to the right."""
+        if n > REL:
+            pill(out, floor_left(n), BAR_RIGHT, BAR_Y, BAR_H, BLUE)
+            return
+        x, y, s, t = self.card_place(n)
+        half = 444 * s + ((BAR_RIGHT - BAR_LEFT) / 2 - 444 * CARD_END) * t
+        x0, x1 = x - half, x + half
+        by = y + 243 * s
+        by += (BAR_Y - by) * ease((n - BAR_LIFT) / BAR_LIFT_FRAMES) + self.stack.press(n)
+        h = max(6, round(6 * s))
+        done = BAR_START + (1 - BAR_START) * clamp((n - HOLD_LINE) / (REL - HOLD_LINE))
+        pill(out, x0, x1, by, h, (170, 170, 170), .55)
+        pill(out, x0, x0 + (x1 - x0) * done, by, h, BLUE)
+
+    def head_back(self, out, n):
+        """The head stands up on the last landing, in full white, and rises away at the release."""
+        t = rise((n - HOLD_LINE) / 17.5)
+        leave = ease((n - REL) / 12)
+        y = self.head_rest + 22 * (1 - t) - 16 * leave
+        alpha = t * (1 - leave)
+        lay(out, self.head_soft, [(self.head_x, y + SHADOW_Y, 1.0, 1.0, 0.0)], alpha=alpha * SHADOW_ALPHA)
+        lay(out, self.head, [(self.head_x, y, 1.0, 1.0, 0.0)], alpha=alpha)
 
     # ---- the ask and the mark
     def ask(self, out, n):
@@ -379,18 +630,18 @@ class Ending:
         width = a.shape[1] + 12 + b.shape[1]
         left = (VW - width) / 2
         y1, y2 = CY - h * .55 - 40, CY + h * .55 - 40
-        leave = ease((n - (MARK - 12)) / 12)
-        t = rise((n - ASK) / 20)
-        lay(out, a, [(left + a.shape[1] / 2 , y1 + 44 * (1 - t) - 12 * leave, 1.0, 1.0, 0.0)], alpha=min(1.0, t * 1.6) * (1 - leave))
-        t = rise((n - ASK - 7) / 20)
+        leave = ease((n - (MARK - 6)) / 6)
+        t = rise((n - ASK) / 12)
+        lay(out, a, [(left + a.shape[1] / 2, y1 + 44 * (1 - t) - 12 * leave, 1.0, 1.0, 0.0)], alpha=min(1.0, t * 1.6) * (1 - leave))
+        t = rise((n - ASK - 3.5) / 12)
         off = 260 * (1 - t)
         lay(out, b, [(left + a.shape[1] + 12 + b.shape[1] / 2 + off, y1 - 12 * leave, 1.0, 1.0, 0.0)], alpha=min(1.0, t * 1.6) * (1 - leave),
             sigma=10 * (1 - t))
-        t = spring((n - ASK - 15) / 20, turns=1.1)
-        lay(out, c, [(CX, y2 - 12 * leave, t, t, 0.0)], alpha=min(1.0, clamp((n - ASK - 15) / 6)) * (1 - leave))
+        t = spring((n - ASK - 7) / 12, turns=1.1)
+        lay(out, c, [(CX, y2 - 12 * leave, t, t, 0.0)], alpha=clamp((n - ASK - 7) / 6) * (1 - leave))
 
     def frame(self, n):
-        out = self.back * (1 - float(smooth(DROP, DROP + 20, n)))
+        out = self.back * (1 - float(smooth(REL, REL + 20, n)))
         if n < RETURN:
             spot = ease((n - N0) / 30) * (1 - ease((n - (RETURN - 16)) / 16))
             out = out + self.light * spot
@@ -401,16 +652,19 @@ class Ending:
             self.browser(out, n)
             arrive = rise((n - (N0 + 6)) / 24)
             leave = ease((n - (RETURN - 14)) / 14)
-            lay(out, self.head, [(CX, 104 + 22 * (1 - arrive) - 16 * leave, 1.0, 1.0, 0.0)], alpha=arrive * (1 - leave))
-        if BACK <= n < DROP + 22:
+            lay(out, self.head, [(CX, HEAD_Y + 22 * (1 - arrive) - 16 * leave, 1.0, 1.0, 0.0)], alpha=arrive * (1 - leave))
+        if BACK <= n < REL + 22:
             self.comes_back(out, n)
-        if n >= RETURN + 8 and n < ASK + 34:
-            self.far.draw(out, n, alpha=.55, light=.8, sigma=2.5, smear=False)
-            self.near.draw(out, n)
+        if BACK <= n < REL + RETREAT_FRAMES:
+            self.bar(out, n)
+        if RETURN <= n < MARK:
+            self.stack.draw(out, n)
+        if HOLD_LINE <= n < REL + 12:
+            self.head_back(out, n)
         if ASK <= n < MARK:
             self.ask(out, n)
         if n >= MARK:
-            lockup(out, self.logo_mark, self.logo_word, n, MARK, N_END - 16, N_END - 2, scale=1.32, y=CY - 40)
+            lockup(out, self.logo_mark, self.logo_word, n, MARK, CLOSE_LEAVE, CLOSE_END, scale=1.32, y=CY - 40)
         return np.clip(out * self.foot, 0, 255).astype(np.uint8)
 
 def load(path):
