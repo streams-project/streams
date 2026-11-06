@@ -145,3 +145,15 @@ fn list_refuses_no_licence_bad_scheme_and_embeds() {
     ));
     assert!(parse_films(&entry(good, "file", "CC0-1.0")).is_ok());
 }
+
+#[tokio::test]
+async fn a_film_that_stands_in_for_a_series_answers_an_episode() {
+    let list = r#"[{"title":"tv:7","url":"https://media.example.invalid/open/a.m3u8",
+        "kind":"hls","licence":"CC-BY-3.0","every_episode":true}]"#;
+    let films = OpenFilms(parse_films(list).unwrap());
+    let request = serde_json::from_str(
+        r#"{"title":"tv:7","episode":{"season":1,"episode":1},"name":"x","budget_ms":1000}"#,
+    )
+    .unwrap();
+    assert_eq!(films.find(&request).await.unwrap().len(), 1);
+}

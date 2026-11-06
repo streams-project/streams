@@ -434,7 +434,7 @@ U9,behaviour,changed,server,server accounts,POST /v1/auth/confirm records time a
 U10,behaviour,conditional,server,conditional on the owner,"Default dropped. If the owner keeps it, it becomes a single use server grant bound to the device.",One owner item: 24 hour return after sign out.
 U11,behaviour,carried,server,server door,,
 U12,behaviour,changed,server,"server deploy and CI, phone rules in finder",Settings come from environment files per host under a name the operator sets. No file name carries a brand.,Charter rule 6
-U13,behaviour,dropped,dropped,dropped,,Scraped trailer search has no caller.
+U13,behaviour,dropped,dropped,dropped,,Trailer search has no caller.
 U14,behaviour,carried,server,"server deploy and CI, phone rules in finder",,
 U15,behaviour,carried,server,server pages,,
 U16,behaviour,changed,server,server pages,"Off by default. With no engine value no figure shows, unless the owner keeps the invented figure.",Where every other behaviour lives

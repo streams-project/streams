@@ -3,7 +3,7 @@
 One server, one small core, and a real app for each device. Run it for yourself, or change one folder
 and make it yours.
 
-Status: the core, server, data builder, finder and website run together. Apps for other devices are next.
+Status: the core, server, data builder, finder and website run together, and a television app is being built. Other devices come next. The first run on a clean machine is still being tested, so tell us if `./up` trips.
 
 ## Run it
 

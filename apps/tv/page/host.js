@@ -10,8 +10,6 @@
   // because the server answers unknown paths with the website, so the status proves nothing.
   var CORE_HEADER = [0, 97, 115, 109, 1, 0, 0, 0];
   var LOAD_LIMIT_MS = 60000;
-  // Not the website's prefix, so this page cannot inherit a session from the same browser.
-  var SECRET_PREFIX = "tv:secret:";
   var WAKE_CAP_MS = 60000;
   var ROUNDS_PER_TURN = 64;
   // The core gives no answer to an ask it drops or holds and then forgets. The longest wait for a
@@ -148,16 +146,16 @@
   }
 
   function secret(effect) {
-    var key = SECRET_PREFIX + effect.name;
     var done = { id: effect.id, type: "secret_done" };
+    var store = window.tv.ports.secrets;
     try {
       if (effect.op === "get") {
-        var value = window.localStorage.getItem(key);
+        var value = store.get(effect.name);
         if (value !== null) done.value = value;
       } else if (effect.op === "put") {
-        window.localStorage.setItem(key, effect.value || "");
+        store.put(effect.name, effect.value || "");
       } else {
-        window.localStorage.removeItem(key);
+        store.drop(effect.name);
       }
     } catch (refused) {
       return { id: effect.id, type: "unsupported" };
@@ -167,34 +165,26 @@
 
   function http(effect) {
     var thisRun = run;
-    var xhr = new XMLHttpRequest();
-    function noAnswer(reason) {
+    var call = {
+      method: effect.method,
+      url: base + effect.path,
+      headers: effect.headers,
+      body: effect.body,
+      deadline_ms: effect.deadline_ms
+    };
+    window.tv.ports.network.send(call, function (status, text, reason) {
       if (thisRun !== run) return;
-      settle(effect.id, 0, "");
-      send([{ id: effect.id, type: "http_failed", reason: reason }]);
-    }
-    xhr.onload = function () {
-      if (thisRun !== run) return;
-      var status = xhr.status;
-      var text = xhr.responseText || "";
+      if (reason) {
+        settle(effect.id, 0, "");
+        send([{ id: effect.id, type: "http_failed", reason: reason }]);
+        return;
+      }
       var done = { id: effect.id, type: "http_done", status: status };
       if (effect.to === "screen" && status >= 200 && status < 300) tell("page", effect.path, text);
       else if (text) done.body = text;
       settle(effect.id, status, text);
       send([done]);
-    };
-    xhr.onerror = function () { noAnswer("offline"); };
-    xhr.ontimeout = function () { noAnswer("timeout"); };
-    xhr.onabort = function () { noAnswer("cancelled"); };
-    try {
-      xhr.open(effect.method, base + effect.path, true);
-      xhr.timeout = effect.deadline_ms;
-      for (var name in effect.headers) xhr.setRequestHeader(name, effect.headers[name]);
-      xhr.send(effect.body === undefined ? null : effect.body);
-    } catch (thrown) {
-      console.log("a request did not start", String(thrown));
-      noAnswer("offline");
-    }
+    });
   }
 
   function perform(effect) {

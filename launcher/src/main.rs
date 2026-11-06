@@ -8,6 +8,7 @@ use std::time::Duration;
 use anyhow::{Context, Result, bail};
 use launcher::address::{self, Site};
 use launcher::brand::Brand;
+use launcher::films;
 use launcher::postgres::{self, Postgres};
 use launcher::supervise::{Program, answers, keep, log_path};
 use rand::Rng;
@@ -162,6 +163,7 @@ fn data_set(stack: &Stack) -> Result<(PathBuf, PathBuf)> {
         return Ok((manifest, key));
     }
     println!("No catalogue yet, so the site shows a generated sample with invented titles.");
+    films::seed(&stack.home.join("films.json"))?;
     Ok((
         server_catalog::sample::write_sample(&data),
         server_catalog::sample::write_sample_key(&data),

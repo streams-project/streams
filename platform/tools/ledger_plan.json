@@ -60,7 +60,7 @@
     {"ids": "S201", "reason": "No run time call to the outside title service exists. Its genre mapping survives as data in the data repository."},
     {"ids": "P52", "reason": "The edge function route list has no meaning on a plain web server."},
     {"ids": "U5", "reason": "The characters route has no client caller, and its mass rule uses third party data."},
-    {"ids": "U13", "reason": "Scraped trailer search has no caller."},
+    {"ids": "U13", "reason": "Trailer search has no caller."},
     {"ids": "U21", "reason": "OpenAPI lists every route, so no 501 stubs exist."}
   ],
   "conditional": {

@@ -24,6 +24,9 @@ pub struct OpenFilm {
     pub height: Option<u32>,
     #[serde(default)]
     pub audio: Vec<String>,
+    /// For a series: this one film stands in for each of its episodes.
+    #[serde(default)]
+    pub every_episode: bool,
 }
 
 /// Why a film list was refused.
@@ -81,11 +84,12 @@ impl Provider for OpenFilms {
     }
 
     async fn find(&self, request: &FindRequest) -> Result<Vec<FoundSource>, Failed> {
-        // A film has no episode, so a request for an episode finds nothing.
-        if request.episode.is_some() {
-            return Ok(Vec::new());
-        }
-        let listed = self.0.iter().filter(|film| film.title == request.title);
+        // A film has no episode, so a request for one finds only a film that stands in for each.
+        let asks_episode = request.episode.is_some();
+        let listed = self
+            .0
+            .iter()
+            .filter(|film| film.title == request.title && (!asks_episode || film.every_episode));
         Ok(listed
             .map(|film| FoundSource {
                 url: film.url.clone(),

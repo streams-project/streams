@@ -8,12 +8,11 @@ use leptos::prelude::*;
 
 use super::image;
 use crate::host;
+use crate::ports::address;
 use crate::state::Shared;
 
 fn close() {
-    if let Some(history) = web_sys::window().and_then(|window| window.history().ok()) {
-        let _ = history.back();
-    }
+    address::back();
 }
 
 #[component]

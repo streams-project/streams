@@ -1,4 +1,4 @@
-//! Rows made for one profile: Today's Top Picks, Gems, Because You Watched, More Like, Your Next Watch, My List, Continue Watching and New Releases.
+//! Rows made for one profile: Picked for You Today, Gems, Because You Watched, More Like, Watch Next, My List, Continue Watching and New Releases.
 use super::*;
 
 const NEW_RELEASE_DAYS: i64 = 45;
@@ -470,7 +470,7 @@ impl<'a> PageContext<'a> {
             parts.push((*k, 0.8));
         }
         let taste = self.taste_of(&parts);
-        // Today's Top Picks for You
+        // Picked for You Today
         let top = match &taste {
             Some(t) => {
                 let keys = self.candidates(page, t, 800);
@@ -479,7 +479,7 @@ impl<'a> PageContext<'a> {
             None if kids_genre_page => Vec::new(),
             None => self.session_pool(1500, &used, false, 100_003, page),
         };
-        if let Some(mut r) = self.row_of("Today's Top Picks for You", "personal", &top) {
+        if let Some(mut r) = self.row_of("Picked for You Today", "personal", &top) {
             r.archetype = "top_picks".to_string();
             r.meta = meta(
                 "row.todays_top_picks",
@@ -492,7 +492,7 @@ impl<'a> PageContext<'a> {
             rows.push(r);
         }
         let composed = self.composed_rows();
-        // Your Next Watch: close to the latest watched titles; a profile without history gets well liked titles chosen by its session
+        // Watch Next: close to the latest watched titles; a profile without history gets well liked titles chosen by its session
         let next = match self.taste_of(
             &sig.recent
                 .iter()
@@ -509,7 +509,7 @@ impl<'a> PageContext<'a> {
             }
             None => Vec::new(),
         };
-        if let Some(mut r) = self.row_of("Your Next Watch", "personal", &next) {
+        if let Some(mut r) = self.row_of("Watch Next", "personal", &next) {
             r.archetype = "next_watch".to_string();
             r.meta = meta(
                 "row.your_next_watch",
@@ -521,7 +521,7 @@ impl<'a> PageContext<'a> {
             });
             rows.push(r);
         }
-        // We Think You'll Love These: near what the profile liked or saved (not what it watched last); on every composed page, and for a new profile by session
+        // You Might Love These: near what the profile liked or saved (not what it watched last); on every composed page, and for a new profile by session
         if on_home || composed {
             let taste_lk = self.taste_of(
                 &sig.liked
@@ -539,7 +539,7 @@ impl<'a> PageContext<'a> {
                 None if composed => self.session_pool(4000, &used, false, 400_009, page),
                 None => Vec::new(),
             };
-            if let Some(mut r) = self.row_of("We Think You'll Love These", "personal", &love) {
+            if let Some(mut r) = self.row_of("You Might Love These", "personal", &love) {
                 r.archetype = "love_these".to_string();
                 r.meta = meta(
                     "row.we_think_youll_love",

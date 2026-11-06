@@ -1,11 +1,10 @@
 //! The host: it steps the core and performs each effect with what a browser has.
 
 use std::cell::RefCell;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 
 use contract::core_msg::{
-    Action, BodyTarget, CoreConfig, CoreIn, CoreOut, Effect, EffectBody, Event, EventBody,
-    HttpMethod, NoAnswerReason, RouteTarget, SecretOp, Target, TimerOp, View,
+    Action, CoreConfig, CoreIn, CoreOut, Effect, EffectBody, Event, EventBody, HttpMethod, View,
 };
 use contract::screen::ScreenName;
 use contract::version::WIRE_VERSION;
@@ -15,19 +14,18 @@ use leptos::prelude::*;
 use serde_json::json;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::prelude::Closure;
-use wasm_bindgen_futures::{JsFuture, spawn_local};
-use web_sys::{AbortController, RequestInit, Response};
+use wasm_bindgen_futures::spawn_local;
 
-use crate::player;
+use crate::adapters::{address, network, player, secrets, timers};
 use crate::state::Shared;
 
 /// A form's answer: the status, then the body.
 type Reply = Box<dyn FnOnce(u32, String)>;
 
-struct Host {
+pub struct Host {
     machine: Core,
     shared: Shared,
-    timers: HashMap<String, i32>,
+    pub timers: HashMap<String, i32>,
     wake: Option<i32>,
     replies: HashMap<String, Reply>,
     next_ask: u64,
@@ -37,7 +35,12 @@ thread_local! {
     static HOST: RefCell<Option<Host>> = const { RefCell::new(None) };
 }
 
-fn window() -> web_sys::Window {
+/// The host, for an adapter that keeps its own part of it.
+pub fn with_host<T>(work: impl FnOnce(&mut Host) -> T) -> Option<T> {
+    HOST.with_borrow_mut(|host| host.as_mut().map(work))
+}
+
+pub fn window() -> web_sys::Window {
     web_sys::window().expect("a page runs in a window")
 }
 
@@ -77,7 +80,7 @@ pub fn start(shared: Shared) {
     window().set_onpopstate(Some(back.as_ref().unchecked_ref()));
     back.forget();
     // Read first: the core can finish starting within this step and rewrite the bar.
-    let opened_at = current_address();
+    let opened_at = address::current();
     step(Vec::new());
     go(&opened_at);
     ask(
@@ -95,16 +98,9 @@ pub fn start(shared: Shared) {
     );
 }
 
-fn current_address() -> String {
-    let location = window().location();
-    let path = location.pathname().unwrap_or_else(|_| "/".to_owned());
-    let query = location.search().unwrap_or_default();
-    format!("{path}{query}")
-}
-
 fn go_silently() {
     step(vec![event(EventBody::Address {
-        address: current_address(),
+        address: address::current(),
     })]);
 }
 
@@ -160,7 +156,7 @@ fn event(body: EventBody) -> Event {
     Event { id: None, body }
 }
 
-fn answer(id: String, body: EventBody) -> Event {
+pub fn answer(id: String, body: EventBody) -> Event {
     Event { id: Some(id), body }
 }
 
@@ -263,18 +259,26 @@ fn perform(effect: Effect, results: &mut Vec<Event>) {
             deadline_ms,
             to,
             ..
-        } => spawn_local(fetch_it(id, method, path, headers, body, deadline_ms, to)),
+        } => spawn_local(network::perform(
+            id,
+            method,
+            path,
+            headers,
+            body,
+            deadline_ms,
+            to,
+        )),
         EffectBody::Secret { op, name, value } => {
-            results.push(answer(id, secret(op, &name, value)));
+            results.push(answer(id, secrets::perform(op, &name, value)));
         }
-        EffectBody::Timer { op, after_ms } => timer(id, op, after_ms),
+        EffectBody::Timer { op, after_ms } => timers::perform(id, op, after_ms),
         EffectBody::Player { command } => player::run(command),
         EffectBody::View { notice, .. } => {
             if let (Some(notice), Some(shared)) = (notice, shared()) {
                 shared.notice.set(Some(notice));
             }
         }
-        EffectBody::Open { target } => write_address(&target),
+        EffectBody::Open { target } => address::write(&target),
         EffectBody::Log { code, detail, .. } => {
             let line = format!("{code} {}", detail.unwrap_or_default());
             web_sys::console::log_1(&line.into());
@@ -283,159 +287,7 @@ fn perform(effect: Effect, results: &mut Vec<Event>) {
     }
 }
 
-fn storage() -> Option<web_sys::Storage> {
-    window().local_storage().ok().flatten()
-}
-
-fn secret(op: SecretOp, name: &str, value: Option<String>) -> EventBody {
-    let key = format!("secret:{name}");
-    let Some(store) = storage() else {
-        return EventBody::Unsupported;
-    };
-    let mut held = None;
-    match op {
-        SecretOp::Get => held = store.get_item(&key).ok().flatten(),
-        SecretOp::Put => {
-            let _ = store.set_item(&key, &value.unwrap_or_default());
-        }
-        _ => {
-            let _ = store.remove_item(&key);
-        }
-    }
-    EventBody::SecretDone { value: held }
-}
-
-fn timer(id: String, op: TimerOp, after_ms: Option<u64>) {
-    if op == TimerOp::Clear {
-        let old =
-            HOST.with_borrow_mut(|host| host.as_mut().and_then(|host| host.timers.remove(&id)));
-        if let Some(old) = old {
-            window().clear_timeout_with_handle(old);
-        }
-        return;
-    }
-    let key = id.clone();
-    let fire = Closure::once_into_js(move || {
-        HOST.with_borrow_mut(|host| {
-            if let Some(host) = host.as_mut() {
-                host.timers.remove(&key);
-            }
-        });
-        step(vec![answer(key, EventBody::TimerFired)]);
-    });
-    let after = after_ms.unwrap_or(0).min(i32::MAX as u64) as i32;
-    let handle = window()
-        .set_timeout_with_callback_and_timeout_and_arguments_0(fire.unchecked_ref(), after)
-        .ok();
-    if let Some(handle) = handle {
-        HOST.with_borrow_mut(|host| {
-            if let Some(host) = host.as_mut() {
-                host.timers.insert(id, handle);
-            }
-        });
-    }
-}
-
-fn in_address(text: &str) -> String {
-    js_sys::encode_uri_component(text).into()
-}
-
-/// The address a target lives at, so the bar and the back button stay true.
-fn address_of(target: &RouteTarget) -> Option<String> {
-    let title = target.title.as_ref();
-    let pair = title.map(|title| (title.kind().word(), title.id()));
-    let address = match target.target {
-        Target::Start => "/".to_owned(),
-        Target::SignIn => match &target.next {
-            Some(next) => format!("/sign-in?next={}", in_address(next)),
-            None => "/sign-in".to_owned(),
-        },
-        Target::Activate => match &target.code {
-            Some(code) => format!("/activate?code={}", in_address(code)),
-            None => "/activate".to_owned(),
-        },
-        Target::Profiles => "/profiles".to_owned(),
-        Target::Home => "/home".to_owned(),
-        Target::KidsHome => "/kids".to_owned(),
-        Target::Title => {
-            let (kind, id) = pair?;
-            format!("/title/{kind}/{id}")
-        }
-        Target::Watch => {
-            let (kind, id) = pair?;
-            match &target.episode {
-                Some(episode) => {
-                    format!("/watch/{kind}/{id}/{}/{}", episode.season, episode.episode)
-                }
-                None => format!("/watch/{kind}/{id}"),
-            }
-        }
-        Target::Screen => {
-            let word = serde_json::to_value(target.screen?).ok()?;
-            match &target.genre {
-                Some(genre) => format!("/genre/{genre}"),
-                None => format!("/{}", word.as_str()?),
-            }
-        }
-        _ => return None,
-    };
-    Some(address)
-}
-
-fn write_address(target: &RouteTarget) {
-    let Some(address) = address_of(target) else {
-        return;
-    };
-    if address == current_address() {
-        return;
-    }
-    if let Ok(history) = window().history() {
-        let _ = history.push_state_with_url(&wasm_bindgen::JsValue::NULL, "", Some(&address));
-    }
-}
-
-async fn fetch_it(
-    id: String,
-    method: HttpMethod,
-    path: String,
-    headers: BTreeMap<String, String>,
-    body: Option<String>,
-    deadline_ms: u32,
-    to: BodyTarget,
-) {
-    let carried_token = headers.contains_key("Authorization");
-    let result = send(method, &path, &headers, body, deadline_ms).await;
-    let event = match result {
-        Err(reason) => {
-            hand_reply(&id, 0, String::new());
-            EventBody::HttpFailed { reason }
-        }
-        Ok((status, etag, text)) => {
-            let mut headers = BTreeMap::new();
-            if let Some(etag) = etag {
-                headers.insert("etag".to_owned(), etag);
-            }
-            let good = (200..300).contains(&status);
-            let to_screen = to == BodyTarget::Screen && good;
-            if to_screen {
-                keep_page(&path, &text);
-            }
-            // The core answers this 401 by refreshing and sending the same id again, so the reply
-            // waits for that answer. Sending again from a screen would be a second request.
-            if status != 401 || !carried_token {
-                hand_reply(&id, status, text.clone());
-            }
-            EventBody::HttpDone {
-                status,
-                headers,
-                body: (!to_screen && !text.is_empty()).then_some(text),
-            }
-        }
-    };
-    step(vec![answer(id, event)]);
-}
-
-fn hand_reply(id: &str, status: u32, text: String) {
+pub fn hand_reply(id: &str, status: u32, text: String) {
     let waiting =
         HOST.with_borrow_mut(|host| host.as_mut().and_then(|host| host.replies.remove(id)));
     if let Some(reply) = waiting {
@@ -443,7 +295,7 @@ fn hand_reply(id: &str, status: u32, text: String) {
     }
 }
 
-fn keep_page(path: &str, text: &str) {
+pub fn keep_page(path: &str, text: &str) {
     let Some(shared) = shared() else { return };
     if path.starts_with("/v1/nav") {
         if let Ok(nav) = serde_json::from_str::<contract::screen::Nav>(text) {
@@ -454,61 +306,4 @@ fn keep_page(path: &str, text: &str) {
     } else if path.contains("/titles/") {
         shared.detail.set(serde_json::from_str(text).ok());
     }
-}
-
-fn method_word(method: HttpMethod) -> &'static str {
-    match method {
-        HttpMethod::Post => "POST",
-        HttpMethod::Put => "PUT",
-        HttpMethod::Patch => "PATCH",
-        HttpMethod::Delete => "DELETE",
-        _ => "GET",
-    }
-}
-
-async fn send(
-    method: HttpMethod,
-    path: &str,
-    headers: &BTreeMap<String, String>,
-    body: Option<String>,
-    deadline_ms: u32,
-) -> Result<(u32, Option<String>, String), NoAnswerReason> {
-    let abort = AbortController::new().map_err(|_| NoAnswerReason::Offline)?;
-    let init = RequestInit::new();
-    init.set_method(method_word(method));
-    init.set_signal(Some(&abort.signal()));
-    let list = web_sys::Headers::new().map_err(|_| NoAnswerReason::Offline)?;
-    for (name, value) in headers {
-        let _ = list.set(name, value);
-    }
-    if let Some(body) = body {
-        let _ = list.set("content-type", "application/json");
-        init.set_body(&body.into());
-    }
-    init.set_headers(&list);
-    let stop = abort.clone();
-    let timeout = Closure::once_into_js(move || stop.abort());
-    let handle = window()
-        .set_timeout_with_callback_and_timeout_and_arguments_0(
-            timeout.unchecked_ref(),
-            deadline_ms as i32,
-        )
-        .ok();
-    let answer = JsFuture::from(window().fetch_with_str_and_init(path, &init)).await;
-    if let Some(handle) = handle {
-        window().clear_timeout_with_handle(handle);
-    }
-    let response: Response = answer
-        .map_err(|_| NoAnswerReason::Offline)?
-        .dyn_into()
-        .map_err(|_| NoAnswerReason::Offline)?;
-    let status = u32::from(response.status());
-    let etag = response.headers().get("etag").ok().flatten();
-    let reading = response.text().map_err(|_| NoAnswerReason::Offline)?;
-    let text = JsFuture::from(reading)
-        .await
-        .map_err(|_| NoAnswerReason::Timeout)?
-        .as_string()
-        .unwrap_or_default();
-    Ok((status, etag, text))
 }

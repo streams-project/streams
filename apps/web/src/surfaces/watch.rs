@@ -5,7 +5,7 @@ use leptos::html::Div;
 use leptos::prelude::*;
 
 use crate::host;
-use crate::player;
+use crate::ports::{address, player};
 use crate::state::Shared;
 
 const CONTROLS_STAY_MS: i32 = 3000;
@@ -22,9 +22,7 @@ fn clock_text(ms: u64) -> String {
 
 fn leave() {
     host::act(Action::Stop);
-    if let Some(history) = web_sys::window().and_then(|window| window.history().ok()) {
-        let _ = history.back();
-    }
+    address::back();
 }
 
 #[component]

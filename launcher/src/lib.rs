@@ -2,5 +2,6 @@
 
 pub mod address;
 pub mod brand;
+pub mod films;
 pub mod postgres;
 pub mod supervise;

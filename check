@@ -7,6 +7,9 @@ cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo test --workspace --locked
 
+# Every app family is its own hexagon.
+python3 platform/tools/check_rings.py
+
 # The core still fits a browser and a television.
 cargo build --locked -p core -p contract -p offline --target wasm32v1-none
 cargo clippy --locked -p bridge-wasm --target wasm32v1-none -- -D warnings
