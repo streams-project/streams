@@ -1,6 +1,7 @@
 # tv
 
-One TypeScript TV app for Samsung, LG and Fire TV on Vega.
+One TV app for Samsung, LG, Fire TV on Vega, Titan OS, Vizio and Hisense (VIDAA, now HomeOS). Each
+is a web app on that system, so a new brand of television needs no new app.
 
 Part of an open video platform. Status: groundwork. The signed out opening
 scene and landing below run as a live page; nothing else runs yet.
