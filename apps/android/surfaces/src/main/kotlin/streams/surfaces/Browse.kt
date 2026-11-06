@@ -132,7 +132,6 @@ private fun Card(tile: Tile, width: Int, focused: () -> Unit, open: () -> Unit) 
                 on = it
                 if (it) focused()
             }
-            .focusable()
             .clickable(onClick = open),
     ) {
         if (url != null) {

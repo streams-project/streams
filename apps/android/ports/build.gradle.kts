@@ -4,8 +4,13 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 kotlin {
-    jvmToolchain(17)
+    compilerOptions { jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17 }
     sourceSets["main"].kotlin.srcDir(rootDir.resolve("../../platform/contract/generated/types"))
     sourceSets["main"].kotlin.exclude("**/*.swift", "**/*.ts")
 }

@@ -6,14 +6,13 @@ plugins {
 
 android {
     namespace = "streams.app"
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig {
         applicationId = "streams.app"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
-        ndk { abiFilters += "arm64-v8a" }
     }
     buildFeatures { compose = true }
     compileOptions {

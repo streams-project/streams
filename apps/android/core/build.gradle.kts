@@ -7,16 +7,23 @@ plugins {
 }
 
 val repoRoot: File = rootDir.resolve("../..").canonicalFile
-val coreLib: File = repoRoot.resolve("target/aarch64-linux-android/native/libbridge_c.a")
+val coreFolder: File = repoRoot.resolve("target")
+
+// Each Android CPU type and the Rust target that builds for it. A Google TV Streamer runs 32 bit
+// apps only, and phones run 64 bit.
+val cores = mapOf(
+    "armeabi-v7a" to "armv7-linux-androideabi",
+    "arm64-v8a" to "aarch64-linux-android",
+)
 
 android {
     namespace = "streams.core"
-    compileSdk = 36
+    compileSdk = 37
     ndkVersion = "27.2.12479018"
     defaultConfig {
         minSdk = 26
-        ndk { abiFilters += "arm64-v8a" }
-        externalNativeBuild { cmake { arguments += "-DCORE_LIB=$coreLib" } }
+        ndk { abiFilters += cores.keys }
+        externalNativeBuild { cmake { arguments += "-DCORE_FOLDER=$coreFolder" } }
     }
     externalNativeBuild { cmake { path = file("src/main/cpp/CMakeLists.txt") } }
     compileOptions {
@@ -25,15 +32,17 @@ android {
     }
 }
 
-val buildCore = tasks.register<Exec>("buildCore") {
-    workingDir = repoRoot
-    environment("CARGO_TARGET_DIR", repoRoot.resolve("target").path)
-    commandLine("cargo", "build", "--locked", "--profile", "native", "-p", "bridge-c", "--target", "aarch64-linux-android")
-    outputs.file(coreLib)
+val buildCores = cores.values.map { target ->
+    tasks.register<Exec>("buildCore-$target") {
+        workingDir = repoRoot
+        environment("CARGO_TARGET_DIR", coreFolder.path)
+        commandLine("cargo", "build", "--locked", "--profile", "native", "-p", "bridge-c", "--target", target)
+        outputs.file(coreFolder.resolve("$target/native/libbridge_c.a"))
+    }
 }
 
 tasks.matching { it.name.startsWith("configureCMake") || it.name.startsWith("buildCMake") }
-    .configureEach { dependsOn(buildCore) }
+    .configureEach { dependsOn(buildCores) }
 
 dependencies {
     api(project(":ports"))

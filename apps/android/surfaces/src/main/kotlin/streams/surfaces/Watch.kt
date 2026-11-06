@@ -64,7 +64,6 @@ fun Watch(shell: Shell, seen: Seen, tv: Boolean) {
             .fillMaxSize()
             .background(Color.Black)
             .focusRequester(focus)
-            .focusable()
             .onKeyEvent { event ->
                 if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
                 woke += 1

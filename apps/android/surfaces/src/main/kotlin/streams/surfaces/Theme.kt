@@ -1,8 +1,10 @@
 package streams.surfaces
 
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 
 /** The brand's colours. brand.json is the source, and `streams build android` will write these. */
@@ -23,6 +25,7 @@ fun Brand(content: @Composable () -> Unit) {
             onBackground = Color.White,
             onSurface = Color.White,
         ),
-        content = content,
-    )
+    ) {
+        CompositionLocalProvider(LocalContentColor provides Color.White, content = content)
+    }
 }
