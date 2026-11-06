@@ -8,7 +8,7 @@
     node.style.width = size + "px";
     node.style.height = size + "px";
     if (person && person.kids) node.className += " kids";
-    if (person && person.avatar) {
+    if (person && person.avatar && /^(https?:|\/)/.test(person.avatar)) {
       kit.art(node, person.avatar);
     } else {
       node.style.lineHeight = size + "px";

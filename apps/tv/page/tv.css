@@ -168,28 +168,50 @@ button {
 .code .code-value { font-size: 104px; font-weight: 800; letter-spacing: 6px; color: var(--text); margin: 8px 0 0; }
 .code-qr { position: absolute; left: 1140px; top: 60px; width: 460px; height: 460px; border-radius: 24px; }
 
-.people { position: absolute; left: 160px; top: 260px; width: 1600px; text-align: center; }
-.people h1 { margin: 0 0 70px; font-size: 64px; font-weight: 800; }
-.people p { font-size: 32px; color: var(--muted); }
-.people-row { white-space: nowrap; }
-.person { display: inline-block; width: 280px; margin: 0 20px; vertical-align: top; }
-.face {
-  display: block;
-  width: 200px;
-  height: 200px;
-  margin: 0 auto 24px;
-  line-height: 200px;
-  font-size: 88px;
-  font-weight: 800;
-  border-radius: 28px;
-  background: var(--accent);
-  box-shadow: 0 0 0 0 var(--text);
-  transition: box-shadow 120ms linear, transform 120ms linear;
+/* Who is watching: a column on the left, a title beside it. */
+.who { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; background: #000; overflow: hidden; }
+.who-art {
+  position: absolute;
+  left: 480px;
+  top: 0;
+  width: 1440px;
+  height: 1080px;
+  background: center / cover no-repeat;
+  transition: opacity 500ms linear;
 }
-.face.kids { background: var(--join); }
-.person-name { font-size: 32px; font-weight: 600; opacity: 0.8; }
-.person.on .face { box-shadow: 0 0 0 8px var(--text); transform: scale(1.06); }
-.person.on .person-name { opacity: 1; }
+.who-art.incoming, .who-art.leaving { opacity: 0; }
+.who-shade {
+  position: absolute;
+  left: 480px;
+  top: 0;
+  width: 1440px;
+  height: 1080px;
+  z-index: 1;
+  background: linear-gradient(90deg, #000, rgba(0, 0, 0, 0) 45%), linear-gradient(0deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0) 40%);
+}
+.who-head { position: absolute; left: 190px; top: 44px; width: 200px; z-index: 2; text-align: center; }
+.who-mark { width: 68px; height: 68px; }
+.who-head p { margin: 8px 0 0; font-size: 24px; font-weight: 500; white-space: nowrap; }
+.who-column { position: absolute; left: 0; top: 168px; width: 720px; z-index: 2; }
+.who-row { position: relative; height: 130px; margin-bottom: 26px; transition: height 200ms cubic-bezier(0.22, 0.61, 0.2, 1); }
+.who-row.on { height: 194px; }
+.who-row .avatar {
+  position: absolute;
+  left: 225px;
+  top: 0;
+  border-radius: 18px;
+  transition: width 200ms cubic-bezier(0.22, 0.61, 0.2, 1), height 200ms cubic-bezier(0.22, 0.61, 0.2, 1), left 200ms cubic-bezier(0.22, 0.61, 0.2, 1);
+}
+.who-row.on .avatar { left: 193px; box-shadow: 0 0 0 4px var(--text); }
+.who-name { position: absolute; left: 420px; top: 74px; font-size: 40px; font-weight: 700; display: none; }
+.who-row.on .who-name { display: block; }
+.who-pencil { position: absolute; left: 124px; top: 80px; display: none; color: var(--muted); }
+.who-row.on .who-pencil { display: block; }
+.who-title { position: absolute; right: 64px; bottom: 96px; margin: 0; z-index: 2; font-size: 56px; font-weight: 800; text-align: right; max-width: 900px; }
+.who-tags { position: absolute; right: 64px; bottom: 52px; margin: 0; z-index: 2; font-size: 26px; color: rgba(255, 255, 255, 0.85); }
+.who-pin { position: absolute; left: 160px; top: 200px; width: 1600px; text-align: center; }
+.who-pin h1 { margin: 24px 0 8px; font-size: 56px; font-weight: 800; }
+.who-pin p { margin: 0; font-size: 30px; color: var(--muted); }
 .pin { margin-top: 40px; }
 .pin-digit {
   display: inline-block;

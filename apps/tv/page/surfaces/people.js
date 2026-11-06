@@ -1,15 +1,21 @@
-// Who is watching, and the PIN of a locked profile. The PIN goes to the core and is never kept.
+// Who is watching: a column of profiles on the left, and beside it a title chosen for the one in
+// focus. The PIN goes to the core and is never kept.
 (function () {
   "use strict";
   var tv = window.tv;
   var kit = tv.kit;
   var make = kit.make;
+  var ART_WAIT_MS = 300;
+  var FADE_MS = 500;
+  var LARGE = 194;
+  var SMALL = 130;
 
   function pin(root, person, leave) {
     kit.empty(root);
     var digits = [0, 0, 0, 0];
     var at = 0;
-    var panel = make("div", "people");
+    var panel = make("div", "who-pin");
+    panel.appendChild(tv.parts.avatar(person, LARGE));
     panel.appendChild(make("h1", "", person.name));
     panel.appendChild(make("p", "", "Enter the PIN. Up and down change a number."));
     var row = make("div", "pin");
@@ -47,29 +53,95 @@
     };
   }
 
+  // One title beside the column, crossfading as the focus moves.
+  function feature(page) {
+    var kept = {};
+    var waiting = null;
+    var layer = null;
+    var name = make("p", "who-title");
+    var tags = make("p", "who-tags");
+    page.appendChild(name);
+    page.appendChild(tags);
+
+    function show(tile) {
+      var next = make("div", "who-art incoming");
+      kit.art(next, tv.parts.wide(tile));
+      page.insertBefore(next, page.firstChild);
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () { next.className = "who-art"; });
+      });
+      var old = layer;
+      layer = next;
+      if (old) {
+        old.className = "who-art leaving";
+        window.setTimeout(function () { if (old.parentNode) old.parentNode.removeChild(old); }, FADE_MS);
+      }
+      name.textContent = tile.name;
+      tags.textContent = tile.tags ? tile.tags.join(" · ") : "";
+    }
+
+    return function (person) {
+      window.clearTimeout(waiting);
+      if (!person) return;
+      if (kept[person.id]) {
+        show(kept[person.id]);
+        return;
+      }
+      waiting = window.setTimeout(function () {
+        kit.ask("GET", "/v1/profiles/" + person.id + "/feature", function (status, text) {
+          if (status < 200 || status >= 300) return;
+          kept[person.id] = JSON.parse(text);
+          show(kept[person.id]);
+        });
+      }, ART_WAIT_MS);
+    };
+  }
+
   tv.surfaces.people = function people(root, list, setKeys) {
     var at = 0;
-    var panel = make("div", "people");
-    panel.appendChild(make("h1", "", "Who's watching?"));
-    var row = make("div", "people-row");
-    var faces = [];
+    var page = make("div", "who");
+    var shade = make("div", "who-shade");
+    page.appendChild(shade);
+    var head = make("div", "who-head");
+    var mark = make("img", "who-mark");
+    mark.src = "/mark.svg";
+    mark.alt = "";
+    head.appendChild(mark);
+    head.appendChild(make("p", "", "Choose a Profile"));
+    page.appendChild(head);
+    var column = make("div", "who-column");
+    var rows = [];
     for (var i = 0; i < list.length; i += 1) {
-      var person = make("div", "person");
-      var letter = list[i].name ? list[i].name.charAt(0).toUpperCase() : "?";
-      person.appendChild(make("span", list[i].kids ? "face kids" : "face", letter));
-      person.appendChild(make("span", "person-name", list[i].name));
-      row.appendChild(person);
-      faces.push(person);
+      var row = make("div", "who-row");
+      row.appendChild(make("span", "who-pencil"));
+      row.lastChild.appendChild(tv.parts.icon("pencil", 30));
+      var face = tv.parts.avatar(list[i], SMALL);
+      row.appendChild(face);
+      row.appendChild(make("span", "who-name", list[i].name));
+      column.appendChild(row);
+      rows.push({ node: row, face: face });
     }
-    panel.appendChild(row);
-    root.appendChild(panel);
-    function mark() {
-      for (var n = 0; n < faces.length; n += 1) faces[n].className = n === at ? "person on" : "person";
+    page.appendChild(column);
+    root.appendChild(page);
+    var showArt = feature(page);
+
+    function draw() {
+      for (var n = 0; n < rows.length; n += 1) {
+        var on = n === at;
+        rows[n].node.className = on ? "who-row on" : "who-row";
+        var size = on ? LARGE : SMALL;
+        rows[n].face.style.width = size + "px";
+        rows[n].face.style.height = size + "px";
+        rows[n].face.style.lineHeight = size + "px";
+        rows[n].face.style.fontSize = Math.round(size * 0.46) + "px";
+      }
+      showArt(list[at]);
     }
-    mark();
+    draw();
+
     return function (word) {
-      if (word === "left" && at > 0) at -= 1;
-      else if (word === "right" && at < faces.length - 1) at += 1;
+      if (word === "up" && at > 0) at -= 1;
+      else if (word === "down" && at < rows.length - 1) at += 1;
       else if (word === "ok" && list[at]) {
         if (list[at].has_pin) {
           setKeys(pin(root, list[at], function () {
@@ -81,7 +153,7 @@
         }
         return true;
       } else return false;
-      mark();
+      draw();
       return true;
     };
   };

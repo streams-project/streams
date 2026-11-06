@@ -56,8 +56,8 @@ with sync_playwright() as p:
     phone.get_by_role("button", name="Approve").click(timeout=20000)
     step("approved on the phone")
 
-    tv.wait_for_selector(".people, .browse", timeout=30000)
-    if tv.locator(".people").count():
+    tv.wait_for_selector(".who, .browse", timeout=30000)
+    if tv.locator(".who").count():
         tv.screenshot(path=OUT / "2-profiles.png")
         tv.keyboard.press("Enter")
         tv.wait_for_selector(".browse", timeout=20000)

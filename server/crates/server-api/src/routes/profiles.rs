@@ -8,11 +8,13 @@ use contract::account::{
     ProfileLimits, ProfileList, ProfileTransfer, ProfileUpdate,
 };
 use contract::screen::ScreenName;
+use server_rules::{Tier, Viewer};
 use server_accounts::{Door, Profile, ProfileId, ProfileKind, ProfileLimitsRow, ProfilePatch};
 
-use crate::answer::{Body, Keep, send};
+use crate::answer::{Body, Keep, send, send_cleared};
 use crate::caller::Caller;
 use crate::error::{ApiError, ApiResult};
+use crate::routes::titles::data;
 use crate::state::Shared;
 
 fn door(state: &Shared) -> ApiResult<&Door> {
@@ -45,6 +47,31 @@ pub async fn list(
     let rows = door(&state)?.profiles(&member).await?;
     let profiles = rows.iter().map(view).collect();
     send(&headers, &ProfileList { profiles }, Keep::Never)
+}
+
+/// `GET /v1/profiles/{id}/feature`: one title for the picker, chosen for this profile's age.
+pub async fn feature(
+    State(state): State<Shared>,
+    Caller(member): Caller,
+    Path(id): Path<String>,
+    headers: HeaderMap,
+) -> ApiResult<Response> {
+    let rows = door(&state)?.profiles(&member).await?;
+    let row = rows
+        .iter()
+        .find(|row| row.id.to_string() == id)
+        .ok_or_else(|| ApiError::refused("profile_refused"))?;
+    let tier = if view(row).kids {
+        Tier::OlderKids
+    } else {
+        Tier::Adult
+    };
+    let set = data(&state)?;
+    let tile = state
+        .pages
+        .feature(&set, &Viewer::visitor(tier), &id)
+        .ok_or_else(|| ApiError::off("feature"))?;
+    send_cleared(&headers, &tile, Keep::Never)
 }
 
 /// `POST /v1/profiles`.

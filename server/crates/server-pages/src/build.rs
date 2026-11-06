@@ -832,6 +832,29 @@ impl Pages {
         SafeSuggestions::new(&titles)
     }
 
+    /// A title to show beside a profile on the picker, before anyone has entered it. The seed keeps
+    /// one choice for each profile.
+    #[must_use]
+    pub fn feature(&self, data: &DataSet, viewer: &Viewer, seed: &str) -> Option<SafeTile> {
+        let keys = crate::hero::hero_keys(
+            data,
+            &crate::hero::HeroAsk {
+                tier: viewer.tier(),
+                surface: "both",
+                genre: None,
+                session: seed,
+                limit: 1,
+                seen: &[],
+            },
+        );
+        let other = viewer.see(data, *keys.first()?)?;
+        let extras = TileExtras {
+            tags: item_tags(data.profiles.get(*keys.first()?), &other.item().genres, 3),
+            ..TileExtras::default()
+        };
+        SafeTile::new(other, &self.images, extras)
+    }
+
     /// A title page: its facts and More Like This, hidden when empty.
     #[must_use]
     pub fn title_page(

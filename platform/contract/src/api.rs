@@ -415,6 +415,13 @@ pub const ROUTES: &[Route] = &[
         "ProfileList",
         PROFILES,
     ),
+    read(
+        "/v1/profiles/{id}/feature",
+        "profileFeature",
+        "One title to show beside a profile on the picker.",
+        "Tile",
+        PROFILES,
+    ),
     write(
         "POST",
         "/v1/profiles",

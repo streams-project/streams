@@ -8506,6 +8506,95 @@
         ]
       }
     },
+    "/v1/profiles/{id}/feature": {
+      "get": {
+        "operationId": "profileFeature",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApiVersion"
+          },
+          {
+            "$ref": "#/components/parameters/Client0"
+          },
+          {
+            "$ref": "#/components/parameters/Client1"
+          },
+          {
+            "$ref": "#/components/parameters/Client2"
+          },
+          {
+            "$ref": "#/components/parameters/Client3"
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "film": {
+                    "externalValue": "../fixtures/2026-11-05/valid/Tile.film.json"
+                  },
+                  "series_in_progress": {
+                    "externalValue": "../fixtures/2026-11-05/valid/Tile.series_in_progress.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Tile"
+                }
+              }
+            },
+            "description": "One title to show beside a profile on the picker."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "clock_wrong": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.clock_wrong.json"
+                  },
+                  "no_longer_available": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.no_longer_available.json"
+                  },
+                  "not_found": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.not_found.json"
+                  },
+                  "profile_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.profile_required.json"
+                  },
+                  "rate_limited": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.rate_limited.json"
+                  },
+                  "upgrade_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.upgrade_required.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "An error with a stable code."
+          }
+        },
+        "security": [
+          {
+            "member": []
+          }
+        ],
+        "summary": "One title to show beside a profile on the picker.",
+        "tags": [
+          "profiles"
+        ]
+      }
+    },
     "/v1/profiles/{id}/limits": {
       "get": {
         "operationId": "getLimits",
