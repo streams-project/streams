@@ -155,6 +155,7 @@ impl DataSet {
             &mean,
             &mut dropped,
         );
+        let kids_channels = load_kids_channels(&files, &mut dropped);
         Ok(Self {
             manifest,
             data_hash,
@@ -168,9 +169,7 @@ impl DataSet {
                 .get(role::EVENTS)
                 .map_or_else(EventStore::default, EventStore::load),
             play_facts: PlayFacts::load(&files),
-            kids_channels: files
-                .get(role::KIDS_CHANNELS)
-                .map_or_else(KidsChannels::default, KidsChannels::load),
+            kids_channels,
             people: PeopleIndex::load(&db),
             files,
             catalog,
@@ -294,6 +293,25 @@ fn load_seeds(files: &DataFiles, dims: usize, dropped: &mut Vec<String>) -> Clus
     });
     seeds.read_names(files.get(role::SEED_NAMES), files.get(role::SEED_GROUPS));
     seeds
+}
+
+/// The set's children's channel names. The data builder writes this file for every set and marks
+/// it required, so its bytes are checked like any other. A set that names no such file at all
+/// leaves the list empty: the channel clause of the children's title rule then does not fire, the
+/// role is named in `dropped` and the reason is logged, so the loss is stated and not silent.
+fn load_kids_channels(files: &DataFiles, dropped: &mut Vec<String>) -> KidsChannels {
+    let Some(path) = files.get(role::KIDS_CHANNELS) else {
+        warn!(
+            "The set names no children's channels, so that part of the children's title rule is off"
+        );
+        dropped.push(role::KIDS_CHANNELS.to_owned());
+        return KidsChannels::default();
+    };
+    let channels = KidsChannels::load(path);
+    if channels.is_empty() {
+        dropped.push(role::KIDS_CHANNELS.to_owned());
+    }
+    channels
 }
 
 /// Row definitions, centred on the corpus mean, with an empty store when absent or bad.

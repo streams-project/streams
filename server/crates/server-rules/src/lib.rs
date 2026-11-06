@@ -10,6 +10,6 @@ mod tier;
 mod viewer;
 
 pub use block::normalise_name;
-pub use eligibility::{KIDS_CHANNELS, audience_fits, eligible, is_childrens_title, kid_interest};
+pub use eligibility::{audience_fits, eligible, is_childrens_title, kid_interest};
 pub use tier::{RuleError, Tier};
 pub use viewer::{TierVisible, Viewer, Visible};

@@ -46,7 +46,7 @@ fn chart<'a>(
         .filter(|i| i.media_type == kind && chart_ok(i) && eligible(tier, i, &data.profiles))
         .filter(|i| i.release_year.is_none_or(|y| y <= year))
         .filter(|i| !data.fresh.is_upcoming(&i.media_type, i.title_id, today))
-        .filter(|i| tier.is_kids() || !is_childrens_title(i))
+        .filter(|i| tier.is_kids() || !is_childrens_title(&data.kids_channels, i))
         .collect();
     items.sort_unstable_by(|a, b| {
         b.popularity
@@ -85,7 +85,7 @@ pub fn new_popular_rows(data: &DataSet, tier: Tier, today_days: i64) -> Vec<Row>
             let item = data.catalog.get(&key)?;
             (eligible(tier, item, &data.profiles)
                 && item.has_poster()
-                && (kids || !is_childrens_title(item)))
+                && (kids || !is_childrens_title(&data.kids_channels, item)))
             .then(|| Candidate {
                 item,
                 release: fresh.release_date.clone(),

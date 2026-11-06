@@ -2,7 +2,8 @@
 
 use server_catalog::manifest::{DatasetManifest, ManifestError, role};
 use server_catalog::sample::{
-    SAMPLE_DIMS, sample_titles, sample_trust, sign_sample, special, write_sample,
+    KIDS_CHANNELS_FILE, SAMPLE_DIMS, SAMPLE_KIDS_CHANNELS, sample_titles, sample_trust,
+    sign_sample, special, write_sample,
 };
 use server_catalog::{DataSet, DataSlot, DataTrust, SwapError, item_key};
 
@@ -61,6 +62,7 @@ fn s219_a_copy_keeps_working_because_hashes_decide_and_not_file_times() {
         "vectors.bin",
         "vectors.keys",
         "profiles.jsonl",
+        KIDS_CHANNELS_FILE,
         "manifest.json",
         // a copied set carries its signature, or the copy cannot be checked
         "manifest.sig",
@@ -111,6 +113,39 @@ fn h69_a_bad_optional_file_is_left_out_and_the_set_loads() {
     assert_eq!(set.dropped.len(), 1);
     assert!(set.files.get(role::PROFILES).is_none());
     assert!(!set.profiles.has_profiles());
+}
+
+/// The children's channel names come from the set and from nowhere else. A set that names no such
+/// file keeps the rest of the rule and says the channel clause is off; a set whose copy was
+/// tampered with is refused outright, because the builder marks the file required.
+#[test]
+fn h69_a_set_that_names_no_children_channels_loads_with_that_clause_off() {
+    let manifest = write_sample(&folder("channels"));
+    let set = DataSet::load(&manifest, &sample_trust()).unwrap();
+    assert_eq!(set.kids_channels.len(), SAMPLE_KIDS_CHANNELS.len());
+    assert!(set.kids_channels.holds(SAMPLE_KIDS_CHANNELS[0]));
+
+    let manifest = write_sample(&folder("channels_absent"));
+    rewrite(&manifest, |m| {
+        m.files.remove(role::KIDS_CHANNELS);
+    });
+    let set = DataSet::load(&manifest, &sample_trust()).unwrap();
+    assert!(set.kids_channels.is_empty());
+    assert!(
+        set.dropped.contains(&role::KIDS_CHANNELS.to_owned()),
+        "the loss is named: {:?}",
+        set.dropped
+    );
+
+    let dir = folder("channels_changed");
+    let manifest = write_sample(&dir);
+    std::fs::write(dir.join(KIDS_CHANNELS_FILE), "[]").unwrap();
+    assert!(matches!(
+        DataSet::load(&manifest, &sample_trust()),
+        Err(SwapError::Manifest(
+            ManifestError::WrongSize(_) | ManifestError::WrongHash(_)
+        ))
+    ));
 }
 
 #[test]

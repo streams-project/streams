@@ -14,6 +14,13 @@ use crate::manifest::{DataTrust, DatasetManifest, FileEntry, SCHEMA_VERSION, rol
 /// Width of the sample vectors.
 pub const SAMPLE_DIMS: usize = 16;
 
+/// The children's channel file of a set, as the data builder names it.
+pub const KIDS_CHANNELS_FILE: &str = "kids_channels.json";
+
+/// Invented children's channels. A real set names real broadcasters; this server holds none of
+/// their names, so the sample invents its own.
+pub const SAMPLE_KIDS_CHANNELS: [&str; 2] = ["Sample Kids Channel", "Sample Junior"];
+
 /// One invented title.
 #[derive(Clone, Debug)]
 pub struct SampleTitle {
@@ -463,6 +470,11 @@ pub fn write_sample(dir: &Path) -> PathBuf {
     .expect("sample names");
     std::fs::write(dir.join("fresh.json"), fresh_json(&titles)).expect("sample fresh list");
     std::fs::write(dir.join("events.json"), EVENTS_JSON).expect("sample events");
+    std::fs::write(
+        dir.join(KIDS_CHANNELS_FILE),
+        serde_json::to_vec(&SAMPLE_KIDS_CHANNELS).expect("channels"),
+    )
+    .expect("sample channels");
     let mut files = BTreeMap::new();
     for (name, file, required) in [
         (role::CATALOG, "catalog.db", true),
@@ -473,6 +485,8 @@ pub fn write_sample(dir: &Path) -> PathBuf {
         (role::SEED_NAMES, "seeds.names", false),
         (role::FRESH, "fresh.json", false),
         (role::EVENTS, "events.json", false),
+        // a real set always carries this one, so the sample does too
+        (role::KIDS_CHANNELS, KIDS_CHANNELS_FILE, true),
     ] {
         files.insert(
             name.to_owned(),

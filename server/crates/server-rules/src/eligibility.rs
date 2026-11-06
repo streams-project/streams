@@ -1,6 +1,7 @@
 //! The one eligibility function, and the audience rules beside it.
 
 use server_catalog::catalog::{CatalogItem, FLAG_SUGGESTIVE};
+use server_catalog::channels::KidsChannels;
 use server_catalog::profiles::{ADULT, FAMILY, KIDS, ProfileStore, TEEN};
 
 use crate::tier::Tier;
@@ -35,48 +36,6 @@ const KIDS_BLOCKED_KEYWORDS: [&str; 14] = [
     "zombie",
     "slasher",
     "erotic",
-];
-
-/// Channels that make programmes for children.
-pub const KIDS_CHANNELS: &[&str] = &[
-    "Nickelodeon",
-    "Nicktoons",
-    "Nick Jr.",
-    "Noggin",
-    "Cartoon Network",
-    "Boomerang",
-    "Disney Channel",
-    "Disney XD",
-    "Disney Junior",
-    "Toon Disney",
-    "Jetix",
-    "Playhouse Disney",
-    "CBBC",
-    "CBeebies",
-    "CITV",
-    "Milkshake!",
-    "PBS Kids",
-    "Kids' WB",
-    "Fox Kids",
-    "Teletoon",
-    "YTV",
-    "Treehouse TV",
-    "Discovery Kids",
-    "Universal Kids",
-    "Sprout",
-    "ABC Kids",
-    "Pop",
-    "Tiny Pop",
-    "Cartoonito",
-    "Boing",
-    "Gulli",
-    "Super RTL",
-    "KiKA",
-    "Canal J",
-    "Clan",
-    "Rai Yoyo",
-    "Rai Gulp",
-    "Nickelodeon Junior",
 ];
 
 fn has_genre(item: &CatalogItem, name: &str) -> bool {
@@ -167,13 +126,10 @@ pub fn kid_interest(models: &ProfileStore, item: &CatalogItem) -> bool {
 /// A title made for children: Kids genre, a US TV-Y or TV-Y7 rating, a children's channel, or an
 /// animated series rated U with no US rating.
 #[must_use]
-pub fn is_childrens_title(item: &CatalogItem) -> bool {
+pub fn is_childrens_title(channels: &KidsChannels, item: &CatalogItem) -> bool {
     item.genres.iter().any(|g| g == "Kids")
         || matches!(item.cert_us, 6 | 7)
-        || item
-            .networks
-            .iter()
-            .any(|n| KIDS_CHANNELS.contains(&n.as_str()))
+        || item.networks.iter().any(|n| channels.holds(n))
         || (item.media_type == "tv"
             && item.cert_us == 0
             && item.cert_gb == 1
@@ -351,19 +307,52 @@ mod tests {
         ));
     }
 
+    /// The channel names belong to the data set, so a test names its own.
+    fn channels() -> KidsChannels {
+        KidsChannels::from_names(["A Kids Channel"])
+    }
+
     #[test]
     fn s71_childrens_titles() {
+        let listed = channels();
         let mut series = item(&["Comedy"], &[], false, 0);
-        assert!(!is_childrens_title(&series));
-        series.networks = vec!["Nickelodeon".into()];
-        assert!(is_childrens_title(&series));
+        assert!(!is_childrens_title(&listed, &series));
+        series.networks = vec!["A Kids Channel".into()];
+        assert!(is_childrens_title(&listed, &series));
         let mut young = item(&["Drama"], &[], false, 0);
         young.cert_us = 6;
-        assert!(is_childrens_title(&young));
+        assert!(is_childrens_title(&listed, &young));
         let mut cartoon = item(&["Animation"], &[], false, 0);
         cartoon.cert_gb = 1;
-        assert!(is_childrens_title(&cartoon));
+        assert!(is_childrens_title(&listed, &cartoon));
         assert!(kid_interest(&ProfileStore::empty(), &cartoon));
         assert!(!kid_interest(&ProfileStore::empty(), &rated(1)));
+    }
+
+    /// Why a set with no channel list may fail open on this clause: the age gate does not read it,
+    /// and every reader asks `tier.is_kids() || !is_childrens_title(..)`, so an empty list changes
+    /// an adult page and no child's page. A reader that ever uses the clause to let a title
+    /// through to a child breaks this test, and the decision has to be taken again.
+    #[test]
+    fn s71_with_no_channel_list_only_an_adult_page_changes() {
+        let listed = channels();
+        let empty = KidsChannels::default();
+        let mut series = with_cert(item(&["Family"], &[], false, 0), 1);
+        series.networks = vec!["A Kids Channel".into()];
+        assert!(is_childrens_title(&listed, &series));
+        assert!(!is_childrens_title(&empty, &series), "the clause is off");
+        // the question every reader of the rule asks: may this surface show the title?
+        let shown = |tier: Tier, channels: &KidsChannels| {
+            tier.is_kids() || !is_childrens_title(channels, &series)
+        };
+        for tier in [Tier::LittleKids, Tier::OlderKids] {
+            assert!(allows(tier, &series), "{tier:?} may see it by its rating");
+            assert_eq!(shown(tier, &listed), shown(tier, &empty), "{tier:?}");
+        }
+        assert!(!shown(Tier::Adult, &listed));
+        assert!(
+            shown(Tier::Adult, &empty),
+            "with no list the adult page loses the exclusion"
+        );
     }
 }
