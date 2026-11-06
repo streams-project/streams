@@ -37,8 +37,8 @@ const SCREEN_TTL_S: u32 = 30;
 pub(crate) const ROW_PAGE: usize = 24;
 /// A row with fewer titles after sharing out is dropped.
 const MIN_ROW_ITEMS: usize = 4;
-/// A profile's own list makes a row from this many titles.
-const MIN_OWN_ROW_ITEMS: usize = 3;
+/// A profile's own list makes a row from its first title.
+const MIN_OWN_ROW_ITEMS: usize = 1;
 /// Full rows are kept for paging.
 const ROWS_KEPT_S: u64 = 600;
 /// Bytes the rows of all pages may hold, as an estimate.

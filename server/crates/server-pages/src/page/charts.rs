@@ -17,7 +17,7 @@ impl<'a> PageContext<'a> {
             .iter()
             .flat_map(|c| c.items.iter().map(|i| i.id))
             .collect();
-        // a profile's own lists keep what they hold (S91: three titles make a row)
+        // a profile's own lists keep what they hold
         for row in body.iter_mut().filter(|row| !row.is_own_list()) {
             if row.items.iter().any(|i| chart_ids.contains(&i.id)) {
                 row.items.retain(|i| !chart_ids.contains(&i.id));

@@ -224,6 +224,7 @@ impl<'a> PageContext<'a> {
 
     pub(crate) fn list_row(
         &self,
+        least: usize,
         keys: &[u32],
         title: &str,
         archetype: &str,
@@ -236,10 +237,7 @@ impl<'a> PageContext<'a> {
             .filter(|i| self.personal_ok(i))
             .take(15)
             .collect();
-        if items.len() < 3 {
-            return None;
-        }
-        let mut r = self.row_of_any(title, "personal", &items)?;
+        let mut r = self.row_of_at_least(least, title, "personal", &items)?;
         r.archetype = archetype.to_string();
         r.meta = meta(key, json!({}), Some(json!({ "kind": reason })));
         Some(r)
@@ -387,6 +385,7 @@ impl<'a> PageContext<'a> {
         let on_home = self.genre.is_none() && self.language.is_none();
         if on_home {
             if let Some(r) = self.list_row(
+                1,
                 &own_lists.recent,
                 "Continue Watching",
                 "continue",
@@ -395,9 +394,14 @@ impl<'a> PageContext<'a> {
             ) {
                 rows.push(r);
             }
-            if let Some(r) =
-                self.list_row(&own_lists.saved, "My List", "list", "row.my_list", "saved")
-            {
+            if let Some(r) = self.list_row(
+                1,
+                &own_lists.saved,
+                "My List",
+                "list",
+                "row.my_list",
+                "saved",
+            ) {
                 rows.push(r);
             }
         }
@@ -550,6 +554,7 @@ impl<'a> PageContext<'a> {
                 rows.push(r);
             }
             if let Some(r) = self.list_row(
+                3,
                 &sig.liked,
                 "Familiar Favourites",
                 "favourites",

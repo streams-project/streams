@@ -39,12 +39,23 @@ impl<'a> PageContext<'a> {
         kind: &str,
         items: &[&CatalogItem],
     ) -> Option<Row> {
+        self.row_of_at_least(3, title, kind, items)
+    }
+
+    /// A row with a floor of its own. The viewer's own lists show from their first title.
+    pub(crate) fn row_of_at_least(
+        &self,
+        least: usize,
+        title: &str,
+        kind: &str,
+        items: &[&CatalogItem],
+    ) -> Option<Row> {
         let row_items: Vec<RowItem> = items
             .iter()
             .take(ROW_SIZE)
             .map(|i| RowItem::from_catalog(i))
             .collect();
-        if row_items.len() < 3 {
+        if row_items.len() < least {
             return None;
         }
         Some(Row {
