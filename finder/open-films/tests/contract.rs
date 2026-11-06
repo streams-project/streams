@@ -1,23 +1,35 @@
-//! The demo finder against the published contract. Requests stay in process.
+//! The open film finder against the published contract. Requests stay in process.
 
+use std::sync::Arc;
+
+use axum::Router;
 use axum::body::Body;
 use axum::http::{Request, StatusCode, header};
 use contract::finder::{FindAnswer, FindOutcome, FinderHealth};
 use contract::hello::ServiceState;
-use finder_demo::{ListError, Settings, parse_films, router};
+use finder_open_films::{ListError, OpenFilms, parse_films};
+use finder_service::{Finder, Provider, Settings, router};
 use http_body_util::BodyExt;
 use tower::ServiceExt;
 
 const FILMS: &str = r#"[{"title":"movie:7","url":"https://media.example.invalid/open/master.m3u8",
     "kind":"hls","licence":"CC-BY-3.0","height":720,"audio":["en"]}]"#;
 
-fn settings() -> Settings {
-    Settings {
+fn app(tokens: &[&str], films: Vec<Arc<dyn Provider>>) -> Router {
+    let settings = Settings {
         build: "test".to_owned(),
-        tokens: vec!["old".to_owned(), "new".to_owned()],
-        films: parse_films(FILMS).unwrap(),
-        off: Vec::new(),
-    }
+        tokens: tokens.iter().map(|token| (*token).to_owned()).collect(),
+        ..Settings::default()
+    };
+    router(Arc::new(Finder::new(settings, films)))
+}
+
+fn listed() -> Vec<Arc<dyn Provider>> {
+    vec![Arc::new(OpenFilms(parse_films(FILMS).unwrap()))]
+}
+
+fn settings() -> Router {
+    app(&["old", "new"], listed())
 }
 
 fn find(body: &str, token: Option<&str>) -> Request<Body> {
@@ -28,11 +40,8 @@ fn find(body: &str, token: Option<&str>) -> Request<Body> {
     request.body(Body::from(body.to_owned())).unwrap()
 }
 
-async fn answer(settings: Settings, body: &str) -> FindAnswer {
-    let response = router(settings)
-        .oneshot(find(body, Some("new")))
-        .await
-        .unwrap();
+async fn answer(app: Router, body: &str) -> FindAnswer {
+    let response = app.oneshot(find(body, Some("new"))).await.unwrap();
     assert_eq!(response.status(), StatusCode::OK);
     let bytes = response.into_body().collect().await.unwrap().to_bytes();
     serde_json::from_slice(&bytes).unwrap()
@@ -62,10 +71,7 @@ async fn h57_kinds_stay_apart_and_a_bare_id_is_refused() {
     let tv = r#"{"title":"tv:7","name":"Open Film","budget_ms":1000}"#;
     assert_eq!(answer(settings(), tv).await.outcome, FindOutcome::NotFound);
     let bare = r#"{"title":"7","name":"Open Film","budget_ms":1000}"#;
-    let response = router(settings())
-        .oneshot(find(bare, Some("new")))
-        .await
-        .unwrap();
+    let response = settings().oneshot(find(bare, Some("new"))).await.unwrap();
     assert!(response.status().is_client_error());
 }
 
@@ -92,19 +98,14 @@ async fn both_rotation_tokens_work_and_others_do_not() {
         (Some("wrong"), StatusCode::UNAUTHORIZED),
         (None, StatusCode::UNAUTHORIZED),
     ] {
-        let response = router(settings())
-            .oneshot(find(LISTED, token))
-            .await
-            .unwrap();
+        let response = settings().oneshot(find(LISTED, token)).await.unwrap();
         assert_eq!(response.status(), status);
     }
 }
 
 #[tokio::test]
 async fn h127_no_token_turns_finding_off_and_says_so() {
-    let mut off = settings();
-    off.tokens.clear();
-    let response = router(off)
+    let response = app(&[], listed())
         .oneshot(find(LISTED, Some("new")))
         .await
         .unwrap();
@@ -115,9 +116,7 @@ async fn h127_no_token_turns_finding_off_and_says_so() {
 
 #[tokio::test]
 async fn health_is_degraded_with_no_films_and_names_no_source() {
-    let mut empty = settings();
-    empty.films.clear();
-    let response = router(empty)
+    let response = app(&["new"], Vec::new())
         .oneshot(Request::get("/v1/health").body(Body::empty()).unwrap())
         .await
         .unwrap();

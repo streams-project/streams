@@ -1,24 +1,29 @@
 [package]
-name = "finder-demo"
+name = "finder-open-films"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish.workspace = true
 
+[lints]
+workspace = true
+
 [lib]
 path = "src/lib.rs"
 
 [[bin]]
-name = "finder-demo"
+name = "finder-open-films"
 path = "src/main.rs"
 
 [dependencies]
-contract = { path = "../../platform/contract" }
-axum = { version = "0.8", default-features = false, features = ["http1", "json", "tokio"] }
+async-trait.workspace = true
+contract.workspace = true
+finder-service = { path = "../service" }
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "net"] }
+serde_json = { version = "1", features = ["std"] }
+tokio.workspace = true
 
 [dev-dependencies]
+axum = { version = "0.8", default-features = false, features = ["http1", "json", "tokio"] }
 http-body-util = "0.1"
 tower = { version = "0.5", features = ["util"] }

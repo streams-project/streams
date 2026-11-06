@@ -1,0 +1,24 @@
+[package]
+name = "finder-service"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+# Everything a finder needs except its sources: the published routes, the token check, deadlines,
+# partial answers, shared searches and provider health. A source pack adds providers and a main.
+[dependencies]
+async-trait.workspace = true
+axum = { version = "0.8", default-features = false, features = ["http1", "json", "tokio"] }
+contract.workspace = true
+rand.workspace = true
+serde_json = { version = "1", features = ["std"] }
+tokio.workspace = true
+
+[dev-dependencies]
+http-body-util = "0.1"
+serde = { version = "1", features = ["derive"] }
+tower = { version = "0.5", features = ["util"] }
