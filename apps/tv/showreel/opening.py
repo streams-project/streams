@@ -335,7 +335,7 @@ class Film:
     def __init__(self, kind, art, landing):
         self.kind, self.a, self.land = kind, art, landing
         self.cy = VH / 2
-        self.end1 = {"A": 2.3, "B": 2.6, "C": 3.0}[kind]
+        self.end1 = {"A": 2.3, "B": 2.6, "C": 3.2}[kind]
         self.load_end = self.end1 + LOAD
         self.part2 = {"A": 2.7, "B": 2.7, "C": 2.0}[kind]
         self.t_card = self.load_end + self.part2
@@ -361,8 +361,8 @@ class Film:
         if self.kind == "B":
             return self.pour.text(self.pour.logo(out, t), t)
         # C: a line grows, pulls back into a point, the arrow opens from it and the ribbon slides out.
-        grow = float(smooth(span(t, .2, 1.0)))
-        back = float(smooth(span(t, 1.0, 1.75)))
+        grow = float(smooth(span(t, .2, .95)))
+        back = float(smooth(span(t, .95, 1.7)))
         ax = VW / 2 - 40
         reach = 560 * grow * (1 - back)
         if back < 1:
@@ -374,17 +374,18 @@ class Film:
                 p = np.linspace(0, 1, x1 - int(ax))[None, :, None]
                 c[y0:y0 + w, int(ax):x1] = np.array([255, 120, 90], np.float32) * (1 - p) + np.array([255, 150, 150], np.float32) * p
                 out = out + c + cv2.GaussianBlur(c, (0, 0), 12) * 2.4
+        # The arrow takes in the line as it pulls back, so the two read as one move.
         tri = float(smooth(span(t, .25, .75)))
-        o = float(smooth(span(t, 1.45, 2.05)))
-        if o <= 0:
-            s = .12 + .06 * tri
-            return place(out, a.arr, ax, cy, a.lcx, a.lcy, s / OVER * 1.0, None, tri)
-        s = .18 + (BIG - .18) * o
-        out = place(out, a.rib, VW / 2 - 60 * (1 - o), cy, a.lcx, a.lcy, s / OVER, None, float(smooth(span(t, 1.6, 2.05))))
-        out = place(out, a.arr, ax + 40 * o, cy, a.lcx, a.lcy, s / OVER)
-        if t < 2.05:
+        o = float(smooth(span(t, 1.05, 2.0)))
+        settle = .025 * math.sin(math.pi * span(t, 1.8, 2.25))
+        s = (.16 + .02 * tri + (BIG - .18) * o) * (1 + settle)
+        rib = float(smooth(span(t, 1.5, 2.1)))
+        if rib > 0:
+            out = place(out, a.rib, VW / 2 + 54 * (1 - rib), cy, a.lcx, a.lcy, BIG * (.92 + .08 * rib) / OVER, None, rib)
+        out = place(out, a.arr, ax + 40 * o, cy, a.lcx, a.lcy, s / OVER, None, tri)
+        if t < 2.25:
             return out
-        return self.lockup(np.tile(BG, (VH, VW, 1)).copy(), t, 2.05)
+        return self.lockup(np.tile(BG, (VH, VW, 1)).copy(), t, 2.25)
 
     def at_lockup(self, out, q):
         """q 0 is the mark alone at the centre, q 1 is mark and text at rest."""
