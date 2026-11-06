@@ -12,9 +12,9 @@ import numpy as np, pyloudnorm as pyln, soundfile as sf
 
 BAR = 70 / 24
 FIRST_LINE = 12.75
-LENGTH = 1146 / 24
+LENGTH = 1216 / 24
 root, ffmpeg, out = Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3])
-reprise_bars = int(sys.argv[4]) if len(sys.argv) > 4 else 3
+reprise_bars = int(sys.argv[4]) if len(sys.argv) > 4 else 6
 facts = json.loads((root / "provenance.json").read_text())
 
 with tempfile.TemporaryDirectory() as d:

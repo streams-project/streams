@@ -15,3 +15,4 @@ dist/
 
 # Rendered films hold title art and stay out of the repository.
 /brand/*/media/
+__pycache__/

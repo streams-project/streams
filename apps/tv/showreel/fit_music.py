@@ -11,8 +11,10 @@ from scipy.signal import stft
 
 BAR = 70 / 24
 FIRST_CHANGE = (896 - 590) / 24
-LENGTH = 750 / 24
 root, ffmpeg = Path(sys.argv[1]), sys.argv[2]
+LENGTH = float(sys.argv[3]) if len(sys.argv) > 3 else 750 / 24
+# Bars of the opening played again at the end, so the track comes back to how it began. 0 is none.
+REPRISE = int(sys.argv[4]) if len(sys.argv) > 4 else 0
 out = root / "fitted"
 out.mkdir(exist_ok=True)
 
@@ -70,7 +72,14 @@ for path in sorted(glob.glob(str(root / "music" / "*" / "*.flac"))):
     b = min(cands, key=uneven)
     start = b - bar_in
     clip = s[int(start * sr):int(start * sr) + int(LENGTH * sr)].copy()
-    a, z = int(0.6 * sr), int(2.0 * sr)
+    if REPRISE:
+        fade = int(.75 * sr)
+        join = int((LENGTH - REPRISE * BAR) * sr)
+        again = s[int((start + bar_in) * sr) - fade // 2:][:len(clip) - join + fade // 2]
+        t = np.linspace(0, np.pi / 2, fade)[:, None]
+        mix = s[int(start * sr) + join - fade // 2:][:fade] * np.cos(t) + again[:fade] * np.sin(t)
+        clip = np.vstack([clip[:join - fade // 2], mix, again[fade:]])[:int(LENGTH * sr)]
+    a, z = int(0.6 * sr), int(2.4 * sr)
     clip[:a] *= np.linspace(0, 1, a)[:, None]
     clip[-z:] *= (np.linspace(1, 0, z) ** 1.5)[:, None]
     meter = pyln.Meter(sr)
