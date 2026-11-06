@@ -1,0 +1,12 @@
+# Wire types that hold a title or an image. Only the rules crate builds them, so a route cannot hand
+# out an unchecked title. The rules crate and the test code allow these names.
+disallowed-types = [
+    { path = "contract::screen::Tile", reason = "build a SafeTile from a Visible title" },
+    { path = "contract::screen::Section", reason = "build a SafeSection" },
+    { path = "contract::screen::Screen", reason = "build a SafeScreen" },
+    { path = "contract::screen::More", reason = "build a SafeMore" },
+    { path = "contract::screen::TitleDetail", reason = "build a SafeTitleDetail" },
+    { path = "contract::screen::Season", reason = "build a SafeSeason" },
+    { path = "contract::play::PlayAnswer", reason = "build a SafePlayAnswer" },
+    { path = "contract::screen::Suggestions", reason = "build SafeSuggestions" },
+]

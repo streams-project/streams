@@ -1,0 +1,31 @@
+[package]
+name = "server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow.workspace = true
+axum.workspace = true
+server-accounts.workspace = true
+server-api.workspace = true
+server-catalog.workspace = true
+server-library.workspace = true
+server-pages.workspace = true
+server-play.workspace = true
+server-rules.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[dev-dependencies]
+reqwest.workspace = true
+server-catalog = { workspace = true, features = ["sample"] }
+serde_json.workspace = true
+regex.workspace = true
+sqlparser.workspace = true

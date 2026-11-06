@@ -1,0 +1,21 @@
+error[E0423]: cannot initialize a tuple struct which contains private fields
+ --> tests/compile_fail/tile_literal.rs:4:5
+  |
+4 |     SafeTile(tile)
+  |     ^^^^^^^^
+  |
+note: constructor is not visible here due to private fields
+ --> src/answer.rs
+  |
+  |               pub struct $name($inner);
+  |                                ^^^^^^ private field
+...
+  | / cleared! {
+  | |     /// A `Tile` built from a visible title.
+  | |     SafeTile(Tile);
+  | |     /// A `Section` of safe tiles.
+... |
+  | |     SafeChanges(Changes);
+  | | }
+  | |_- in this macro invocation
+  = note: this error originates in the macro `cleared` (in Nightly builds, run with -Z macro-backtrace for more info)

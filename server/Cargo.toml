@@ -1,0 +1,67 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[workspace.dependencies]
+# The contract is read by path until the first platform release is cut.
+contract = { path = "../platform/contract" }
+server-accounts = { path = "crates/server-accounts" }
+server-catalog = { path = "crates/server-catalog" }
+server-rules = { path = "crates/server-rules" }
+server-library = { path = "crates/server-library" }
+server-pages = { path = "crates/server-pages" }
+server-play = { path = "crates/server-play" }
+server-api = { path = "crates/server-api" }
+
+anyhow = "1"
+arc-swap = "1.7"
+async-trait = "0.1"
+axum = "0.8"
+base64 = "0.22"
+bcrypt = "0.17"
+ed25519-dalek = "2"
+encoding_rs = "0.8"
+half = "2.4"
+hmac = "0.12"
+moka = { version = "0.12", features = ["future", "sync"] }
+pathfinding = "4.12"
+rand = "0.9"
+regex = "1"
+rayon = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+rustc-hash = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+sqlparser = "0.59"
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "tls-rustls-ring-webpki", "postgres", "uuid", "time", "json", "migrate", "macros"] }
+thiserror = "2"
+time = "0.3"
+tokio = { version = "1", features = ["full"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["catch-panic", "compression-br", "cors", "limit"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+trybuild = "1"
+unicode-normalization = "0.1"
+usearch = "2.26"
+uuid = { version = "1", features = ["v4", "serde"] }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 4
+panic = "unwind"

@@ -1,0 +1,5 @@
+error[E0599]: no associated function or constant named `default` found for struct `ProfileScope` in the current scope
+ --> tests/compile_fail/scope_literal.rs:4:27
+  |
+4 |     let _ = ProfileScope::default();
+  |                           ^^^^^^^ associated function or constant not found in `ProfileScope`
