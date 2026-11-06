@@ -10,7 +10,8 @@ Stage 2, the secondary splash: starts when loading ends. The text goes back and 
 
 Directions:
   A  the two shapes meet, the text slides out. Straight streams run the way the arrow points.
-  B  the ribbon unfolds from the arrow, the text is unveiled. Curved ribbons flow out of the mark.
+  B  nothing slides. The mark pours into place where it stays, the letters ripple out of it, and in
+     stage two the letters stretch into the streams.
   C  a line pulls back into the arrow, the text slides out. The landing is seen through the growing arrow.
 Moves use one smooth curve and take at least half a second, so nothing jumps.
 """
@@ -114,12 +115,10 @@ class Streams:
 
     def __init__(self, curved, nose):
         r = np.random.default_rng(21)
-        n = 34 if curved else 44
-        self.curved, self.nx, self.ny = curved, nose[0], nose[1]
+        n = 44
+        self.nx, self.ny = nose[0], nose[1]
         self.y = np.sort(r.uniform(-40, VH + 40, n))
-        sizes = [10, 18, 30, 52, 84, 120] if curved else [3, 5, 9, 16, 28, 46, 70]
-        p = [.22, .22, .22, .16, .1, .08] if curved else [.2, .2, .2, .16, .12, .08, .04]
-        self.th = r.choice(sizes, n, p=p).astype(float)
+        self.th = r.choice([3, 5, 9, 16, 28, 46, 70], n, p=[.2, .2, .2, .16, .12, .08, .04]).astype(float)
         self.col = r.choice(len(self.PAL), n, p=self.WEIGHT)
         self.lag = r.uniform(0, .16, n)
         self.leave = r.uniform(0, .24, n)
@@ -142,15 +141,141 @@ class Streams:
             y0 = self.ny + (self.y[i] - self.ny) * fan
             th = max(1.5, self.th[i] * fan)
             taper = th * 8 + 80
-            xs = np.linspace(tail, head, 36 if self.curved else 8)
+            xs = np.linspace(tail, head, 8)
             k = np.clip((xs - tail) / max(taper, 1), 0, 1) * np.clip((head - xs) / max(taper, 1), 0, 1) ** .6
             w = th * np.sqrt(k)
-            if self.curved:
-                c = y0 + (55 + .05 * self.th[i]) * fan * np.sin(xs / 330 + self.phase[i] * .4 + u * 1.4) + (y0 - self.ny) * .1 * (xs / VW)
-            else:
-                c = y0 + (y0 - self.ny) * .1 * (xs / VW)
+            c = y0 + (y0 - self.ny) * .1 * (xs / VW)
             pts = np.vstack([np.stack([xs, c - w / 2], 1), np.stack([xs[::-1], (c + w / 2)[::-1]], 1)])
             cv2.fillPoly(layer, [np.int32(pts * 16)], self.PAL[self.col[i]], cv2.LINE_AA, shift=4)
+        f = layer.astype(np.float32)
+        glow = cv2.resize(cv2.GaussianBlur(cv2.resize(f, None, fx=.25, fy=.25, interpolation=cv2.INTER_AREA), (0, 0), 10), (VW, VH), interpolation=cv2.INTER_LINEAR)
+        m = cv2.GaussianBlur(np.clip(f.max(2, keepdims=True) / 90, 0, 1), (0, 0), .7)[..., None]
+        return out * (1 - m) + f * m + glow * .5
+
+class Poured:
+    """Direction B. The logo stays where it is for the whole film and nothing slides."""
+    def __init__(self, art):
+        self.a = art
+        cy = VH / 2
+        blank = np.zeros((VH, VW, 3), np.float32)
+        def still(lay):
+            k = 1 / OVER
+            M = np.array([[k, 0, art.mark_x - k * art.lcx], [0, k, cy - k * art.lcy]], np.float64)
+            return cv2.warpAffine(lay, M, (VW, VH), flags=cv2.INTER_LINEAR)
+        self.rib, self.arr = still(art.rib), still(art.arr)
+        y, x = np.mgrid[0:VH, 0:VW].astype(np.float32)
+        def tail_of(im):
+            ys, xs = np.where(im[..., 3] > 30)
+            i = np.argmax(ys - xs * .35)
+            return xs[i], ys[i]
+        self.d_rib = np.hypot(*(lambda p: (x - p[0], y - p[1]))(tail_of(self.rib)))
+        self.d_arr = np.hypot(*(lambda p: (x - p[0], y - p[1]))(tail_of(self.arr)))
+        self.r_rib = float(self.d_rib[self.rib[..., 3] > 10].max())
+        self.r_arr = float(self.d_arr[self.arr[..., 3] > 10].max())
+        # Letters: split the text at the gaps between them.
+        cols = art.word[..., 3].sum(0) > 0
+        edges = np.flatnonzero(np.diff(cols.astype(np.int8)))
+        runs = [(edges[i] + 1, edges[i + 1] + 1) for i in range(0, len(edges) - 1, 2)]
+        self.letters = []
+        for x0, x1 in runs:
+            lay = art.word.copy(); lay[:, :x0] = 0; lay[:, x1:] = 0
+            self.letters.append(lay)
+        # Streaks start at the right hand end of each row of the logo.
+        word = cv2.warpAffine(art.word, np.array([[1 / 3, 0, art.wx], [0, 1 / 3, cy - art.word.shape[0] / 6]], np.float64), (VW, VH))[..., 3]
+        r = np.random.default_rng(9)
+        rows = np.flatnonzero((word > 120).any(1))
+        self.row_group = np.full(VH, -1)
+        y_ = rows.min()
+        while y_ < rows.max():
+            self.row_group[y_:y_ + 3] = r.integers(0, 3)
+            y_ += int(r.integers(7, 12))
+        pick = np.linspace(rows.min(), rows.max(), 46).astype(int)
+        self.oy = pick.astype(np.float32)
+        self.ox = np.array([np.flatnonzero(word[v] > 120).max() if (word[v] > 120).any() else art.wx + art.ww for v in pick], np.float32)
+        self.ty = np.linspace(-30, VH + 30, len(pick)) + r.uniform(-9, 9, len(pick))
+        r.shuffle(self.ty)
+        self.th = r.choice([4, 7, 11, 18, 28, 42, 62], len(pick), p=[.2, .2, .2, .16, .12, .08, .04]).astype(float)
+        self.col = r.choice(len(Streams.PAL), len(pick), p=[.34, .3, .14, .12, .06, .03, .01])
+        self.flow = r.uniform(0, VW + 900, (len(pick), 3))
+        self.lag = r.uniform(0, .34, len(pick))
+        self.leave = r.uniform(0, .3, len(pick))
+
+    def logo(self, out, t):
+        """Stage 1. Each shape pours from its sharp tail to its nose, the arrow overtaking the ribbon."""
+        a = self.a
+        for im, d, r, t0, t1 in ((self.rib, self.d_rib, self.r_rib, .2, 1.05), (self.arr, self.d_arr, self.r_arr, .5, 1.4)):
+            front = (r + 80) * float(smooth(span(t, t0, t1)))
+            if front <= 0:
+                continue
+            m = smooth((front - d) / 70)[..., None]
+            lit = 1 + .35 * (np.exp(-((d - front + 35) / 26) ** 2))[..., None] * (front < r + 40)
+            al = im[..., 3:4] / 255 * m
+            out = out * (1 - al) + im[..., :3] * m * lit
+        return out
+
+    def text(self, out, t, gone=0.0):
+        """The letters ripple out of the mark, one after the next."""
+        a = self.a
+        for i, lay in enumerate(self.letters):
+            p = float(smooth(span(t, 1.25 + .075 * i, 1.95 + .075 * i)))
+            if p <= 0:
+                continue
+            out = place(out, lay, a.wx - 34 * (1 - p), VH / 2, 0, lay.shape[0] / 2, 1 / 3, None, p * (1 - gone))
+        return out
+
+    def stage_two(self, t, u, length):
+        a = self.a
+        out = np.tile(BG, (VH, VW, 1)).copy()
+        out = self.logo(out, 9.0) if u < 1.5 else out
+        if u < 1.5 and (al := 1 - float(smooth(span(u, .75, 1.4)))) < 1:
+            out = BG + (out - BG) * al
+        # Each row of each letter stretches to the right, and the letters let go from the left.
+        go = span(u, 0, .85)
+        if go < 1:
+            w = cv2.warpAffine(a.word, np.array([[1 / 3, 0, a.wx], [0, 1 / 3, VH / 2 - a.word.shape[0] / 6]], np.float64), (VW, VH))[..., 3] / 255
+            base = w * (1 - float(smooth(span(u, .1, .55))))
+            streak = np.zeros_like(w)
+            for g, mult in enumerate((.55, 1.0, 1.5)):
+                k = 1 + int(760 * mult * float(smooth(go)) ** 1.4)
+                row = (self.row_group == g).astype(np.float32)[:, None]
+                part = w * row
+                streak = np.maximum(streak, cv2.dilate(part, np.ones((1, k), np.uint8), anchor=(k - 1, 0)) if k > 1 else part)
+            streak *= 1 - wipe(a.wx - 80 + (a.ww + 1000) * float(smooth(span(u, .2, .85))), 110)[0, :, 0]
+            streak *= float(smooth(span(u, 0, .12)))
+            x = np.arange(VW, dtype=np.float32)[None, :, None]
+            tone = np.clip((x - a.wx - a.ww * .6) / 620, 0, 1)
+            colour = np.array([255, 255, 255], np.float32) * (1 - tone) + np.array([255, 107, 47], np.float32) * tone
+            al = np.maximum(base, streak)[..., None]
+            out = out * (1 - al) + colour * al
+        layer = np.zeros((VH, VW, 3), np.uint8)
+        for i in range(len(self.oy)):
+            p = span(u, .1 + self.lag[i], 1.05 + self.lag[i])
+            if p <= 0:
+                continue
+            head = self.ox[i] + (VW + 700 - self.ox[i]) * float(smooth(p)) ** 1.3
+            fan = float(smooth(span(u, .45 + self.lag[i] * .5, 1.45)))
+            lv = span(u, length - .85 + self.leave[i], length + self.leave[i])
+            tail = self.ox[i] - (self.ox[i] + 900) * fan + (VW + 2200) * float(smooth(lv)) ** 1.4
+            if tail >= VW or head <= tail:
+                continue
+            y0 = self.oy[i] + (self.ty[i] - self.oy[i]) * fan + (self.ty[i] - VH / 2) * .03 * max(0, u - .8)
+            th = max(1.5, 2.6 + (self.th[i] - 2.6) * fan)
+            xs = np.linspace(tail, head, 8)
+            tp = th * 8 + 80
+            q = np.clip((xs - tail) / tp, 0, 1) * np.clip((head - xs) / tp, 0, 1) ** .6
+            wd = th * np.sqrt(q)
+            pts = np.vstack([np.stack([xs, y0 - wd / 2], 1), np.stack([xs[::-1], (y0 + wd / 2)[::-1]], 1)])
+            col = Streams.PAL[self.col[i]]
+            cv2.fillPoly(layer, [np.int32(pts * 16)], col, cv2.LINE_AA, shift=4)
+            # Light keeps moving along each stream, so the full picture still flows.
+            hi = tuple(int(c + (255 - c) * .62) for c in col)
+            for f0 in self.flow[i]:
+                c = (f0 + u * 2100) % (VW + 900) - 450
+                x0, x1 = max(tail + tp, c - 240), min(head - tp, c + 240)
+                if x1 - x0 > 30:
+                    h = max(1.0, th * .34)
+                    seg = np.array([[x0, y0], [(x0 + x1) / 2, y0 - h], [x1, y0], [(x0 + x1) / 2, y0 + h]])
+                    cv2.fillPoly(layer, [np.int32(seg * 16)], hi, cv2.LINE_AA, shift=4)
         f = layer.astype(np.float32)
         glow = cv2.resize(cv2.GaussianBlur(cv2.resize(f, None, fx=.25, fy=.25, interpolation=cv2.INTER_AREA), (0, 0), 10), (VW, VH), interpolation=cv2.INTER_LINEAR)
         m = cv2.GaussianBlur(np.clip(f.max(2, keepdims=True) / 90, 0, 1), (0, 0), .7)[..., None]
@@ -192,15 +317,17 @@ class Film:
     def __init__(self, kind, art, landing):
         self.kind, self.a, self.land = kind, art, landing
         self.cy = VH / 2
-        self.end1 = {"A": 2.2, "B": 2.3, "C": 3.0}[kind]
+        self.end1 = {"A": 2.2, "B": 2.6, "C": 3.0}[kind]
         self.load_end = self.end1 + LOAD
-        self.part2 = {"A": 3.1, "B": 3.1, "C": 2.5}[kind]
+        self.part2 = {"A": 3.1, "B": 2.7, "C": 2.5}[kind]
         self.t_card = self.load_end + self.part2
         self.t_film = self.t_card + (.75 if kind != "C" else .35)
         self.total = self.t_film + FILM_SECONDS
         nose = (VW / 2 + self.a.mw * BIG * .46, self.cy + 4)
-        if kind in "AB":
-            self.streams = Streams(kind == "B", nose)
+        if kind == "A":
+            self.streams = Streams(False, nose)
+        if kind == "B":
+            self.pour = Poured(art)
 
     # Part 1
     def splash(self, t):
@@ -213,19 +340,7 @@ class Film:
                 return a.mark(out, VW / 2, cy, BIG, gap=520 * (1 - k), alpha=al)
             return self.lockup(out, t, 1.2)
         if self.kind == "B":
-            # The arrow arrives, the ribbon unfolds from behind it, then the text is unveiled from the mark.
-            al = float(smooth(span(t, .2, .75)))
-            un = float(smooth(span(t, .45, 1.2)))
-            if t < 1.2:
-                out = place(out, a.rib, VW / 2 + 70 * (1 - un), cy, a.lcx, a.lcy, BIG / OVER, None, un)
-                return place(out, a.arr, VW / 2, cy, a.lcx, a.lcy, (BIG * (.92 + .08 * al)) / OVER, None, al)
-            q = float(smooth(span(t, 1.2, 2.2)))
-            cx = VW / 2 + (a.mark_x - VW / 2) * q
-            s_ = BIG + (1 - BIG) * q
-            edge = a.wx - 30 + (a.ww + 90) * q
-            if q > .002:
-                out = a.put_word(out, a.wx, cy, 1.0, mask=wipe(edge, 34))
-            return a.mark(out, cx, cy, s_)
+            return self.pour.text(self.pour.logo(out, t), t)
         # C: a line grows, pulls back into a point, the arrow opens from it and the ribbon slides out.
         grow = float(smooth(span(t, .2, 1.0)))
         back = float(smooth(span(t, 1.0, 1.75)))
@@ -269,12 +384,14 @@ class Film:
 
     # Part 2
     def secondary(self, t):
+        if self.kind == "B":
+            return self.pour.stage_two(t, t - self.load_end, self.part2)
         u = t - self.load_end - .6
         a, cy = self.a, self.cy
         out = np.tile(BG, (VH, VW, 1)).copy()
         if u < 0:
             return self.at_lockup(out, 1 - float(smooth(span(t, self.load_end, self.load_end + .6))))
-        if self.kind in "AB":
+        if self.kind == "A":
             cock = float(smooth(span(u, 0, .45)))
             go = span(u, .45, 1.15)
             if u >= .4:
@@ -313,7 +430,9 @@ class Film:
     def sample(self, t):
         if self.end1 <= t < self.load_end or t >= self.t_film:
             return self.frame(t)
-        n = 6
+        n = 3 if self.kind == "B" and t >= self.load_end else 1 if self.kind == "B" else 6
+        if n == 1:
+            return self.frame(t)
         return np.mean([self.frame(t + k / (FPS * n)) for k in range(n)], 0)
 
 def sound(film, music, path):
@@ -328,7 +447,7 @@ def sound(film, music, path):
         x[i:j] += sig[: j - i, None]
     # Splash: two soft notes in D as the logo settles.
     L = int(2.4 * sr); tt = np.arange(L) / sr
-    hit = {"A": 1.2, "B": 1.2, "C": 2.05}[film.kind]
+    hit = {"A": 1.2, "B": 1.3, "C": 2.05}[film.kind]
     for f0, a, d in ((293.66, .2, 0), (440.0, .15, .1), (587.33, .1, .22)):
         at(hit + d, np.sin(2 * np.pi * f0 * tt) * np.exp(-tt / .7) * a * np.clip(tt / .03, 0, 1))
     # Secondary splash: pad and air swelling into the card.
@@ -336,7 +455,7 @@ def sound(film, music, path):
     env = np.clip(tt / 1.0, 0, 1) ** 2 * np.exp(-np.clip(tt - 1.0, 0, None) / .5)
     pad = sum(np.sin(2 * np.pi * f * tt) for f in (146.83, 220.0, 293.66, 440.0)) / 4
     air = sosfilt(butter(2, [600, 6000], "bp", fs=sr, output="sos"), rng.standard_normal(L))
-    at(film.load_end + .6, env * (pad * .3 + air * .06))
+    at(film.load_end + (0 if film.kind == "B" else .6), env * (pad * .3 + air * .06))
     m, _ = sf.read(music, always_2d=True)
     i = int(film.t_film * sr); k = min(n - i, len(m))
     x[i:i + k] += m[:k]
@@ -344,6 +463,11 @@ def sound(film, music, path):
     x[-tail:] *= np.linspace(1, 0, tail)[:, None]
     x *= .89 / max(np.abs(x).max(), 1e-6)
     sf.write(path, x, sr, subtype="PCM_24")
+
+FILM = None
+
+def one(n):
+    return np.clip(FILM.sample(n / FPS), 0, 255).astype(np.uint8).tobytes()
 
 def main():
     ap = argparse.ArgumentParser()
@@ -372,8 +496,15 @@ def main():
     sound(film, a.music, wav)
     p = subprocess.Popen([a.ffmpeg, "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{VW}x{VH}", "-r", str(FPS), "-i", "-", "-i", wav,
                           "-c:v", "libx264", "-crf", "17", "-preset", "medium", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", a.out], stdin=subprocess.PIPE)
-    for n in range(int(film.total * FPS)):
-        p.stdin.write(np.clip(film.sample(n / FPS), 0, 255).astype(np.uint8).tobytes())
+    import multiprocessing as mp
+    global FILM
+    FILM = film
+    cv2.setNumThreads(1)
+    with mp.get_context("fork").Pool(10) as pool:
+        for i, data in enumerate(pool.imap(one, range(int(film.total * FPS)), chunksize=6)):
+            p.stdin.write(data)
+            if i % 120 == 0:
+                print("frame", i, flush=True)
     p.stdin.close(); p.wait()
     Path(wav).unlink()
     print("wrote", a.out)
