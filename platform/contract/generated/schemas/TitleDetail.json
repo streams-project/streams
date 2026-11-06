@@ -1,5 +1,35 @@
 {
   "$defs": {
+    "AgeMark": {
+      "description": "An age mark, as this viewer reads it. Each screen picks its shape.",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "tone": {
+          "$ref": "#/$defs/AgeTone"
+        }
+      },
+      "required": [
+        "label",
+        "tone"
+      ],
+      "type": "object"
+    },
+    "AgeTone": {
+      "description": "The colour family of an age mark. The server picks it and each app paints it.",
+      "enum": [
+        "green",
+        "yellow",
+        "orange",
+        "pink",
+        "red",
+        "dark_red",
+        "blue",
+        "grey"
+      ],
+      "type": "string"
+    },
     "Badge": {
       "description": "A mark on a tile.",
       "properties": {
@@ -149,6 +179,10 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Facts of one title.",
   "properties": {
+    "age": {
+      "$ref": "#/$defs/AgeMark",
+      "description": "Absent when the title has no rating in either system."
+    },
     "genres": {
       "items": {
         "type": "string"

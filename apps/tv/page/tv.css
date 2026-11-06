@@ -224,15 +224,20 @@ button {
 }
 /* The top bar: tabs in one line, the active one a pill. */
 .top { position: absolute; left: 0; top: 0; width: 1920px; height: 130px; }
-.top-search {
-  position: absolute;
-  left: 555px;
-  top: 52px;
-  width: 22px;
-  height: 22px;
-  border: 3px solid var(--text);
-  border-radius: 50%;
+.icon { display: inline-block; vertical-align: middle; }
+.icon svg { display: block; }
+.avatar {
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+  font-weight: 800;
+  border-radius: 28px;
+  background: var(--accent) center / cover no-repeat;
 }
+.avatar.square { border-radius: 8px; }
+.avatar.kids { background-color: var(--join); }
+.top-who { position: absolute; left: 68px; top: 46px; }
+.top-search { position: absolute; left: 554px; top: 50px; }
 .top-tabs { position: absolute; left: 609px; top: 36px; white-space: nowrap; }
 .top-mark { position: absolute; left: 1796px; top: 40px; width: 64px; height: 64px; }
 .top-tab {
@@ -284,7 +289,12 @@ button {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 }
-.button.large { height: 84px; line-height: 84px; padding: 0 50px; font-size: 32px; }
+.button.large { height: 84px; line-height: 84px; padding: 0 46px; font-size: 32px; }
+.button .icon { margin-right: 12px; margin-top: -6px; }
+.facts-dot { display: inline-block; width: 6px; height: 6px; margin: 0 14px 5px; border-radius: 50%; background: var(--muted); }
+.age-text { font-weight: 700; }
+.age-chip { display: inline-block; padding: 2px 10px; border-radius: 6px; background: rgba(255, 255, 255, 0.2); font-weight: 700; }
+.open-clip { position: absolute; left: 0; top: 0; width: 904px; height: 508px; }
 
 /* One row owns the screen: a wide focused title, posters beside it, its facts under it. */
 .row-now { position: absolute; left: 0; top: 0; width: 1920px; height: 900px; }

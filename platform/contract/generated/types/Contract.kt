@@ -170,6 +170,29 @@ data class AgeCard(
     @SerialName("reasons") val reasons: List<String>? = null,
 )
 
+/** An age mark, as this viewer reads it. Each screen picks its shape. */
+@Serializable
+data class AgeMark(
+    @SerialName("label") val label: String,
+    @SerialName("tone") val tone: AgeTone,
+)
+
+/** The colour family of an age mark. The server picks it and each app paints it. */
+@Serializable
+@JvmInline
+value class AgeTone(val value: String) {
+    companion object {
+        val GREEN = AgeTone("green")
+        val YELLOW = AgeTone("yellow")
+        val ORANGE = AgeTone("orange")
+        val PINK = AgeTone("pink")
+        val RED = AgeTone("red")
+        val DARK_RED = AgeTone("dark_red")
+        val BLUE = AgeTone("blue")
+        val GREY = AgeTone("grey")
+    }
+}
+
 /** One way to play. Attempts arrive in the order to try, ranked once on the server. `headers` is required, even when empty, and no provider name is carried. */
 @Serializable
 data class Attempt(
@@ -2053,6 +2076,8 @@ value class TimerOp(val value: String) {
 /** Facts of one title. */
 @Serializable
 data class TitleDetail(
+    /** Absent when the title has no rating in either system. */
+    @SerialName("age") val age: AgeMark? = null,
     @SerialName("genres") val genres: List<String>? = null,
     @SerialName("images") val images: List<Image>? = null,
     /** Hidden when empty. */

@@ -3,6 +3,7 @@
 //! event header or play answer cannot carry an unfiltered title.
 
 #[allow(clippy::disallowed_types)]
+pub mod age;
 pub mod answer;
 mod block;
 mod eligibility;

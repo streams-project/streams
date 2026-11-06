@@ -385,6 +385,36 @@ public struct AgeCard: Codable, Equatable, Sendable {
     }
 }
 
+/// An age mark, as this viewer reads it. Each screen picks its shape.
+public struct AgeMark: Codable, Equatable, Sendable {
+    public var label: String
+    public var tone: AgeTone
+
+    enum CodingKeys: String, CodingKey {
+        case label = "label"
+        case tone = "tone"
+    }
+
+    public init(label: String, tone: AgeTone) {
+        self.label = label
+        self.tone = tone
+    }
+}
+
+/// The colour family of an age mark. The server picks it and each app paints it.
+public struct AgeTone: RawRepresentable, Codable, Hashable, Sendable {
+    public var rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+    public static let green = AgeTone(rawValue: "green")
+    public static let yellow = AgeTone(rawValue: "yellow")
+    public static let orange = AgeTone(rawValue: "orange")
+    public static let pink = AgeTone(rawValue: "pink")
+    public static let red = AgeTone(rawValue: "red")
+    public static let darkRed = AgeTone(rawValue: "dark_red")
+    public static let blue = AgeTone(rawValue: "blue")
+    public static let grey = AgeTone(rawValue: "grey")
+}
+
 /// One way to play. Attempts arrive in the order to try, ranked once on the server. `headers` is required, even when empty, and no provider name is carried.
 public struct Attempt: Codable, Equatable, Sendable {
     public var audio: [String]?
@@ -4195,6 +4225,8 @@ public struct TimerOp: RawRepresentable, Codable, Hashable, Sendable {
 
 /// Facts of one title.
 public struct TitleDetail: Codable, Equatable, Sendable {
+    /// Absent when the title has no rating in either system.
+    public var age: AgeMark?
     public var genres: [String]?
     public var images: [Image]?
     /// Hidden when empty.
@@ -4207,6 +4239,7 @@ public struct TitleDetail: Codable, Equatable, Sendable {
     public var year: Int?
 
     enum CodingKeys: String, CodingKey {
+        case age = "age"
         case genres = "genres"
         case images = "images"
         case moreLikeThis = "more_like_this"
@@ -4218,7 +4251,8 @@ public struct TitleDetail: Codable, Equatable, Sendable {
         case year = "year"
     }
 
-    public init(genres: [String]? = nil, images: [Image]? = nil, moreLikeThis: [Tile]? = nil, name: String, overview: String? = nil, runtimeMin: Int? = nil, seasons: [SeasonSummary]? = nil, title: TitleKey, year: Int? = nil) {
+    public init(age: AgeMark? = nil, genres: [String]? = nil, images: [Image]? = nil, moreLikeThis: [Tile]? = nil, name: String, overview: String? = nil, runtimeMin: Int? = nil, seasons: [SeasonSummary]? = nil, title: TitleKey, year: Int? = nil) {
+        self.age = age
         self.genres = genres
         self.images = images
         self.moreLikeThis = moreLikeThis

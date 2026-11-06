@@ -6,8 +6,8 @@ use contract::command::Changes;
 use contract::error::Notice;
 use contract::play::{AgeCard, Attempt, PlayAnswer};
 use contract::screen::{
-    Badge, Cursor, Episode, Image, ImageRole, More, RefreshTrigger, Screen, ScreenName, Season,
-    SeasonSummary, Section, SectionKind, Suggestions, Tile, TitleDetail,
+    AgeMark, Badge, Cursor, Episode, Image, ImageRole, More, RefreshTrigger, Screen, ScreenName,
+    Season, SeasonSummary, Section, SectionKind, Suggestions, Tile, TitleDetail,
 };
 use contract::{EpisodeRef, TitleKey, TitleKind};
 use serde::Serialize;
@@ -210,6 +210,7 @@ impl SafeMore {
 /// Facts of a title page that are not on the title row.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct DetailExtras {
+    pub age: Option<AgeMark>,
     pub seasons: Vec<SeasonSummary>,
     pub more_like_this: Vec<SafeTile>,
 }
@@ -226,6 +227,7 @@ impl SafeTitleDetail {
             year: item.release_year.and_then(|year| u32::try_from(year).ok()),
             runtime_min: (item.runtime > 0).then_some(item.runtime),
             genres: item.genres.clone(),
+            age: extras.age,
             images: images.of_title(item),
             seasons: extras.seasons,
             more_like_this: wires(extras.more_like_this),

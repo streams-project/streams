@@ -67,6 +67,20 @@ words! {
 }
 
 words! {
+    /// The colour family of an age mark. The server picks it and each app paints it.
+    pub enum AgeTone {
+        Green,
+        Yellow,
+        Orange,
+        Pink,
+        Red,
+        DarkRed,
+        Blue,
+        Grey,
+    }
+}
+
+words! {
     /// Marks on a tile.
     pub enum BadgeKind {
         Ranked,
@@ -201,6 +215,12 @@ wire! {
         pub episode_count: u32,
     }
 
+    /// An age mark, as this viewer reads it. Each screen picks its shape.
+    pub struct AgeMark {
+        pub label: String,
+        pub tone: AgeTone,
+    }
+
     /// Facts of one title.
     pub struct TitleDetail {
         pub title: TitleKey,
@@ -213,6 +233,9 @@ wire! {
         pub runtime_min: Option<u32>,
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         pub genres: Vec<String>,
+        /// Absent when the title has no rating in either system.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub age: Option<AgeMark>,
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         pub images: Vec<Image>,
         #[serde(default, skip_serializing_if = "Vec::is_empty")]

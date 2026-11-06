@@ -104,6 +104,15 @@ export interface AgeCard {
   reasons?: string[];
 }
 
+/** An age mark, as this viewer reads it. Each screen picks its shape. */
+export interface AgeMark {
+  label: string;
+  tone: AgeTone;
+}
+
+/** The colour family of an age mark. The server picks it and each app paints it. */
+export type AgeTone = "green" | "yellow" | "orange" | "pink" | "red" | "dark_red" | "blue" | "grey" | (string & {});
+
 /** One way to play. Attempts arrive in the order to try, ranked once on the server. `headers` is required, even when empty, and no provider name is carried. */
 export interface Attempt {
   audio?: string[];
@@ -1369,6 +1378,8 @@ export type TimerOp = "set" | "clear" | (string & {});
 
 /** Facts of one title. */
 export interface TitleDetail {
+  /** Absent when the title has no rating in either system. */
+  age?: AgeMark;
   genres?: string[];
   images?: Image[];
   /** Hidden when empty. */

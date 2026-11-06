@@ -2,12 +2,14 @@
 //! the rules, so a refused title and a title the catalogue lacks are told apart by code alone.
 
 use axum::extract::{Path, State};
+use axum::http::header::ACCEPT_LANGUAGE;
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::Response;
 use contract::error::ErrorCode;
 use contract::{TitleKey, TitleKind};
 use server_catalog::{DataSet, item_key};
 use server_rules::Viewer;
+use server_rules::age::{RatingSystem, system_of_country};
 use server_rules::answer::SafeTitleDetail;
 
 use crate::answer::{Keep, send_cleared};
@@ -48,6 +50,17 @@ fn packed(key: TitleKey) -> u32 {
     item_key(word, key.id())
 }
 
+/// The rating system of a request, from the region in its language. A profile's setting will sit
+/// in front of this.
+fn rating_system(headers: &HeaderMap) -> RatingSystem {
+    let region = headers
+        .get(ACCEPT_LANGUAGE)
+        .and_then(|value| value.to_str().ok())
+        .and_then(|text| text.split([',', ';']).next())
+        .and_then(|tag| tag.split('-').nth(1));
+    system_of_country(region)
+}
+
 /// The title page of a key for a viewer. A title outside the catalogue answers no longer
 /// available, and a title the rules refuse answers refused.
 fn detail(
@@ -55,6 +68,7 @@ fn detail(
     set: &DataSet,
     viewer: &Viewer,
     key: TitleKey,
+    system: RatingSystem,
 ) -> ApiResult<SafeTitleDetail> {
     let packed = packed(key);
     if !set.catalog.contains_key(&packed) {
@@ -65,7 +79,7 @@ fn detail(
         .ok_or_else(|| ApiError::refused("title_refused"))?;
     state
         .pages
-        .title_page(set, viewer, visible)
+        .title_page(set, viewer, visible, system)
         .ok_or_else(no_longer_available)
 }
 
@@ -78,7 +92,7 @@ pub async fn title(
 ) -> ApiResult<Response> {
     let key = key_of(&kind, &id)?;
     let set = data(&state)?;
-    let page = detail(&state, &set, &reader.viewer, key)?;
+    let page = detail(&state, &set, &reader.viewer, key, rating_system(&headers))?;
     send_cleared(&headers, &page, Keep::Private)
 }
 
@@ -95,6 +109,12 @@ pub async fn public_title(
         .ok_or_else(|| ApiError::off("public_titles"))?;
     let key = key_of(&kind, &id)?;
     let set = data(&state)?;
-    let page = detail(&state, &set, &Viewer::visitor(tier), key)?;
+    let page = detail(
+        &state,
+        &set,
+        &Viewer::visitor(tier),
+        key,
+        rating_system(&headers),
+    )?;
     send_cleared(&headers, &page, Keep::Public(PUBLIC_TTL_S))
 }

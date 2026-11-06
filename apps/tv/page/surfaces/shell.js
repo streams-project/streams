@@ -25,7 +25,15 @@
   var play = null;
   var screen = null;
   var nav = [];
+  var profile = null;
   var detail = null;
+
+  function watcher() {
+    for (var i = 0; i < people.length; i += 1) {
+      if (people[i].id === profile) return people[i];
+    }
+    return people[0] || null;
+  }
 
   function setKeys(given) {
     keys = given;
@@ -39,7 +47,7 @@
     var target = route.target;
     if (target === "sign_in") keys = tv.surfaces.code(root, device);
     else if (target === "profiles") keys = tv.surfaces.people(root, people, setKeys);
-    else if (BROWSE[target]) keys = tv.surfaces.browse(root, screen, nav, route);
+    else if (BROWSE[target]) keys = tv.surfaces.browse(root, screen, nav, route, watcher());
     else if (target === "title") keys = tv.surfaces.title(root, detail && detail.title === route.title ? detail : null);
     else if (target === "watch") keys = tv.surfaces.watch(root, function () { return play && play.state; });
     else if (MESSAGES[target]) root.appendChild(kit.make("div", "message", MESSAGES[target]));
@@ -96,6 +104,7 @@
     view: function (view) {
       if (view.hello && view.hello.brand.name) document.title = view.hello.brand.name;
       if (view.play) play = view.play;
+      if (view.session) profile = view.session.profile || null;
       if (view.profiles) {
         people = view.profiles.profiles;
         if (route && route.target === "profiles") draw();

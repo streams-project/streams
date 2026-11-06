@@ -13,6 +13,7 @@ use server_catalog::DataSet;
 use server_catalog::catalog::CatalogItem;
 use server_catalog::det::HashSet;
 use server_catalog::manifest::role;
+use server_rules::age::{RatingSystem, age_mark};
 use server_rules::answer::{
     DetailExtras, Images, SafeMore, SafeScreen, SafeSection, SafeSuggestions, SafeTile,
     SafeTitleDetail, TileExtras,
@@ -838,8 +839,10 @@ impl Pages {
         data: &DataSet,
         viewer: &Viewer,
         title: Visible<'_>,
+        system: RatingSystem,
     ) -> Option<SafeTitleDetail> {
         let anchor = title.item().id;
+        let age = age_mark(system, title.item().cert_gb, title.item().cert_us);
         let keys = crate::more_like::more_like_keys(
             data,
             viewer.tier(),
@@ -861,6 +864,7 @@ impl Pages {
             title,
             &self.images,
             DetailExtras {
+                age,
                 seasons: Vec::new(),
                 more_like_this,
             },

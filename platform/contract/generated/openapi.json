@@ -410,6 +410,36 @@
         ],
         "type": "object"
       },
+      "AgeMark": {
+        "description": "An age mark, as this viewer reads it. Each screen picks its shape.",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "tone": {
+            "$ref": "#/components/schemas/AgeTone"
+          }
+        },
+        "required": [
+          "label",
+          "tone"
+        ],
+        "type": "object"
+      },
+      "AgeTone": {
+        "description": "The colour family of an age mark. The server picks it and each app paints it.",
+        "enum": [
+          "green",
+          "yellow",
+          "orange",
+          "pink",
+          "red",
+          "dark_red",
+          "blue",
+          "grey"
+        ],
+        "type": "string"
+      },
       "Attempt": {
         "description": "One way to play. Attempts arrive in the order to try, ranked once on the server.\n`headers` is required, even when empty, and no provider name is carried.",
         "properties": {
@@ -4465,6 +4495,10 @@
       "TitleDetail": {
         "description": "Facts of one title.",
         "properties": {
+          "age": {
+            "$ref": "#/components/schemas/AgeMark",
+            "description": "Absent when the title has no rating in either system."
+          },
           "genres": {
             "items": {
               "type": "string"

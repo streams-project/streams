@@ -14,10 +14,12 @@
     player: ["command", "listen", "mount"],
     // Turns remote presses into words: left, right, up, down, ok, back, play, pause, stop, rewind,
     // forward, or a digit. listen(press) calls press(word) and uses the press if that says true.
-    keys: ["listen"]
+    keys: ["listen"],
+    // Short clips for a focused title. find(title, show) calls show(url) when one exists.
+    clips: ["find"]
   };
 
-  var tv = { ports: {}, surfaces: {} };
+  var tv = { ports: {}, surfaces: {}, parts: {} };
 
   // Called by each adapter. A missing call stops the app here and not in front of a viewer.
   tv.plug = function (port, adapter) {
