@@ -6,6 +6,8 @@
   "problem-signed-out": "You have been signed out.",
   "error.sign_in": "That email or password is not right.",
   "error.code": "That code is not right, or it has expired.",
+  "error.device_decided": "That code was already answered.",
+  "error.rate_limited": "Too many tries. Wait a minute and try again.",
   "error.sign_up": "That did not work. If you already joined, sign in instead.",
   "error.email": "That email address does not look right.",
   "error.password": "Passwords need at least 8 characters.",

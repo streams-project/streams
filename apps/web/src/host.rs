@@ -120,7 +120,9 @@ pub fn act(action: Action) {
     step(vec![event(EventBody::Action { action })]);
 }
 
-/// Send a prepared request, and hand its answer to `reply`.
+/// Send a prepared request, and hand its answer to `reply`, with status 0 when no answer came.
+/// A 401 on the session's token is the core's to retry, so `reply` hears how that ended. If the
+/// session ended instead it hears nothing, because the core has moved to sign in.
 pub fn ask(
     method: HttpMethod,
     path: &str,
@@ -334,13 +336,24 @@ fn timer(id: String, op: TimerOp, after_ms: Option<u64>) {
     }
 }
 
+fn in_address(text: &str) -> String {
+    js_sys::encode_uri_component(text).into()
+}
+
 /// The address a target lives at, so the bar and the back button stay true.
 fn address_of(target: &RouteTarget) -> Option<String> {
     let title = target.title.as_ref();
     let pair = title.map(|title| (title.kind().word(), title.id()));
     let address = match target.target {
         Target::Start => "/".to_owned(),
-        Target::SignIn => "/sign-in".to_owned(),
+        Target::SignIn => match &target.next {
+            Some(next) => format!("/sign-in?next={}", in_address(next)),
+            None => "/sign-in".to_owned(),
+        },
+        Target::Activate => match &target.code {
+            Some(code) => format!("/activate?code={}", in_address(code)),
+            None => "/activate".to_owned(),
+        },
         Target::Profiles => "/profiles".to_owned(),
         Target::Home => "/home".to_owned(),
         Target::KidsHome => "/kids".to_owned(),
@@ -390,9 +403,13 @@ async fn fetch_it(
     deadline_ms: u32,
     to: BodyTarget,
 ) {
+    let carried_token = headers.contains_key("Authorization");
     let result = send(method, &path, &headers, body, deadline_ms).await;
     let event = match result {
-        Err(reason) => EventBody::HttpFailed { reason },
+        Err(reason) => {
+            hand_reply(&id, 0, String::new());
+            EventBody::HttpFailed { reason }
+        }
         Ok((status, etag, text)) => {
             let mut headers = BTreeMap::new();
             if let Some(etag) = etag {
@@ -403,10 +420,10 @@ async fn fetch_it(
             if to_screen {
                 keep_page(&path, &text);
             }
-            let waiting = HOST
-                .with_borrow_mut(|host| host.as_mut().and_then(|host| host.replies.remove(&id)));
-            if let Some(reply) = waiting {
-                reply(status, text.clone());
+            // The core answers this 401 by refreshing and sending the same id again, so the reply
+            // waits for that answer. Sending again from a screen would be a second request.
+            if status != 401 || !carried_token {
+                hand_reply(&id, status, text.clone());
             }
             EventBody::HttpDone {
                 status,
@@ -416,6 +433,14 @@ async fn fetch_it(
         }
     };
     step(vec![answer(id, event)]);
+}
+
+fn hand_reply(id: &str, status: u32, text: String) {
+    let waiting =
+        HOST.with_borrow_mut(|host| host.as_mut().and_then(|host| host.replies.remove(id)));
+    if let Some(reply) = waiting {
+        reply(status, text);
+    }
 }
 
 fn keep_page(path: &str, text: &str) {

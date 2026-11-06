@@ -12,6 +12,8 @@ Status: the core, server, data builder, finder and website run together. Apps fo
 That is the whole setup on macOS or Linux. It needs only Rust ([rustup.rs](https://rustup.rs)). It builds
 everything, fetches a pinned database, and starts the server, the finder and the website at
 `http://127.0.0.1:8080`. Add `--public` to serve other devices on your network, `--port N` for another port.
+A TV signs in with a code that a phone opens, so `--public` also gives the server this machine's network
+address and prints it. Behind a tunnel or a proxy, name the address with `--site-address https://...`.
 
 Everything it writes stays in `~/.<command>`. After the first run the program is `bin/<command>`:
 

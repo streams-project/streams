@@ -1760,6 +1760,8 @@ data class Rollout(
 /** What an address opens. */
 @Serializable
 data class RouteTarget(
+    /** The code an approve address carried, as it stood in the address. */
+    @SerialName("code") val code: String? = null,
     @SerialName("episode") val episode: EpisodeRef? = null,
     /** The genre, for the genre screen. */
     @SerialName("genre") val genre: String? = null,
@@ -2010,6 +2012,7 @@ value class Target(val value: String) {
         val NOT_FOUND = Target("not_found")
         val WAIT = Target("wait")
         val UPGRADE = Target("upgrade")
+        val ACTIVATE = Target("activate")
     }
 }
 

@@ -33,6 +33,14 @@ pub fn brand_name(shared: Shared) -> String {
 /// For a label with no text yet, so a notice is never blank.
 const FALLBACK: &str = "That did not work. Try again.";
 
+/// The text of a label, as the server states it.
+pub fn label_text(shared: Shared, label: &str) -> String {
+    shared
+        .strings
+        .with(|strings| strings.get(label).cloned())
+        .unwrap_or_else(|| FALLBACK.to_owned())
+}
+
 #[component]
 fn Message(text: &'static str) -> impl IntoView {
     view! { <div class="message"><p>{text}</p><a href="/home">"Back to home"</a></div> }
@@ -44,10 +52,7 @@ fn NoticeBar() -> impl IntoView {
     move || {
         shared.notice.get().map(|notice| {
             let text = if notice.text.is_empty() {
-                let held = shared
-                    .strings
-                    .with(|strings| strings.get(&notice.label).cloned());
-                held.unwrap_or_else(|| FALLBACK.to_owned())
+                label_text(shared, &notice.label)
             } else {
                 notice.text
             };
@@ -79,6 +84,7 @@ pub fn App() -> impl IntoView {
         Some(Target::Start) => view! { <door::Landing/> }.into_any(),
         Some(Target::SignIn) => view! { <door::SignIn/> }.into_any(),
         Some(Target::Profiles) => view! { <door::Profiles/> }.into_any(),
+        Some(Target::Activate) => view! { <door::Activate/> }.into_any(),
         Some(Target::Watch) => view! { <watch::Watch/> }.into_any(),
         Some(Target::Title) => view! { <browse::Browse/><title::Details/> }.into_any(),
         Some(Target::NotFound) => view! { <Message text="That page is not here."/> }.into_any(),

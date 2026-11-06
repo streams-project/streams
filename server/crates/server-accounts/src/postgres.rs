@@ -715,16 +715,39 @@ impl AccountStore for PgStore {
         row.as_ref().map(device_row).transpose().map_err(fail)
     }
 
-    async fn update_device_code(&self, row: &DeviceCodeRow) -> StoreResult<()> {
-        sqlx::query("update device_codes set user_id = $2, denied = $3, last_poll = $4 where device_hash = $1")
-            .bind(row.device_hash.0.as_slice())
-            .bind(row.account.map(|id| id.0))
-            .bind(row.denied)
-            .bind(row.last_poll_ms.map(to_time))
+    async fn note_device_poll(&self, hash: &TokenHash, at_ms: u64) -> StoreResult<()> {
+        sqlx::query("update device_codes set last_poll = $2 where device_hash = $1")
+            .bind(hash.0.as_slice())
+            .bind(to_time(at_ms))
             .execute(&self.pool)
             .await
             .map_err(fail)?;
         Ok(())
+    }
+
+    async fn approve_device_code(&self, hash: &TokenHash, account: AccountId) -> StoreResult<bool> {
+        let done = sqlx::query(
+            "update device_codes set user_id = $2 \
+             where device_hash = $1 and user_id is null and not denied",
+        )
+        .bind(hash.0.as_slice())
+        .bind(account.0)
+        .execute(&self.pool)
+        .await
+        .map_err(fail)?;
+        Ok(done.rows_affected() == 1)
+    }
+
+    async fn deny_device_code(&self, hash: &TokenHash) -> StoreResult<bool> {
+        let done = sqlx::query(
+            "update device_codes set denied = true \
+             where device_hash = $1 and user_id is null and not denied",
+        )
+        .bind(hash.0.as_slice())
+        .execute(&self.pool)
+        .await
+        .map_err(fail)?;
+        Ok(done.rows_affected() == 1)
     }
 
     async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<()> {

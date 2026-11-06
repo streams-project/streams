@@ -17,6 +17,8 @@ pub const DEVICE_POLL_S: u32 = 5;
 /// Letters of a user code: no vowels, so no word appears, about 34.5 bits over 8 letters.
 const USER_CODE_LETTERS: &[u8; 20] = b"BCDFGHJKLMNPQRSTVWXZ";
 const USER_CODE_LENGTH: usize = 8;
+/// The refusal of a code that already has an answer.
+const DEVICE_DECIDED: &str = "device_decided";
 /// Newest audit rows a person sees.
 const EVENTS_SHOWN: usize = 10;
 
@@ -284,7 +286,7 @@ impl Door {
     /// The store's refusal.
     pub async fn device_poll(&self, device_code: &str) -> Result<DevicePollState, DoorError> {
         let hash = hash_token(device_code);
-        let Some(mut row) = self.store().device_code(&hash).await? else {
+        let Some(row) = self.store().device_code(&hash).await? else {
             return Ok(DevicePollState::Expired);
         };
         let now = self.now_ms();
@@ -299,7 +301,6 @@ impl Door {
         let too_soon = row
             .last_poll_ms
             .is_some_and(|last| now.saturating_sub(last) < u64::from(DEVICE_POLL_S) * 1000);
-        row.last_poll_ms = Some(now);
         if let Some(account) = row.account {
             self.store().delete_device_code(&hash).await?;
             let (session, tokens) = self.open_device_session(account, &row.device_name).await?;
@@ -310,7 +311,7 @@ impl Door {
                 tokens,
             })));
         }
-        self.store().update_device_code(&row).await?;
+        self.store().note_device_poll(&hash, now).await?;
         Ok(if too_soon {
             DevicePollState::SlowDown
         } else {
@@ -338,20 +339,28 @@ impl Door {
         Ok(row)
     }
 
-    /// Approve a device from a signed in screen.
+    /// Approve a device from a signed in screen. The first answer to a code is the only one.
     ///
     /// # Errors
-    /// `NotFound` for an unknown or lapsed code, `RateLimited` past five tries.
+    /// `NotFound` for an unknown or lapsed code, `Refused` for a code already answered,
+    /// `RateLimited` past five tries.
     pub async fn device_approve(
         &self,
         member: &Member,
         user_code: &str,
         address: &str,
     ) -> Result<(), DoorError> {
-        let mut row = self.waiting_code(member, user_code, address).await?;
-        row.account = Some(member.account());
-        self.store().update_device_code(&row).await?;
-        Ok(())
+        let row = self.waiting_code(member, user_code, address).await?;
+        let hash = row.device_hash;
+        if self
+            .store()
+            .approve_device_code(&hash, member.account())
+            .await?
+        {
+            Ok(())
+        } else {
+            Err(DoorError::Refused(DEVICE_DECIDED))
+        }
     }
 
     /// Refuse a device from a signed in screen.
@@ -364,10 +373,12 @@ impl Door {
         user_code: &str,
         address: &str,
     ) -> Result<(), DoorError> {
-        let mut row = self.waiting_code(member, user_code, address).await?;
-        row.denied = true;
-        self.store().update_device_code(&row).await?;
-        Ok(())
+        let row = self.waiting_code(member, user_code, address).await?;
+        if self.store().deny_device_code(&row.device_hash).await? {
+            Ok(())
+        } else {
+            Err(DoorError::Refused(DEVICE_DECIDED))
+        }
     }
 
     /// The account of the caller.

@@ -57,6 +57,10 @@ Fixture files are named `<Type>.<case>.json`.
   `next_wake_ms` and renews a code that ran out. The screen draws `View.device_sign_in`, whose
   `state` always says what to do. The device code travels only in the core's own requests, and
   `Action::DeviceSignInStop` drops it.
+- `Target::Activate` is the page where a signed in person answers that code. It takes an account
+  even where visitors may browse, and no profile. `RouteTarget.code` holds the code as it stood in
+  the address, and a screen cleans it before sending. The first answer to a code stands: another
+  one reads `error.device_decided`.
 - Three versions, kept apart: the wire by date in `Api-Version`, the C boundary by number, crates
   by semver. Clients are compared against a range, never for equality.
 

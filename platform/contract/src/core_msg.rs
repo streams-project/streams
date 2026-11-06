@@ -177,6 +177,9 @@ words! {
         NotFound,
         Wait,
         Upgrade,
+        /// Approve or refuse a device that shows a code. It needs an account, even where visitors
+        /// may browse, and no profile.
+        Activate,
     }
 }
 
@@ -428,6 +431,9 @@ wire! {
         /// A safe address to return to after sign in.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub next: Option<String>,
+        /// The code an approve address carried, as it stood in the address.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub code: Option<String>,
     }
 
     /// Sign in state for screens. Tokens never appear here.

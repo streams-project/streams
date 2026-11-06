@@ -1193,6 +1193,8 @@ export interface Rollout {
 
 /** What an address opens. */
 export interface RouteTarget {
+  /** The code an approve address carried, as it stood in the address. */
+  code?: string;
   episode?: EpisodeRef;
   /** The genre, for the genre screen. */
   genre?: string;
@@ -1338,7 +1340,7 @@ export interface Suggestions {
 }
 
 /** A semantic target. Each device maps it to one of its own screens. */
-export type Target = "start" | "sign_in" | "profiles" | "home" | "kids_home" | "screen" | "title" | "watch" | "not_found" | "wait" | "upgrade" | (string & {});
+export type Target = "start" | "sign_in" | "profiles" | "home" | "kids_home" | "screen" | "title" | "watch" | "not_found" | "wait" | "upgrade" | "activate" | (string & {});
 
 /** One title in a section. */
 export interface Tile {

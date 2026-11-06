@@ -483,16 +483,34 @@ impl AccountStore for MemoryStore {
             .cloned())
     }
 
-    async fn update_device_code(&self, row: &DeviceCodeRow) -> StoreResult<()> {
+    async fn note_device_poll(&self, hash: &TokenHash, at_ms: u64) -> StoreResult<()> {
         let mut rows = self.guard()?;
         if let Some(held) = rows
             .device_codes
             .iter_mut()
-            .find(|held| held.device_hash == row.device_hash)
+            .find(|held| held.device_hash == *hash)
         {
-            *held = row.clone();
+            held.last_poll_ms = Some(at_ms);
         }
         Ok(())
+    }
+
+    async fn approve_device_code(&self, hash: &TokenHash, account: AccountId) -> StoreResult<bool> {
+        let mut rows = self.guard()?;
+        let held = rows
+            .device_codes
+            .iter_mut()
+            .find(|held| held.device_hash == *hash && held.account.is_none() && !held.denied);
+        Ok(held.map(|held| held.account = Some(account)).is_some())
+    }
+
+    async fn deny_device_code(&self, hash: &TokenHash) -> StoreResult<bool> {
+        let mut rows = self.guard()?;
+        let held = rows
+            .device_codes
+            .iter_mut()
+            .find(|held| held.device_hash == *hash && held.account.is_none() && !held.denied);
+        Ok(held.map(|held| held.denied = true).is_some())
     }
 
     async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<()> {

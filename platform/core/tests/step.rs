@@ -249,6 +249,31 @@ fn c42_a_prepared_request_may_name_only_the_servers_own_routes() {
     assert_eq!(out["effects"][0]["id"], "r3");
 }
 
+/// A screen waits on the id it sent, so a 401 must not change it.
+#[test]
+fn c7_a_prepared_request_refused_with_401_goes_out_again_under_its_own_id() {
+    let (mut core, _) = member(3_600);
+    let approve = json!([{"id": "ask-1", "type": "action", "action": {
+        "action": "request", "method": "POST", "path": "/v1/auth/device/approve",
+        "body": r#"{"user_code":"BCDFGHJK"}"#,
+    }}]);
+    let out = step(&mut core, 4, &approve);
+    assert_eq!(effect_id(&out, "/v1/auth/device/approve"), "ask-1");
+    let out = step(
+        &mut core,
+        5,
+        &json!([{"id": "ask-1", "type": "http_done", "status": 401}]),
+    );
+    assert_eq!(http_paths(&out), ["/v1/auth/refresh"]);
+    let refresh = effect_id(&out, "/v1/auth/refresh");
+    let out = step(
+        &mut core,
+        6,
+        &json!([{"id": refresh, "type": "http_done", "status": 200, "body": tokens(3_600)}]),
+    );
+    assert_eq!(effect_id(&out, "/v1/auth/device/approve"), "ask-1");
+}
+
 #[test]
 fn c5_c71_a_cancelled_refresh_is_answered_so_the_request_waiting_on_it_goes_out() {
     // 60 s of life is inside the 120 s renewal margin, so the first request waits for a refresh

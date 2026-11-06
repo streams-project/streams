@@ -141,8 +141,14 @@ pub trait AccountStore: Send + Sync {
     async fn device_code(&self, hash: &TokenHash) -> StoreResult<Option<DeviceCodeRow>>;
     /// A waiting sign in by the code a person types.
     async fn device_code_by_user(&self, user_code: &str) -> StoreResult<Option<DeviceCodeRow>>;
-    /// Write the answer and last poll of a waiting sign in.
-    async fn update_device_code(&self, row: &DeviceCodeRow) -> StoreResult<()>;
+    /// Note the time of a poll. It writes nothing else, so a poll that read the row before an
+    /// answer arrived cannot wipe that answer.
+    async fn note_device_poll(&self, hash: &TokenHash, at_ms: u64) -> StoreResult<()>;
+    /// Give a waiting sign in to an account. False when the row was already decided or is gone,
+    /// and of two people at once only one gets true.
+    async fn approve_device_code(&self, hash: &TokenHash, account: AccountId) -> StoreResult<bool>;
+    /// Refuse a waiting sign in, on the same terms as approving it.
+    async fn deny_device_code(&self, hash: &TokenHash) -> StoreResult<bool>;
     /// Remove a waiting sign in.
     async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<()>;
     /// Delete what has lapsed: sessions unused since a time, audit rows older than a time, and

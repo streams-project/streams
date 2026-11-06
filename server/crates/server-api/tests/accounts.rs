@@ -357,6 +357,63 @@ async fn tmt11_a_denied_or_lapsed_device_code_ends() {
 }
 
 #[tokio::test]
+async fn n11_the_first_answer_to_a_device_code_stands() {
+    let server = harness_with_auth(&[("SITE_ADDRESS", "https://site.host.example")]);
+    let ada = new_account(&server, "ada@example.test").await;
+    let eve = new_account(&server, "eve@example.test").await;
+    let start = || post("/v1/auth/device/code").json(json!({ "device_name": "tv" }));
+    let answer = |word: &'static str, token: &str, code: &str| {
+        post(&format!("/v1/auth/device/{word}"))
+            .token(token)
+            .json(json!({ "user_code": code }))
+    };
+    let tv: DeviceCode = serde_json::from_value(start().on(&server.state).await.body).unwrap();
+
+    // Approved: a second person takes nothing, and a change of mind counts for nothing.
+    let done = answer("approve", &ada.access_token, &tv.user_code)
+        .on(&server.state)
+        .await;
+    assert_eq!(done.status, StatusCode::OK, "{}", done.body);
+    for (word, token) in [
+        ("approve", &eve.access_token),
+        ("approve", &ada.access_token),
+        ("deny", &ada.access_token),
+    ] {
+        let again = answer(word, token, &tv.user_code).on(&server.state).await;
+        assert_eq!(again.status, StatusCode::FORBIDDEN, "{}", again.body);
+        assert_eq!(again.body["label"], "error.device_decided");
+    }
+    let tokens: DeviceTokenAnswer = serde_json::from_value(
+        post("/v1/auth/device/token")
+            .json(json!({ "device_code": tv.device_code }))
+            .on(&server.state)
+            .await
+            .body,
+    )
+    .unwrap();
+    assert_eq!(tokens.signed_in.expect("tokens").user_id, ada.user_id);
+
+    // Refused: it stays refused, and the device hears so.
+    server.clock.advance_ms(60_000);
+    let tv: DeviceCode = serde_json::from_value(start().on(&server.state).await.body).unwrap();
+    let done = answer("deny", &ada.access_token, &tv.user_code)
+        .on(&server.state)
+        .await;
+    assert_eq!(done.status, StatusCode::OK, "{}", done.body);
+    for word in ["approve", "deny"] {
+        let again = answer(word, &ada.access_token, &tv.user_code)
+            .on(&server.state)
+            .await;
+        assert_eq!(again.body["label"], "error.device_decided");
+    }
+    let poll = post("/v1/auth/device/token")
+        .json(json!({ "device_code": tv.device_code }))
+        .on(&server.state)
+        .await;
+    assert_eq!(poll.body["poll"], "access_denied");
+}
+
+#[tokio::test]
 async fn s213_device_sign_in_is_off_with_no_site_address_and_says_so() {
     let server = harness_with_auth(&[]);
     let answer = post("/v1/auth/device/code")

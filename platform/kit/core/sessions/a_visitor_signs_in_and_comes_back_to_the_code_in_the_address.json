@@ -1,0 +1,124 @@
+{
+ "about": "An approve address from a television. The visitor signs in, lands back on it with the code and no profile asked, and a restart returns to it. The approve goes out with the session's token.",
+ "config": {
+  "app": "sample-web",
+  "class": "web",
+  "contract": "2026-11-05",
+  "form": "phone",
+  "mode": "local",
+  "os": "sample-os",
+  "seed": "00112233445566778899aabbccddeeff",
+  "type": "core_config",
+  "version": "1.0.0"
+ },
+ "covers": [
+  "N10"
+ ],
+ "moments": [
+  {
+   "at_ms": 0
+  },
+  {
+   "at_ms": 100,
+   "events": [
+    {
+     "address": "/activate?code=BCDFGHJK",
+     "type": "address"
+    }
+   ],
+   "want": {
+    "sent": [],
+    "view": {
+     "route": {
+      "code": null,
+      "next": "/activate?code=BCDFGHJK",
+      "target": "sign_in"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 200,
+   "events": [
+    {
+     "action": {
+      "action": "sign_in",
+      "email": "viewer@host.example",
+      "password": "sample-pass"
+     },
+     "type": "action"
+    }
+   ],
+   "want": {
+    "view": {
+     "route": {
+      "code": "BCDFGHJK",
+      "next": null,
+      "target": "activate"
+     },
+     "session": {
+      "state": "signed_in"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 300,
+   "events": [
+    {
+     "action": {
+      "action": "request",
+      "body": "{\"user_code\":\"BCDFGHJK\"}",
+      "method": "POST",
+      "path": "/v1/auth/device/approve"
+     },
+     "id": "ask-1",
+     "type": "action"
+    }
+   ],
+   "want": {
+    "notices": [],
+    "sent": [
+     "POST /v1/auth/device/approve"
+    ],
+    "view": {
+     "route": {
+      "code": "BCDFGHJK",
+      "target": "activate"
+     }
+    }
+   }
+  },
+  {
+   "at_ms": 5000,
+   "events": [
+    {
+     "address": "/activate?code=BCDFGHJK",
+     "type": "address"
+    }
+   ],
+   "restart": false,
+   "want": {
+    "view": {
+     "route": {
+      "code": "BCDFGHJK",
+      "target": "activate"
+     },
+     "session": {
+      "state": "signed_in"
+     }
+    }
+   }
+  }
+ ],
+ "name": "a_visitor_signs_in_and_comes_back_to_the_code_in_the_address",
+ "server": [
+  {
+   "body": {
+    "done": true
+   },
+   "method": "POST",
+   "path": "/v1/auth/device/approve"
+  }
+ ]
+}

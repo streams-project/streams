@@ -35,11 +35,17 @@ enum Place {
     Screen(ScreenName, Option<String>),
     Title(TitleKey),
     Watch(TitleKey, Option<EpisodeRef>),
+    Activate(Option<String>),
 }
 
 impl Place {
     const fn open_to_visitors(&self) -> bool {
         matches!(self, Self::Start | Self::SignIn | Self::Title(_))
+    }
+
+    /// Approving a device gives it this account, so a visitor who may browse still signs in.
+    const fn needs_account(&self) -> bool {
+        matches!(self, Self::Activate(_))
     }
 }
 
@@ -53,6 +59,7 @@ pub const fn target(target: Target) -> RouteTarget {
         title: None,
         episode: None,
         next: None,
+        code: None,
     }
 }
 
@@ -130,6 +137,9 @@ fn place(path: &str, query: &str) -> Option<Place> {
         ["profiles"] => Some(Place::Profiles),
         ["home"] => Some(Place::Home),
         ["kids"] => Some(Place::Kids),
+        ["activate"] => Some(Place::Activate(
+            query_value(query, &["code"]).and_then(decode),
+        )),
         ["genre", id] if !id.is_empty() => {
             Some(Place::Screen(ScreenName::Genre, Some((*id).to_string())))
         }
@@ -191,6 +201,10 @@ fn member_target(place: Place, query: &str) -> RouteTarget {
         Place::Home => {
             route.target = Target::Home;
             route.title = pending_title(query);
+        }
+        Place::Activate(code) => {
+            route.target = Target::Activate;
+            route.code = code;
         }
     }
     route
@@ -255,7 +269,10 @@ fn decide_from(address: &str, who: &Who<'_>, follow_next: bool) -> RouteTarget {
             route
         }
         Place::Start | Place::Title(_) => member_target(found, query),
-        _ if who.member || who.accounts_required == Some(false) => member_target(found, query),
+        _ if who.member => member_target(found, query),
+        _ if who.accounts_required == Some(false) && !found.needs_account() => {
+            member_target(found, query)
+        }
         _ if who.accounts_required.is_none() => target(Target::Wait),
         _ => {
             let mut route = target(Target::SignIn);

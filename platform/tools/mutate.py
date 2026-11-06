@@ -753,6 +753,27 @@ MUTANTS = [
         "self.send_at_mono = Some(self.send_at_mono.map_or(mono_ms, |at| at.max(mono_ms)));",
         "self.send_at_mono = Some(mono_ms);",
     ),
+    mutant(
+        85,
+        ROUTES,
+        "a visitor who may browse reaches the approve page with no account",
+        "matches!(self, Self::Activate(_))",
+        "matches!(self, Self::Kids)",
+    ),
+    mutant(
+        86,
+        ROUTES,
+        "sign in loses the approve address",
+        "matches!(self, Self::Start | Self::SignIn | Self::Title(_))",
+        "matches!(self, Self::Start | Self::SignIn | Self::Title(_) | Self::Activate(_))",
+    ),
+    mutant(
+        87,
+        ROUTES,
+        "the approve page opens with no code",
+        "route.code = code;",
+        "route.code = code.filter(|_| false);",
+    ),
 ]
 
 

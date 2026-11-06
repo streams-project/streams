@@ -6,6 +6,7 @@ use std::process::{Command, ExitCode};
 use std::time::Duration;
 
 use anyhow::{Context, Result, bail};
+use launcher::address::{self, Site};
 use launcher::brand::Brand;
 use launcher::postgres::{self, Postgres};
 use launcher::supervise::{Program, answers, keep, log_path};
@@ -249,12 +250,14 @@ async fn stop_asked() -> Result<()> {
 struct UpOptions {
     port: u16,
     public: bool,
+    site_address: Option<String>,
 }
 
 fn up_options(words: &[String]) -> Result<UpOptions> {
     let mut options = UpOptions {
         port: DEFAULT_PORT,
         public: false,
+        site_address: None,
     };
     let mut words = words.iter();
     while let Some(word) = words.next() {
@@ -263,6 +266,10 @@ fn up_options(words: &[String]) -> Result<UpOptions> {
             "--port" => {
                 let value = words.next().context("--port needs a number")?;
                 options.port = value.parse().context("--port needs a number")?;
+            }
+            "--site-address" => {
+                let value = words.next().context("--site-address needs an address")?;
+                options.site_address = Some(address::checked(value)?);
             }
             other => bail!("unknown option {other}"),
         }
@@ -290,11 +297,14 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
         "127.0.0.1"
     };
     let local = format!("http://127.0.0.1:{}", options.port);
-    let site_address = if stack.brand.domain.is_empty() {
-        local.clone()
-    } else {
-        format!("https://{}", stack.brand.domain)
+    let reach = Site {
+        chosen: options.site_address.as_deref(),
+        domain: &stack.brand.domain,
+        public: options.public,
+        port: options.port,
+        lan: address::lan_ip(),
     };
+    let site_address = reach.address();
     let server = Program {
         name: String::from("server"),
         path: stack.programs.join("server"),
@@ -311,7 +321,7 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
                 "STRINGS_DIR",
                 stack.root.join("strings").to_string_lossy().into_owned(),
             ),
-            ("SITE_ADDRESS", site_address),
+            ("SITE_ADDRESS", site_address.clone()),
             ("BRAND_NAME", stack.brand.name.clone()),
             ("SUPPORT_EMAIL", stack.brand.support_email.clone()),
         ]),
@@ -329,6 +339,13 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
         );
     }
     println!("{} is running at {local}", stack.brand.name);
+    if site_address != local {
+        println!("Other devices reach it at {site_address}");
+    }
+    if reach.stuck_on_this_machine() {
+        println!("This machine has no network address, so a phone cannot follow a TV code here.");
+        println!("Name one with --site-address.");
+    }
     println!("Press Ctrl-C to stop.");
     stop_asked().await?;
     println!("Stopping...");
@@ -457,7 +474,7 @@ fn build(stack: &Stack, words: &[String]) -> Result<()> {
 
 fn help(command: &str) {
     println!(
-        "{command} up [--port N] [--public]   start everything\n\
+        "{command} up [--port N] [--public] [--site-address URL]   start everything\n\
          {command} doctor                     check this install\n\
          {command} backup [FILE]              save the database, while stopped\n\
          {command} build web                  build the website\n\

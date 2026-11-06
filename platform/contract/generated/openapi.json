@@ -3898,6 +3898,10 @@
       "RouteTarget": {
         "description": "What an address opens.",
         "properties": {
+          "code": {
+            "description": "The code an approve address carried, as it stood in the address.",
+            "type": "string"
+          },
           "episode": {
             "$ref": "#/components/schemas/EpisodeRef"
           },
@@ -4350,20 +4354,29 @@
       },
       "Target": {
         "description": "A semantic target. Each device maps it to one of its own screens.",
-        "enum": [
-          "start",
-          "sign_in",
-          "profiles",
-          "home",
-          "kids_home",
-          "screen",
-          "title",
-          "watch",
-          "not_found",
-          "wait",
-          "upgrade"
-        ],
-        "type": "string"
+        "oneOf": [
+          {
+            "enum": [
+              "start",
+              "sign_in",
+              "profiles",
+              "home",
+              "kids_home",
+              "screen",
+              "title",
+              "watch",
+              "not_found",
+              "wait",
+              "upgrade"
+            ],
+            "type": "string"
+          },
+          {
+            "const": "activate",
+            "description": "Approve or refuse a device that shows a code. It needs an account, even where visitors\nmay browse, and no profile.",
+            "type": "string"
+          }
+        ]
       },
       "Tile": {
         "description": "One title in a section.",

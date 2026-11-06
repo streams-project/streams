@@ -2,10 +2,11 @@
 
 use contract::account::Profile;
 use contract::core_msg::{Action, HttpMethod};
+use contract::error::ErrorBody;
 use leptos::prelude::*;
 use serde_json::json;
 
-use super::brand_name;
+use super::{brand_name, label_text};
 use crate::host;
 use crate::state::Shared;
 
@@ -157,6 +158,110 @@ fn Join() -> impl IntoView {
     }
 }
 
+/// A code as the server keeps it. A screen may group it, and people type it with spaces, hyphens
+/// and small letters.
+fn plain_code(text: &str) -> String {
+    text.chars()
+        .filter(char::is_ascii_alphanumeric)
+        .collect::<String>()
+        .to_ascii_uppercase()
+}
+
+/// The label for an answer that is not a yes.
+fn refused_label(status: u32, body: &str) -> String {
+    match status {
+        0 => "problem-offline".to_owned(),
+        404 => "error.code".to_owned(),
+        _ => serde_json::from_str::<ErrorBody>(body)
+            .map_or_else(|_| "problem-failed".to_owned(), |error| error.label),
+    }
+}
+
+/// How the person answered a device.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Answered {
+    Approved,
+    Denied,
+}
+
+/// Approve or refuse a device that shows a code. The core shows this page only to a signed in
+/// person, so a session that is still starting never reaches these buttons.
+#[component]
+pub fn Activate() -> impl IntoView {
+    let shared = expect_context::<Shared>();
+    let code = RwSignal::new(String::new());
+    let sending = RwSignal::new(false);
+    let answered = RwSignal::new(None::<Answered>);
+    let trouble = RwSignal::new(None::<String>);
+    Effect::new(move |_| {
+        let held = shared
+            .route
+            .with(|route| route.as_ref().and_then(|route| route.code.clone()));
+        if let Some(held) = held {
+            code.set(plain_code(&held));
+        }
+    });
+    let answer = move |path: &'static str, when_done: Answered| {
+        let user_code = plain_code(&code.get_untracked());
+        if user_code.is_empty() {
+            trouble.set(Some(label_text(shared, "error.code")));
+            return;
+        }
+        sending.set(true);
+        trouble.set(None);
+        let body = json!({ "user_code": user_code }).to_string();
+        host::ask(
+            HttpMethod::Post,
+            path,
+            Some(body),
+            move |status, text| match status {
+                200..300 => answered.set(Some(when_done)),
+                // No token went out, and the core is on its way to sign in with this address
+                // kept. The code is still good, so this is no refusal, and the answer is pressed
+                // again from here.
+                401 => sending.set(false),
+                _ => {
+                    sending.set(false);
+                    trouble.set(Some(label_text(shared, &refused_label(status, &text))));
+                }
+            },
+        );
+    };
+    let submit = move |event: leptos::ev::SubmitEvent| {
+        event.prevent_default();
+        answer("/v1/auth/device/approve", Answered::Approved);
+    };
+    view! {
+        <div class="door">
+            <header class="door-top"><Logo/></header>
+            <main class="door-card">
+                {move || match answered.get() {
+                    Some(Answered::Approved) => view! {
+                        <h1>"Your device is signing in"</h1>
+                        <p>"You can close this page."</p>
+                    }.into_any(),
+                    Some(Answered::Denied) => view! {
+                        <h1>"That device stays signed out"</h1>
+                        <p>"You can close this page."</p>
+                    }.into_any(),
+                    None => view! {
+                        <h1>"Sign in on your device"</h1>
+                        <form on:submit=submit>
+                            <input required placeholder="Code on your screen" aria-label="Code on your screen" autocomplete="off" autocapitalize="characters" spellcheck="false" bind:value=code/>
+                            {move || trouble.get().map(|text| view! { <p class="trouble">{text}</p> })}
+                            <div class="row-of-buttons">
+                                <button class="solid" type="submit" disabled=move || sending.get()>"Approve"</button>
+                                <button class="glass" type="button" disabled=move || sending.get()
+                                    on:click=move |_| answer("/v1/auth/device/deny", Answered::Denied)>"Not me"</button>
+                            </div>
+                        </form>
+                    }.into_any(),
+                }}
+            </main>
+        </div>
+    }
+}
+
 #[component]
 pub fn Profiles() -> impl IntoView {
     let shared = expect_context::<Shared>();
@@ -203,5 +308,36 @@ pub fn Profiles() -> impl IntoView {
                 </form>
             })}
         </div>
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{plain_code, refused_label};
+
+    #[test]
+    fn a_code_loses_spaces_hyphens_and_small_letters() {
+        for typed in [
+            "BCDFGHJK",
+            "bcdf-ghjk",
+            " BCDF GHJK ",
+            "bcdf\u{a0}- ghjk",
+            "BCDF+GHJK",
+        ] {
+            assert_eq!(plain_code(typed), "BCDFGHJK", "{typed}");
+        }
+        assert_eq!(plain_code(" - "), "");
+    }
+
+    #[test]
+    fn a_refusal_names_what_a_person_can_do() {
+        assert_eq!(refused_label(0, ""), "problem-offline");
+        assert_eq!(refused_label(404, ""), "error.code");
+        let decided = r#"{"code":"refused","label":"error.device_decided","build":""}"#;
+        assert_eq!(refused_label(403, decided), "error.device_decided");
+        let busy =
+            r#"{"code":"rate_limited","label":"error.rate_limited","build":"","retry_after_s":60}"#;
+        assert_eq!(refused_label(429, busy), "error.rate_limited");
+        assert_eq!(refused_label(500, "not json"), "problem-failed");
     }
 }

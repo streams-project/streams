@@ -3698,6 +3698,8 @@ public struct Rollout: Codable, Equatable, Sendable {
 
 /// What an address opens.
 public struct RouteTarget: Codable, Equatable, Sendable {
+    /// The code an approve address carried, as it stood in the address.
+    public var code: String?
     public var episode: EpisodeRef?
     /// The genre, for the genre screen.
     public var genre: String?
@@ -3708,6 +3710,7 @@ public struct RouteTarget: Codable, Equatable, Sendable {
     public var title: TitleKey?
 
     enum CodingKeys: String, CodingKey {
+        case code = "code"
         case episode = "episode"
         case genre = "genre"
         case next = "next"
@@ -3716,7 +3719,8 @@ public struct RouteTarget: Codable, Equatable, Sendable {
         case title = "title"
     }
 
-    public init(episode: EpisodeRef? = nil, genre: String? = nil, next: String? = nil, screen: ScreenName? = nil, target: Target, title: TitleKey? = nil) {
+    public init(code: String? = nil, episode: EpisodeRef? = nil, genre: String? = nil, next: String? = nil, screen: ScreenName? = nil, target: Target, title: TitleKey? = nil) {
+        self.code = code
         self.episode = episode
         self.genre = genre
         self.next = next
@@ -4120,6 +4124,7 @@ public struct Target: RawRepresentable, Codable, Hashable, Sendable {
     public static let notFound = Target(rawValue: "not_found")
     public static let wait = Target(rawValue: "wait")
     public static let upgrade = Target(rawValue: "upgrade")
+    public static let activate = Target(rawValue: "activate")
 }
 
 /// One title in a section.

@@ -55,6 +55,57 @@ fn c131_a_moved_address_comes_first_then_unknown_then_access() {
 }
 
 #[test]
+fn n10_an_approve_address_keeps_its_code_through_sign_in() {
+    let address = "/activate?code=BCDFGHJK";
+    assert_eq!(safe_next(address).as_deref(), Some(address));
+    let route = decide(address, &VISITOR);
+    assert_eq!(route.target, Target::SignIn);
+    assert_eq!(route.next.as_deref(), Some(address));
+    assert_eq!(route.code, None, "the code travels in next until sign in");
+    let route = decide(address, &MEMBER);
+    assert_eq!(route.target, Target::Activate);
+    assert_eq!(route.code.as_deref(), Some("BCDFGHJK"));
+    let route = decide("/sign-in?next=%2Factivate%3Fcode%3DBCDFGHJK", &MEMBER);
+    assert_eq!(route.target, Target::Activate);
+    assert_eq!(route.code.as_deref(), Some("BCDFGHJK"));
+}
+
+#[test]
+fn n10_an_approve_address_may_hold_no_code_or_an_odd_one() {
+    let plain = decide("/activate", &MEMBER);
+    assert_eq!((plain.target, plain.code), (Target::Activate, None));
+    assert_eq!(
+        decide("/activate/?code=BCDF%20GHJK", &MEMBER)
+            .code
+            .as_deref(),
+        Some("BCDF GHJK")
+    );
+    let broken = decide("/activate?code=%zz", &MEMBER);
+    assert_eq!((broken.target, broken.code), (Target::Activate, None));
+    assert_eq!(decide("/activate/more", &MEMBER).target, Target::NotFound);
+}
+
+#[test]
+fn n10_a_visitor_who_may_browse_still_signs_in_to_approve_a_device() {
+    let open = Who {
+        accounts_required: Some(false),
+        ..VISITOR
+    };
+    assert_eq!(decide("/home", &open).target, Target::Home);
+    let route = decide("/activate?code=BCDFGHJK", &open);
+    assert_eq!(route.target, Target::SignIn);
+    assert_eq!(route.next.as_deref(), Some("/activate?code=BCDFGHJK"));
+    let unknown = Who {
+        accounts_required: None,
+        ..VISITOR
+    };
+    assert_eq!(
+        decide("/activate?code=BCDFGHJK", &unknown).target,
+        Target::Wait
+    );
+}
+
+#[test]
 fn c131_an_unknown_answer_waits_and_nothing_is_drawn() {
     let who = Who {
         member: false,
