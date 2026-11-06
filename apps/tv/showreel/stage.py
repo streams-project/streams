@@ -110,11 +110,15 @@ def lay(canvas, pic, poses, alpha=1.0, light=1.0, sigma=0.0):
         return
     src, shrink = blurred(pic, sigma / biggest)
     h, w = src.shape[:2]
-    reach = math.hypot(w, h) * biggest * shrink / 2 + 3
-    x0 = max(int(min(p[0] for p in poses) - reach), 0)
-    y0 = max(int(min(p[1] for p in poses) - reach), 0)
-    x1 = min(int(max(p[0] for p in poses) + reach), VW)
-    y1 = min(int(max(p[1] for p in poses) + reach), VH)
+    # The box each pose really covers, from its rotated size.
+    x0, y0, x1, y1 = VW, VH, 0, 0
+    for x, y, sx, sy, deg in poses:
+        c, s = abs(math.cos(math.radians(deg))), abs(math.sin(math.radians(deg)))
+        wide, tall = w * abs(sx) * shrink, h * abs(sy) * shrink
+        rx, ry = (wide * c + tall * s) / 2 + 3, (wide * s + tall * c) / 2 + 3
+        x0, y0 = min(x0, int(x - rx)), min(y0, int(y - ry))
+        x1, y1 = max(x1, int(x + rx)), max(y1, int(y + ry))
+    x0, y0, x1, y1 = max(x0, 0), max(y0, 0), min(x1, VW), min(y1, VH)
     if x1 <= x0 or y1 <= y0:
         return
     held = np.zeros((y1 - y0, x1 - x0, 4), np.float32)
