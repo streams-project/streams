@@ -35,6 +35,16 @@ FAMILIES = {
             "a port, and adapters are not for surfaces": r"crate::adapters",
         },
     },
+    "android": {
+        "code": "apps/android",
+        "ends": {".kt"},
+        "skip": set(),
+        "banned": {
+            "the network port": r"\bjava\.net\b|\bokhttp3\b|\bHttpURLConnection\b",
+            "the secrets port": r"\bSharedPreferences\b",
+            "the player port": r"\bandroidx\.media3\b|\bExoPlayer\b",
+        },
+    },
 }
 PARTS = ("adapters", "surfaces")
 

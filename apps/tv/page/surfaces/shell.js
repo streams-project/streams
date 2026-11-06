@@ -24,6 +24,7 @@
   var people = [];
   var play = null;
   var screen = null;
+  var nav = [];
   var detail = null;
 
   function setKeys(given) {
@@ -38,7 +39,7 @@
     var target = route.target;
     if (target === "sign_in") keys = tv.surfaces.code(root, device);
     else if (target === "profiles") keys = tv.surfaces.people(root, people, setKeys);
-    else if (BROWSE[target]) keys = tv.surfaces.browse(root, screen);
+    else if (BROWSE[target]) keys = tv.surfaces.browse(root, screen, nav, route);
     else if (target === "title") keys = tv.surfaces.title(root, detail && detail.title === route.title ? detail : null);
     else if (target === "watch") keys = tv.surfaces.watch(root, function () { return play && play.state; });
     else if (MESSAGES[target]) root.appendChild(kit.make("div", "message", MESSAGES[target]));
@@ -107,7 +108,10 @@
     },
     notice: function (given) { say(given.text); },
     page: function (path, text) {
-      if (path.indexOf("/v1/screens/") === 0) {
+      if (path.indexOf("/v1/nav") === 0) {
+        nav = JSON.parse(text).items;
+        if (route && BROWSE[route.target]) draw();
+      } else if (path.indexOf("/v1/screens/") === 0) {
         screen = JSON.parse(text);
         if (route && BROWSE[route.target]) draw();
       } else if (path.indexOf("/titles/") >= 0) {

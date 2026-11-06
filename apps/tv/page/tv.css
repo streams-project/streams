@@ -222,38 +222,112 @@ button {
   background: linear-gradient(90deg, rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.12) 62%),
     linear-gradient(0deg, var(--background) 8%, rgba(0, 0, 0, 0) 58%);
 }
-.hero-text { position: absolute; left: 96px; top: 240px; width: 1040px; transition: transform 200ms ease-out; }
-.hero-text.low { transform: translateY(-60px); }
-.hero-text h1 { margin: 0 0 12px; font-size: 78px; line-height: 1.08; font-weight: 800; }
-.hero-text p { margin: 0 0 32px; font-size: 30px; color: var(--muted); }
-.hero-buttons.off { visibility: hidden; }
+/* The top bar: tabs in one line, the active one a pill. */
+.top { position: absolute; left: 0; top: 0; width: 1920px; height: 130px; }
+.top-search {
+  position: absolute;
+  left: 555px;
+  top: 52px;
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--text);
+  border-radius: 50%;
+}
+.top-tabs { position: absolute; left: 609px; top: 36px; white-space: nowrap; }
+.top-mark { position: absolute; left: 1796px; top: 40px; width: 64px; height: 64px; }
+.top-tab {
+  display: inline-block;
+  height: 62px;
+  line-height: 62px;
+  padding: 0 32px;
+  margin-right: 8px;
+  font-size: 26px;
+  font-weight: 500;
+  border-radius: var(--radius-button);
+}
+.top-tab.active { background: rgba(255, 255, 255, 0.16); }
+.top-tab.on { background: var(--text); color: var(--background); }
 
-.rows { position: absolute; left: 96px; top: 0; width: 1824px; height: 1px; transition: transform 200ms ease-out; }
-.row { position: absolute; left: 0; width: 1824px; height: 280px; }
-.row h2 { position: absolute; left: 0; top: 0; margin: 0; font-size: 32px; font-weight: 700; }
-.strip { position: absolute; left: 0; top: 56px; height: 194px; width: 1px; transition: transform 200ms ease-out; }
-.tile {
+/* The hero card. */
+.hero-card {
+  position: absolute;
+  left: 75px;
+  top: 143px;
+  width: 1789px;
+  height: 767px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.28);
+}
+.hero-card.off { display: none; }
+.hero-card-art { position: absolute; left: 0; top: 0; width: 1789px; height: 767px; background: center / cover no-repeat; }
+.hero-card-shade {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1789px;
+  height: 767px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0) 62%), linear-gradient(0deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 45%);
+}
+.hero-card-text { position: absolute; left: 30px; bottom: 34px; width: 760px; }
+.hero-card-text h1 { margin: 0 0 16px; font-size: 76px; line-height: 1.05; font-weight: 800; }
+.facts { margin: 0 0 16px; font-size: 24px; font-weight: 700; }
+.overview {
+  margin: 0 0 30px;
+  font-size: 30px;
+  line-height: 39px;
+  color: rgba(255, 255, 255, 0.8);
+  max-height: 117px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+.button.large { height: 84px; line-height: 84px; padding: 0 50px; font-size: 32px; }
+
+/* One row owns the screen: a wide focused title, posters beside it, its facts under it. */
+.row-now { position: absolute; left: 0; top: 0; width: 1920px; height: 900px; }
+.row-now.off { display: none; }
+.row-now h2 { position: absolute; left: 72px; top: 146px; margin: 0; font-size: 32px; font-weight: 700; }
+.open-card {
+  position: absolute;
+  left: 66px;
+  top: 200px;
+  width: 904px;
+  height: 508px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--raised);
+}
+.open-art { position: absolute; left: 0; top: 0; width: 904px; height: 508px; background: center / cover no-repeat; }
+.open-shade { position: absolute; left: 0; bottom: 0; width: 904px; height: 200px; background: linear-gradient(0deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0)); }
+.open-name { position: absolute; left: 24px; bottom: 16px; margin: 0; width: 856px; font-size: 44px; font-weight: 800; }
+.open-ring { position: absolute; left: 0; top: 0; width: 898px; height: 502px; border: 3px solid var(--text); border-radius: 16px; }
+.posters { position: absolute; left: 989px; top: 202px; height: 504px; width: 1px; transition: transform 200ms ease-out; }
+.poster-before { position: absolute; left: -264px; top: 202px; width: 311px; height: 504px; opacity: 0.55; }
+.poster {
   position: absolute;
   top: 0;
-  width: 344px;
-  height: 194px;
+  width: 311px;
+  height: 504px;
   border-radius: var(--radius-card);
   overflow: hidden;
   background: var(--raised) center / cover no-repeat;
 }
-.tile-name { position: absolute; left: 16px; top: 76px; width: 312px; font-size: 26px; font-weight: 600; text-align: center; }
-.tile-meter { position: absolute; left: 12px; bottom: 10px; width: 320px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.3); }
-.tile-meter span { display: block; height: 6px; border-radius: 3px; background: var(--join); }
-.ring {
-  position: absolute;
-  left: 88px;
-  top: 688px;
-  width: 352px;
-  height: 202px;
-  border-radius: 18px;
-  box-shadow: 0 0 0 5px var(--text);
-}
-.ring.off { display: none; }
+.poster-name { position: absolute; left: 16px; top: 220px; width: 279px; font-size: 26px; font-weight: 600; text-align: center; }
+.row-facts { position: absolute; left: 70px; top: 728px; margin: 0; }
+.row-text { position: absolute; left: 70px; top: 768px; width: 1000px; margin: 0; }
+
+/* The next row, dim, cut by the screen's edge. */
+.row-next { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; opacity: 0.5; }
+.row-next.off { display: none; }
+.row-next h2 { position: absolute; left: 72px; top: 944px; margin: 0; font-size: 32px; font-weight: 700; }
+.next-posters { position: absolute; left: 68px; top: 998px; height: 504px; width: 1px; }
+.row-next.high h2 { top: 946px; }
+.row-next.high .next-posters { top: 1001px; }
+
+.hero-buttons.off { visibility: hidden; }
 
 .title-text { position: absolute; left: 96px; top: 300px; width: 1100px; }
 .title-text h1 { margin: 0 0 16px; font-size: 84px; line-height: 1.08; font-weight: 800; }

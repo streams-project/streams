@@ -326,6 +326,8 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
             ("SITE_ADDRESS", site_address.clone()),
             ("BRAND_NAME", stack.brand.name.clone()),
             ("SUPPORT_EMAIL", stack.brand.support_email.clone()),
+            // Where a built catalogue's posters live. A sample has none, so it stays empty.
+            ("IMAGE_BASE", std::env::var("IMAGE_BASE").unwrap_or_default()),
         ]),
     };
 

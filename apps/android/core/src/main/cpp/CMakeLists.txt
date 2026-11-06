@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.22)
+project(streamscore C)
+add_library(bridge_c STATIC IMPORTED)
+set_target_properties(bridge_c PROPERTIES IMPORTED_LOCATION ${CORE_LIB})
+add_library(streamscore SHARED bridge.c)
+target_include_directories(streamscore PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../platform/bridges/c)
+target_link_libraries(streamscore bridge_c log dl m)
