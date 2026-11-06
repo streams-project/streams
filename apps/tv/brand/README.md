@@ -11,7 +11,7 @@ under this repository's licence (MIT OR Apache-2.0, see `REUSE.toml`).
 The icon set carries no licence file of its own, so there was none to carry
 over. Only these two files were taken: the rasterised favicons, touch icons,
 tiles and the small and mono drawings are not needed here, and the earlier
-pixel cube mark is not used anywhere.
+pixel cube mark is not used anywhere. Correction 2026-11-06: that was wrong, `wordmark.svg` carries the cube. It is to be removed; the owner dropped that mark.
 
 The opening uses them as two separate things, as the motion reading does: the
 wordmark rests first and collapses into the mark, and the mark then stretches
