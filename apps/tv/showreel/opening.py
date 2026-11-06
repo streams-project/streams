@@ -9,10 +9,10 @@ Loading: mark and text rest with the loading circle while the app does its work.
 Stage 2, the secondary splash: starts when loading ends. The text goes back and the mark opens the landing.
 
 Directions:
-  A  the two shapes meet, the text slides out. Straight streams run the way the arrow points.
+  A  the ribbon unfolds from behind the arrow, the text slides out. Streams leave the arrow where it sits.
   B  nothing slides. The mark pours into place where it stays, the letters ripple out of it, and in
      stage two the letters stretch into the streams.
-  C  a line pulls back into the arrow, the text slides out. The landing is seen through the growing arrow.
+  C  a line pulls back into the arrow, the text slides out. The film is seen through the growing arrow.
 Moves use one smooth curve and take at least half a second, so nothing jumps.
 """
 import argparse, io, math, re, subprocess
@@ -85,6 +85,14 @@ class Art:
         self.ww = self.word.shape[1] / 3
         self.wx = (VW - LOCK_W) / 2 + self.mw + cap * .20
         self.mark_x = (VW - LOCK_W) / 2 + self.mw / 2
+        inside = (self.arr[..., 3] > 127).astype(np.uint8)
+        self.sdf = (cv2.distanceTransform(inside, cv2.DIST_L2, 5) - cv2.distanceTransform(1 - inside, cv2.DIST_L2, 5)).astype(np.float32)
+        al = np.maximum(self.arr[..., 3:4] / 255, 1e-3)
+        c = np.clip(self.arr[..., :3] / al, 0, 255)
+        c[self.arr[..., 3] < 200] = 0
+        for _ in range(4):
+            c = np.where(c.sum(2, keepdims=True) > 0, c, cv2.dilate(c, np.ones((9, 9), np.uint8)))
+        self.arr_col = cv2.GaussianBlur(c, (0, 0), 3)
 
     def mark(self, out, cx, cy, s=1.0, gap=0.0, alpha=1.0, rib_alpha=None, sx=None):
         k = s / OVER; kx = (sx if sx else s) / OVER
@@ -120,9 +128,10 @@ class Streams:
         self.y = np.sort(r.uniform(-40, VH + 40, n))
         self.th = r.choice([3, 5, 9, 16, 28, 46, 70], n, p=[.2, .2, .2, .16, .12, .08, .04]).astype(float)
         self.col = r.choice(len(self.PAL), n, p=self.WEIGHT)
+        self.th[self.col >= 4] = np.minimum(self.th[self.col >= 4], 7)  # pale bands stay thin
         self.lag = r.uniform(0, .16, n)
         self.leave = r.uniform(0, .24, n)
-        self.phase = r.uniform(0, 6.28, n)
+        self.flow = r.uniform(0, VW + 900, (n, 3))
 
     def draw(self, out, u, length):
         """u is seconds since the streams began."""
@@ -146,7 +155,16 @@ class Streams:
             w = th * np.sqrt(k)
             c = y0 + (y0 - self.ny) * .1 * (xs / VW)
             pts = np.vstack([np.stack([xs, c - w / 2], 1), np.stack([xs[::-1], (c + w / 2)[::-1]], 1)])
-            cv2.fillPoly(layer, [np.int32(pts * 16)], self.PAL[self.col[i]], cv2.LINE_AA, shift=4)
+            col = self.PAL[self.col[i]]
+            cv2.fillPoly(layer, [np.int32(pts * 16)], col, cv2.LINE_AA, shift=4)
+            hi = tuple(int(v + (255 - v) * .62) for v in col)
+            for f0 in self.flow[i]:
+                x_c = (f0 + u * 2100) % (VW + 900) - 450
+                a0, a1 = max(tail + taper, x_c - 240), min(head - taper, x_c + 240)
+                if a1 - a0 > 30:
+                    yc = y0 + (y0 - self.ny) * .1 * (x_c / VW)
+                    h = max(1.0, th * .34)
+                    cv2.fillPoly(layer, [np.int32(np.array([[a0, yc], [(a0 + a1) / 2, yc - h], [a1, yc], [(a0 + a1) / 2, yc + h]]) * 16)], hi, cv2.LINE_AA, shift=4)
         f = layer.astype(np.float32)
         glow = cv2.resize(cv2.GaussianBlur(cv2.resize(f, None, fx=.25, fy=.25, interpolation=cv2.INTER_AREA), (0, 0), 10), (VW, VH), interpolation=cv2.INTER_LINEAR)
         m = cv2.GaussianBlur(np.clip(f.max(2, keepdims=True) / 90, 0, 1), (0, 0), .7)[..., None]
@@ -317,13 +335,13 @@ class Film:
     def __init__(self, kind, art, landing):
         self.kind, self.a, self.land = kind, art, landing
         self.cy = VH / 2
-        self.end1 = {"A": 2.2, "B": 2.6, "C": 3.0}[kind]
+        self.end1 = {"A": 2.3, "B": 2.6, "C": 3.0}[kind]
         self.load_end = self.end1 + LOAD
-        self.part2 = {"A": 3.1, "B": 2.7, "C": 2.5}[kind]
+        self.part2 = {"A": 2.7, "B": 2.7, "C": 2.0}[kind]
         self.t_card = self.load_end + self.part2
-        self.t_film = self.t_card + (.75 if kind != "C" else .35)
+        self.t_film = self.t_card + .75 if kind != "C" else self.load_end + .5
         self.total = self.t_film + FILM_SECONDS
-        nose = (VW / 2 + self.a.mw * BIG * .46, self.cy + 4)
+        nose = (self.a.mark_x + self.a.mw * .46, self.cy + 3)
         if kind == "A":
             self.streams = Streams(False, nose)
         if kind == "B":
@@ -334,11 +352,12 @@ class Film:
         out = np.tile(BG, (VH, VW, 1)).copy()
         a, cy = self.a, self.cy
         if self.kind == "A":
-            k = float(smooth(span(t, .2, 1.2)))
-            al = float(smooth(span(t, .2, .6)))
-            if k < 1:
-                return a.mark(out, VW / 2, cy, BIG, gap=520 * (1 - k), alpha=al)
-            return self.lockup(out, t, 1.2)
+            al = float(smooth(span(t, .2, .85)))
+            un = float(smooth(span(t, .6, 1.3)))
+            if t < 1.3:
+                out = place(out, a.rib, VW / 2 + 58 * (1 - un), cy, a.lcx, a.lcy, BIG * (.9 + .1 * un) / OVER, None, un)
+                return place(out, a.arr, VW / 2, cy, a.lcx, a.lcy, BIG * (.86 + .14 * al) / OVER, None, al)
+            return self.lockup(out, t, 1.3)
         if self.kind == "B":
             return self.pour.text(self.pour.logo(out, t), t)
         # C: a line grows, pulls back into a point, the arrow opens from it and the ribbon slides out.
@@ -347,12 +366,14 @@ class Film:
         ax = VW / 2 - 40
         reach = 560 * grow * (1 - back)
         if back < 1:
-            w = 5
+            w = 8
             y0 = int(cy) - w // 2
             x1 = int(ax + reach)
             if x1 > ax:
-                p = np.linspace(.5, 1, x1 - int(ax))[None, :, None]
-                out[y0:y0 + w, int(ax):x1] = np.array([255, 107, 47], np.float32) * p
+                c = np.zeros((VH, VW, 3), np.float32)
+                p = np.linspace(0, 1, x1 - int(ax))[None, :, None]
+                c[y0:y0 + w, int(ax):x1] = np.array([255, 120, 90], np.float32) * (1 - p) + np.array([255, 150, 150], np.float32) * p
+                out = out + c + cv2.GaussianBlur(c, (0, 0), 12) * 2.4
         tri = float(smooth(span(t, .25, .75)))
         o = float(smooth(span(t, 1.45, 2.05)))
         if o <= 0:
@@ -386,34 +407,32 @@ class Film:
     def secondary(self, t):
         if self.kind == "B":
             return self.pour.stage_two(t, t - self.load_end, self.part2)
-        u = t - self.load_end - .6
+        u = t - self.load_end
         a, cy = self.a, self.cy
         out = np.tile(BG, (VH, VW, 1)).copy()
-        if u < 0:
-            return self.at_lockup(out, 1 - float(smooth(span(t, self.load_end, self.load_end + .6))))
+        word_al = 1 - float(smooth(span(u, .15, .65)))
+        if word_al > 0:
+            out = a.put_word(out, a.wx, cy, 1.0, alpha=word_al)
         if self.kind == "A":
-            cock = float(smooth(span(u, 0, .45)))
-            go = span(u, .45, 1.15)
-            if u >= .4:
-                out = self.streams.draw(out, u - .4, self.part2 - 1.0)
-            al = 1 - float(smooth(span(u, .75, 1.15)))
+            go = span(u, .3, .95)
+            al = 1 - float(smooth(span(u, .6, 1.05)))
+            if u >= .25:
+                out = self.streams.draw(out, u - .25, self.part2 - .25)
             if al > 0:
-                x = VW / 2 - 34 * cock + 760 * rise(go, 2.4)
-                out = a.mark(out, x, cy, BIG * (1 - .04 * cock), sx=BIG * (1 + 1.1 * rise(go, 2.2)), alpha=al)
+                out = a.mark(out, a.mark_x - 10 * float(smooth(span(u, 0, .3))) + 120 * rise(go, 2.4), cy, 1.0, sx=1 + .9 * rise(go, 2.2), alpha=al)
             return out
-        # C: the ribbon tucks behind, then the landing is seen through the growing arrow.
-        tuck = float(smooth(span(u, 0, .5)))
-        if u < .5:
-            return a.mark(out, VW / 2, cy, BIG, gap=-(0) , rib_alpha=1 - tuck)
-        p = span(u, .45, self.part2 - .6)
-        s = BIG * (1 + 62 * float(smooth(p)) ** 2.6)
-        lcx = a.lcx - (a.lcx * .06)
-        m = cv2.warpAffine(a.arr, np.array([[s / OVER, 0, VW / 2 - s / OVER * lcx], [0, s / OVER, cy - s / OVER * a.lcy]], np.float64), (VW, VH), flags=cv2.INTER_LINEAR)
-        al = m[..., 3:4] / 255
-        land = self.land.frame(0)
-        see = float(smooth(span(p, .28, .62)))
-        fill = m[..., :3]
-        return out * (1 - al) + fill * (1 - see) + land * al * see
+        # C: the film is seen through the arrow as it grows.
+        out = place(out, a.rib, a.mark_x, cy, a.lcx, a.lcy, 1 / OVER, None, 1 - float(smooth(span(u, .1, .5))))
+        p = span(u, .3, self.part2)
+        s_ = (1 + 90 * float(smooth(p)) ** 2.7) / OVER
+        cx = a.mark_x + (VW / 2 - a.mark_x) * float(smooth(span(p, 0, .55)))
+        M = np.array([[s_, 0, cx - s_ * a.lcx], [0, s_, cy - s_ * a.lcy]], np.float64)
+        sd = cv2.warpAffine(a.sdf, M, (VW, VH), flags=cv2.INTER_LINEAR, borderValue=-9999)
+        al = np.clip(sd * s_ + .5, 0, 1)[..., None]
+        col = cv2.warpAffine(a.arr_col, M, (VW, VH), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+        see = float(smooth(span(p, .02, .36)))
+        inside = col * (1 - see) + self.land.frame(0, max(0.0, t - self.t_film)) * see if see > 0 else col
+        return out * (1 - al) + inside * al
 
     def frame(self, t):
         if t < self.end1:
@@ -423,14 +442,14 @@ class Film:
         if t < self.t_card:
             return self.secondary(t)
         if self.kind == "C":
-            return self.land.frame(0, None if t < self.t_film else t - self.t_film)
+            return self.land.frame(0, t - self.t_film)
         shift = (1 - float(smooth(span(t, self.t_card, self.t_card + .6)))) * VW
         return self.land.frame(shift, None if t < self.t_film else t - self.t_film)
 
     def sample(self, t):
         if self.end1 <= t < self.load_end or t >= self.t_film:
             return self.frame(t)
-        n = 3 if self.kind == "B" and t >= self.load_end else 1 if self.kind == "B" else 6
+        n = 3 if self.kind == "B" and t >= self.load_end else 1 if self.kind == "B" else 4
         if n == 1:
             return self.frame(t)
         return np.mean([self.frame(t + k / (FPS * n)) for k in range(n)], 0)
@@ -447,7 +466,7 @@ def sound(film, music, path):
         x[i:j] += sig[: j - i, None]
     # Splash: two soft notes in D as the logo settles.
     L = int(2.4 * sr); tt = np.arange(L) / sr
-    hit = {"A": 1.2, "B": 1.3, "C": 2.05}[film.kind]
+    hit = {"A": 1.3, "B": 1.3, "C": 2.05}[film.kind]
     for f0, a, d in ((293.66, .2, 0), (440.0, .15, .1), (587.33, .1, .22)):
         at(hit + d, np.sin(2 * np.pi * f0 * tt) * np.exp(-tt / .7) * a * np.clip(tt / .03, 0, 1))
     # Secondary splash: pad and air swelling into the card.
@@ -455,7 +474,7 @@ def sound(film, music, path):
     env = np.clip(tt / 1.0, 0, 1) ** 2 * np.exp(-np.clip(tt - 1.0, 0, None) / .5)
     pad = sum(np.sin(2 * np.pi * f * tt) for f in (146.83, 220.0, 293.66, 440.0)) / 4
     air = sosfilt(butter(2, [600, 6000], "bp", fs=sr, output="sos"), rng.standard_normal(L))
-    at(film.load_end + (0 if film.kind == "B" else .6), env * (pad * .3 + air * .06))
+    at(film.load_end, env * (pad * .3 + air * .06))
     m, _ = sf.read(music, always_2d=True)
     i = int(film.t_film * sr); k = min(n - i, len(m))
     x[i:i + k] += m[:k]
