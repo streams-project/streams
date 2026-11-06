@@ -85,7 +85,7 @@ asked. Store, secret and timer effects are the host's own work, and the tape doe
 layer on and off:
 
 - 178 of 178 runs byte identical on native, through the C host and in the browser.
-- 4,874 steps through the browser run.
+- 4,876 steps through the browser run.
 - Linear memory after all 178 runs through one module: 1,638,400 bytes, against a heap target of
   8 MB.
 

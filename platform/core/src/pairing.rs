@@ -115,11 +115,12 @@ impl Pairing {
         self.backoff.reset();
     }
 
-    /// The code in hand is dead, so a new one is asked for with no press.
+    /// The code in hand is dead, so a new one is asked for with no press. The screen hears at
+    /// once, and a wait already running holds, because the server may have asked for it.
     fn lapse(&mut self, mono_ms: u64) {
         self.held = None;
         self.view = bare(DeviceSignInState::Expired);
-        self.send_at_mono = Some(mono_ms);
+        self.send_at_mono = Some(self.send_at_mono.map_or(mono_ms, |at| at.max(mono_ms)));
     }
 
     /// The request due now, if any. A code past its life is renewed here, so a poll that cannot

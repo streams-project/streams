@@ -1634,7 +1634,7 @@
           },
           {
             "const": "expired",
-            "description": "The code ran out and the core is already asking for a new one.",
+            "description": "The code ran out and a new one follows with no press.",
             "type": "string"
           },
           {

@@ -146,7 +146,7 @@ words! {
         Waiting,
         /// The viewer said no on the approving screen. `Action::DeviceSignIn` starts again.
         Denied,
-        /// The code ran out and the core is already asking for a new one.
+        /// The code ran out and a new one follows with no press.
         Expired,
         /// This server cannot do device sign in. `Action::DeviceSignIn` asks it again.
         Off,

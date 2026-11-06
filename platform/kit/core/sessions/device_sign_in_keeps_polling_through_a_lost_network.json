@@ -85,9 +85,7 @@
    "at_ms": 30200,
    "want": {
     "notices": [],
-    "sent": [
-     "POST /v1/auth/device/code"
-    ],
+    "sent": [],
     "view": {
      "device_sign_in": {
       "state": "expired",
@@ -107,6 +105,7 @@
    "net": "up",
    "want": {
     "sent": [
+     "POST /v1/auth/device/code",
      "POST /v1/auth/device/code"
     ],
     "view": {

@@ -516,9 +516,32 @@ fn n9_a_code_past_its_life_renews_itself_when_polls_cannot_reach_the_server() {
         "the wake comes at the end of the code"
     );
 
+    // the dead code leaves the screen now, and the back off still decides when to ask
     let out = step(&mut core, 20_020, &json!([]));
     assert_eq!(out["view"]["device_sign_in"], json!({"state": "expired"}));
-    assert_eq!(paths(&out), [CODE]);
+    assert_eq!(out["effects"], json!([]));
+    assert_eq!(out["next_wake_ms"], 23_050);
+    assert_eq!(paths(&step(&mut core, 23_050, &json!([]))), [CODE]);
+}
+
+#[test]
+fn n9_c5_a_code_that_runs_out_during_a_wait_the_server_asked_for_keeps_that_wait() {
+    let mut core = visitor();
+    let id = id_of(&press(&mut core, 10), CODE);
+    let body = code_answer(SECRET_CODE, "BCDFGHJK", 20, 5);
+    done(&mut core, 20, &id, 200, &body);
+    let id = poll(&mut core, 5_020);
+    let out = done(&mut core, 5_030, &id, 429, &error("rate_limited", Some(45)));
+    assert_eq!(
+        out["next_wake_ms"], 20_020,
+        "the end of the code comes first"
+    );
+
+    let out = step(&mut core, 20_020, &json!([]));
+    assert_eq!(out["view"]["device_sign_in"], json!({"state": "expired"}));
+    assert_eq!(out["effects"], json!([]));
+    assert_eq!(out["next_wake_ms"], 50_030);
+    assert_eq!(paths(&step(&mut core, 50_030, &json!([]))), [CODE]);
 }
 
 #[test]

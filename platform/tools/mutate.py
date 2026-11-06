@@ -746,6 +746,13 @@ MUTANTS = [
 """,
         "",
     ),
+    mutant(
+        84,
+        PAIRING,
+        "a code that lapses cuts a wait the server asked for",
+        "self.send_at_mono = Some(self.send_at_mono.map_or(mono_ms, |at| at.max(mono_ms)));",
+        "self.send_at_mono = Some(mono_ms);",
+    ),
 ]
 
 
