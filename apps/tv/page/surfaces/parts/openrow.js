@@ -7,6 +7,9 @@
   var make = kit.make;
   var STEP = 328;
   var AHEAD = 5;
+  var RISE = 810;
+  var RISE_MS = 340;
+  var FADE_MS = 260;
 
   tv.parts.openRow = function () {
     var root = make("div", "row-now off");
@@ -34,6 +37,45 @@
     root.appendChild(text);
     var held = {};
     var shown = null;
+    var first = true;
+
+    // One picture crossfades into the next on the card, which itself stays still.
+    function swap(url) {
+      var layer = make("div", "open-art incoming");
+      kit.art(layer, url);
+      card.insertBefore(layer, clip);
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () {
+          layer.className = "open-art";
+          window.setTimeout(function () {
+            if (art.parentNode === card) card.removeChild(art);
+            art = layer;
+          }, FADE_MS);
+        });
+      });
+    }
+
+    // The row leaves upward and fades while the new one rises into place, or the other way.
+    function rise(direction) {
+      var ghost = root.cloneNode(true);
+      ghost.className = "row-now ghost";
+      root.parentNode.insertBefore(ghost, root);
+      root.style.transition = "none";
+      root.style.transform = "translateY(" + direction * RISE + "px)";
+      root.style.opacity = "0.4";
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () {
+          root.style.transition = "";
+          root.style.transform = "";
+          root.style.opacity = "";
+          ghost.style.transform = "translateY(" + -direction * RISE + "px)";
+          ghost.style.opacity = "0";
+        });
+      });
+      window.setTimeout(function () {
+        if (ghost.parentNode) ghost.parentNode.removeChild(ghost);
+      }, RISE_MS);
+    }
 
     function fill(section, at) {
       var tiles = section.tiles;
@@ -60,20 +102,25 @@
       kit.empty(before);
       if (at > 0) before.appendChild(tv.parts.poster(tiles[at - 1]));
       var tile = tiles[at];
-      kit.art(art, tv.parts.wide(tile));
+      if (first) kit.art(art, tv.parts.wide(tile));
+      else swap(tv.parts.wide(tile));
+      first = false;
       name.textContent = tile.name;
-      kit.empty(facts);
-      text.textContent = "";
+      facts.style.opacity = "0";
+      text.style.opacity = "0";
       tv.ports.clips.find(tile.title, function () {});
       tv.parts.details(tile, function (detail) {
         tv.parts.facts(facts, detail);
         text.textContent = detail.overview || "";
+        facts.style.opacity = "";
+        text.style.opacity = "";
       });
     }
 
     return {
       node: root,
-      draw: function (on, section, at) {
+      draw: function (on, section, at, direction) {
+        if (on && direction && root.className === "row-now") rise(direction);
         root.className = on ? "row-now" : "row-now off";
         if (on) fill(section, at);
       }

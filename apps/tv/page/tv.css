@@ -298,7 +298,12 @@ button {
 
 /* One row owns the screen: a wide focused title, posters beside it, its facts under it. */
 .row-now { position: absolute; left: 0; top: 0; width: 1920px; height: 900px; }
+.row-now { transition: transform 320ms cubic-bezier(0.22, 0.61, 0.2, 1), opacity 320ms cubic-bezier(0.22, 0.61, 0.2, 1); }
 .row-now.off { display: none; }
+.row-now.ghost { pointer-events: none; }
+.open-art { transition: opacity 240ms linear; }
+.open-art.incoming { opacity: 0; }
+.row-facts, .row-text { transition: opacity 200ms linear; }
 .row-now h2 { position: absolute; left: 72px; top: 146px; margin: 0; font-size: 32px; font-weight: 700; }
 .open-card {
   position: absolute;
@@ -314,7 +319,7 @@ button {
 .open-shade { position: absolute; left: 0; bottom: 0; width: 904px; height: 200px; background: linear-gradient(0deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0)); }
 .open-name { position: absolute; left: 24px; bottom: 16px; margin: 0; width: 856px; font-size: 44px; font-weight: 800; }
 .open-ring { position: absolute; left: 0; top: 0; width: 898px; height: 502px; border: 3px solid var(--text); border-radius: 16px; }
-.posters { position: absolute; left: 989px; top: 202px; height: 504px; width: 1px; transition: transform 200ms ease-out; }
+.posters { position: absolute; left: 989px; top: 202px; height: 504px; width: 1px; transition: transform 240ms cubic-bezier(0.22, 0.61, 0.2, 1); }
 .poster-before { position: absolute; left: -264px; top: 202px; width: 311px; height: 504px; opacity: 0.55; }
 .poster {
   position: absolute;
@@ -357,3 +362,26 @@ button {
 .controls-line { position: absolute; left: 96px; top: 120px; width: 1728px; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.3); }
 .controls-line span { display: block; width: 0; height: 8px; border-radius: 4px; background: var(--accent); }
 .controls-time { position: absolute; left: 96px; top: 140px; margin: 0; font-size: 30px; font-weight: 600; }
+
+/* Age marks. The server names the tone, and these are its colours. */
+.age-ticket {
+  display: inline-block;
+  min-width: 2.4em;
+  height: 1.7em;
+  line-height: 1.7em;
+  padding: 0 0.85em;
+  border-radius: 2px;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+  -webkit-mask: radial-gradient(circle 0.28em at 0 50%, transparent 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 0.28em at 100% 50%, transparent 97%, #000) right / 51% 100% no-repeat;
+}
+.age-ticket.tone-green { background: #00a826; color: #0b0b0c; }
+.age-ticket.tone-yellow { background: #f5a800; color: #0b0b0c; }
+.age-ticket.tone-orange { background: #f05a1a; color: #0b0b0c; }
+.age-ticket.tone-pink { background: #eb287f; color: #0b0b0c; }
+.age-ticket.tone-red { background: #dc1420; color: #fff; }
+.age-ticket.tone-dark_red { background: #7f1d1d; color: #fff; }
+.age-ticket.tone-blue { background: #0060cf; color: #fff; }
+.age-ticket.tone-grey { background: #6b6b72; color: #fff; }

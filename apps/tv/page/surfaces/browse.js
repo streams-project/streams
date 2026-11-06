@@ -43,11 +43,11 @@
     var button = 0;
     var tab = top.home;
 
-    function draw() {
+    function draw(direction) {
       var inRow = where === "row";
       top.draw(where === "top" ? tab : -1);
       hero.draw(!inRow, where === "hero" ? button : -1);
-      open.draw(inRow, rows[row], cols[row] || 0);
+      open.draw(inRow, rows[row], cols[row] || 0, direction);
       next.draw(rows[inRow ? row + 1 : 0], !inRow);
     }
 
@@ -58,9 +58,12 @@
 
     function press(word) {
       var at = cols[row] || 0;
+      var direction = 0;
       if (word === "up") {
-        if (where === "row" && row > 0) row -= 1;
-        else if (where === "row") where = "hero";
+        if (where === "row" && row > 0) {
+          row -= 1;
+          direction = -1;
+        } else if (where === "row") where = "hero";
         else if (where === "hero") where = "top";
         else return false;
       } else if (word === "down") {
@@ -68,8 +71,10 @@
         else if (where === "hero" && rows.length) {
           where = "row";
           row = 0;
-        } else if (where === "row" && row < rows.length - 1) row += 1;
-        else return false;
+        } else if (where === "row" && row < rows.length - 1) {
+          row += 1;
+          direction = 1;
+        } else return false;
       } else if (word === "left") {
         if (where === "top" && tab > 0) tab -= 1;
         else if (where === "hero") button = 0;
@@ -81,7 +86,7 @@
         else if (where === "row" && at < rows[row].tiles.length - 1) cols[row] = at + 1;
         else return false;
       } else return false;
-      draw();
+      draw(direction);
       return true;
     }
 
