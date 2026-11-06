@@ -7,6 +7,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use kit_core::paths::{cargo, root, target_folder};
 use kit_core::scan::{addresses, code_only, scan};
 use kit_core::wasm::scan_file;
 
@@ -29,14 +30,6 @@ const ALLOWED: &[&str] = &[
     "unicode-ident",
     "zmij",
 ];
-
-fn root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
-}
-
-fn cargo() -> String {
-    std::env::var("CARGO").unwrap_or_else(|_| "cargo".to_string())
-}
 
 fn sources(krate: &str) -> Vec<PathBuf> {
     let mut found = Vec::new();
@@ -181,7 +174,7 @@ fn the_target_itself_offers_mutable_globals_only() {
 
 #[test]
 fn compiled_core_and_layer_use_mutable_globals_only() {
-    let target_dir = root().join("target/kit-scan");
+    let target_dir = target_folder("kit-scan");
     let built = wasm_build(&target_dir, &[]);
     assert!(
         built.status.success(),
@@ -292,7 +285,7 @@ fn copy_tree(from: &Path, to: &Path) {
 
 /// Build a copy of the core with one extra line in its root, against the real wasm target.
 fn build_copy(name: &str, plant: &str) -> std::process::Output {
-    let base = root().join("target/kit-plant");
+    let base = target_folder("kit-plant");
     let copy = base.join(name);
     if copy.exists() {
         fs::remove_dir_all(&copy).unwrap();

@@ -10,6 +10,7 @@ use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
 use kit_core::host::{Mode, run};
+use kit_core::paths::{cargo, root, target_folder, target_root};
 use kit_core::sessions::{common, scripts};
 use kit_core::wasm::{I32, Signature, scan_file, shape};
 use serde_json::{Value, json};
@@ -17,14 +18,6 @@ use serde_json::{Value, json};
 /// The target for the linked module is 400 KB, which it misses. This ceiling stops it growing
 /// unseen until the size work lands.
 const SIZE_CEILING: u64 = 700_000;
-
-fn root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
-}
-
-fn cargo() -> String {
-    std::env::var("CARGO").unwrap_or_else(|_| "cargo".to_string())
-}
 
 /// One run of one session: its name, its tape and the bytes the native run wrote.
 struct Run {
@@ -50,9 +43,7 @@ fn runs() -> Vec<Run> {
 }
 
 fn folder(part: &str) -> PathBuf {
-    let path = root().join("target/kit-cross").join(part);
-    fs::create_dir_all(&path).unwrap();
-    path
+    target_folder(&format!("kit-cross/{part}"))
 }
 
 fn differ(name: &str, wanted: &str, have: &str) -> Option<String> {
@@ -71,10 +62,15 @@ fn differ(name: &str, wanted: &str, have: &str) -> Option<String> {
     ))
 }
 
+/// Build the terminal host into the folder this build writes into, and give back its path. The
+/// template takes that folder from `TARGET_DIR`, so the library it links is the one this build
+/// just wrote and no fixed `target` name is assumed.
 fn terminal() -> PathBuf {
+    let target = target_root();
     let built = Command::new("make")
         .arg("-C")
         .arg(root().join("templates/terminal"))
+        .arg(format!("TARGET_DIR={}", target.display()))
         .env("CARGO", cargo())
         .output()
         .expect("make runs");
@@ -84,7 +80,7 @@ fn terminal() -> PathBuf {
         String::from_utf8_lossy(&built.stdout),
         String::from_utf8_lossy(&built.stderr)
     );
-    root().join("target/terminal/terminal")
+    target.join("terminal/terminal")
 }
 
 #[test]
@@ -146,7 +142,7 @@ fn a_changed_clock_changes_the_bytes_so_the_compare_can_fail() {
     assert_ne!(String::from_utf8(output.stdout).unwrap(), run.transcript);
 }
 
-fn linked_module(extra: &[&str], target_dir: &str) -> PathBuf {
+fn linked_module(extra: &[&str], target_dir: &Path) -> PathBuf {
     let built = Command::new(cargo())
         .args(extra)
         .args(["build", "--locked", "--offline", "--release"])
@@ -154,7 +150,7 @@ fn linked_module(extra: &[&str], target_dir: &str) -> PathBuf {
         .arg("--manifest-path")
         .arg(root().join("Cargo.toml"))
         .arg("--target-dir")
-        .arg(root().join(target_dir))
+        .arg(target_dir)
         .output()
         .expect("cargo build runs");
     assert!(
@@ -162,14 +158,26 @@ fn linked_module(extra: &[&str], target_dir: &str) -> PathBuf {
         "{}",
         String::from_utf8_lossy(&built.stderr)
     );
-    root()
-        .join(target_dir)
-        .join("wasm32v1-none/release/bridge_wasm.wasm")
+    target_dir.join("wasm32v1-none/release/bridge_wasm.wasm")
+}
+
+#[test]
+fn the_kit_finds_the_folder_this_build_writes_into() {
+    let target = target_root();
+    let exe = std::env::current_exe().unwrap();
+    assert!(target.is_dir(), "{} is no folder", target.display());
+    assert!(
+        exe.starts_with(&target),
+        "{} is not inside {}",
+        exe.display(),
+        target.display()
+    );
+    assert!(folder("c").starts_with(&target));
 }
 
 #[test]
 fn h110_h115_h117_the_linked_module_shows_six_functions_of_i32_and_imports_nothing() {
-    let bytes = fs::read(linked_module(&[], "target")).unwrap();
+    let bytes = fs::read(linked_module(&[], &target_root())).unwrap();
     let shape = shape(&bytes).unwrap();
     assert_eq!(shape.imports, 0);
     assert_eq!(shape.others, ["memory"]);
@@ -213,7 +221,7 @@ fn the_shape_reader_sees_an_import_and_an_i64() {
 
 #[test]
 fn h115_the_linked_module_runs_on_the_first_version_of_the_format() {
-    let bytes = fs::read(linked_module(&[], "target")).unwrap();
+    let bytes = fs::read(linked_module(&[], &target_root())).unwrap();
     let mut found = BTreeSet::new();
     scan_file(&bytes, &mut found).unwrap();
     assert!(found.is_empty(), "{found:?}");
@@ -222,7 +230,7 @@ fn h115_the_linked_module_runs_on_the_first_version_of_the_format() {
 #[test]
 fn h115_the_feature_list_of_the_linked_module_shows_mutable_globals_only() {
     let extra = ["--config", "profile.release.strip=false"];
-    let bytes = fs::read(linked_module(&extra, "target/kit-unstripped")).unwrap();
+    let bytes = fs::read(linked_module(&extra, &target_folder("kit-unstripped"))).unwrap();
     let mut found = BTreeSet::new();
     scan_file(&bytes, &mut found).unwrap();
     let want: BTreeSet<String> = ["mutable-globals".to_string()].into();
@@ -231,7 +239,9 @@ fn h115_the_feature_list_of_the_linked_module_shows_mutable_globals_only() {
 
 #[test]
 fn the_linked_module_stays_under_its_ceiling() {
-    let size = fs::metadata(linked_module(&[], "target")).unwrap().len();
+    let size = fs::metadata(linked_module(&[], &target_root()))
+        .unwrap()
+        .len();
     assert!(size <= SIZE_CEILING, "core.wasm is {size} bytes");
 }
 
@@ -384,7 +394,7 @@ fn h115_every_session_gives_the_same_bytes_in_a_headless_browser_from_a_local_fi
     let compiler = std::env::var("TSC").expect("TSC names a TypeScript compiler");
     let work = folder("browser");
     let (core, player) = compiled_scripts(&compiler, &work.join("scripts"));
-    let wasm = fs::read(linked_module(&[], "target")).unwrap();
+    let wasm = fs::read(linked_module(&[], &target_root())).unwrap();
     fs::write(work.join("core.wasm"), &wasm).unwrap();
     let runs = runs();
     let tapes: BTreeMap<&str, &str> = runs

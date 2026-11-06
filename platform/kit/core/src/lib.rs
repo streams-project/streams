@@ -3,6 +3,7 @@
 
 pub mod boundary;
 pub mod host;
+pub mod paths;
 pub mod scan;
 pub mod sessions;
 pub mod wasm;
