@@ -1,0 +1,10 @@
+[build]
+target = "index.html"
+dist = "dist"
+filehash = true
+
+# Hashed names mean an old script can never meet a new wasm file. See after-build.sh for the loader.
+[[hooks]]
+stage = "post_build"
+command = "sh"
+command_arguments = ["after-build.sh"]

@@ -121,12 +121,18 @@ async fn serve(config: Config) -> Result<()> {
     let (door, library) = open_accounts(&config).await?.unzip();
     let play = open_play(&config)?;
     let mail = open_mail(&config)?;
+    let web_root = config.web_root.clone();
     let mut state = AppState::new(config, door, data, library);
     state.play = play;
     state.mail = mail;
     let state = Arc::new(state);
     server_api::jobs::start(&state);
-    let app = server_api::router(state).into_make_service_with_connect_info::<SocketAddr>();
+    let app = server_api::router(state);
+    let app = match web_root {
+        Some(root) => server_api::site::with_site(app, Path::new(&root)),
+        None => app,
+    };
+    let app = app.into_make_service_with_connect_info::<SocketAddr>();
     let listener = tokio::net::TcpListener::bind(&listen).await?;
     info!("Listening");
     axum::serve(listener, app).await?;

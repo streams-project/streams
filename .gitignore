@@ -8,3 +8,7 @@ dist/
 
 # Source packs are separate programs in their own repositories.
 /packs/
+
+# Built by ./up.
+/bin/
+/apps/web/dist/

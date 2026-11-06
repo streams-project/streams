@@ -8,11 +8,21 @@ publish.workspace = true
 [lints]
 workspace = true
 
+[[bin]]
+name = "launcher"
+path = "src/main.rs"
+
+[lib]
+path = "src/lib.rs"
+
 [dependencies]
 anyhow.workspace = true
 flate2 = "1"
 rand.workspace = true
 reqwest.workspace = true
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["std"] }
+server-catalog = { workspace = true, features = ["sample"] }
 sha2.workspace = true
 tar = "0.4"
 tokio.workspace = true

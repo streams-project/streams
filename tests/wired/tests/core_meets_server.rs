@@ -404,5 +404,22 @@ async fn a_visitor_opens_the_app_sees_home_and_a_title_starts_playing() {
     });
     assert!(opened.to_string().contains(film), "{opened}");
 
+    // One film in progress is enough for Continue Watching, and it comes back on the next read.
+    host.step(vec![
+        json!({"type": "action", "action": {"action": "command", "command": {
+            "command": "position", "title": title, "position_s": 61, "duration_s": 634,
+        }}}),
+    ])
+    .await;
+    host.step(vec![json!({"type": "address", "address": "/home"})])
+        .await;
+    let sections = host.pages.last().expect("home again")["sections"].clone();
+    let sections = sections.as_array().expect("sections");
+    let resumed = sections
+        .iter()
+        .find(|section| section["kind"] == "continue")
+        .unwrap_or_else(|| panic!("no continue row in {sections:?}"));
+    assert_eq!(resumed["tiles"][0]["title"], title, "{resumed}");
+
     let _ = std::fs::remove_dir_all(&dir);
 }

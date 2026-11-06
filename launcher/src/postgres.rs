@@ -189,7 +189,11 @@ impl Drop for Postgres {
     }
 }
 
-fn write_private(path: &Path, text: &str) -> Result<()> {
+/// Write a file only this user can read.
+///
+/// # Errors
+/// When the file cannot be written.
+pub fn write_private(path: &Path, text: &str) -> Result<()> {
     use std::io::Write;
     use std::os::unix::fs::OpenOptionsExt;
     let mut file = std::fs::OpenOptions::new()

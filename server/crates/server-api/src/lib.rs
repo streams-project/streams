@@ -9,6 +9,7 @@ pub mod jobs;
 pub mod live;
 pub mod router;
 pub mod routes;
+pub mod site;
 pub mod state;
 
 pub use config::Config;

@@ -1,0 +1,17 @@
+#!/bin/sh
+# From a fresh copy to a running service. Run it again to pick up changes.
+set -eu
+cd "$(dirname "$0")"
+
+command -v cargo >/dev/null || {
+  echo "Rust is needed first: https://rustup.rs"
+  exit 1
+}
+command -v trunk >/dev/null || cargo install trunk --locked
+
+cargo build --release --locked -p launcher -p server -p finder-open-films
+(cd apps/web && trunk build --release)
+target_dir=${CARGO_TARGET_DIR:-target}
+"$target_dir/release/launcher" install
+command=$(sed -n 's/.*"command": *"\([^"]*\)".*/\1/p' brand.json | head -n 1)
+exec "bin/$command" up "$@"

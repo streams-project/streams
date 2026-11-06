@@ -1,0 +1,32 @@
+{
+  "name": "Streams",
+  "command": "streams",
+  "domain": "",
+  "support_email": "",
+  "assets": "brand/streams",
+  "colors": {
+    "background": "#0b0b10",
+    "surface": "#16161d",
+    "raised": "#24242e",
+    "text": "#ffffff",
+    "muted": "#a6a6b3",
+    "accent": "#2f6bff",
+    "accent_text": "#ffffff",
+    "join": "#e5352b",
+    "join_text": "#ffffff"
+  },
+  "fonts": {
+    "body": "Inter",
+    "display": "Inter"
+  },
+  "shape": {
+    "button_radius": 999,
+    "card_radius": 12,
+    "field_radius": 12,
+    "panel_radius": 20
+  },
+  "spacing": {
+    "unit": 4,
+    "gutter": 48
+  }
+}

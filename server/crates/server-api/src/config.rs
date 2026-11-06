@@ -43,6 +43,10 @@ pub const SETTINGS: &[(&str, &str)] = &[
         "Service token for finders. Without it playback is off.",
     ),
     (
+        "WEB_ROOT",
+        "Folder of the built website. Without it this server answers the API only.",
+    ),
+    (
         "SITE_ADDRESS",
         "Public address of this site, used in mail links and the device page. Without it device \
          sign in is off.",
@@ -121,6 +125,7 @@ pub struct Config {
     pub finder_urls: Vec<String>,
     pub finder_token: Option<String>,
     pub site_address: Option<String>,
+    pub web_root: Option<String>,
     pub mail_hook_secret: Option<String>,
     pub mail_address: Option<String>,
     pub mail_token: Option<String>,
@@ -204,6 +209,10 @@ impl Config {
         if finder_urls.is_empty() || finder_token.is_none() {
             note("playback", "FINDER_URLS or FINDER_TOKEN is not set");
         }
+        let web_root = value("WEB_ROOT");
+        if web_root.is_none() {
+            note("website", "WEB_ROOT is not set");
+        }
         let site_address = value("SITE_ADDRESS");
         if site_address.is_none() {
             note("device sign in", "SITE_ADDRESS is not set");
@@ -260,6 +269,7 @@ impl Config {
             finder_urls,
             finder_token,
             site_address,
+            web_root,
             mail_hook_secret,
             mail_address,
             mail_token,

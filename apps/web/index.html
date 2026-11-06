@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title></title>
+    <link rel="icon" href="/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/brand.css" />
+    <link data-trunk rel="css" href="style.css" />
+    <link data-trunk rel="copy-file" href="vendor/hls.light.min.js" />
+    <link data-trunk rel="copy-file" href="player.js" />
+    <link data-trunk rel="copy-dir" href="fonts" />
+    <link data-trunk rel="rust" data-bin="web" data-cargo-profile="wasm" data-wasm-opt="s" data-wasm-opt-params="--enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext --enable-mutable-globals --enable-reference-types --enable-multivalue" />
+    <script src="/hls.light.min.js" defer></script>
+    <script src="/player.js" defer></script>
+  </head>
+  <body></body>
+</html>
