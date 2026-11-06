@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A detached signature over the exact bytes of manifest.json.",
+  "properties": {
+    "algorithm": {
+      "enum": [
+        "ed25519"
+      ],
+      "type": "string"
+    },
+    "key_id": {
+      "description": "The first 16 hex characters of the sha256 of the raw public key.",
+      "pattern": "^[0-9a-f]{16}$",
+      "type": "string"
+    },
+    "signature": {
+      "description": "The signature in standard base64.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "algorithm",
+    "key_id",
+    "signature"
+  ],
+  "title": "DatasetSignature",
+  "type": "object"
+}

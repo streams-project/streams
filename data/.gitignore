@@ -1,0 +1,16 @@
+target/
+dist/
+node_modules/
+.DS_Store
+*.env
+.env*
+*.jks
+*.keystore
+*.p12
+*.pem
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+build/
+databuild.toml

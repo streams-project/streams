@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "FileEntry": {
+      "description": "One file of a set.",
+      "properties": {
+        "bytes": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "path": {
+          "description": "Path relative to the manifest. It stays inside the set's folder.",
+          "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$))[A-Za-z0-9_./-]+$",
+          "type": "string"
+        },
+        "required": {
+          "description": "A required file that fails stops the set. An optional one is dropped.",
+          "type": "boolean"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "bytes",
+        "required"
+      ],
+      "type": "object"
+    },
+    "OpenSet": {
+      "description": "A second vector set made from open text only.",
+      "properties": {
+        "dimensions": {
+          "maximum": 4294967295,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "model": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "recipe": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "row_count": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "model",
+        "dimensions",
+        "recipe",
+        "row_count"
+      ],
+      "type": "object"
+    }
+  },
+  "description": "One data set, as the data builder writes it. Written as JSON; the signature in manifest.sig covers these exact bytes.",
+  "properties": {
+    "as_of": {
+      "description": "The build date, which sets what the catalogue view shows.",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "type": "string"
+    },
+    "build_commit": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "built_at_ms": {
+      "maximum": 9007199254740991,
+      "minimum": 0,
+      "type": "integer"
+    },
+    "dataset_version": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "dimensions": {
+      "maximum": 4294967295,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "files": {
+      "additionalProperties": {
+        "$ref": "#/$defs/FileEntry"
+      },
+      "description": "Every file of the set by role. A file with no role is never read.",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]*$"
+      },
+      "required": [
+        "catalog",
+        "vectors",
+        "vector_keys"
+      ],
+      "type": "object"
+    },
+    "key_scheme": {
+      "description": "How a title key packs into a vector key.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "model": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "open_set": {
+      "$ref": "#/$defs/OpenSet"
+    },
+    "quantisation": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "recipe": {
+      "description": "The text each vector was made from.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "row_count": {
+      "maximum": 9007199254740991,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "schema_version": {
+      "maximum": 4294967295,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "source": {
+      "description": "full for a TMDB build, open for a build from open sources.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "dataset_version",
+    "build_commit",
+    "built_at_ms",
+    "model",
+    "dimensions",
+    "quantisation",
+    "row_count",
+    "key_scheme",
+    "files"
+  ],
+  "title": "DatasetManifest",
+  "type": "object"
+}

@@ -1,0 +1,24 @@
+name: check
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      # The cross checks read the contract and the type the server reads a set with, and they fail
+      # when a repository is missing, so both are checked out next to this one where the tests look
+      # for them. tests/siblings.py holds the list, tests/test_ci.py checks this file against it.
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/platform
+          path: platform-checkout
+      - run: mv platform-checkout ../platform
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/server
+          path: server-checkout
+      - run: mv server-checkout ../server
+      - uses: astral-sh/setup-uv@v6
+      - run: ./scripts/check

@@ -1,0 +1,25 @@
+#!/bin/sh
+# The scheduled work. Any failed step fails the unit, and the unit's failure starts the alarm.
+# Reads DATABUILD_HOME and DATABUILD_SETTINGS from the environment file named in the units.
+set -eu
+: "${DATABUILD_HOME:?DATABUILD_HOME is not set}"
+: "${DATABUILD_SETTINGS:?DATABUILD_SETTINGS is not set}"
+cd "$DATABUILD_HOME"
+
+build() {
+    uv run --locked databuild --settings "$DATABUILD_SETTINGS" "$@"
+}
+
+case "${1:-}" in
+    fresh) step=fresh ;;
+    daily) step=popularity ;;
+    *)
+        echo "usage: run fresh|daily" >&2
+        exit 2
+        ;;
+esac
+
+build "$step"
+build manifest
+build verify
+build age

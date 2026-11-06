@@ -1,0 +1,221 @@
+{
+"stand_up": {
+"name": "Stand-up Comedy",
+"media": [
+"movie",
+"tv"
+],
+"definition": "A stand-up comedy special or show: one or more comedians performing live sets to an audience (not a sitcom, not a comedy film with actors).",
+"parts": [
+"stand-up comedy",
+"stand up comedy",
+"standup comedy",
+"stand-up",
+"comedian",
+"comedy special",
+"stand up"
+],
+"title_parts": [
+"stand-up",
+"stand up"
+]
+},
+"chat_shows": {
+"name": "Stand-up & Chat Shows",
+"media": [
+"tv"
+],
+"definition": "A talk show, late-night show, panel show, chat show or comedy panel built around a host, guests, interviews and conversation (not scripted drama).",
+"parts": [
+"talk show",
+"late night",
+"panel show",
+"chat show",
+"interview",
+"variety show",
+"game show"
+],
+"genres_or": [
+"Talk"
+]
+},
+"cult": {
+"name": "Cult",
+"media": [
+"movie",
+"tv"
+],
+"definition": "A cult film or series: a devoted fan following, midnight-movie status, so-bad-it's-good or genre oddity that outlived its release (not simply a famous blockbuster).",
+"parts": [
+"cult film",
+"cult classic",
+"cult",
+"midnight movie",
+"cult tv",
+"cult favorite",
+"grindhouse",
+"exploitation",
+"b movie",
+"so bad it's good",
+"trash cinema",
+"splatter",
+"campy"
+]
+},
+"independent": {
+"name": "Independent",
+"media": [
+"movie"
+],
+"definition": "An independent film: made outside the major studios, often low budget, arthouse, festival style or personal in vision (not a studio franchise film).",
+"parts": [
+"independent film",
+"indie film",
+"indie",
+"independent cinema",
+"low budget",
+"micro budget",
+"no budget",
+"arthouse",
+"art house",
+"experimental film",
+"experimental cinema"
+]
+},
+"halloween": {
+"name": "Halloween",
+"media": [
+"movie",
+"tv"
+],
+"definition": "A spooky title suited to Halloween viewing: horror, ghosts, witches, vampires, haunted places, monsters or Halloween itself (including gentle family spooky titles).",
+"parts": [
+"halloween",
+"ghost",
+"haunted house",
+"haunting",
+"witch",
+"witchcraft",
+"vampire",
+"werewolf",
+"zombie",
+"monster",
+"slasher",
+"supernatural horror",
+"occult",
+"demon",
+"possession"
+],
+"needs_genres": [
+"Horror",
+"Fantasy",
+"Mystery"
+],
+"or_keyword": "halloween"
+},
+"black_stories": {
+"name": "Black Stories",
+"media": [
+"movie",
+"tv"
+],
+"definition": "A story centred on Black characters, Black culture, Black history or told by Black creators (not a title that merely has one Black actor in the cast).",
+"parts": [
+"black cinema",
+"african american",
+"blaxploitation",
+"black history",
+"civil rights",
+"civil rights movement",
+"slavery",
+"racism",
+"hip-hop",
+"black lead",
+"black director"
+]
+},
+"lgbtq": {
+"name": "LGBTQ",
+"media": [
+"movie",
+"tv"
+],
+"definition": "A title in which LGBTQ+ characters, relationships or themes are central to the story.",
+"parts": [
+"lgbt",
+"gay",
+"lesbian",
+"queer",
+"transgender",
+"bisexual",
+"coming out",
+"drag"
+]
+},
+"science_nature": {
+"name": "Science & Nature",
+"media": [
+"movie",
+"tv"
+],
+"definition": "A documentary or factual series about science, nature, wildlife, space, the planet or how the natural world works (not true crime, not history of people).",
+"parts": [
+"nature",
+"wildlife",
+"animal",
+"science",
+"space",
+"planet",
+"universe",
+"ocean",
+"marine",
+"climate",
+"environment",
+"dinosaur",
+"evolution",
+"biology",
+"physics",
+"astronomy",
+"earth",
+"ecology",
+"geology",
+"natural history"
+],
+"needs_genres": [
+"Documentary"
+]
+},
+"sport": {
+"name": "Sport",
+"media": [
+"movie",
+"tv"
+],
+"definition": "A title centred on a sport or sports competition: athletes, teams, matches, training, a sports documentary or a sports drama (not a title where sport is a passing detail).",
+"parts": [
+"sport",
+"football",
+"soccer",
+"basketball",
+"baseball",
+"boxing",
+"tennis",
+"golf",
+"hockey",
+"rugby",
+"cricket",
+"wrestling",
+"olympic",
+"athlete",
+"racing",
+"formula 1",
+"martial arts tournament",
+"swimming",
+"gymnastics",
+"marathon",
+"cycling",
+"surfing",
+"skateboard"
+]
+}
+}

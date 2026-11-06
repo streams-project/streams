@@ -1,0 +1,1330 @@
+{
+"genres": [
+"Action",
+"Adventure",
+"Animation",
+"Comedy",
+"Crime",
+"Documentary",
+"Drama",
+"Family",
+"Fantasy",
+"History",
+"Horror",
+"Music",
+"Mystery",
+"Romance",
+"Science Fiction",
+"Thriller",
+"War",
+"Western"
+],
+"tv_genre_names": {
+"Action": "Action & Adventure",
+"Adventure": "Action & Adventure",
+"Science Fiction": "Sci-Fi & Fantasy",
+"Fantasy": "Sci-Fi & Fantasy",
+"War": "War & Politics"
+},
+"nouns": {
+"Action": "Action",
+"Adventure": "Adventures",
+"Animation": "Animation",
+"Comedy": "Comedies",
+"Crime": "Crime Stories",
+"Documentary": "Documentaries",
+"Drama": "Dramas",
+"Family": "Family Favourites",
+"Fantasy": "Fantasy",
+"History": "Historical Dramas",
+"Horror": "Horror",
+"Music": "Music Stories",
+"Mystery": "Mysteries",
+"Romance": "Romances",
+"Science Fiction": "Sci-Fi",
+"Thriller": "Thrillers",
+"War": "War Stories",
+"Politics": "Political Dramas",
+"Western": "Westerns"
+},
+"themes": {
+"Based on True Stories": {
+"keywords": [
+"based on true story"
+],
+"standalone": true
+},
+"True Crime": {
+"keywords": [
+"true crime"
+],
+"standalone": true
+},
+"Coming of Age Stories": {
+"keywords": [
+"coming of age"
+],
+"standalone": true
+},
+"Slice of Life": {
+"keywords": [
+"slice of life"
+],
+"standalone": true
+},
+"Sitcoms": {
+"keywords": [
+"sitcom"
+],
+"standalone": true
+},
+"Sketch Comedy": {
+"keywords": [
+"sketch comedy"
+],
+"standalone": true
+},
+"Mockumentaries": {
+"keywords": [
+"mockumentary"
+],
+"standalone": true
+},
+"Musicals": {
+"keywords": [
+"musical",
+"broadway musical"
+],
+"standalone": true
+},
+"Miniseries": {
+"keywords": [
+"miniseries"
+],
+"standalone": true
+},
+"Anthologies": {
+"keywords": [
+"anthology"
+],
+"standalone": true
+},
+"Telenovelas": {
+"keywords": [
+"telenovela"
+],
+"standalone": true
+},
+"Dating Shows": {
+"keywords": [
+"dating"
+],
+"standalone": true
+},
+"Game and Variety Shows": {
+"keywords": [
+"game show",
+"variety show"
+],
+"standalone": true
+},
+"Nature Documentaries": {
+"keywords": [
+"nature documentary"
+],
+"standalone": true
+},
+"Sports Documentaries": {
+"keywords": [
+"sports documentary"
+],
+"standalone": true
+},
+"Short Films": {
+"keywords": [
+"short film"
+],
+"standalone": true
+},
+"Black and White Classics": {
+"keywords": [
+"black and white"
+],
+"standalone": true
+},
+"Mecha Anime": {
+"keywords": [
+"mecha"
+],
+"standalone": true
+},
+"Isekai Adventures": {
+"keywords": [
+"isekai"
+],
+"standalone": true
+},
+"Shonen Anime": {
+"keywords": [
+"shounen"
+],
+"standalone": true
+},
+"Seinen Anime": {
+"keywords": [
+"seinen"
+],
+"standalone": true
+},
+"Shojo Anime": {
+"keywords": [
+"shoujo"
+],
+"standalone": true
+},
+"Wuxia Epics": {
+"keywords": [
+"wuxia"
+],
+"standalone": true
+},
+"Tokusatsu Heroes": {
+"keywords": [
+"tokusatsu"
+],
+"standalone": true
+},
+"Chinese Animation": {
+"keywords": [
+"donghua"
+],
+"standalone": true
+},
+"Kaiju Mayhem": {
+"keywords": [
+"kaiju"
+],
+"standalone": true
+},
+"Boys' Love": {
+"keywords": [
+"boys' love (bl)"
+],
+"standalone": true
+},
+"Girls' Love": {
+"keywords": [
+"girls' love (gl)"
+],
+"standalone": true
+},
+"Manga Adaptations": {
+"keywords": [
+"based on manga"
+],
+"standalone": true
+},
+"Light Novel Adaptations": {
+"keywords": [
+"based on light novel"
+],
+"standalone": true
+},
+"Book Adaptations": {
+"keywords": [
+"based on novel or book"
+],
+"standalone": true
+},
+"Young Adult Adaptations": {
+"keywords": [
+"based on young adult novel"
+],
+"standalone": true
+},
+"Comic Book Adaptations": {
+"keywords": [
+"based on comic"
+],
+"standalone": true
+},
+"Video Game Adaptations": {
+"keywords": [
+"based on video game"
+],
+"standalone": true
+},
+"LGBTQ Stories": {
+"keywords": [
+"lgbt",
+"gay theme"
+],
+"standalone": true
+},
+"Romantic Comedies": {
+"keywords": [
+"romcom"
+],
+"standalone": true
+},
+"Heist": {
+"keywords": [
+"heist"
+],
+"standalone": false
+},
+"Serial Killer": {
+"keywords": [
+"serial killer"
+],
+"standalone": false
+},
+"Psychological": {
+"keywords": [
+"psychological thriller"
+],
+"standalone": false
+},
+"Noir": {
+"keywords": [
+"film noir",
+"neo-noir"
+],
+"standalone": false
+},
+"Time Travel": {
+"keywords": [
+"time travel"
+],
+"standalone": false
+},
+"Post Apocalyptic": {
+"keywords": [
+"post-apocalyptic future"
+],
+"standalone": false
+},
+"Dystopian": {
+"keywords": [
+"dystopia"
+],
+"standalone": false
+},
+"Superhero": {
+"keywords": [
+"superhero"
+],
+"standalone": false
+},
+"Superpowered": {
+"keywords": [
+"super power"
+],
+"standalone": false
+},
+"Martial Arts": {
+"keywords": [
+"martial arts"
+],
+"standalone": false
+},
+"High School": {
+"keywords": [
+"high school",
+"school life",
+"japanese high school"
+],
+"standalone": false
+},
+"Campus": {
+"keywords": [
+"university"
+],
+"standalone": false
+},
+"Revenge": {
+"keywords": [
+"revenge"
+],
+"standalone": false
+},
+"Spy": {
+"keywords": [
+"spy"
+],
+"standalone": false
+},
+"Survival": {
+"keywords": [
+"survival"
+],
+"standalone": false
+},
+"Zombie": {
+"keywords": [
+"zombie"
+],
+"standalone": false
+},
+"Vampire": {
+"keywords": [
+"vampire"
+],
+"standalone": false
+},
+"Witchcraft": {
+"keywords": [
+"witch"
+],
+"standalone": false
+},
+"Ghost": {
+"keywords": [
+"ghost"
+],
+"standalone": false
+},
+"Paranormal": {
+"keywords": [
+"paranormal"
+],
+"standalone": false
+},
+"Ghost Hunting": {
+"keywords": [
+"ghost hunter"
+],
+"standalone": false
+},
+"Haunted House": {
+"keywords": [
+"haunted house"
+],
+"standalone": false
+},
+"Haunting": {
+"keywords": [
+"haunting"
+],
+"standalone": false
+},
+"Demon": {
+"keywords": [
+"demon"
+],
+"standalone": false
+},
+"Supernatural": {
+"keywords": [
+"supernatural"
+],
+"standalone": false
+},
+"Monster": {
+"keywords": [
+"monster"
+],
+"standalone": false
+},
+"Alien": {
+"keywords": [
+"alien",
+"alien invasion"
+],
+"standalone": false
+},
+"Robot": {
+"keywords": [
+"robot"
+],
+"standalone": false
+},
+"A.I.": {
+"keywords": [
+"artificial intelligence (a.i.)"
+],
+"standalone": false
+},
+"Space": {
+"keywords": [
+"space"
+],
+"standalone": false
+},
+"World War II": {
+"keywords": [
+"world war ii"
+],
+"standalone": false
+},
+"Period": {
+"keywords": [
+"period drama",
+"costume drama",
+"19th century"
+],
+"standalone": false
+},
+"Historical": {
+"keywords": [
+"historical drama"
+],
+"standalone": false
+},
+"War": {
+"keywords": [
+"war"
+],
+"standalone": false
+},
+"Love Triangle": {
+"keywords": [
+"love triangle"
+],
+"standalone": false
+},
+"Forbidden Love": {
+"keywords": [
+"forbidden love"
+],
+"standalone": false
+},
+"First Love": {
+"keywords": [
+"first love"
+],
+"standalone": false
+},
+"Wedding": {
+"keywords": [
+"wedding"
+],
+"standalone": false
+},
+"Dark": {
+"keywords": [
+"dark comedy"
+],
+"standalone": false
+},
+"Workplace": {
+"keywords": [
+"workplace comedy"
+],
+"standalone": false
+},
+"Satirical": {
+"keywords": [
+"satire"
+],
+"standalone": false
+},
+"Spoof": {
+"keywords": [
+"parody"
+],
+"standalone": false
+},
+"Slapstick": {
+"keywords": [
+"slapstick comedy"
+],
+"standalone": false
+},
+"Detective": {
+"keywords": [
+"detective"
+],
+"standalone": false
+},
+"Murder Mystery": {
+"keywords": [
+"murder mystery",
+"murder investigation"
+],
+"standalone": false
+},
+"Murder": {
+"keywords": [
+"murder"
+],
+"standalone": false
+},
+"Police": {
+"keywords": [
+"police",
+"police detective"
+],
+"standalone": false
+},
+"FBI": {
+"keywords": [
+"fbi"
+],
+"standalone": false
+},
+"Gangster": {
+"keywords": [
+"gangster",
+"mafia",
+"organized crime"
+],
+"standalone": false
+},
+"Prison": {
+"keywords": [
+"prison"
+],
+"standalone": false
+},
+"Legal": {
+"keywords": [
+"lawyer"
+],
+"standalone": false
+},
+"Medical": {
+"keywords": [
+"medical drama",
+"hospital"
+],
+"standalone": false
+},
+"Political": {
+"keywords": [
+"politics"
+],
+"standalone": false
+},
+"Conspiracy": {
+"keywords": [
+"conspiracy"
+],
+"standalone": false
+},
+"Corruption": {
+"keywords": [
+"corruption"
+],
+"standalone": false
+},
+"Sports": {
+"keywords": [
+"sports"
+],
+"standalone": false
+},
+"Soccer": {
+"keywords": [
+"football (soccer)"
+],
+"standalone": false
+},
+"Wrestling": {
+"keywords": [
+"wrestling"
+],
+"standalone": false
+},
+"Food": {
+"keywords": [
+"cooking",
+"food"
+],
+"standalone": false
+},
+"Family": {
+"keywords": [
+"family relationships"
+],
+"standalone": false
+},
+"Friendship": {
+"keywords": [
+"friendship",
+"female friendship",
+"male friendship"
+],
+"standalone": false
+},
+"Biographical": {
+"keywords": [
+"biography"
+],
+"standalone": false
+},
+"Road Trip": {
+"keywords": [
+"road trip"
+],
+"standalone": false
+},
+"New York": {
+"keywords": [
+"new york city"
+],
+"standalone": false
+},
+"London": {
+"keywords": [
+"london, england"
+],
+"standalone": false
+},
+"Paris": {
+"keywords": [
+"paris, france"
+],
+"standalone": false
+},
+"Tokyo": {
+"keywords": [
+"tokyo, japan"
+],
+"standalone": false
+},
+"Los Angeles": {
+"keywords": [
+"los angeles, california"
+],
+"standalone": false
+}
+},
+"extra": [
+{
+"keywords": [
+"supernatural",
+"ghost",
+"demon"
+],
+"name": "Supernatural Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"detective",
+"police detective",
+"murder investigation",
+"murder mystery"
+],
+"name": "Detective Mysteries",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"world war ii"
+],
+"name": "World War II Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"small town"
+],
+"name": "Small Town Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"road trip"
+],
+"name": "Road Trips",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"period drama",
+"costume drama",
+"historical drama"
+],
+"name": "Period Dramas",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"biography"
+],
+"name": "Biopics",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"sports",
+"football (soccer)"
+],
+"name": "Sports Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"dysfunctional family",
+"sibling relationship",
+"family relationships"
+],
+"name": "Family Dramas",
+"genre": "Drama",
+"kind": "theme"
+},
+{
+"keywords": [
+"conspiracy",
+"corruption"
+],
+"name": "Conspiracy Thrillers",
+"genre": "Thriller",
+"kind": "theme"
+},
+{
+"keywords": [
+"prison"
+],
+"name": "Prison Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"hospital",
+"doctor"
+],
+"name": "Hospital Dramas",
+"genre": "Drama",
+"kind": "theme"
+},
+{
+"keywords": [
+"lawyer"
+],
+"name": "Legal Dramas",
+"genre": "Drama",
+"kind": "theme"
+},
+{
+"keywords": [
+"gangster",
+"mafia",
+"organized crime"
+],
+"name": "Gangster Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"alien"
+],
+"name": "Alien Encounters",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"robot",
+"artificial intelligence (a.i.)"
+],
+"name": "Robots and AI",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"monster",
+"giant monster"
+],
+"name": "Monster Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"satire",
+"parody"
+],
+"name": "Satires",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"dark comedy"
+],
+"name": "Dark Comedies",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"dog",
+"animals"
+],
+"name": "Animal Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"food",
+"cooking"
+],
+"name": "Food Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"wedding"
+],
+"name": "Wedding Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"space",
+"space opera"
+],
+"name": "Space Adventures",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"military",
+"soldier"
+],
+"name": "Military Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"assassin"
+],
+"name": "Assassin Thrillers",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"teen drama",
+"teenager"
+],
+"name": "Teen Dramas",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"workplace comedy"
+],
+"name": "Workplace Comedies",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"friendship",
+"female friendship",
+"male friendship"
+],
+"name": "Friendship Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"first love",
+"love triangle"
+],
+"name": "First Love",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"independent film"
+],
+"name": "Indie Films",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"new york city"
+],
+"name": "New York Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"london, england"
+],
+"name": "London Stories",
+"genre": null,
+"kind": "theme"
+},
+{
+"keywords": [
+"hilarious",
+"amused",
+"witty",
+"playful",
+"absurd"
+],
+"name": "Laugh Out Loud",
+"genre": null,
+"kind": "mood"
+},
+{
+"keywords": [
+"suspenseful",
+"intense",
+"shocking"
+],
+"name": "Edge of Your Seat",
+"genre": null,
+"kind": "mood"
+},
+{
+"keywords": [
+"cheerful",
+"joyful",
+"lighthearted",
+"hopeful",
+"comforting"
+],
+"name": "Feel Good Picks",
+"genre": null,
+"kind": "mood"
+},
+{
+"keywords": [
+"inspirational",
+"admiring"
+],
+"name": "Inspiring Stories",
+"genre": null,
+"kind": "mood"
+},
+{
+"keywords": [
+"nostalgic"
+],
+"name": "Nostalgic Favourites",
+"genre": null,
+"kind": "mood"
+},
+{
+"keywords": [
+"philosophical",
+"complex"
+],
+"name": "Thought Provoking",
+"genre": null,
+"kind": "mood"
+},
+{
+"keywords": [
+"tragic",
+"tragedy"
+],
+"name": "Heartbreaking Stories",
+"genre": null,
+"kind": "mood"
+},
+{
+"keywords": [
+"whimsical"
+],
+"name": "Whimsical Worlds",
+"genre": null,
+"kind": "mood"
+}
+],
+"origins": [
+{
+"adjective": "Korean",
+"languages": [
+"ko"
+],
+"countries": [],
+"rules": {}
+},
+{
+"adjective": "Japanese",
+"languages": [
+"ja"
+],
+"countries": [],
+"rules": {
+"anime": false
+}
+},
+{
+"adjective": "French",
+"languages": [
+"fr"
+],
+"countries": [
+"FR"
+],
+"rules": {}
+},
+{
+"adjective": "Spanish",
+"languages": [
+"es"
+],
+"countries": [
+"ES"
+],
+"rules": {}
+},
+{
+"adjective": "Latin American",
+"languages": [
+"es",
+"pt"
+],
+"countries": [
+"MX",
+"AR",
+"CO",
+"CL",
+"BR",
+"PE",
+"VE",
+"UY"
+],
+"rules": {}
+},
+{
+"adjective": "Italian",
+"languages": [
+"it"
+],
+"countries": [],
+"rules": {}
+},
+{
+"adjective": "German",
+"languages": [
+"de"
+],
+"countries": [],
+"rules": {}
+},
+{
+"adjective": "Indian",
+"languages": [
+"hi",
+"ta",
+"te",
+"ml",
+"kn",
+"bn",
+"mr"
+],
+"countries": [],
+"rules": {}
+},
+{
+"adjective": "Chinese",
+"languages": [
+"zh",
+"cn"
+],
+"countries": [],
+"rules": {}
+},
+{
+"adjective": "Turkish",
+"languages": [
+"tr"
+],
+"countries": [],
+"rules": {}
+},
+{
+"adjective": "Nordic",
+"languages": [
+"sv",
+"da",
+"no",
+"nb",
+"fi",
+"is"
+],
+"countries": [],
+"rules": {}
+},
+{
+"adjective": "British",
+"languages": [
+"en"
+],
+"countries": [
+"GB"
+],
+"rules": {}
+},
+{
+"adjective": "Thai",
+"languages": [
+"th"
+],
+"countries": [],
+"rules": {}
+},
+{
+"adjective": "Australian",
+"languages": [
+"en"
+],
+"countries": [
+"AU"
+],
+"rules": {}
+}
+],
+"decades": [
+1960,
+1970,
+1980,
+1990,
+2000,
+2010,
+2020
+],
+"event_labels": {
+"christmas": "Christmas",
+"halloween": "Halloween",
+"valentines": "Valentine's",
+"thanksgiving": "Thanksgiving",
+"new_year": "New Year",
+"easter": "Easter",
+"summer": "Summer",
+"winter_cozy": "Winter",
+"autumn": "Autumn",
+"spring": "Spring",
+"friday_13": "Friday the 13th",
+"back_to_school": "Back to School"
+},
+"event_genres": {
+"christmas": [
+"Adventure",
+"Animation",
+"Comedy",
+"Drama",
+"Family",
+"Fantasy",
+"Romance"
+],
+"halloween": [
+"Animation",
+"Comedy",
+"Family",
+"Fantasy",
+"Horror",
+"Mystery",
+"Thriller"
+],
+"valentines": [
+"Comedy",
+"Drama",
+"Romance"
+],
+"thanksgiving": [
+"Comedy",
+"Drama",
+"Family"
+],
+"new_year": [
+"Comedy",
+"Drama",
+"Romance"
+],
+"summer": [
+"Adventure",
+"Comedy",
+"Drama",
+"Family",
+"Romance"
+],
+"back_to_school": [
+"Animation",
+"Comedy",
+"Drama",
+"Family",
+"Romance"
+],
+"autumn": [
+"Comedy",
+"Drama",
+"Horror",
+"Mystery",
+"Romance"
+],
+"winter_cozy": [
+"Animation",
+"Comedy",
+"Drama",
+"Family",
+"Romance"
+],
+"spring": [
+"Comedy",
+"Drama",
+"Romance"
+],
+"friday_13": [
+"Horror"
+],
+"easter": [
+"Animation",
+"Comedy",
+"Family"
+]
+},
+"theme_noun_genres": [
+"Action",
+"Adventure",
+"Animation",
+"Comedy",
+"Crime",
+"Documentary",
+"Drama",
+"Fantasy",
+"Horror",
+"Mystery",
+"Romance",
+"Science Fiction",
+"Thriller",
+"Western"
+],
+"genre_word_phrases": [
+"action",
+"adventure",
+"animation",
+"comedy",
+"crime",
+"documentary",
+"drama",
+"family",
+"fantasy",
+"horror",
+"music",
+"mystery",
+"romance",
+"war"
+]
+}

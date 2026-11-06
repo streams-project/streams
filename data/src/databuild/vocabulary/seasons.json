@@ -1,0 +1,16 @@
+{
+"queries": {
+"halloween": "spooky Halloween season: slashers, haunted houses, ghosts, witches, vampires, folk horror, monster movies, creepy fun for the family",
+"christmas": "Christmas holiday season: festive family films, holiday romances, Santa, snowy cosy traditions, Christmas animation and classic Christmas comedies",
+"winter_cozy": "cozy winter nights: snow, fireplace, warm comforting stories, hot chocolate, wintry small town",
+"autumn": "crisp autumn season: falling leaves, harvest, pumpkin season, moody cosy mysteries, back to school mood",
+"summer": "summer: beach holidays, road trips, sunny coming-of-age, vacation romance, adventure and fun in the sun",
+"summer_blockbuster": "summer blockbuster: big budget action spectacle, superheroes, sci-fi event movies, explosions and wonder",
+"valentines": "Valentine's Day: romance, love stories, romantic comedies, date night, heartfelt and flirty",
+"spring": "spring: renewal, blossoming romance, gardens, fresh starts, Easter family fun",
+"back_to_school": "back to school: high school, college, teenage coming of age, campus comedies and teen drama",
+"thanksgiving": "Thanksgiving: family gatherings, dinner table, homecoming, gratitude, holiday dysfunction",
+"friday_13": "Friday the 13th: slashers, superstition, bad luck, horror classics, camp counselors in danger",
+"new_year": "New Year's Eve: parties, resolutions, fresh starts, countdown, celebration and reflection"
+}
+}

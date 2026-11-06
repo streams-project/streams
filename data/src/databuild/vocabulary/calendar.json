@@ -1,0 +1,4022 @@
+{
+"entries": [
+{
+"id": "cal_winter_escape_films_bt",
+"title": "Winter Escape Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "Cozy getaways and snowy retreats",
+"seasonal": {
+"start": "11-20",
+"end": "12-31"
+},
+"event": "christmas",
+"keywords": [
+"christmas",
+"santa claus",
+"christmas tree",
+"xmas",
+"holiday season"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_holiday_family_favorites_bt",
+"title": "Holiday Family Favorites",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Togetherness and festive traditions",
+"seasonal": {
+"start": "11-20",
+"end": "12-31"
+},
+"event": "christmas",
+"keywords": [
+"christmas",
+"santa claus",
+"christmas tree",
+"xmas",
+"holiday season"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_snowy_adventure_movies_bt",
+"title": "Snowy Adventure Movies",
+"media_type": "both",
+"type": "calendar",
+"genre": "Action",
+"vibe_query": "Outdoor thrills and winter sports",
+"seasonal": {
+"start": "11-20",
+"end": "12-31"
+},
+"event": "christmas",
+"keywords": [
+"christmas",
+"santa claus",
+"christmas tree",
+"xmas",
+"holiday season"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_winter_escape_escapades_bt",
+"title": "Winter Escape Escapades",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "fun adventures set in snowy landscapes and remote winter destinations",
+"seasonal": {
+"start": "11-20",
+"end": "12-31"
+},
+"event": "christmas",
+"keywords": [
+"christmas",
+"santa claus",
+"christmas tree",
+"xmas",
+"holiday season"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_seasonal_mystery_thrills_bt",
+"title": "Seasonal Mystery Thrills",
+"media_type": "both",
+"type": "calendar",
+"genre": "Thriller",
+"vibe_query": "tense and suspenseful stories unfolding during the holiday season",
+"seasonal": {
+"start": "11-20",
+"end": "12-31"
+},
+"event": "christmas",
+"keywords": [
+"christmas",
+"santa claus",
+"christmas tree",
+"xmas",
+"holiday season"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_winter_holiday_escapades_bt",
+"title": "Winter Holiday Escapades",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "warm, festive, family-friendly",
+"seasonal": {
+"start": "11-20",
+"end": "12-31"
+},
+"event": "christmas",
+"keywords": [
+"christmas",
+"santa claus",
+"christmas tree",
+"xmas",
+"holiday season"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_snowy_nighttime_adventures_bt",
+"title": "Snowy Nighttime Adventures",
+"media_type": "both",
+"type": "calendar",
+"genre": "Thriller",
+"vibe_query": "mysterious, atmospheric, suspenseful",
+"seasonal": {
+"start": "11-20",
+"end": "12-31"
+},
+"event": "christmas",
+"keywords": [
+"christmas",
+"santa claus",
+"christmas tree",
+"xmas",
+"holiday season"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_holiday_homecomings_bt",
+"title": "Holiday Homecomings",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "emotional, nostalgic, heartfelt",
+"seasonal": {
+"start": "11-20",
+"end": "12-31"
+},
+"event": "christmas",
+"keywords": [
+"christmas",
+"santa claus",
+"christmas tree",
+"xmas",
+"holiday season"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_winter_holiday_movies_bt",
+"title": "Winter Holiday Movies",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "heartwarming holiday stories",
+"seasonal": {
+"start": "11-20",
+"end": "12-31"
+},
+"event": "christmas",
+"keywords": [
+"christmas",
+"santa claus",
+"christmas tree",
+"xmas",
+"holiday season"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_family_christmas_films_bt",
+"title": "Family Christmas Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Family",
+"vibe_query": "together during the holidays",
+"seasonal": {
+"start": "11-20",
+"end": "12-31"
+},
+"event": "christmas",
+"keywords": [
+"christmas",
+"santa claus",
+"christmas tree",
+"xmas",
+"holiday season"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_new_year_resolutions_bt",
+"title": "New Year Resolutions",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "fresh start, personal growth, self-improvement",
+"seasonal": {
+"start": "12-26",
+"end": "01-07"
+},
+"event": "new_year",
+"keywords": [
+"new year",
+"new year's eve",
+"new year's day"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_celebrating_the_new_year_bt",
+"title": "Celebrating the New Year",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "festive, communal, celebration",
+"seasonal": {
+"start": "12-26",
+"end": "01-07"
+},
+"event": "new_year",
+"keywords": [
+"new year",
+"new year's eve",
+"new year's day"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_year_end_reflections_bt",
+"title": "Year-End Reflections",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "looking back, nostalgia, introspection",
+"seasonal": {
+"start": "12-26",
+"end": "01-07"
+},
+"event": "new_year",
+"keywords": [
+"new year",
+"new year's eve",
+"new year's day"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_new_year_celebrations_bt",
+"title": "New Year Celebrations",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "festive, family, togetherness, traditions",
+"seasonal": {
+"start": "12-26",
+"end": "01-07"
+},
+"event": "new_year",
+"keywords": [
+"new year",
+"new year's eve",
+"new year's day"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_new_year_reflections_bt",
+"title": "New Year Reflections",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "introspective, nostalgia, looking back, moving forward",
+"seasonal": {
+"start": "12-26",
+"end": "01-07"
+},
+"event": "new_year",
+"keywords": [
+"new year",
+"new year's eve",
+"new year's day"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_spooky_mystery_films_bt",
+"title": "Spooky Mystery Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Mystery",
+"vibe_query": "mysterious, suspenseful, unsettling",
+"seasonal": {
+"start": "10-01",
+"end": "10-31"
+},
+"event": "halloween",
+"keywords": [
+"halloween",
+"haunted house",
+"trick or treat",
+"ghost",
+"witch",
+"vampire",
+"werewolf",
+"zombie",
+"haunting"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_haunted_house_stories_bt",
+"title": "Haunted House Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Thriller",
+"vibe_query": "ghostly, haunted, eerie settings",
+"seasonal": {
+"start": "10-01",
+"end": "10-31"
+},
+"event": "halloween",
+"keywords": [
+"halloween",
+"haunted house",
+"trick or treat",
+"ghost",
+"witch",
+"vampire",
+"werewolf",
+"zombie",
+"haunting"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_haunted_house_movies_bt",
+"title": "Haunted House Movies",
+"media_type": "both",
+"type": "calendar",
+"genre": "Horror",
+"vibe_query": "creepy settings and supernatural threats",
+"seasonal": {
+"start": "10-01",
+"end": "10-31"
+},
+"event": "halloween",
+"keywords": [
+"halloween",
+"haunted house",
+"trick or treat",
+"ghost",
+"witch",
+"vampire",
+"werewolf",
+"zombie",
+"haunting"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_gothic_thrillers_bt",
+"title": "Gothic Thrillers",
+"media_type": "both",
+"type": "calendar",
+"genre": "Thriller",
+"vibe_query": "mysterious pasts and dark secrets",
+"seasonal": {
+"start": "10-01",
+"end": "10-31"
+},
+"event": "halloween",
+"keywords": [
+"halloween",
+"haunted house",
+"trick or treat",
+"ghost",
+"witch",
+"vampire",
+"werewolf",
+"zombie",
+"haunting"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_costume_party_films_bt",
+"title": "Costume Party Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "mischievous fun and disguises",
+"seasonal": {
+"start": "10-01",
+"end": "10-31"
+},
+"event": "halloween",
+"keywords": [
+"halloween",
+"haunted house",
+"trick or treat",
+"ghost",
+"witch",
+"vampire",
+"werewolf",
+"zombie",
+"haunting"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_nighttime_thrillers_bt",
+"title": "Nighttime Thrillers",
+"media_type": "both",
+"type": "calendar",
+"genre": "Thriller",
+"vibe_query": "Tense stories set in the dark with mysterious happenings",
+"seasonal": {
+"start": "10-01",
+"end": "10-31"
+},
+"event": "halloween",
+"keywords": [
+"halloween",
+"haunted house",
+"trick or treat",
+"ghost",
+"witch",
+"vampire",
+"werewolf",
+"zombie",
+"haunting"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_spooky_tv_episodes_tv",
+"title": "Spooky TV Episodes",
+"media_type": "tv",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "Unsettling stories with supernatural elements and eerie settings",
+"seasonal": {
+"start": "10-01",
+"end": "10-31"
+},
+"event": "halloween",
+"keywords": [
+"halloween",
+"haunted house",
+"trick or treat",
+"ghost",
+"witch",
+"vampire",
+"werewolf",
+"zombie",
+"haunting"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_sweet_love_stories_bt",
+"title": "Sweet Love Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "romantic dramas set during Valentine's week",
+"seasonal": {
+"start": "02-01",
+"end": "02-14"
+},
+"event": "valentines",
+"keywords": [
+"valentine's day",
+"valentine",
+"romantic comedy",
+"wedding"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_love_on_the_edge_bt",
+"title": "Love on the Edge",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "passionate relationships with tension and conflict",
+"seasonal": {
+"start": "02-01",
+"end": "02-14"
+},
+"event": "valentines",
+"keywords": [
+"valentine's day",
+"valentine",
+"romantic comedy",
+"wedding"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_romantic_date_night_picks_bt",
+"title": "Romantic Date Night Picks",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "intimate, heartfelt, couple-centric",
+"seasonal": {
+"start": "02-01",
+"end": "02-14"
+},
+"event": "valentines",
+"keywords": [
+"valentine's day",
+"valentine",
+"romantic comedy",
+"wedding"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_love_at_first_sight_stories_bt",
+"title": "Love at First Sight Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "unexpected connections, instant chemistry, sweet moments",
+"seasonal": {
+"start": "02-01",
+"end": "02-14"
+},
+"event": "valentines",
+"keywords": [
+"valentine's day",
+"valentine",
+"romantic comedy",
+"wedding"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_sweet_valentine_s_escapades_bt",
+"title": "Sweet Valentine's Escapades",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "light-hearted, playful, lighthearted flings",
+"seasonal": {
+"start": "02-01",
+"end": "02-14"
+},
+"event": "valentines",
+"keywords": [
+"valentine's day",
+"valentine",
+"romantic comedy",
+"wedding"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_love_stories_set_in_winter_bt",
+"title": "Love Stories Set in Winter",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "heartfelt, snowy settings, emotional",
+"seasonal": {
+"start": "02-01",
+"end": "02-14"
+},
+"event": "valentines",
+"keywords": [
+"valentine's day",
+"valentine",
+"romantic comedy",
+"wedding"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_couples_road_trip_romances_bt",
+"title": "Couples' Road Trip Romances",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "adventurous, travel, bonding",
+"seasonal": {
+"start": "02-01",
+"end": "02-14"
+},
+"event": "valentines",
+"keywords": [
+"valentine's day",
+"valentine",
+"romantic comedy",
+"wedding"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_romantic_winter_escapes_bt",
+"title": "Romantic Winter Escapes",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "sweet, heartfelt, snowy settings",
+"seasonal": {
+"start": "02-01",
+"end": "02-14"
+},
+"event": "valentines",
+"keywords": [
+"valentine's day",
+"valentine",
+"romantic comedy",
+"wedding"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_love_in_the_city_lights_bt",
+"title": "Love in the City Lights",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "urban, charming, late-night dates",
+"seasonal": {
+"start": "02-01",
+"end": "02-14"
+},
+"event": "valentines",
+"keywords": [
+"valentine's day",
+"valentine",
+"romantic comedy",
+"wedding"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_sweet_valentine_vibes_bt",
+"title": "Sweet Valentine Vibes",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "warm, tender, nostalgic moments",
+"seasonal": {
+"start": "02-01",
+"end": "02-14"
+},
+"event": "valentines",
+"keywords": [
+"valentine's day",
+"valentine",
+"romantic comedy",
+"wedding"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_thanksgiving_family_reunions_bt",
+"title": "Thanksgiving Family Reunions",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "family dynamics during holiday get-togethers",
+"seasonal": {
+"start": "11-15",
+"end": "11-30"
+},
+"event": "thanksgiving",
+"keywords": [
+"thanksgiving",
+"family reunion",
+"family dinner"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_holiday_table_talkers_bt",
+"title": "Holiday Table Talkers",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "conversations and conflicts at holiday dinners",
+"seasonal": {
+"start": "11-15",
+"end": "11-30"
+},
+"event": "thanksgiving",
+"keywords": [
+"thanksgiving",
+"family reunion",
+"family dinner"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_feast_and_fuss_bt",
+"title": "Feast and Fuss",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "chaos and joy of holiday meal preparations",
+"seasonal": {
+"start": "11-15",
+"end": "11-30"
+},
+"event": "thanksgiving",
+"keywords": [
+"thanksgiving",
+"family reunion",
+"family dinner"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_family_reunion_films_bt",
+"title": "Family Reunion Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "heartwarming moments with relatives",
+"seasonal": {
+"start": "11-15",
+"end": "11-30"
+},
+"event": "thanksgiving",
+"keywords": [
+"thanksgiving",
+"family reunion",
+"family dinner"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_thanksgiving_traditions_bt",
+"title": "Thanksgiving Traditions",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "cultural rituals and holiday meals",
+"seasonal": {
+"start": "11-15",
+"end": "11-30"
+},
+"event": "thanksgiving",
+"keywords": [
+"thanksgiving",
+"family reunion",
+"family dinner"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_feuding_relatives_bt",
+"title": "Feuding Relatives",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "clashing personalities at the table",
+"seasonal": {
+"start": "11-15",
+"end": "11-30"
+},
+"event": "thanksgiving",
+"keywords": [
+"thanksgiving",
+"family reunion",
+"family dinner"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_summer_blockbuster_action_bt",
+"title": "Summer Blockbuster Action",
+"media_type": "both",
+"type": "calendar",
+"genre": "Action",
+"vibe_query": "high-energy summer action films",
+"seasonal": {
+"start": "06-01",
+"end": "08-31"
+},
+"event": "summer",
+"keywords": [
+"summer vacation",
+"summer",
+"beach",
+"summer camp",
+"road trip",
+"vacation"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_holiday_family_favourites_bt",
+"title": "Holiday Family Favourites",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "warm family-friendly stories for summer",
+"seasonal": {
+"start": "06-01",
+"end": "08-31"
+},
+"event": "summer",
+"keywords": [
+"summer vacation",
+"summer",
+"beach",
+"summer camp",
+"road trip",
+"vacation"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_outdoor_adventure_escapes_bt",
+"title": "Outdoor Adventure Escapes",
+"media_type": "both",
+"type": "calendar",
+"genre": "Adventure",
+"vibe_query": "summer adventures set in nature",
+"seasonal": {
+"start": "06-01",
+"end": "08-31"
+},
+"event": "summer",
+"keywords": [
+"summer vacation",
+"summer",
+"beach",
+"summer camp",
+"road trip",
+"vacation"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_summer_road_trips_bt",
+"title": "Summer Road Trips",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "long drives, open highways, unexpected detours",
+"seasonal": {
+"start": "06-01",
+"end": "08-31"
+},
+"event": "summer",
+"keywords": [
+"summer vacation",
+"summer",
+"beach",
+"summer camp",
+"road trip",
+"vacation"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_beach_getaways_bt",
+"title": "Beach Getaways",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "sunburns, sand, summer nights",
+"seasonal": {
+"start": "06-01",
+"end": "08-31"
+},
+"event": "summer",
+"keywords": [
+"summer vacation",
+"summer",
+"beach",
+"summer camp",
+"road trip",
+"vacation"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_summer_camp_memories_bt",
+"title": "Summer Camp Memories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "cabin life, friendship, awkward moments",
+"seasonal": {
+"start": "06-01",
+"end": "08-31"
+},
+"event": "summer",
+"keywords": [
+"summer vacation",
+"summer",
+"beach",
+"summer camp",
+"road trip",
+"vacation"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_new_student_struggles_bt",
+"title": "New Student Struggles",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "first day anxiety and friendships",
+"seasonal": {
+"start": "08-15",
+"end": "09-15"
+},
+"event": "back_to_school",
+"keywords": [
+"high school",
+"school",
+"teacher",
+"college",
+"back to school"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_school_spirit_fests_bt",
+"title": "School Spirit Fests",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "team sports and school events",
+"seasonal": {
+"start": "08-15",
+"end": "09-15"
+},
+"event": "back_to_school",
+"keywords": [
+"high school",
+"school",
+"teacher",
+"college",
+"back to school"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_new_student_jitters_bt",
+"title": "New Student Jitters",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Back-to-school anxiety and first-day nerves",
+"seasonal": {
+"start": "08-15",
+"end": "09-15"
+},
+"event": "back_to_school",
+"keywords": [
+"high school",
+"school",
+"teacher",
+"college",
+"back to school"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_campus_life_docs_bt",
+"title": "Campus Life Docs",
+"media_type": "both",
+"type": "calendar",
+"genre": "Documentary",
+"vibe_query": "Realistic portrayals of school routines and friendships",
+"seasonal": {
+"start": "08-15",
+"end": "09-15"
+},
+"event": "back_to_school",
+"keywords": [
+"high school",
+"school",
+"teacher",
+"college",
+"back to school"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_freshman_fumbles_bt",
+"title": "Freshman Fumbles",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "Comedic mishaps in adjusting to school life",
+"seasonal": {
+"start": "08-15",
+"end": "09-15"
+},
+"event": "back_to_school",
+"keywords": [
+"high school",
+"school",
+"teacher",
+"college",
+"back to school"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_fall_road_trips_bt",
+"title": "Fall Road Trips",
+"media_type": "both",
+"type": "calendar",
+"genre": "Adventure",
+"vibe_query": "adventurous, scenic, reflective",
+"seasonal": {
+"start": "09-22",
+"end": "11-15"
+},
+"event": "autumn",
+"keywords": [
+"autumn",
+"harvest",
+"small town"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_crisp_autumn_mysteries_bt",
+"title": "Crisp Autumn Mysteries",
+"media_type": "both",
+"type": "calendar",
+"genre": "Mystery",
+"vibe_query": "mysterious, atmospheric, slow-burn",
+"seasonal": {
+"start": "09-22",
+"end": "11-15"
+},
+"event": "autumn",
+"keywords": [
+"autumn",
+"harvest",
+"small town"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_warm_autumn_nights_bt",
+"title": "Warm Autumn Nights",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "romantic, intimate, slow-burn",
+"seasonal": {
+"start": "09-22",
+"end": "11-15"
+},
+"event": "autumn",
+"keywords": [
+"autumn",
+"harvest",
+"small town"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_fall_inspired_escapades_bt",
+"title": "Fall-Inspired Escapades",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "tranquil, reflective, atmospheric",
+"seasonal": {
+"start": "09-22",
+"end": "11-15"
+},
+"event": "autumn",
+"keywords": [
+"autumn",
+"harvest",
+"small town"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_fireplace_friendly_films_bt",
+"title": "Fireplace Friendly Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "slow-paced, atmospheric, introspective",
+"seasonal": {
+"start": "09-22",
+"end": "11-15"
+},
+"event": "autumn",
+"keywords": [
+"autumn",
+"harvest",
+"small town"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_cozy_winter_nights_bt",
+"title": "Cozy Winter Nights",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Warm, intimate, family-friendly",
+"seasonal": {
+"start": "12-01",
+"end": "02-28"
+},
+"event": "winter_cozy",
+"keywords": [
+"winter",
+"snow",
+"cozy",
+"cabin"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_winter_comfort_food_bt",
+"title": "Winter Comfort Food",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "Heartwarming, nostalgic, homey",
+"seasonal": {
+"start": "12-01",
+"end": "02-28"
+},
+"event": "winter_cozy",
+"keywords": [
+"winter",
+"snow",
+"cozy",
+"cabin"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_winter_comfort_films_bt",
+"title": "Winter Comfort Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "cozy indoor scenes, warm lighting, slow pacing",
+"seasonal": {
+"start": "12-01",
+"end": "02-28"
+},
+"event": "winter_cozy",
+"keywords": [
+"winter",
+"snow",
+"cozy",
+"cabin"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_snowy_getaway_movies_bt",
+"title": "Snowy Getaway Movies",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "road trips, isolated settings, quiet conversations",
+"seasonal": {
+"start": "12-01",
+"end": "02-28"
+},
+"event": "winter_cozy",
+"keywords": [
+"winter",
+"snow",
+"cozy",
+"cabin"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_hearty_winter_stories_bt",
+"title": "Hearty Winter Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "family gatherings, heartwarming moments, emotional closure",
+"seasonal": {
+"start": "12-01",
+"end": "02-28"
+},
+"event": "winter_cozy",
+"keywords": [
+"winter",
+"snow",
+"cozy",
+"cabin"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_springtime_romance_bt",
+"title": "Springtime Romance",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "fresh beginnings and blossoming love",
+"seasonal": {
+"start": "03-20",
+"end": "05-31"
+},
+"event": "spring",
+"keywords": [
+"spring",
+"garden",
+"renewal"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_seasonal_revival_bt",
+"title": "Seasonal Revival",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "renewal through personal growth",
+"seasonal": {
+"start": "03-20",
+"end": "05-31"
+},
+"event": "spring",
+"keywords": [
+"spring",
+"garden",
+"renewal"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_fresh_start_series_tv",
+"title": "Fresh Start Series",
+"media_type": "tv",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "new beginnings, hope, growth",
+"seasonal": {
+"start": "03-20",
+"end": "05-31"
+},
+"event": "spring",
+"keywords": [
+"spring",
+"garden",
+"renewal"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_renewal_road_trips_tv",
+"title": "Renewal Road Trips",
+"media_type": "tv",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "journey, self-discovery, transformation",
+"seasonal": {
+"start": "03-20",
+"end": "05-31"
+},
+"event": "spring",
+"keywords": [
+"spring",
+"garden",
+"renewal"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_springtime_love_stories_bt",
+"title": "Springtime Love Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "romance, rekindling, fresh connections",
+"seasonal": {
+"start": "03-20",
+"end": "05-31"
+},
+"event": "spring",
+"keywords": [
+"spring",
+"garden",
+"renewal"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_renewal_stories_bt",
+"title": "Renewal Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "hopeful, transformation, growth",
+"seasonal": {
+"start": "03-20",
+"end": "05-31"
+},
+"event": "spring",
+"keywords": [
+"spring",
+"garden",
+"renewal"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_seasonal_beginnings_bt",
+"title": "Seasonal Beginnings",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "fresh start, awakening, new life",
+"seasonal": {
+"start": "03-20",
+"end": "05-31"
+},
+"event": "spring",
+"keywords": [
+"spring",
+"garden",
+"renewal"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_springtime_renewal_escapes_bt",
+"title": "Springtime Renewal Escapes",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "fresh beginnings and quiet growth",
+"seasonal": {
+"start": "03-20",
+"end": "05-31"
+},
+"event": "spring",
+"keywords": [
+"spring",
+"garden",
+"renewal"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_season_of_new_starts_bt",
+"title": "Season of New Starts",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "simple joys and quiet transformation",
+"seasonal": {
+"start": "03-20",
+"end": "05-31"
+},
+"event": "spring",
+"keywords": [
+"spring",
+"garden",
+"renewal"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_family_easter_traditions_bt",
+"title": "Family Easter Traditions",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "heartwarming family gatherings",
+"seasonal": {
+"start": "03-20",
+"end": "04-25"
+},
+"event": "easter",
+"keywords": [
+"easter",
+"easter bunny"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_springtime_family_escapes_bt",
+"title": "Springtime Family Escapes",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "road trips and new beginnings",
+"seasonal": {
+"start": "03-20",
+"end": "04-25"
+},
+"event": "easter",
+"keywords": [
+"easter",
+"easter bunny"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_easter_egg_hunt_adventures_bt",
+"title": "Easter Egg Hunt Adventures",
+"media_type": "both",
+"type": "calendar",
+"genre": "Adventure",
+"vibe_query": "fun and quirky family activities",
+"seasonal": {
+"start": "03-20",
+"end": "04-25"
+},
+"event": "easter",
+"keywords": [
+"easter",
+"easter bunny"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_easter_traditions_reimagined_bt",
+"title": "Easter Traditions Reimagined",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "cultural and generational stories",
+"seasonal": {
+"start": "03-20",
+"end": "04-25"
+},
+"event": "easter",
+"keywords": [
+"easter",
+"easter bunny"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_springtime_family_fun_bt",
+"title": "Springtime Family Fun",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "lighthearted family adventures",
+"seasonal": {
+"start": "03-20",
+"end": "04-25"
+},
+"event": "easter",
+"keywords": [
+"easter",
+"easter bunny"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_faith_inspired_films_bt",
+"title": "Faith-Inspired Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "spiritual reflection and devotion",
+"seasonal": {
+"start": "02-01",
+"end": "04-05"
+},
+"event": "ramadan_eid",
+"keywords": [
+"ramadan",
+"eid",
+"islam",
+"muslim"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_diwali_fireworks_festivities_bt",
+"title": "Diwali Fireworks & Festivities",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "celebratory, colorful, cultural",
+"seasonal": {
+"start": "10-10",
+"end": "11-15"
+},
+"event": "diwali",
+"keywords": [
+"diwali",
+"festival of lights",
+"hindu",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_festival_of_lights_movies_bt",
+"title": "Festival of Lights Movies",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "spiritual, communal, vibrant",
+"seasonal": {
+"start": "10-10",
+"end": "11-15"
+},
+"event": "diwali",
+"keywords": [
+"diwali",
+"festival of lights",
+"hindu",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_diwali_traditions_stories_bt",
+"title": "Diwali Traditions & Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Documentary",
+"vibe_query": "nostalgic, family, historical",
+"seasonal": {
+"start": "10-10",
+"end": "11-15"
+},
+"event": "diwali",
+"keywords": [
+"diwali",
+"festival of lights",
+"hindu",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_diwali_fireworks_flicks_bt",
+"title": "Diwali Fireworks Flicks",
+"media_type": "both",
+"type": "calendar",
+"genre": "Action",
+"vibe_query": "festive explosions and celebration",
+"seasonal": {
+"start": "10-10",
+"end": "11-15"
+},
+"event": "diwali",
+"keywords": [
+"diwali",
+"festival of lights",
+"hindu",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_diwali_family_gatherings_bt",
+"title": "Diwali Family Gatherings",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "warmth, togetherness, tradition",
+"seasonal": {
+"start": "10-10",
+"end": "11-15"
+},
+"event": "diwali",
+"keywords": [
+"diwali",
+"festival of lights",
+"hindu",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_diwali_mythology_movies_bt",
+"title": "Diwali Mythology Movies",
+"media_type": "both",
+"type": "calendar",
+"genre": "Fantasy",
+"vibe_query": "ancient stories, divine tales",
+"seasonal": {
+"start": "10-10",
+"end": "11-15"
+},
+"event": "diwali",
+"keywords": [
+"diwali",
+"festival of lights",
+"hindu",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_hanukkah_family_favorites_bt",
+"title": "Hanukkah Family Favorites",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "heartwarming stories centered around family traditions and togetherness during the holiday season",
+"seasonal": {
+"start": "11-25",
+"end": "12-31"
+},
+"event": "hanukkah",
+"keywords": [
+"hanukkah",
+"jewish",
+"judaism"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_hanukkah_adventure_films_bt",
+"title": "Hanukkah Adventure Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Action",
+"vibe_query": "entertaining tales featuring young protagonists on quests to uncover hidden treasures or solve mysteries",
+"seasonal": {
+"start": "11-25",
+"end": "12-31"
+},
+"event": "hanukkah",
+"keywords": [
+"hanukkah",
+"jewish",
+"judaism"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_hanukkah_historical_dramas_bt",
+"title": "Hanukkah Historical Dramas",
+"media_type": "both",
+"type": "calendar",
+"genre": "History",
+"vibe_query": "detailed accounts of historical events and figures from the Hanukkah story with a focus on cultural and spiritual themes",
+"seasonal": {
+"start": "11-25",
+"end": "12-31"
+},
+"event": "hanukkah",
+"keywords": [
+"hanukkah",
+"jewish",
+"judaism"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_pride_month_documentaries_bt",
+"title": "Pride Month Documentaries",
+"media_type": "both",
+"type": "calendar",
+"genre": "Documentary",
+"vibe_query": "celebrating LGBTQ+ history and progress",
+"seasonal": {
+"start": "06-01",
+"end": "06-30"
+},
+"event": "pride",
+"keywords": [],
+"lgbtq_central": true,
+"kind": "calendar"
+},
+{
+"id": "cal_queer_love_stories_bt",
+"title": "Queer Love Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "romantic tales of self-discovery and acceptance",
+"seasonal": {
+"start": "06-01",
+"end": "06-30"
+},
+"event": "pride",
+"keywords": [],
+"lgbtq_central": true,
+"kind": "calendar"
+},
+{
+"id": "cal_pride_month_anthems_bt",
+"title": "Pride Month Anthems",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "music that celebrates identity and community",
+"seasonal": {
+"start": "06-01",
+"end": "06-30"
+},
+"event": "pride",
+"keywords": [],
+"lgbtq_central": true,
+"kind": "calendar"
+},
+{
+"id": "cal_lgbtq_coming_of_age_stories_bt",
+"title": "LGBTQ+ Coming-of-Age Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "emotional journey, self-discovery, personal growth",
+"seasonal": {
+"start": "06-01",
+"end": "06-30"
+},
+"event": "pride",
+"keywords": [],
+"lgbtq_central": true,
+"kind": "calendar"
+},
+{
+"id": "cal_queer_love_and_liberation_bt",
+"title": "Queer Love and Liberation",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "romantic, hopeful, empowering",
+"seasonal": {
+"start": "06-01",
+"end": "06-30"
+},
+"event": "pride",
+"keywords": [],
+"lgbtq_central": true,
+"kind": "calendar"
+},
+{
+"id": "cal_historical_pride_moments_bt",
+"title": "Historical Pride Moments",
+"media_type": "both",
+"type": "calendar",
+"genre": "History",
+"vibe_query": "inspirational, educational, pivotal events",
+"seasonal": {
+"start": "06-01",
+"end": "06-30"
+},
+"event": "pride",
+"keywords": [],
+"lgbtq_central": true,
+"kind": "calendar"
+},
+{
+"id": "cal_black_history_month_dramas_bt",
+"title": "Black History Month Dramas",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Historical struggles and triumphs",
+"seasonal": {
+"start": "02-01",
+"end": "02-28"
+},
+"event": "black_history",
+"keywords": [
+"african american",
+"black history",
+"civil rights",
+"racism",
+"slavery"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_black_history_month_documentarie_bt",
+"title": "Black History Month Documentaries",
+"media_type": "both",
+"type": "calendar",
+"genre": "Documentary",
+"vibe_query": "Real stories and cultural impact",
+"seasonal": {
+"start": "02-01",
+"end": "02-28"
+},
+"event": "black_history",
+"keywords": [
+"african american",
+"black history",
+"civil rights",
+"racism",
+"slavery"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_black_history_month_essentials_bt",
+"title": "Black History Month Essentials",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Historical narratives and cultural milestones",
+"seasonal": {
+"start": "02-01",
+"end": "02-28"
+},
+"event": "black_history",
+"keywords": [
+"african american",
+"black history",
+"civil rights",
+"racism",
+"slavery"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_pioneers_and_powerhouses_bt",
+"title": "Pioneers and Powerhouses",
+"media_type": "both",
+"type": "calendar",
+"genre": "Biography",
+"vibe_query": "Profiles of influential figures and movements",
+"seasonal": {
+"start": "02-01",
+"end": "02-28"
+},
+"event": "black_history",
+"keywords": [
+"african american",
+"black history",
+"civil rights",
+"racism",
+"slavery"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_stories_of_resilience_bt",
+"title": "Stories of Resilience",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Depictions of struggle, triumph, and community",
+"seasonal": {
+"start": "02-01",
+"end": "02-28"
+},
+"event": "black_history",
+"keywords": [
+"african american",
+"black history",
+"civil rights",
+"racism",
+"slavery"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_black_history_month_classics_bt",
+"title": "Black History Month Classics",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Reflective and inspirational stories from Black history",
+"seasonal": {
+"start": "02-01",
+"end": "02-28"
+},
+"event": "black_history",
+"keywords": [
+"african american",
+"black history",
+"civil rights",
+"racism",
+"slavery"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_historical_black_stories_bt",
+"title": "Historical Black Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "History",
+"vibe_query": "Narratives centered on pivotal moments in Black history",
+"seasonal": {
+"start": "02-01",
+"end": "02-28"
+},
+"event": "black_history",
+"keywords": [
+"african american",
+"black history",
+"civil rights",
+"racism",
+"slavery"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_black_voices_in_film_bt",
+"title": "Black Voices in Film",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "Movies and shows highlighting Black experiences and achievements",
+"seasonal": {
+"start": "02-01",
+"end": "02-28"
+},
+"event": "black_history",
+"keywords": [
+"african american",
+"black history",
+"civil rights",
+"racism",
+"slavery"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_strong_female_leads_in_drama_bt",
+"title": "Strong Female Leads in Drama",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "intense and character-driven",
+"seasonal": {
+"start": "03-01",
+"end": "03-31"
+},
+"event": "womens_history",
+"keywords": [
+"feminism",
+"women's rights",
+"suffragette",
+"woman director"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_women_s_rights_documentaries_bt",
+"title": "Women's Rights Documentaries",
+"media_type": "both",
+"type": "calendar",
+"genre": "Documentary",
+"vibe_query": "historic struggles and progress",
+"seasonal": {
+"start": "03-01",
+"end": "03-31"
+},
+"event": "womens_history",
+"keywords": [
+"feminism",
+"women's rights",
+"suffragette",
+"woman director"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_pioneering_women_in_history_bt",
+"title": "Pioneering Women in History",
+"media_type": "both",
+"type": "calendar",
+"genre": "Biography",
+"vibe_query": "real-life stories and impact",
+"seasonal": {
+"start": "03-01",
+"end": "03-31"
+},
+"event": "womens_history",
+"keywords": [
+"feminism",
+"women's rights",
+"suffragette",
+"woman director"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_oscar_winning_dramas_bt",
+"title": "Oscar-Winning Dramas",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "serious, emotional, award-focused",
+"seasonal": {
+"start": "01-05",
+"end": "03-15"
+},
+"event": "awards",
+"keywords": [
+"oscar",
+"academy award",
+"golden globe",
+"biography",
+"based on true story"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_critics_favorite_films_bt",
+"title": "Critics' Favorite Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "thoughtful, respected, industry-approved",
+"seasonal": {
+"start": "01-05",
+"end": "03-15"
+},
+"event": "awards",
+"keywords": [
+"oscar",
+"academy award",
+"golden globe",
+"biography",
+"based on true story"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_golden_globe_contenders_bt",
+"title": "Golden Globe Contenders",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "celebrity-driven, high-stakes, prestige",
+"seasonal": {
+"start": "01-05",
+"end": "03-15"
+},
+"event": "awards",
+"keywords": [
+"oscar",
+"academy award",
+"golden globe",
+"biography",
+"based on true story"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_oscar_winning_drama_bt",
+"title": "Oscar-Winning Drama",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "serious, powerful, emotional",
+"seasonal": {
+"start": "01-05",
+"end": "03-15"
+},
+"event": "awards",
+"keywords": [
+"oscar",
+"academy award",
+"golden globe",
+"biography",
+"based on true story"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_award_nominated_gems_bt",
+"title": "Award-Nominated Gems",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "compelling, unique, standout",
+"seasonal": {
+"start": "01-05",
+"end": "03-15"
+},
+"event": "awards",
+"keywords": [
+"oscar",
+"academy award",
+"golden globe",
+"biography",
+"based on true story"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_oscars_countdown_picks_bt",
+"title": "Oscars Countdown Picks",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "celebrity-driven dramas and biopics",
+"seasonal": {
+"start": "01-05",
+"end": "03-15"
+},
+"event": "awards",
+"keywords": [
+"oscar",
+"academy award",
+"golden globe",
+"biography",
+"based on true story"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_award_show_behind_the_scenes_bt",
+"title": "Award Show Behind the Scenes",
+"media_type": "both",
+"type": "calendar",
+"genre": "Documentary",
+"vibe_query": "documentaries and reality about industry events",
+"seasonal": {
+"start": "01-05",
+"end": "03-15"
+},
+"event": "awards",
+"keywords": [
+"oscar",
+"academy award",
+"golden globe",
+"biography",
+"based on true story"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_critics_favorite_contenders_bt",
+"title": "Critics' Favorite Contenders",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "thought-provoking films and series with strong narratives",
+"seasonal": {
+"start": "01-05",
+"end": "03-15"
+},
+"event": "awards",
+"keywords": [
+"oscar",
+"academy award",
+"golden globe",
+"biography",
+"based on true story"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_awards_show_reels_bt",
+"title": "Awards Show Reels",
+"media_type": "both",
+"type": "calendar",
+"genre": "Documentary",
+"vibe_query": "Behind-the-scenes of award ceremonies",
+"seasonal": {
+"start": "01-05",
+"end": "03-15"
+},
+"event": "awards",
+"keywords": [
+"oscar",
+"academy award",
+"golden globe",
+"biography",
+"based on true story"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_oscar_nominated_films_bt",
+"title": "Oscar-Nominated Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Movies with critical acclaim and buzz",
+"seasonal": {
+"start": "01-05",
+"end": "03-15"
+},
+"event": "awards",
+"keywords": [
+"oscar",
+"academy award",
+"golden globe",
+"biography",
+"based on true story"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_summer_freedom_films_bt",
+"title": "Summer Freedom Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Independence Day celebrations",
+"seasonal": {
+"start": "06-25",
+"end": "07-07"
+},
+"event": "july4",
+"keywords": [
+"independence day",
+"american revolution",
+"patriotism",
+"fourth of july"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_fireworks_flags_bt",
+"title": "Fireworks & Flags",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "celebratory, patriotic, family-friendly",
+"seasonal": {
+"start": "06-25",
+"end": "07-07"
+},
+"event": "july4",
+"keywords": [
+"independence day",
+"american revolution",
+"patriotism",
+"fourth of july"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_historic_heroes_bt",
+"title": "Historic Heroes",
+"media_type": "both",
+"type": "calendar",
+"genre": "Biography",
+"vibe_query": "inspirational, historical, epic",
+"seasonal": {
+"start": "06-25",
+"end": "07-07"
+},
+"event": "july4",
+"keywords": [
+"independence day",
+"american revolution",
+"patriotism",
+"fourth of july"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_summer_of_freedom_bt",
+"title": "Summer of Freedom",
+"media_type": "both",
+"type": "calendar",
+"genre": "War",
+"vibe_query": "heroic, nation-building, uplifting",
+"seasonal": {
+"start": "06-25",
+"end": "07-07"
+},
+"event": "july4",
+"keywords": [
+"independence day",
+"american revolution",
+"patriotism",
+"fourth of july"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_st_patrick_s_day_films_bt",
+"title": "St Patrick's Day Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Celebratory and cultural Irish films",
+"seasonal": {
+"start": "03-10",
+"end": "03-18"
+},
+"event": "st_patricks",
+"keywords": [
+"ireland",
+"irish",
+"st. patrick's day",
+"leprechaun"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_irish_historical_dramas_bt",
+"title": "Irish Historical Dramas",
+"media_type": "both",
+"type": "calendar",
+"genre": "History",
+"vibe_query": "Stories set in Ireland's past",
+"seasonal": {
+"start": "03-10",
+"end": "03-18"
+},
+"event": "st_patricks",
+"keywords": [
+"ireland",
+"irish",
+"st. patrick's day",
+"leprechaun"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_irish_folklore_adventures_bt",
+"title": "Irish Folklore Adventures",
+"media_type": "both",
+"type": "calendar",
+"genre": "Fantasy",
+"vibe_query": "mythical creatures and ancient legends",
+"seasonal": {
+"start": "03-10",
+"end": "03-18"
+},
+"event": "st_patricks",
+"keywords": [
+"ireland",
+"irish",
+"st. patrick's day",
+"leprechaun"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_historical_irish_battles_bt",
+"title": "Historical Irish Battles",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "conflicts and clan struggles",
+"seasonal": {
+"start": "03-10",
+"end": "03-18"
+},
+"event": "st_patricks",
+"keywords": [
+"ireland",
+"irish",
+"st. patrick's day",
+"leprechaun"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_celtic_music_and_dance_bt",
+"title": "Celtic Music and Dance",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "traditional rhythms and cultural heritage",
+"seasonal": {
+"start": "03-10",
+"end": "03-18"
+},
+"event": "st_patricks",
+"keywords": [
+"ireland",
+"irish",
+"st. patrick's day",
+"leprechaun"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_irish_folklore_retellings_bt",
+"title": "Irish Folklore Retellings",
+"media_type": "both",
+"type": "calendar",
+"genre": "Fantasy",
+"vibe_query": "mythical legends and ancient tales",
+"seasonal": {
+"start": "03-10",
+"end": "03-18"
+},
+"event": "st_patricks",
+"keywords": [
+"ireland",
+"irish",
+"st. patrick's day",
+"leprechaun"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_historical_irish_drama_bt",
+"title": "Historical Irish Drama",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "political struggles and family legacies",
+"seasonal": {
+"start": "03-10",
+"end": "03-18"
+},
+"event": "st_patricks",
+"keywords": [
+"ireland",
+"irish",
+"st. patrick's day",
+"leprechaun"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_irish_rebellion_stories_bt",
+"title": "Irish Rebellion Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "History",
+"vibe_query": "uprisings and acts of resistance",
+"seasonal": {
+"start": "03-10",
+"end": "03-18"
+},
+"event": "st_patricks",
+"keywords": [
+"ireland",
+"irish",
+"st. patrick's day",
+"leprechaun"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_mom_centric_stories_bt",
+"title": "Mom-Centric Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "heartwarming tales centered on mothers and their relationships",
+"seasonal": {
+"start": "05-01",
+"end": "05-15"
+},
+"event": "mothers_day",
+"keywords": [
+"mother",
+"mother daughter relationship",
+"motherhood",
+"mother son relationship"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_mother_led_adventures_bt",
+"title": "Mother-Led Adventures",
+"media_type": "both",
+"type": "calendar",
+"genre": "Adventure",
+"vibe_query": "stories where mothers take the lead in solving problems or exploring new places",
+"seasonal": {
+"start": "05-01",
+"end": "05-15"
+},
+"event": "mothers_day",
+"keywords": [
+"mother",
+"mother daughter relationship",
+"motherhood",
+"mother son relationship"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_family_time_moments_bt",
+"title": "Family Time Moments",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "films and shows that highlight family bonding and shared experiences",
+"seasonal": {
+"start": "05-01",
+"end": "05-15"
+},
+"event": "mothers_day",
+"keywords": [
+"mother",
+"mother daughter relationship",
+"motherhood",
+"mother son relationship"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_mom_moments_bt",
+"title": "Mom Moments",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "heartwarming stories about mothers and children",
+"seasonal": {
+"start": "05-01",
+"end": "05-15"
+},
+"event": "mothers_day",
+"keywords": [
+"mother",
+"mother daughter relationship",
+"motherhood",
+"mother son relationship"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_gift_ideas_bt",
+"title": "Gift Ideas",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "movies with thoughtful gestures and heartfelt connections",
+"seasonal": {
+"start": "05-01",
+"end": "05-15"
+},
+"event": "mothers_day",
+"keywords": [
+"mother",
+"mother daughter relationship",
+"motherhood",
+"mother son relationship"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_family_time_bt",
+"title": "Family Time",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "films that celebrate togetherness and family bonds",
+"seasonal": {
+"start": "05-01",
+"end": "05-15"
+},
+"event": "mothers_day",
+"keywords": [
+"mother",
+"mother daughter relationship",
+"motherhood",
+"mother son relationship"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_family_traditions_bt",
+"title": "Family Traditions",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "celebrations of heritage and shared rituals",
+"seasonal": {
+"start": "05-01",
+"end": "05-15"
+},
+"event": "mothers_day",
+"keywords": [
+"mother",
+"mother daughter relationship",
+"motherhood",
+"mother son relationship"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_mother_s_day_gifts_bt",
+"title": "Mother's Day Gifts",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "stories centered around thoughtful gestures and appreciation",
+"seasonal": {
+"start": "05-01",
+"end": "05-15"
+},
+"event": "mothers_day",
+"keywords": [
+"mother",
+"mother daughter relationship",
+"motherhood",
+"mother son relationship"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_gifted_women_bt",
+"title": "Gifted Women",
+"media_type": "both",
+"type": "calendar",
+"genre": "Biography",
+"vibe_query": "celebrations of women's strength and influence",
+"seasonal": {
+"start": "05-01",
+"end": "05-15"
+},
+"event": "mothers_day",
+"keywords": [
+"mother",
+"mother daughter relationship",
+"motherhood",
+"mother son relationship"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_father_s_day_films_bt",
+"title": "Father's Day Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "heartwarming stories about dads and family",
+"seasonal": {
+"start": "06-05",
+"end": "06-20"
+},
+"event": "fathers_day",
+"keywords": [
+"father",
+"father son relationship",
+"father daughter relationship",
+"fatherhood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_dad_centric_comedies_bt",
+"title": "Dad-Centric Comedies",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "funny takes on father-son relationships",
+"seasonal": {
+"start": "06-05",
+"end": "06-20"
+},
+"event": "fathers_day",
+"keywords": [
+"father",
+"father son relationship",
+"father daughter relationship",
+"fatherhood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_father_s_day_thrillers_bt",
+"title": "Father's Day Thrillers",
+"media_type": "both",
+"type": "calendar",
+"genre": "Thriller",
+"vibe_query": "tense stories involving fathers and their secrets",
+"seasonal": {
+"start": "06-05",
+"end": "06-20"
+},
+"event": "fathers_day",
+"keywords": [
+"father",
+"father son relationship",
+"father daughter relationship",
+"fatherhood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_dad_s_day_picks_bt",
+"title": "Dad's Day Picks",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "heartwarming stories about fathers and sons",
+"seasonal": {
+"start": "06-05",
+"end": "06-20"
+},
+"event": "fathers_day",
+"keywords": [
+"father",
+"father son relationship",
+"father daughter relationship",
+"fatherhood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_father_figures_on_screen_bt",
+"title": "Father Figures on Screen",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "films and shows highlighting fatherhood and family bonds",
+"seasonal": {
+"start": "06-05",
+"end": "06-20"
+},
+"event": "fathers_day",
+"keywords": [
+"father",
+"father son relationship",
+"father daughter relationship",
+"fatherhood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_celebrating_dad_bt",
+"title": "Celebrating Dad",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "movies and series that honor the role of fathers in everyday life",
+"seasonal": {
+"start": "06-05",
+"end": "06-20"
+},
+"event": "fathers_day",
+"keywords": [
+"father",
+"father son relationship",
+"father daughter relationship",
+"fatherhood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_fathers_and_kids_bt",
+"title": "Fathers and Kids",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "movies where family bonds are tested and strengthened",
+"seasonal": {
+"start": "06-05",
+"end": "06-20"
+},
+"event": "fathers_day",
+"keywords": [
+"father",
+"father son relationship",
+"father daughter relationship",
+"fatherhood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_father_figures_bt",
+"title": "Father Figures",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "films exploring the roles and relationships of male parents",
+"seasonal": {
+"start": "06-05",
+"end": "06-20"
+},
+"event": "fathers_day",
+"keywords": [
+"father",
+"father son relationship",
+"father daughter relationship",
+"fatherhood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_cinco_de_mayo_films_bt",
+"title": "Cinco de Mayo Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "celebratory, historical, colorful",
+"seasonal": {
+"start": "04-28",
+"end": "05-08"
+},
+"event": "cinco_de_mayo",
+"keywords": [
+"mexico",
+"mexican",
+"latino"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_cinco_de_mayo_faves_bt",
+"title": "Cinco de Mayo Faves",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "historical, patriotic, celebratory",
+"seasonal": {
+"start": "04-28",
+"end": "05-08"
+},
+"event": "cinco_de_mayo",
+"keywords": [
+"mexico",
+"mexican",
+"latino"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_freedom_struggles_bt",
+"title": "Freedom Struggles",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Historical dramas about resistance and sacrifice",
+"seasonal": {
+"start": "08-10",
+"end": "08-16"
+},
+"event": "independence_india",
+"keywords": [
+"india",
+"independence movement",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_patriotic_films_bt",
+"title": "Patriotic Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Action",
+"vibe_query": "Movies celebrating national unity and heroism",
+"seasonal": {
+"start": "08-10",
+"end": "08-16"
+},
+"event": "independence_india",
+"keywords": [
+"india",
+"independence movement",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_era_of_change_bt",
+"title": "Era of Change",
+"media_type": "both",
+"type": "calendar",
+"genre": "History",
+"vibe_query": "Stories of political awakening and social transformation",
+"seasonal": {
+"start": "08-10",
+"end": "08-16"
+},
+"event": "independence_india",
+"keywords": [
+"india",
+"independence movement",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_patriotic_stories_bt",
+"title": "Patriotic Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Biography",
+"vibe_query": "narratives highlighting national pride and unity",
+"seasonal": {
+"start": "08-10",
+"end": "08-16"
+},
+"event": "independence_india",
+"keywords": [
+"india",
+"independence movement",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_revolutionary_moments_bt",
+"title": "Revolutionary Moments",
+"media_type": "both",
+"type": "calendar",
+"genre": "History",
+"vibe_query": "films and shows depicting key events in the independence movement",
+"seasonal": {
+"start": "08-10",
+"end": "08-16"
+},
+"event": "independence_india",
+"keywords": [
+"india",
+"independence movement",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_freedom_fighters_biopics_bt",
+"title": "Freedom Fighters Biopics",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "historical dramas about independence struggle",
+"seasonal": {
+"start": "08-10",
+"end": "08-16"
+},
+"event": "independence_india",
+"keywords": [
+"india",
+"independence movement",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_revolutionary_war_stories_bt",
+"title": "Revolutionary War Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "War",
+"vibe_query": "epics focused on battle and resistance",
+"seasonal": {
+"start": "08-10",
+"end": "08-16"
+},
+"event": "independence_india",
+"keywords": [
+"india",
+"independence movement",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_freedom_songs_and_stories_bt",
+"title": "Freedom Songs and Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "music and narratives of national pride",
+"seasonal": {
+"start": "08-10",
+"end": "08-16"
+},
+"event": "independence_india",
+"keywords": [
+"india",
+"independence movement",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_blood_and_bludgeoning_bt",
+"title": "Blood and Bludgeoning",
+"media_type": "both",
+"type": "calendar",
+"genre": "Horror",
+"vibe_query": "graphic violence, relentless killers, survival themes",
+"seasonal": {
+"start": "01-01",
+"end": "12-31"
+},
+"event": "friday_13",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_nightmare_nights_bt",
+"title": "Nightmare Nights",
+"media_type": "both",
+"type": "calendar",
+"genre": "Horror",
+"vibe_query": "disturbing dreams, psychological terror, eerie atmospheres",
+"seasonal": {
+"start": "01-01",
+"end": "12-31"
+},
+"event": "friday_13",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_friday_the_13th_slasher_fests_bt",
+"title": "Friday the 13th Slasher Fests",
+"media_type": "both",
+"type": "calendar",
+"genre": "Horror",
+"vibe_query": "horror, slasher, creepy, suspense, classic",
+"seasonal": {
+"start": "01-01",
+"end": "12-31"
+},
+"event": "friday_13",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_13th_night_haunts_bt",
+"title": "13th Night Haunts",
+"media_type": "both",
+"type": "calendar",
+"genre": "Horror",
+"vibe_query": "spooky, eerie, terrifying, classic horror, midnight madness",
+"seasonal": {
+"start": "01-01",
+"end": "12-31"
+},
+"event": "friday_13",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_blood_moon_slashers_bt",
+"title": "Blood Moon Slashers",
+"media_type": "both",
+"type": "calendar",
+"genre": "Horror",
+"vibe_query": "gory, suspenseful, haunted, classic slasher, horror nostalgia",
+"seasonal": {
+"start": "01-01",
+"end": "12-31"
+},
+"event": "friday_13",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_summer_blockbusters_bt",
+"title": "Summer Blockbusters",
+"media_type": "both",
+"type": "calendar",
+"genre": "Action",
+"vibe_query": "High-stakes action and spectacle",
+"seasonal": {
+"start": "05-15",
+"end": "08-31"
+},
+"event": "summer_blockbuster",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_summer_spectacle_bt",
+"title": "Summer Spectacle",
+"media_type": "both",
+"type": "calendar",
+"genre": "Sci-Fi",
+"vibe_query": "Big budgets and bold storytelling",
+"seasonal": {
+"start": "05-15",
+"end": "08-31"
+},
+"event": "summer_blockbuster",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_summer_thrills_bt",
+"title": "Summer Thrills",
+"media_type": "both",
+"type": "calendar",
+"genre": "Thriller",
+"vibe_query": "Fast-paced and visually intense",
+"seasonal": {
+"start": "05-15",
+"end": "08-31"
+},
+"event": "summer_blockbuster",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_summer_blockbuster_frenzy_bt",
+"title": "Summer Blockbuster Frenzy",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "Fast-paced, high-energy, summer movie rush",
+"seasonal": {
+"start": "05-15",
+"end": "08-31"
+},
+"event": "summer_blockbuster",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_back_to_school_movies_bt",
+"title": "Back to School Movies",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "fresh start, new routines, classroom dynamics",
+"seasonal": {
+"start": "08-15",
+"end": "09-15"
+},
+"event": "back_to_school",
+"keywords": [
+"high school",
+"school",
+"teacher",
+"college",
+"back to school"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_campus_life_shows_bt",
+"title": "Campus Life Shows",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "student life, friendships, academic pressures",
+"seasonal": {
+"start": "08-15",
+"end": "09-15"
+},
+"event": "back_to_school",
+"keywords": [
+"high school",
+"school",
+"teacher",
+"college",
+"back to school"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_new_year_fresh_starts_bt",
+"title": "New Year Fresh Starts",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "renewal, growth, personal goals",
+"seasonal": {
+"start": "08-15",
+"end": "09-15"
+},
+"event": "back_to_school",
+"keywords": [
+"high school",
+"school",
+"teacher",
+"college",
+"back to school"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_back_to_school_favourites_bt",
+"title": "Back to School Favourites",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "reminiscing about first days and new beginnings",
+"seasonal": {
+"start": "08-15",
+"end": "09-15"
+},
+"event": "back_to_school",
+"keywords": [
+"high school",
+"school",
+"teacher",
+"college",
+"back to school"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_student_life_essentials_bt",
+"title": "Student Life Essentials",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "capturing the chaos and camaraderie of campus life",
+"seasonal": {
+"start": "08-15",
+"end": "09-15"
+},
+"event": "back_to_school",
+"keywords": [
+"high school",
+"school",
+"teacher",
+"college",
+"back to school"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_fresh_start_picks_bt",
+"title": "Fresh Start Picks",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "showcasing stories about growth and self-discovery",
+"seasonal": {
+"start": "08-15",
+"end": "09-15"
+},
+"event": "back_to_school",
+"keywords": [
+"high school",
+"school",
+"teacher",
+"college",
+"back to school"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_ramadan_night_movies_bt",
+"title": "Ramadan Night Movies",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "spiritual reflection and community",
+"seasonal": {
+"start": "02-01",
+"end": "04-05"
+},
+"event": "ramadan_eid",
+"keywords": [
+"ramadan",
+"eid",
+"islam",
+"muslim"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_eid_celebration_films_bt",
+"title": "Eid Celebration Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "joyful family gatherings and tradition",
+"seasonal": {
+"start": "02-01",
+"end": "04-05"
+},
+"event": "ramadan_eid",
+"keywords": [
+"ramadan",
+"eid",
+"islam",
+"muslim"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_faith_inspired_stories_bt",
+"title": "Faith-Inspired Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "personal growth and moral dilemmas",
+"seasonal": {
+"start": "02-01",
+"end": "04-05"
+},
+"event": "ramadan_eid",
+"keywords": [
+"ramadan",
+"eid",
+"islam",
+"muslim"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_lunar_new_year_family_films_bt",
+"title": "Lunar New Year Family Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "family-friendly stories centered around reunion and tradition",
+"seasonal": {
+"start": "01-15",
+"end": "02-25"
+},
+"event": "lunar_new_year",
+"keywords": [
+"chinese new year",
+"lunar new year",
+"spring festival"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_lunar_new_year_action_spectacles_bt",
+"title": "Lunar New Year Action Spectacles",
+"media_type": "both",
+"type": "calendar",
+"genre": "Action",
+"vibe_query": "high-energy martial arts and adventure set during the festival",
+"seasonal": {
+"start": "01-15",
+"end": "02-25"
+},
+"event": "lunar_new_year",
+"keywords": [
+"chinese new year",
+"lunar new year",
+"spring festival"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_lunar_new_year_mythical_tales_bt",
+"title": "Lunar New Year Mythical Tales",
+"media_type": "both",
+"type": "calendar",
+"genre": "Fantasy",
+"vibe_query": "folklore-inspired stories featuring legendary creatures and heroes",
+"seasonal": {
+"start": "01-15",
+"end": "02-25"
+},
+"event": "lunar_new_year",
+"keywords": [
+"chinese new year",
+"lunar new year",
+"spring festival"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_queer_love_narratives_bt",
+"title": "Queer Love Narratives",
+"media_type": "both",
+"type": "calendar",
+"genre": "Romance",
+"vibe_query": "Movies and shows centered on romantic relationships within the LGBTQ+ community",
+"seasonal": {
+"start": "06-01",
+"end": "06-30"
+},
+"event": "pride",
+"keywords": [],
+"lgbtq_central": true,
+"kind": "calendar"
+},
+{
+"id": "cal_pride_themed_documentaries_bt",
+"title": "Pride-Themed Documentaries",
+"media_type": "both",
+"type": "calendar",
+"genre": "Documentary",
+"vibe_query": "Nonfiction films that highlight the history and impact of the LGBTQ+ rights movement",
+"seasonal": {
+"start": "06-01",
+"end": "06-30"
+},
+"event": "pride",
+"keywords": [],
+"lgbtq_central": true,
+"kind": "calendar"
+},
+{
+"id": "cal_women_s_history_month_stories_bt",
+"title": "Women's History Month Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "celebrating women's achievements",
+"seasonal": {
+"start": "03-01",
+"end": "03-31"
+},
+"event": "womens_history",
+"keywords": [
+"feminism",
+"women's rights",
+"suffragette",
+"woman director"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_international_women_s_day_docume_bt",
+"title": "International Women's Day Documentaries",
+"media_type": "both",
+"type": "calendar",
+"genre": "Documentary",
+"vibe_query": "highlighting women's rights progress",
+"seasonal": {
+"start": "03-01",
+"end": "03-31"
+},
+"event": "womens_history",
+"keywords": [
+"feminism",
+"women's rights",
+"suffragette",
+"woman director"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_pioneering_female_leaders_series_bt",
+"title": "Pioneering Female Leaders Series",
+"media_type": "both",
+"type": "calendar",
+"genre": "Biography",
+"vibe_query": "inspiring tales of trailblazers",
+"seasonal": {
+"start": "03-01",
+"end": "03-31"
+},
+"event": "womens_history",
+"keywords": [
+"feminism",
+"women's rights",
+"suffragette",
+"woman director"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_historical_irish_conflicts_bt",
+"title": "Historical Irish Conflicts",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Wars and rebellions in Ireland",
+"seasonal": {
+"start": "03-10",
+"end": "03-18"
+},
+"event": "st_patricks",
+"keywords": [
+"ireland",
+"irish",
+"st. patrick's day",
+"leprechaun"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_irish_family_sagas_bt",
+"title": "Irish Family Sagas",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Generational stories from Ireland",
+"seasonal": {
+"start": "03-10",
+"end": "03-18"
+},
+"event": "st_patricks",
+"keywords": [
+"ireland",
+"irish",
+"st. patrick's day",
+"leprechaun"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_friday_the_13th_frights_bt",
+"title": "Friday the 13th Frights",
+"media_type": "both",
+"type": "calendar",
+"genre": "Horror",
+"vibe_query": "haunting, suspenseful, eerie",
+"seasonal": {
+"start": "01-01",
+"end": "12-31"
+},
+"event": "friday_13",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_13th_nightmares_bt",
+"title": "13th Nightmares",
+"media_type": "both",
+"type": "calendar",
+"genre": "Horror",
+"vibe_query": "terrifying, isolated, relentless",
+"seasonal": {
+"start": "01-01",
+"end": "12-31"
+},
+"event": "friday_13",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_camp_blood_frenzy_bt",
+"title": "Camp Blood Frenzy",
+"media_type": "both",
+"type": "calendar",
+"genre": "Horror",
+"vibe_query": "gory, isolated, claustrophobic",
+"seasonal": {
+"start": "01-01",
+"end": "12-31"
+},
+"event": "friday_13",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_spiritual_reflection_films_bt",
+"title": "Spiritual Reflection Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "thoughtful, introspective, faith-based storytelling",
+"seasonal": {
+"start": "02-01",
+"end": "04-05"
+},
+"event": "ramadan_eid",
+"keywords": [
+"ramadan",
+"eid",
+"islam",
+"muslim"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_faith_inspired_documentaries_bt",
+"title": "Faith-Inspired Documentaries",
+"media_type": "both",
+"type": "calendar",
+"genre": "Documentary",
+"vibe_query": "educational, respectful, real-life stories of faith",
+"seasonal": {
+"start": "02-01",
+"end": "04-05"
+},
+"event": "ramadan_eid",
+"keywords": [
+"ramadan",
+"eid",
+"islam",
+"muslim"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_holiday_ethnic_cuisine_shows_bt",
+"title": "Holiday-Ethnic Cuisine Shows",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "cultural, authentic, family-style cooking traditions",
+"seasonal": {
+"start": "02-01",
+"end": "04-05"
+},
+"event": "ramadan_eid",
+"keywords": [
+"ramadan",
+"eid",
+"islam",
+"muslim"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_freedom_fight_films_bt",
+"title": "Freedom Fight Films",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Historical dramas about India's independence struggle",
+"seasonal": {
+"start": "08-10",
+"end": "08-16"
+},
+"event": "independence_india",
+"keywords": [
+"india",
+"independence movement",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_independence_day_memories_bt",
+"title": "Independence Day Memories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "Movies that capture the spirit of freedom and national pride",
+"seasonal": {
+"start": "08-10",
+"end": "08-16"
+},
+"event": "independence_india",
+"keywords": [
+"india",
+"independence movement",
+"bollywood"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_family_friendly_ramadan_picks_bt",
+"title": "Family-Friendly Ramadan Picks",
+"media_type": "both",
+"type": "calendar",
+"genre": "Family",
+"vibe_query": "heartwarming, cultural, suitable for all ages",
+"seasonal": {
+"start": "02-01",
+"end": "04-05"
+},
+"event": "ramadan_eid",
+"keywords": [
+"ramadan",
+"eid",
+"islam",
+"muslim"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_eid_celebration_movies_bt",
+"title": "Eid Celebration Movies",
+"media_type": "both",
+"type": "calendar",
+"genre": "Comedy",
+"vibe_query": "joyful, community-focused, festive atmosphere",
+"seasonal": {
+"start": "02-01",
+"end": "04-05"
+},
+"event": "ramadan_eid",
+"keywords": [
+"ramadan",
+"eid",
+"islam",
+"muslim"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_women_s_history_month_picks_bt",
+"title": "Women's History Month Picks",
+"media_type": "both",
+"type": "calendar",
+"genre": "Biographical",
+"vibe_query": "inspiring stories of real women",
+"seasonal": {
+"start": "03-01",
+"end": "03-31"
+},
+"event": "womens_history",
+"keywords": [
+"feminism",
+"women's rights",
+"suffragette",
+"woman director"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_trailblazers_on_screen_bt",
+"title": "Trailblazers on Screen",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "celebrating pioneers and leaders",
+"seasonal": {
+"start": "03-01",
+"end": "03-31"
+},
+"event": "womens_history",
+"keywords": [
+"feminism",
+"women's rights",
+"suffragette",
+"woman director"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_women_in_power_stories_bt",
+"title": "Women in Power Stories",
+"media_type": "both",
+"type": "calendar",
+"genre": "Historical",
+"vibe_query": "focused on female leadership and impact",
+"seasonal": {
+"start": "03-01",
+"end": "03-31"
+},
+"event": "womens_history",
+"keywords": [
+"feminism",
+"women's rights",
+"suffragette",
+"woman director"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_fireworks_and_flag_raising_bt",
+"title": "Fireworks and Flag Raising",
+"media_type": "both",
+"type": "calendar",
+"genre": "Action",
+"vibe_query": "patriotic celebrations with explosive action",
+"seasonal": {
+"start": "06-25",
+"end": "07-07"
+},
+"event": "july4",
+"keywords": [
+"independence day",
+"american revolution",
+"patriotism",
+"fourth of july"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_freedom_fighters_and_fierce_batt_bt",
+"title": "Freedom Fighters and Fierce Battles",
+"media_type": "both",
+"type": "calendar",
+"genre": "War",
+"vibe_query": "heroic struggles for national identity",
+"seasonal": {
+"start": "06-25",
+"end": "07-07"
+},
+"event": "july4",
+"keywords": [
+"independence day",
+"american revolution",
+"patriotism",
+"fourth of july"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_patriotic_family_sagas_bt",
+"title": "Patriotic Family Sagas",
+"media_type": "both",
+"type": "calendar",
+"genre": "Drama",
+"vibe_query": "multi-generational stories of loyalty and sacrifice",
+"seasonal": {
+"start": "06-25",
+"end": "07-07"
+},
+"event": "july4",
+"keywords": [
+"independence day",
+"american revolution",
+"patriotism",
+"fourth of july"
+],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_summer_spectaculars_bt",
+"title": "Summer Spectaculars",
+"media_type": "both",
+"type": "calendar",
+"genre": "Sci-Fi",
+"vibe_query": "high stakes and big screen thrills",
+"seasonal": {
+"start": "05-15",
+"end": "08-31"
+},
+"event": "summer_blockbuster",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+},
+{
+"id": "cal_summer_spectacles_bt",
+"title": "Summer Spectacles",
+"media_type": "both",
+"type": "calendar",
+"genre": "Any",
+"vibe_query": "epic stories and blockbuster showdowns",
+"seasonal": {
+"start": "05-15",
+"end": "08-31"
+},
+"event": "summer_blockbuster",
+"keywords": [],
+"lgbtq_central": false,
+"kind": "calendar"
+}
+]
+}

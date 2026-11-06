@@ -1,0 +1,160 @@
+{
+"moods": [
+{
+"id": "mind_bending",
+"title": "Mind-Bending Thrillers",
+"phrase": "mind-bending psychological thriller with a twist ending that keeps you guessing and thinking about it for days",
+"late": 1
+},
+{
+"id": "midnight_cult",
+"title": "Midnight Cult Favorites",
+"phrase": "cult midnight movie: weird, transgressive, over the top, so strange it becomes a favorite",
+"late": 1
+},
+{
+"id": "neo_noir",
+"title": "Neo-Noir Nights",
+"phrase": "neo-noir: moody rain-soaked city, morally grey detective, stylish crime, shadows and neon",
+"late": 1
+},
+{
+"id": "eerie_slow_burn",
+"title": "Eerie Slow Burns",
+"phrase": "eerie slow burn horror: creeping dread, atmosphere, patience rewarded, unsettling and quiet",
+"late": 1
+},
+{
+"id": "surreal_comedy",
+"title": "Surreal & Absurd Comedies",
+"phrase": "surreal absurd offbeat comedy, stoner humour, dazed, deadpan and weird",
+"late": 1
+},
+{
+"id": "adult_crime",
+"title": "Gritty Crime Sagas",
+"phrase": "gritty adult crime drama: gangsters, corruption, violence, morally complex anti-heroes",
+"late": 1
+},
+{
+"id": "dark_twisted",
+"title": "Dark & Twisted",
+"phrase": "dark twisted disturbing and bleak, nihilistic, uncomfortable but gripping",
+"late": 1
+},
+{
+"id": "late_laughs",
+"title": "Late-Night Laughs",
+"phrase": "dry funny late night comedy: stand-up, talk show banter, cringe and sharp wit",
+"late": 1
+},
+{
+"id": "true_crime_night",
+"title": "True Crime After Dark",
+"phrase": "true crime documentary: real cases, investigations, killers, mysteries, chilling",
+"late": 1
+},
+{
+"id": "cozy_comfort",
+"title": "Cozy Comfort Watches",
+"phrase": "cozy comforting feel-good watching: warm, gentle, low stakes, charming small town",
+"late": 0
+},
+{
+"id": "feel_good",
+"title": "Feel-Good Favorites",
+"phrase": "uplifting feel-good heartwarming stories that leave you smiling and hopeful",
+"late": 0
+},
+{
+"id": "tearjerkers",
+"title": "Tearjerkers",
+"phrase": "emotional heartbreaking tearjerker, you will cry, devastating and beautiful",
+"late": 0
+},
+{
+"id": "edge_of_seat",
+"title": "Edge of Your Seat",
+"phrase": "tense suspenseful nail-biting edge of your seat thrills, relentless pace",
+"late": 0
+},
+{
+"id": "slow_meditative",
+"title": "Slow & Meditative Cinema",
+"phrase": "slow meditative contemplative cinema: quiet, visual poetry, patient, atmospheric",
+"late": 1
+},
+{
+"id": "binge",
+"title": "Binge-Worthy Series",
+"phrase": "addictive binge-worthy series, cliffhangers, you cannot stop at one episode",
+"late": 0
+},
+{
+"id": "easy_background",
+"title": "Easy Watching",
+"phrase": "light easy undemanding watching, background viewing, simple fun",
+"late": 0
+},
+{
+"id": "date_night",
+"title": "Date Night",
+"phrase": "romantic date night: sweet, charming, chemistry between the leads, great together",
+"late": 0
+},
+{
+"id": "family_night",
+"title": "Family Movie Night",
+"phrase": "family movie night: fun for all ages, adventure, laughs and heart",
+"late": 0
+},
+{
+"id": "friends_night",
+"title": "Friday Night With Friends",
+"phrase": "fun crowd pleaser to watch with friends, big laughs, action, hang out",
+"late": 0
+},
+{
+"id": "heist_cool",
+"title": "Stylish Heists & Capers",
+"phrase": "slick stylish heist and caper, clever plans, charismatic crew, cool soundtrack",
+"late": 0
+},
+{
+"id": "mind_travel",
+"title": "Escape to Another World",
+"phrase": "immersive escapist fantasy and sci-fi worlds, epic adventure, wonder",
+"late": 0
+},
+{
+"id": "true_stories",
+"title": "Powerful True Stories",
+"phrase": "powerful inspiring true story, based on real events, strong performances",
+"late": 0
+},
+{
+"id": "period_romance",
+"title": "Sweeping Period Romances",
+"phrase": "sweeping period romance and costume drama, lavish, longing, elegant",
+"late": 0
+},
+{
+"id": "sports_underdog",
+"title": "Underdog Sports Stories",
+"phrase": "underdog sports story, team spirit, comeback, training montage, triumph",
+"late": 0
+},
+{
+"id": "music_vibes",
+"title": "Music & Concert Vibes",
+"phrase": "music driven: concerts, bands, musicians, live performance and soundtrack energy",
+"late": 0
+},
+{
+"id": "whodunit",
+"title": "Cosy Whodunits",
+"phrase": "classic whodunit murder mystery with clever detective and a gathering of suspects",
+"late": 0
+}
+]
+}

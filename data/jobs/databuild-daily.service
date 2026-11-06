@@ -1,0 +1,8 @@
+[Unit]
+Description=Pull daily popularity, then prove the set
+OnFailure=databuild-alarm.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=%h/.config/databuild/env
+ExecStart=/bin/sh -c 'exec "$DATABUILD_HOME/jobs/run" daily'
