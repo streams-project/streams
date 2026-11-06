@@ -1,0 +1,120 @@
+/* One 1920 by 1080 stage, scaled to the screen. Every place is a measurement of the real page:
+   card u 0.0287 to 0.8315, v 0.1565 to 0.9567, corner 24 px, peek from u 0.852. */
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--background);
+  color: var(--text);
+  font-family: var(--font-body), sans-serif;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  outline: 0;
+}
+
+#stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: 0 0;
+  background: var(--background);
+}
+
+#tabs {
+  position: absolute;
+  left: 96px;
+  top: 78px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.round {
+  width: 82px;
+  height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 12%);
+}
+.round svg { width: 38px; height: 38px; fill: var(--text); }
+.tab { font-size: 30px; font-weight: 600; opacity: 0.85; padding: 12px 8px; border-radius: var(--radius-button); }
+
+.round.on { background: var(--text); }
+.round.on svg { fill: var(--background); }
+.tab.on { opacity: 1; box-shadow: inset 0 -4px 0 var(--text); border-radius: 0; }
+
+#card {
+  position: absolute;
+  left: 55px;
+  top: 169px;
+  width: 1542px;
+  height: 864px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(#2b3a78, #42549c 70%, #141730);
+  box-shadow: 0 0 0 3px #c4e4fb, 0 0 8px 3px rgb(196 228 251 / 35%);
+}
+
+#film { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+#help {
+  position: absolute;
+  left: 96px;
+  top: 770px;
+  font-size: 24px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--radius-field);
+  opacity: 0.85;
+}
+#help.on { opacity: 1; background: var(--text); color: var(--background); }
+
+#ask { position: absolute; left: 915px; top: 720px; display: flex; gap: 32px; }
+
+.pill {
+  width: 268px;
+  height: 80px;
+  font-size: 28px;
+  font-weight: 700;
+  border-radius: var(--radius-button);
+  background: rgb(255 255 255 / 22%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: background-color 120ms linear, color 120ms linear, transform 120ms ease-out;
+}
+#sign-in.on { background: var(--text); color: var(--background); transform: scale(1.04); }
+#join.on { background: var(--join); color: var(--join-text); transform: scale(1.04); }
+
+#peek {
+  position: absolute;
+  left: 1636px;
+  top: 167px;
+  width: 284px;
+  height: 866px;
+  border-radius: 24px 0 0 24px;
+  background: var(--surface) center / cover no-repeat;
+  background-image: url("peek.jpg");
+  opacity: 0;
+  transition: opacity 583ms linear;
+}
+#peek.seen { opacity: 1; }
+
+#opening {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  object-fit: contain;
+}
+#opening.done { display: none; }

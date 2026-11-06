@@ -98,6 +98,18 @@ fn copy_folder(from: &Path, to: &Path) -> Result<()> {
     Ok(())
 }
 
+/// The opening and the showreel hold title art, so they are kept out of the repository. A brand
+/// puts its own in `media/`, and the page runs without them.
+fn copy_tv_media(assets: &Path, tv: &Path) -> Result<()> {
+    for name in ["opening.mp4", "showreel.mp4", "peek.jpg"] {
+        let from = assets.join("media").join(name);
+        if from.exists() {
+            std::fs::copy(from, tv.join(name))?;
+        }
+    }
+    Ok(())
+}
+
 /// The built site, with this brand's look and mark laid over it.
 fn publish_site(stack: &Stack) -> Result<PathBuf> {
     let built = stack.root.join("apps/web/dist");
@@ -108,7 +120,9 @@ fn publish_site(stack: &Stack) -> Result<PathBuf> {
     let _ = std::fs::remove_dir_all(&site);
     copy_folder(&built, &site)?;
     std::fs::write(site.join("brand.css"), stack.brand.css())?;
+    copy_folder(&stack.root.join("apps/tv/page"), &site.join("tv"))?;
     let assets = stack.root.join(&stack.brand.assets);
+    copy_tv_media(&assets, &site.join("tv"))?;
     for (from, to) in [
         ("mark.svg", "mark.svg"),
         ("lockup-on-dark.svg", "lockup.svg"),

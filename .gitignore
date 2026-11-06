@@ -12,3 +12,6 @@ dist/
 # Built by ./up.
 /bin/
 /apps/web/dist/
+
+# Rendered films hold title art and stay out of the repository.
+/brand/*/media/
