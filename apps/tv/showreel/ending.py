@@ -30,6 +30,7 @@ STEP = 0.4  # film frames between drawn frames, 60 a second
 TV_Y = 490.0
 BLUE, SALMON = (255, 120, 60), (170, 150, 250)
 SHELL, EDGE = (38, 30, 28), (120, 100, 92)
+DECK_H = 96  # how far the laptop's deck reaches toward us, in pixels
 TV_NAMES = ["Apple TV", "Samsung", "LG", "Fire TV", "Roku", "Android TV"]
 
 # The wall of names. Each row is justified, ink to ink, from x 100 to x 1820. Sizes and the numbers
@@ -72,17 +73,121 @@ SPRING_HZ, SPRING_ZETA = 4, .7
 RESIDUAL_BLEND = 8
 TRACK_END = 1812
 
-def shell(w, h, pad, radius, top=0):
-    """A plain dark body with a thin light rim, leaving a screen of w by h."""
+def metal(w, h, top=1.3, low=.6, seed=7):
+    """Dark brushed metal lit from above, as a BGR picture."""
+    ramp = np.linspace(top, low, h, dtype=np.float32)[:, None]
+    grain = np.random.default_rng(seed).normal(0, 1, (h, w)).astype(np.float32)
+    grain = cv2.GaussianBlur(grain, (0, 0), sigmaX=24, sigmaY=.7) * 14
+    return np.dstack([np.clip(c * ramp + grain * .5, 0, 255) for c in SHELL])
+
+def body(w, h, pad, radius, top=0):
+    """A device body: brushed dark metal, and a thin rim that is bright on top and fades downward."""
     W, H = w + 2 * pad, h + 2 * pad + top
     outer = rounded(W, H, radius)
     inner = np.zeros_like(outer)
     inner[2:-2, 2:-2] = rounded(W - 4, H - 4, radius - 2)
-    rim = np.clip(outer - inner, 0, 1)
+    rim = np.clip(outer - inner, 0, 1) * np.linspace(1, .3, H, dtype=np.float32)[:, None]
+    rgb = metal(W, H)
     pic = np.zeros((H, W, 4), np.float32)
     for k in range(3):
-        pic[..., k] = outer * SHELL[k] + rim * (EDGE[k] - SHELL[k])
+        pic[..., k] = outer * rgb[..., k] + rim * (EDGE[k] * 1.6 - rgb[..., k])
     pic[..., 3] = outer * 255
+    return pic
+
+def paste(rgb, pic, x, y, alpha=1.0):
+    """A premultiplied picture onto a BGR picture at a whole pixel, clipped to it."""
+    h, w = pic.shape[:2]
+    x0, y0, x1, y1 = max(x, 0), max(y, 0), min(x + w, rgb.shape[1]), min(y + h, rgb.shape[0])
+    if x1 <= x0 or y1 <= y0:
+        return
+    p = pic[y0 - y:y1 - y, x0 - x:x1 - x]
+    rgb[y0:y1, x0:x1, :3] = rgb[y0:y1, x0:x1, :3] * (1 - p[..., 3:4] * alpha / 255) + p[..., :3] * alpha
+
+def paste_pic(pic, top, x, y):
+    """The same onto a premultiplied picture whose alpha stays as it was."""
+    paste(pic, top, x, y)
+
+def sized(pic, h):
+    """A picture scaled to a height."""
+    return cv2.resize(pic, (max(round(pic.shape[1] * h / pic.shape[0]), 1), h), interpolation=cv2.INTER_AREA)
+
+def capsule(w, h, colour, radius=None):
+    """A filled rounded shape, a full pill unless a radius is given."""
+    m = rounded(w, h, h // 2 if radius is None else radius)
+    return np.dstack([m * c for c in colour] + [m * 255]).astype(np.float32)
+
+def shade(w, h, strength=.6):
+    """A soft dark pool, for what a device casts."""
+    yy, xx = np.mgrid[-1:1:h * 1j, -1:1:w * 1j]
+    a = np.exp(-(xx ** 2) * 3 - (yy ** 2) * 5).astype(np.float32) * strength
+    return np.dstack([np.zeros_like(a)] * 3 + [a * 255])
+
+def mirror(pic, depth, fade=.16):
+    """A faint reflection of a picture's lowest rows, which dies away downward."""
+    return pic[-depth:][::-1] * np.linspace(fade, 0, depth, dtype=np.float32)[:, None, None]
+
+class Sheen:
+    """A soft band of light that crosses a glass screen on a slant."""
+    def __init__(self, h, w):
+        yy, xx = np.mgrid[0:h, 0:w]
+        self.along, self.span = (xx + yy * .55).astype(np.float32), w + h * .55
+
+    def add(self, rgb, t, strength=12.0):
+        spot = (-.2 + 1.4 * (t % 1)) * self.span
+        rgb += (np.exp(-((self.along - spot) / (.14 * self.span)) ** 2)[..., None] * strength).astype(np.float32)
+
+def pedestal(pic, W, body_h):
+    """The stand of a television under its body: a short neck and a slim oval foot."""
+    H = body_h + 44
+    out = np.zeros((H, W, 4), np.float32)
+    out[:body_h] = pic
+    im = Image.new("L", (W * 2, H * 2), 0)
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle((W * .92, body_h * 2 - 4, W * 1.08, (body_h + 26) * 2), 8, fill=255)
+    d.rounded_rectangle((W * .62, (body_h + 24) * 2, W * 1.38, (body_h + 40) * 2), 16, fill=255)
+    a = np.asarray(im.resize((W, H), Image.LANCZOS), np.float32) / 255
+    rgb = metal(W, H, top=1.6, low=1.6, seed=5)
+    light = np.ones_like(a)
+    light[body_h + 24:body_h + 28] = 2.0
+    keep = out[..., 3:4] / 255
+    out[..., :3] += (1 - keep) * rgb * (a * light)[..., None]
+    out[..., 3] = np.maximum(out[..., 3], a * 255)
+    return out
+
+def deck(W):
+    """The lower half of a laptop as seen from in front and above: key rows, a trackpad, the hinge and
+    a front edge. Drawn flat, then laid back in perspective once, because only its place changes."""
+    w, h = W, 300
+    rgb = metal(w, h, top=.95, low=1.5, seed=3)
+    keys = Image.new("L", (w * 2, h * 2), 0)
+    d = ImageDraw.Draw(keys)
+    left, right, y, kh, gap = w * .11, w * 1.89, h * .16, h * .16, h * .034
+    for r in range(5):
+        n = 14 - r % 2
+        kw = (right - left - (n - 1) * 8) / n
+        for c in range(n):
+            x = left + c * (kw + 8)
+            d.rounded_rectangle((x, y, x + kw, y + kh), 8, fill=255)
+        y += kh + gap
+    d.rounded_rectangle((w * .6, y, w * 1.4, y + kh), 8, fill=255)
+    a = np.asarray(keys.resize((w, h), Image.LANCZOS), np.float32)[..., None] / 255
+    rgb = rgb * (1 - a) + np.array((16, 12, 12), np.float32) * a
+    pad = np.zeros((h, w), np.float32)
+    pad[int(h * .72):int(h * .975), int(w * .33):int(w * .67)] = rounded(int(w * .67) - int(w * .33), int(h * .975) - int(h * .72), 14)
+    rgb += pad[..., None] * 16
+    rgb[:10] *= .35
+    src = np.float32([[0, 0], [w, 0], [w, h], [0, h]])
+    wide = int(w * 1.2)
+    top = (wide - w) / 2
+    dst = np.float32([[top, 0], [top + w, 0], [wide, DECK_H], [0, DECK_H]])
+    pic = cv2.warpPerspective(np.dstack([rgb, np.full((h, w), 255, np.float32)]), cv2.getPerspectiveTransform(src, dst),
+                              (wide, DECK_H + 12), flags=cv2.INTER_AREA)
+    k = pic[..., 3:4] / 255
+    pic[..., :3] *= k
+    lip = np.zeros((12, wide, 4), np.float32)
+    m = rounded(wide, 12, 6)
+    lip[..., :3], lip[..., 3] = (m[..., None] * np.array(EDGE, np.float32) * np.linspace(1.1, .5, 12, dtype=np.float32)[:, None, None]), m * 255
+    pic[DECK_H:] = lip
     return pic
 
 def inset(pic, screen, pad, top, radius):
@@ -91,21 +196,6 @@ def inset(pic, screen, pad, top, radius):
     m = rounded(w, h, radius)[..., None]
     out = pic.copy()
     out[pad + top:pad + top + h, pad:pad + w, :3] = out[pad + top:pad + top + h, pad:pad + w, :3] * (1 - m) + screen * m
-    return out
-
-def stand(pic, W, body):
-    """The foot of a television, under a body."""
-    H = body + 40
-    out = np.zeros((H, W, 4), np.float32)
-    out[:body] = pic
-    im = Image.new("L", (W, H), 0)
-    d = ImageDraw.Draw(im)
-    d.rounded_rectangle((W * .44, body - 2, W * .56, body + 18), 4, fill=255)
-    d.rounded_rectangle((W * .34, body + 18, W * .66, body + 30), 6, fill=255)
-    a = np.asarray(im, np.float32) / 255
-    for k in range(3):
-        out[..., k] += a * EDGE[k] * .8
-    out[..., 3] = np.maximum(out[..., 3], a * 255)
     return out
 
 def ink_box(pic):
@@ -371,7 +461,7 @@ class Ending:
     def __init__(self, font, logo, name, art, keep_image):
         self.back, self.foot = backdrop(), foot()
         self.light = glow((46, 22, 14), .5, .46, .34, .34)
-        self.font, self.art = font, art
+        self.font, self.art, self.name = font, art, name
         self.logo_mark, self.logo_word = split_lockup(logo)
         self.head = word(font, "On every screen", 92)
         self.head_soft = soft_shadow(self.head)
@@ -390,12 +480,20 @@ class Ending:
     # ---- television
     def build_tv(self):
         self.tv_names = [word(self.font, n, 78) for n in TV_NAMES]
-        body = shell(960, 540, 16, 20)
-        self.tv_body_h, self.tv_w = body.shape[0], body.shape[1]
-        self.tv_shell = stand(body, body.shape[1], body.shape[0])
+        pad = 9
+        pic = body(960, 540, pad, 18)
+        self.tv_body_h, self.tv_w = pic.shape[0], pic.shape[1]
+        self.tv_shell = pedestal(pic, pic.shape[1], pic.shape[0])
         self.tv_screen = Card(self.keep.astype(np.uint8), 960, 540, 16)
         self.tv_mask = rounded(960, 540, 16)
         self.tv_out = 1436
+        self.tv_floor = shade(760, 56, .75)
+        self.tv_mirror = mirror(self.tv_shell, 44)
+        self.tv_sheen = Sheen(540, 960)
+        self.tv_time = word(self.font, "1:04:12", 20, upper=False)
+        self.tv_pause = np.zeros((22, 20, 4), np.float32)
+        for x in (3, 12):
+            self.tv_pause[2:20, x:x + 5] = 255
 
     def television(self, out, n):
         if n >= self.tv_out + 20:
@@ -403,9 +501,12 @@ class Ending:
         away = ease((n - self.tv_out) / 18)
         x = CX - 1500 * away
         arrive = ease((n - N0) / 24)
-        zoom = 1 + .05 * ease((n - N0) / 90)
         y = TV_Y
-        shell_y = y + 20
+        h = self.tv_shell.shape[0]
+        shell_y = y - 279 + h / 2
+        ground = y - 279 + h
+        lay(out, self.tv_floor, [(x, ground + 2, 1.0, 1.0, 0.0)], alpha=arrive)
+        lay(out, self.tv_mirror, [(x, ground + 22, 1.0, 1.0, 0.0)], alpha=arrive)
         lay(out, self.tv_shell, [(x, shell_y, 1.0, 1.0, 0.0)], alpha=arrive)
         lay(out, self.playing(n), [(x, y, 1.0, 1.0, 0.0)])
         spot = clamp((n - N0 - 8) / (self.tv_out - N0 - 8)) * len(self.tv_names)
@@ -419,33 +520,67 @@ class Ending:
             lay(out, self.tv_names[now + 1], [(x, ly + 50 * (1 - change), 1.0, .6 + .4 * change, 0.0)], alpha=keep * change)
 
     def playing(self, n):
-        """The film on the television: a slow push in, and the bar that says it is playing."""
+        """The film on the television: a slow push in, the bar, and light moving across the glass."""
         z = 1 + .1 * ease((n - N0) / 110)
         M = np.array([[z, 0, 480 - z * 480], [0, z, 300 - z * 300]], np.float64)
         rgb = cv2.warpAffine(self.keep, M, (960, 540), flags=cv2.INTER_LINEAR)
         show = ease((n - N0 - 8) / 12)
         if show > 0:
-            bar = rgb[510:516, 36:924]
+            rgb[470:540] = rgb[470:540] * (1 - .55 * show * np.linspace(0, 1, 70, dtype=np.float32)[:, None, None])
+            bar = rgb[510:516, 76:850]
             bar[:] = bar * (1 - .55 * show) + 170 * .55 * show
-            done = int(888 * BAR_START * clamp((n - N0) / 91))
-            rgb[510:516, 36:36 + done] = rgb[510:516, 36:36 + done] * (1 - show) + np.array(BLUE, np.float32) * show
+            done = int(774 * BAR_START * clamp((n - N0) / 91))
+            rgb[510:516, 76:76 + done] = rgb[510:516, 76:76 + done] * (1 - show) + np.array(BLUE, np.float32) * show
+            paste(rgb, self.tv_pause, 42, 502, show)
+            paste(rgb, self.tv_time, 862, 498, show)
+        self.tv_sheen.add(rgb, (n - N0) / 120)
         a = self.tv_mask
         return np.dstack([rgb * a[..., None], a * 255])
 
     # ---- laptop
     def build_laptop(self):
         w, h = 820, 512
-        screen = np.zeros((h, w, 3), np.float32) + (30, 22, 20)
-        for r in range(3):
-            for c in range(3):
-                t = cover(self.art.tile(self.art.next("small")), 254, 143).astype(np.float32)
-                x, y = 14 + c * 266, 70 + r * 146
-                screen[y:y + 143, x:x + 254] = t
-        for i in range(4):
-            cv2.rectangle(screen, (20 + i * 84, 28), (84 + i * 84, 38), (120, 110, 104), -1, cv2.LINE_AA)
-        self.lap_pic = inset(shell(w, h, 14, 16), screen, 14, 0, 8)
+        page = np.zeros((h, w, 3), np.float32) + (24, 18, 17)
+        hero = cover(self.art.tile(self.art.next("drama")), w, 276).astype(np.float32)
+        hero *= np.linspace(.3, 1, w, dtype=np.float32)[None, :, None]
+        hero *= np.linspace(1, .22, 276, dtype=np.float32)[:, None, None]
+        page[:276] = hero
+        paste(page, sized(self.logo_mark, 30), 22, 14)
+        paste(page, sized(self.logo_word, 24), 62, 17)
+        for i, label in enumerate(("Home", "Films", "Series", "My List")):
+            paste(page, word(self.font, label, 17, (225, 225, 225), upper=False), 214 + i * 84, 20)
+        paste(page, word(self.font, "Tonight", 46, upper=False), 26, 148)
+        button = capsule(104, 36, (250, 250, 250))
+        paste(button, word(self.font, "Play", 18, (24, 24, 24), upper=False), 30, 7)
+        paste(page, button, 28, 218)
+        paste(page, word(self.font, "Top picks", 19, (225, 225, 225), upper=False), 24, 280)
+        self.lap_page = page
+        strip = np.zeros((240, 2600, 3), np.float32) + (24, 18, 17)
+        for i in range(12):
+            for r in range(2):
+                t = cover(self.art.tile(self.art.next("small")), 196, 110).astype(np.float32) * rounded(196, 110, 8)[..., None]
+                strip[4 + r * 122:114 + r * 122, 24 + i * 210:220 + i * 210] += t * .96
+        self.lap_strip = strip
+        self.lap_lid = body(w, h, 12, 16)
+        cv2.circle(self.lap_lid, (self.lap_lid.shape[1] // 2, 6), 2, (70, 60, 56, 255), -1, cv2.LINE_AA)
+        H0, W0 = self.lap_lid.shape[:2]
+        back = metal(W0, H0, top=.8, low=1.25, seed=11)
+        paste(back, sized(self.logo_mark, 84), W0 // 2 - 42, H0 // 2 - 42, .35)
+        m = rounded(W0, H0, 16)
+        self.lap_back = np.dstack([back * m[..., None], m * 255])
+        self.lap_sheen = Sheen(h, w)
+        self.lap_deck = deck(W0)
+        self.lap_shadow = shade(int(W0 * 1.5), 70, .8)
         self.lap_names = [word(self.font, n, 104) for n in ("Mac", "Windows", "Linux")]
         self.lap_in, self.lap_out = 1442, 1487
+
+    def laptop_lid(self, n):
+        pan = 40 + 2.2 * (n - self.lap_in)
+        M = np.array([[1, 0, -pan], [0, 1, 0]], np.float64)
+        screen = self.lap_page.copy()
+        screen[306:] = cv2.warpAffine(self.lap_strip, M, (820, 206), flags=cv2.INTER_LINEAR)
+        self.lap_sheen.add(screen, (n - self.lap_in) / 70, 10.0)
+        return inset(self.lap_lid, screen, 12, 0, 8)
 
     def laptop(self, out, n):
         a, b = self.lap_in, self.lap_out
@@ -453,23 +588,23 @@ class Ending:
             return
         up = rise((n - a) / 14)
         down = fall((n - b - 4) / 12)
-        cx, hinge = 690.0, 770 + 560 * (1 - up) + 560 * down
+        cx, hinge = 690.0, 716 + 600 * (1 - up) + 600 * down
         opened = ease((n - a - 8) / 20) * (1 - ease((n - b + 8) / 11))
-        pic = self.lap_pic
-        h0, w0 = pic.shape[:2]
-        angle = (1 - opened) * math.radians(92)
-        lift, inset_x = h0 * math.cos(angle), 34 * math.sin(angle)
-        src = np.float32([[0, 0], [w0, 0], [w0, h0], [0, h0]])
-        if lift > 2:
-            dst = np.float32([[cx - w0 / 2 + inset_x, hinge - lift], [cx + w0 / 2 - inset_x, hinge - lift], [cx + w0 / 2, hinge], [cx - w0 / 2, hinge]])
-            M = cv2.getPerspectiveTransform(src, dst)
-            p = cv2.warpPerspective(pic, M, (VW, VH), flags=cv2.INTER_LINEAR)
+        dh = self.lap_deck.shape[0]
+        lay(out, self.lap_shadow, [(cx, hinge + dh + 2, 1.0, 1.0, 0.0)])
+        lay(out, self.lap_deck, [(cx, hinge + dh / 2, 1.0, 1.0, 0.0)])
+        h0, w0 = self.lap_lid.shape[:2]
+        angle = (1 - opened) * math.radians(100)
+        lift = h0 * math.cos(angle)
+        if abs(lift) > 2:
+            forward = lift < 0
+            pic = self.lap_back if forward else self.laptop_lid(n)
+            top = w0 / 2 * (1 + .2 * -lift / DECK_H) if forward else w0 / 2 - 16 * lift / h0
+            src = np.float32([[0, 0], [w0, 0], [w0, h0], [0, h0]])
+            dst = np.float32([[cx - top, hinge - lift], [cx + top, hinge - lift], [cx + w0 / 2, hinge], [cx - w0 / 2, hinge]])
+            p = cv2.warpPerspective(pic, cv2.getPerspectiveTransform(src, dst), (VW, VH), flags=cv2.INTER_LINEAR)
             k = p[..., 3:4] / 255
-            out[:] = out * (1 - k) + p[..., :3] * (1 - .35 * math.sin(angle))
-        base_w = int(w0 * 1.12)
-        y0 = int(hinge)
-        if y0 < VH:
-            cv2.rectangle(out, (int(cx - base_w / 2), y0), (int(cx + base_w / 2), min(y0 + 20, VH - 1)), tuple(float(v) * .9 for v in EDGE), -1, cv2.LINE_AA)
+            out[:] = out * (1 - k) + p[..., :3] * (.85 if forward else 1 - .35 * math.sin(angle))
         for i, pic_name in enumerate(self.lap_names):
             t = (n - a - 20 - i * 8) / 18
             l = (n - b + 12 - (2 - i) * 2) / 11
@@ -479,12 +614,21 @@ class Ending:
     # ---- tablet
     def build_tablet(self):
         h = 506
-        strip = np.zeros((h, 1560, 3), np.float32) + (30, 22, 20)
-        for i in range(6):
-            t = cover(self.art.poster(self.art.next("drama")), 236, 354).astype(np.float32)
-            strip[76:430, 24 + i * 252:260 + i * 252] = t
+        strip = np.zeros((h, 1800, 3), np.float32) + (24, 18, 17)
+        for i in range(7):
+            t = cover(self.art.poster(self.art.next("drama")), 236, 354).astype(np.float32) * rounded(236, 354, 12)[..., None]
+            strip[86:440, 24 + i * 252:260 + i * 252] += t
         self.tab_strip = strip
-        self.tab_body = shell(680, h, 18, 34)
+        self.tab_body = body(680, h, 12, 30)
+        cv2.circle(self.tab_body, (self.tab_body.shape[1] // 2, 6), 3, (70, 60, 56, 255), -1, cv2.LINE_AA)
+        rail = np.zeros((h, 66, 4), np.float32)
+        rail[..., :3], rail[..., 3] = (20, 15, 14), 240
+        for i in range(5):
+            paste(rail, capsule(26, 26, BLUE if i == 1 else (96, 88, 84), 9), 20, 96 + i * 62)
+        self.tab_rail = rail
+        self.tab_head = word(self.font, "Drama", 30, upper=False)
+        self.tab_sheen = Sheen(h, 680)
+        self.tab_shadow = shade(900, 640, .6)
         self.tab_names = [word(self.font, n, 92) for n in ("iPad", "Android tablets")]
         self.tab_in, self.tab_out = 1496, 1532
 
@@ -492,15 +636,19 @@ class Ending:
         a, b = self.tab_in, self.tab_out
         if n < a or n > b + 20:
             return
-        pan = 90 + 4.4 * (n - a)
+        pan = 60 + 3.6 * (n - a)
         M = np.array([[1, 0, -pan], [0, 1, 0]], np.float64)
         screen = cv2.warpAffine(self.tab_strip, M, (680, 506), flags=cv2.INTER_LINEAR)
-        pic = inset(self.tab_body, screen, 18, 0, 18)
+        paste(screen, self.tab_rail, 0, 0)
+        paste(screen, self.tab_head, 84, 34)
+        self.tab_sheen.add(screen, (n - a) / 60, 10.0)
+        pic = inset(self.tab_body, screen, 12, 0, 20)
         arrive = rise((n - a) / 13)
         turn = spring((n - a - 9) / 24, turns=1.1)
         away = fall((n - b) / 16)
         x = 1230 + 1300 * (1 - arrive) + 1500 * away
-        lay(out, pic, [(x, 480, .9, .9, -90 * (1 - turn) + 26 * away)])
+        lay(out, self.tab_shadow, [(x, 500, 1.0, 1.0, 0.0)], alpha=turn)
+        lay(out, pic, [(x, 480, .95, .95, -90 * (1 - turn) + 26 * away)])
         for i, p in enumerate(self.tab_names):
             t = (n - a - 12 - i * 7) / 16
             l = (n - b + 3 - i * 2) / 11
@@ -511,14 +659,31 @@ class Ending:
     def build_phones(self):
         self.feeds = []
         for pool in ("comedy", "kids"):
-            feed = np.zeros((2400, 240, 3), np.float32) + (30, 22, 20)
+            feed = np.zeros((2400, 244, 3), np.float32) + (24, 18, 17)
             for i in range(6):
-                t = cover(self.art.tile(self.art.next(pool)), 224, 330).astype(np.float32)
-                feed[10 + i * 346:340 + i * 346, 8:232] = t
+                t = cover(self.art.tile(self.art.next(pool)), 224, 330).astype(np.float32) * rounded(224, 330, 14)[..., None]
+                feed[10 + i * 346:340 + i * 346, 10:234] += t
             self.feeds.append(feed)
-        self.phone_body = shell(240, 520, 12, 40)
+        pic = body(244, 524, 7, 38)
+        H, W = pic.shape[:2]
+        wide = np.zeros((H, W + 6, 4), np.float32)
+        for y0, y1, x0 in ((110, 150, 0), (166, 206, 0), (136, 196, W)):
+            m = rounded(6, y1 - y0, 2)
+            wide[y0:y1, x0:x0 + 6, :3] = np.array(EDGE, np.float32) * m[..., None] * .8
+            wide[y0:y1, x0:x0 + 6, 3] = m * 255
+        self.phone_side, self.phone_body = wide, pic
+        self.phone_over = []
+        for active in (0, 2):
+            over = np.zeros((524, 244, 4), np.float32)
+            over[454:] = (16, 12, 11, 240)
+            over[454:, ..., :3] *= 240 / 255
+            for i in range(4):
+                paste(over, capsule(26, 26, BLUE if i == active else (96, 88, 84), 9), 26 + i * 52, 472)
+            paste(over, capsule(84, 24, (6, 6, 6)), 80, 12)
+            cv2.circle(over, (110, 24), 5, (46, 34, 30, 255), -1, cv2.LINE_AA)
+            self.phone_over.append(over)
         self.phone_names = [word(self.font, n, 92) for n in ("iPhone", "Android")]
-        self.ph_in, self.ph_out = 1532, 1558
+        self.ph_in, self.ph_out = 1532, 1550
 
     def phones(self, out, n):
         a, b = self.ph_in, self.ph_out
@@ -531,8 +696,11 @@ class Ending:
                 continue
             scroll = (2.6 + i * .9) * (n - a) + 200 * i
             M = np.array([[1, 0, 0], [0, 1, -scroll]], np.float64)
-            screen = cv2.warpAffine(self.feeds[i], M, (240, 520), flags=cv2.INTER_LINEAR)
-            pic = inset(self.phone_body, screen, 12, 0, 30)
+            screen = cv2.warpAffine(self.feeds[i], M, (244, 524), flags=cv2.INTER_LINEAR)
+            paste(screen, self.phone_over[i], 0, 0)
+            face = inset(self.phone_body, screen, 7, 0, 32)
+            pic = self.phone_side.copy()
+            pic[:, 3:-3] = face + pic[:, 3:-3] * (1 - face[..., 3:4] / 255)
             y = 480 + 900 * (1 - rise(t)) + 900 * fall(l)
             deg = side * (3 + 14 * (1 - rise(t)))
             lay(out, pic, [(x0 + side * 40 * (1 - rise(t)), y, 1.0, 1.0, deg)])
@@ -542,14 +710,40 @@ class Ending:
 
     # ---- browser
     def build_browser(self):
-        w, h = 900, 500
-        page = cover(self.art.tile(self.art.next("wall")), w, h).astype(np.float32)
-        page = page * np.linspace(1, .55, h, dtype=np.float32)[:, None, None]
-        self.br_pic = shell(w, h, 12, 18, top=44)
-        self.br_pic = inset(self.br_pic, page, 12, 44, 8)
+        w, h, top = 900, 500, 72
+        page = np.zeros((h, w, 3), np.float32) + (24, 18, 17)
+        hero = cover(self.art.tile(self.art.next("comedy")), w, 300).astype(np.float32)
+        hero *= np.linspace(.25, 1.1, w, dtype=np.float32)[None, :, None]
+        hero *= np.linspace(1, .16, 300, dtype=np.float32)[:, None, None]
+        page[:300] = hero
+        paste(page, word(self.font, "New this week", 44, upper=False), 34, 182)
+        self.br_cards, self.br_at = [], []
+        for i in range(4):
+            t = cover(self.art.tile(self.art.next("small")), 200, 150).astype(np.float32)
+            m = rounded(200, 150, 12)
+            pic = np.dstack([t * m[..., None], m * 255])
+            x = 34 + i * 216
+            self.br_cards.append(pic)
+            self.br_at.append((x + 100, 320 + 75))
+            paste(page, pic, x, 320)
+        pic = body(w, h, 10, 18, top=top)
+        pic = inset(pic, page, 10, top, 8)
         for i in range(3):
-            cv2.circle(self.br_pic, (34 + i * 26, 34), 7, (120, 110, 104, 255), -1, cv2.LINE_AA)
-        cv2.rectangle(self.br_pic, (150, 22), (760, 46), (60, 50, 46, 255), -1, cv2.LINE_AA)
+            cv2.circle(pic, (32 + i * 22, 28), 6, (120, 110, 104, 255), -1, cv2.LINE_AA)
+        paste_pic(pic, capsule(210, 34, (64, 54, 50), 12), 110, 12)
+        paste_pic(pic, sized(self.logo_mark, 18), 122, 20)
+        paste_pic(pic, word(self.font, self.name, 15, upper=False), 150, 18)
+        paste_pic(pic, capsule(170, 34, (40, 32, 30), 12), 328, 12)
+        paste_pic(pic, capsule(w - 150, 26, (20, 15, 14)), 110, 50)
+        lock = np.zeros((16, 14, 4), np.float32)
+        cv2.rectangle(lock, (1, 7), (12, 15), (200, 200, 200, 255), -1, cv2.LINE_AA)
+        cv2.ellipse(lock, (6, 7), (4, 5), 0, 180, 360, (200, 200, 200, 255), 2, cv2.LINE_AA)
+        paste_pic(pic, lock, 126, 55)
+        paste_pic(pic, word(self.font, "home.server/browse", 14, (190, 190, 190), upper=False), 146, 53)
+        self.br_pic = pic
+        self.br_top = top + 10
+        self.br_shadow = shade(int(pic.shape[1] * 1.5), int(pic.shape[0] * 1.5), .75)
+        self.br_card_shadow = shade(300, 220, .8)
         arrow = np.zeros((56, 40, 4), np.float32)
         pts = np.array([[4, 4], [4, 44], [14, 34], [22, 52], [30, 48], [22, 31], [36, 31]], np.int32)
         cv2.fillPoly(arrow, [pts], (248, 248, 248, 255), cv2.LINE_AA)
@@ -564,16 +758,27 @@ class Ending:
         size = .3 + .7 * spring((n - a) / 18, turns=1.1)
         away = ease((n - b) / 12)
         cy = 470.0
-        lay(out, self.br_pic, [(CX, cy, size * (1 - .15 * away), size * (1 - .15 * away), 0.0)], alpha=min(1.0, (n - a) / 4) * (1 - away))
+        s = size * (1 - .15 * away)
+        fade = min(1.0, (n - a) / 4) * (1 - away)
+        lay(out, self.br_shadow, [(CX, cy + 26, s, s, 0.0)], alpha=fade)
+        lay(out, self.br_pic, [(CX, cy, s, s, 0.0)], alpha=fade)
+        H, W = self.br_pic.shape[:2]
+        cardx, cardy = self.br_at[2]
+        px, py = CX + (cardx + 10 - W / 2) * s, cy + (cardy + self.br_top - H / 2) * s
         t = (n - a - 8) / 15
-        x = 1600 + (CX - 1600) * ease(t)
-        y = 880 + (cy + 30 - 880) * ease(t)
+        x = 1600 + (px - 1600) * ease(t)
+        y = 880 + (py - 880) * ease(t)
+        lift = ease((n - a - 17) / 7)
+        if lift > 0:
+            big = s * (1 + .1 * lift)
+            lay(out, self.br_card_shadow, [(px, py + 14, big, big, 0.0)], alpha=fade * lift)
+            lay(out, self.br_cards[2], [(px, py - 8 * lift, big, big, 0.0)], alpha=fade)
         click = n - a - 23
         ring = clamp(click / 7)
         if click > 0:
             r = int(16 + 70 * ring)
             layer = np.zeros((VH, VW, 3), np.float32)
-            cv2.circle(layer, (int(CX), int(cy + 30)), r, WHITE, 4, cv2.LINE_AA)
+            cv2.circle(layer, (int(px), int(py)), r, WHITE, 4, cv2.LINE_AA)
             out[:] = out + layer * (1 - ring) * .8
             d = 1 - .12 * math.sin(clamp(click / 5) * math.pi)
         else:
