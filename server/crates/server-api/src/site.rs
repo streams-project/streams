@@ -14,7 +14,8 @@ use tower_http::services::{ServeDir, ServeFile};
 use tower_http::set_header::SetResponseHeaderLayer;
 
 /// Scripts come only from this site. Video and images may come from anywhere a finder or the data
-/// set names, and hls.js builds its worker from a blob.
+/// set names, and hls.js builds its worker from a blob. The TV page runs under this same policy, so
+/// a set below Chrome 97, which does not know 'wasm-unsafe-eval', shows that page's notice.
 const POLICY: &str = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; \
     style-src 'self' 'unsafe-inline'; img-src * data:; media-src * blob:; connect-src *; \
     worker-src blob:; frame-ancestors 'none'; base-uri 'none'";

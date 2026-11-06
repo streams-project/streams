@@ -110,6 +110,18 @@ fn copy_tv_media(assets: &Path, tv: &Path) -> Result<()> {
     Ok(())
 }
 
+/// The core for a television: next to this program in `bin/`, or where cargo left it.
+fn core_wasm(stack: &Stack) -> Option<PathBuf> {
+    [
+        stack.programs.join("core.wasm"),
+        stack
+            .programs
+            .join("../wasm32v1-none/wasm/bridge_wasm.wasm"),
+    ]
+    .into_iter()
+    .find(|path| path.exists())
+}
+
 /// The built site, with this brand's look and mark laid over it.
 fn publish_site(stack: &Stack) -> Result<PathBuf> {
     let built = stack.root.join("apps/web/dist");
@@ -121,6 +133,14 @@ fn publish_site(stack: &Stack) -> Result<PathBuf> {
     copy_folder(&built, &site)?;
     std::fs::write(site.join("brand.css"), stack.brand.css())?;
     copy_folder(&stack.root.join("apps/tv/page"), &site.join("tv"))?;
+    // Without it the website still runs, and the TV page says what is missing.
+    match core_wasm(stack) {
+        // Written fresh, because a copy can keep the build's time. A browser that once got the
+        // website's page at this address asks if it changed since that page's date, and a file
+        // dated before it gets a 304, which keeps the page in place of the core for good.
+        Some(core) => std::fs::write(site.join("tv/core.wasm"), std::fs::read(core)?)?,
+        None => println!("The TV core is not built, run ./up from the repository root."),
+    }
     let assets = stack.root.join(&stack.brand.assets);
     copy_tv_media(&assets, &site.join("tv"))?;
     for (from, to) in [
@@ -332,6 +352,9 @@ fn install(stack: &Stack) -> Result<()> {
             std::fs::copy(from, bin.join(name))?;
         }
     }
+    if let Some(core) = core_wasm(stack).filter(|core| *core != bin.join("core.wasm")) {
+        std::fs::copy(core, bin.join("core.wasm"))?;
+    }
     println!("{} is ready", target.display());
     Ok(())
 }
@@ -362,6 +385,7 @@ fn doctor(stack: &Stack) -> bool {
         stack.root.join("apps/web/dist/index.html").exists(),
         "the website is built",
     );
+    good &= line(core_wasm(stack).is_some(), "the TV core is built");
     good &= line(
         !is_root(),
         "not running as root, which the database refuses",

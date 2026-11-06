@@ -10,6 +10,8 @@ command -v cargo >/dev/null || {
 command -v trunk >/dev/null || cargo install trunk --locked
 
 cargo build --release --locked -p launcher -p server -p finder-open-films
+# The core for a television runs alone, so it leaves out the offline layer.
+cargo build --locked --profile wasm -p bridge-wasm --target wasm32v1-none --no-default-features
 (cd apps/web && trunk build --release)
 target_dir=${CARGO_TARGET_DIR:-target}
 "$target_dir/release/launcher" install

@@ -3,8 +3,11 @@
 One TV app for Samsung, LG, Fire TV on Vega, Titan OS, Vizio and Hisense (VIDAA, now HomeOS). Each
 is a web app on that system, so a new brand of television needs no new app.
 
-Part of an open video platform. Status: groundwork. The signed out opening
-scene and landing below run as a live page; nothing else runs yet.
+Part of an open video platform. Status: groundwork. `page/` is the live app,
+served at `/tv/`: plain ES5 files with no build step, running the core from
+`core.wasm`, which `./up` builds and publishes beside them. So far it draws the
+signed out door. Run `CORE_WASM=<file> node --test test/host.test.ts` to drive
+`page/host.js` against the real module.
 
 Licensed under either of MIT or Apache 2.0, at your option.
 

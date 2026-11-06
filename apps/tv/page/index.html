@@ -9,23 +9,27 @@
   </head>
   <body>
     <div id="stage">
-      <header id="tabs">
-        <button class="round" data-go="/" aria-label="Home">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z" /></svg>
-        </button>
-        <button class="tab">Trending Now</button>
-      </header>
-      <main id="card">
-        <video id="film" src="showreel.mp4" loop playsinline preload="auto"></video>
-        <button id="help" class="link">Get Help</button>
-        <div id="ask">
-          <button id="sign-in" class="pill" data-go="/sign-in">Sign In</button>
-          <button id="join" class="pill" data-go="/">Get Started</button>
-        </div>
-      </main>
-      <aside id="peek"></aside>
+      <div id="door" class="off">
+        <header id="tabs">
+          <button class="round" data-go="/" aria-label="Home">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z" /></svg>
+          </button>
+          <button class="tab">Trending Now</button>
+        </header>
+        <main id="card">
+          <video id="film" loop playsinline preload="auto"></video>
+          <button id="help" class="link">Get Help</button>
+          <div id="ask">
+            <button id="sign-in" class="pill" data-go="/sign-in">Sign In</button>
+            <button id="join" class="pill" data-go="/sign-in">Get Started</button>
+          </div>
+        </main>
+        <aside id="peek"></aside>
+        <video id="opening" class="done" playsinline></video>
+      </div>
+      <div id="notice" class="off"></div>
     </div>
-    <video id="opening" src="opening.mp4" playsinline></video>
+    <script src="host.js"></script>
     <script src="tv.js"></script>
   </body>
 </html>
