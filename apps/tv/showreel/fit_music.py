@@ -15,7 +15,8 @@ root, ffmpeg = Path(sys.argv[1]), sys.argv[2]
 LENGTH = float(sys.argv[3]) if len(sys.argv) > 3 else 750 / 24
 # Bars of the opening played again at the end, so the track comes back to how it began. 0 is none.
 REPRISE = int(sys.argv[4]) if len(sys.argv) > 4 else 0
-out = root / "fitted"
+TAKE = sys.argv[5] if len(sys.argv) > 5 else "*"
+out = root / ("fitted" if len(sys.argv) < 7 else sys.argv[6])
 out.mkdir(exist_ok=True)
 
 def onset(mono, sr):
@@ -42,7 +43,7 @@ def beats_of(env, lag):
     return np.arange(phase, len(env), lag)
 
 report = []
-for path in sorted(glob.glob(str(root / "music" / "*" / "*.flac"))):
+for path in sorted(glob.glob(str(root / "music" / TAKE / "*.flac"))):
     y, sr = sf.read(path, always_2d=True)
     mono = y.mean(1)
     rms = 20 * np.log10(np.sqrt((mono ** 2).mean()) + 1e-9)

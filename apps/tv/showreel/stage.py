@@ -16,9 +16,18 @@ def ease(t):
     t = clamp(t)
     return t * t * t * (t * (t * 6 - 15) + 10)
 
+def bezier(x1, y1, x2, y2):
+    """A speed curve as a table, so it is cheap to read at every frame."""
+    u = np.linspace(0, 1, 2001)
+    x = 3 * (1 - u) ** 2 * u * x1 + 3 * (1 - u) * u ** 2 * x2 + u ** 3
+    y = 3 * (1 - u) ** 2 * u * y1 + 3 * (1 - u) * u ** 2 * y2 + u ** 3
+    return x, y
+
+RISE_X, RISE_Y = bezier(.2, 0, .06, 1)
+
 def rise(t):
-    """Quick then settling."""
-    return 1 - (1 - clamp(t)) ** 4
+    """Eases away from rest, then a long settle. It never starts at full speed."""
+    return float(np.interp(clamp(t), RISE_X, RISE_Y))
 
 def fall(t):
     """Slow then quick, for something leaving."""

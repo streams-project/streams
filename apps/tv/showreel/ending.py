@@ -112,18 +112,23 @@ class Pour:
             n += STEP
 
     def draw(self, out, n, alpha=1.0, light=1.0, sigma=0.0, smear=True):
-        i = int(round((n - self.first) / STEP))
-        if i < 0:
+        spot = (n - self.first) / STEP
+        if spot < 0:
             return
-        i = min(i, len(self.track) - 1)
-        now = self.track[i]
-        before = self.track[max(i - 1, 0)]
+        i = min(int(spot), len(self.track) - 2)
+        part = spot - i
+        now = self.track[i + 1]
+        before = self.track[i]
         for k, pose in enumerate(now):
-            x, y, a = pose
+            if k >= len(before):
+                continue
+            ox, oy, oa = before[k]
+            # The film can run slower than the steps, so a body is read between two of them.
+            x, y, a = ox + (pose[0] - ox) * part, oy + (pose[1] - oy) * part, oa + (pose[2] - oa) * part
             d = math.degrees(a)
             poses = [(x, y, 1.0, 1.0, d)]
-            if smear and k < len(before):
-                bx, by, ba = before[k]
+            if smear:
+                bx, by, ba = ox, oy, oa
                 if math.hypot(x - bx, y - by) > 7:
                     poses = [(bx + (x - bx) * t, by + (y - by) * t, 1.0, 1.0, math.degrees(ba + (a - ba) * t)) for t in (0, .33, .66, 1)]
             lay(out, self.items[k], poses, alpha=alpha, light=light, sigma=sigma)

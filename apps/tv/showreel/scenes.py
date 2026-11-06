@@ -11,7 +11,7 @@ from render import Art, backdrop, foot, smooth, wall_light, wall_tiles
 from stage import (CX, CY, VH, VW, Card, bounce, clamp, cover, ease, fall, glow, lay, lay_card, lockup, project,
                    rise, rounded, split_lockup, spring, word)
 
-SHUTTER = .45  # film frames a fast card smears across
+SHUTTER = .38  # film frames a fast card smears across
 
 def jitter(seed, a=1.0):
     """A fixed small number for this seed, so a card always keeps its own timing."""
@@ -88,8 +88,8 @@ class Head:
             x = CX + (x - CX) * s
             sx *= 1 - .04 * ease(go); sy = sx; alpha *= 1 - ease(go); sigma += 8 * ease(go)
         elif style == "slam":
-            t = (n - self.start - i * 3) / 7
-            s = 1.8 - .8 * clamp(t) ** 2; sx = sy = s; alpha = 1.0 if t > 0 else 0.0
+            t = (n - self.start - i * 3) / 11
+            s = 1.8 - .8 * rise(t); sx = sy = s; alpha = ease(t * 2.5)
             x -= 1500 * fall(go)
         elif style == "soft":
             t = (n - self.start - i * 4) / 30
@@ -102,8 +102,7 @@ class Head:
             sx *= 1 - ease(go); sy = sx
         elif style == "gate":
             t = (n - self.start - i * 6) / 12
-            flick = 1.0 if t > 1 else (.35 + .65 * (math.sin(n * 2.7 + i) > -.2)) * clamp(t * 1.6)
-            alpha = flick; sigma = 4 * (1 - clamp(t))
+            alpha = ease(t); sigma = 6 * (1 - ease(t))
             alpha *= 1 - ease(go)
         elif style == "hop":
             t = (n - self.start - i * 3.4) / 24
@@ -279,7 +278,7 @@ class Action:
 
     def shake(self, n):
         hit = n - (self.start + 13)
-        return 0.0 if hit < 0 else 14 * math.exp(-hit / 5) * math.sin(hit * 1.9)
+        return 0.0 if hit < 0 else 8 * math.exp(-hit / 6) * math.sin(hit * 1.5)
 
     def pose(self, c, n):
         wait = 0 if c.big else 7 + c.order * 3.4
