@@ -5,10 +5,16 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-/// The repository root, the folder holding the workspace manifest.
+/// The `platform` folder, which holds the core, the contract and the bridges.
 #[must_use]
 pub fn root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
+}
+
+/// The repository root, which holds the workspace manifest, the lock and the toolchain.
+#[must_use]
+pub fn workspace() -> PathBuf {
+    root().join("..")
 }
 
 /// The cargo running this build, so a nested build uses the same one.

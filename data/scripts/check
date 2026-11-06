@@ -6,4 +6,4 @@ uv run --locked ruff format --check src tests
 uv run --locked ruff check src tests
 uv run --locked --extra full pytest
 uv run --locked databuild scan .
-uv run --locked reuse lint
+(cd .. && uv run --project data --locked reuse lint)

@@ -3,7 +3,8 @@
 # repository's own target folder. A caller with its own folder passes TARGET_DIR=<folder>. The
 # library is linked from that same folder, and cargo is told to write there, so the two cannot
 # disagree and no fixed target path is assumed.
-ROOT := ../..
+ROOT := ../../..
+PLATFORM := ../..
 TARGET_DIR ?= $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),$(ROOT)/target)
 OUT := $(TARGET_DIR)/terminal
 LIBRARY := $(TARGET_DIR)/native/libbridge_c.a
@@ -14,9 +15,9 @@ ifeq ($(shell uname -s),Linux)
 LDLIBS ?= -lgcc_s -lpthread -ldl -lm
 endif
 
-$(OUT)/terminal: terminal.c $(ROOT)/bridges/c/core.h library
+$(OUT)/terminal: terminal.c $(PLATFORM)/bridges/c/core.h library
 	mkdir -p '$(OUT)'
-	$(CC) $(CFLAGS) -I$(ROOT)/bridges/c terminal.c '$(LIBRARY)' $(LDLIBS) -o '$@'
+	$(CC) $(CFLAGS) -I$(PLATFORM)/bridges/c terminal.c '$(LIBRARY)' $(LDLIBS) -o '$@'
 
 .PHONY: library
 library:

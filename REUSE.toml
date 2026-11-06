@@ -1,0 +1,14 @@
+version = 1
+
+[[annotations]]
+path = "**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 The platform contributors"
+SPDX-License-Identifier = "MIT OR Apache-2.0"
+
+# The name and marks are the original project's own. Everything else here is open.
+[[annotations]]
+path = "brand/streams/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2026 The Streams project"
+SPDX-License-Identifier = "LicenseRef-Brand"

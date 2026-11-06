@@ -10,7 +10,7 @@ use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
 use kit_core::host::{Mode, run};
-use kit_core::paths::{cargo, root, target_folder, target_root};
+use kit_core::paths::{cargo, root, target_folder, target_root, workspace};
 use kit_core::sessions::{common, scripts};
 use kit_core::wasm::{I32, Signature, scan_file, shape};
 use serde_json::{Value, json};
@@ -145,10 +145,10 @@ fn a_changed_clock_changes_the_bytes_so_the_compare_can_fail() {
 fn linked_module(extra: &[&str], target_dir: &Path) -> PathBuf {
     let built = Command::new(cargo())
         .args(extra)
-        .args(["build", "--locked", "--offline", "--release"])
+        .args(["build", "--locked", "--offline", "--profile", "wasm"])
         .args(["-p", "bridge-wasm", "--target", "wasm32v1-none"])
         .arg("--manifest-path")
-        .arg(root().join("Cargo.toml"))
+        .arg(workspace().join("Cargo.toml"))
         .arg("--target-dir")
         .arg(target_dir)
         .output()
@@ -158,7 +158,7 @@ fn linked_module(extra: &[&str], target_dir: &Path) -> PathBuf {
         "{}",
         String::from_utf8_lossy(&built.stderr)
     );
-    target_dir.join("wasm32v1-none/release/bridge_wasm.wasm")
+    target_dir.join("wasm32v1-none/wasm/bridge_wasm.wasm")
 }
 
 #[test]
@@ -229,7 +229,7 @@ fn h115_the_linked_module_runs_on_the_first_version_of_the_format() {
 
 #[test]
 fn h115_the_feature_list_of_the_linked_module_shows_mutable_globals_only() {
-    let extra = ["--config", "profile.release.strip=false"];
+    let extra = ["--config", "profile.wasm.strip=false"];
     let bytes = fs::read(linked_module(&extra, &target_folder("kit-unstripped"))).unwrap();
     let mut found = BTreeSet::new();
     scan_file(&bytes, &mut found).unwrap();
@@ -250,7 +250,7 @@ fn h111_no_binding_generator_reaches_a_bridge() {
     let output = Command::new(cargo())
         .args(["tree", "--locked", "--offline", "--edges", "normal"])
         .args(["--prefix", "none", "--format", "{p}", "--manifest-path"])
-        .arg(root().join("Cargo.toml"))
+        .arg(workspace().join("Cargo.toml"))
         .args(["-p", "bridge-c", "-p", "bridge-wasm"])
         .output()
         .expect("cargo tree runs");
@@ -290,7 +290,7 @@ fn h111_no_binding_generator_reaches_a_bridge() {
 
 #[test]
 fn h116_the_toolchain_is_pinned_to_one_exact_version() {
-    let text = fs::read_to_string(root().join("rust-toolchain.toml")).unwrap();
+    let text = fs::read_to_string(workspace().join("rust-toolchain.toml")).unwrap();
     let line = text
         .lines()
         .find(|line| line.starts_with("channel"))

@@ -1,23 +1,20 @@
-"""The workflow runs every check, and no cross check can go quiet when a sibling is missing."""
+"""The workflow runs every check, and no cross check can go quiet when a folder is missing."""
 
 from pathlib import Path
 
 import pytest
 
 from . import siblings
-from .siblings import NEEDED, WORKFLOW
+from .siblings import CHECK, NEEDED, WORKFLOW
 
 TESTS = Path(__file__).resolve().parent
 
 
-def test_the_workflow_checks_out_every_repository_the_tests_read():
-    text = WORKFLOW.read_text()
+def test_the_workflow_runs_the_one_check_and_it_reaches_this_folder():
+    assert "./check" in WORKFLOW.read_text()
+    assert "cd data && ./scripts/check" in CHECK.read_text()
     for name in NEEDED:
-        assert f"{{{{ github.repository_owner }}}}/{name}" in text, name
-        assert f"path: {name}-checkout" in text, name
-        # The tests look one folder above this repository, which is where the move puts it.
-        assert f"mv {name}-checkout ../{name}" in text, name
-    assert "./scripts/check" in text
+        assert (siblings.BESIDE / name).is_dir(), name
 
 
 def test_no_test_answers_a_missing_sibling_with_a_skip():
@@ -43,7 +40,7 @@ def test_only_one_place_builds_the_path_of_a_sibling():
 def test_a_missing_sibling_fails_and_names_itself(tmp_path, monkeypatch):
     monkeypatch.setattr(siblings, "BESIDE", tmp_path)
     for name in NEEDED:
-        with pytest.raises(AssertionError, match=f"the {name} repository must sit at"):
+        with pytest.raises(AssertionError, match=f"the {name} folder must sit at"):
             siblings.beside(name)
         (tmp_path / name).mkdir()
         assert siblings.beside(name) == tmp_path / name

@@ -21,7 +21,7 @@ import cv2, numpy as np, resvg_py
 from PIL import Image
 
 VW, VH, FPS = 1920, 1080, 60
-ICON = "~/Desktop/streams-stream-play-icons/assets-logos/source-icon.svg"
+ICON = Path(__file__).resolve().parents[3] / "brand" / "streams" / "mark.svg"
 BG = np.array([15, 7, 6], np.float32)
 LOCK_W, RATIO, OVER, BIG = 760.0, 3.922, 2.2, 1.4
 LOAD = 2.6

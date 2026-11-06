@@ -1,8 +1,7 @@
-"""The repositories that must sit next to this one, and the only place their paths are built.
+"""The folders this one reads from the same repository, and the only place their paths are built.
 
-A cross check that cannot see its sibling fails and says which one is missing. It does not skip:
-a skip made the ledger gate and the two cross checks silently absent from every CI run, which
-checked out this repository alone.
+A cross check that cannot see one fails and says which is missing. It does not skip: a skip once
+made the ledger gate and the two cross checks silently absent from every CI run.
 """
 
 from __future__ import annotations
@@ -11,7 +10,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parents[1]
 BESIDE = HERE.parent
-WORKFLOW = HERE / ".github" / "workflows" / "check.yml"
+WORKFLOW = BESIDE / ".github" / "workflows" / "check.yml"
+CHECK = BESIDE / "check"
 
 # Each name, and what this repository reads from it.
 NEEDED = {
@@ -26,8 +26,8 @@ def beside(name: str) -> Path:
     folder = BESIDE / name
     if not folder.is_dir():
         raise AssertionError(
-            f"the {name} repository must sit at {folder}, because this repository reads "
-            f"{NEEDED[name]}. .github/workflows/check.yml checks it out; a run by hand needs it "
+            f"the {name} folder must sit at {folder}, because this folder reads "
+            f"{NEEDED[name]}. It is part of this repository; a run by hand needs it "
             f"cloned next to this folder."
         )
     return folder

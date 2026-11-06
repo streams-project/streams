@@ -2,8 +2,8 @@
   "seed": 20261105,
   "size": { "width": 1920, "height": 1080 },
   "brand": {
-    "wordmark": "../brand/wordmark.svg",
-    "mark": "../brand/mark.svg"
+    "wordmark": "../../../brand/streams/wordmark.svg",
+    "mark": "../../../brand/streams/mark.svg"
   },
   "colours": {
     "nearBlack": "#07070d",

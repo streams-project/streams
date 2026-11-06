@@ -7,7 +7,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use kit_core::paths::{cargo, root, target_folder};
+use kit_core::paths::{cargo, root, target_folder, workspace};
 use kit_core::scan::{addresses, code_only, scan};
 use kit_core::wasm::scan_file;
 
@@ -53,7 +53,7 @@ fn tree(krate: &str, extra: &[&str]) -> Vec<String> {
     let output = Command::new(cargo())
         .args(["tree", "--locked", "--offline", "--edges", "normal"])
         .args(["--prefix", "none", "--format", "{p}", "--manifest-path"])
-        .arg(root().join("Cargo.toml"))
+        .arg(workspace().join("Cargo.toml"))
         .args(["-p", krate])
         .args(extra)
         .output()
@@ -150,7 +150,7 @@ fn wasm_build(target_dir: &Path, extra: &[&str]) -> std::process::Output {
             "wasm32v1-none",
         ])
         .args(["-p", "core", "-p", "offline", "--manifest-path"])
-        .arg(root().join("Cargo.toml"))
+        .arg(workspace().join("Cargo.toml"))
         .arg("--target-dir")
         .arg(target_dir)
         .args(extra)
@@ -302,7 +302,7 @@ fn build_copy(name: &str, plant: &str) -> std::process::Output {
             &copy.join(krate).join("src"),
         );
     }
-    let manifest = fs::read_to_string(root().join("Cargo.toml")).unwrap();
+    let manifest = fs::read_to_string(workspace().join("Cargo.toml")).unwrap();
     let start = manifest.find("members = [").unwrap();
     let end = start + manifest[start..].find(']').unwrap() + 1;
     let manifest = format!(
@@ -311,9 +311,9 @@ fn build_copy(name: &str, plant: &str) -> std::process::Output {
         &manifest[end..]
     );
     fs::write(copy.join("Cargo.toml"), manifest).unwrap();
-    fs::copy(root().join("Cargo.lock"), copy.join("Cargo.lock")).unwrap();
+    fs::copy(workspace().join("Cargo.lock"), copy.join("Cargo.lock")).unwrap();
     fs::copy(
-        root().join("rust-toolchain.toml"),
+        workspace().join("rust-toolchain.toml"),
         copy.join("rust-toolchain.toml"),
     )
     .unwrap();

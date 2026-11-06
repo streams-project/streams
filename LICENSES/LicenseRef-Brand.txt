@@ -1,0 +1,6 @@
+Copyright 2026 The Streams project. All rights reserved.
+
+The Streams name, the play mark, the wordmark and every other file in brand/streams are not covered
+by the MIT or Apache 2.0 licences of this repository. They identify the original project. You may
+keep them in an unchanged copy of this repository, and you may not use them to identify your own
+product. See TRADEMARKS.md.

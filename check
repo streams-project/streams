@@ -1,0 +1,30 @@
+#!/bin/sh
+# Every check this repository has, in one place. CI runs this file and nothing else.
+set -eu
+cd "$(dirname "$0")"
+
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --locked -- -D warnings
+cargo test --workspace --locked
+
+# The core still fits a browser and a television.
+cargo build --locked -p core -p contract -p offline --target wasm32v1-none
+cargo clippy --locked -p bridge-wasm --target wasm32v1-none -- -D warnings
+cargo test --locked -p bridge-c --no-default-features
+
+# The contract, its ledger and what is generated from it.
+(
+  cd platform
+  python3 tools/ledger.py check
+  python3 tools/test_ledger.py
+  cargo run --locked -p contract-gen -- write
+  git diff --exit-code -- contract/generated
+  test -z "$(git status --porcelain -- contract/generated)"
+  python3 tools/test_fake_server.py
+)
+
+# Every id a server test name claims must be a real ledger row.
+(cd server && python3 scripts/check_test_ids.py)
+
+# The data builder, which also cross checks the contract and the server.
+(cd data && ./scripts/check)
