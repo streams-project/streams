@@ -159,5 +159,12 @@
   "settings.account_name": "Name",
   "settings.server": "Server",
   "settings.sign_out_everywhere": "Sign out everywhere",
-  "settings.sign_out_everywhere.ask": "Sign out of this TV and every other device?"
+  "settings.sign_out_everywhere.ask": "Sign out of this TV and every other device?",
+  "problem.not_found": "Page Not Found",
+  "problem.not_found.help": "We could not find that page.",
+  "problem.upgrade": "Update Required",
+  "problem.upgrade.help": "Update this app to continue watching {brand}.",
+  "problem.offline": "Cannot Reach Server",
+  "problem.offline.help": "Check your connection and try again.",
+  "problem.retry": "Try Again"
 }
