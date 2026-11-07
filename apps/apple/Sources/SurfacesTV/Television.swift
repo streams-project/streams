@@ -1,20 +1,38 @@
-import CoreHost
+import Contract
+import Ports
 import SwiftUI
 
 public struct Television: View {
-    public init() {}
+    public let shell: Shell
+
+    public init(shell: Shell) {
+        self.shell = shell
+    }
 
     public var body: some View {
+        let seen = shell.seen
         ZStack {
-            Color(red: 11.0 / 255.0, green: 11.0 / 255.0, blue: 16.0 / 255.0)
-                .ignoresSafeArea()
-            VStack(spacing: 24) {
-                Text("core_abi()")
-                    .font(.system(size: 44, weight: .medium))
-                    .foregroundStyle(Color(red: 166.0 / 255.0, green: 166.0 / 255.0, blue: 179.0 / 255.0))
-                Text("\(NativeCore.abi())")
-                    .font(.system(size: 120, weight: .bold))
-                    .foregroundStyle(.white)
+            BrandTheme.back.ignoresSafeArea()
+
+            if seen.server.isEmpty {
+                ServerAddress(shell: shell)
+            } else if let target = seen.route?.target {
+                switch target {
+                case .start:
+                    Door(shell: shell, seen: seen)
+                case .signIn:
+                    SignIn(shell: shell, seen: seen)
+                case .profiles:
+                    Profiles(shell: shell, seen: seen)
+                case .home, .kidsHome, .screen:
+                    Browse(shell: shell, seen: seen)
+                case .wait:
+                    Color.clear
+                default:
+                    Browse(shell: shell, seen: seen)
+                }
+            } else {
+                Color.clear
             }
         }
     }

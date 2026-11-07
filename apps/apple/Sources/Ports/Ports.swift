@@ -33,6 +33,7 @@ public enum Answer: Sendable {
 
 public protocol Network: AnyObject, Sendable {
     func send(_ call: Call, done: @escaping @Sendable (Answer) -> Void)
+    func watch(_ changed: @escaping @Sendable (Bool) -> Void)
 }
 
 public protocol Secrets: AnyObject, Sendable {
@@ -41,10 +42,18 @@ public protocol Secrets: AnyObject, Sendable {
     func drop(_ name: String)
 }
 
+public protocol Store: AnyObject, Sendable {
+    func get(_ key: String) -> String?
+    func put(_ key: String, _ value: String)
+    func delete(_ key: String)
+    func keys(_ prefix: String) -> [String]
+}
+
 public protocol Player: AnyObject {
     func command(_ given: DriverCommand)
     func listen(_ report: @escaping (Int64, DriverEvent) -> Void)
     func picture(_ context: Any) -> Any
+    func now() -> Int64
     func lift(_ share: Float)
     func wordsLook(size: Int, color: String, background: String)
 }
@@ -52,6 +61,7 @@ public protocol Player: AnyObject {
 public protocol Reel: AnyObject {
     func picture(_ context: Any, url: String, loop: Bool, ended: @escaping () -> Void) -> Any
     func release(_ picture: Any)
+    func hold(_ still: Bool)
 }
 
 @Observable
@@ -92,4 +102,22 @@ public protocol Shell: AnyObject {
     func keep(_ profile: Profile)
     func keepAll(_ profiles: [Profile])
     func speak(_ language: String?)
+}
+
+extension Shell {
+    public func read(_ path: String) async -> String? {
+        await withCheckedContinuation { continuation in
+            ask(path) { status, text in
+                continuation.resume(returning: (200...299).contains(status) ? text : nil)
+            }
+        }
+    }
+
+    public func write(_ method: String, _ path: String, _ body: String) async -> String? {
+        await withCheckedContinuation { continuation in
+            send(method, path, body) { status, text in
+                continuation.resume(returning: (200...299).contains(status) ? text : nil)
+            }
+        }
+    }
 }
