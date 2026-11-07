@@ -93,9 +93,10 @@ fn facts(detail: &TitleDetail) -> String {
 #[component]
 pub fn Details() -> impl IntoView {
     let shared = expect_context::<Shared>();
-    let listed = RwSignal::new(detail.in_list);
+    let listed = RwSignal::new(false);
     move || {
         let detail = shared.detail.get()?;
+        listed.set(detail.in_list);
         let picture = image(
             &detail.images,
             &[ImageRole::Backdrop, ImageRole::Still, ImageRole::Poster],
