@@ -109,6 +109,7 @@ fun UpgradeProblem(seen: Seen) {
 /** Draws `Browse`, or the offline problem screen when the target screen stays missing for 8 seconds. */
 @Composable
 fun BrowseOrProblem(shell: Shell, seen: Seen) {
+    keptWords = seen.words
     val target = seen.route?.target
     val wanted = when (target) {
         Target.HOME -> "home"

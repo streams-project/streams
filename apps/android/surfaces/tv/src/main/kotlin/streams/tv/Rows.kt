@@ -53,6 +53,7 @@ private fun Poster(tile: Tile, modifier: Modifier) {
     Box(modifier.size(311.ref, 504.ref).clip(RoundedCornerShape(12.ref)).background(Raised)) {
         val url = tall(tile.images)
         if (url != null) Art(url, Modifier.fillMaxSize())
+        TileBadges(tile, Modifier.align(Alignment.BottomStart).padding(12.ref))
     }
 }
 
@@ -65,6 +66,7 @@ private fun OpenCard(tile: Tile) {
             Art(url, Modifier.fillMaxSize())
         }
         Box(Modifier.align(Alignment.BottomStart).fillMaxWidth().height(200.ref).background(CardFoot))
+        TileBadges(tile, Modifier.align(Alignment.BottomStart).padding(start = 24.ref, bottom = 78.ref))
         Text(
             tile.name,
             Modifier.align(Alignment.BottomStart).padding(start = 24.ref, bottom = 16.ref).width(856.ref),
@@ -80,6 +82,7 @@ private fun OpenCard(tile: Tile) {
 /** The row that owns the screen: its focused title opens wide with the next ones beside it. */
 @Composable
 fun OpenRow(shell: Shell, words: Map<String, String>, store: DetailStore, section: Section, at: Int) {
+    keptWords = words
     val tiles = section.tiles.orEmpty()
     val tile = tiles[at.coerceAtMost(tiles.lastIndex)]
     val step = with(LocalDensity.current) { STEP.ref.toPx() }

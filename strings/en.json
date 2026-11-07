@@ -166,5 +166,7 @@
   "problem.upgrade.help": "Update this app to continue watching {brand}.",
   "problem.offline": "Cannot Reach Server",
   "problem.offline.help": "Check your connection and try again.",
-  "problem.retry": "Try Again"
+  "problem.retry": "Try Again",
+  "badge.new": "New",
+  "badge.ranked": "#{rank}"
 }
