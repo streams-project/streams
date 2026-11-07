@@ -9,6 +9,8 @@ members = [
     "platform/bridges/wasm",
     "platform/base/net-guard",
     "platform/kit/core",
+    "platform/games/host",
+    "platform/games/bench",
     "server/crates/*",
     "finder/service",
     "finder/open-films",
