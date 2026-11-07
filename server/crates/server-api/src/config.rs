@@ -101,6 +101,10 @@ pub const SETTINGS: &[(&str, &str)] = &[
         "Folder of help text as <lang>.json. Without it help is off.",
     ),
     (
+        "SUBTITLE_URL",
+        "Address of a subtitle program, called with FINDER_TOKEN. Without it subtitle files are off.",
+    ),
+    (
         "CLIENT_ADDRESS_HEADER",
         "The one header the front proxy sets. Without it the peer address is used.",
     ),
@@ -128,6 +132,8 @@ pub struct Config {
     pub image_base: Option<String>,
     pub finder_urls: Vec<String>,
     pub finder_token: Option<String>,
+    /// A subtitle program. Off without it.
+    pub subtitle_url: Option<String>,
     pub site_address: Option<String>,
     pub web_root: Option<String>,
     pub mail_hook_secret: Option<String>,
@@ -260,6 +266,7 @@ impl Config {
             note("visitors", "ACCOUNTS_REQUIRED=false needs a visitor tier");
         }
         let live_settings = value("LIVE_SETTINGS").map(PathBuf::from);
+        let subtitle_url = value("SUBTITLE_URL");
         let help_dir = value("HELP_DIR").map(PathBuf::from);
         if help_dir.is_none() {
             note("help", "HELP_DIR is not set");
@@ -270,6 +277,7 @@ impl Config {
         }
         Self {
             listen,
+            subtitle_url,
             data_manifest,
             data_keys,
             index_path,

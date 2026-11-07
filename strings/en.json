@@ -197,5 +197,7 @@
   "help.check.fail": "{brand} did not answer.",
   "help.reload.hint": "Starts {brand} again from the first page.",
   "help.exit.hint": "Closes the {brand} application.",
-  "help.sign_out.hint": "Signs out of your {brand} account on this device."
+  "help.sign_out.hint": "Signs out of your {brand} account on this device.",
+  "nav.games": "Games",
+  "games.soon": "Games are on the way."
 }

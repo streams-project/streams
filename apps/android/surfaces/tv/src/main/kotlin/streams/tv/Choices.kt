@@ -20,10 +20,18 @@ fun nameOf(track: Track, language: String): String {
 fun oneOfEach(tracks: List<Track>): List<Track> =
     tracks.groupBy { it.lang ?: it.id }.values.map { same -> same.firstOrNull { it.playing } ?: same.first() }
 
+/** The stream's own subtitles, then the server's files for languages the stream lacks. */
+fun linesOf(seen: Seen, files: List<Track>): List<Track> {
+    val own = oneOfEach(seen.text)
+    val chosen = files.any { it.playing }
+    val kept = if (chosen) own.map { it.copy(selected = false) } else own
+    return kept + files.filter { file -> own.none { it.lang == file.lang } }
+}
+
 /** The short list: this sound alone, this sound with its subtitles, and everything else. */
-fun choicesOf(seen: Seen): List<Choice> {
+fun choicesOf(seen: Seen, files: List<Track>): List<Choice> {
     val sounds = oneOfEach(seen.audio)
-    val lines = oneOfEach(seen.text)
+    val lines = linesOf(seen, files)
     if (sounds.size < 2 && lines.isEmpty()) return emptyList()
     val sound = sounds.firstOrNull { it.playing } ?: sounds.firstOrNull() ?: return emptyList()
     val reading = lines.firstOrNull { it.playing }

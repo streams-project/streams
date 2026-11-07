@@ -170,5 +170,6 @@
   "title.season.number": "{n}. Sezon",
   "title.season.one": "{n} Sezon",
   "title.resume": "Devam et",
-  "title.continue_episode": "{n}. bölüme devam et"
+  "title.continue_episode": "{n}. bölüme devam et",
+  "nav.games": "Oyunlar"
 }

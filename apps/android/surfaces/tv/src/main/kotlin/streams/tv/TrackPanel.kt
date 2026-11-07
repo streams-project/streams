@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import contract.ActionSelectAudio
-import contract.ActionSelectText
 import contract.Track
 import streams.ports.Seen
 import streams.ports.Shell
@@ -36,9 +35,9 @@ class TrackPanelState {
     }
 
     /** The panel takes every key while it is open. */
-    fun press(word: Word, shell: Shell, seen: Seen) {
+    fun press(word: Word, shell: Shell, seen: Seen, files: List<Track>, chooseLine: (Track?) -> Unit) {
         val sounds = oneOfEach(seen.audio)
-        val lines = oneOfEach(seen.text)
+        val lines = linesOf(seen, files)
         val last = if (column == 0) sounds.lastIndex else lines.size
         when (word) {
             Word.BACK -> open = false
@@ -55,7 +54,7 @@ class TrackPanelState {
             Word.OK -> if (column == 0) {
                 sounds.getOrNull(line)?.let { shell.act(ActionSelectAudio(track = it.id)) }
             } else {
-                shell.act(ActionSelectText(track = lines.getOrNull(line - 1)?.id))
+                chooseLine(lines.getOrNull(line - 1))
             }
         }
     }
@@ -71,10 +70,10 @@ private fun Tracks(head: String, lines: List<String>, focus: Int, kept: Int, x: 
 
 /** Every sound and every subtitle, over the picture, which goes on playing. */
 @Composable
-fun TrackPanel(state: TrackPanelState, seen: Seen) {
+fun TrackPanel(state: TrackPanelState, seen: Seen, files: List<Track>) {
     val words = seen.words
     val sounds: List<Track> = oneOfEach(seen.audio)
-    val lines: List<Track> = oneOfEach(seen.text)
+    val lines: List<Track> = linesOf(seen, files)
     Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.8f))) {
         Tracks(
             words["player.audio"].orEmpty(),

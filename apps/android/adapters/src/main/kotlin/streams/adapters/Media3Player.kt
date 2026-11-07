@@ -134,6 +134,8 @@ class Media3Player(context: Context) : Player {
         )
     }
 
+    override fun now(): Long = engine.currentPosition
+
     override fun lift(share: Float) {
         val words = view?.subtitleView ?: return
         words.animate().translationY(-share * words.height).setDuration(LIFT_MS).start()

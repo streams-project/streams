@@ -170,5 +170,6 @@
   "title.season.number": "Säsong {n}",
   "title.season.one": "{n} säsong",
   "title.resume": "Återuppta",
-  "title.continue_episode": "Fortsätt avsnitt {n}"
+  "title.continue_episode": "Fortsätt avsnitt {n}",
+  "nav.games": "Spel"
 }

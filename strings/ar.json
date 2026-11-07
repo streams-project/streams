@@ -170,5 +170,6 @@
   "title.season.number": "الموسم {n}",
   "title.season.one": "موسم {n}",
   "title.resume": "استئناف",
-  "title.continue_episode": "متابعة الحلقة {n}"
+  "title.continue_episode": "متابعة الحلقة {n}",
+  "nav.games": "الألعاب"
 }

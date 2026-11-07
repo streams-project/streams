@@ -35,7 +35,7 @@ const val SEARCH_TAB = -2
 const val WHO_TAB = -3
 
 /** The tabs that fit the bar. Genres live on their own pages. */
-fun tabsOf(nav: List<NavItem>): List<NavItem> = nav.filter { it.screen.value != "genre" }.take(5)
+fun tabsOf(nav: List<NavItem>): List<NavItem> = nav.filter { it.screen.value != "genre" }.take(6)
 
 @Composable
 private fun Tab(item: NavItem, active: Boolean, on: Boolean) {

@@ -170,5 +170,6 @@
   "title.season.number": "सीज़न {n}",
   "title.season.one": "{n} सीज़न",
   "title.resume": "फिर से शुरू करें",
-  "title.continue_episode": "एपिसोड {n} जारी रखें"
+  "title.continue_episode": "एपिसोड {n} जारी रखें",
+  "nav.games": "गेम"
 }

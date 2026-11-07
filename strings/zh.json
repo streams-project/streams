@@ -170,5 +170,6 @@
   "title.season.number": "第 {n} 季",
   "title.season.one": "{n} 季",
   "title.resume": "继续播放",
-  "title.continue_episode": "继续播放第 {n} 集"
+  "title.continue_episode": "继续播放第 {n} 集",
+  "nav.games": "游戏"
 }

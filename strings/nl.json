@@ -170,5 +170,6 @@
   "title.season.number": "Seizoen {n}",
   "title.season.one": "{n} seizoen",
   "title.resume": "Hervatten",
-  "title.continue_episode": "Aflevering {n} hervatten"
+  "title.continue_episode": "Aflevering {n} hervatten",
+  "nav.games": "Games"
 }

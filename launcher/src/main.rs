@@ -200,6 +200,33 @@ fn migrate(stack: &Stack, database: &Postgres) -> Result<()> {
 }
 
 /// Source packs live in `packs/<name>/`, each its own program.
+/// The pack that answers for subtitles. Every other pack finds films.
+const SUBTITLE_PACK: &str = "subtitles";
+
+/// The subtitle pack if this copy has one, and where it listens.
+fn subtitle_pack(stack: &Stack, token: &str) -> Result<Option<(Program, String)>> {
+    let path = stack
+        .root
+        .join("packs")
+        .join(SUBTITLE_PACK)
+        .join("target/release")
+        .join(SUBTITLE_PACK);
+    if !path.exists() {
+        return Ok(None);
+    }
+    let port = free_port()?;
+    let program = Program {
+        log: log_path(&stack.home, SUBTITLE_PACK),
+        name: SUBTITLE_PACK.to_owned(),
+        path,
+        env: base_env(&[
+            ("FINDER_BIND", format!("127.0.0.1:{port}")),
+            ("FINDER_SERVICE_TOKEN", token.to_owned()),
+        ]),
+    };
+    Ok(Some((program, format!("http://127.0.0.1:{port}"))))
+}
+
 fn packs(stack: &Stack) -> Vec<(String, PathBuf)> {
     let Ok(entries) = std::fs::read_dir(stack.root.join("packs")) else {
         return Vec::new();
@@ -209,7 +236,7 @@ fn packs(stack: &Stack) -> Vec<(String, PathBuf)> {
         .filter_map(|entry| {
             let name = entry.file_name().to_string_lossy().into_owned();
             let program = entry.path().join("target/release").join(&name);
-            program.exists().then_some((name, program))
+            (program.exists() && name != SUBTITLE_PACK).then_some((name, program))
         })
         .collect()
 }
@@ -297,7 +324,14 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
     let database = Postgres::start(&bin, &stack.home.join("database/data"), free_port()?)?;
     migrate(stack, &database)?;
 
-    let (programs, finder_urls) = finders(stack, &token)?;
+    let (mut programs, finder_urls) = finders(stack, &token)?;
+    let subtitle_url = match subtitle_pack(stack, &token)? {
+        Some((program, url)) => {
+            programs.push(program);
+            url
+        }
+        None => String::new(),
+    };
     let host = if options.public {
         "0.0.0.0"
     } else {
@@ -323,6 +357,7 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
             ("DATA_PUBLIC_KEYS", key.to_string_lossy().into_owned()),
             ("FINDER_URLS", finder_urls.join(",")),
             ("FINDER_TOKEN", token.clone()),
+            ("SUBTITLE_URL", subtitle_url),
             ("WEB_ROOT", site.to_string_lossy().into_owned()),
             (
                 "STRINGS_DIR",

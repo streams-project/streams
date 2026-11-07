@@ -170,5 +170,6 @@
   "title.season.number": "Staffel {n}",
   "title.season.one": "{n} Staffel",
   "title.resume": "Fortsetzen",
-  "title.continue_episode": "Folge {n} fortsetzen"
+  "title.continue_episode": "Folge {n} fortsetzen",
+  "nav.games": "Spiele"
 }

@@ -107,11 +107,12 @@ private fun tabAddress(screen: String) = if (screen == "home") "/home" else "/$s
 @Composable
 fun Browse(shell: Shell, seen: Seen) {
     val data = seen.screen ?: return
-    val sections = data.sections.filter { !it.tiles.isNullOrEmpty() }
+    val current = seen.route?.screen?.value ?: "home"
+    // Games has no rows yet, and the kept page behind it belongs to the tab before.
+    val sections = if (current == "games") emptyList() else data.sections.filter { !it.tiles.isNullOrEmpty() }
     val rows = sections.filter { it.kind in RowKinds }
     val lead = sections.firstOrNull { it.kind == SectionKind.HERO }?.tiles?.first()
     val tabs = tabsOf(seen.nav)
-    val current = seen.route?.screen?.value ?: "home"
     val active = tabs.indexOfFirst { it.screen.value == current }.coerceAtLeast(0)
     val person = seen.profiles.firstOrNull { it.id == seen.active } ?: seen.profiles.firstOrNull()
     // A page is drawn from what was kept and then from the fresh answer. The focus belongs to the page.
@@ -174,7 +175,7 @@ fun Browse(shell: Shell, seen: Seen) {
             HeroCard(shell, seen, store, lead, if (focus.where == Where.HERO) focus.button else -1)
         } else if (rows.isEmpty()) {
             Text(
-                seen.words["mine.empty"].orEmpty(),
+                seen.words[if (current == "games") "games.soon" else "mine.empty"].orEmpty(),
                 Modifier.align(Alignment.Center),
                 fontSize = 32.refType,
                 color = Muted,

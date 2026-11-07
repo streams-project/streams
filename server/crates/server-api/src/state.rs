@@ -8,7 +8,7 @@ use server_catalog::DataSlot;
 use server_help::Help;
 use server_library::Library;
 use server_pages::Pages;
-use server_play::{Play, PlayLog, Subtitles};
+use server_play::{HttpSubtitles, Play, PlayLog, Subtitles};
 use server_rules::answer::Images;
 use tokio::sync::Semaphore;
 
@@ -61,6 +61,9 @@ impl AppState {
         data: Option<Arc<DataSlot>>,
         library: Option<Library>,
     ) -> Self {
+        let subtitles = subtitle_url_and_token(&config)
+            .and_then(|(url, token)| HttpSubtitles::new(url, token).ok())
+            .map(|source| Subtitles::new(Arc::new(source)));
         let live = LiveFile::new(config.live_settings.clone());
         let images = Images::new(config.image_base.as_deref());
         let brand = config.brand_name.clone();
@@ -84,7 +87,7 @@ impl AppState {
             pages: Pages::new(images.clone()).branded(&brand),
             play: None,
             play_log: None,
-            subtitles: None,
+            subtitles,
             mail: None,
             live,
             images,
@@ -103,3 +106,10 @@ fn page_workers() -> usize {
 
 /// The handle routes receive.
 pub type Shared = Arc<AppState>;
+
+fn subtitle_url_and_token(config: &Config) -> Option<(&str, &str)> {
+    Some((
+        config.subtitle_url.as_deref()?,
+        config.finder_token.as_deref()?,
+    ))
+}

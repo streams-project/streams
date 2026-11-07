@@ -170,5 +170,6 @@
   "title.season.number": "시즌 {n}",
   "title.season.one": "시즌 {n}개",
   "title.resume": "이어서 보기",
-  "title.continue_episode": "{n}화 이어서 보기"
+  "title.continue_episode": "{n}화 이어서 보기",
+  "nav.games": "게임"
 }

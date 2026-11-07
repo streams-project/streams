@@ -170,5 +170,6 @@
   "title.season.number": "Sezon {n}",
   "title.season.one": "{n} sezon",
   "title.resume": "Wznów",
-  "title.continue_episode": "Wznów odcinek {n}"
+  "title.continue_episode": "Wznów odcinek {n}",
+  "nav.games": "Gry"
 }

@@ -170,5 +170,6 @@
   "title.season.number": "シーズン{n}",
   "title.season.one": "{n}シーズン",
   "title.resume": "続きから再生",
-  "title.continue_episode": "エピソード{n}の続きを再生"
+  "title.continue_episode": "エピソード{n}の続きを再生",
+  "nav.games": "ゲーム"
 }

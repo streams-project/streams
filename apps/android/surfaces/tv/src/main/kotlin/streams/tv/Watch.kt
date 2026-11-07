@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,13 +44,17 @@ import contract.ActionSelectText
 import contract.ActionStop
 import contract.ActionUnpause
 import contract.CommandRate
+import contract.CommandSetting
 import contract.PlayState
 import contract.ProfileSettings
 import contract.Rating
+import contract.SettingKey
 import contract.TitleDetail
+import contract.Track
 import contract.WindowKind
 import contract.contractJson
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import streams.ports.Seen
 import streams.ports.Shell
 import streams.shared.Accent
@@ -210,8 +215,10 @@ fun Watch(shell: Shell, seen: Seen) {
     var stay by remember { mutableIntStateOf(0) }
     var track by remember { mutableIntStateOf(0) }
     var aim by remember { mutableStateOf<Long?>(null) }
+    val scope = rememberCoroutineScope()
     val panel = remember { TrackPanelState() }
-    val choices = choicesOf(seen)
+    val side = remember(play?.title, play?.episode) { SideWords() }
+    val choices = choicesOf(seen, side.tracks)
     val part = seen.windowNow(setOf(WindowKind.INTRO, WindowKind.RECAP))
     val closing = seen.windowNow(setOf(WindowKind.CREDITS))?.takeIf { play?.nextEpisode != null }
     val age = seen.windowNow(setOf(WindowKind.AGE_CARD))?.text
@@ -230,15 +237,28 @@ fun Watch(shell: Shell, seen: Seen) {
         }
     }
     LaunchedEffect(shown) { shell.player.lift(if (shown) WORDS_HIGH else WORDS_LOW) }
-    LaunchedEffect(Unit) {
-        val kept = shell.read("/v1/profiles/me/settings")
+    val kept by produceState<ProfileSettings?>(null) {
+        value = shell.read("/v1/profiles/me/settings")
             ?.let { contractJson.decodeFromString(ProfileSettings.serializer(), it) }
-            ?.subtitleStyle.orEmpty()
+    }
+    LaunchedEffect(kept) {
+        val look = kept?.subtitleStyle.orEmpty()
         shell.player.wordsLook(
-            kept["size"]?.toIntOrNull() ?: 1,
-            kept["color"] ?: "#ffffff",
-            kept["background"] ?: "none",
+            look["size"]?.toIntOrNull() ?: 1,
+            look["color"] ?: "#ffffff",
+            look["background"] ?: "none",
         )
+    }
+    // A language the stream lacks may be a file on the server.
+    LaunchedEffect(play?.title, play?.episode, seen.lengthMs > 0, kept) {
+        val key = play?.title ?: return@LaunchedEffect
+        val episode = play.episode?.let { "${it.season}:${it.episode}" }
+        if (side.tracks.isEmpty()) side.load(shell, key.value, episode)
+        val wanted = kept?.subtitleLanguage ?: return@LaunchedEffect
+        val inStream = seen.text.any { it.lang == wanted }
+        if (!inStream && side.chosen == null && side.has(wanted) && seen.lengthMs > 0) {
+            side.pick(shell, wanted, seen.lengthMs)
+        }
     }
     // When the next episode is starting, the state moves on and this never reaches the back.
     LaunchedEffect(play?.state, asking) {
@@ -269,6 +289,18 @@ fun Watch(shell: Shell, seen: Seen) {
         shell.swap("/watch/" + play.title.value.replace(':', '/') + "/${episode.season}/${episode.episode}")
     }
 
+    fun chooseLine(line: Track?) {
+        if (line?.isFile() != true) {
+            side.off()
+            shell.act(ActionSelectText(track = line?.id))
+            return
+        }
+        shell.act(ActionSelectText(track = null))
+        val language = line.lang ?: return
+        shell.act(ActionCommand(CommandSetting(key = SettingKey.SUBTITLE_LANGUAGE, value = language)))
+        scope.launch { side.pick(shell, language, seen.lengthMs) }
+    }
+
     fun choose(choice: Choice) {
         if (choice.other) {
             panel.show(seen)
@@ -276,12 +308,12 @@ fun Watch(shell: Shell, seen: Seen) {
         }
         val sound = choice.audio
         if (sound != null && !sound.playing) shell.act(ActionSelectAudio(track = sound.id))
-        shell.act(ActionSelectText(track = choice.text?.id))
+        chooseLine(choice.text)
     }
 
     fun press(word: Word): Boolean {
         if (panel.open) {
-            panel.press(word, shell, seen)
+            panel.press(word, shell, seen, side.tracks, ::chooseLine)
             return true
         }
         if (word == Word.BACK) return false
@@ -394,7 +426,8 @@ fun Watch(shell: Shell, seen: Seen) {
             }
             moment?.let { MomentPill(it, !shown, shown) }
         }
-        if (panel.open) TrackPanel(panel, seen)
+        SideLine(side, shell, shown)
+        if (panel.open) TrackPanel(panel, seen, side.tracks)
         if (asking) StillAsking(words, stay)
     }
 }
