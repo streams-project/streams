@@ -4026,6 +4026,22 @@ public struct Report: Codable, Equatable, Sendable {
     }
 }
 
+/// Where play picks up: the episode of a series, and 0 for one not started yet.
+public struct Resume: Codable, Equatable, Sendable {
+    public var episode: EpisodeRef?
+    public var positionS: Int
+
+    enum CodingKeys: String, CodingKey {
+        case episode = "episode"
+        case positionS = "position_s"
+    }
+
+    public init(episode: EpisodeRef? = nil, positionS: Int) {
+        self.episode = episode
+        self.positionS = positionS
+    }
+}
+
 /// A staged rollout. The bucket comes from the household, so a home moves together.
 public struct Rollout: Codable, Equatable, Sendable {
     public var name: String
@@ -4556,6 +4572,8 @@ public struct TitleDetail: Codable, Equatable, Sendable {
     public var overview: String?
     /// What this profile said about the title.
     public var rating: Rating?
+    /// Where this profile left off. Absent when there is nothing to go back to.
+    public var resume: Resume?
     public var runtimeMin: Int?
     public var seasons: [SeasonSummary]?
     public var title: TitleKey
@@ -4570,13 +4588,14 @@ public struct TitleDetail: Codable, Equatable, Sendable {
         case name = "name"
         case overview = "overview"
         case rating = "rating"
+        case resume = "resume"
         case runtimeMin = "runtime_min"
         case seasons = "seasons"
         case title = "title"
         case year = "year"
     }
 
-    public init(age: AgeMark? = nil, genres: [String]? = nil, images: [Image]? = nil, inList: Bool? = nil, moreLikeThis: [Tile]? = nil, name: String, overview: String? = nil, rating: Rating? = nil, runtimeMin: Int? = nil, seasons: [SeasonSummary]? = nil, title: TitleKey, year: Int? = nil) {
+    public init(age: AgeMark? = nil, genres: [String]? = nil, images: [Image]? = nil, inList: Bool? = nil, moreLikeThis: [Tile]? = nil, name: String, overview: String? = nil, rating: Rating? = nil, resume: Resume? = nil, runtimeMin: Int? = nil, seasons: [SeasonSummary]? = nil, title: TitleKey, year: Int? = nil) {
         self.age = age
         self.genres = genres
         self.images = images
@@ -4585,6 +4604,7 @@ public struct TitleDetail: Codable, Equatable, Sendable {
         self.name = name
         self.overview = overview
         self.rating = rating
+        self.resume = resume
         self.runtimeMin = runtimeMin
         self.seasons = seasons
         self.title = title

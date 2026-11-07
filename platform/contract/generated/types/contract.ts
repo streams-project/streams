@@ -1309,6 +1309,12 @@ export interface Report {
   detail?: string;
 }
 
+/** Where play picks up: the episode of a series, and 0 for one not started yet. */
+export interface Resume {
+  episode?: EpisodeRef;
+  position_s: number;
+}
+
 /** A staged rollout. The bucket comes from the household, so a home moves together. */
 export interface Rollout {
   name: string;
@@ -1505,6 +1511,8 @@ export interface TitleDetail {
   overview?: string;
   /** What this profile said about the title. */
   rating?: Rating;
+  /** Where this profile left off. Absent when there is nothing to go back to. */
+  resume?: Resume;
   runtime_min?: number;
   seasons?: SeasonSummary[];
   title: TitleKey;

@@ -1,0 +1,41 @@
+{
+  "$defs": {
+    "EpisodeRef": {
+      "description": "One episode of a series. A film has none.",
+      "properties": {
+        "episode": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "season": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "season",
+        "episode"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Where play picks up: the episode of a series, and 0 for one not started yet.",
+  "properties": {
+    "episode": {
+      "$ref": "#/$defs/EpisodeRef"
+    },
+    "position_s": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "position_s"
+  ],
+  "title": "Resume",
+  "type": "object"
+}

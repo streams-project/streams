@@ -6,11 +6,13 @@ use axum::http::header::ACCEPT_LANGUAGE;
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::Response;
 use contract::error::ErrorCode;
+use contract::screen::Resume;
 use contract::screen::{Episode, SeasonSummary};
-use contract::{MAX_KEYS_PER_LIST, TitleKey, TitleKind};
+use contract::{EpisodeRef, MAX_KEYS_PER_LIST, TitleKey, TitleKind};
 use server_catalog::manifest::role;
-use server_catalog::seasons::{episodes_of, seasons_of};
+use server_catalog::seasons::{episodes_of, next_episode, seasons_of};
 use server_catalog::{DataSet, item_key};
+use server_library::Reached;
 use server_rules::Viewer;
 use server_rules::age::{RatingSystem, system_of_country};
 use server_rules::answer::{SafeSeason, SafeTitleDetail};
@@ -91,6 +93,23 @@ fn catalogue(set: &DataSet) -> Option<&std::path::Path> {
     set.files.get(role::CATALOG)
 }
 
+/// Where a title picks up: the same place, or the next episode of one that finished. A finished
+/// film, or the last episode, starts over from the top.
+fn resume_from(set: &DataSet, key: TitleKey, place: Reached) -> Option<Resume> {
+    if !place.finished {
+        return Some(Resume {
+            episode: place.episode,
+            position_s: place.position_s,
+        });
+    }
+    let now = place.episode?;
+    let (season, episode) = next_episode(catalogue(set)?, key.id(), now.season, now.episode)?;
+    Some(Resume {
+        episode: Some(EpisodeRef { season, episode }),
+        position_s: 0,
+    })
+}
+
 /// The seasons a series has. A film has none.
 fn season_list(set: &DataSet, key: TitleKey) -> Vec<SeasonSummary> {
     if key.kind() != TitleKind::Tv {
@@ -160,9 +179,11 @@ pub async fn title(
             .rated(watching.scope.profile(), MAX_KEYS_PER_LIST)
             .await?;
         let said = rated.iter().find(|(title, _)| *title == key);
+        let reached = library.last_watched(watching.scope.profile(), key).await?;
         page = page
             .saved(saved.contains(&key))
-            .rated(said.map(|(_, rating)| *rating));
+            .rated(said.map(|(_, rating)| *rating))
+            .resuming(reached.and_then(|place| resume_from(&set, key, place)));
     }
     send_cleared(&headers, &page, Keep::Private)
 }

@@ -255,6 +255,16 @@ wire! {
         /// What this profile said about the title.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub rating: Option<Rating>,
+        /// Where this profile left off. Absent when there is nothing to go back to.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub resume: Option<Resume>,
+    }
+
+    /// Where play picks up: the episode of a series, and 0 for one not started yet.
+    pub struct Resume {
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub episode: Option<EpisodeRef>,
+        pub position_s: u32,
     }
 
     /// Search suggestions.

@@ -239,6 +239,7 @@ impl SafeTitleDetail {
             more_like_this: wires(extras.more_like_this),
             in_list: false,
             rating: None,
+            resume: None,
         }))
     }
 
@@ -253,6 +254,13 @@ impl SafeTitleDetail {
     #[must_use]
     pub fn saved(mut self, in_list: bool) -> Self {
         self.0.in_list = in_list;
+        self
+    }
+
+    /// Adds where this profile left off.
+    #[must_use]
+    pub fn resuming(mut self, resume: Option<contract::screen::Resume>) -> Self {
+        self.0.resume = resume;
         self
     }
 

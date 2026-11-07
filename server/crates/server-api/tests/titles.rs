@@ -271,3 +271,55 @@ async fn a_series_names_its_seasons_and_a_season_lists_its_episodes() {
         .await;
     assert_eq!(film.status, StatusCode::NOT_FOUND, "a film has no seasons");
 }
+
+/// Saves how far this profile got in an episode.
+async fn watched(server: &common::Harness, token: &str, op: &str, episode: u32, position_s: u32) {
+    let title = format!("tv:{}", special::SHARED_ID);
+    let ops = json!({ "ops": [{
+        "op_id": op,
+        "command": "position",
+        "title": title,
+        "episode": { "season": 1, "episode": episode },
+        "position_s": position_s,
+        "duration_s": 3_000,
+    }] });
+    let sent = call(Method::POST, "/v1/commands")
+        .token(token)
+        .json(ops)
+        .on(&server.state)
+        .await;
+    assert_eq!(sent.status, StatusCode::OK, "{}", sent.body);
+}
+
+#[tokio::test]
+async fn a_title_says_where_this_profile_picks_up() {
+    let server = harness(&[]);
+    let token = watching(&server, false).await;
+    let path = format!("/v1/titles/tv/{}", special::SHARED_ID);
+    let read = || get(&path).token(&token);
+    let fresh = read().on(&server.state).await;
+    assert!(fresh.body.get("resume").is_none(), "{}", fresh.body);
+
+    watched(&server, &token, "a", 1, 600).await;
+    let halfway = read().on(&server.state).await;
+    assert_eq!(
+        halfway.body["resume"],
+        json!({ "episode": { "season": 1, "episode": 1 }, "position_s": 600 })
+    );
+
+    watched(&server, &token, "b", 1, 2_990).await;
+    let next = read().on(&server.state).await;
+    assert_eq!(
+        next.body["resume"],
+        json!({ "episode": { "season": 1, "episode": 2 }, "position_s": 0 }),
+        "a finished episode leads to the next one"
+    );
+
+    watched(&server, &token, "c", 2, 2_990).await;
+    let done = read().on(&server.state).await;
+    assert!(
+        done.body.get("resume").is_none(),
+        "nothing follows the last episode: {}",
+        done.body
+    );
+}

@@ -89,6 +89,15 @@ pub struct Continue {
     pub changed_ms: u64,
 }
 
+/// The newest place a profile reached in a title.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Reached {
+    pub episode: Option<EpisodeRef>,
+    pub position_s: u32,
+    /// Marked complete, or within the last moments of the video.
+    pub finished: bool,
+}
+
 /// One viewing signal kept for 180 days.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct FeedRow {

@@ -27,7 +27,9 @@ use contract::play::{
     Attempt, Marks, MarksRequest, MoreAttempts, PlayAnswer, PlayEvents, PlayRequest, Report,
     SubtitleBody, SubtitleList,
 };
-use contract::screen::{More, Nav, Screen, Season, Section, Suggestions, Tile, TitleDetail};
+use contract::screen::{
+    More, Nav, Resume, Screen, Season, Section, Suggestions, Tile, TitleDetail,
+};
 use contract::version::{VersionRange, WIRE_VERSION};
 use contract::{EpisodeRef, Rating, TitleKey, TitleKind};
 use serde::Serialize;
@@ -152,6 +154,7 @@ fn read_as(type_name: &str, value: &Value) -> Result<Value, String> {
         RefreshRequest,
         Report,
         Screen,
+        Resume,
         Season,
         Section,
         SignOut,

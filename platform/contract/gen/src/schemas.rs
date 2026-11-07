@@ -24,7 +24,9 @@ use contract::play::{
     Attempt, Marks, MarksRequest, MoreAttempts, PlayAnswer, PlayEvents, PlayRequest, Report,
     SubtitleBody, SubtitleList,
 };
-use contract::screen::{More, Nav, Screen, Season, Section, Suggestions, Tile, TitleDetail};
+use contract::screen::{
+    More, Nav, Resume, Screen, Season, Section, Suggestions, Tile, TitleDetail,
+};
 use contract::version::VersionRange;
 use contract::{EpisodeRef, Rating, TitleKey, TitleKind};
 use schemars::generate::SchemaSettings;
@@ -130,6 +132,7 @@ pub fn definitions() -> (BTreeMap<String, Value>, Vec<String>) {
         RefreshRequest,
         Report,
         Screen,
+        Resume,
         Season,
         Section,
         SignOut,

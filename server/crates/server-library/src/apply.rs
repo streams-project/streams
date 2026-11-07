@@ -11,10 +11,13 @@ use contract::{EpisodeRef, Rating, TitleKey, TitleKind, is_completed, watch_perc
 use server_accounts::{Clock, ProfileId, ProfileScope};
 
 use crate::model::{
-    Continue, EpisodeProgress, FeedRow, HiddenTitle, Limits, TitleState, age_to_time,
+    Continue, EpisodeProgress, FeedRow, HiddenTitle, Limits, Reached, TitleState, age_to_time,
 };
 use crate::store::{LibraryError, LibraryStore, LibraryTx, Row};
 use crate::taste::{DISLIKE_WEIGHT, event_weight, learn};
+
+/// Positions read to find a title's newest one.
+const RECENT_SCAN: usize = 500;
 
 /// What the library may ask about a title. The server passes this in, so this crate never reads
 /// the catalogue.
@@ -167,6 +170,22 @@ impl Library {
         Ok(out)
     }
 
+    /// The newest place this profile reached in a title, hidden titles left out.
+    ///
+    /// # Errors
+    /// The store's failure.
+    pub async fn last_watched(&self, profile: ProfileId, title: TitleKey) -> Row<Option<Reached>> {
+        let recent = self.store.recent(profile, RECENT_SCAN).await?;
+        Ok(recent
+            .into_iter()
+            .find(|row| row.title == title)
+            .map(|row| Reached {
+                finished: row.completed || near_end(row.position_s, row.duration_s),
+                position_s: row.position_s,
+                episode: row.episode,
+            }))
+    }
+
     /// Where to start: 0 when a video longer than a minute is within its last 30 s; a series
     /// resumes only for the same episode.
     ///
@@ -181,13 +200,17 @@ impl Library {
         let Some(row) = self.store.position(profile, title, episode).await? else {
             return Ok(0);
         };
-        let near_end = row.duration_s > 60 && row.position_s + 30 >= row.duration_s;
-        Ok(if near_end {
+        Ok(if near_end(row.position_s, row.duration_s) {
             0
         } else {
             u64::from(row.position_s) * 1000
         })
     }
+}
+
+/// True for a video longer than a minute within its last 30 s.
+const fn near_end(position_s: u32, duration_s: u32) -> bool {
+    duration_s > 60 && position_s + 30 >= duration_s
 }
 
 async fn run(

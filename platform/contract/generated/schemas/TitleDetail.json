@@ -116,6 +116,23 @@
       ],
       "type": "string"
     },
+    "Resume": {
+      "description": "Where play picks up: the episode of a series, and 0 for one not started yet.",
+      "properties": {
+        "episode": {
+          "$ref": "#/$defs/EpisodeRef"
+        },
+        "position_s": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "position_s"
+      ],
+      "type": "object"
+    },
     "SeasonSummary": {
       "description": "A season named on a title page.",
       "properties": {
@@ -224,6 +241,10 @@
     "rating": {
       "$ref": "#/$defs/Rating",
       "description": "What this profile said about the title."
+    },
+    "resume": {
+      "$ref": "#/$defs/Resume",
+      "description": "Where this profile left off. Absent when there is nothing to go back to."
     },
     "runtime_min": {
       "maximum": 4294967295,

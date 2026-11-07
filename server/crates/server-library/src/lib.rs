@@ -10,7 +10,9 @@ mod taste;
 
 pub use apply::{Library, TitleFacts};
 pub use memory::MemoryLibrary;
-pub use model::{Continue, EpisodeProgress, FeedRow, HiddenTitle, Limits, TitleState, age_to_time};
+pub use model::{
+    Continue, EpisodeProgress, FeedRow, HiddenTitle, Limits, Reached, TitleState, age_to_time,
+};
 pub use postgres::PgLibrary;
 pub use reads::SettingsView;
 pub use store::{LibraryError, LibraryRead, LibraryStore, LibraryTx, Row};

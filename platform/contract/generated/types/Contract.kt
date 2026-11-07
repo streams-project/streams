@@ -1916,6 +1916,13 @@ data class Report(
     @SerialName("detail") val detail: String? = null,
 )
 
+/** Where play picks up: the episode of a series, and 0 for one not started yet. */
+@Serializable
+data class Resume(
+    @SerialName("episode") val episode: EpisodeRef? = null,
+    @SerialName("position_s") val positionS: Long,
+)
+
 /** A staged rollout. The bucket comes from the household, so a home moves together. */
 @Serializable
 data class Rollout(
@@ -2234,6 +2241,8 @@ data class TitleDetail(
     @SerialName("overview") val overview: String? = null,
     /** What this profile said about the title. */
     @SerialName("rating") val rating: Rating? = null,
+    /** Where this profile left off. Absent when there is nothing to go back to. */
+    @SerialName("resume") val resume: Resume? = null,
     @SerialName("runtime_min") val runtimeMin: Long? = null,
     @SerialName("seasons") val seasons: List<SeasonSummary>? = null,
     @SerialName("title") val title: TitleKey,

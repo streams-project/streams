@@ -56,6 +56,19 @@ fun TitleBackdrop(data: TitleDetail) {
 }
 
 /** One title: its facts, three ratings, and a menu of what to do next. */
+/** The first line of the page says what pressing it will do. */
+private fun playWord(data: TitleDetail, words: Map<String, String>): String {
+    val resume = data.resume
+    val episode = resume?.episode
+    val word = when {
+        !data.isSeries() && resume != null -> words["title.resume"]
+        !data.isSeries() -> words["common.play"]
+        episode != null && resume.positionS > 0 -> words["title.continue_episode"]
+        else -> words["title.play_episode"]
+    }
+    return word.orEmpty().replace("{n}", "${episode?.episode ?: 1}")
+}
+
 @Composable
 fun TitlePage(shell: Shell, seen: Seen) {
     val data = seen.detail?.takeIf { it.title == seen.route?.title } ?: return
@@ -86,6 +99,11 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) ->
     fun play() {
         if (!data.isSeries()) {
             shell.go("/watch/" + data.path())
+            return
+        }
+        val next = data.resume?.episode
+        if (next != null) {
+            shell.go("/watch/${data.path()}/${next.season}/${next.episode}")
             return
         }
         val number = data.seasons?.firstOrNull()?.number ?: 1
@@ -135,7 +153,7 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) ->
     val lines = rows.map { line ->
         when (line) {
             Row.PLAY -> MenuLine(
-                if (data.isSeries()) words["title.play_episode"].orEmpty().replace("{n}", "1") else words["common.play"].orEmpty(),
+                playWord(data, words),
                 R.drawable.icon_play,
             )
             Row.EPISODES -> MenuLine(words["title.episodes_more"].orEmpty(), R.drawable.icon_episodes)

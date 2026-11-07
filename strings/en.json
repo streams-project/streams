@@ -120,5 +120,7 @@
   "player.skip_recap": "Skip Recap",
   "player.still": "Are you still watching?",
   "player.still.yes": "Continue Watching",
-  "player.still.no": "I'm Done"
+  "player.still.no": "I'm Done",
+  "title.resume": "Resume",
+  "title.continue_episode": "Continue Episode {n}"
 }
