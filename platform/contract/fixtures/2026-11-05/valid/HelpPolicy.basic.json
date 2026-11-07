@@ -1,0 +1,24 @@
+{
+  "id": "terms",
+  "sections": [
+    {
+      "blocks": [
+        {
+          "kind": "paragraph",
+          "lines": [
+            {
+              "runs": [
+                {
+                  "text": "Plain terms."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "title": "Use"
+    }
+  ],
+  "title": "Terms",
+  "updated": "2026-11-07"
+}

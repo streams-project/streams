@@ -1,0 +1,49 @@
+{
+  "sections": [
+    {
+      "blocks": [
+        {
+          "kind": "paragraph",
+          "lines": [
+            {
+              "runs": [
+                {
+                  "text": "Open the "
+                },
+                {
+                  "bold": true,
+                  "text": "menu"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "tool",
+          "tool": "diagnostics"
+        }
+      ]
+    },
+    {
+      "blocks": [
+        {
+          "kind": "list",
+          "lines": [
+            {
+              "runs": [
+                {
+                  "link": "/help",
+                  "text": "Help"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "folded": true,
+      "title": "More"
+    }
+  ],
+  "slug": "first",
+  "title": "Getting started"
+}

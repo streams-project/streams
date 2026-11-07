@@ -2950,6 +2950,279 @@
         ],
         "type": "object"
       },
+      "HelpArticle": {
+        "description": "`/v1/help/articles/{slug}`.",
+        "properties": {
+          "related": {
+            "items": {
+              "$ref": "#/components/schemas/HelpLink"
+            },
+            "type": "array"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/HelpSection"
+            },
+            "type": "array"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "title",
+          "sections"
+        ],
+        "type": "object"
+      },
+      "HelpBlock": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/HelpBlockKind"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/HelpLine"
+            },
+            "type": "array"
+          },
+          "tool": {
+            "description": "The action of a tool block.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "type": "object"
+      },
+      "HelpBlockKind": {
+        "description": "What a block of an article is.",
+        "oneOf": [
+          {
+            "enum": [
+              "paragraph",
+              "heading",
+              "steps",
+              "list",
+              "note"
+            ],
+            "type": "string"
+          },
+          {
+            "const": "tool",
+            "description": "An action the app offers here. An app without it leaves the block out.",
+            "type": "string"
+          }
+        ]
+      },
+      "HelpGroup": {
+        "properties": {
+          "articles": {
+            "items": {
+              "$ref": "#/components/schemas/HelpLink"
+            },
+            "type": "array"
+          },
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "articles"
+        ],
+        "type": "object"
+      },
+      "HelpHome": {
+        "description": "`/v1/help`.",
+        "properties": {
+          "policies": {
+            "items": {
+              "$ref": "#/components/schemas/HelpPolicyLink"
+            },
+            "type": "array"
+          },
+          "popular": {
+            "items": {
+              "$ref": "#/components/schemas/HelpLink"
+            },
+            "type": "array"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/HelpTopic"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "topics",
+          "popular",
+          "policies"
+        ],
+        "type": "object"
+      },
+      "HelpLine": {
+        "description": "One line of a block. A paragraph has one, a list has one per item.",
+        "properties": {
+          "runs": {
+            "items": {
+              "$ref": "#/components/schemas/HelpRun"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "runs"
+        ],
+        "type": "object"
+      },
+      "HelpLink": {
+        "description": "An article as a list shows it.",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "title"
+        ],
+        "type": "object"
+      },
+      "HelpPolicy": {
+        "description": "`/v1/help/policies/{id}`.",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/HelpSection"
+            },
+            "type": "array"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "sections"
+        ],
+        "type": "object"
+      },
+      "HelpPolicyLink": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "type": "object"
+      },
+      "HelpResults": {
+        "description": "`/v1/help/search`.",
+        "properties": {
+          "articles": {
+            "items": {
+              "$ref": "#/components/schemas/HelpLink"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "articles"
+        ],
+        "type": "object"
+      },
+      "HelpRun": {
+        "description": "Some words of a line, with how they are marked.",
+        "properties": {
+          "bold": {
+            "type": "boolean"
+          },
+          "link": {
+            "description": "Where the words lead: an address in the app, a web page or a mail address.",
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "type": "object"
+      },
+      "HelpSection": {
+        "description": "A part of a page. A folded one starts closed where the app can open and close it.",
+        "properties": {
+          "blocks": {
+            "items": {
+              "$ref": "#/components/schemas/HelpBlock"
+            },
+            "type": "array"
+          },
+          "folded": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "blocks"
+        ],
+        "type": "object"
+      },
+      "HelpTopic": {
+        "properties": {
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/HelpGroup"
+            },
+            "type": "array"
+          },
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "groups"
+        ],
+        "type": "object"
+      },
       "HostedStep": {
         "description": "`POST /v1/core/step`. `config` is sent on the first step of a hosted session.",
         "properties": {
@@ -7503,6 +7776,372 @@
         },
         "security": [],
         "summary": "Features, limits and the contract range.",
+        "tags": [
+          "start"
+        ]
+      }
+    },
+    "/v1/help": {
+      "get": {
+        "operationId": "helpHome",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApiVersion"
+          },
+          {
+            "$ref": "#/components/parameters/Client0"
+          },
+          {
+            "$ref": "#/components/parameters/Client1"
+          },
+          {
+            "$ref": "#/components/parameters/Client2"
+          },
+          {
+            "$ref": "#/components/parameters/Client3"
+          },
+          {
+            "description": "A language code. Without it the text is in English.",
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "basic": {
+                    "externalValue": "../fixtures/2026-11-05/valid/HelpHome.basic.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/HelpHome"
+                }
+              }
+            },
+            "description": "Help topics."
+          },
+          "304": {
+            "description": "Not changed since the ETag in If-None-Match."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "clock_wrong": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.clock_wrong.json"
+                  },
+                  "no_longer_available": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.no_longer_available.json"
+                  },
+                  "not_found": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.not_found.json"
+                  },
+                  "profile_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.profile_required.json"
+                  },
+                  "rate_limited": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.rate_limited.json"
+                  },
+                  "upgrade_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.upgrade_required.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "An error with a stable code."
+          }
+        },
+        "security": [],
+        "summary": "Help topics.",
+        "tags": [
+          "start"
+        ]
+      }
+    },
+    "/v1/help/articles/{slug}": {
+      "get": {
+        "operationId": "helpArticle",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApiVersion"
+          },
+          {
+            "$ref": "#/components/parameters/Client0"
+          },
+          {
+            "$ref": "#/components/parameters/Client1"
+          },
+          {
+            "$ref": "#/components/parameters/Client2"
+          },
+          {
+            "$ref": "#/components/parameters/Client3"
+          },
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "A language code. Without it the text is in English.",
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "basic": {
+                    "externalValue": "../fixtures/2026-11-05/valid/HelpArticle.basic.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/HelpArticle"
+                }
+              }
+            },
+            "description": "One help article."
+          },
+          "304": {
+            "description": "Not changed since the ETag in If-None-Match."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "clock_wrong": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.clock_wrong.json"
+                  },
+                  "no_longer_available": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.no_longer_available.json"
+                  },
+                  "not_found": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.not_found.json"
+                  },
+                  "profile_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.profile_required.json"
+                  },
+                  "rate_limited": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.rate_limited.json"
+                  },
+                  "upgrade_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.upgrade_required.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "An error with a stable code."
+          }
+        },
+        "security": [],
+        "summary": "One help article.",
+        "tags": [
+          "start"
+        ]
+      }
+    },
+    "/v1/help/policies/{id}": {
+      "get": {
+        "operationId": "helpPolicy",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApiVersion"
+          },
+          {
+            "$ref": "#/components/parameters/Client0"
+          },
+          {
+            "$ref": "#/components/parameters/Client1"
+          },
+          {
+            "$ref": "#/components/parameters/Client2"
+          },
+          {
+            "$ref": "#/components/parameters/Client3"
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "A language code. Without it the text is in English.",
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "basic": {
+                    "externalValue": "../fixtures/2026-11-05/valid/HelpPolicy.basic.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/HelpPolicy"
+                }
+              }
+            },
+            "description": "One policy."
+          },
+          "304": {
+            "description": "Not changed since the ETag in If-None-Match."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "clock_wrong": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.clock_wrong.json"
+                  },
+                  "no_longer_available": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.no_longer_available.json"
+                  },
+                  "not_found": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.not_found.json"
+                  },
+                  "profile_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.profile_required.json"
+                  },
+                  "rate_limited": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.rate_limited.json"
+                  },
+                  "upgrade_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.upgrade_required.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "An error with a stable code."
+          }
+        },
+        "security": [],
+        "summary": "One policy.",
+        "tags": [
+          "start"
+        ]
+      }
+    },
+    "/v1/help/search": {
+      "get": {
+        "operationId": "helpSearch",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApiVersion"
+          },
+          {
+            "$ref": "#/components/parameters/Client0"
+          },
+          {
+            "$ref": "#/components/parameters/Client1"
+          },
+          {
+            "$ref": "#/components/parameters/Client2"
+          },
+          {
+            "$ref": "#/components/parameters/Client3"
+          },
+          {
+            "description": "The search text.",
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "A language code. Without it the text is in English.",
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "basic": {
+                    "externalValue": "../fixtures/2026-11-05/valid/HelpResults.basic.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/HelpResults"
+                }
+              }
+            },
+            "description": "Help articles holding every word."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "clock_wrong": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.clock_wrong.json"
+                  },
+                  "no_longer_available": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.no_longer_available.json"
+                  },
+                  "not_found": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.not_found.json"
+                  },
+                  "profile_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.profile_required.json"
+                  },
+                  "rate_limited": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.rate_limited.json"
+                  },
+                  "upgrade_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.upgrade_required.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "An error with a stable code."
+          }
+        },
+        "security": [],
+        "summary": "Help articles holding every word.",
         "tags": [
           "start"
         ]

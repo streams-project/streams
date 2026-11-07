@@ -1,0 +1,111 @@
+{
+  "$defs": {
+    "HelpGroup": {
+      "properties": {
+        "articles": {
+          "items": {
+            "$ref": "#/$defs/HelpLink"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "articles"
+      ],
+      "type": "object"
+    },
+    "HelpLink": {
+      "description": "An article as a list shows it.",
+      "properties": {
+        "slug": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "slug",
+        "title"
+      ],
+      "type": "object"
+    },
+    "HelpPolicyLink": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "type": "object"
+    },
+    "HelpTopic": {
+      "properties": {
+        "groups": {
+          "items": {
+            "$ref": "#/$defs/HelpGroup"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "groups"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`/v1/help`.",
+  "properties": {
+    "policies": {
+      "items": {
+        "$ref": "#/$defs/HelpPolicyLink"
+      },
+      "type": "array"
+    },
+    "popular": {
+      "items": {
+        "$ref": "#/$defs/HelpLink"
+      },
+      "type": "array"
+    },
+    "topics": {
+      "items": {
+        "$ref": "#/$defs/HelpTopic"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "topics",
+    "popular",
+    "policies"
+  ],
+  "title": "HelpHome",
+  "type": "object"
+}

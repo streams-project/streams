@@ -19,6 +19,7 @@ use contract::driver::{DriverCommand, DriverEvent};
 use contract::error::{ErrorBody, ErrorCode, Notice};
 use contract::finder::{FindAnswer, FindRequest, FinderHealth};
 use contract::hello::{Hello, LanguageList, Ready, Strings};
+use contract::help::{HelpArticle, HelpHome, HelpPolicy, HelpResults};
 use contract::play::{
     Attempt, Marks, MarksRequest, MoreAttempts, PlayAnswer, PlayEvents, PlayRequest, Report,
     SubtitleBody, SubtitleList,
@@ -103,6 +104,10 @@ pub fn definitions() -> (BTreeMap<String, Value>, Vec<String>) {
         Notice,
         PasswordChange,
         PasswordSignIn,
+        HelpArticle,
+        HelpHome,
+        HelpPolicy,
+        HelpResults,
         LanguageList,
         PhoneChange,
         PinSet,

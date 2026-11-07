@@ -1,0 +1,38 @@
+{
+  "$defs": {
+    "HelpLink": {
+      "description": "An article as a list shows it.",
+      "properties": {
+        "slug": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "slug",
+        "title"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`/v1/help/search`.",
+  "properties": {
+    "articles": {
+      "items": {
+        "$ref": "#/$defs/HelpLink"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "articles"
+  ],
+  "title": "HelpResults",
+  "type": "object"
+}

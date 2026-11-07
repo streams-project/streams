@@ -13,6 +13,7 @@ const STILL_TO_BUILD: [(&str, &str, &str); 1] = [("POST", "/v1/core/step", "serv
 fn filled(path: &str) -> String {
     path.replace("{kind}", "movie")
         .replace("{id}", "100")
+        .replace("{slug}", "x")
         .replace("{lang}", "en")
         .replace("{name}", "home")
         .replace("{cursor}", "x")

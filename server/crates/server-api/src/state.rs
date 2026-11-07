@@ -5,6 +5,7 @@ use std::sync::Arc;
 use server_accounts::mail::MailSender;
 use server_accounts::{Clock, Door, Meter, SystemClock};
 use server_catalog::DataSlot;
+use server_help::Help;
 use server_library::Library;
 use server_pages::Pages;
 use server_play::{Play, PlayLog, Subtitles};
@@ -32,6 +33,8 @@ pub struct AppState {
     /// Off with no database.
     pub library: Option<Library>,
     pub pages: Pages,
+    /// Off with no help folder.
+    pub help: Option<Help>,
     /// Off with no finder.
     pub play: Option<Play>,
     /// Off with no database.
@@ -61,7 +64,18 @@ impl AppState {
         let live = LiveFile::new(config.live_settings.clone());
         let images = Images::new(config.image_base.as_deref());
         let brand = config.brand_name.clone();
+        let help = config
+            .help_dir
+            .as_deref()
+            .and_then(|dir| match Help::open(dir) {
+                Ok(help) => Some(help),
+                Err(error) => {
+                    tracing::warn!("help is off: {error}");
+                    None
+                }
+            });
         Self {
+            help,
             config,
             clock: Arc::new(SystemClock),
             door,

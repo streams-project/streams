@@ -3110,6 +3110,7 @@ dependencies = [
  "serde_json",
  "server-accounts",
  "server-catalog",
+ "server-help",
  "server-library",
  "server-pages",
  "server-play",
@@ -3143,6 +3144,16 @@ dependencies = [
  "tokio",
  "tracing",
  "usearch",
+]
+
+[[package]]
+name = "server-help"
+version = "0.0.0"
+dependencies = [
+ "contract",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
 ]
 
 [[package]]

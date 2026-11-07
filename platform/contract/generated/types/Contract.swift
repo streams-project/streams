@@ -2862,6 +2862,235 @@ public struct Hello: Codable, Equatable, Sendable {
     }
 }
 
+/// `/v1/help/articles/{slug}`.
+public struct HelpArticle: Codable, Equatable, Sendable {
+    public var related: [HelpLink]?
+    public var sections: [HelpSection]
+    public var slug: String
+    public var title: String
+
+    enum CodingKeys: String, CodingKey {
+        case related = "related"
+        case sections = "sections"
+        case slug = "slug"
+        case title = "title"
+    }
+
+    public init(related: [HelpLink]? = nil, sections: [HelpSection], slug: String, title: String) {
+        self.related = related
+        self.sections = sections
+        self.slug = slug
+        self.title = title
+    }
+}
+
+public struct HelpBlock: Codable, Equatable, Sendable {
+    public var kind: HelpBlockKind
+    public var lines: [HelpLine]?
+    /// The action of a tool block.
+    public var tool: String?
+
+    enum CodingKeys: String, CodingKey {
+        case kind = "kind"
+        case lines = "lines"
+        case tool = "tool"
+    }
+
+    public init(kind: HelpBlockKind, lines: [HelpLine]? = nil, tool: String? = nil) {
+        self.kind = kind
+        self.lines = lines
+        self.tool = tool
+    }
+}
+
+/// What a block of an article is.
+public struct HelpBlockKind: RawRepresentable, Codable, Hashable, Sendable {
+    public var rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+    public static let paragraph = HelpBlockKind(rawValue: "paragraph")
+    public static let heading = HelpBlockKind(rawValue: "heading")
+    public static let steps = HelpBlockKind(rawValue: "steps")
+    public static let list = HelpBlockKind(rawValue: "list")
+    public static let note = HelpBlockKind(rawValue: "note")
+    public static let tool = HelpBlockKind(rawValue: "tool")
+}
+
+public struct HelpGroup: Codable, Equatable, Sendable {
+    public var articles: [HelpLink]
+    public var id: String
+    public var title: String
+
+    enum CodingKeys: String, CodingKey {
+        case articles = "articles"
+        case id = "id"
+        case title = "title"
+    }
+
+    public init(articles: [HelpLink], id: String, title: String) {
+        self.articles = articles
+        self.id = id
+        self.title = title
+    }
+}
+
+/// `/v1/help`.
+public struct HelpHome: Codable, Equatable, Sendable {
+    public var policies: [HelpPolicyLink]
+    public var popular: [HelpLink]
+    public var topics: [HelpTopic]
+
+    enum CodingKeys: String, CodingKey {
+        case policies = "policies"
+        case popular = "popular"
+        case topics = "topics"
+    }
+
+    public init(policies: [HelpPolicyLink], popular: [HelpLink], topics: [HelpTopic]) {
+        self.policies = policies
+        self.popular = popular
+        self.topics = topics
+    }
+}
+
+/// One line of a block. A paragraph has one, a list has one per item.
+public struct HelpLine: Codable, Equatable, Sendable {
+    public var runs: [HelpRun]
+
+    enum CodingKeys: String, CodingKey {
+        case runs = "runs"
+    }
+
+    public init(runs: [HelpRun]) {
+        self.runs = runs
+    }
+}
+
+/// An article as a list shows it.
+public struct HelpLink: Codable, Equatable, Sendable {
+    public var slug: String
+    public var summary: String?
+    public var title: String
+
+    enum CodingKeys: String, CodingKey {
+        case slug = "slug"
+        case summary = "summary"
+        case title = "title"
+    }
+
+    public init(slug: String, summary: String? = nil, title: String) {
+        self.slug = slug
+        self.summary = summary
+        self.title = title
+    }
+}
+
+/// `/v1/help/policies/{id}`.
+public struct HelpPolicy: Codable, Equatable, Sendable {
+    public var id: String
+    public var sections: [HelpSection]
+    public var title: String
+    public var updated: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id = "id"
+        case sections = "sections"
+        case title = "title"
+        case updated = "updated"
+    }
+
+    public init(id: String, sections: [HelpSection], title: String, updated: String? = nil) {
+        self.id = id
+        self.sections = sections
+        self.title = title
+        self.updated = updated
+    }
+}
+
+public struct HelpPolicyLink: Codable, Equatable, Sendable {
+    public var id: String
+    public var title: String
+
+    enum CodingKeys: String, CodingKey {
+        case id = "id"
+        case title = "title"
+    }
+
+    public init(id: String, title: String) {
+        self.id = id
+        self.title = title
+    }
+}
+
+/// `/v1/help/search`.
+public struct HelpResults: Codable, Equatable, Sendable {
+    public var articles: [HelpLink]
+
+    enum CodingKeys: String, CodingKey {
+        case articles = "articles"
+    }
+
+    public init(articles: [HelpLink]) {
+        self.articles = articles
+    }
+}
+
+/// Some words of a line, with how they are marked.
+public struct HelpRun: Codable, Equatable, Sendable {
+    public var bold: Bool?
+    /// Where the words lead: an address in the app, a web page or a mail address.
+    public var link: String?
+    public var text: String
+
+    enum CodingKeys: String, CodingKey {
+        case bold = "bold"
+        case link = "link"
+        case text = "text"
+    }
+
+    public init(bold: Bool? = nil, link: String? = nil, text: String) {
+        self.bold = bold
+        self.link = link
+        self.text = text
+    }
+}
+
+/// A part of a page. A folded one starts closed where the app can open and close it.
+public struct HelpSection: Codable, Equatable, Sendable {
+    public var blocks: [HelpBlock]
+    public var folded: Bool?
+    public var title: String?
+
+    enum CodingKeys: String, CodingKey {
+        case blocks = "blocks"
+        case folded = "folded"
+        case title = "title"
+    }
+
+    public init(blocks: [HelpBlock], folded: Bool? = nil, title: String? = nil) {
+        self.blocks = blocks
+        self.folded = folded
+        self.title = title
+    }
+}
+
+public struct HelpTopic: Codable, Equatable, Sendable {
+    public var groups: [HelpGroup]
+    public var id: String
+    public var title: String
+
+    enum CodingKeys: String, CodingKey {
+        case groups = "groups"
+        case id = "id"
+        case title = "title"
+    }
+
+    public init(groups: [HelpGroup], id: String, title: String) {
+        self.groups = groups
+        self.id = id
+        self.title = title
+    }
+}
+
 /// `POST /v1/core/step`. `config` is sent on the first step of a hosted session.
 public struct HostedStep: Codable, Equatable, Sendable {
     public var config: CoreConfig?

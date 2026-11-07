@@ -20,6 +20,7 @@ serde_json.workspace = true
 server-accounts.workspace = true
 server-catalog.workspace = true
 server-library.workspace = true
+server-help.workspace = true
 server-pages.workspace = true
 server-play.workspace = true
 server-rules.workspace = true

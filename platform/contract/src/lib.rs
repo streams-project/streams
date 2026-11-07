@@ -18,6 +18,7 @@ pub mod driver;
 pub mod error;
 pub mod finder;
 pub mod hello;
+pub mod help;
 pub mod play;
 pub mod screen;
 mod title;

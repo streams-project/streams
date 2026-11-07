@@ -4,6 +4,7 @@ pub mod account;
 pub mod auth;
 pub mod commands;
 pub mod devices;
+pub mod help;
 pub mod mail;
 pub mod pages;
 pub mod play;

@@ -1331,6 +1331,111 @@ data class Hello(
     @SerialName("ttl_s") val ttlS: Long,
 )
 
+/** `/v1/help/articles/{slug}`. */
+@Serializable
+data class HelpArticle(
+    @SerialName("related") val related: List<HelpLink>? = null,
+    @SerialName("sections") val sections: List<HelpSection>,
+    @SerialName("slug") val slug: String,
+    @SerialName("title") val title: String,
+)
+
+@Serializable
+data class HelpBlock(
+    @SerialName("kind") val kind: HelpBlockKind,
+    @SerialName("lines") val lines: List<HelpLine>? = null,
+    /** The action of a tool block. */
+    @SerialName("tool") val tool: String? = null,
+)
+
+/** What a block of an article is. */
+@Serializable
+@JvmInline
+value class HelpBlockKind(val value: String) {
+    companion object {
+        val PARAGRAPH = HelpBlockKind("paragraph")
+        val HEADING = HelpBlockKind("heading")
+        val STEPS = HelpBlockKind("steps")
+        val LIST = HelpBlockKind("list")
+        val NOTE = HelpBlockKind("note")
+        val TOOL = HelpBlockKind("tool")
+    }
+}
+
+@Serializable
+data class HelpGroup(
+    @SerialName("articles") val articles: List<HelpLink>,
+    @SerialName("id") val id: String,
+    @SerialName("title") val title: String,
+)
+
+/** `/v1/help`. */
+@Serializable
+data class HelpHome(
+    @SerialName("policies") val policies: List<HelpPolicyLink>,
+    @SerialName("popular") val popular: List<HelpLink>,
+    @SerialName("topics") val topics: List<HelpTopic>,
+)
+
+/** One line of a block. A paragraph has one, a list has one per item. */
+@Serializable
+data class HelpLine(
+    @SerialName("runs") val runs: List<HelpRun>,
+)
+
+/** An article as a list shows it. */
+@Serializable
+data class HelpLink(
+    @SerialName("slug") val slug: String,
+    @SerialName("summary") val summary: String? = null,
+    @SerialName("title") val title: String,
+)
+
+/** `/v1/help/policies/{id}`. */
+@Serializable
+data class HelpPolicy(
+    @SerialName("id") val id: String,
+    @SerialName("sections") val sections: List<HelpSection>,
+    @SerialName("title") val title: String,
+    @SerialName("updated") val updated: String? = null,
+)
+
+@Serializable
+data class HelpPolicyLink(
+    @SerialName("id") val id: String,
+    @SerialName("title") val title: String,
+)
+
+/** `/v1/help/search`. */
+@Serializable
+data class HelpResults(
+    @SerialName("articles") val articles: List<HelpLink>,
+)
+
+/** Some words of a line, with how they are marked. */
+@Serializable
+data class HelpRun(
+    @SerialName("bold") val bold: Boolean? = null,
+    /** Where the words lead: an address in the app, a web page or a mail address. */
+    @SerialName("link") val link: String? = null,
+    @SerialName("text") val text: String,
+)
+
+/** A part of a page. A folded one starts closed where the app can open and close it. */
+@Serializable
+data class HelpSection(
+    @SerialName("blocks") val blocks: List<HelpBlock>,
+    @SerialName("folded") val folded: Boolean? = null,
+    @SerialName("title") val title: String? = null,
+)
+
+@Serializable
+data class HelpTopic(
+    @SerialName("groups") val groups: List<HelpGroup>,
+    @SerialName("id") val id: String,
+    @SerialName("title") val title: String,
+)
+
 /** `POST /v1/core/step`. `config` is sent on the first step of a hosted session. */
 @Serializable
 data class HostedStep(

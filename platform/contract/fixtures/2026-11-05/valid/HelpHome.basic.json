@@ -1,0 +1,33 @@
+{
+  "policies": [
+    {
+      "id": "terms",
+      "title": "Terms"
+    }
+  ],
+  "popular": [
+    {
+      "slug": "first",
+      "title": "Getting started"
+    }
+  ],
+  "topics": [
+    {
+      "groups": [
+        {
+          "articles": [
+            {
+              "slug": "first",
+              "summary": "Where to begin",
+              "title": "Getting started"
+            }
+          ],
+          "id": "basics",
+          "title": "Basics"
+        }
+      ],
+      "id": "start",
+      "title": "Start here"
+    }
+  ]
+}

@@ -97,6 +97,10 @@ pub const SETTINGS: &[(&str, &str)] = &[
         "Folder of interface text as <lang>.json. Without it strings are off.",
     ),
     (
+        "HELP_DIR",
+        "Folder of help text as <lang>.json. Without it help is off.",
+    ),
+    (
         "CLIENT_ADDRESS_HEADER",
         "The one header the front proxy sets. Without it the peer address is used.",
     ),
@@ -137,6 +141,7 @@ pub struct Config {
     pub accounts_required: bool,
     pub live_settings: Option<PathBuf>,
     pub strings_dir: Option<PathBuf>,
+    pub help_dir: Option<PathBuf>,
     pub address_header: Option<String>,
     pub build: String,
     /// Features that are off, each with its reason.
@@ -255,6 +260,10 @@ impl Config {
             note("visitors", "ACCOUNTS_REQUIRED=false needs a visitor tier");
         }
         let live_settings = value("LIVE_SETTINGS").map(PathBuf::from);
+        let help_dir = value("HELP_DIR").map(PathBuf::from);
+        if help_dir.is_none() {
+            note("help", "HELP_DIR is not set");
+        }
         let strings_dir = value("STRINGS_DIR").map(PathBuf::from);
         if strings_dir.is_none() {
             note("strings", "STRINGS_DIR is not set");
@@ -281,6 +290,7 @@ impl Config {
             accounts_required: !(asked_open && visitor_tier.is_some()),
             live_settings,
             strings_dir,
+            help_dir,
             address_header: value("CLIENT_ADDRESS_HEADER").map(|h| h.to_ascii_lowercase()),
             build: value("BUILD_ID").unwrap_or_else(|| env!("CARGO_PKG_VERSION").to_owned()),
             off,

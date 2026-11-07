@@ -328,6 +328,10 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
                 "STRINGS_DIR",
                 stack.root.join("strings").to_string_lossy().into_owned(),
             ),
+            (
+                "HELP_DIR",
+                stack.root.join("help").to_string_lossy().into_owned(),
+            ),
             ("SITE_ADDRESS", site_address.clone()),
             ("BRAND_NAME", stack.brand.name.clone()),
             ("SUPPORT_EMAIL", stack.brand.support_email.clone()),

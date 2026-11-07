@@ -1,0 +1,126 @@
+{
+  "$defs": {
+    "HelpBlock": {
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/HelpBlockKind"
+        },
+        "lines": {
+          "items": {
+            "$ref": "#/$defs/HelpLine"
+          },
+          "type": "array"
+        },
+        "tool": {
+          "description": "The action of a tool block.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "HelpBlockKind": {
+      "description": "What a block of an article is.",
+      "oneOf": [
+        {
+          "enum": [
+            "paragraph",
+            "heading",
+            "steps",
+            "list",
+            "note"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "tool",
+          "description": "An action the app offers here. An app without it leaves the block out.",
+          "type": "string"
+        }
+      ]
+    },
+    "HelpLine": {
+      "description": "One line of a block. A paragraph has one, a list has one per item.",
+      "properties": {
+        "runs": {
+          "items": {
+            "$ref": "#/$defs/HelpRun"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "runs"
+      ],
+      "type": "object"
+    },
+    "HelpRun": {
+      "description": "Some words of a line, with how they are marked.",
+      "properties": {
+        "bold": {
+          "type": "boolean"
+        },
+        "link": {
+          "description": "Where the words lead: an address in the app, a web page or a mail address.",
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    },
+    "HelpSection": {
+      "description": "A part of a page. A folded one starts closed where the app can open and close it.",
+      "properties": {
+        "blocks": {
+          "items": {
+            "$ref": "#/$defs/HelpBlock"
+          },
+          "type": "array"
+        },
+        "folded": {
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "blocks"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`/v1/help/policies/{id}`.",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "sections": {
+      "items": {
+        "$ref": "#/$defs/HelpSection"
+      },
+      "type": "array"
+    },
+    "title": {
+      "type": "string"
+    },
+    "updated": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "sections"
+  ],
+  "title": "HelpPolicy",
+  "type": "object"
+}

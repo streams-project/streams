@@ -28,6 +28,7 @@ contract = { path = "platform/contract" }
 server-accounts = { path = "server/crates/server-accounts" }
 server-catalog = { path = "server/crates/server-catalog" }
 server-rules = { path = "server/crates/server-rules" }
+server-help = { path = "server/crates/server-help" }
 server-library = { path = "server/crates/server-library" }
 server-pages = { path = "server/crates/server-pages" }
 server-play = { path = "server/crates/server-play" }

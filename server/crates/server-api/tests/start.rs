@@ -210,3 +210,30 @@ async fn a_word_a_translation_lacks_comes_back_in_english() {
     assert_eq!(answer.body["texts"]["a"], "eins");
     assert_eq!(answer.body["texts"]["b"], "two");
 }
+
+#[tokio::test]
+async fn help_is_open_to_anyone_and_answers_in_the_language_asked() {
+    let books = concat!(env!("CARGO_MANIFEST_DIR"), "/../server-help/tests/books");
+    let server = harness(&[("HELP_DIR", books), ("BRAND_NAME", "Sample")]);
+    let home = get("/v1/help").on(&server.state).await;
+    assert_eq!(home.status, StatusCode::OK, "{}", home.body);
+    assert_eq!(home.body["topics"][0]["title"], "Start here");
+    let german = get("/v1/help/articles/first?lang=de")
+        .on(&server.state)
+        .await;
+    assert_eq!(german.body["title"], "Erste Schritte");
+    let terms = get("/v1/help/policies/terms").on(&server.state).await;
+    assert_eq!(terms.body["title"], "Terms");
+    let found = get("/v1/help/search?q=audio").on(&server.state).await;
+    assert_eq!(found.body["articles"][0]["slug"], "second");
+    let missing = get("/v1/help/articles/nothing").on(&server.state).await;
+    assert_eq!(missing.status, StatusCode::NOT_FOUND);
+}
+
+#[tokio::test]
+async fn help_is_off_with_no_folder() {
+    let server = harness(&[]);
+    let home = get("/v1/help").on(&server.state).await;
+    assert_ne!(home.status, StatusCode::OK);
+    assert_ne!(home.status, StatusCode::NOT_FOUND);
+}

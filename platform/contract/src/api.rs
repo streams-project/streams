@@ -144,6 +144,11 @@ pub fn find(method: &str, path: &str) -> Option<&'static Route> {
 }
 
 const START: (Auth, Group) = (Auth::Open, Group::Start);
+const LANGUAGE: &[Query] = &[Query {
+    name: "lang",
+    required: false,
+    about: "A language code. Without it the text is in English.",
+}];
 const SIGN_IN: (Auth, Group) = (Auth::Open, Group::Auth);
 const SIGNED_IN: (Auth, Group) = (Auth::Member, Group::Auth);
 const ACCOUNT: (Auth, Group) = (Auth::Member, Group::Account);
@@ -181,6 +186,57 @@ pub const ROUTES: &[Route] = &[
         "Strings",
         START,
     )),
+    with_query(
+        cached(read(
+            "/v1/help",
+            "helpHome",
+            "Help topics.",
+            "HelpHome",
+            START,
+        )),
+        LANGUAGE,
+    ),
+    with_query(
+        cached(read(
+            "/v1/help/articles/{slug}",
+            "helpArticle",
+            "One help article.",
+            "HelpArticle",
+            START,
+        )),
+        LANGUAGE,
+    ),
+    with_query(
+        cached(read(
+            "/v1/help/policies/{id}",
+            "helpPolicy",
+            "One policy.",
+            "HelpPolicy",
+            START,
+        )),
+        LANGUAGE,
+    ),
+    with_query(
+        read(
+            "/v1/help/search",
+            "helpSearch",
+            "Help articles holding every word.",
+            "HelpResults",
+            START,
+        ),
+        &[
+            Query {
+                name: "q",
+                required: true,
+                about: "The search text.",
+            },
+            Query {
+                name: "lang",
+                required: false,
+                about: "A language code. Without it the text is in English.",
+            },
+        ],
+    ),
     cached(read(
         "/v1/languages",
         "listLanguages",

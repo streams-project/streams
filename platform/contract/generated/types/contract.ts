@@ -894,6 +894,88 @@ export interface Hello {
   ttl_s: number;
 }
 
+/** `/v1/help/articles/{slug}`. */
+export interface HelpArticle {
+  related?: HelpLink[];
+  sections: HelpSection[];
+  slug: string;
+  title: string;
+}
+
+export interface HelpBlock {
+  kind: HelpBlockKind;
+  lines?: HelpLine[];
+  /** The action of a tool block. */
+  tool?: string;
+}
+
+/** What a block of an article is. */
+export type HelpBlockKind = "paragraph" | "heading" | "steps" | "list" | "note" | "tool" | (string & {});
+
+export interface HelpGroup {
+  articles: HelpLink[];
+  id: string;
+  title: string;
+}
+
+/** `/v1/help`. */
+export interface HelpHome {
+  policies: HelpPolicyLink[];
+  popular: HelpLink[];
+  topics: HelpTopic[];
+}
+
+/** One line of a block. A paragraph has one, a list has one per item. */
+export interface HelpLine {
+  runs: HelpRun[];
+}
+
+/** An article as a list shows it. */
+export interface HelpLink {
+  slug: string;
+  summary?: string;
+  title: string;
+}
+
+/** `/v1/help/policies/{id}`. */
+export interface HelpPolicy {
+  id: string;
+  sections: HelpSection[];
+  title: string;
+  updated?: string;
+}
+
+export interface HelpPolicyLink {
+  id: string;
+  title: string;
+}
+
+/** `/v1/help/search`. */
+export interface HelpResults {
+  articles: HelpLink[];
+}
+
+/** Some words of a line, with how they are marked. */
+export interface HelpRun {
+  bold?: boolean;
+  /** Where the words lead: an address in the app, a web page or a mail address. */
+  link?: string;
+  text: string;
+}
+
+/** A part of a page. A folded one starts closed where the app can open and close it. */
+export interface HelpSection {
+  blocks: HelpBlock[];
+  folded?: boolean;
+  title?: string;
+}
+
+export interface HelpTopic {
+  groups: HelpGroup[];
+  id: string;
+  title: string;
+}
+
 /** `POST /v1/core/step`. `config` is sent on the first step of a hosted session. */
 export interface HostedStep {
   config?: CoreConfig;

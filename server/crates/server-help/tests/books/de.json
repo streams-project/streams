@@ -1,0 +1,8 @@
+{
+  "articles": {
+    "first": {"title": "Erste Schritte"}
+  },
+  "policies": {},
+  "popular": [],
+  "topics": [{"groups": [{"articles": [], "id": "basics"}], "id": "start", "title": "Start"}]
+}
