@@ -3,6 +3,7 @@
 
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
+use std::sync::atomic::{AtomicU32, Ordering};
 
 use anyhow::{Context, Result, bail};
 use flate2::read::GzDecoder;
@@ -57,6 +58,9 @@ fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
 }
 
+/// Counts unpacking folders within one run.
+static UNPACKING: AtomicU32 = AtomicU32::new(0);
+
 /// The `bin` folder of Postgres: the one named by `DATABASE_BIN` when an installed copy should be
 /// used, otherwise the pinned build, fetched into `cache` the first time.
 ///
@@ -83,14 +87,22 @@ pub async fn install(cache: &Path) -> Result<PathBuf> {
         bail!("the database download has hash {found}, expected {expected}");
     }
     std::fs::create_dir_all(cache)?;
-    let unpacking = cache.join(format!("{name}.unpacking"));
+    // Each start unpacks in its own folder, so two at once cannot empty each other's.
+    let turn = UNPACKING.fetch_add(1, Ordering::Relaxed);
+    let unpacking = cache.join(format!(".unpacking-{}-{turn}", std::process::id()));
     let _ = std::fs::remove_dir_all(&unpacking);
     std::fs::create_dir_all(&unpacking)?;
     tar::Archive::new(GzDecoder::new(archive.as_ref()))
         .unpack(&unpacking)
         .context("the database archive did not unpack")?;
-    std::fs::rename(unpacking.join(&name), cache.join(&name))?;
+    let placed = std::fs::rename(unpacking.join(&name), cache.join(&name));
     let _ = std::fs::remove_dir_all(&unpacking);
+    // Another start can finish first, and then its copy is the one in place.
+    if let Err(error) = placed
+        && !bin.join("postgres").exists()
+    {
+        return Err(error.into());
+    }
     Ok(bin)
 }
 
