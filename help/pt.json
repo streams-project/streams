@@ -1,0 +1,1351 @@
+{
+  "articles": {
+    "accessibility": {
+      "body": "- <b>Legendas.</b> Escolha o idioma em <b>Idiomas</b> do seu perfil, e o tamanho, a cor e o fundo em <b>Aparência das legendas</b>. Veja <a=/help/article/subtitles>Como usar legendas ou escolher o idioma do áudio</a>.\n- <b>Teclado.</b> Use <b>Tab</b> para passar pelos controles e <b>Esc</b> para fechar janelas. O player tem teclas próprias, veja <a=/help/article/shortcuts>Atalhos de teclado</a>.\n- <b>Tamanho do texto.</b> Aumente o zoom do navegador com <b>Ctrl</b> e <b>+</b> (<b>Cmd</b> e <b>+</b> no Mac). O layout se ajusta.\n- <b>Movimento.</b> Se o seu dispositivo pede movimento reduzido, o logo animado fica parado.\n\nSe algo for difícil de usar, conte pra gente na página <a=/help/article/report-bug>Relatar um problema</a>. Levamos esses relatos a sério.",
+      "keywords": "acessibilidade leitor de tela teclado legendas legendas tamanho contraste zoom movimento reduzido deficiência",
+      "related": [
+        "subtitles",
+        "shortcuts",
+        "language",
+        "phone-tablet",
+        "report-bug"
+      ],
+      "summary": "Legendas, controle com teclado e configurações de exibição que ajudam.",
+      "title": "Acessibilidade no {brand}"
+    },
+    "autoplay-blocked": {
+      "body": "Os navegadores não deixam uma página começar um vídeo com som até você clicar ou tocar nela. O {brand} tenta primeiro começar com som. Se o navegador não deixar, o vídeo começa sem som e mostra o alto-falante mudo. Ligue o som com <b>M</b> ou com o botão do alto-falante.\n\n- Para as prévias não começarem sozinhas, desative <b>Reproduzir pré-visualizações automaticamente</b> nas <b>Configurações de reprodução</b> do seu perfil.\n- Se um título nunca começa, veja <a=/help/article/wont-play>Um título não reproduz</a>.",
+      "keywords": "reprodução automática bloqueada mudo iniciar política navegador som automático reprodução prévia trailer",
+      "related": [
+        "no-sound",
+        "trailers-clips",
+        "wont-play",
+        "shortcuts",
+        "slow-pages"
+      ],
+      "summary": "Por que navegadores param o som de iniciar sozinho, e como {brand} lida com isso.",
+      "title": "O vídeo começa sem som ou não começa sozinho"
+    },
+    "black-screen": {
+      "body": "1. Pressione <b>F</b> para sair e reentrar em tela cheia, ou pressione <b>Esc</b> e reproduza novamente.\n2. Recarregue a página.\n3. Desative a aceleração de hardware nas configurações do seu navegador, reinicie o navegador e tente novamente.\n4. Atualize o seu navegador e o driver de gráficos.\n5. Tente outro navegador.\n\n!! Observação: Algumas extensões do navegador que alteram as cores da página ou bloqueiam mídia também podem esconder a imagem. Veja <a=/help/article/extensions-blockers>Extensões que bloqueiam o player</a>.\n\n@@ diagnostics",
+      "keywords": "tela preta sem imagem som apenas vídeo ausente tela verde",
+      "related": [
+        "wont-play",
+        "supported-browsers",
+        "extensions-blockers",
+        "fix-phone",
+        "fix-tv"
+      ],
+      "summary": "A imagem está ausente, mas você pode ouvir o título.",
+      "title": "Tela preta com som"
+    },
+    "browse-language": {
+      "body": "1. Abra <b>Navegar por idioma</b> na barra superior.\n2. <b>Língua Original</b> já vem selecionada. Escolha um idioma para ver os títulos feitos originalmente nele.\n\n!! Observação: A página lista os títulos pelo idioma original. A dublagem e as legendas dependem da fonte de cada título e aparecem em <b>Áudio e legendas</b> durante a reprodução.",
+      "keywords": "navegar por idioma idioma original estrangeiro internacional cinema mundial anime coreano espanhol",
+      "related": [
+        "language",
+        "subtitles",
+        "search-browse",
+        "new-popular",
+        "recommendations"
+      ],
+      "summary": "Encontre títulos pelo idioma em que foram feitos.",
+      "title": "Navegar por idioma"
+    },
+    "buffering": {
+      "body": "Uma transmissão pausa quando sua conexão entrega dados mais lentamente do que o vídeo precisa.\n\n- Feche outras abas, downloads e dispositivos que usam a mesma rede.\n- Se aproxime do roteador ou use um cabo.\n- Pausa por um minuto para que o player possa carregar adiante, depois pressione play.\n- Desative um VPN, ou escolha um servidor mais próximo no VPN.\n- Tente novamente mais tarde. As fontes são mais lentas em horas de pico.\n\nA fonte decide qual nível de qualidade é oferecido, então a nitidez da imagem pode mudar durante a reprodução.\n\n@@ diagnostics",
+      "keywords": "buffering atraso lento travamento travado carregamento spinner velocidade conexão qualidade",
+      "related": [
+        "wont-play",
+        "slow-pages",
+        "supported-browsers",
+        "extensions-blockers",
+        "fix-tv"
+      ],
+      "summary": "Melhore uma transmissão que fica parando para carregar.",
+      "title": "Buffering, travamento ou início lento"
+    },
+    "change-email-password": {
+      "body": "Abra o menu do perfil e escolha <b>Conta</b>. Seus dados ficam em <b>Detalhes da conta</b>. Antes de uma mudança, podemos pedir que você confirme que é você, com sua senha ou com um código enviado por e-mail.\n\n## Senha\n1. Escolha <b>Senha</b>.\n2. Digite a senha atual e depois a nova duas vezes. Ela precisa ter pelo menos 8 caracteres.\n3. Ative <b>Sair de todos os dispositivos</b> se outra pessoa puder saber a senha antiga e escolha <b>Salvar</b>.\n\n## E-mail\n1. Escolha <b>E-mail</b> e digite o novo endereço.\n2. Abra o link que enviamos ao novo endereço para concluir a mudança.\n\n## Celular e nome\nEscolha <b>Celular</b> para adicionar um número que ajuda você a recuperar a conta, ou <b>Nome</b> para mudar seu nome. O perfil principal usa seu nome.",
+      "keywords": "mudar e-mail trocar senha atualizar senha celular telefone dados da conta nome segurança",
+      "related": [
+        "forgot-password",
+        "devices-sign-out",
+        "sign-in",
+        "delete-account",
+        "privacy-data"
+      ],
+      "summary": "Atualize os dados que você usa para entrar e recuperar sua conta.",
+      "title": "Mudar seu e-mail, senha ou número de celular"
+    },
+    "clear-data": {
+      "body": "Limpar os dados do site em um navegador desconecta você dele e apaga a cópia dos seus perfis e configurações que ele guarda. Tudo continua na sua conta e volta quando você entra de novo.\n\n## Chrome, Edge e Brave\n1. Selecione o ícone de informações do site à esquerda da barra de endereço e escolha <b>Cookies e dados do site</b>, depois <b>Gerenciar dados do site no dispositivo</b>.\n2. Remova as entradas deste site.\n\n## Firefox\n1. Selecione o ícone de cadeado na barra de endereço e escolha <b>Limpar cookies e dados de sites</b>.\n\n## Safari no Mac\n1. Abra <b>Safari</b>, depois <b>Ajustes</b>, <b>Privacidade</b> e <b>Gerenciar Dados de Sites</b>.\n2. Encontre este site e escolha <b>Remover</b>.\n\n## Safari no iPhone e iPad\nAbra o app <b>Ajustes</b>, depois <b>Apps</b>, <b>Safari</b>, <b>Avançado</b>, <b>Dados dos Sites</b>, e remova este site.\n\n## Excluir dados da sua conta\n- Para tirar títulos da sua atividade de visualização, veja <a=/help/article/viewing-history>Como gerenciar seu histórico de visualização</a>.\n- Para excluir um perfil, veja <a=/help/article/profiles-manage>Como criar, editar ou excluir perfis</a>.\n- Para excluir tudo, veja <a=/help/article/delete-account>Excluir sua conta</a>.\n\n@@ data",
+      "keywords": "apagar deletar resetar remover dados histórico cache armazenamento cookies começar do zero",
+      "related": [
+        "saved-data",
+        "delete-account",
+        "viewing-history",
+        "privacy-data",
+        "sign-in"
+      ],
+      "summary": "Apague o que este navegador guarda do {brand} ou exclua dados da sua conta.",
+      "title": "Como limpar seus dados salvos"
+    },
+    "clips": {
+      "body": "<b>Clips</b> mostra pré-visualizações curtas uma após a outra, na barra inferior em um telefone.\n\n1. Rolo ou arraste para o próximo clip.\n2. Selecione o botão de alto-falante para ligar ou desligar o som. Clips começam mudo.\n3. Selecione <b>Minha Lista</b> para salvar o título, <b>Reproduzir</b> para assistir ou <b>Informações</b> para ler sobre ele.",
+      "keywords": "clips shorts pré-visualizações rolar vertical trailers tocar mudo informações minha lista",
+      "related": [
+        "trailers-clips",
+        "my-list",
+        "new-popular",
+        "search-browse",
+        "recommendations"
+      ],
+      "summary": "Role por prévias curtas e adicione o que gostar à sua lista.",
+      "title": "Como usar os Clips"
+    },
+    "continue-watching": {
+      "body": "Os títulos que você começou aparecem na fileira <b>Continuar assistindo</b>, com uma barra que mostra até onde você chegou. Ela também fica no <b>Meu {brand}</b>.\n\n## Continuar\nSelecione o título. A reprodução começa de onde você parou, em qualquer dispositivo em que você entrar.\n\n## Tirar um título da fileira\n1. Abra o menu de opções no card do título.\n2. Escolha <b>Remover de Continuar assistindo</b>.\n\nPara tirar um título também da sua atividade de visualização, veja <a=/help/article/viewing-history>Como gerenciar seu histórico de visualização</a>.",
+      "keywords": "continue assistindo continuar progresso remover linha parado assistido a metade",
+      "related": [
+        "viewing-history",
+        "my-list",
+        "saved-data",
+        "clear-data",
+        "skip-intro-next"
+      ],
+      "summary": "Continue de onde parou e tire títulos da fileira.",
+      "title": "Como usar o Continuar assistindo"
+    },
+    "contribute": {
+      "body": "{brand} é construído de forma aberta. Você pode ajudar de várias formas:\n\n- <b>Traduções.</b> O texto da interface está em arquivos de texto puro, um por idioma, então uma tradução é um arquivo de texto que você pode editar.\n- <b>Relatos de bugs.</b> Veja <a=/help/article/report-bug>Relatar um problema</a>.\n- <b>Correções e funcionalidades.</b> Envie uma descrição ou um patch.\n- <b>Ideias.</b> Nos diga o que você deseja que o Centro de Ajuda ou o aplicativo fizesse.\n\nEscreva para <a=mailto:{support_email}>{support_email}</a> com algumas linhas sobre o que você quer fazer.",
+      "keywords": "contribuir contribuindo voluntário traduzir tradução código github ajuda melhorar sugestões",
+      "related": [
+        "report-bug",
+        "title-feedback",
+        "what-is",
+        "getting-started",
+        "free-to-use"
+      ],
+      "summary": "Ideias, correções, traduções e relatos de bugs são bem-vindos.",
+      "title": "Como posso contribuir?"
+    },
+    "cookies-explained": {
+      "keywords": "cookies armazenamento local dados do navegador rastreamento consentimento banner preferências sessão terceiros",
+      "related": [
+        "privacy-data",
+        "saved-data",
+        "clear-data",
+        "recommendations",
+        "sources"
+      ],
+      "summary": "O que seu navegador mantém para {brand}, em palavras simples.",
+      "title": "Cookies e armazenamento local explicados"
+    },
+    "copyright": {
+      "body": "{brand} não hospeda arquivos de vídeo. Ele lista links para títulos hospedados por outros serviços. Se você possui os direitos de um título e acredita que um link viola-os, envie-nos uma notificação e revisaremos.\n\nUma notificação deve incluir:\n1. Seu nome e detalhes de contato.\n2. Uma descrição da obra que você possui.\n3. O endereço da página em {brand} que linka para ela.\n4. Uma declaração de que você é o detentor dos direitos ou é autorizado a agir em seu nome.\n\nEnvie para <a=mailto:{support_email}>{support_email}</a> com o assunto <b>aviso DMCA</b>. O processo completo está na <a=/help/legal/dmca> página DMCA </a>.",
+      "keywords": "direitos autorais dmca solicitação de remoção infração direito titular remover relatar aviso legal",
+      "related": [
+        "sources",
+        "what-is",
+        "privacy-data",
+        "title-feedback",
+        "report-bug"
+      ],
+      "summary": "Titulares de direitos podem pedir que um link seja removido.",
+      "title": "Como relatar um problema de direitos autorais"
+    },
+    "delete-account": {
+      "body": "Ao excluir sua conta, ela é removida na hora, junto com todos os perfis, listas, avaliações, configurações e toda a atividade de visualização. Não dá para desfazer.\n\n1. Abra o menu do perfil e escolha <b>Conta</b>.\n2. Escolha <b>Excluir conta</b> no fim da página.\n3. Confirme que é você e escolha <b>Excluir permanentemente</b>.\n\nSe você só quer tirar uma pessoa, exclua o perfil dela. Veja <a=/help/article/profiles-manage>Como criar, editar ou excluir perfis</a>.\n\n!! Observação: Se quiser guardar uma cópia dos seus dados, baixe-a antes. Veja <a=/help/article/download-data>Baixar uma cópia dos seus dados</a>.",
+      "keywords": "excluir conta fechar conta apagar conta apagar dados cancelar conta",
+      "related": [
+        "download-data",
+        "profiles-manage",
+        "privacy-data",
+        "transfer-profile",
+        "clear-data"
+      ],
+      "summary": "Remova sua conta e tudo o que há nela para sempre.",
+      "title": "Excluir sua conta"
+    },
+    "devices-sign-out": {
+      "body": "1. Abra o menu do perfil e escolha <b>Conta</b>.\n2. Escolha <b>Acesso e dispositivos</b>.\n3. Escolha <b>Sair deste dispositivo</b>, ou <b>Sair de todos os dispositivos</b> para sair de todos os navegadores em que sua conta está aberta, incluindo este.\n\n<b>Atividade de segurança recente</b>, na mesma página, lista os logins e as mudanças recentes na sua conta. Também enviamos um e-mail quando um novo dispositivo entra na conta.\n\n!! Observação: Se você vir um login que não reconhece, saia de todos os dispositivos e mude sua senha. Veja <a=/help/article/change-email-password>Mudar seu e-mail, senha ou número de celular</a>.",
+      "keywords": "sair de todos os dispositivos dispositivos conectados sessões segurança novo dispositivo celular perdido computador público",
+      "related": [
+        "change-email-password",
+        "sign-in",
+        "forgot-password",
+        "security-report",
+        "privacy-data"
+      ],
+      "summary": "Veja onde sua conta está conectada e saia dos dispositivos que você não usa mais.",
+      "title": "Sair de um dispositivo ou de todos"
+    },
+    "download-data": {
+      "body": "1. Abra o menu do perfil e escolha <b>Conta</b>.\n2. Escolha <b>Acesso a informações pessoais</b>.\n3. Siga os passos para salvar o arquivo.\n\nO arquivo traz os dados da sua conta, seus perfis, configurações, Minha Lista, avaliações e atividade de visualização. Ele fica salvo no seu dispositivo, então guarde-o em um lugar seguro.\n\nPara baixar a atividade de visualização de um perfil como planilha, abra a <b>Atividade de visualização</b> desse perfil e escolha <b>Baixar tudo</b>.",
+      "keywords": "baixar meus dados informações pessoais cópia exportar lgpd gdpr pedido de acesso",
+      "related": [
+        "privacy-data",
+        "delete-account",
+        "viewing-history",
+        "transfer-profile",
+        "saved-data"
+      ],
+      "summary": "Receba um arquivo com as informações pessoais que sua conta guarda.",
+      "title": "Baixar uma cópia dos seus dados"
+    },
+    "episodes": {
+      "body": "## Antes de pressionar play\nAbra uma série e selecione <b>Episódios</b>. Use o menu de temporadas para mudar de temporada, depois selecione um episódio.\n\n## Enquanto você assiste\n- Selecione <b>Episódios</b> nos controles do player para abrir a lista sem sair.\n- Selecione <b>Próximo Episódio</b>, ou deixe ele começar sozinho. Veja <a=/help/article/skip-intro-next>\"Pular abertura\" e \"Próximo episódio\"</a>.",
+      "keywords": "temporadas episódios séries lista próximo episódio drawer binge seleção programas de TV",
+      "related": [
+        "skip-intro-next",
+        "continue-watching",
+        "shortcuts",
+        "title-details",
+        "my-list"
+      ],
+      "summary": "Escolha uma temporada e um episódio da janela de detalhes ou do player.",
+      "title": "Temporadas e episódios"
+    },
+    "extensions-blockers": {
+      "body": "O player carrega streams de fontes de terceiros. Ferramentas que bloqueiam scripts, frames ou mídia de outros sites podem impedir isso.\n\n1. Abra sua extensão e pause-a para este site, depois recarregue.\n2. Se você usar um filtro de rede abrangente, como um filtro DNS ou uma rede de escola ou trabalho, tente outra rede.\n3. Se a reprodução funcionar depois disso, adicione {brand} à lista de permissões da extensão.\n\n!! Observação: Nós nunca pedimos para você instalar uma extensão do navegador ou um codec para assistir. Feche qualquer página que faça isso.\n\n@@ diagnostics",
+      "keywords": "extensão adblock ublock ghostery privacidade bloqueador script bloqueio vpn filtro dns",
+      "related": [
+        "wont-play",
+        "playback-unavailable",
+        "supported-browsers",
+        "black-screen",
+        "sources"
+      ],
+      "summary": "Bloqueadores de anúncios e ferramentas de privacidade podem impedir que um streaming carregue.",
+      "title": "Extensões que bloqueiam o player"
+    },
+    "fix-phone": {
+      "body": "1. Feche a aba e abra {brand} novamente.\n2. Atualize seu navegador da loja de aplicativos.\n3. Desative o modo economia de dados ou modo de baixa potência enquanto assiste.\n4. Verifique se você tem uma conexão estável. Veja <a=/help/article/buffering>Buffering, travamento ou início lento</a>.\n5. Se você adicionou {brand} à tela inicial e parece estar desatualizado, remova-o e adicione novamente. Veja <a=/help/article/install-app>Como instalar {brand} como um aplicativo</a>.\n\n@@ diagnostics\n\n@@ refresh",
+      "keywords": "celular tablet android iphone ipad móvel corrigir problema aplicativo",
+      "related": [
+        "phone-tablet",
+        "install-app",
+        "supported-browsers",
+        "wont-play",
+        "buffering"
+      ],
+      "summary": "Passos para iPhone, iPad e Android.",
+      "title": "Resolva um problema no seu celular ou tablet"
+    },
+    "fix-tv": {
+      "body": "{brand} não tem um app para TV. Você assiste através do navegador da TV ou enviando uma aba do navegador de um computador ou telefone.\n\n- Atualize o software da TV e seu navegador.\n- Reinicie a TV ou o stick de streaming.\n- Se você estiver enviando uma aba, mantenha o dispositivo de envio na mesma rede e feche outras abas nele.\n- Se o navegador da TV estiver lento, envie a aba de um computador em vez disso.\n\nVeja <a=/help/article/watch-on-tv>Como assistir na sua TV</a>.\n\n@@ diagnostics",
+      "keywords": "tv televisão smart tv chromecast cast corrigir problema hdmi stick navegador",
+      "related": [
+        "watch-on-tv",
+        "wont-play",
+        "supported-browsers",
+        "buffering",
+        "black-screen"
+      ],
+      "summary": "Passos para quando você assiste pelo navegador da TV ou transmitindo de outro aparelho.",
+      "title": "Resolva um problema na sua TV"
+    },
+    "forgot-password": {
+      "keywords": "esqueci a senha redefinir senha perdi a senha não consigo entrar nova senha link",
+      "related": [
+        "sign-in",
+        "change-email-password",
+        "devices-sign-out",
+        "need-account"
+      ],
+      "summary": "Receba por e-mail um link para escolher uma nova senha.",
+      "title": "Esqueci minha senha"
+    },
+    "forgot-pin": {
+      "body": "1. Abra o menu do perfil, escolha <b>Conta</b>, depois <b>Gerenciar perfis</b>, e selecione o perfil bloqueado.\n2. Escolha <b>Bloqueio de perfil</b> e digite a senha da sua conta.\n3. Escolha <b>Esqueceu seu PIN?</b> e depois <b>Remover bloqueio de perfil</b>.\n\nO perfil volta a abrir sem PIN, e você pode definir um novo. Veja <a=/help/article/profile-pin>Como adicionar, editar ou remover um PIN de perfil</a>.\n\n!! Observação: Só quem sabe a senha da conta pode remover um PIN. Se você também esqueceu a senha, veja <a=/help/article/forgot-password>Esqueci minha senha</a>.\n\n@@ profiles",
+      "keywords": "esqueci pin redefinir perda de código de segurança bloqueado perfil bloqueio",
+      "related": [
+        "profile-pin",
+        "forgot-password",
+        "profiles-manage",
+        "kids-profile",
+        "switch-profile"
+      ],
+      "summary": "Remova o PIN com a senha da sua conta e defina um novo.",
+      "title": "Esqueci o PIN do meu perfil"
+    },
+    "free-to-use": {
+      "body": "{brand} não cobra uma taxa, não tem assinatura ou pede detalhes de cartão. Não há planos, testes ou datas de cobrança.\n\nSe uma página, e-mail ou mensagem afirma ser {brand} e pede para você pagar, não é da nossa empresa. Não entre com detalhes de pagamento. Envie para <a=mailto:{support_email}>{support_email}</a> e vamos investigar.\n\n{brand} é um índice de links para títulos hospedados por outros serviços. Se um serviço cobra por seu próprio conteúdo, isso é decidido pelo serviço. Veja <a=/help/article/sources>De onde os títulos vêm</a>.",
+      "keywords": "gratuito preço custo pagar pagamento assinatura cobrança cartão crédito plano teste",
+      "related": [
+        "what-is",
+        "need-account",
+        "sources",
+        "getting-started",
+        "contribute"
+      ],
+      "summary": "Não há nada para pagar em {brand}.",
+      "title": "O {brand} é grátis?"
+    },
+    "genres": {
+      "body": "1. Abra <b>Filmes</b> ou <b>Séries</b> na barra superior.\n2. Selecione <b>Gêneros</b> ao lado do título da página.\n3. Escolha um gênero. A página então mostra apenas esse gênero, com fileiras criadas para ele.\n\nPara voltar a tudo, abra <b>Filmes</b> ou <b>Séries</b> novamente. Em um telefone, a lista de gêneros abre como uma folha do fundo.",
+      "keywords": "gêneros categorias comédia drama terror ação filtro navegar filmes séries submenu",
+      "related": [
+        "search-browse",
+        "browse-language",
+        "new-popular",
+        "recommendations",
+        "top-10"
+      ],
+      "summary": "Filtre Filmes e Séries pelo tipo de título que você quer.",
+      "title": "Navegar por gênero"
+    },
+    "getting-started": {
+      "body": "1. <b>Crie sua conta grátis.</b> Veja <a=/help/article/need-account>Preciso de uma conta?</a>\n2. <b>Escolha ou crie um perfil.</b> Veja <a=/help/article/profiles-manage>Como criar, editar ou excluir perfis</a>.\n3. <b>Dê uma olhada na página inicial.</b> As fileiras são agrupadas por tema, e o título grande no topo muda.\n4. <b>Busque</b> um título, um ator ou um diretor com a lupa. Veja <a=/help/article/search-browse>Como pesquisar e navegar</a>.\n5. <b>Selecione um título</b> para ler sobre ele, ver o trailer e dar play.\n6. <b>Adicione títulos à Minha Lista</b> com o botão <b>+</b>.\n\nAprenda as teclas que ajudam enquanto você assiste: <a=/help/article/shortcuts>Atalhos de teclado</a>.",
+      "keywords": "começando guia início primeira vez tour novo usuário como usar diretrizes básicos",
+      "related": [
+        "what-is",
+        "profiles-manage",
+        "search-browse",
+        "install-app",
+        "need-account"
+      ],
+      "summary": "Seus primeiros cinco minutos: conta, perfis, encontrar um título e salvá-lo.",
+      "title": "Começando com {brand}"
+    },
+    "install-app": {
+      "body": "O {brand} é um app web. Não há nada para baixar de uma loja. Seu navegador pode instalá-lo para ele abrir em uma janela própria, com ícone próprio.\n\n## Chrome e Edge no Windows, Mac e Linux\nSelecione o ícone de instalar à direita da barra de endereço, ou abra o menu do navegador e escolha <b>Instalar {brand}</b> (no Edge: <b>Aplicativos</b> e depois <b>Instalar este site como um aplicativo</b>).\n\n## Safari no Mac\nAbra o menu <b>Arquivo</b> e escolha <b>Adicionar ao Dock</b>.\n\n## Android\nAbra o menu do navegador e escolha <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.\n\n## iPhone e iPad\nNo Safari, selecione o botão <b>Compartilhar</b> e depois <b>Adicionar à Tela de Início</b>.\n\n!! Observação: O Firefox no computador não instala sites como apps. Use um favorito, ou instale pelo Chrome, Edge ou Safari. Um app instalado é o mesmo site: ele se atualiza sozinho e mantém você conectado como o navegador.",
+      "keywords": "instalar aplicativo pwa adicionar à tela inicial atalho do desktop ícone aplicativo web",
+      "related": [
+        "phone-tablet",
+        "supported-browsers",
+        "fix-phone",
+        "getting-started",
+        "watch-on-tv"
+      ],
+      "summary": "Adicione o {brand} à tela inicial, ao Dock ou à área de trabalho para ele abrir em uma janela própria.",
+      "title": "Como instalar {brand} como um aplicativo"
+    },
+    "is-down": {
+      "body": "{brand} tem três partes que podem falhar separadamente:\n\n- <b>O aplicativo</b>, que você está vendo agora.\n- <b>O catálogo de filmes e séries</b>, que fornece detalhes e imagens.\n- <b>As fontes de streaming</b>, que fornecem o vídeo.\n\nExecute o check para ver qual delas responde do seu dispositivo. Se o catálogo ou as fontes não responderem para todos, espere alguns minutos e tente novamente. Se uma estiver inacessível apenas para você, veja <a=/help/article/vpn-network>VPNs, redes de escola e trabalho</a>.\n\n@@ diagnostics",
+      "keywords": "down interrupção status não funcionando offline indisponível servidor manutenção erro site",
+      "related": [
+        "vpn-network",
+        "wont-play",
+        "rows-wont-load",
+        "sources",
+        "report-bug"
+      ],
+      "summary": "Verifique quais partes estão funcionando do seu dispositivo.",
+      "title": "O {brand} está fora do ar?"
+    },
+    "kids-profile": {
+      "body": "Um perfil infantil mostra apenas títulos adequados para crianças, com uma página inicial e menus próprios pensados para elas.\n\n1. Abra <b>Gerenciar perfis</b> e escolha <b>Adicionar perfil</b>.\n2. Digite um nome e ative <b>Perfil infantil</b>.\n3. Escolha <b>Salvar</b>.\n\nPara transformar um perfil existente em infantil, edite-o e ative <b>Perfil infantil</b>. O perfil principal não pode ser infantil.\n\nPara sair das páginas infantis, escolha <b>Sair do modo Infantil</b> e selecione outro perfil. Para impedir que uma criança troque de perfil, bloqueie os outros perfis com um PIN. Veja <a=/help/article/profile-pin>Como adicionar, editar ou remover um PIN de perfil</a>.\n\nPara crianças mais velhas, você pode definir uma classificação etária em qualquer perfil. Veja <a=/help/article/parental-controls>Controles parentais: classificações etárias e títulos bloqueados</a>.\n\n!! Observação: Os títulos vêm de fontes independentes e nem todos têm classificação etária. Um perfil infantil reduz o que uma criança consegue encontrar, mas não substitui assistir junto.\n\n@@ profiles",
+      "keywords": "crianças crianças família controles parentais seguro jovem perfil",
+      "related": [
+        "parental-controls",
+        "profile-pin",
+        "profiles-manage",
+        "switch-profile",
+        "recommendations"
+      ],
+      "summary": "Um perfil infantil mostra títulos feitos para crianças e deixa o resto fora de alcance.",
+      "title": "Como criar um perfil para crianças"
+    },
+    "language": {
+      "body": "## Idioma de exibição\n1. Abra o menu do perfil, escolha <b>Conta</b>, depois <b>Gerenciar perfis</b>, e selecione seu perfil.\n2. Escolha <b>Idiomas</b>, depois <b>Idioma de exibição</b>, e escolha um idioma.\n\nA escolha pertence ao perfil, então acompanha você em todos os seus dispositivos. Na Central de Ajuda, você também pode escolher um idioma no fim de qualquer página.\n\n## Idiomas do áudio e das legendas\n1. Abra <b>Idiomas</b> do seu perfil, como acima, e depois <b>Áudio e legendas</b>.\n2. Escolha um <b>Idioma do áudio</b> e um <b>Idioma das legendas</b>. <b>Igual ao idioma de exibição</b> segue o idioma do app.\n\nO player usa esses idiomas sempre que o título os oferece.\n\n!! Observação: Só aparecem na lista os idiomas totalmente traduzidos.\n\n@@ language",
+      "keywords": "idioma mudar traduzir interface exibição subtítulo áudio inglês espanhol francês árabe",
+      "related": [
+        "subtitles",
+        "browse-language",
+        "subtitles-missing",
+        "shortcuts",
+        "accessibility"
+      ],
+      "summary": "Mude o idioma do {brand} e os idiomas em que você assiste.",
+      "title": "Como mudar o idioma"
+    },
+    "list-missing": {
+      "body": "A Minha Lista e o seu progresso pertencem a um perfil e ficam salvos na sua conta. Se parecerem vazios:\n\n- Confira se você está no perfil certo. Cada perfil tem a própria lista. Troque pelo menu do perfil.\n- Confira se você entrou com a mesma conta de antes.\n- Dê alguns segundos para um dispositivo novo carregar sua conta depois de entrar, ou recarregue a página.\n- Títulos que você ocultou da atividade de visualização também saem do Continuar assistindo.\n\nSe ainda faltar algo em um dispositivo, saia e entre de novo nele. Veja <a=/help/article/saved-data>Onde ficam salvos seus perfis, sua lista e seu progresso</a>.\n\n@@ profiles",
+      "keywords": "minha lista desaparecida perdida vazia perdida continue assistir progresso reset",
+      "related": [
+        "my-list",
+        "saved-data",
+        "switch-profile",
+        "continue-watching",
+        "sign-in"
+      ],
+      "summary": "Por que a Minha Lista ou o Continuar assistindo podem parecer vazios e como recuperá-los.",
+      "title": "Minha Lista ou progresso desapareceu"
+    },
+    "my-list": {
+      "body": "## Adicionar um título\nSelecione o botão <b>+</b> no card de um título, na janela de detalhes ou no título em destaque no topo da página.\n\n## Remover um título\nSelecione a marca de seleção do título. Ela volta a ser <b>+</b>.\n\n## Ver sua lista\nAbra <b>Meu {brand}</b> na barra de cima, ou na barra de baixo no celular. Sua lista fica lá, ao lado de <b>Continuar assistindo</b>, dos títulos que você curtiu e dos trailers que assistiu.\n\nA Minha Lista pertence ao perfil e fica salva na sua conta, então é a mesma em todos os dispositivos.",
+      "keywords": "minha lista adicionar remover lista de assistir salvar depois favoritos mais",
+      "related": [
+        "list-missing",
+        "continue-watching",
+        "viewing-history",
+        "saved-data",
+        "recommendations"
+      ],
+      "summary": "Salve títulos para depois e encontre-os novamente.",
+      "title": "Como usar a Minha Lista"
+    },
+    "need-account": {
+      "body": "Sim. Você precisa de uma conta grátis para assistir no {brand}. Criar uma leva um minuto e nunca pede dados de pagamento.\n\n1. Na página inicial do {brand}, digite seu e-mail e escolha <b>Começar</b>.\n2. Digite seu nome e sobrenome e escolha uma senha com pelo menos 8 caracteres.\n3. Abra o link que enviamos por e-mail para confirmar seu endereço e depois entre.\n\nSua conta guarda seus perfis, a Minha Lista, suas avaliações, sua atividade de visualização e suas configurações, que ficam iguais em todos os dispositivos em que você entrar. Seu nome vira o nome do seu perfil principal.\n\n!! Observação: O {brand} é grátis e nunca vai pedir o número de um cartão. Veja <a=/help/article/free-to-use>O {brand} é grátis?</a>",
+      "keywords": "conta cadastro login registro login necessário associação",
+      "related": [
+        "sign-in",
+        "free-to-use",
+        "profiles-manage",
+        "saved-data",
+        "privacy-data"
+      ],
+      "summary": "Sim, uma conta grátis. Veja o que ela guarda para você.",
+      "title": "Preciso de uma conta?"
+    },
+    "new-popular": {
+      "body": "<b>Novo & Popular</b> na barra superior lista títulos que são recentes ou em tendência. Abra um título para ver seus detalhes, depois adicione-o a <b>Minha Lista</b> para encontrá-lo depois.\n\nAs listas são atualizadas a partir do catálogo, então elas mudam de dia para dia.",
+      "keywords": "novo popular tendência mais recente top 10 em breve essa semana",
+      "related": [
+        "notifications",
+        "search-browse",
+        "trailers-clips",
+        "recommendations",
+        "my-list"
+      ],
+      "summary": "Veja o que está chegando e o que as pessoas estão assistindo agora.",
+      "title": "Novos & Populares"
+    },
+    "no-sound": {
+      "body": "1. Pressione <b>M</b>, ou selecione o botão de alto-falante no player, para desmutar. Navegadores geralmente iniciam um vídeo mudo quando ele começa por si só, veja <a=/help/article/autoplay-blocked>Vídeo começa mudo</a>.\n2. Pressione a <b>Flecha para cima</b> para aumentar o volume e verifique o volume do seu dispositivo.\n3. Verifique se a aba do navegador não está muda. Clique com o botão direito na aba para ver.\n4. Abra <b>Áudio e Legendas</b> e escolha outra faixa de áudio, se houver.\n5. Se você usar Bluetooth, desconecte e reconecte seus fones de ouvido.",
+      "keywords": "sem som áudio mudo silencioso volume alto fone de ouvido bluetooth fones de ouvido reprodução automática",
+      "related": [
+        "autoplay-blocked",
+        "shortcuts",
+        "subtitles",
+        "wont-play",
+        "black-screen"
+      ],
+      "summary": "O que fazer quando um título toca sem áudio.",
+      "title": "Não há som"
+    },
+    "notifications": {
+      "body": "O sino na barra de cima mostra títulos que valem uma olhada, como novidades e títulos populares. Selecione um item para abrir os detalhes do título.\n\nOs itens que você abre são marcados como lidos, e o número no sino mostra quantos ainda não foram lidos.\n\nAs <b>Configurações de notificações</b> do seu perfil têm opções de e-mail e notificações push. Elas ficam salvas com o perfil, mas o {brand} ainda não envia e-mails nem notificações push sobre títulos. E-mails sobre sua conta, como links para entrar, sempre chegam.",
+      "keywords": "notificações sino alertas novo lançamento atualizações lido não lido",
+      "related": [
+        "new-popular",
+        "my-list",
+        "recommendations",
+        "trailers-clips",
+        "search-browse"
+      ],
+      "summary": "O que o sino na barra superior mostra e como os itens são marcados como lidos.",
+      "title": "Notificações"
+    },
+    "parental-controls": {
+      "body": "Cada perfil pode ter seus próprios limites. Abra o menu do perfil, escolha <b>Conta</b>, depois <b>Gerenciar perfis</b>, selecione o perfil e escolha <b>Ajustar controles parentais</b>.\n\n## Classificações etárias\n1. Escolha <b>Classificações etárias</b>.\n2. Escolha a classificação mais alta que o perfil pode ver. Só aparecem títulos até essa classificação, e títulos sem classificação também ficam ocultos.\n\n<b>Sistema de classificação</b> define quais etiquetas você vê: britânicas (U, PG, 12, 15, 18) ou americanas (G, PG, PG-13, R, NC-17). <b>Automático</b> segue o país de onde você entra.\n\n## Bloquear títulos\n1. Escolha <b>Bloquear títulos</b>.\n2. Digite o nome de uma série ou filme e escolha <b>Adicionar</b>.\n\nTítulos bloqueados não aparecem nesse perfil. Escolha <b>Remover</b> para mostrar um de novo.\n\n!! Observação: Os títulos vêm de fontes independentes e alguns não têm classificação. Para crianças pequenas, um perfil infantil é a escolha mais segura. Veja <a=/help/article/kids-profile>Como criar um perfil para crianças</a>.\n\n@@ profiles",
+      "keywords": "controles parentais classificação etária indicativa restrições bloquear título esconder crianças adolescentes 12 14 16 18",
+      "related": [
+        "kids-profile",
+        "profile-pin",
+        "profiles-manage",
+        "viewing-history",
+        "switch-profile"
+      ],
+      "summary": "Limite um perfil a títulos até uma classificação etária ou esconda títulos pelo nome.",
+      "title": "Controles parentais: classificações etárias e títulos bloqueados"
+    },
+    "phone-tablet": {
+      "body": "Abra o site no navegador do celular. A página muda para um layout feito para toque, com uma barra embaixo para <b>Início</b>, <b>Clips</b>, <b>Buscar</b> e <b>Meu {brand}</b>.\n\n- Toque em um card para ver os detalhes e depois no botão de play para começar.\n- Vire o celular na horizontal para ter a melhor imagem.\n- Para ele parecer um app, veja <a=/help/article/install-app>Como instalar {brand} como um aplicativo</a>.",
+      "keywords": "celular tablet móvel android iphone ipad toque barra inferior layout de aplicativo",
+      "related": [
+        "install-app",
+        "fix-phone",
+        "supported-browsers",
+        "getting-started",
+        "shortcuts"
+      ],
+      "summary": "O layout móvel, a barra inferior e dicas para telas pequenas.",
+      "title": "Como usar {brand} no seu celular ou tablet"
+    },
+    "playback-unavailable": {
+      "body": "Você pode ver <b>Reprodução Indisponível</b> ou <b>Não é possível transmitir vídeo. Todos os provedores de origem estavam indisponíveis ou não suportados pelo seu navegador.</b>\n\nIsso significa que o player pediu a todos os seus provedores de origem para esse título e nenhum retornou uma transmissão que o seu navegador pode reproduzir.\n\n1. Aguarde um minuto e pressione play novamente. Os provedores subem e descem.\n2. Desative os bloqueadores. Veja <a=/help/article/extensions-blockers>Extensões que bloqueiam o player</a>.\n3. Tente um navegador diferente. Algumas transmissões precisam de recursos que estão faltando em navegadores mais antigos.\n4. Tente outro título para verificar se o problema é apenas nesse.\n\nSe o mesmo título falhar por um dia, <a=/help/article/report-bug>informe-nos</a>. Inclua o título, o ano e o navegador que você usou.\n\n@@ diagnostics",
+      "keywords": "reprodução indisponível mensagem de erro não pode transmitir provedores não suportados",
+      "related": [
+        "wont-play",
+        "sources",
+        "extensions-blockers",
+        "supported-browsers",
+        "report-bug"
+      ],
+      "summary": "O que a mensagem significa e o que fazer em seguida.",
+      "title": "{brand} diz \"Reprodução Indisponível\""
+    },
+    "privacy-data": {
+      "keywords": "privacidade dados coletar informações pessoais rastreamento vender compartilhar cookies análise",
+      "related": [
+        "download-data",
+        "delete-account",
+        "saved-data",
+        "recommendations",
+        "cookies-explained"
+      ],
+      "summary": "Um resumo curto do que é armazenado, do que é enviado e onde ler a política completa.",
+      "title": "Quais dados o {brand} coleta?"
+    },
+    "profile-icons": {
+      "body": "1. Abra <b>Gerenciar perfis</b> e selecione o perfil.\n2. Selecione a imagem.\n3. Escolha uma nova e depois <b>Salvar</b>.\n\nVocê também pode trocá-la em <b>Conta</b>, em <b>Gerenciar perfis</b>: selecione o perfil e depois a imagem dele. Um perfil infantil usa a imagem infantil até você escolher outra.",
+      "keywords": "ícone de perfil avatar imagem foto alterar escolher personagem",
+      "related": [
+        "profiles-manage",
+        "kids-profile",
+        "switch-profile",
+        "profile-pin",
+        "saved-data"
+      ],
+      "summary": "Escolha uma imagem para um perfil.",
+      "title": "Como escolher a imagem do perfil"
+    },
+    "profile-pin": {
+      "body": "O bloqueio de perfil pede um PIN de 4 dígitos antes de abrir o perfil. O PIN pertence à sua conta, então funciona em todos os dispositivos em que você entrar.\n\n## Ativar o bloqueio de perfil\n1. Abra o menu do perfil, escolha <b>Conta</b>, depois <b>Gerenciar perfis</b>, e selecione o perfil.\n2. Escolha <b>Bloqueio de perfil</b> e digite a senha da sua conta para confirmar que é você.\n3. Digite quatro dígitos e escolha <b>Salvar</b>.\n\nVocê também pode ativar o <b>Bloqueio de perfil</b> ao adicionar ou editar um perfil em <b>Gerenciar perfis</b>.\n\n## Alterar ou remover o PIN\n1. Abra o <b>Bloqueio de perfil</b> do perfil, como acima.\n2. Escolha <b>Alterar PIN</b>, ou <b>Remover bloqueio de perfil</b> e digite o PIN atual.\n\n!! Observação: Depois de muitas tentativas erradas, o perfil fica bloqueado por um tempo. Se você esqueceu o PIN, veja <a=/help/article/forgot-pin>Esqueci o PIN do meu perfil</a>.\n\n@@ profiles",
+      "keywords": "pin bloqueio bloqueio de perfil código privado proteger perfil senha",
+      "related": [
+        "forgot-pin",
+        "kids-profile",
+        "profiles-manage",
+        "switch-profile",
+        "saved-data"
+      ],
+      "summary": "Bloqueie um perfil com um PIN de 4 dígitos para que só a pessoa certa possa abri-lo.",
+      "title": "Como adicionar, editar ou remover um PIN de perfil"
+    },
+    "profiles-manage": {
+      "body": "Cada pessoa da casa pode ter um perfil com nome, imagem, Minha Lista, atividade de visualização e recomendações próprios. Uma conta pode ter até 5 perfis.\n\n## Adicionar um perfil\n1. Abra o menu do perfil no canto superior direito e escolha <b>Gerenciar perfis</b>, ou selecione <b>Gerenciar perfis</b> na tela <b>Quem está assistindo?</b>.\n2. Selecione <b>Adicionar perfil</b>.\n3. Digite um nome e escolha uma imagem. Ative <b>Perfil infantil</b> se o perfil for para uma criança.\n4. Escolha <b>Salvar</b>.\n\n## Editar ou excluir um perfil\n1. Abra <b>Gerenciar perfis</b> e selecione o perfil que quer mudar.\n2. Mude o nome ou a imagem, ou ative ou desative <b>Perfil infantil</b> ou <b>Bloqueio de perfil</b>, e escolha <b>Salvar</b>.\n3. Para remover o perfil, escolha <b>Excluir perfil</b>. A atividade de visualização e as configurações dele vão junto.\n\nIdiomas, legendas, controles parentais e as outras preferências de um perfil ficam em <b>Conta</b>, em <b>Gerenciar perfis</b>.\n\n!! Observação: Os perfis ficam salvos na sua conta, então aparecem em todos os dispositivos em que você entrar.\n\n@@ profiles\n\n>> Não consigo excluir um perfil\nO perfil principal, o que tem o seu nome, não pode ser excluído, e uma conta sempre mantém pelo menos um perfil. Todos os outros perfis podem ser excluídos.",
+      "keywords": "perfil perfis adicionar criar editar deletar remover nome ícone avatar quem está assistindo",
+      "related": [
+        "switch-profile",
+        "profile-pin",
+        "kids-profile",
+        "parental-controls",
+        "transfer-profile"
+      ],
+      "summary": "Adicione um perfil para cada pessoa, mude um nome ou uma imagem, bloqueie um perfil ou exclua um que não precisa mais.",
+      "title": "Como criar, editar ou excluir perfis"
+    },
+    "recommendations": {
+      "body": "As fileiras nascem do que os títulos são: gêneros, clima, temas, país e década, por exemplo <b>Comédias românticas para se sentir bem</b> ou <b>Séries policiais coreanas</b>. Dentro de cada fileira, a ordem segue o seu gosto.\n\n## O que muda suas fileiras\n- O que você começa e termina, o que você avalia e o que adiciona à Minha Lista.\n- Fileiras como <b>Porque você assistiu</b>, <b>Escolhas do Dia para Você</b> e <b>Para assistir em seguida</b> vêm dos seus títulos recentes. Na página de um gênero, elas ficam dentro desse gênero.\n- O perfil que você usa. Cada perfil tem seu próprio gosto, e um perfil infantil só mostra títulos para crianças.\n- O dia e a época do ano. Fileiras de feriados e eventos aparecem na época deles.\n\n## Desligar\nDesative <b>Recomendações personalizadas</b> em <b>Privacidade e configurações de dados</b> do seu perfil. Aí você vê as mesmas sugestões que todo mundo.\n\nNunca usamos seu nome ou seu e-mail para escolher títulos. Veja <a=/help/article/privacy-data>Quais dados o {brand} coleta?</a>\n\n@@ data",
+      "keywords": "recomendações linhas sugestões porque você assistiu gosto algoritmo para você personalizado personalizado",
+      "related": [
+        "viewing-history",
+        "privacy-data",
+        "my-list",
+        "search-browse",
+        "kids-profile"
+      ],
+      "summary": "Como as fileiras são feitas e o que as muda.",
+      "title": "Como funcionam as recomendações"
+    },
+    "report-bug": {
+      "body": "Quanto mais sabemos, mais rápido podemos corrigir. Por favor inclua:\n\n1. O que você estava fazendo e o que esperava.\n2. O que aconteceu em vez disso, e qualquer mensagem que você viu.\n3. O título, se for sobre reprodução.\n4. Seu dispositivo e navegador.\n\nA página <a=/help/contact>Contate-nos</a> tem um botão que abre um e-mail com seus detalhes do navegador preenchidos.\n\n@@ diagnósticos",
+      "keywords": "relatar bug problema erro crash quebrado não funciona feedback contato",
+      "related": [
+        "title-feedback",
+        "contribute",
+        "rows-wont-load",
+        "wont-play"
+      ],
+      "summary": "O que incluir para que possamos encontrar e corrigir um bug rapidamente.",
+      "title": "Relatar um problema"
+    },
+    "rows-wont-load": {
+      "body": "As fileiras e a busca vêm do nosso serviço de recomendações. Pôsteres e detalhes vêm de um catálogo público de filmes. Se algum deles não responder, você pode ver fileiras vazias, um ícone de carregamento ou imagens faltando.\n\n1. Recarregue a página.\n2. Confira sua conexão.\n3. Desative os bloqueadores para este site. Veja <a=/help/article/extensions-blockers>Extensões que bloqueiam o player</a>.\n4. Tente de novo em alguns minutos.\n\nEnquanto isso, seus perfis, a Minha Lista e suas configurações estão seguros na sua conta. Se o problema durar mais de uma hora, <a=/help/article/report-bug>avise a gente</a>.\n\n@@ diagnostics\n\n@@ refresh",
+      "keywords": "linhas vazias carregamento página em branco imagens fotos posters não carregando home erro recomendações down",
+      "related": [
+        "supported-browsers",
+        "report-bug",
+        "recommendations",
+        "extensions-blockers"
+      ],
+      "summary": "A página mostra fileiras vazias, um ícone de carregamento ou imagens faltando.",
+      "title": "Fileiras ou imagens não carregam"
+    },
+    "saved-data": {
+      "body": "Seus perfis, a Minha Lista, suas avaliações, sua atividade de visualização e suas configurações ficam salvos na sua conta. Cada navegador em que você entra mantém uma cópia, então as páginas abrem na hora e funcionam por um tempo sem conexão. As mudanças chegam à sua conta em poucos segundos e aos seus outros dispositivos quando você abre o {brand} neles.\n\n## O que isso significa\n- Entre em outro dispositivo e estará tudo lá.\n- Limpar os dados do site em um navegador desconecta você desse navegador e apaga essa cópia. Sua conta guarda tudo.\n- Em uma janela anônima, a cópia é apagada quando você fecha a janela.\n\n## O que mais é enviado aos nossos servidores\nQuando você começa um título, o serviço de recomendações fica sabendo qual foi, para que suas fileiras sigam seu gosto. Você pode desligar isso com <b>Recomendações personalizadas</b> em <b>Privacidade e configurações de dados</b>. Veja <a=/help/article/recommendations>Como funcionam as recomendações</a>.\n\n@@ data",
+      "keywords": "dados salvos armazenamento local navegador dispositivo perdido sincronização progresso histórico perfis cookies",
+      "related": [
+        "clear-data",
+        "privacy-data",
+        "need-account",
+        "list-missing",
+        "viewing-history"
+      ],
+      "summary": "Sua conta guarda tudo, e cada navegador mantém uma cópia para as páginas abrirem rápido.",
+      "title": "Onde ficam salvos seus perfis, sua lista e seu progresso"
+    },
+    "search-browse": {
+      "body": "## Buscar\n1. Selecione a lupa na barra de cima.\n2. Digite um título, um ator ou um diretor. Os resultados aparecem enquanto você digita, e pequenos erros de digitação não atrapalham.\n\n## Navegar\n- <b>Séries</b> e <b>Filmes</b>, na barra de cima, abrem uma página para cada tipo de título. Use <b>Gêneros</b> ali para filtrar.\n- As fileiras da página inicial são agrupadas por tema. Veja <a=/help/article/recommendations>Como funcionam as recomendações</a>.\n- <b>Navegar por idioma</b> encontra títulos pelo idioma original. Veja <a=/help/article/browse-language>Navegar por idioma</a>.",
+      "keywords": "pesquisar navegar encontrar gênero filmes séries categoria procurar título ator diretor",
+      "related": [
+        "browse-language",
+        "new-popular",
+        "recommendations",
+        "my-list",
+        "trailers-clips"
+      ],
+      "summary": "Encontre um título pelo nome, gênero ou clima.",
+      "title": "Como pesquisar e navegar"
+    },
+    "security-report": {
+      "body": "Se você encontrou uma forma de ler dados de alguém else, contornar um PIN de perfil ou quebrar o site, por favor nos avise antes de contar para alguém mais.\n\n1. Escreva para <a=mailto:{support_email}>{support_email}</a> com o assunto <b>Segurança</b>.\n2. Descreva o que você encontrou, os passos para repeti-lo e a página ou endereço que ele afeta.\n3. Não acesse dados de outras pessoas e não teste com floods automatizados de solicitações.\n\nLemos cada relatório. Os mesmos detalhes estão no arquivo legível por máquina em <a=/.well-known/security.txt>/.well-known/security.txt</a>.",
+      "keywords": "vulnerabilidade de segurança bug bounty divulgação responsável exploração hack relatório fraqueza",
+      "related": [
+        "report-bug",
+        "privacy-data",
+        "profile-pin",
+        "contribute"
+      ],
+      "summary": "Como nos avisar sobre uma vulnerabilidade de forma segura.",
+      "title": "Relatar um problema de segurança"
+    },
+    "share": {
+      "body": "1. Abra os detalhes de um título e selecione <b>Compartilhar</b>.\n2. Escolha <b>WhatsApp</b> ou <b>Mensagens</b> para enviar o link, ou <b>Copiar link</b> para colar onde quiser.\n3. Para Instagram e Snapchat, o link é copiado e você cola no app.\n\nO link abre o título no {brand}. Quem abrir precisa entrar, ou criar uma conta grátis, para assistir.",
+      "keywords": "compartilhar link mensagens do whatsapp instagram snapchat copiar enviar amigo",
+      "related": [
+        "title-details",
+        "my-list",
+        "search-browse",
+        "title-feedback",
+        "new-popular"
+      ],
+      "summary": "Envie um link para um título para um amigo.",
+      "title": "Como compartilhar um título"
+    },
+    "shortcuts": {
+      "body": "Essas teclas funcionam enquanto um título está sendo reproduzido em um computador.\n\n- <b>Espaço</b> ou <b>K</b>: reproduz ou pausa\n- <b>Seta para a esquerda</b> ou <b>J</b>: volta 10 segundos\n- <b>Seta para a direita</b> ou <b>L</b>: avança 10 segundos\n- <b>Seta para cima</b> e <b>Seta para baixo</b>: aumenta e diminui o volume\n- <b>M</b>: mudo ou desmudo\n- <b>F</b>: tela cheia ligada ou desligada",
+      "keywords": "atalhos do teclado teclas espaço seta tela cheia mudo volume pular voltar atalhos quentes",
+      "related": [
+        "accessibility",
+        "skip-intro-next",
+        "subtitles",
+        "continue-watching",
+        "wont-play"
+      ],
+      "summary": "Controle o player sem usar o mouse.",
+      "title": "Atalhos de teclado"
+    },
+    "sign-in": {
+      "body": "## Entrar\n1. Escolha <b>Entrar</b> no topo da página inicial do {brand}.\n2. Digite seu e-mail e sua senha e escolha <b>Entrar</b>.\n\nDeixe <b>Lembrar de mim</b> ativado para continuar conectado neste dispositivo. Se você saiu deste dispositivo há pouco tempo, pode continuar sem digitar a senha de novo.\n\n## Sair\nAbra o menu do perfil e escolha <b>Sair do {brand}</b>. Para sair de todos os lugares de uma vez, veja <a=/help/article/devices-sign-out>Sair de um dispositivo ou de todos</a>.\n\n## Não consigo entrar\n- Confira se o e-mail está escrito certo. A senha diferencia maiúsculas e minúsculas.\n- Se você acabou de se cadastrar, abra primeiro o link de confirmação que enviamos. <b>Reenviar e-mail de confirmação</b> manda um novo.\n- Depois de muitas tentativas, espere um minuto e tente de novo.\n- Esqueceu a senha? Veja <a=/help/article/forgot-password>Esqueci minha senha</a>.",
+      "keywords": "entrar login fazer login sair logout desconectar lembrar de mim e-mail senha conta",
+      "related": [
+        "need-account",
+        "forgot-password",
+        "devices-sign-out",
+        "change-email-password",
+        "saved-data"
+      ],
+      "summary": "Entre com seu e-mail e senha, continue conectado e saia.",
+      "title": "Entrar e sair"
+    },
+    "skip-intro-next": {
+      "body": "- <b>Pular abertura</b> aparece por alguns segundos quando a abertura de um episódio começa. Selecione para ir direto à história.\n- <b>Próximo episódio</b>, nos controles do player, começa o episódio seguinte.\n- <b>Episódios</b> abre a lista da temporada para você escolher qualquer episódio.\n\nPara escolher o que acontece quando um episódio termina, abra as <b>Configurações de reprodução</b> do seu perfil e ative ou desative <b>Reproduzir próximo episódio automaticamente</b>.",
+      "keywords": "pular introdução próximo episódio reprodução automática maratona episódios painel da temporada",
+      "related": [
+        "shortcuts",
+        "episodes",
+        "continue-watching",
+        "subtitles",
+        "my-list"
+      ],
+      "summary": "Pule a abertura ou avance para o próximo episódio.",
+      "title": "\"Pular abertura\" e \"Próximo episódio\""
+    },
+    "slow-pages": {
+      "body": "Na primeira visita, o app é baixado, cerca de 2 MB. Depois disso, a maior parte da espera vem das imagens e das prévias.\n\n- Desative <b>Reproduzir pré-visualizações automaticamente</b> nas <b>Configurações de reprodução</b> do seu perfil. Prévias que começam sozinhas gastam dados e memória.\n- Feche abas e outros apps que usam a rede ou muita memória.\n- Use um navegador atualizado. Os antigos rodam o app mais devagar.\n- Nos dados móveis, mude para o Wi-Fi se puder.\n\n@@ diagnostics",
+      "keywords": "lento lentidão desempenho velocidade carregamento memória telefone antigo lentidão de rolagem pré-visualizações",
+      "related": [
+        "buffering",
+        "supported-browsers",
+        "vpn-network",
+        "trailers-clips",
+        "wont-play"
+      ],
+      "summary": "Deixe a navegação mais rápida em uma conexão lenta ou um aparelho mais antigo.",
+      "title": "Páginas carregam lentamente"
+    },
+    "sources": {
+      "body": "Detalhes, posters e avaliações vêm de um catálogo público de filmes e TV. O vídeo em si não está em {brand}. Quando você pressiona play, o player pede a streams de fontes de terceiros independentes.\n\n- Um título pode estar disponível de uma fonte e não de outra.\n- Uma fonte pode sair do ar sem aviso.\n- Qualidade, trilhas sonoras e legendas vêm da fonte.\n\nNós não controlamos ou verificamos essas fontes. Veja o <a=/help/legal/disclaimer>Disclaimer</a>. Se você é um detentor de direitos, veja <a=/help/article/copyright>Como relatar um problema de direitos autorais</a>.",
+      "related": [
+        "what-is",
+        "wont-play",
+        "playback-unavailable",
+        "copyright",
+        "free-to-use"
+      ],
+      "summary": "Como {brand} encontra streams e por que um título pode funcionar um dia e falhar no outro.",
+      "title": "De onde os títulos vêm"
+    },
+    "stuck-loading": {
+      "body": "Enquanto o {brand} abre, você vê o logo de cubo com uma fileira de pontinhos se mexendo. Isso deve levar alguns segundos. O {brand} funciona como um app WebAssembly, então um navegador ou uma configuração que desliga o WebAssembly deixa você parado nessa tela.\n\n1. Recarregue com <b>Ctrl + Shift + R</b> (<b>Cmd + Shift + R</b> no Mac) para baixar a versão mais recente.\n2. Abra a página em uma janela anônima. Se funcionar lá, alguma extensão está atrapalhando. Veja <a=/help/article/extensions-blockers>Extensões que bloqueiam o player</a>.\n3. Atualize seu navegador. Veja <a=/help/article/supported-browsers>Navegadores compatíveis</a>.\n4. Desative para este site qualquer modo que limite recursos da web, como o Modo de Isolamento da Apple ou a segurança estrita do Edge.\n5. Limpe os dados deste site e entre de novo. Veja <a=/help/article/clear-data>Como limpar seus dados salvos</a>.\n\n@@ refresh",
+      "keywords": "carregamento travado logotipo tela branca tela de splash não iniciando webassembly wasm inicialização congelada",
+      "related": [
+        "supported-browsers",
+        "extensions-blockers",
+        "clear-data",
+        "rows-wont-load"
+      ],
+      "summary": "O que tentar quando o {brand} nunca termina de abrir.",
+      "title": "A página fica no logotipo ou em uma tela em branco"
+    },
+    "subtitles": {
+      "body": "## Ligar ou desligar as legendas\n1. Comece um título e passe o ponteiro sobre o player, ou toque na tela.\n2. Selecione <b>Áudio e legendas</b>.\n3. Escolha um idioma de legenda, ou <b>Desligado</b>.\n\nSe o texto aparecer cedo ou tarde demais, use <b>-0.5s</b> e <b>+0.5s</b> no mesmo painel para ajustar.\n\n## Mudar a aparência das legendas\n1. Abra o menu do perfil, escolha <b>Conta</b>, depois <b>Gerenciar perfis</b>, e selecione seu perfil.\n2. Escolha <b>Aparência das legendas</b>.\n3. Escolha o tamanho, a cor do texto, a borda, o fundo e a cor da janela. A prévia mostra o resultado. <b>Restaurar padrão</b> desfaz suas mudanças.\n\n!! Observação: Os idiomas e as faixas de áudio disponíveis dependem da fonte do título. Veja <a=/help/article/subtitles-missing>Legendas estão ausentes ou fora de sincronia</a>.",
+      "keywords": "legendas legendas cc idioma do áudio faixa tamanho cor aparência fundo",
+      "related": [
+        "language",
+        "subtitles-missing",
+        "shortcuts",
+        "accessibility",
+        "browse-language"
+      ],
+      "summary": "Ative as legendas, escolha uma faixa e mude como elas aparecem.",
+      "title": "Como usar legendas ou escolher o idioma do áudio"
+    },
+    "subtitles-missing": {
+      "body": "1. Selecione <b>Áudio e legendas</b> no player e confira se um idioma de legenda está escolhido.\n2. Escolha outra faixa se a lista oferecer. As faixas vêm da fonte e mudam de título para título.\n3. Defina o idioma de legenda preferido do perfil. Veja <a=/help/article/language>Como mudar o idioma</a>.\n4. Se o texto estiver adiantado ou atrasado, use <b>-0.5s</b> ou <b>+0.5s</b> em <b>Áudio e legendas</b> até ele bater com a fala.\n\nSe um título não tem nenhuma legenda, a fonte não forneceu.\n\n@@ language",
+      "keywords": "legendas legendas ausentes idioma errado fora de sincronia atraso texto cc",
+      "related": [
+        "subtitles",
+        "language",
+        "wont-play",
+        "playback-unavailable",
+        "report-bug"
+      ],
+      "summary": "Corrija legendas que não aparecem, mostram a língua errada ou atrasam em relação à fala.",
+      "title": "Legendas estão ausentes ou fora de sincronia"
+    },
+    "supported-browsers": {
+      "body": "O {brand} funciona nas versões atuais destes navegadores:\n\n- <b>Google Chrome</b>, <b>Microsoft Edge</b>, <b>Brave</b> e outros navegadores Chromium no Windows, macOS, Linux e Android\n- <b>Mozilla Firefox</b> no Windows, macOS, Linux e Android\n- <b>Safari</b> no Mac, iPhone e iPad\n\nO Internet Explorer não é compatível. Mantenha seu navegador atualizado e permita que o site use JavaScript e dados do site.\n\n@@ diagnostics\n\n>> O navegador mostra um erro antes de a página carregar\nRecarregue com <b>Ctrl + Shift + R</b> no Windows e no Linux, ou <b>Cmd + Shift + R</b> no Mac, para baixar a versão mais recente do app, e tente de novo.",
+      "keywords": "navegador chrome firefox safari edge brave opera internet explorer versão atualizar compatível",
+      "related": [
+        "wont-play",
+        "install-app",
+        "fix-phone",
+        "fix-tv",
+        "extensions-blockers"
+      ],
+      "summary": "Quais navegadores e sistemas funcionam melhor.",
+      "title": "Navegadores compatíveis"
+    },
+    "switch-profile": {
+      "body": "1. Abra o menu do perfil no canto superior direito da página. No celular, toque na imagem do seu perfil na barra de baixo.\n2. Selecione o perfil que você quer usar.\n3. Se o perfil estiver bloqueado, digite o PIN de 4 dígitos dele.\n\nAs recomendações, a <b>Minha Lista</b> e o <b>Continuar assistindo</b> mudam conforme o perfil escolhido.\n\n!! Observação: Você pode bloquear um perfil com um PIN. Veja <a=/help/article/profile-pin>Como adicionar, editar ou remover um PIN de perfil</a>.\n\n@@ profiles",
+      "keywords": "alternar mudar perfil quem está assistindo menu",
+      "related": [
+        "profiles-manage",
+        "profile-pin",
+        "kids-profile",
+        "forgot-pin",
+        "saved-data"
+      ],
+      "summary": "Mude quem está assistindo sem sair da página.",
+      "title": "Como trocar de perfil"
+    },
+    "title-details": {
+      "body": "Selecione uma carta de título, ou <b> Mais Info</b>, para abrir seus detalhes.\n\n- <b>Play</b> ou <b>Continuar</b> inicia o título onde você deixou.\n- <b>Minha Lista</b> salva-o, e o dedo classifica-o.\n- A sinopse, elenco, gêneros e algumas palavras que descrevem o clima ajudam você a decidir.\n- Para séries, <b>Episódios</b> lista as temporadas.\n- <b>Mais Como Este</b> mostra títulos que são próximos em significado, o que é uma boa maneira de encontrar algo novo.",
+      "keywords": "mais info detalhes modal elenco gêneros sinopse similares mais como este trailer avaliação correspondência",
+      "related": [
+        "my-list",
+        "episodes",
+        "share",
+        "recommendations",
+        "trailers-clips"
+      ],
+      "summary": "O que você pode ler e fazer antes de pressionar play.",
+      "title": "Janela de detalhes do título"
+    },
+    "title-feedback": {
+      "body": "Escreva para <a=mailto:{support_email}>{support_email}</a> e inclua:\n\n- o título e o ano\n- o endereço da página do título em {brand}\n- o que está errado, por exemplo, um poster errado, uma temporada ausente ou um título que nunca reproduz\n\nDetalhes vêm de um catálogo público, então uma descrição errada é melhor corrigida na fonte. Podemos passar correções que recebemos.",
+      "keywords": "feedback título descrição errada título ausente solicitação filme série adicionar relatar incorreto poster",
+      "related": [
+        "report-bug",
+        "contribute",
+        "wont-play",
+        "recommendations",
+        "copyright"
+      ],
+      "summary": "Relate uma descrição errada, um título ausente ou um título que nunca reproduz.",
+      "title": "Feedback sobre um título em {brand}"
+    },
+    "top-10": {
+      "body": "Uma fileira <b>Top 10</b> mostra os dez filmes ou séries mais populares do momento, com um número grande em cada um. Ela segue a popularidade diária dos títulos no catálogo de filmes, então muda de um dia para o outro. É igual para todo mundo e não depende do seu perfil.",
+      "keywords": "top 10 top ten popular tendência classificação números linha mais assistidos",
+      "related": [
+        "new-popular",
+        "genres",
+        "recommendations",
+        "search-browse",
+        "trailers-clips"
+      ],
+      "summary": "Uma fileira com os dez títulos mais populares do momento.",
+      "title": "O que são as linhas Top 10?"
+    },
+    "trailers-clips": {
+      "keywords": "trailers clips pré-visualização vídeos curtos teaser desligar som reprodução automática pré-visualizações",
+      "related": [
+        "new-popular",
+        "search-browse",
+        "my-list",
+        "recommendations",
+        "notifications"
+      ],
+      "summary": "Veja uma prévia antes de decidir.",
+      "title": "Trailers e clips"
+    },
+    "transfer-profile": {
+      "body": "Um perfil pode ser copiado para outra conta, por exemplo quando alguém sai de casa. A cópia mantém o nome, a imagem, as configurações e a atividade de visualização.\n\n## Salvar o perfil\n1. Abra o menu do perfil e escolha <b>Transferir perfil</b>.\n2. Selecione o perfil e escolha <b>Baixar arquivo do perfil</b>. Guarde o arquivo em um lugar seguro.\n\n## Adicionar à outra conta\n1. Entre na outra conta e abra <b>Gerenciar perfis</b>.\n2. Escolha <b>Importar um perfil</b> e selecione o arquivo.\n\n!! Observação: O arquivo não contém o PIN do perfil. Qualquer pessoa com o arquivo pode adicionar o perfil à conta dela, então não o compartilhe.\n\n<b>Transferência de perfil</b> em <b>Conta</b> permite ou bloqueia a cópia de perfis para fora da sua conta. Ela nunca bloqueia perfis que chegam.",
+      "keywords": "transferir perfil mover copiar perfil outra conta importar exportar arquivo do perfil",
+      "related": [
+        "profiles-manage",
+        "download-data",
+        "delete-account",
+        "profile-pin",
+        "saved-data"
+      ],
+      "summary": "Salve um perfil como arquivo e adicione-o a outra conta com histórico e configurações.",
+      "title": "Mover um perfil para outra conta"
+    },
+    "translate": {
+      "body": "Todo o texto da interface é armazenado em um arquivo de texto plano por idioma. Uma tradução não precisa de programação.\n\n## O que saber\n- As mensagens parecem como <b>chave = texto</b>. Só mude o texto depois do sinal de igual.\n- Palavras entre chaves, como <b>{ \"{brand}\" }</b>, são preenchidas pelo aplicativo. Mantenha-as como estão e mova-as para onde seu idioma as precisa.\n- Algumas mensagens têm formas para um e para muitos (<b>1 temporada</b>, <b>2 temporadas</b>). Idiomas com mais de duas formas podem adicionar todas elas.\n- Onde seu idioma muda uma palavra para gênero ou caso, escreva a forma que se encaixa na frase.\n\n## Como enviar uma\nEscreva para <a=mailto:{support_email}>{support_email}</a> com o idioma e ou o arquivo ou um link para sua alteração. Falantes nativos que revisam o trabalho um do outro são a melhor verificação que temos.",
+      "keywords": "traduzir tradução localização localização idioma contribuir ftl fluente gramática gênero plural",
+      "related": [
+        "contribute",
+        "language",
+        "report-bug",
+        "what-is",
+        "getting-started"
+      ],
+      "summary": "O texto da interface fica em arquivos simples, um por idioma, e qualquer pessoa pode melhorá-los.",
+      "title": "Ajude a traduzir {brand}"
+    },
+    "viewing-history": {
+      "body": "Cada perfil tem uma página de <b>Atividade de visualização</b> com os títulos assistidos, do mais recente para o mais antigo. O {brand} usa essa página para o Continuar assistindo e para as recomendações.\n\n1. Abra o menu do perfil, escolha <b>Conta</b>, depois <b>Gerenciar perfis</b>, e selecione o perfil.\n2. Escolha <b>Atividade de visualização</b>.\n3. Escolha <b>Ocultar este título</b> ao lado de um título, ou <b>Ocultar tudo</b>.\n\nUm título oculto sai do Continuar assistindo e deixa de influenciar as recomendações, em todos os dispositivos. <b>Baixar tudo</b> salva a lista como planilha.\n\n@@ data",
+      "keywords": "histórico de visualização assistido atividade excluir limpar remover classificações recomendações",
+      "related": [
+        "continue-watching",
+        "clear-data",
+        "saved-data",
+        "recommendations",
+        "privacy-data"
+      ],
+      "summary": "O que é registrado quando você assiste e como removê-lo.",
+      "title": "Como gerenciar seu histórico de visualização"
+    },
+    "vpn-network": {
+      "body": "{brand} carrega detalhes e imagens de um catálogo público de filmes e transmite de fontes independentes. Alguns redes bloqueiam esses sites e algumas fontes recusam endereços específicos.\n\n- <b>VPN ou proxy.</b> Algumas fontes não respondem a endereços de VPN. Desative-o ou escolha outro país.\n- <b>Wi-Fi de escola, trabalho ou público.</b> Filtros frequentemente bloqueiam streaming ou o catálogo. Tente os dados móveis do seu telefone.\n- <b>Filtros DNS.</b> Um serviço DNS de filtragem pode bloquear o catálogo e deixar fileiras ou imagens vazias. Use um DNS diferente ou desative o filtro para este site.\n\nO check do dispositivo mostra qual serviço da sua rede não pode ser alcançado.\n\n@@ diagnostics",
+      "keywords": "vpn proxy escola trabalho rede firewall dns filtro bloqueado safedns restrito wifi",
+      "related": [
+        "is-down",
+        "wont-play",
+        "playback-unavailable",
+        "rows-wont-load",
+        "sources"
+      ],
+      "summary": "Por que algumas redes bloqueiam títulos ou imagens e o que tentar.",
+      "title": "VPNs, redes de escola e trabalho"
+    },
+    "watch-on-tv": {
+      "body": "Ainda não há um aplicativo {brand} para TVs. Essas opções funcionam hoje:\n\n- <b>Navegador da TV.</b> Abra o endereço {brand} no navegador que veio com sua TV.\n- <b>Castar uma aba.</b> No Chrome ou Edge em um computador, abra o menu do navegador e escolha <b>Cast</b>, em seguida selecione sua TV ou dispositivo de streaming.\n- <b>Cabo.</b> Conecte um laptop à TV com um cabo HDMI e use tela cheia.\n\nSe a imagem ou som não estiver certo, veja <a=/help/article/fix-tv>Resolva um problema na sua TV</a>.",
+      "keywords": "TV televisão TV inteligente cast chromecast airplay hdmi fire stick tela grande",
+      "related": [
+        "fix-tv",
+        "install-app",
+        "supported-browsers",
+        "getting-started",
+        "shortcuts"
+      ],
+      "summary": "Use o navegador da sua TV, ou envie uma aba do navegador de um computador ou celular.",
+      "title": "Como assistir na sua TV"
+    },
+    "what-is": {
+      "body": "O {brand} ajuda você a encontrar seu próximo filme ou série. Ele aprende do que você gosta e organiza o catálogo em fileiras para você, em uma página parecida com a dos serviços de streaming que você conhece.\n\n{brand} é um índice de links. Ela não hospeda ou carrega vídeos. Quando você pressiona play, o player pede fontes independentes para uma transmissão e reproduz a primeira que funciona. Veja <a=/help/article/sources>De onde os títulos vêm</a>.\n\nNão há nada para comprar e nenhuma assinatura. Veja <a=/help/article/free-to-use>O {brand} é grátis?</a>",
+      "related": [
+        "getting-started",
+        "sources",
+        "free-to-use",
+        "need-account",
+        "contribute"
+      ],
+      "summary": "Uma breve descrição do {brand} e do que ele faz e não faz.",
+      "title": "O que é {brand}?"
+    },
+    "wont-play": {
+      "body": "Tente esses passos na ordem. Teste após cada um.\n\n1. Recarregue a página. Uma falha temporária na fonte é a causa mais comum.\n2. Escolha outro episódio ou inicie o título novamente a partir da página de detalhes. O player tenta as fontes disponíveis uma após a outra.\n3. Desative os bloqueadores de anúncios e extensões de privacidade para este site. Veja <a=/help/article/extensions-blockers>Extensões que bloqueiam o player</a>.\n4. Use uma versão atual do Chrome, Edge, Firefox ou Safari. Veja <a=/help/article/supported-browsers>Navegadores compatíveis</a>.\n5. Mude de rede, por exemplo, de Wi-Fi para dados móveis, ou desative um VPN. Algumas fontes recusam algumas redes.\n\n@@ diagnósticos\n\n>> Ainda não está reproduzindo\nAlguns títulos não estão disponíveis de qualquer fonte em um momento dado. Tente novamente mais tarde. Se um título popular nunca reproduz, nos avise qual em <a=/help/article/report-bug>Relatar um problema</a>.",
+      "keywords": "não está reproduzindo não reproduz erro não pode reproduzir vídeo falha ao carregar spinner travado player",
+      "related": [
+        "playback-unavailable",
+        "black-screen",
+        "buffering",
+        "extensions-blockers",
+        "supported-browsers"
+      ],
+      "summary": "As soluções mais rápidas quando o player mostra um erro, fica preto ou nunca começa.",
+      "title": "Um título não reproduz"
+    }
+  },
+  "policies": {
+    "cookie-policy": {
+      "sections": [
+        {
+          "body": "O {brand} não usa cookies de publicidade ou de análise. Usamos o armazenamento local do navegador, um espaço no seu dispositivo que só este site consegue ler, para:",
+          "bullets": [
+            "<b>Login:</b> o que mantém você conectado neste navegador, e um cookie com o nome do seu perfil para que o Centro de Ajuda mostre você como conectado.",
+            "<b>Rapidez:</b> uma cópia dos seus perfis, configurações e progresso, para as páginas abrirem na hora.",
+            "<b>Suas escolhas:</b> suas escolhas sobre cookies e personalização e o idioma de exibição."
+          ],
+          "title": "Como usamos cookies e armazenamento"
+        }
+      ],
+      "title": "Política de Cookies",
+      "updated": "Última atualização: outubro de 2026"
+    },
+    "credits": {
+      "sections": [
+        {
+          "body": "O logo usa uma fonte pixelada, a interface usa Inter e os títulos das coleções usam fontes decorativas:",
+          "bullets": [
+            "<b>Baby Blocks</b>, de Colorful Typhoon, usada no logo do {brand} conforme os termos de freeware para uso não comercial. Veja <a href=\"https://www.fontspace.com/baby-blocks-font-f3699\" target=\"_blank\" rel=\"noopener\">a fonte no FontSpace</a>.",
+            "<b>Inter</b> por Rasmus Andersson, usado sob a Licença SIL Open Font License 1.1.",
+            "<b>Abril Fatface, Caveat Brush, DM Serif Display, Fredoka, Gochi Hand, Kalam, Londrina Solid, Playfair Display e Sedgwick Ave</b>, do Google Fonts, usadas sob a SIL Open Font License 1.1.",
+            "<b>Permanent Marker</b> e <b>Rock Salt</b>, do Google Fonts, usadas sob a Apache License 2.0."
+          ],
+          "title": "1. Fontes"
+        },
+        {
+          "body": "Ícones da interface vêm de Phosphor Icons, Tabler Icons e Hugeicons, usados sob a Licença MIT, e de Remix Icon e IBM Carbon, usados sob a Licença Apache 2.0.",
+          "bullets": [],
+          "title": "2. Ícones"
+        },
+        {
+          "bullets": [],
+          "title": "3. Informações sobre filmes e séries"
+        },
+        {
+          "body": "{brand} é construído com software de código aberto, cada um usado sob sua própria licença:",
+          "bullets": [
+            "<b>Rust</b> e <b>Leptos</b> para a aplicação (MIT e Apache 2.0).",
+            "<b>Tailwind CSS</b> para estilo (MIT).",
+            "<b>hls.js</b> para reprodução de vídeo adaptativa (Apache 2.0).",
+            "<b>Project Fluent</b> para texto de interface traduzido (Apache 2.0 e MIT)."
+          ],
+          "title": "4. Software"
+        },
+        {
+          "body": "Nomes, logotipos, posters e arte de filmes, séries e serviços exibidos em {brand} pertencem aos seus proprietários. Eles são exibidos para identificar o título e não significam que o proprietário apoia {brand}.",
+          "bullets": [],
+          "title": "5. Marcas e arte"
+        },
+        {
+          "body": "Se você acredita que algo aqui está creditado incorretamente ou precisa ser alterado, por favor escreva para {support_email}.",
+          "bullets": [],
+          "title": "6. Contato"
+        }
+      ],
+      "title": "Licenças e créditos",
+      "updated": "Última atualização: Outubro de 2026"
+    },
+    "disclaimer": {
+      "sections": [
+        {
+          "body": "{brand} é um agregador de links e motor de busca para links embutidos de mídia publicamente disponíveis. Não hospedamos, carregamos, armazenamos, transmitimos ou controlamos qualquer conteúdo de vídeo, áudio ou mídia em nossos servidores.",
+          "bullets": [],
+          "title": "1. Nenhum Hospedagem de Conteúdo"
+        },
+        {
+          "body": "Todo conteúdo acessível por meio de links indexados por {brand} origina-se de fontes externas, independentes e de terceiros. {brand} não tem controle sobre, e não assume responsabilidade por, a legalidade, precisão, qualidade ou disponibilidade desse conteúdo.",
+          "bullets": [],
+          "title": "2. Conteúdo de Terceiros — Nenhuma Responsabilidade"
+        },
+        {
+          "body": "Você reconhece e concorda que o uso de {brand} e o acesso a qualquer conteúdo por meio de links embutidos externos é totalmente de sua própria responsabilidade. {brand} expressamente nega todas as garantias, expressas ou implícitas.",
+          "bullets": [],
+          "title": "3. Assunção de Risco do Usuário"
+        },
+        {
+          "body": "Links embutidos indexados por {brand} apontam para recursos em servidores de terceiros. Não garantimos a disponibilidade contínua, qualidade ou completude de qualquer conteúdo vinculado, e os links podem quebrar ou tornar-se indisponíveis sem aviso.",
+          "bullets": [],
+          "title": "4. Disponibilidade dos Links"
+        },
+        {
+          "bullets": [],
+          "title": "5. Apreciação da Informação"
+        }
+      ],
+      "title": "Disclaimer",
+      "updated": "Última atualização: agosto de 2026"
+    },
+    "dmca": {
+      "sections": [
+        {
+          "body": "{brand} é um agregador de links e motor de busca. Nós não hospedamos, carregamos, armazenamos, transmitimos ou controlamos qualquer conteúdo de vídeo ou mídia. Todos os conteúdos são servidos por servidores terceiros que estão totalmente fora do nosso controle.",
+          "bullets": [],
+          "title": "1. Nosso Papel — Agregador de Links, Não um Anfitrião"
+        },
+        {
+          "body": "Se você é um proprietário de direitos autorais, ou um agente autorizado a agir em nome de um proprietário de direitos autorais, e acredita que um link em nosso índice viola seus direitos autorais, por favor envie uma notificação escrita para {support_email} contendo:",
+          "bullets": [
+            "<b>Assinatura física ou eletrônica</b> do proprietário dos direitos autorais ou de seu agente autorizado.",
+            "<b>Identificação da obra protegida</b> que você alega ter sido violada, ou, se várias obras são cobertas por uma única notificação, uma lista representativa dessas obras.",
+            "<b>Identificação do material</b> (ou seja, o link específico {brand} ou URL) que você alega estar violando, com informações suficientes para nos permitir localizá-lo."
+          ],
+          "title": "2. Procedimento de Notificação e Remoção"
+        },
+        {
+          "body": "Sua notificação DMCA também deve incluir:",
+          "bullets": [
+            "<b>Informações de contato</b> — nome, endereço, número de telefone e endereço de e-mail.",
+            "<b>Declaração de boa-fé</b> — que você acredita de boa-fé que o uso do material da maneira reclamada não é autorizado pelo proprietário dos direitos autorais, seu agente ou pela lei.",
+            "<b>Declaração de precisão</b> — que as informações na notificação são precisas e, sob pena de perjúrio, que você está autorizado a agir em nome do proprietário dos direitos autorais.",
+            "<b>Envie notificações para:</b> {support_email}",
+            "Revisaremos todas as notificações e removeremos links de nosso índice que satisfaçam os requisitos legais acima mencionados.",
+            "<b>Notificação Contrária:</b> Se você acredita que seu link foi removido por erro, você pode submeter uma notificação contrária conforme previsto no 17 U.S.C. § 512(g)."
+          ],
+          "title": "3. Elementos Adicionais Obrigatórios"
+        },
+        {
+          "body": "Como {brand} não hospeda nenhum arquivo de mídia, somente conseguimos remover o link do nosso índice de busca. Não podemos remover o conteúdo subjacente do servidor no qual ele está hospedado.",
+          "bullets": [],
+          "title": "4. Limitação Importante — Podemos Remover Apenas Links"
+        },
+        {
+          "body": "Em circunstâncias apropriadas e a nosso exclusivo critério, {brand} desativará ou encerrará o acesso para usuários ou contas que são infratores repetitivos.",
+          "bullets": [],
+          "title": "5. Política de Infrator Repetitivo"
+        },
+        {
+          "body": "A remoção de um link do nosso índice em resposta a um aviso DMCA não constitui uma admissão por {brand} de que ocorreu qualquer violação.",
+          "bullets": [],
+          "title": "6. Nenhuma Admissão de Responsabilidade"
+        }
+      ],
+      "title": "Aviso de Refúgio Seguro DMCA",
+      "updated": "Última atualização: agosto de 2026"
+    },
+    "privacy": {
+      "sections": [
+        {
+          "body": "{brand} é um agregador de links e motor de busca. Esta Política de Privacidade explica como coletamos, usamos e protegemos suas informações pessoais quando você usa nosso serviço.",
+          "bullets": [],
+          "title": "1. Introdução"
+        },
+        {
+          "body": "Coletamos informações pessoais limitadas para fornecer e melhorar o serviço:",
+          "bullets": [
+            "<b>Dados da conta:</b> seu nome e sobrenome, seu e-mail e sua senha (guardada só de forma criptografada pelo nosso provedor de login) e um número de celular, se você adicionar.",
+            "<b>Perfis e atividade:</b> seus perfis e as configurações deles, a Minha Lista, suas avaliações, seu progresso e sua atividade de visualização. Eles ficam ligados à sua conta para acompanhar você em todos os dispositivos.",
+            "<b>Registros de segurança:</b> logins e mudanças recentes na sua conta, com o navegador, o sistema e o país de origem, para mostrarmos seus dispositivos e avisarmos você sobre um login novo.",
+            "<b>Armazenamento no seu dispositivo:</b> o que mantém você conectado, uma cópia dos seus perfis e configurações para as páginas abrirem rápido e suas escolhas sobre cookies. Veja a Política de Cookies."
+          ],
+          "title": "2. Informações que Coletamos"
+        },
+        {
+          "body": "Estamos comprometidos com sua privacidade:",
+          "bullets": [
+            "<b>Compartilhar Seus Dados:</b> Não compartilhamos dados pessoais com anunciantes ou corretores de dados.",
+            "<b>Vender Seus Dados:</b> Não vendemos, alugamos ou trocamos qualquer dado pessoal com terceiros, nunca.",
+            "<b>Rastrear Você:</b> Não usamos cookies de publicidade ou de análise, não fazemos impressão digital do navegador e não seguimos você em outros sites."
+          ],
+          "title": "3. O Que Não Fazemos"
+        },
+        {
+          "body": "Sob o Regulamento Geral de Proteção de Dados da União Europeia (UK GDPR), as bases legais que dependemos para processar essa informação são:",
+          "bullets": [
+            "<b>Contrato:</b> para oferecer sua conta, seus perfis e os recursos que você usa.",
+            "<b>Interesses legítimos:</b> para manter as contas seguras (registros de login) e para o serviço funcionar e melhorar.",
+            "<b>Consentimento:</b> para usar o que você assiste em recomendações personalizadas. Você pode retirá-lo quando quiser em Privacidade e configurações de dados."
+          ],
+          "title": "4. Base Legal para Processamento (UK GDPR)"
+        },
+        {
+          "body": "Os dados da sua conta ficam na Supabase, nosso provedor de banco de dados, com segurança por linha, para que só a sua conta consiga lê-los. Cada navegador em que você entra guarda uma cópia para ficar mais rápido. Quando você exclui sua conta, os dados dela são excluídos na hora.",
+          "bullets": [],
+          "title": "5. Como Armazenamos Seus Dados"
+        },
+        {
+          "bullets": [],
+          "title": "6. Serviços de Terceiros"
+        },
+        {
+          "body": "De acordo com o RGPD do Reino Unido, você tem os seguintes direitos:",
+          "bullets": [
+            "<b>Direito de acesso:</b> baixe uma cópia dos seus dados quando quiser em Conta, em Acesso a informações pessoais.",
+            "<b>Direito de exclusão:</b> exclua sua conta quando quiser em Conta, em Excluir conta. Tudo o que há nela é excluído na hora.",
+            "<b>Direito de correção:</b> mude seu nome, seu e-mail e seu celular em Conta, ou peça para corrigirmos qualquer outra coisa.",
+            "<b>Direito de oposição:</b> desligue as recomendações personalizadas, ou escreva para nós para se opor a um tratamento baseado em interesses legítimos."
+          ],
+          "title": "7. Seus Direitos de Proteção de Dados"
+        },
+        {
+          "body": "Se tiver dúvidas sobre esta Política de Privacidade ou quiser exercer seus direitos, escreva para {support_email}.",
+          "bullets": [],
+          "title": "8. Contato"
+        }
+      ],
+      "title": "Política de Privacidade",
+      "updated": "Última atualização: outubro de 2026"
+    },
+    "terms": {
+      "sections": [
+        {
+          "body": "Ao acessar ou usar {brand}, você concorda em estar vinculado a esses Termos de Serviço e nossa Política de Privacidade. Se você não concorda, não use o serviço.",
+          "bullets": [],
+          "title": "1. Aceitação dos Termos"
+        },
+        {
+          "body": "{brand} é um agregador de links e motor de busca. Não hospedamos, carregamos, transmitimos ou controlamos qualquer conteúdo de vídeo em nossos servidores. Todos os meios são obtidos de plataformas de terceiros.",
+          "bullets": [],
+          "title": "2. Natureza do Serviço"
+        },
+        {
+          "body": "Você precisa de uma conta grátis para usar o {brand}. Você é responsável por manter sua senha segura e pelo que acontece na sua conta. Avise a gente na hora se achar que outra pessoa está usando a conta.",
+          "bullets": [],
+          "title": "3. Contas de Usuário"
+        },
+        {
+          "body": "Você concorda em não usar o serviço para:",
+          "bullets": [
+            "Contornar, desativar ou interferir com recursos de segurança do serviço.",
+            "Usar ferramentas automatizadas (como bots, raspadores ou crawlers) para acessar ou consultar o serviço em uma taxa que possa prejudicar o desempenho.",
+            "Tentar explorar, escanear ou testar a vulnerabilidade da infraestrutura do serviço.",
+            "Participar de qualquer conduta que seja ilegal, prejudicial ou que determinemos ser inadequada."
+          ],
+          "title": "4. Uso Aceitável"
+        },
+        {
+          "body": "A marca {brand}, o design da interface e o código de software original são protegidos por direitos autorais. Todos os conteúdos midiáticos acessíveis via {brand} permanecem a propriedade de seus respectivos detentores de direitos.",
+          "bullets": [],
+          "title": "5. Propriedade Intelectual"
+        },
+        {
+          "body": "O serviço é fornecido \"como é\" e \"como está disponível\" sem qualquer garantia de qualquer tipo. A {brand} não garante disponibilidade contínua e não é responsável por quaisquer danos indiretos ou consequentes.",
+          "bullets": [],
+          "title": "6. Exclusões de Responsabilidade e Limitação de Responsabilidade"
+        },
+        {
+          "body": "A {brand} fornece acesso a links que apontam para conteúdo hospedado em servidores independentes de terceiros. Não temos controle sobre, e não assumimos responsabilidade pelo conteúdo, políticas de privacidade ou práticas de qualquer site de terceiros.",
+          "bullets": [],
+          "title": "7. Conteúdo de Terceiros"
+        },
+        {
+          "body": "Reservamos o direito de suspender ou encerrar sua conta e acesso ao serviço a nosso exclusivo critério, sem aviso prévio, por conduta que acreditamos violar esses Termos ou ser prejudicial a outros usuários, a nós ou a terceiros.",
+          "bullets": [],
+          "title": "8. Terminação"
+        },
+        {
+          "body": "Esses Termos de Serviço serão regidos e interpretados de acordo com as leis da Inglaterra e do País de Gales, sem prestar atenção às disposições de conflito de leis.",
+          "bullets": [],
+          "title": "9. Lei Aplicável"
+        },
+        {
+          "body": "Para quaisquer dúvidas sobre esses Termos de Serviço, por favor entre em contato conosco através da página de Contato.",
+          "bullets": [],
+          "title": "10. Contato"
+        }
+      ],
+      "title": "Termos de Serviço",
+      "updated": "Última atualização: outubro de 2026"
+    }
+  },
+  "popular": [
+    "what-is",
+    "wont-play",
+    "profiles-manage",
+    "kids-profile",
+    "need-account"
+  ],
+  "topics": [
+    {
+      "groups": [
+        {
+          "articles": [
+            "profiles-manage",
+            "switch-profile",
+            "profile-pin",
+            "kids-profile",
+            "parental-controls",
+            "profile-icons",
+            "transfer-profile"
+          ],
+          "id": "profiles",
+          "title": "Perfis"
+        },
+        {
+          "articles": [
+            "need-account",
+            "sign-in",
+            "forgot-password",
+            "change-email-password",
+            "devices-sign-out"
+          ],
+          "id": "signing-in",
+          "title": "Login e segurança"
+        },
+        {
+          "articles": [
+            "saved-data",
+            "clear-data",
+            "download-data",
+            "delete-account",
+            "privacy-data",
+            "cookies-explained"
+          ],
+          "id": "account-data",
+          "title": "Seus dados e sua privacidade"
+        },
+        {
+          "articles": [
+            "free-to-use"
+          ],
+          "id": "paying",
+          "title": "Pagando por {brand}"
+        }
+      ],
+      "id": "account",
+      "title": "Conta e Perfis"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "wont-play",
+            "playback-unavailable",
+            "black-screen",
+            "buffering",
+            "subtitles-missing",
+            "no-sound",
+            "autoplay-blocked"
+          ],
+          "id": "playback-issues",
+          "title": "Problemas de Reprodução"
+        },
+        {
+          "articles": [
+            "supported-browsers",
+            "fix-phone",
+            "fix-tv",
+            "extensions-blockers",
+            "vpn-network"
+          ],
+          "id": "device-issues",
+          "title": "Navegadores e Dispositivos"
+        },
+        {
+          "articles": [
+            "rows-wont-load",
+            "list-missing",
+            "forgot-pin",
+            "stuck-loading",
+            "slow-pages",
+            "is-down"
+          ],
+          "id": "page-issues",
+          "title": "Páginas e Listas"
+        }
+      ],
+      "id": "fix",
+      "title": "Corrigir um problema"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "language",
+            "subtitles",
+            "shortcuts",
+            "skip-intro-next",
+            "accessibility",
+            "episodes"
+          ],
+          "id": "features",
+          "title": "Funcionalidades e Configurações"
+        },
+        {
+          "articles": [
+            "my-list",
+            "continue-watching",
+            "viewing-history",
+            "notifications",
+            "share"
+          ],
+          "id": "library",
+          "title": "Minha Lista e Histórico"
+        },
+        {
+          "articles": [
+            "search-browse",
+            "browse-language",
+            "new-popular",
+            "recommendations",
+            "trailers-clips",
+            "genres",
+            "top-10",
+            "title-details",
+            "clips"
+          ],
+          "id": "finding",
+          "title": "Encontrando algo para assistir"
+        }
+      ],
+      "id": "watching",
+      "title": "Assistindo"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "what-is",
+            "getting-started",
+            "sources",
+            "contribute",
+            "translate"
+          ],
+          "id": "about",
+          "title": "Sobre {brand}"
+        },
+        {
+          "articles": [
+            "install-app",
+            "phone-tablet",
+            "watch-on-tv"
+          ],
+          "id": "setup",
+          "title": "Configuração do Dispositivo"
+        },
+        {
+          "articles": [
+            "copyright",
+            "title-feedback",
+            "report-bug",
+            "security-report"
+          ],
+          "id": "reporting",
+          "title": "Relatar e Legal"
+        }
+      ],
+      "id": "start",
+      "title": "Começando"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "doc:privacy",
+            "doc:terms",
+            "doc:cookie-policy",
+            "doc:dmca",
+            "doc:disclaimer",
+            "doc:credits"
+          ],
+          "id": "policies",
+          "title": "Políticas"
+        }
+      ],
+      "id": "legal",
+      "title": "Legal e Políticas"
+    }
+  ]
+}

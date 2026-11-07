@@ -1,0 +1,1352 @@
+{
+  "articles": {
+    "accessibility": {
+      "body": "- <b>Ondertitels.</b> Kies de taal bij <b>Talen</b> van je profiel, en de grootte, kleur en achtergrond bij <b>Weergave van ondertitels</b>. Zie <a=/help/article/subtitles>Ondertitels gebruiken of de audiotaal kiezen</a>.\n- <b>Toetsenbord.</b> Ga met <b>Tab</b> van knop naar knop en sluit vensters met <b>Esc</b>. De speler heeft eigen toetsen, zie <a=/help/article/shortcuts>Sneltoetsen</a>.\n- <b>Tekstgrootte.</b> Zoom in je browser in met <b>Ctrl</b> en <b>+</b> (<b>Cmd</b> en <b>+</b> op een Mac). De indeling past zich aan.\n- <b>Beweging.</b> Vraagt je apparaat om minder beweging, dan blijft het bewegende logo stil staan.\n\nIs iets lastig te gebruiken, laat het ons weten op de pagina <a=/help/article/report-bug>Een probleem melden</a>. We nemen deze meldingen serieus.",
+      "keywords": "toegankelijkheid ondertitels toetsenbord zoomen beweging",
+      "related": [
+        "subtitles",
+        "shortcuts",
+        "language",
+        "phone-tablet",
+        "report-bug"
+      ],
+      "summary": "Ondertitels, bediening met het toetsenbord en weergave-instellingen die helpen.",
+      "title": "Toegankelijkheid op {brand}"
+    },
+    "autoplay-blocked": {
+      "body": "Browsers laten een pagina pas video met geluid starten als je erop hebt geklikt of getikt. {brand} probeert eerst met geluid te starten. Weigert de browser dat, dan start de video zonder geluid en zie je de doorgestreepte luidspreker. Zet het geluid aan met <b>M</b> of de luidsprekerknop.\n\n- Wil je niet dat voorbeelden vanzelf starten, zet dan <b>Voorbeelden automatisch afspelen</b> uit in de <b>Afspeelinstellingen</b> van je profiel.\n- Start een titel nooit, zie dan <a=/help/article/wont-play>Een titel speelt niet af</a>.",
+      "keywords": "automatisch afspelen geblokkeerd zonder geluid browser voorbeelden",
+      "related": [
+        "no-sound",
+        "trailers-clips",
+        "wont-play",
+        "shortcuts",
+        "slow-pages"
+      ],
+      "summary": "Waarom browsers geluid niet vanzelf laten starten, en hoe {brand} daarmee omgaat.",
+      "title": "De video start zonder geluid of start niet vanzelf"
+    },
+    "black-screen": {
+      "body": "1. Druk op <b>F</b> om volledig scherm te verlaten en weer te openen, of druk op <b>Esc</b> en speel opnieuw af.\n2. Laad de pagina opnieuw.\n3. Zet hardwareversnelling uit in de instellingen van je browser, start de browser opnieuw en probeer het nog eens.\n4. Werk je browser en je grafische driver bij.\n5. Probeer een andere browser.\n\n!! Let op: Sommige browserextensies die paginakleuren aanpassen of media blokkeren, kunnen het beeld ook verbergen. Zie <a=/help/article/extensions-blockers>Extensies die de speler blokkeren</a>.\n\n@@ diagnostics",
+      "keywords": "zwart beeld zwart scherm geluid wel beeld niet hardwareversnelling",
+      "related": [
+        "wont-play",
+        "supported-browsers",
+        "extensions-blockers",
+        "fix-phone",
+        "fix-tv"
+      ],
+      "summary": "Het beeld ontbreekt, maar je hoort de titel wel.",
+      "title": "Zwart beeld met geluid"
+    },
+    "browse-language": {
+      "body": "1. Open <b>Bladeren op taal</b> in de bovenste balk.\n2. <b>Originele taal</b> is al gekozen. Kies een taal om titels te zien die oorspronkelijk in die taal zijn gemaakt.\n\n!! Let op: De pagina toont titels op hun originele taal. Nasynchronisatie en ondertitels hangen af van de bron van elke titel en staan tijdens het afspelen onder <b>Audio & ondertitels</b>.",
+      "keywords": "bladeren op taal originele taal buitenlands internationaal wereldcinema anime koreaans spaans",
+      "related": [
+        "language",
+        "subtitles",
+        "search-browse",
+        "new-popular",
+        "recommendations"
+      ],
+      "summary": "Vind titels op de taal waarin ze zijn gemaakt.",
+      "title": "Bladeren op taal"
+    },
+    "buffering": {
+      "body": "Een stream pauzeert als je verbinding de gegevens trager aanlevert dan de video nodig heeft.\n\n- Sluit andere tabbladen, downloads en apparaten die hetzelfde netwerk gebruiken.\n- Ga dichter bij de router zitten of gebruik een kabel.\n- Pauzeer een minuut zodat de speler vooruit kan laden, en druk dan op afspelen.\n- Zet een VPN uit, of kies een server die dichterbij is.\n- Probeer het later opnieuw. Bronnen zijn op drukke momenten trager.\n\nDe bron bepaalt welke kwaliteit er wordt aangeboden, dus de scherpte van het beeld kan tijdens het afspelen veranderen.\n\n@@ diagnostics",
+      "keywords": "bufferen haperen traag laden langzaam verbinding snelheid kwaliteit",
+      "related": [
+        "wont-play",
+        "slow-pages",
+        "supported-browsers",
+        "extensions-blockers",
+        "fix-tv"
+      ],
+      "summary": "Verbeter een stream die steeds stopt om te laden.",
+      "title": "Bufferen, haperen of traag starten"
+    },
+    "change-email-password": {
+      "body": "Open het profielmenu en kies <b>Account</b>. Je gegevens staan onder <b>Accountgegevens</b>. Voor een wijziging vragen we je misschien om te bevestigen dat jij het bent, met je wachtwoord of met een code die we je mailen.\n\n## Wachtwoord\n1. Kies <b>Wachtwoord</b>.\n2. Typ je huidige wachtwoord en daarna twee keer het nieuwe. Het moet minstens 8 tekens hebben.\n3. Zet <b>Uitloggen op alle apparaten</b> aan als iemand anders het oude wachtwoord kan kennen, en kies <b>Opslaan</b>.\n\n## E-mail\n1. Kies <b>E-mail</b> en typ het nieuwe adres.\n2. Open de link die we naar het nieuwe adres sturen om de wijziging af te ronden.\n\n## Mobiele telefoon en naam\nKies <b>Mobiele telefoon</b> om een nummer toe te voegen waarmee je weer in je account komt, of <b>Naam</b> om je naam te wijzigen. Het hoofdprofiel draagt je voornaam.",
+      "keywords": "e-mail wijzigen wachtwoord wijzigen wachtwoord bijwerken telefoonnummer mobiel accountgegevens naam beveiliging",
+      "related": [
+        "forgot-password",
+        "devices-sign-out",
+        "sign-in",
+        "delete-account",
+        "privacy-data"
+      ],
+      "summary": "Werk de gegevens bij waarmee je inlogt en je account terugkrijgt.",
+      "title": "Je e-mailadres, wachtwoord of telefoonnummer wijzigen"
+    },
+    "clear-data": {
+      "body": "Wis je de sitegegevens in een browser, dan ben je daar uitgelogd en verdwijnt de kopie van je profielen en instellingen die die browser bewaart. Alles blijft in je account en komt terug als je opnieuw inlogt.\n\n## Chrome, Edge en Brave\n1. Kies het pictogram met site-informatie links in de adresbalk en kies <b>Cookies en sitegegevens</b>, daarna <b>Sitegegevens op het apparaat beheren</b>.\n2. Verwijder de items van deze site.\n\n## Firefox\n1. Kies het slotje in de adresbalk en kies <b>Cookies en websitegegevens wissen</b>.\n\n## Safari op een Mac\n1. Open <b>Safari</b>, dan <b>Instellingen</b>, <b>Privacy</b> en <b>Beheer websitegegevens</b>.\n2. Zoek deze site en kies <b>Verwijder</b>.\n\n## Safari op iPhone en iPad\nOpen de app <b>Instellingen</b>, dan <b>Apps</b>, <b>Safari</b>, <b>Geavanceerd</b>, <b>Websitedata</b>, en verwijder deze site.\n\n## Gegevens uit je account wissen\n- Om titels uit je kijkactiviteit te halen, zie <a=/help/article/viewing-history>Je kijkgeschiedenis beheren</a>.\n- Om een profiel te verwijderen, zie <a=/help/article/profiles-manage>Profielen maken, bewerken of verwijderen</a>.\n- Om alles te verwijderen, zie <a=/help/article/delete-account>Je account verwijderen</a>.\n\n@@ data",
+      "keywords": "gegevens wissen sitegegevens cookies verwijderen browser uitloggen",
+      "related": [
+        "saved-data",
+        "delete-account",
+        "viewing-history",
+        "privacy-data",
+        "sign-in"
+      ],
+      "summary": "Verwijder wat deze browser voor {brand} bewaart, of wis gegevens uit je account.",
+      "title": "Je opgeslagen gegevens wissen"
+    },
+    "clips": {
+      "body": "<b>Clips</b> toont korte voorbeelden na elkaar, op een telefoon in de balk onderaan.\n\n1. Scrol of veeg naar de volgende clip.\n2. Kies de luidsprekerknop om het geluid aan of uit te zetten. Clips starten zonder geluid.\n3. Kies <b>Mijn lijst</b> om de titel te bewaren, <b>Afspelen</b> om hem te bekijken, of <b>Info</b> om erover te lezen.",
+      "keywords": "clips korte video's scrollen verticaal trailers geluid",
+      "related": [
+        "trailers-clips",
+        "my-list",
+        "new-popular",
+        "search-browse",
+        "recommendations"
+      ],
+      "summary": "Scrol door korte voorbeelden en voeg wat je leuk vindt toe aan je lijst.",
+      "title": "Clips gebruiken"
+    },
+    "continue-watching": {
+      "body": "Titels die je hebt gestart, staan in de rij <b>Verder kijken</b>, met een balk die laat zien hoe ver je bent. Je vindt de rij ook bij <b>Mijn {brand}</b>.\n\n## Verder kijken\nKies de titel. Hij speelt verder waar je gebleven was, op elk apparaat waarop je inlogt.\n\n## Een titel uit de rij halen\n1. Open het optiemenu op de titelkaart.\n2. Kies <b>Verwijderen uit Verder kijken</b>.\n\nWil je een titel ook uit je kijkactiviteit halen, zie dan <a=/help/article/viewing-history>Je kijkgeschiedenis beheren</a>.",
+      "keywords": "verder kijken hervatten voortgang verwijderen rij gestopt half gekeken",
+      "related": [
+        "viewing-history",
+        "my-list",
+        "saved-data",
+        "clear-data",
+        "skip-intro-next"
+      ],
+      "summary": "Ga verder waar je was gebleven en haal titels uit de rij.",
+      "title": "Verder kijken gebruiken"
+    },
+    "contribute": {
+      "body": "{brand} wordt in het openbaar gebouwd. Je kunt op verschillende manieren helpen:\n\n- <b>Vertalingen.</b> De teksten van de interface staan in gewone tekstbestanden, één per taal. Een vertaling is dus een tekstbestand dat je kunt bewerken.\n- <b>Foutmeldingen.</b> Zie <a=/help/article/report-bug>Een probleem melden</a>.\n- <b>Verbeteringen en functies.</b> Stuur een beschrijving of een patch.\n- <b>Ideeën.</b> Vertel ons wat je zou willen dat het Helpcentrum of de app deed.\n\nMail naar <a=mailto:{support_email}>{support_email}</a> met een paar regels over wat je wilt doen.",
+      "keywords": "bijdragen helpen vertalen fouten melden ideeën",
+      "related": [
+        "report-bug",
+        "title-feedback",
+        "what-is",
+        "getting-started",
+        "free-to-use"
+      ],
+      "summary": "Ideeën, verbeteringen, vertalingen en foutmeldingen zijn welkom.",
+      "title": "Hoe kan ik bijdragen?"
+    },
+    "cookies-explained": {
+      "related": [
+        "privacy-data",
+        "saved-data",
+        "clear-data",
+        "recommendations",
+        "sources"
+      ],
+      "summary": "Wat je browser voor {brand} bewaart, in gewone woorden.",
+      "title": "Cookies en lokale opslag uitgelegd"
+    },
+    "copyright": {
+      "body": "{brand} host geen videobestanden. Het toont links naar titels die bij andere diensten staan. Heb je de rechten op een titel en denk je dat een link daar inbreuk op maakt, stuur ons dan een melding, dan bekijken we die.\n\nEen melding bevat:\n1. Je naam en contactgegevens.\n2. Een beschrijving van het werk waarop jij de rechten hebt.\n3. Het adres van de pagina op {brand} die ernaar linkt.\n4. Een verklaring dat jij de rechthebbende bent of namens die mag optreden.\n\nStuur hem naar <a=mailto:{support_email}>{support_email}</a> met als onderwerp <b>DMCA-melding</b>. De volledige procedure staat op de <a=/help/legal/dmca>DMCA-pagina</a>.",
+      "keywords": "auteursrecht dmca verwijderen rechthebbende melding",
+      "related": [
+        "sources",
+        "what-is",
+        "privacy-data",
+        "title-feedback",
+        "report-bug"
+      ],
+      "summary": "Rechthebbenden kunnen vragen om een link te verwijderen.",
+      "title": "Een auteursrechtprobleem melden"
+    },
+    "delete-account": {
+      "body": "Als je je account verwijdert, is het meteen weg, met alle profielen, lijsten, beoordelingen, instellingen en alle kijkactiviteit. Dit kan niet ongedaan worden gemaakt.\n\n1. Open het profielmenu en kies <b>Account</b>.\n2. Kies <b>Account verwijderen</b> onderaan de pagina.\n3. Bevestig dat jij het bent en kies <b>Permanent verwijderen</b>.\n\nWil je maar één persoon weghalen, verwijder dan alleen diens profiel. Zie <a=/help/article/profiles-manage>Profielen maken, bewerken of verwijderen</a>.\n\n!! Let op: Wil je een kopie van je gegevens houden, download die dan eerst. Zie <a=/help/article/download-data>Een kopie van je gegevens downloaden</a>.",
+      "keywords": "account verwijderen account opzeggen account wissen gegevens wissen account sluiten",
+      "related": [
+        "download-data",
+        "profiles-manage",
+        "privacy-data",
+        "transfer-profile",
+        "clear-data"
+      ],
+      "summary": "Verwijder je account en alles erin voorgoed.",
+      "title": "Je account verwijderen"
+    },
+    "devices-sign-out": {
+      "body": "1. Open het profielmenu en kies <b>Account</b>.\n2. Kies <b>Toegang en apparaten</b>.\n3. Kies <b>Uitloggen op dit apparaat</b>, of <b>Uitloggen op alle apparaten</b> om uit te loggen in elke browser waarin je account open staat, ook deze.\n\n<b>Recente beveiligingsactiviteit</b> op dezelfde pagina toont recente inlogpogingen en wijzigingen van je account. We mailen je ook als er op een nieuw apparaat wordt ingelogd.\n\n!! Let op: Zie je een inlog die je niet herkent, log dan uit op alle apparaten en wijzig je wachtwoord. Zie <a=/help/article/change-email-password>Je e-mailadres, wachtwoord of telefoonnummer wijzigen</a>.",
+      "keywords": "uitloggen alle apparaten ingelogde apparaten sessies beveiliging nieuw apparaat telefoon kwijt openbare computer",
+      "related": [
+        "change-email-password",
+        "sign-in",
+        "forgot-password",
+        "security-report",
+        "privacy-data"
+      ],
+      "summary": "Zie waar je account is ingelogd en log uit op apparaten die je niet meer gebruikt.",
+      "title": "Uitloggen op één apparaat of op alle apparaten"
+    },
+    "download-data": {
+      "body": "1. Open het profielmenu en kies <b>Account</b>.\n2. Kies <b>Toegang tot persoonlijke informatie</b>.\n3. Volg de stappen om het bestand op te slaan.\n\nHet bestand bevat je accountgegevens, profielen, instellingen, Mijn lijst, beoordelingen en kijkactiviteit. Het wordt op je apparaat opgeslagen, dus bewaar het op een veilige plek.\n\nWil je de kijkactiviteit van één profiel als spreadsheet downloaden, open dan <b>Kijkactiviteit</b> van dat profiel en kies <b>Alles downloaden</b>.",
+      "keywords": "mijn gegevens downloaden persoonsgegevens kopie exporteren avg inzageverzoek",
+      "related": [
+        "privacy-data",
+        "delete-account",
+        "viewing-history",
+        "transfer-profile",
+        "saved-data"
+      ],
+      "summary": "Krijg een bestand met de persoonsgegevens die je account bewaart.",
+      "title": "Een kopie van je gegevens downloaden"
+    },
+    "episodes": {
+      "body": "## Voordat je begint\nOpen een serie en kies <b>Afleveringen</b>. Wissel met het seizoensmenu van seizoen en kies dan een aflevering.\n\n## Tijdens het kijken\n- Kies <b>Afleveringen</b> in de bediening van de speler om de lijst te openen zonder de speler te verlaten.\n- Kies <b>Volgende aflevering</b>, of laat hem vanzelf starten. Zie <a=/help/article/skip-intro-next>\"Intro overslaan\" en \"Volgende aflevering\"</a>.",
+      "keywords": "afleveringen seizoenen serie lijst volgende aflevering",
+      "related": [
+        "skip-intro-next",
+        "continue-watching",
+        "shortcuts",
+        "title-details",
+        "my-list"
+      ],
+      "summary": "Kies een seizoen en een aflevering in het detailvenster of in de speler.",
+      "title": "Seizoenen en afleveringen"
+    },
+    "extensions-blockers": {
+      "body": "De speler laadt streams van externe bronnen. Tools die scripts, frames of media van andere sites blokkeren, kunnen hem tegenhouden.\n\n1. Open je extensie en pauzeer haar voor deze site, en laad daarna opnieuw.\n2. Gebruik je een filter voor het hele netwerk, zoals een DNS-filter of een school- of werknetwerk, probeer dan een ander netwerk.\n3. Werkt afspelen daarna wel, zet {brand} dan op de lijst met toegestane sites van de extensie.\n\n!! Let op: We vragen je nooit om een browserextensie of codec te installeren om te kunnen kijken. Sluit elke pagina die dat wel doet.\n\n@@ diagnostics",
+      "keywords": "extensie adblocker ublock ghostery privacy script blokkeren vpn dns filter",
+      "related": [
+        "wont-play",
+        "playback-unavailable",
+        "supported-browsers",
+        "black-screen",
+        "sources"
+      ],
+      "summary": "Adblockers en privacytools kunnen voorkomen dat een stream laadt.",
+      "title": "Extensies die de speler blokkeren"
+    },
+    "fix-phone": {
+      "body": "1. Sluit het tabblad en open {brand} opnieuw.\n2. Werk je browser bij via de appwinkel.\n3. Zet databesparing of de energiebesparingsmodus uit tijdens het kijken.\n4. Controleer of je een stabiele verbinding hebt. Zie <a=/help/article/buffering>Bufferen, haperen of traag starten</a>.\n5. Heb je {brand} op je beginscherm gezet en ziet het er verouderd uit, verwijder het dan en zet het er opnieuw op. Zie <a=/help/article/install-app>{brand} als app installeren</a>.\n\n@@ diagnostics\n\n@@ refresh",
+      "keywords": "telefoon tablet iphone ipad android mobiel probleem",
+      "related": [
+        "phone-tablet",
+        "install-app",
+        "supported-browsers",
+        "wont-play",
+        "buffering"
+      ],
+      "summary": "Stappen voor iPhone, iPad en Android.",
+      "title": "Een probleem op je telefoon of tablet oplossen"
+    },
+    "fix-tv": {
+      "body": "{brand} heeft geen tv-app. Je kijkt via de webbrowser van je tv, of door een browsertabblad vanaf een computer of telefoon te casten.\n\n- Werk de software van de tv en de browser bij.\n- Start de tv of streamingstick opnieuw.\n- Cast je een tabblad, houd het verzendende apparaat dan op hetzelfde netwerk en sluit daar andere tabbladen.\n- Is de browser van de tv traag, cast het tabblad dan liever vanaf een computer.\n\nZie <a=/help/article/watch-on-tv>Kijken op je tv</a>.\n\n@@ diagnostics",
+      "keywords": "tv televisie smart tv casten chromecast browser probleem",
+      "related": [
+        "watch-on-tv",
+        "wont-play",
+        "supported-browsers",
+        "buffering",
+        "black-screen"
+      ],
+      "summary": "Stappen als je kijkt via de browser van je tv of door een tabblad te casten.",
+      "title": "Een probleem op je tv oplossen"
+    },
+    "forgot-password": {
+      "keywords": "wachtwoord vergeten wachtwoord resetten kwijt kan niet inloggen nieuw wachtwoord link",
+      "related": [
+        "sign-in",
+        "change-email-password",
+        "devices-sign-out",
+        "need-account"
+      ],
+      "summary": "Krijg per e-mail een link om een nieuw wachtwoord te kiezen.",
+      "title": "Ik ben mijn wachtwoord vergeten"
+    },
+    "forgot-pin": {
+      "body": "1. Open het profielmenu, kies <b>Account</b>, dan <b>Profielen beheren</b>, en kies het vergrendelde profiel.\n2. Kies <b>Profielvergrendeling</b> en typ het wachtwoord van je account.\n3. Kies <b>Heb je je PIN vergeten?</b> en daarna <b>Profielvergrendeling verwijderen</b>.\n\nHet profiel opent weer zonder pincode en je kunt een nieuwe instellen. Zie <a=/help/article/profile-pin>Een profielpincode toevoegen, wijzigen of verwijderen</a>.\n\n!! Let op: Alleen wie het wachtwoord van het account kent, kan een pincode verwijderen. Ben je ook het wachtwoord vergeten, zie dan <a=/help/article/forgot-password>Ik ben mijn wachtwoord vergeten</a>.\n\n@@ profiles",
+      "keywords": "pincode vergeten pin kwijt profielvergrendeling verwijderen",
+      "related": [
+        "profile-pin",
+        "forgot-password",
+        "profiles-manage",
+        "kids-profile",
+        "switch-profile"
+      ],
+      "summary": "Verwijder de pincode met het wachtwoord van je account en stel een nieuwe in.",
+      "title": "Ik ben de pincode van mijn profiel vergeten"
+    },
+    "free-to-use": {
+      "body": "{brand} rekent geen kosten, heeft geen abonnement en vraagt niet om kaartgegevens. Er zijn geen pakketten, proefperiodes of factuurdata.\n\nDoet een pagina, e-mail of bericht zich voor als {brand} en vraagt het je te betalen, dan komt het niet van ons. Vul geen betaalgegevens in. Stuur het door naar <a=mailto:{support_email}>{support_email}</a>, dan zoeken we het uit.\n\n{brand} is een overzicht van links naar titels die andere diensten aanbieden. Of een dienst geld vraagt voor zijn eigen inhoud, bepaalt die dienst zelf. Zie <a=/help/article/sources>Waar de titels vandaan komen</a>.",
+      "keywords": "gratis kosten betalen abonnement prijs creditcard",
+      "related": [
+        "what-is",
+        "need-account",
+        "sources",
+        "getting-started",
+        "contribute"
+      ],
+      "summary": "Bij {brand} hoef je nergens voor te betalen.",
+      "title": "Is {brand} gratis?"
+    },
+    "genres": {
+      "body": "1. Open <b>Films</b> of <b>Series</b> in de balk bovenaan.\n2. Kies <b>Genres</b> naast de paginatitel.\n3. Kies een genre. De pagina toont dan alleen dat genre, met rijen die ervoor gemaakt zijn.\n\nOpen <b>Films</b> of <b>Series</b> opnieuw om weer alles te zien. Op een telefoon schuift de genrelijst van onderen omhoog.",
+      "keywords": "genres categorieën komedie drama horror actie filteren",
+      "related": [
+        "search-browse",
+        "browse-language",
+        "new-popular",
+        "recommendations",
+        "top-10"
+      ],
+      "summary": "Beperk Films en Series tot het soort titel dat je zoekt.",
+      "title": "Bladeren op genre"
+    },
+    "getting-started": {
+      "body": "1. <b>Maak je gratis account aan.</b> Zie <a=/help/article/need-account>Heb ik een account nodig?</a>\n2. <b>Kies of maak een profiel.</b> Zie <a=/help/article/profiles-manage>Profielen maken, bewerken of verwijderen</a>.\n3. <b>Kijk rond op de startpagina.</b> Rijen zijn op thema gegroepeerd en de grote titel bovenaan wisselt.\n4. <b>Zoek</b> met het vergrootglas naar een titel, acteur of regisseur. Zie <a=/help/article/search-browse>Zoeken en bladeren</a>.\n5. <b>Kies een titel</b> om erover te lezen, de trailer te bekijken en af te spelen.\n6. <b>Voeg titels toe aan Mijn lijst</b> met de knop <b>+</b>.\n\nLeer de toetsen die helpen tijdens het kijken: <a=/help/article/shortcuts>Sneltoetsen</a>.",
+      "keywords": "aan de slag beginnen eerste keer uitleg nieuwe gebruiker basis",
+      "related": [
+        "what-is",
+        "profiles-manage",
+        "search-browse",
+        "install-app",
+        "need-account"
+      ],
+      "summary": "Je eerste vijf minuten: account, profielen, een titel vinden en bewaren.",
+      "title": "Aan de slag met {brand}"
+    },
+    "install-app": {
+      "body": "{brand} is een webapp. Je hoeft niets uit een winkel te downloaden. Je browser kan de app installeren, zodat hij in een eigen venster met een eigen pictogram opent.\n\n## Chrome en Edge op Windows, Mac en Linux\nKies het installatiepictogram rechts in de adresbalk, of open het browsermenu en kies <b>{brand} installeren</b> (in Edge: <b>Apps</b> en dan <b>Deze site als app installeren</b>).\n\n## Safari op een Mac\nOpen het menu <b>Archief</b> en kies <b>Voeg toe aan Dock</b>.\n\n## Android\nOpen het browsermenu en kies <b>App installeren</b> of <b>Toevoegen aan startscherm</b>.\n\n## iPhone en iPad\nKies in Safari de knop <b>Deel</b> en daarna <b>Zet op beginscherm</b>.\n\n!! Let op: Firefox op een computer kan sites niet als app installeren. Gebruik een bladwijzer, of installeer via Chrome, Edge of Safari. Een geïnstalleerde app is dezelfde website: hij werkt zichzelf bij en houdt je ingelogd, net als de browser.",
+      "keywords": "app installeren beginscherm dock bureaublad pwa",
+      "related": [
+        "phone-tablet",
+        "supported-browsers",
+        "fix-phone",
+        "getting-started",
+        "watch-on-tv"
+      ],
+      "summary": "Zet {brand} op je beginscherm, in het Dock of op je bureaublad, zodat het in een eigen venster opent.",
+      "title": "{brand} als app installeren"
+    },
+    "is-down": {
+      "body": "{brand} bestaat uit drie onderdelen die los van elkaar kunnen uitvallen:\n\n- <b>De app</b>, waar je nu naar kijkt.\n- <b>De film- en seriecatalogus</b>, die details en afbeeldingen levert.\n- <b>De streambronnen</b>, die de video leveren.\n\nDoe de controle om te zien welke ervan reageren vanaf je apparaat. Reageren de catalogus of de bronnen voor niemand, wacht dan een paar minuten en probeer het opnieuw. Is er een alleen voor jou onbereikbaar, zie dan <a=/help/article/vpn-network>VPN's, school- en werknetwerken</a>.\n\n@@ diagnostics",
+      "keywords": "onbereikbaar storing status werkt niet offline",
+      "related": [
+        "vpn-network",
+        "wont-play",
+        "rows-wont-load",
+        "sources",
+        "report-bug"
+      ],
+      "summary": "Controleer welke onderdelen werken vanaf je apparaat.",
+      "title": "Is {brand} onbereikbaar?"
+    },
+    "kids-profile": {
+      "body": "Een kinderprofiel toont alleen titels die geschikt zijn voor kinderen, met een eigen startpagina en menu's voor kinderen.\n\n1. Open <b>Profielen beheren</b> en kies <b>Profiel toevoegen</b>.\n2. Typ een naam en zet <b>Kinderprofiel</b> aan.\n3. Kies <b>Opslaan</b>.\n\nWil je van een bestaand profiel een kinderprofiel maken, bewerk het dan en zet <b>Kinderprofiel</b> aan. Het hoofdprofiel kan geen kinderprofiel zijn.\n\nKies <b>Kids verlaten</b> en daarna een ander profiel om de kinderpagina's te verlaten. Wil je niet dat een kind van profiel wisselt, vergrendel de andere profielen dan met een pincode. Zie <a=/help/article/profile-pin>Een profielpincode toevoegen, wijzigen of verwijderen</a>.\n\nVoor oudere kinderen kun je in plaats daarvan op elk profiel een leeftijdsclassificatie instellen. Zie <a=/help/article/parental-controls>Ouderlijk toezicht: leeftijdsclassificaties en geblokkeerde titels</a>.\n\n!! Let op: Titels komen van onafhankelijke bronnen en niet elke titel heeft een leeftijdsclassificatie. Een kinderprofiel beperkt wat een kind kan vinden, maar is geen vervanging voor samen kijken.\n\n@@ profiles",
+      "keywords": "kinderprofiel kinderen kids veilig leeftijd ouders",
+      "related": [
+        "parental-controls",
+        "profile-pin",
+        "profiles-manage",
+        "switch-profile",
+        "recommendations"
+      ],
+      "summary": "Een kinderprofiel toont titels voor kinderen en houdt al het andere buiten bereik.",
+      "title": "Een profiel voor kinderen maken"
+    },
+    "language": {
+      "body": "## Weergavetaal\n1. Open het profielmenu, kies <b>Account</b>, dan <b>Profielen beheren</b>, en kies je profiel.\n2. Kies <b>Talen</b>, dan <b>Weergavetaal</b>, en kies een taal.\n\nDe keuze hoort bij het profiel en geldt dus op al je apparaten. In het Helpcentrum kun je ook onderaan elke pagina een taal kiezen.\n\n## Audio- en ondertiteltaal\n1. Open <b>Talen</b> van je profiel, zoals hierboven, en daarna <b>Audio en ondertitels</b>.\n2. Kies een <b>Audiotaal</b> en een <b>Ondertiteltaal</b>. <b>Hetzelfde als de weergavetaal</b> volgt de taal van de app.\n\nDe speler gebruikt ze telkens als een titel ze aanbiedt.\n\n!! Let op: Alleen volledig vertaalde talen staan in de lijst.\n\n@@ language",
+      "keywords": "taal veranderen weergavetaal ondertiteltaal audiotaal",
+      "related": [
+        "subtitles",
+        "browse-language",
+        "subtitles-missing",
+        "shortcuts",
+        "accessibility"
+      ],
+      "summary": "Verander de taal van {brand} en de talen waarin je kijkt.",
+      "title": "De taal veranderen"
+    },
+    "list-missing": {
+      "body": "Mijn lijst en je voortgang horen bij een profiel en worden opgeslagen in je account. Lijken ze leeg:\n\n- Controleer of je in het juiste profiel zit. Elk profiel heeft een eigen lijst. Wissel via het profielmenu.\n- Controleer of je bent ingelogd met hetzelfde account als eerst.\n- Geef een nieuw apparaat na het inloggen een paar seconden om je account te laden, of laad de pagina opnieuw.\n- Titels die je hebt verborgen in je kijkactiviteit verdwijnen ook uit Verder kijken.\n\nOntbreekt er op één apparaat nog steeds iets, log daar dan uit en weer in. Zie <a=/help/article/saved-data>Waar je profielen, lijst en voortgang worden opgeslagen</a>.\n\n@@ profiles",
+      "keywords": "mijn lijst kwijt verdwenen leeg verder kijken voortgang",
+      "related": [
+        "my-list",
+        "saved-data",
+        "switch-profile",
+        "continue-watching",
+        "sign-in"
+      ],
+      "summary": "Waarom Mijn lijst of Verder kijken leeg kan lijken, en hoe je ze terugkrijgt.",
+      "title": "Mijn lijst of voortgang is verdwenen"
+    },
+    "my-list": {
+      "body": "## Een titel toevoegen\nKies de knop <b>+</b> op een titelkaart, in het detailvenster of bij de grote titel bovenaan de pagina.\n\n## Een titel verwijderen\nKies het vinkje bij de titel. Het wordt weer een <b>+</b>.\n\n## Je lijst bekijken\nOpen <b>Mijn {brand}</b> in de balk bovenaan, of op je telefoon in de balk onderaan. Daar staat je lijst, naast <b>Verder kijken</b>, de titels die je leuk vond en de trailers die je hebt bekeken.\n\nMijn lijst hoort bij het profiel en wordt in je account opgeslagen, dus hij is op elk apparaat hetzelfde.",
+      "keywords": "mijn lijst toevoegen verwijderen kijklijst bewaren later favorieten plus",
+      "related": [
+        "list-missing",
+        "continue-watching",
+        "viewing-history",
+        "saved-data",
+        "recommendations"
+      ],
+      "summary": "Bewaar titels voor later en vind ze makkelijk terug.",
+      "title": "Mijn lijst gebruiken"
+    },
+    "need-account": {
+      "body": "Ja. Je hebt een gratis account nodig om op {brand} te kijken. Je maakt het in een minuut aan en er wordt nooit om betaalgegevens gevraagd.\n\n1. Vul op de startpagina van {brand} je e-mailadres in en kies <b>Aan de slag</b>.\n2. Vul je voor- en achternaam in en kies een wachtwoord van minstens 8 tekens.\n3. Open de link die we je mailen om je adres te bevestigen en log daarna in.\n\nJe account bewaart je profielen, Mijn lijst, je beoordelingen, je kijkactiviteit en je instellingen, zodat alles hetzelfde is op elk apparaat waarop je inlogt. Je voornaam wordt de naam van je hoofdprofiel.\n\n!! Let op: {brand} is gratis en vraagt nooit om een kaartnummer. Zie <a=/help/article/free-to-use>Is {brand} gratis?</a>",
+      "keywords": "account nodig gratis aanmelden registreren account maken",
+      "related": [
+        "sign-in",
+        "free-to-use",
+        "profiles-manage",
+        "saved-data",
+        "privacy-data"
+      ],
+      "summary": "Ja, een gratis account. Dit bewaart het voor je.",
+      "title": "Heb ik een account nodig?"
+    },
+    "new-popular": {
+      "body": "<b>Nieuw & Populair</b> in de balk bovenaan toont recente en populaire titels. Open een titel voor de details en voeg hem toe aan <b>Mijn lijst</b> om hem later terug te vinden.\n\nDe lijsten worden ververst vanuit de catalogus en veranderen dus van dag tot dag.",
+      "keywords": "nieuw populair binnenkort trending nieuwe titels",
+      "related": [
+        "notifications",
+        "search-browse",
+        "trailers-clips",
+        "recommendations",
+        "my-list"
+      ],
+      "summary": "Zie wat er binnenkomt en waar mensen nu naar kijken.",
+      "title": "Nieuw & Populair"
+    },
+    "no-sound": {
+      "body": "1. Druk op <b>M</b>, of kies de luidsprekerknop in de speler, om het geluid aan te zetten. Browsers starten een video die vanzelf begint vaak zonder geluid, zie <a=/help/article/autoplay-blocked>De video start zonder geluid of start niet vanzelf</a>.\n2. Druk op <b>Pijl omhoog</b> om het volume hoger te zetten, en controleer het volume van je apparaat.\n3. Controleer of het browsertabblad niet gedempt is. Klik met de rechtermuisknop op het tabblad om het te zien.\n4. Open <b>Audio & ondertitels</b> en kies een ander audiospoor als dat er is.\n5. Gebruik je bluetooth, verbreek dan de verbinding met je koptelefoon en maak hem opnieuw.",
+      "keywords": "geen geluid stil volume luidspreker bluetooth koptelefoon",
+      "related": [
+        "autoplay-blocked",
+        "shortcuts",
+        "subtitles",
+        "wont-play",
+        "black-screen"
+      ],
+      "summary": "Los het op als een titel zonder geluid afspeelt.",
+      "title": "Er is geen geluid"
+    },
+    "notifications": {
+      "body": "De bel in de balk bovenaan toont titels die de moeite waard zijn, zoals nieuwe en populaire titels. Kies een item om de details van de titel te openen.\n\nItems die je opent worden als gelezen gemarkeerd, en het getal op de bel laat zien hoeveel er nog ongelezen zijn.\n\nDe <b>Meldingsinstellingen</b> van je profiel hebben opties voor e-mail en pushmeldingen. Die worden met het profiel opgeslagen, maar {brand} stuurt nog geen e-mails of pushmeldingen over titels. E-mails over je account, zoals inloglinks, komen altijd aan.",
+      "keywords": "meldingen bel nieuw notificaties e-mail push",
+      "related": [
+        "new-popular",
+        "my-list",
+        "recommendations",
+        "trailers-clips",
+        "search-browse"
+      ],
+      "summary": "Wat de bel in de balk bovenaan toont en hoe items als gelezen worden gemarkeerd.",
+      "title": "Meldingen"
+    },
+    "parental-controls": {
+      "body": "Elk profiel kan eigen grenzen hebben. Open het profielmenu, kies <b>Account</b>, dan <b>Profielen beheren</b>, kies het profiel en kies <b>Ouderlijk toezicht aanpassen</b>.\n\n## Leeftijdsclassificaties\n1. Kies <b>Leeftijdsclassificaties</b>.\n2. Kies de hoogste classificatie die het profiel mag zien. Alleen titels tot die classificatie worden getoond, en titels zonder classificatie worden ook verborgen.\n\n<b>Classificatiesysteem</b> bepaalt welke labels je ziet: Britse (U, PG, 12, 15, 18) of Amerikaanse (G, PG, PG-13, R, NC-17). <b>Automatisch</b> volgt het land van waaruit je inlogt.\n\n## Titels blokkeren\n1. Kies <b>Titels blokkeren</b>.\n2. Typ de naam van een serie of film en kies <b>Toevoegen</b>.\n\nGeblokkeerde titels worden op dat profiel niet getoond. Kies <b>Verwijderen</b> om er weer een te tonen.\n\n!! Let op: Titels komen van onafhankelijke bronnen en sommige hebben geen classificatie. Voor jonge kinderen is een kinderprofiel de veiligere keuze. Zie <a=/help/article/kids-profile>Een profiel voor kinderen maken</a>.\n\n@@ profiles",
+      "keywords": "ouderlijk toezicht leeftijdsclassificatie kijkwijzer beperkingen titel blokkeren verbergen kinderen tieners 12 16 18",
+      "related": [
+        "kids-profile",
+        "profile-pin",
+        "profiles-manage",
+        "viewing-history",
+        "switch-profile"
+      ],
+      "summary": "Beperk een profiel tot titels tot een bepaalde leeftijd, of verberg titels op naam.",
+      "title": "Ouderlijk toezicht: leeftijdsclassificaties en geblokkeerde titels"
+    },
+    "phone-tablet": {
+      "body": "Open de site in de browser van je telefoon. De pagina schakelt over op een indeling voor aanraken, met onderaan een balk voor <b>Home</b>, <b>Clips</b>, <b>Zoeken</b> en <b>Mijn {brand}</b>.\n\n- Tik op een kaart voor de details en dan op de afspeelknop om te starten.\n- Draai je telefoon liggend voor het beste beeld.\n- Wil je dat het als een app voelt, zie dan <a=/help/article/install-app>{brand} als app installeren</a>.",
+      "keywords": "telefoon tablet mobiel balk onderaan",
+      "related": [
+        "install-app",
+        "fix-phone",
+        "supported-browsers",
+        "getting-started",
+        "shortcuts"
+      ],
+      "summary": "De mobiele indeling, de balk onderaan en tips voor kleine schermen.",
+      "title": "{brand} gebruiken op je telefoon of tablet"
+    },
+    "playback-unavailable": {
+      "body": "Je ziet misschien <b>Afspelen niet beschikbaar</b> of <b>Kan video niet streamen. Alle bronnen waren niet beschikbaar of worden niet ondersteund door je browser.</b>\n\nHet betekent dat de speler elke bron die hij kent om deze titel heeft gevraagd, en dat geen enkele een stream gaf die je browser kan afspelen.\n\n1. Wacht een minuut en druk opnieuw op afspelen. Bronnen gaan soms even plat.\n2. Zet blokkeerders uit. Zie <a=/help/article/extensions-blockers>Extensies die de speler blokkeren</a>.\n3. Probeer een andere browser. Sommige streams hebben functies nodig die oudere browsers missen.\n4. Probeer een andere titel om te zien of het probleem alleen bij deze titel speelt.\n\nMislukt dezelfde titel een hele dag, <a=/help/article/report-bug>Een probleem melden</a>. Vermeld de titel, het jaar en de browser die je gebruikte.\n\n@@ diagnostics",
+      "keywords": "afspelen niet beschikbaar foutmelding bron geen stream",
+      "related": [
+        "wont-play",
+        "sources",
+        "extensions-blockers",
+        "supported-browsers",
+        "report-bug"
+      ],
+      "summary": "Wat de melding betekent en wat je nu kunt doen.",
+      "title": "{brand} meldt \"Afspelen niet beschikbaar\""
+    },
+    "privacy-data": {
+      "keywords": "privacy gegevens verzamelen persoonsgegevens beleid wat bewaren jullie",
+      "related": [
+        "download-data",
+        "delete-account",
+        "saved-data",
+        "recommendations",
+        "cookies-explained"
+      ],
+      "summary": "Een korte samenvatting van wat we bewaren, wat er wordt verstuurd en waar je het volledige beleid leest.",
+      "title": "Welke gegevens verzamelt {brand}?"
+    },
+    "profile-icons": {
+      "body": "1. Open <b>Profielen beheren</b> en kies het profiel.\n2. Kies de afbeelding.\n3. Kies een nieuwe en daarna <b>Opslaan</b>.\n\nJe kunt hem ook veranderen bij <b>Account</b>, onder <b>Profielen beheren</b>: kies het profiel en dan de afbeelding. Een kinderprofiel gebruikt de kinderafbeelding tot je een andere kiest.",
+      "keywords": "profielafbeelding afbeelding avatar icoon kiezen",
+      "related": [
+        "profiles-manage",
+        "kids-profile",
+        "switch-profile",
+        "profile-pin",
+        "saved-data"
+      ],
+      "summary": "Kies een afbeelding voor een profiel.",
+      "title": "Een profielafbeelding kiezen"
+    },
+    "profile-pin": {
+      "body": "Een profielvergrendeling vraagt om een pincode van 4 cijfers voordat het profiel opent. De pincode hoort bij je account en werkt dus op elk apparaat waarop je inlogt.\n\n## Profielvergrendeling aanzetten\n1. Open het profielmenu, kies <b>Account</b>, dan <b>Profielen beheren</b>, en kies het profiel.\n2. Kies <b>Profielvergrendeling</b> en typ het wachtwoord van je account om te bevestigen dat jij het bent.\n3. Typ vier cijfers en kies <b>Opslaan</b>.\n\nJe kunt <b>Profielvergrendeling</b> ook aanzetten wanneer je een profiel toevoegt of bewerkt in <b>Profielen beheren</b>.\n\n## De pincode wijzigen of verwijderen\n1. Open <b>Profielvergrendeling</b> van het profiel, zoals hierboven.\n2. Kies <b>PIN wijzigen</b>, of <b>Profielvergrendeling verwijderen</b> en typ de huidige pincode.\n\n!! Let op: Na te veel verkeerde pogingen blijft het profiel een tijdje vergrendeld. Ben je de pincode vergeten, zie dan <a=/help/article/forgot-pin>Ik ben de pincode van mijn profiel vergeten</a>.\n\n@@ profiles",
+      "keywords": "pincode pin vergrendeling profielvergrendeling code privé profiel beveiligen",
+      "related": [
+        "forgot-pin",
+        "kids-profile",
+        "profiles-manage",
+        "switch-profile",
+        "saved-data"
+      ],
+      "summary": "Vergrendel een profiel met een pincode van 4 cijfers, zodat alleen de juiste persoon het kan openen.",
+      "title": "Een profielpincode toevoegen, wijzigen of verwijderen"
+    },
+    "profiles-manage": {
+      "body": "Iedereen in huis kan een eigen profiel hebben, met een eigen naam, afbeelding, Mijn lijst, kijkactiviteit en aanbevelingen. Een account heeft ruimte voor maximaal 5 profielen.\n\n## Een profiel toevoegen\n1. Open rechtsboven het profielmenu en kies <b>Profielen beheren</b>, of kies <b>Profielen beheren</b> op het scherm <b>Wie kijkt?</b>.\n2. Kies <b>Profiel toevoegen</b>.\n3. Typ een naam en kies een afbeelding. Zet <b>Kinderprofiel</b> aan als het profiel voor een kind is.\n4. Kies <b>Opslaan</b>.\n\n## Een profiel bewerken of verwijderen\n1. Open <b>Profielen beheren</b> en kies het profiel dat je wilt aanpassen.\n2. Verander de naam of de afbeelding, of zet <b>Kinderprofiel</b> of <b>Profielvergrendeling</b> aan of uit, en kies <b>Opslaan</b>.\n3. Kies <b>Profiel verwijderen</b> om het profiel te verwijderen. De kijkactiviteit en instellingen van het profiel worden ook verwijderd.\n\nTalen, ondertitels, ouderlijk toezicht en de andere voorkeuren van een profiel vind je bij <b>Account</b>, onder <b>Profielen beheren</b>.\n\n!! Let op: Profielen worden opgeslagen in je account, dus je ziet ze op elk apparaat waarop je inlogt.\n\n@@ profiles\n\n>> Ik kan een profiel niet verwijderen\nHet hoofdprofiel, dat jouw voornaam draagt, kan niet worden verwijderd, en een account houdt altijd minstens één profiel. Alle andere profielen kun je verwijderen.",
+      "keywords": "profiel maken profiel bewerken profiel verwijderen profielen beheren naam afbeelding",
+      "related": [
+        "switch-profile",
+        "profile-pin",
+        "kids-profile",
+        "parental-controls",
+        "transfer-profile"
+      ],
+      "summary": "Voeg een profiel toe voor iedereen, verander een naam of afbeelding, vergrendel een profiel of verwijder er een die je niet meer nodig hebt.",
+      "title": "Profielen maken, bewerken of verwijderen"
+    },
+    "recommendations": {
+      "body": "De rijen ontstaan uit wat titels zijn: hun genres, sfeer, onderwerpen, land en decennium, bijvoorbeeld <b>Feelgood romantische komedies</b> of <b>Koreaanse misdaadseries</b>. Binnen een rij volgt de volgorde jouw smaak.\n\n## Wat je rijen verandert\n- Wat je start en afkijkt, wat je beoordeelt en wat je aan Mijn lijst toevoegt.\n- Rijen zoals <b>Omdat je … hebt bekeken</b>, <b>Topkeuzes van vandaag voor jou</b> en <b>Om hierna te kijken</b> komen voort uit je recente titels. Op de pagina van een genre blijven ze binnen dat genre.\n- Het profiel dat je gebruikt. Elk profiel heeft een eigen smaak, en een kinderprofiel toont alleen titels voor kinderen.\n- De dag en het seizoen. Rijen voor feestdagen en evenementen verschijnen in hun seizoen.\n\n## Uitzetten\nZet <b>Persoonlijke aanbevelingen</b> uit in de <b>Privacy- en gegevensinstellingen</b> van je profiel. Dan zie je dezelfde suggesties als iedereen.\n\nWe gebruiken nooit je naam of e-mailadres om titels te kiezen. Zie <a=/help/article/privacy-data>Welke gegevens verzamelt {brand}?</a>\n\n@@ data",
+      "keywords": "aanbevelingen rijen suggesties omdat je hebt bekeken smaak persoonlijk",
+      "related": [
+        "viewing-history",
+        "privacy-data",
+        "my-list",
+        "search-browse",
+        "kids-profile"
+      ],
+      "summary": "Hoe de rijen ontstaan en wat ze verandert.",
+      "title": "Hoe aanbevelingen werken"
+    },
+    "report-bug": {
+      "body": "Hoe meer we weten, hoe sneller we het oplossen. Vermeld:\n\n1. Wat je deed en wat je verwachtte.\n2. Wat er in plaats daarvan gebeurde, en welke melding je zag.\n3. De titel, als het om afspelen gaat.\n4. Je apparaat en browser.\n\nOp de pagina <a=/help/contact>Contact</a> staat een knop die een e-mail opent met de gegevens van je browser al ingevuld.\n\n@@ diagnostics",
+      "keywords": "probleem melden fout bug contact",
+      "related": [
+        "title-feedback",
+        "contribute",
+        "rows-wont-load",
+        "wont-play"
+      ],
+      "summary": "Wat je meestuurt zodat we een fout snel vinden en oplossen.",
+      "title": "Een probleem melden"
+    },
+    "rows-wont-load": {
+      "body": "De rijen en het zoeken komen van onze aanbevelingsdienst. Posters en details komen uit een openbare filmcatalogus. Is een van beide onbereikbaar, dan zie je misschien lege rijen, een laadicoon of ontbrekende afbeeldingen.\n\n1. Laad de pagina opnieuw.\n2. Controleer je verbinding.\n3. Zet blokkeerders uit voor deze site. Zie <a=/help/article/extensions-blockers>Extensies die de speler blokkeren</a>.\n4. Probeer het over een paar minuten opnieuw.\n\nJe profielen, Mijn lijst en je instellingen zijn intussen veilig in je account. Duurt het probleem langer dan een uur, <a=/help/article/report-bug>Probleem melden</a>.\n\n@@ diagnostics\n\n@@ refresh",
+      "keywords": "rijen leeg laden blanco pagina afbeeldingen posters laden niet startpagina fout aanbevelingen",
+      "related": [
+        "supported-browsers",
+        "report-bug",
+        "recommendations",
+        "extensions-blockers"
+      ],
+      "summary": "De pagina toont lege rijen, een laadicoon of ontbrekende afbeeldingen.",
+      "title": "Rijen of afbeeldingen laden niet"
+    },
+    "saved-data": {
+      "body": "Je profielen, Mijn lijst, je beoordelingen, je kijkactiviteit en je instellingen worden opgeslagen in je account. Elke browser waarin je inlogt houdt een kopie, zodat pagina's meteen openen en een tijdje zonder verbinding werken. Wijzigingen komen binnen een paar seconden in je account en op je andere apparaten zodra je {brand} daar opent.\n\n## Wat dit betekent\n- Log in op een ander apparaat en alles staat er.\n- Wis je de sitegegevens in een browser, dan ben je daar uitgelogd en is die kopie weg. Je account bewaart alles.\n- In een privévenster wordt de kopie verwijderd zodra je het venster sluit.\n\n## Wat er verder naar onze servers gaat\nAls je een titel start, weet de aanbevelingsdienst welke, zodat je rijen je smaak volgen. Je kunt dit uitzetten met <b>Persoonlijke aanbevelingen</b> in <b>Privacy- en gegevensinstellingen</b>. Zie <a=/help/article/recommendations>Hoe aanbevelingen werken</a>.\n\n@@ data",
+      "keywords": "opgeslagen gegevens account synchroniseren apparaten browser kopie voortgang lijst",
+      "related": [
+        "clear-data",
+        "privacy-data",
+        "need-account",
+        "list-missing",
+        "viewing-history"
+      ],
+      "summary": "Je account bewaart ze, en elke browser houdt een kopie zodat pagina's snel openen.",
+      "title": "Waar je profielen, lijst en voortgang worden opgeslagen"
+    },
+    "search-browse": {
+      "body": "## Zoeken\n1. Kies het vergrootglas in de balk bovenaan.\n2. Typ een titel, acteur of regisseur. Resultaten verschijnen terwijl je typt, en kleine tikfouten zijn geen probleem.\n\n## Bladeren\n- <b>Series</b> en <b>Films</b> in de balk bovenaan openen een pagina per soort titel. Gebruik daar <b>Genres</b> om verder te filteren.\n- Rijen op de startpagina zijn op thema gegroepeerd. Zie <a=/help/article/recommendations>Hoe aanbevelingen werken</a>.\n- <b>Bladeren op taal</b> vindt titels op hun originele taal. Zie <a=/help/article/browse-language>Bladeren op taal</a>.",
+      "keywords": "zoeken bladeren titel acteur regisseur genre",
+      "related": [
+        "browse-language",
+        "new-popular",
+        "recommendations",
+        "my-list",
+        "trailers-clips"
+      ],
+      "summary": "Vind een titel op naam, genre of sfeer.",
+      "title": "Zoeken en bladeren"
+    },
+    "security-report": {
+      "body": "Heb je een manier gevonden om gegevens van iemand anders te lezen, een profielpincode te omzeilen of de site te breken? Vertel het ons dan voordat je het aan iemand anders vertelt.\n\n1. Mail naar <a=mailto:{support_email}>{support_email}</a> met als onderwerp <b>Beveiliging</b>.\n2. Beschrijf wat je hebt gevonden, de stappen om het te herhalen en de pagina of het adres waar het om gaat.\n3. Bekijk geen gegevens van anderen en test niet met automatische stromen verzoeken.\n\nWe lezen elke melding. Dezelfde gegevens staan in het machineleesbare bestand op <a=/.well-known/security.txt>/.well-known/security.txt</a>.",
+      "keywords": "beveiliging kwetsbaarheid zwakke plek melden",
+      "related": [
+        "report-bug",
+        "privacy-data",
+        "profile-pin",
+        "contribute"
+      ],
+      "summary": "Hoe je ons veilig vertelt over een zwakke plek.",
+      "title": "Een beveiligingsprobleem melden"
+    },
+    "share": {
+      "body": "1. Open de details van een titel en kies <b>Delen</b>.\n2. Kies <b>WhatsApp</b> of <b>Berichten</b> om de link te sturen, of <b>Link kopiëren</b> om hem ergens te plakken.\n3. Bij Instagram en Snapchat wordt de link gekopieerd en plak je hem in de app.\n\nDe link opent de titel op {brand}. Wie hem opent, moet inloggen of een gratis account aanmaken om te kijken.",
+      "keywords": "delen link whatsapp berichten kopiëren",
+      "related": [
+        "title-details",
+        "my-list",
+        "search-browse",
+        "title-feedback",
+        "new-popular"
+      ],
+      "summary": "Stuur een link naar een titel naar een vriend.",
+      "title": "Een titel delen"
+    },
+    "shortcuts": {
+      "body": "Deze toetsen werken op een computer terwijl een titel speelt.\n\n- <b>Spatiebalk</b> of <b>K</b>: afspelen of pauzeren\n- <b>Pijl links</b> of <b>J</b>: 10 seconden terug\n- <b>Pijl rechts</b> of <b>L</b>: 10 seconden vooruit\n- <b>Pijl omhoog</b> en <b>Pijl omlaag</b>: volume harder en zachter\n- <b>M</b>: geluid uit of weer aan\n- <b>F</b>: volledig scherm aan of uit",
+      "keywords": "sneltoetsen toetsenbord spatie pauze volume volledig scherm",
+      "related": [
+        "accessibility",
+        "skip-intro-next",
+        "subtitles",
+        "continue-watching",
+        "wont-play"
+      ],
+      "summary": "Bedien de speler zonder muis.",
+      "title": "Sneltoetsen"
+    },
+    "sign-in": {
+      "body": "## Inloggen\n1. Kies <b>Inloggen</b> bovenaan de startpagina van {brand}.\n2. Vul je e-mailadres en wachtwoord in en kies <b>Inloggen</b>.\n\nLaat <b>Onthoud mij</b> aan staan om op dit apparaat ingelogd te blijven. Ben je kort geleden uitgelogd op dit apparaat, dan kun je verder zonder je wachtwoord opnieuw te typen.\n\n## Uitloggen\nOpen het profielmenu en kies <b>Uitloggen bij {brand}</b>. Wil je overal tegelijk uitloggen, zie dan <a=/help/article/devices-sign-out>Uitloggen op één apparaat of op alle apparaten</a>.\n\n## Inloggen lukt niet\n- Controleer of je e-mailadres goed gespeld is. Het wachtwoord is hoofdlettergevoelig.\n- Heb je je net aangemeld, open dan eerst de bevestigingslink die we je mailden. <b>Bevestigingsmail opnieuw sturen</b> stuurt een nieuwe.\n- Wacht na te veel pogingen een minuut en probeer het opnieuw.\n- Wachtwoord vergeten? Zie <a=/help/article/forgot-password>Ik ben mijn wachtwoord vergeten</a>.",
+      "keywords": "inloggen uitloggen aanmelden afmelden onthoud mij wachtwoord account",
+      "related": [
+        "need-account",
+        "forgot-password",
+        "devices-sign-out",
+        "change-email-password",
+        "saved-data"
+      ],
+      "summary": "Inloggen met je e-mailadres en wachtwoord, ingelogd blijven en uitloggen.",
+      "title": "Inloggen en uitloggen"
+    },
+    "skip-intro-next": {
+      "body": "- <b>Intro overslaan</b> verschijnt een paar seconden als de intro van een aflevering begint. Kies het om meteen naar het verhaal te gaan.\n- <b>Volgende aflevering</b> in de bediening van de speler start de volgende aflevering.\n- <b>Afleveringen</b> opent een lijst van het seizoen, zodat je elke aflevering kunt kiezen.\n\nWil je bepalen wat er gebeurt als een aflevering afloopt, open dan de <b>Afspeelinstellingen</b> van je profiel en zet <b>Volgende aflevering automatisch afspelen</b> aan of uit.",
+      "keywords": "intro overslaan volgende aflevering automatisch afspelen bingewatchen afleveringen seizoen",
+      "related": [
+        "shortcuts",
+        "episodes",
+        "continue-watching",
+        "subtitles",
+        "my-list"
+      ],
+      "summary": "Sla de intro over of ga door naar de volgende aflevering.",
+      "title": "\"Intro overslaan\" en \"Volgende aflevering\""
+    },
+    "slow-pages": {
+      "body": "Bij je eerste bezoek wordt de app gedownload, ongeveer 2 MB. Daarna komt het wachten vooral door afbeeldingen en voorbeelden.\n\n- Zet <b>Voorbeelden automatisch afspelen</b> uit in de <b>Afspeelinstellingen</b> van je profiel. Voorbeelden die vanzelf starten, kosten data en geheugen.\n- Sluit tabbladen en andere apps die het netwerk of veel geheugen gebruiken.\n- Gebruik een actuele browser. Oudere browsers draaien de app langzamer.\n- Schakel bij mobiele data als het kan over naar wifi.\n\n@@ diagnostics",
+      "keywords": "traag langzaam laden snelheid pagina's",
+      "related": [
+        "buffering",
+        "supported-browsers",
+        "vpn-network",
+        "trailers-clips",
+        "wont-play"
+      ],
+      "summary": "Maak bladeren sneller op een trage verbinding of een ouder apparaat.",
+      "title": "Pagina's laden traag"
+    },
+    "sources": {
+      "body": "Details, posters en beoordelingen komen uit een openbare film- en tv-catalogus. De video zelf staat niet op {brand}. Druk je op afspelen, dan vraagt de speler onafhankelijke externe bronnen om een stream.\n\n- Een titel kan bij de ene bron beschikbaar zijn en bij de andere niet.\n- Een bron kan zonder waarschuwing offline gaan.\n- Kwaliteit, audiosporen en ondertitels komen van de bron.\n\nWe hebben geen controle over die bronnen en controleren ze niet. Zie de <a=/help/legal/disclaimer>Disclaimer</a>. Ben je rechthebbende, zie dan <a=/help/article/copyright>Een auteursrechtprobleem melden</a>.",
+      "keywords": "bronnen waar komen titels vandaan stream werkt niet",
+      "related": [
+        "what-is",
+        "wont-play",
+        "playback-unavailable",
+        "copyright",
+        "free-to-use"
+      ],
+      "summary": "Hoe {brand} streams vindt, en waarom een titel de ene dag werkt en de volgende niet.",
+      "title": "Waar de titels vandaan komen"
+    },
+    "stuck-loading": {
+      "body": "Terwijl {brand} opstart zie je het kubuslogo met een rij bewegende stipjes. Dat hoort een paar seconden te duren. {brand} draait als WebAssembly-app, dus een browser of instelling die WebAssembly uitzet, laat je op dat scherm hangen.\n\n1. Laad opnieuw met <b>Ctrl + Shift + R</b> (<b>Cmd + Shift + R</b> op een Mac) om de nieuwste versie op te halen.\n2. Open de pagina in een privévenster. Werkt het daar wel, dan zit een extensie in de weg. Zie <a=/help/article/extensions-blockers>Extensies die de speler blokkeren</a>.\n3. Werk je browser bij. Zie <a=/help/article/supported-browsers>Ondersteunde browsers</a>.\n4. Zet voor deze site elke modus uit die webfuncties beperkt, zoals de isolatiemodus op Apple-apparaten of de strikte beveiliging in Edge.\n5. Wis de gegevens van deze site en log opnieuw in. Zie <a=/help/article/clear-data>Je opgeslagen gegevens wissen</a>.\n\n@@ refresh",
+      "keywords": "blijft hangen laden logo leeg wit scherm start niet webassembly wasm bevroren opstarten",
+      "related": [
+        "supported-browsers",
+        "extensions-blockers",
+        "clear-data",
+        "rows-wont-load"
+      ],
+      "summary": "Wat je kunt proberen als {brand} niet klaar raakt met opstarten.",
+      "title": "De pagina blijft hangen op het logo of een leeg scherm"
+    },
+    "subtitles": {
+      "body": "## Ondertitels aan- of uitzetten\n1. Start een titel en beweeg de muis over de speler, of tik op het scherm.\n2. Kies <b>Audio & ondertitels</b>.\n3. Kies een ondertiteltaal, of <b>Uit</b>.\n\nKomen de ondertitels te vroeg of te laat, gebruik dan <b>-0.5s</b> en <b>+0.5s</b> in hetzelfde paneel om ze te verschuiven.\n\n## Het uiterlijk van ondertitels veranderen\n1. Open het profielmenu, kies <b>Account</b>, dan <b>Profielen beheren</b>, en kies je profiel.\n2. Kies <b>Weergave van ondertitels</b>.\n3. Kies de tekstgrootte, tekstkleur, rand, achtergrond en vensterkleur. Het voorbeeld laat het resultaat zien. <b>Standaard herstellen</b> maakt je wijzigingen ongedaan.\n\n!! Let op: Welke talen en audiosporen er zijn, hangt af van de bron van de titel. Zie <a=/help/article/subtitles-missing>Ondertitels ontbreken of lopen niet gelijk</a>.",
+      "keywords": "ondertitels aanzetten uitzetten taal grootte kleur weergave",
+      "related": [
+        "language",
+        "subtitles-missing",
+        "shortcuts",
+        "accessibility",
+        "browse-language"
+      ],
+      "summary": "Zet ondertitels aan, kies een spoor en verander hoe ze eruitzien.",
+      "title": "Ondertitels gebruiken of de audiotaal kiezen"
+    },
+    "subtitles-missing": {
+      "body": "1. Kies <b>Audio & ondertitels</b> in de speler en controleer of er een ondertiteltaal is gekozen.\n2. Kies een ander spoor als de lijst er een biedt. Sporen komen van de bron en verschillen per titel.\n3. Stel de voorkeurstaal voor ondertitels van het profiel in. Zie <a=/help/article/language>De taal veranderen</a>.\n4. Lopen de ondertitels voor of achter, gebruik dan <b>-0.5s</b> of <b>+0.5s</b> in <b>Audio & ondertitels</b> tot ze gelijklopen met wat er gezegd wordt.\n\nHeeft een titel helemaal geen ondertitels, dan levert de bron ze niet.\n\n@@ language",
+      "keywords": "ondertitels ontbreken verkeerde taal niet synchroon vertraging",
+      "related": [
+        "subtitles",
+        "language",
+        "wont-play",
+        "playback-unavailable",
+        "report-bug"
+      ],
+      "summary": "Los ondertitels op die niet verschijnen, in de verkeerde taal staan of achterlopen op wat er gezegd wordt.",
+      "title": "Ondertitels ontbreken of lopen niet gelijk"
+    },
+    "supported-browsers": {
+      "body": "{brand} werkt in actuele versies van deze browsers:\n\n- <b>Google Chrome</b>, <b>Microsoft Edge</b>, <b>Brave</b> en andere Chromium-browsers op Windows, macOS, Linux en Android\n- <b>Mozilla Firefox</b> op Windows, macOS, Linux en Android\n- <b>Safari</b> op Mac, iPhone en iPad\n\nInternet Explorer wordt niet ondersteund. Houd je browser up-to-date en sta de site JavaScript en sitegegevens toe.\n\n@@ diagnostics\n\n>> De browser toont een fout voordat de pagina laadt\nLaad opnieuw met <b>Ctrl + Shift + R</b> op Windows en Linux, of <b>Cmd + Shift + R</b> op een Mac, om de nieuwste versie van de app op te halen, en probeer het opnieuw.",
+      "keywords": "browser chrome firefox safari edge brave opera internet explorer versie bijwerken",
+      "related": [
+        "wont-play",
+        "install-app",
+        "fix-phone",
+        "fix-tv",
+        "extensions-blockers"
+      ],
+      "summary": "Welke browsers en systemen het best werken.",
+      "title": "Ondersteunde browsers"
+    },
+    "switch-profile": {
+      "body": "1. Open rechtsboven op de pagina het profielmenu. Tik op je telefoon op je profielafbeelding in de balk onderaan.\n2. Kies het profiel dat je wilt gebruiken.\n3. Is het profiel vergrendeld, typ dan de pincode van 4 cijfers.\n\nAanbevelingen, <b>Mijn lijst</b> en <b>Verder kijken</b> passen zich aan het gekozen profiel aan.\n\n!! Let op: Je kunt een profiel vergrendelen met een pincode. Zie <a=/help/article/profile-pin>Een profielpincode toevoegen, wijzigen of verwijderen</a>.\n\n@@ profiles",
+      "keywords": "profiel wisselen ander profiel wie kijkt profielmenu",
+      "related": [
+        "profiles-manage",
+        "profile-pin",
+        "kids-profile",
+        "forgot-pin",
+        "saved-data"
+      ],
+      "summary": "Verander wie er kijkt zonder de pagina te verlaten.",
+      "title": "Van profiel wisselen"
+    },
+    "title-details": {
+      "body": "Kies een titelkaart of <b>Meer info</b> om de details te openen.\n\n- <b>Afspelen</b> of <b>Hervatten</b> start de titel waar je gebleven was.\n- <b>Mijn lijst</b> bewaart hem, en met het duimpje geef je een beoordeling.\n- De samenvatting, de cast, de genres en een paar woorden over de sfeer helpen je kiezen.\n- Bij series toont <b>Afleveringen</b> de seizoenen.\n- <b>Meer zoals dit</b> toont vergelijkbare titels, een goede manier om iets nieuws te ontdekken.",
+      "keywords": "details titel meer info afspelen beoordelen",
+      "related": [
+        "my-list",
+        "episodes",
+        "share",
+        "recommendations",
+        "trailers-clips"
+      ],
+      "summary": "Wat je kunt lezen en doen voordat je op afspelen drukt.",
+      "title": "Het detailvenster van een titel"
+    },
+    "title-feedback": {
+      "body": "Mail naar <a=mailto:{support_email}>{support_email}</a> en vermeld:\n\n- de titel en het jaar\n- het adres van de pagina op {brand}\n- wat er niet klopt, bijvoorbeeld een verkeerde poster, een ontbrekend seizoen of een titel die nooit afspeelt\n\nDe details komen uit een openbare catalogus, dus een verkeerde beschrijving kun je het best bij de bron laten verbeteren. Correcties die we krijgen, geven we door.",
+      "keywords": "feedback titel fout beschrijving ontbrekend seizoen",
+      "related": [
+        "report-bug",
+        "contribute",
+        "wont-play",
+        "recommendations",
+        "copyright"
+      ],
+      "summary": "Meld een verkeerde beschrijving, een ontbrekende titel of een titel die nooit afspeelt.",
+      "title": "Feedback over een titel op {brand}"
+    },
+    "top-10": {
+      "body": "Een <b>Top 10</b>-rij toont de tien populairste films of series van dit moment, elk met een groot nummer. De rij volgt de dagelijkse populariteit van titels in de filmcatalogus en verandert dus van dag tot dag. Hij is voor iedereen hetzelfde en hangt niet af van je profiel.",
+      "keywords": "top 10 populair ranglijst nummers rij",
+      "related": [
+        "new-popular",
+        "genres",
+        "recommendations",
+        "search-browse",
+        "trailers-clips"
+      ],
+      "summary": "Een rij met de tien populairste titels van dit moment.",
+      "title": "Wat zijn de Top 10-rijen?"
+    },
+    "trailers-clips": {
+      "keywords": "trailers clips voorbeeld kort geluid automatisch afspelen",
+      "related": [
+        "new-popular",
+        "search-browse",
+        "my-list",
+        "recommendations",
+        "notifications"
+      ],
+      "summary": "Bekijk een voorproefje voordat je begint.",
+      "title": "Trailers en clips"
+    },
+    "transfer-profile": {
+      "body": "Je kunt een profiel naar een ander account kopiëren, bijvoorbeeld als iemand op zichzelf gaat wonen. De kopie houdt de naam, de afbeelding, de instellingen en de kijkactiviteit.\n\n## Het profiel bewaren\n1. Open het profielmenu en kies <b>Profiel overbrengen</b>.\n2. Kies het profiel en kies <b>Profielbestand downloaden</b>. Bewaar het bestand op een veilige plek.\n\n## Toevoegen aan het andere account\n1. Log in op het andere account en open <b>Profielen beheren</b>.\n2. Kies <b>Een profiel importeren</b> en kies het bestand.\n\n!! Let op: Het bestand bevat de pincode van het profiel niet. Iedereen met het bestand kan het profiel aan zijn account toevoegen, dus deel het niet.\n\n<b>Profieloverdracht</b> bij <b>Account</b> zet het kopiëren van profielen uit je account aan of uit. Profielen die binnenkomen worden nooit geblokkeerd.",
+      "keywords": "profiel overzetten verplaatsen kopiëren ander account importeren exporteren profielbestand",
+      "related": [
+        "profiles-manage",
+        "download-data",
+        "delete-account",
+        "profile-pin",
+        "saved-data"
+      ],
+      "summary": "Bewaar een profiel als bestand en voeg het met geschiedenis en instellingen toe aan een ander account.",
+      "title": "Een profiel naar een ander account verplaatsen"
+    },
+    "translate": {
+      "body": "Alle teksten van de interface staan in één gewoon tekstbestand per taal. Je hoeft niet te kunnen programmeren om te vertalen.\n\n## Goed om te weten\n- Meldingen zien eruit als <b>sleutel = tekst</b>. Verander alleen de tekst na het isgelijkteken.\n- Woorden tussen accolades, zoals <b>{ \"{brand}\" }</b>, worden door de app ingevuld. Laat ze zoals ze zijn en zet ze waar je taal ze nodig heeft.\n- Sommige meldingen hebben vormen voor één en voor meer (<b>1 seizoen</b>, <b>2 seizoenen</b>). Talen met meer dan twee vormen kunnen ze allemaal toevoegen.\n- Verandert je taal een woord naar geslacht of naamval, schrijf dan de vorm die in de zin past.\n\n## Zo stuur je een vertaling\nMail naar <a=mailto:{support_email}>{support_email}</a> met de taal en het bestand of een link naar je wijziging. Moedertaalsprekers die elkaars werk nakijken, zijn de beste controle die we hebben.",
+      "keywords": "vertalen vertaling taal bijdragen ftl fluent",
+      "related": [
+        "contribute",
+        "language",
+        "report-bug",
+        "what-is",
+        "getting-started"
+      ],
+      "summary": "De teksten van de interface staan in eenvoudige bestanden, één per taal, en iedereen kan ze verbeteren.",
+      "title": "Help {brand} vertalen"
+    },
+    "viewing-history": {
+      "body": "Elk profiel heeft een pagina <b>Kijkactiviteit</b> met de titels die het heeft bekeken, de nieuwste bovenaan. {brand} gebruikt die voor Verder kijken en voor aanbevelingen.\n\n1. Open het profielmenu, kies <b>Account</b>, dan <b>Profielen beheren</b>, en kies het profiel.\n2. Kies <b>Kijkactiviteit</b>.\n3. Kies <b>Verberg deze titel</b> naast een titel, of <b>Alles verbergen</b>.\n\nEen verborgen titel verdwijnt uit Verder kijken en telt niet meer mee voor aanbevelingen, op al je apparaten. <b>Alles downloaden</b> bewaart de lijst als spreadsheet.\n\n@@ data",
+      "keywords": "kijkgeschiedenis kijkactiviteit verbergen verwijderen downloaden",
+      "related": [
+        "continue-watching",
+        "clear-data",
+        "saved-data",
+        "recommendations",
+        "privacy-data"
+      ],
+      "summary": "Wat er wordt bijgehouden als je kijkt en hoe je het verwijdert.",
+      "title": "Je kijkgeschiedenis beheren"
+    },
+    "vpn-network": {
+      "body": "{brand} haalt details en afbeeldingen uit een openbare filmcatalogus en streams van onafhankelijke bronnen. Sommige netwerken blokkeren die sites, en sommige bronnen weigeren bepaalde adressen.\n\n- <b>VPN of proxy.</b> Sommige bronnen reageren niet op VPN-adressen. Zet de VPN uit of kies een ander land.\n- <b>Wifi op school, op het werk of in het openbaar.</b> Filters blokkeren vaak streaming of de catalogus. Probeer de mobiele data van je telefoon.\n- <b>DNS-filters.</b> Een filterende DNS-dienst kan de catalogus blokkeren, waardoor rijen of afbeeldingen leeg blijven. Gebruik een andere DNS of zet het filter uit voor deze site.\n\nDe apparaatcontrole laat zien welke dienst je netwerk niet kan bereiken.\n\n@@ diagnostics",
+      "keywords": "vpn proxy school werk netwerk geblokkeerd dns",
+      "related": [
+        "is-down",
+        "wont-play",
+        "playback-unavailable",
+        "rows-wont-load",
+        "sources"
+      ],
+      "summary": "Waarom sommige netwerken titels of afbeeldingen blokkeren, en wat je kunt proberen.",
+      "title": "VPN's, school- en werknetwerken"
+    },
+    "watch-on-tv": {
+      "body": "Er is nog geen {brand}-app voor tv's. Deze opties werken nu al:\n\n- <b>Browser van de tv.</b> Open het {brand}-adres in de browser die op je tv staat.\n- <b>Een tabblad casten.</b> Open in Chrome of Edge op een computer het browsermenu, kies <b>Casten</b> en kies dan je tv of streamingstick.\n- <b>Kabel.</b> Sluit een laptop met een HDMI-kabel aan op de tv en gebruik volledig scherm.\n\nKlopt het beeld of geluid niet, zie dan <a=/help/article/fix-tv>Een probleem op je tv oplossen</a>.",
+      "keywords": "tv kijken casten hdmi televisie browser",
+      "related": [
+        "fix-tv",
+        "install-app",
+        "supported-browsers",
+        "getting-started",
+        "shortcuts"
+      ],
+      "summary": "Gebruik de browser van je tv, of stuur een tabblad vanaf een computer of telefoon.",
+      "title": "Kijken op je tv"
+    },
+    "what-is": {
+      "body": "{brand} helpt je je volgende film of serie te vinden. Het leert wat je leuk vindt en zet de catalogus voor je in rijen, op een pagina die aanvoelt als de streamingdiensten die je kent.\n\n{brand} is een overzicht van links. Het host en uploadt geen video's. Druk je op afspelen, dan vraagt de speler onafhankelijke bronnen om een stream en speelt hij de eerste die werkt. Zie <a=/help/article/sources>Waar de titels vandaan komen</a>.\n\nEr valt niets te kopen en er is geen abonnement. Zie <a=/help/article/free-to-use>Is {brand} gratis?</a>",
+      "keywords": "wat is streams dienst uitleg links catalogus",
+      "related": [
+        "getting-started",
+        "sources",
+        "free-to-use",
+        "need-account",
+        "contribute"
+      ],
+      "summary": "Een korte beschrijving van {brand}: wat het wel en niet doet.",
+      "title": "Wat is {brand}?"
+    },
+    "wont-play": {
+      "body": "Probeer deze stappen op volgorde. Test na elke stap.\n\n1. Laad de pagina opnieuw. Een tijdelijke storing bij de bron is de meest voorkomende oorzaak.\n2. Kies een andere aflevering, of start de titel opnieuw vanuit het detailvenster. De speler probeert de beschikbare bronnen een voor een.\n3. Zet adblockers en privacy-extensies uit voor deze site. Zie <a=/help/article/extensions-blockers>Extensies die de speler blokkeren</a>.\n4. Gebruik een actuele versie van Chrome, Edge, Firefox of Safari. Zie <a=/help/article/supported-browsers>Ondersteunde browsers</a>.\n5. Wissel van netwerk, bijvoorbeeld van wifi naar mobiele data, of zet een VPN uit. Sommige bronnen weigeren bepaalde netwerken.\n\n@@ diagnostics\n\n>> Speelt nog steeds niet af\nSommige titels zijn op een bepaald moment bij geen enkele bron beschikbaar. Probeer het later opnieuw. Speelt een populaire titel nooit af, laat ons dan weten welke op de pagina <a=/help/article/report-bug>Een probleem melden</a>.",
+      "keywords": "speelt niet af werkt niet fout zwart scherm start niet",
+      "related": [
+        "playback-unavailable",
+        "black-screen",
+        "buffering",
+        "extensions-blockers",
+        "supported-browsers"
+      ],
+      "summary": "De snelste oplossingen als de speler een fout toont, zwart blijft of niet start.",
+      "title": "Een titel speelt niet af"
+    }
+  },
+  "policies": {
+    "cookie-policy": {
+      "sections": [
+        {
+          "body": "{brand} gebruikt geen advertentie- of analysecookies. We gebruiken de lokale opslag van je browser, een plek op je apparaat die alleen deze site kan lezen, voor:",
+          "bullets": [
+            "<b>Inloggen:</b> wat je in deze browser ingelogd houdt, en een cookie met de naam van je profiel zodat het Helpcentrum je als ingelogd toont.",
+            "<b>Snelheid:</b> een kopie van je profielen, instellingen en voortgang, zodat pagina's meteen openen.",
+            "<b>Je keuzes:</b> je keuzes over cookies en personalisatie, en je weergavetaal."
+          ],
+          "title": "Hoe we cookies en opslag gebruiken"
+        }
+      ],
+      "title": "Cookiebeleid",
+      "updated": "Laatst bijgewerkt: oktober 2026"
+    },
+    "credits": {
+      "sections": [
+        {
+          "body": "Het logo is gezet in een pixellettertype, de interface in Inter en de titels van collecties in sierletters:",
+          "bullets": [
+            "<b>Baby Blocks</b> van Colorful Typhoon, gebruikt voor het {brand}-logo onder de freewarevoorwaarden voor niet-commercieel gebruik. Zie <a href=\"https://www.fontspace.com/baby-blocks-font-f3699\" target=\"_blank\" rel=\"noopener\">het lettertype op FontSpace</a>.",
+            "<b>Inter</b> door Rasmus Andersson, gebruikt onder de SIL Open Font License 1.1.",
+            "<b>Abril Fatface, Caveat Brush, DM Serif Display, Fredoka, Gochi Hand, Kalam, Londrina Solid, Playfair Display en Sedgwick Ave</b> van Google Fonts, gebruikt onder de SIL Open Font License 1.1.",
+            "<b>Permanent Marker</b> en <b>Rock Salt</b> van Google Fonts, gebruikt onder de Apache License 2.0."
+          ],
+          "title": "1. Lettertypen"
+        },
+        {
+          "body": "Interface-icoons komen van Phosphor Icons, Tabler Icons en Hugeicons, gebruikt onder de MIT License, en van Remix Icon en IBM Carbon, gebruikt onder de Apache License 2.0.",
+          "bullets": [],
+          "title": "2. Icoons"
+        },
+        {
+          "bullets": [],
+          "title": "3. Film- en serieinformatie"
+        },
+        {
+          "body": "{brand} is gebouwd met open source software, elk onder zijn eigen licentie:",
+          "bullets": [
+            "<b>Rust</b> en <b>Leptos</b> voor de toepassing (MIT en Apache 2.0).",
+            "<b>Tailwind CSS</b> voor styling (MIT).",
+            "<b>hls.js</b> voor adaptief videoafspelen (Apache 2.0).",
+            "<b>Project Fluent</b> voor vertaalde interface-tekst (Apache 2.0 en MIT)."
+          ],
+          "title": "4. Software"
+        },
+        {
+          "body": "Naam, logo's, posters en kunstwerk van films, series en diensten die op {brand} worden getoond, behoren aan hun eigen eigenaren. Ze worden getoond om de titel te identificeren en betekenen niet dat de eigenaar {brand} steunt.",
+          "bullets": [],
+          "title": "5. Merken en kunstwerk"
+        },
+        {
+          "body": "Denk je dat hier iets verkeerd vermeld staat of moet veranderen? Schrijf dan naar {support_email}.",
+          "bullets": [],
+          "title": "6. Contact"
+        }
+      ],
+      "title": "Licenties en credits",
+      "updated": "Laatst bijgewerkt: oktober 2026"
+    },
+    "disclaimer": {
+      "sections": [
+        {
+          "body": "{brand} is een linkaggregator en zoekmachine voor openbare ingebedde media-links. We hosten, uploaden, opslaan, verzenden of controleren geen video, audio of media-inhoud op onze servers.",
+          "bullets": [],
+          "title": "1. Geen inhoud hosting"
+        },
+        {
+          "body": "Alle inhoud die via links die zijn geregistreerd door {brand} toegankelijk is, komt van externe, onafhankelijke derde partijen. {brand} heeft geen controle over en accepteert geen aansprakelijkheid voor de legaalheid, nauwkeurigheid, kwaliteit of beschikbaarheid van deze inhoud.",
+          "bullets": [],
+          "title": "2. Derdeninhoud — Geen aansprakelijkheid"
+        },
+        {
+          "body": "Je erkent en gaat ermee akkoord dat je gebruik van {brand} en je toegang tot inhoud via externe ingesloten links volledig voor eigen risico is. {brand} wijst uitdrukkelijk alle garanties af, zowel uitdrukkelijke als stilzwijgende.",
+          "bullets": [],
+          "title": "3. Gebruiker accepteert risico"
+        },
+        {
+          "body": "Ingebedde links die zijn geregistreerd door {brand} wijzen naar bronnen op servers van derde partijen. We kunnen de voortdurende beschikbaarheid, kwaliteit of volledigheid van enige gelinkte inhoud niet garanderen, en links kunnen breken of onbeschikbaar worden zonder waarschuwing.",
+          "bullets": [],
+          "title": "4. Beschikbaarheid van links"
+        },
+        {
+          "bullets": [],
+          "title": "5. Nauwkeurigheid van informatie"
+        }
+      ],
+      "title": "Disclaimer",
+      "updated": "Laatst gewijzigd: Augustus 2026"
+    },
+    "dmca": {
+      "sections": [
+        {
+          "body": "{brand} is een linkaggregator en zoekmachine. We hosten, uploaden, opslaan, verzenden of beheren geen video- of media-inhoud. Alles wordt geserveerd vanaf servers van derden die volledig buiten onze controle vallen.",
+          "bullets": [],
+          "title": "1. Onze rol — Link Aggregator, geen host"
+        },
+        {
+          "body": "Ben je eigenaar van een auteursrecht, of een vertegenwoordiger die namens een eigenaar mag optreden, en denk je dat een link in onze index inbreuk maakt op dat auteursrecht? Stuur dan een schriftelijke melding naar {support_email} met daarin:",
+          "bullets": [
+            "<b>Fysieke of elektronische handtekening</b> van de auteursrechtshouder of hun geautoriseerde vertegenwoordiger.",
+            "<b>Een omschrijving van het beschermde werk</b> waarop volgens jou inbreuk is gemaakt, of, als één melding meerdere werken betreft, een representatieve lijst van die werken.",
+            "<b>Een omschrijving van het materiaal</b> (de specifieke {brand}-link of URL) dat volgens jou inbreuk maakt, met genoeg informatie zodat we het kunnen vinden."
+          ],
+          "title": "2. Meldings- en verwijderingsprocedure"
+        },
+        {
+          "body": "Je DMCA-melding moet ook bevatten:",
+          "bullets": [
+            "<b>Je contactgegevens</b>: naam, adres, telefoonnummer en e-mailadres.",
+            "<b>Een verklaring te goeder trouw</b>: dat je te goeder trouw gelooft dat het gebruik van het materiaal op de gemelde manier niet is toegestaan door de eigenaar van het auteursrecht, diens vertegenwoordiger of de wet.",
+            "<b>Een verklaring van juistheid</b>: dat de informatie in de melding klopt en, op straffe van meineed, dat je bevoegd bent namens de eigenaar van het auteursrecht op te treden.",
+            "<b>Stuur meldingen naar:</b> {support_email}",
+            "We zullen alle meldingen beoordelen en links uit onze index verwijderen die de bovenstaande wetgevingsvereisten voldoen.",
+            "<b>Tegenmelding:</b> Denk je dat je link ten onrechte is verwijderd, dan kun je een tegenmelding indienen op grond van 17 U.S.C. § 512(g)."
+          ],
+          "title": "3. Extra vereiste elementen"
+        },
+        {
+          "body": "Omdat {brand} geen media-bestanden host, kunnen we alleen de link uit onze zoekindex verwijderen. We kunnen de onderliggende inhoud niet verwijderen van de server waarop deze wordt gehost.",
+          "bullets": [],
+          "title": "4. Belangrijke beperking — We kunnen alleen links verwijderen"
+        },
+        {
+          "body": "In de juiste omstandigheden en op ons eigen initiatief zal {brand} toegang voor gebruikers of accounts die herhaaldelijk overtreders zijn, uitschakelen of beëindigen.",
+          "bullets": [],
+          "title": "5. Beleid voor herhaalde overtreders"
+        },
+        {
+          "body": "Het verwijderen van een link uit onze index in reactie op een DMCA-melding betekent geen toezegging van {brand} dat enige overtreding heeft plaatsgevonden.",
+          "bullets": [],
+          "title": "6. Geen toezegging van aansprakelijkheid"
+        }
+      ],
+      "title": "DMCA Safe Harbor Verklaring",
+      "updated": "Laatst gewijzigd: Augustus 2026"
+    },
+    "privacy": {
+      "sections": [
+        {
+          "body": "{brand} is een linkverzamelaar en zoekmachine. Dit privacybeleid legt uit hoe we je persoonsgegevens verzamelen, gebruiken en beschermen wanneer je onze dienst gebruikt.",
+          "bullets": [],
+          "title": "1. Inleiding"
+        },
+        {
+          "body": "We verzamelen beperkt persoonlijk informatie om de service te bieden en te verbeteren:",
+          "bullets": [
+            "<b>Accountgegevens:</b> je voor- en achternaam, je e-mailadres en je wachtwoord (door onze inlogdienst alleen versleuteld bewaard), en een mobiel nummer als je dat toevoegt.",
+            "<b>Profielen en activiteit:</b> je profielen en hun instellingen, Mijn lijst, je beoordelingen, je voortgang en je kijkactiviteit. Ze zijn aan je account gekoppeld, zodat ze je naar elk apparaat volgen.",
+            "<b>Beveiligingslogboeken:</b> recente inlogs en wijzigingen van je account, met de browser, het systeem en het land waar ze vandaan kwamen, zodat we je je apparaten kunnen tonen en je kunnen waarschuwen bij een nieuwe inlog.",
+            "<b>Opslag op je apparaat:</b> wat je ingelogd houdt, een kopie van je profielen en instellingen zodat pagina's snel openen, en je keuzes over cookies. Zie het cookiebeleid."
+          ],
+          "title": "2. Wat We Verzamelen"
+        },
+        {
+          "body": "Je privacy is ons belangrijk:",
+          "bullets": [
+            "<b>Je gegevens delen:</b> We delen geen persoonsgegevens met adverteerders of databrokers.",
+            "<b>Je gegevens verkopen:</b> We verkopen, verhuren of verhandelen nooit persoonsgegevens aan derden.",
+            "<b>Je volgen:</b> We gebruiken geen advertentie- of analysecookies, maken geen browser-fingerprints en volgen je niet op andere websites."
+          ],
+          "title": "3. Wat We Niet Doen"
+        },
+        {
+          "body": "Onder de UK General Data Protection Regulation (UK GDPR) zijn de wetgevende grondslagen die we gebruiken voor het verwerken van deze informatie:",
+          "bullets": [
+            "<b>Overeenkomst:</b> om je account, je profielen en de functies die je gebruikt te leveren.",
+            "<b>Gerechtvaardigd belang:</b> om accounts te beveiligen (inloglogboeken) en de dienst te laten werken en te verbeteren.",
+            "<b>Toestemming:</b> om wat je kijkt te gebruiken voor persoonlijke aanbevelingen. Je kunt je toestemming altijd intrekken in Privacy- en gegevensinstellingen."
+          ],
+          "title": "4. Wetgevend Grondslag voor Verwerking (UK GDPR)"
+        },
+        {
+          "body": "Je accountgegevens worden opgeslagen bij Supabase, onze databaseleverancier, met beveiliging per rij, zodat alleen jouw account ze kan lezen. Elke browser waarin je inlogt bewaart een kopie voor de snelheid. Verwijder je je account, dan worden de gegevens meteen verwijderd.",
+          "bullets": [],
+          "title": "5. Hoe we je gegevens opslaan"
+        },
+        {
+          "bullets": [],
+          "title": "6. Derden"
+        },
+        {
+          "body": "Onder UK GDPR heb je de volgende rechten:",
+          "bullets": [
+            "<b>Recht op inzage:</b> download op elk moment een kopie van je gegevens bij Account, onder Toegang tot persoonlijke informatie.",
+            "<b>Recht op verwijdering:</b> verwijder je account op elk moment bij Account, onder Account verwijderen. Alles erin wordt meteen verwijderd.",
+            "<b>Recht op rectificatie:</b> wijzig je naam, e-mailadres en telefoonnummer bij Account, of vraag ons om iets anders te corrigeren.",
+            "<b>Recht van bezwaar:</b> zet persoonlijke aanbevelingen uit, of schrijf ons om bezwaar te maken tegen verwerking op basis van gerechtvaardigd belang."
+          ],
+          "title": "7. Je gegevensbeschermingsrechten"
+        },
+        {
+          "body": "Heb je vragen over dit privacybeleid of wil je je rechten gebruiken? Schrijf ons dan op {support_email}.",
+          "bullets": [],
+          "title": "8. Contact"
+        }
+      ],
+      "title": "Privacybeleid",
+      "updated": "Laatst bijgewerkt: oktober 2026"
+    },
+    "terms": {
+      "sections": [
+        {
+          "body": "Door toegang te krijgen of te gebruiken tot {brand}, stem je in met deze Gebruiksvoorwaarden en ons Privacybeleid. Als je het niet eens bent, gebruik dan niet de service.",
+          "bullets": [],
+          "title": "1. Acceptatie van voorwaarden"
+        },
+        {
+          "body": "{brand} is een linkaggregator en zoekmachine. Wij hosten, uploaden, verzenden of beheren geen videocontent op onze servers. Alle media komt van derde partijplatforms.",
+          "bullets": [],
+          "title": "2. Aard van de service"
+        },
+        {
+          "body": "Je hebt een gratis account nodig om {brand} te gebruiken. Jij bent verantwoordelijk voor een veilig wachtwoord en voor wat er met je account gebeurt. Laat het ons meteen weten als je denkt dat iemand anders het gebruikt.",
+          "bullets": [],
+          "title": "3. Gebruikersaccounts"
+        },
+        {
+          "body": "Je stemt ermee in niet te gebruiken de service voor:",
+          "bullets": [
+            "Om te omzeilen, uitschakelen of te storen met beveiligingsgerelateerde functies van de service.",
+            "Gebruik automatiseringstools (zoals bots, scrapers of crawlers) om toegang te krijgen of te vragen naar de service op een snelheid die de prestaties zou kunnen beïnvloeden.",
+            "Probeer te onderzoeken, scannen of testen van de kwetsbaarheid van de infrastructuur van de service.",
+            "Deel aan enige gedrag dat onwettig, schadelijk of dat wij bepalen als ongepast is."
+          ],
+          "title": "4. Acceptabele Gebruik"
+        },
+        {
+          "body": "De {brand} merk, interfaceontwerp en originele softwarecode zijn beschermd door auteursrecht. Alle media-inhoud toegankelijk via {brand} blijft eigendom van de respectieve rechthebbenden.",
+          "bullets": [],
+          "title": "5. Eigendom en intellectuele eigendom"
+        },
+        {
+          "body": "De service wordt aangeboden \"zoals is\" en \"zoals beschikbaar\" zonder enige garantie. {brand} garandeert geen continue beschikbaarheid en is niet aansprakelijk voor enige indirecte of gevolgde schade.",
+          "bullets": [],
+          "title": "6. Uitsluiting van aansprakelijkheid en beperking van aansprakelijkheid"
+        },
+        {
+          "body": "{brand} biedt toegang aan links naar inhoud die op onafhankelijke derde-partij servers wordt gehost. Wij hebben geen controle over en nemen geen verantwoordelijkheid voor de inhoud, privacybeleid of praktijken van enige derde-partij sites.",
+          "bullets": [],
+          "title": "7. Derdeninhoud"
+        },
+        {
+          "body": "We kunnen je account en je toegang tot de dienst naar eigen inzicht en zonder voorafgaande melding opschorten of beëindigen bij gedrag dat volgens ons deze voorwaarden schendt of schadelijk is voor andere gebruikers, voor ons of voor derden.",
+          "bullets": [],
+          "title": "8. Beëindiging"
+        },
+        {
+          "body": "Deze Voorwaarden van Service worden beheerst en geïnterpreteerd volgens de wetten van Engeland en Wales, zonder rekening te houden met conflictwetgeving.",
+          "bullets": [],
+          "title": "9. Toepassende wet"
+        },
+        {
+          "body": "Voor vragen over deze Voorwaarden van Service, neem dan contact met ons op via de Contactpagina.",
+          "bullets": [],
+          "title": "10. Contact"
+        }
+      ],
+      "title": "Gebruiksvoorwaarden",
+      "updated": "Laatst bijgewerkt: oktober 2026"
+    }
+  },
+  "popular": [
+    "what-is",
+    "wont-play",
+    "profiles-manage",
+    "kids-profile",
+    "need-account"
+  ],
+  "topics": [
+    {
+      "groups": [
+        {
+          "articles": [
+            "profiles-manage",
+            "switch-profile",
+            "profile-pin",
+            "kids-profile",
+            "parental-controls",
+            "profile-icons",
+            "transfer-profile"
+          ],
+          "id": "profiles",
+          "title": "Profielen"
+        },
+        {
+          "articles": [
+            "need-account",
+            "sign-in",
+            "forgot-password",
+            "change-email-password",
+            "devices-sign-out"
+          ],
+          "id": "signing-in",
+          "title": "Inloggen en beveiliging"
+        },
+        {
+          "articles": [
+            "saved-data",
+            "clear-data",
+            "download-data",
+            "delete-account",
+            "privacy-data",
+            "cookies-explained"
+          ],
+          "id": "account-data",
+          "title": "Je gegevens en privacy"
+        },
+        {
+          "articles": [
+            "free-to-use"
+          ],
+          "id": "paying",
+          "title": "Betalen voor {brand}"
+        }
+      ],
+      "id": "account",
+      "title": "Account en Profielen"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "wont-play",
+            "playback-unavailable",
+            "black-screen",
+            "buffering",
+            "subtitles-missing",
+            "no-sound",
+            "autoplay-blocked"
+          ],
+          "id": "playback-issues",
+          "title": "Afspelproblemen"
+        },
+        {
+          "articles": [
+            "supported-browsers",
+            "fix-phone",
+            "fix-tv",
+            "extensions-blockers",
+            "vpn-network"
+          ],
+          "id": "device-issues",
+          "title": "Browsers en Apparaten"
+        },
+        {
+          "articles": [
+            "rows-wont-load",
+            "list-missing",
+            "forgot-pin",
+            "stuck-loading",
+            "slow-pages",
+            "is-down"
+          ],
+          "id": "page-issues",
+          "title": "Pagina's en Lijsten"
+        }
+      ],
+      "id": "fix",
+      "title": "Een probleem oplossen"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "language",
+            "subtitles",
+            "shortcuts",
+            "skip-intro-next",
+            "accessibility",
+            "episodes"
+          ],
+          "id": "features",
+          "title": "Kenmerken en Instellingen"
+        },
+        {
+          "articles": [
+            "my-list",
+            "continue-watching",
+            "viewing-history",
+            "notifications",
+            "share"
+          ],
+          "id": "library",
+          "title": "Mijn Lijst en Geschiedenis"
+        },
+        {
+          "articles": [
+            "search-browse",
+            "browse-language",
+            "new-popular",
+            "recommendations",
+            "trailers-clips",
+            "genres",
+            "top-10",
+            "title-details",
+            "clips"
+          ],
+          "id": "finding",
+          "title": "Iets om te bekijken vinden"
+        }
+      ],
+      "id": "watching",
+      "title": "Beeldbellen"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "what-is",
+            "getting-started",
+            "sources",
+            "contribute",
+            "translate"
+          ],
+          "id": "about",
+          "title": "Over {brand}"
+        },
+        {
+          "articles": [
+            "install-app",
+            "phone-tablet",
+            "watch-on-tv"
+          ],
+          "id": "setup",
+          "title": "Apparaat instellen"
+        },
+        {
+          "articles": [
+            "copyright",
+            "title-feedback",
+            "report-bug",
+            "security-report"
+          ],
+          "id": "reporting",
+          "title": "Melden en Juridisch"
+        }
+      ],
+      "id": "start",
+      "title": "Beginnen"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "doc:privacy",
+            "doc:terms",
+            "doc:cookie-policy",
+            "doc:dmca",
+            "doc:disclaimer",
+            "doc:credits"
+          ],
+          "id": "policies",
+          "title": "Beleid"
+        }
+      ],
+      "id": "legal",
+      "title": "Juridisch en beleid"
+    }
+  ]
+}

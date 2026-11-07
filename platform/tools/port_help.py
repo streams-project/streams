@@ -119,6 +119,40 @@ def parse_ftl(text: str) -> dict[str, str]:
     return entries
 
 
+def apply_english_fixes(entries: dict[str, str], fixes: dict | None) -> list[str]:
+    if not fixes:
+        return []
+    errors: list[str] = []
+    for item in fixes.get("english", []):
+        key = item["key"]
+        find_str = item["find"]
+        with_str = item["with"]
+        val = entries.get(key)
+        if val is None or find_str not in val:
+            errors.append(f"en.ftl: {key}: missing find string {find_str!r}")
+        else:
+            entries[key] = val.replace(find_str, with_str)
+    return errors
+
+
+def prune_tree(tree: dict, dropped: set[str]) -> dict:
+    tree = json.loads(json.dumps(tree))
+    if not dropped:
+        return tree
+    for t in tree["topics"]:
+        for g in t["groups"]:
+            g["articles"] = [a for a in g["articles"] if a not in dropped]
+    tree["popular"] = [a for a in tree["popular"] if a not in dropped]
+    kept_articles = []
+    for a in tree["articles"]:
+        if a["slug"] in dropped:
+            continue
+        a["related"] = [r for r in a["related"] if r not in dropped]
+        kept_articles.append(a)
+    tree["articles"] = kept_articles
+    return tree
+
+
 def convert_value(
     file_name: str,
     key: str,
@@ -126,9 +160,18 @@ def convert_value(
     brand: str,
     banned: list[str],
     allow_exact_brand: bool = True,
-) -> tuple[str, list[str]]:
+    email_variables: list[str] | None = None,
+    drop_articles: set[str] | None = None,
+    is_english: bool = True,
+) -> tuple[str | None, list[str], list[str]]:
     errors: list[str] = []
+    omitted: list[str] = []
+
     out = BRAND_VAR_RE.sub("{brand}", value)
+    for var_name in email_variables or []:
+        out = re.sub(rf"\{{\s*\${re.escape(var_name)}\s*\}}", "{support_email}", out)
+
+    out = out.replace("<strong>", "<b>").replace("</strong>", "</b>")
 
     seen_vars: set[str] = set()
     for vm in ANY_VAR_RE.finditer(out):
@@ -137,18 +180,31 @@ def convert_value(
             seen_vars.add(var_name)
             errors.append(f"{file_name}: {key}: unknown variable ${var_name}")
 
+    reasons: list[str] = []
     low = out.lower()
     for word in banned:
         if word in low:
-            errors.append(f"{file_name}: {key}: third party word {word}")
+            reasons.append(f"third party word {word}")
 
     if brand:
         if allow_exact_brand and brand in out:
             out = out.replace(brand, "{brand}")
-        if brand.lower() in out.lower():
-            errors.append(f"{file_name}: {key}: unsafe literal brand word {brand}")
+        if brand in out:
+            reasons.append(f"unsafe literal brand word {brand}")
 
-    return out, errors
+    for slug in sorted(drop_articles or set()):
+        if f"/help/article/{slug}" in out:
+            reasons.append(f"link to dropped article {slug}")
+
+    if reasons:
+        if is_english:
+            for r in reasons:
+                errors.append(f"{file_name}: {key}: {r}")
+        else:
+            omitted.append(f"omitted {file_name} {key} {reasons[0]}")
+            return None, errors, omitted
+
+    return out, errors, omitted
 
 
 def build_lang(
@@ -158,27 +214,55 @@ def build_lang(
     brand: str,
     banned: list[str],
     en_entries: dict[str, str] | None = None,
+    fixes: dict | None = None,
+    omitted_out: list[str] | None = None,
 ) -> tuple[dict, list[str]]:
-    cleaned: dict[str, str] = {}
-    errors: list[str] = []
-    for k, v in sorted(entries.items()):
-        en_has_exact = True if en_entries is None else (brand in en_entries.get(k, ""))
-        conv, errs = convert_value(file_name, k, v, brand, banned, allow_exact_brand=en_has_exact)
-        cleaned[k] = conv
-        errors.extend(errs)
+    email_vars = list((fixes or {}).get("email_variables", []))
+    dropped = set((fixes or {}).get("drop_articles", []))
+    is_english = file_name == "en.ftl"
 
-    policy_ids = {p["id"] for p in tree["policies"]}
-    for t in tree["topics"]:
+    local_entries = dict(entries)
+    errors: list[str] = []
+    if is_english and fixes:
+        errors.extend(apply_english_fixes(local_entries, fixes))
+
+    pruned = prune_tree(tree, dropped)
+
+    cleaned: dict[str, str] = {}
+    for k, v in sorted(local_entries.items()):
+        if any(k.startswith(f"help-art-{slug}-") for slug in dropped):
+            continue
+        en_source = local_entries if is_english else (en_entries or {})
+        en_has_exact = True if (en_entries is None and not is_english) else (brand in en_source.get(k, ""))
+        conv, errs, omits = convert_value(
+            file_name,
+            k,
+            v,
+            brand,
+            banned,
+            allow_exact_brand=en_has_exact,
+            email_variables=email_vars,
+            drop_articles=dropped,
+            is_english=is_english,
+        )
+        errors.extend(errs)
+        if omitted_out is not None:
+            omitted_out.extend(omits)
+        if conv is not None:
+            cleaned[k] = conv
+
+    policy_ids = {p["id"] for p in pruned["policies"]}
+    for t in pruned["topics"]:
         for g in t["groups"]:
             for entry in g["articles"]:
                 if entry.startswith(DOC_PREFIX):
                     pid = entry[len(DOC_PREFIX) :]
                     if pid not in policy_ids:
                         policy_ids.add(pid)
-                        tree["policies"].append({"id": pid, "sections": 25})
+                        pruned["policies"].append({"id": pid, "sections": 25})
 
     topics_out = []
-    for t in tree["topics"]:
+    for t in pruned["topics"]:
         tid = t["id"]
         groups_out = []
         for g in t["groups"]:
@@ -195,7 +279,7 @@ def build_lang(
         topics_out.append(t_obj)
 
     articles_out: dict[str, dict] = {}
-    for a in tree["articles"]:
+    for a in pruned["articles"]:
         slug = a["slug"]
         if slug.startswith(DOC_PREFIX):
             continue
@@ -209,7 +293,7 @@ def build_lang(
             articles_out[slug] = a_obj
 
     policies_out: dict[str, dict] = {}
-    for p in tree["policies"]:
+    for p in pruned["policies"]:
         pid = p["id"]
         p_obj: dict = {}
         title = cleaned.get(f"legal-{pid}-title")
@@ -241,59 +325,76 @@ def build_lang(
 
     result = {
         "topics": topics_out,
-        "popular": list(tree["popular"]),
+        "popular": list(pruned["popular"]),
         "articles": articles_out,
         "policies": policies_out,
     }
     return result, errors
 
 
-def port_all(source_dir: Path, out_dir: Path, brand: str, banned: list[str]) -> list[str]:
+def port_all(
+    source_dir: Path,
+    out_dir: Path,
+    brand: str,
+    banned: list[str],
+    fixes: dict,
+) -> tuple[list[str], list[str]]:
     help_rs = (source_dir / "src" / "data" / "help.rs").read_text("utf-8")
     tree = parse_help_rs(help_rs)
     i18n_dir = source_dir / "i18n"
     ftl_files = sorted(i18n_dir.glob("*.ftl"))
     if not ftl_files:
-        return [f"no .ftl files in {i18n_dir}"]
+        return [f"no .ftl files in {i18n_dir}"], []
 
     en_path = i18n_dir / "en.ftl"
     en_entries = parse_ftl(en_path.read_text("utf-8")) if en_path.exists() else None
+    if en_entries is not None:
+        en_copy = dict(en_entries)
+        apply_english_fixes(en_copy, fixes)
+        en_entries = en_copy
 
     all_errors: list[str] = []
+    all_omitted: list[str] = []
     outputs: dict[str, dict] = {}
     for ftl_path in ftl_files:
         entries = parse_ftl(ftl_path.read_text("utf-8"))
         data, errs = build_lang(
-            json.loads(json.dumps(tree)),
+            tree,
             entries,
             ftl_path.name,
             brand,
             banned,
             en_entries=en_entries,
+            fixes=fixes,
+            omitted_out=all_omitted,
         )
         all_errors.extend(errs)
         outputs[ftl_path.stem] = data
 
     if all_errors:
-        return all_errors
+        return all_errors, all_omitted
 
     out_dir.mkdir(parents=True, exist_ok=True)
     for lang, data in outputs.items():
         text = json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
         (out_dir / f"{lang}.json").write_text(text, "utf-8")
-    return []
+    return [], all_omitted
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--fixes", type=Path, required=True)
     parser.add_argument("--source", type=Path, default=None)
     parser.add_argument("--out", type=Path, default=ROOT / "help")
     args = parser.parse_args(argv)
 
+    fixes = json.loads(args.fixes.read_text("utf-8"))
     source = args.source or find_default_source(ROOT)
     brand = read_brand_name(ROOT)
     banned = read_banned_words(ROOT)
-    errors = port_all(source, args.out, brand, banned)
+    errors, omitted = port_all(source, args.out, brand, banned, fixes)
+    for line in omitted:
+        print(line)
     if errors:
         for line in errors:
             print(line)
