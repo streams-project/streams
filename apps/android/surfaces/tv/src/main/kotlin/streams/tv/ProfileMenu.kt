@@ -32,7 +32,7 @@ import streams.shared.Plate
 import streams.shared.ref
 import streams.shared.refType
 
-private enum class Pick { SWITCH, HELP, SIGN_OUT }
+private enum class Pick { SWITCH, SETTINGS, HELP, SIGN_OUT }
 
 /** The menu behind the avatar: who is watching, and the ways out of the page. */
 @Composable
@@ -40,20 +40,29 @@ fun ProfileMenu(shell: Shell, seen: Seen, person: Profile?, leave: () -> Unit) {
     val words = seen.words
     var at by remember { mutableIntStateOf(0) }
     var asking by remember { mutableStateOf(false) }
-    val picks = Pick.entries
+    val picks = buildList {
+        add(Pick.SWITCH)
+        if (person?.kids != true) add(Pick.SETTINGS)
+        add(Pick.HELP)
+        add(Pick.SIGN_OUT)
+    }
     val lines = if (asking) {
         listOf(MenuLine(words["menu.sign_out"].orEmpty()), MenuLine(words["common.cancel"].orEmpty()))
     } else {
-        listOf(
-            MenuLine(words["menu.switch"].orEmpty()),
-            MenuLine(words["menu.help"].orEmpty()),
-            MenuLine(words["menu.sign_out"].orEmpty()),
-        )
+        picks.map { pick ->
+            val key = when (pick) {
+                Pick.SWITCH -> "menu.switch"
+                Pick.SETTINGS -> "menu.settings"
+                Pick.HELP -> "menu.help"
+                Pick.SIGN_OUT -> "menu.sign_out"
+            }
+            MenuLine(words[key].orEmpty())
+        }
     }
 
     fun stay() {
         asking = false
-        at = Pick.SIGN_OUT.ordinal
+        at = picks.indexOf(Pick.SIGN_OUT).coerceAtLeast(0)
     }
 
     fun choose() {
@@ -61,6 +70,7 @@ fun ProfileMenu(shell: Shell, seen: Seen, person: Profile?, leave: () -> Unit) {
             asking && at == 0 -> shell.act(ActionSignOut(everywhere = false))
             asking -> stay()
             picks[at] == Pick.SWITCH -> shell.go("/profiles")
+            picks[at] == Pick.SETTINGS -> shell.go("/settings")
             picks[at] == Pick.HELP -> shell.go("/help")
             else -> {
                 asking = true

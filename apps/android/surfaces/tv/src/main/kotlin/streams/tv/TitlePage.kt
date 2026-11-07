@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,11 +20,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import coil3.compose.AsyncImage
 import contract.ActionCommand
 import contract.CommandList
 import contract.CommandRate
+import contract.ImageRole
 import contract.Rating
 import contract.Season
 import contract.TitleDetail
@@ -166,15 +170,26 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) ->
     }
     Box(Modifier.fillMaxSize().remote(@DontMemoize { press(it) })) {
         TitleBackdrop(data)
-        Box(Modifier.offset(60.ref, 50.ref).size(900.ref, 176.ref), contentAlignment = Alignment.BottomStart) {
-            Text(
-                data.name,
-                fontSize = 76.refType,
-                lineHeight = 84.refType,
-                fontWeight = FontWeight.ExtraBold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
+        val logo = data.images?.firstOrNull { it.role == ImageRole.LOGO }?.url
+        Box(Modifier.offset(60.ref, 26.ref).size(900.ref, 200.ref), contentAlignment = Alignment.BottomStart) {
+            if (logo != null) {
+                AsyncImage(
+                    logo,
+                    data.name,
+                    Modifier.sizeIn(maxWidth = 600.ref, maxHeight = 200.ref),
+                    alignment = Alignment.BottomStart,
+                    contentScale = ContentScale.Fit,
+                )
+            } else {
+                Text(
+                    data.name,
+                    fontSize = 76.refType,
+                    lineHeight = 84.refType,
+                    fontWeight = FontWeight.ExtraBold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
         Facts(data, words, Modifier.offset(60.ref, 244.ref))
         Text(
