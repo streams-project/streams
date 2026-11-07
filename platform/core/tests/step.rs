@@ -289,6 +289,29 @@ fn c5_c71_a_cancelled_refresh_is_answered_so_the_request_waiting_on_it_goes_out(
 }
 
 #[test]
+fn a_refresh_with_a_lost_answer_is_tried_again_inside_the_servers_reuse_window() {
+    // the first try may have reached the server, which then keeps the token good for only 300 s
+    let (mut core, out) = member(60);
+    let mut refresh = effect_id(&out, "/v1/auth/refresh");
+    let mut clock = 4;
+    for wait in [5_000, 20_000, 60_000, 120_000] {
+        let out = step(
+            &mut core,
+            clock,
+            &json!([{"id": refresh, "type": "cancelled"}]),
+        );
+        assert_eq!(out["next_wake_ms"], clock + wait, "{out}");
+        clock += wait;
+        let out = step(&mut core, clock, &json!([]));
+        refresh = effect_id(&out, "/v1/auth/refresh");
+    }
+    assert!(
+        clock < 300_000,
+        "every try fell inside the window, at {clock}"
+    );
+}
+
+#[test]
 fn c9_c103_after_sign_out_no_one_is_asked_who_is_watching() {
     let (mut core, out) = member(3_600);
     let list = effect_id(&out, "/v1/profiles");

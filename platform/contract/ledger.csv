@@ -297,7 +297,7 @@ C67,behaviour,carried,server,server play,,
 C68,behaviour,changed,core,core player,Server validates id and duration. Core keeps only the rule that position above 5 s is worth sending. Episode percent comes from the title answer.,Rule changes
 C69,behaviour,carried,server,server accounts,,
 C70,behaviour,carried,server,server accounts,,
-C71,behaviour,carried,core,core session,,
+C71,behaviour,changed,core,core session,"A refresh with no usable answer is tried again after 5, 20, 60 and then 120 s. The old 5 minute wait landed just past the server's 300 s reuse window, so one lost answer ended a good session.",Inside the core
 C72,behaviour,carried,core,core session,,
 C73,behaviour,carried,core,core session,,
 C74,behaviour,carried,core,core gate,,

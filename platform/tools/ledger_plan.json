@@ -95,6 +95,7 @@
 
     {"ids": "C104 C124 P37 U3 U6", "basis": "Consent", "rule": "Consent is a server fact, default off for personal rows. Until the owner answers it lives on the device session row. With consent off the server reads no personal data and discards feedback. Withdrawal deletes that profile's taste and feed events. Banner timing (1,500 ms, 7 day dismissal, hidden on the player address) stays in web. The browser's global privacy signal reaches the server as a refusal."},
 
+    {"ids": "C71", "basis": "Inside the core", "rule": "A refresh with no usable answer is tried again after 5, 20, 60 and then 120 s. The old 5 minute wait landed just past the server's 300 s reuse window, so one lost answer ended a good session."},
     {"ids": "C7", "basis": "Inside the core", "rule": "Renew 120 s before expiry: C88's value holds over C7's 60 s. A 401 refreshes once and retries once; a second 401 ends the session. One refresher per device."},
     {"ids": "C113", "basis": "Inside the core", "rule": "Expiry comes from expires_in and monotonic time, never an absolute time read against the device clock. The 120 s margin and the 400 to 403 outcome hold."},
     {"ids": "C4", "basis": "Inside the core", "rule": "While playing, send every 30,000 ms. Also save on pause, seek, end, exit and suspend. The 5,000 ms local write ends."},

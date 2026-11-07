@@ -12,8 +12,10 @@ use crate::Now;
 /// Renew when less than this is left. 120 s holds over the older 60 s.
 const RENEW_MARGIN_MS: u64 = 120_000;
 
-/// Wait after a refresh that got no usable answer.
-const CHECK_EVERY_MS: u64 = 300_000;
+/// Waits after a refresh that got no usable answer. A first try that reached the server spent
+/// the token, and the server takes that token again for only 300 s, so the first tries sit
+/// well inside that. One wait of 300 s landed just past it and ended a good session.
+const RETRY_AFTER_MS: [u64; 4] = [5_000, 20_000, 60_000, 120_000];
 
 /// Secret name of the session.
 pub(crate) const SESSION_SECRET: &str = "session";
@@ -52,6 +54,8 @@ pub(crate) struct Session {
     expires_mono: Option<u64>,
     expires_wall: Option<u64>,
     refreshing: bool,
+    /// Refreshes in a row that got no usable answer.
+    missed: usize,
     retry_at_mono: u64,
     device_key: String,
 }
@@ -71,6 +75,7 @@ impl Session {
             expires_mono: None,
             expires_wall: None,
             refreshing: false,
+            missed: 0,
             retry_at_mono: 0,
             device_key: seed.chars().take(32).collect(),
         }
@@ -132,6 +137,7 @@ impl Session {
         self.expires_mono = Some(now.mono_ms + life_ms);
         self.expires_wall = Some(now.wall_ms + life_ms);
         self.refreshing = false;
+        self.missed = 0;
         self.retry_at_mono = 0;
     }
 
@@ -211,9 +217,11 @@ impl Session {
     }
 
     /// The refresh got no usable answer. What exists stays, and it is tried later.
-    pub(crate) const fn refresh_failed(&mut self, now: Now) {
+    pub(crate) fn refresh_failed(&mut self, now: Now) {
         self.refreshing = false;
-        self.retry_at_mono = now.mono_ms + CHECK_EVERY_MS;
+        let wait = self.missed.min(RETRY_AFTER_MS.len() - 1);
+        self.retry_at_mono = now.mono_ms + RETRY_AFTER_MS[wait];
+        self.missed += 1;
     }
 
     /// A network return cuts the wait.
