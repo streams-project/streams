@@ -21,7 +21,7 @@ SPDX-FileCopyrightText = "2017 Dailymotion"
 SPDX-License-Identifier = "Apache-2.0"
 
 [[annotations]]
-path = "apps/web/fonts/**"
+path = ["apps/web/fonts/**", "apps/android/surfaces/shared/src/main/res/font/**"]
 precedence = "override"
 SPDX-FileCopyrightText = "2016 The Inter Project Authors"
 SPDX-License-Identifier = "OFL-1.1"

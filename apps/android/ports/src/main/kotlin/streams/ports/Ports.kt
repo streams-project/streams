@@ -6,6 +6,7 @@ import contract.Action
 import contract.DeviceSignInView
 import contract.DriverCommand
 import contract.DriverEvent
+import contract.NavItem
 import contract.PlayView
 import contract.Profile
 import contract.RouteTarget
@@ -52,6 +53,10 @@ data class Seen(
     val profiles: List<Profile> = emptyList(),
     val play: PlayView? = null,
     val screen: Screen? = null,
+    val nav: List<NavItem> = emptyList(),
+    val active: String? = null,
+    /** The words of the interface, with the brand filled in. */
+    val words: Map<String, String> = emptyMap(),
     val detail: TitleDetail? = null,
     val notice: String? = null,
     val brand: String = "",

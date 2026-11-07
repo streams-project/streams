@@ -1,6 +1,8 @@
 {
   "common.cancel": "キャンセル",
   "common.done": "完了",
+  "common.more_info": "詳細情報",
+  "common.play": "再生",
   "language.name": "日本語",
   "list.add": "マイ {brand}",
   "list.added": "マイ {brand} に追加済み",

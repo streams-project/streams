@@ -53,5 +53,9 @@
   "row.continue_watching": "Continue Watching",
   "list.add": "My {brand}",
   "list.added": "In My {brand}",
-  "row.familiar_favourites": "Familiar Favourites"
+  "row.familiar_favourites": "Familiar Favourites",
+  "common.play": "Play",
+  "common.more_info": "More Info",
+  "title.season.one": "{n} Season",
+  "title.season.many": "{n} Seasons"
 }

@@ -12,6 +12,7 @@ import streams.adapters.Media3Player
 import streams.adapters.PrefsSecrets
 import streams.core.Host
 import streams.surfaces.Root
+import streams.tv.Television
 
 /** Plugs adapters into ports and hands the surfaces the result. Nothing else knows both sides. */
 class Main : ComponentActivity() {
@@ -27,6 +28,6 @@ class Main : ComponentActivity() {
             form = if (tv) Form.TV else Form.PHONE,
             version = "0.1.0",
         )
-        setContent { Root(host, tv) }
+        setContent { if (tv) Television(host) else Root(host, false) }
     }
 }

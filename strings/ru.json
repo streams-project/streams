@@ -1,6 +1,8 @@
 {
   "common.cancel": "Отмена",
   "common.done": "Готово",
+  "common.more_info": "Подробнее",
+  "common.play": "Смотреть",
   "language.name": "Русский",
   "list.add": "Мой {brand}",
   "list.added": "В моём {brand}",

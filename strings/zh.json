@@ -1,6 +1,8 @@
 {
   "common.cancel": "取消",
   "common.done": "完成",
+  "common.more_info": "更多信息",
+  "common.play": "播放",
   "language.name": "中文",
   "list.add": "我的 {brand}",
   "list.added": "已在我的 {brand}",

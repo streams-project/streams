@@ -1,6 +1,8 @@
 {
   "common.cancel": "İptal",
   "common.done": "Bitti",
+  "common.more_info": "Daha fazla bilgi",
+  "common.play": "Oynat",
   "language.name": "Türkçe",
   "list.add": "Benim {brand}",
   "list.added": "Benim {brand} içinde",

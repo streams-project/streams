@@ -33,9 +33,11 @@ import contract.EventSecretDone
 import contract.EventUnsupported
 import contract.Form
 import contract.HttpMethod
+import contract.Nav
 import contract.NoAnswerReason
 import contract.Screen
 import contract.SecretOp
+import contract.Strings
 import contract.TitleDetail
 import contract.WIRE_VERSION
 import contract.WireDate
@@ -67,6 +69,7 @@ class Host(
 ) : Shell {
     private companion object {
         const val SERVER = "app:server"
+        const val DEFAULT_LANGUAGE = "en"
         const val WAKE_CAP_MS = 60_000L
     }
 
@@ -177,7 +180,22 @@ class Host(
         }
     }
 
+    /** The words of the interface, with the brand's name in them. */
+    private fun readWords(language: String, brand: String) {
+        ask("/v1/strings/$language") { status, text ->
+            if (status in 200..299) {
+                val texts = contractJson.decodeFromString(Strings.serializer(), text).texts
+                state.update { now ->
+                    now.copy(words = texts.mapValues { (_, word) -> word.replace("{brand}", brand) })
+                }
+            }
+        }
+    }
+
     private fun apply(out: CoreOut) {
+        out.view?.hello?.let { hello ->
+            if (state.value.words.isEmpty()) readWords(DEFAULT_LANGUAGE, hello.brand.name)
+        }
         out.view?.let { view ->
             state.update { now ->
                 now.copy(
@@ -186,6 +204,7 @@ class Host(
                     profiles = view.profiles?.profiles ?: now.profiles,
                     play = view.play ?: now.play,
                     brand = view.hello?.brand?.name ?: now.brand,
+                    active = view.session?.profile ?: now.active,
                 )
             }
         }
@@ -250,6 +269,8 @@ class Host(
 
     private fun keep(path: String, text: String) {
         when {
+            path.startsWith("/v1/nav") ->
+                state.update { it.copy(nav = contractJson.decodeFromString(Nav.serializer(), text).items) }
             path.startsWith("/v1/screens/") ->
                 state.update { it.copy(screen = contractJson.decodeFromString(Screen.serializer(), text)) }
             path.contains("/titles/") && !path.contains("/seasons/") ->

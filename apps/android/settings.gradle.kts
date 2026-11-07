@@ -18,4 +18,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "streams"
-include(":ports", ":core", ":adapters", ":surfaces", ":app")
+include(":ports", ":core", ":adapters", ":surfaces:shared", ":surfaces:phone", ":surfaces:tv", ":app")

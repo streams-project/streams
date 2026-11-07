@@ -1,6 +1,8 @@
 {
   "common.cancel": "Annuler",
   "common.done": "Terminé",
+  "common.more_info": "Plus d'infos",
+  "common.play": "Lecture",
   "language.name": "Français",
   "list.add": "Mon {brand}",
   "list.added": "Dans Mon {brand}",
