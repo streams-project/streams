@@ -22,7 +22,7 @@ import streams.ports.Seen
 import streams.ports.Shell
 
 /** The pages of Edit Profile. */
-enum class EditStep { MENU, NAME, ICON, LANGUAGE, DELETE }
+enum class EditStep { MENU, NAME, ICON, LANGUAGE, LOCK, DELETE }
 
 private fun rowsOf(sets: AvatarSets?, history: String, person: Profile): List<PictureRow> {
     val rows = sets?.sets.orEmpty().map { set -> PictureRow(set.name, set.pictures.map { it.path }) }
@@ -32,7 +32,7 @@ private fun rowsOf(sets: AvatarSets?, history: String, person: Profile): List<Pi
 
 /** Edit Profile. It opens from the picker and from Settings, and takes the same profile either way. */
 @Composable
-fun EditProfile(shell: Shell, seen: Seen, start: Profile, leave: () -> Unit) {
+fun EditProfile(shell: Shell, seen: Seen, start: Profile, pinDigits: Int = 4, leave: () -> Unit) {
     var person by remember { mutableStateOf(start) }
     var step by remember { mutableStateOf(EditStep.MENU) }
     var refused by remember { mutableStateOf(false) }
@@ -102,6 +102,10 @@ fun EditProfile(shell: Shell, seen: Seen, start: Profile, leave: () -> Unit) {
         }
         EditStep.LANGUAGE -> EditLanguage(words, languages, person.language ?: seen.language) { code ->
             if (code == null) step = EditStep.MENU else save(ProfileUpdate(language = code))
+        }
+        EditStep.LOCK -> EditLock(shell, seen, person, pinDigits) { updated ->
+            if (updated != null) person = updated
+            step = EditStep.MENU
         }
     }
 }

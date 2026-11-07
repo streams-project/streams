@@ -33,6 +33,7 @@ import streams.shared.refType
 
 private const val DEFAULT_PROFILES_MAX = 5
 private const val DEFAULT_NAME_MAX = 32
+private const val DEFAULT_PIN_DIGITS = 4
 
 /** Who is watching: a column of profiles on the left, and a title chosen for the one in focus. */
 @Composable
@@ -43,6 +44,7 @@ fun Profiles(shell: Shell, seen: Seen) {
     }
     val profilesMax = hello?.limits?.profilesMax?.toInt() ?: DEFAULT_PROFILES_MAX
     val nameMax = hello?.limits?.profileNameMax?.toInt() ?: DEFAULT_NAME_MAX
+    val pinDigits = hello?.limits?.pinDigits?.toInt() ?: DEFAULT_PIN_DIGITS
     val canAdd = list.size < profilesMax
 
     var at by remember { mutableIntStateOf(0) }
@@ -77,14 +79,30 @@ fun Profiles(shell: Shell, seen: Seen) {
         return
     }
     editing?.let { person ->
-        EditProfile(shell, seen, person) {
+        EditProfile(shell, seen, person, pinDigits) {
             editing = null
             pencil = false
         }
         return
     }
     locked?.let { person ->
-        PinPanel(shell, person, seen.server) { locked = null }
+        PinPanel(
+            shell,
+            seen,
+            person,
+            pinDigits,
+            unlocked = { pin ->
+                val toEdit = pencil
+                locked = null
+                if (toEdit) {
+                    editing = person
+                } else {
+                    shell.speak(person.language)
+                    shell.act(ActionEnterProfile(profile = person.id, pin = pin))
+                }
+            },
+            leave = { locked = null },
+        )
         return
     }
     val featurePerson = list.getOrNull(at) ?: list.lastOrNull() ?: return
@@ -104,12 +122,12 @@ fun Profiles(shell: Shell, seen: Seen) {
             } else {
                 return false
             }
-            Word.LEFT -> if (person == null || person.hasPin) return false else pencil = true
+            Word.LEFT -> if (person == null) return false else pencil = true
             Word.RIGHT -> pencil = false
             Word.OK -> when {
                 person == null -> adding = true
-                pencil -> editing = person
                 person.hasPin -> locked = person
+                pencil -> editing = person
                 else -> {
                     shell.speak(person.language)
                     shell.act(ActionEnterProfile(profile = person.id))

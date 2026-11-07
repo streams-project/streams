@@ -4,7 +4,9 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -38,7 +40,7 @@ fun ProfileRow(person: Profile, on: Boolean, pencil: Boolean, server: String) {
     val size by animateDpAsState((if (on) FACE_LARGE else FACE_SMALL).ref, time, label = "size")
     val left by animateDpAsState((if (on) 193 else 225).ref, time, label = "left")
     Box(Modifier.fillMaxWidth().height(size)) {
-        if (on && !person.hasPin) {
+        if (on) {
             val back = if (pencil) Color.White else Color.Transparent
             Box(
                 Modifier.offset(111.ref, 67.ref).size(56.ref).background(back, CircleShape),
@@ -59,12 +61,25 @@ fun ProfileRow(person: Profile, on: Boolean, pencil: Boolean, server: String) {
             }
         }
         if (on) {
-            Text(
-                person.name,
+            Row(
                 Modifier.offset(420.ref, 74.ref),
-                fontSize = 40.refType,
-                fontWeight = FontWeight.Bold,
-            )
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.ref),
+            ) {
+                Text(
+                    person.name,
+                    fontSize = 40.refType,
+                    fontWeight = FontWeight.Bold,
+                )
+                if (person.hasPin) {
+                    Icon(
+                        painterResource(R.drawable.icon_locked),
+                        null,
+                        Modifier.size(32.ref),
+                        tint = Muted,
+                    )
+                }
+            }
         }
     }
 }
