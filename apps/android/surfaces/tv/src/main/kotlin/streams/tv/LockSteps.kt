@@ -83,6 +83,8 @@ fun EditLock(
         scope.launch {
             val body = contractJson.encodeToString(Confirm.serializer(), Confirm(password = password))
             val answer = shell.write("POST", "/v1/auth/confirm", body)
+            // The password is done with, whatever the answer was.
+            keys.text = ""
             if (answer == null) {
                 refused = true
                 busy = false
