@@ -81,7 +81,7 @@ private fun OpenCard(tile: Tile) {
 @Composable
 fun OpenRow(shell: Shell, words: Map<String, String>, store: DetailStore, section: Section, at: Int) {
     val tiles = section.tiles.orEmpty()
-    val tile = tiles[at]
+    val tile = tiles[at.coerceAtMost(tiles.lastIndex)]
     val step = with(LocalDensity.current) { STEP.ref.toPx() }
     val moved by animateFloatAsState(at.toFloat(), tween(SLIDE_MS, easing = Glide), label = "posters")
     val detail by detailOf(shell, store, tile.title)

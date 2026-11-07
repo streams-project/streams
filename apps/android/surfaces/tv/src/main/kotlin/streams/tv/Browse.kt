@@ -38,8 +38,8 @@ private enum class Where { TOP, HERO, ROW }
 private val RowKinds = setOf(SectionKind.ROW, SectionKind.RANKED, SectionKind.CONTINUE, SectionKind.GRID)
 
 /** Where the viewer is on a page of rows. It knows nothing about drawing. */
-private class PageFocus(val rows: List<Section>, val tabs: Int, active: Int, private val hero: Boolean) {
-    private val above = if (hero) Where.HERO else Where.TOP
+private class PageFocus(var rows: List<Section>, var tabs: Int, active: Int, var hero: Boolean) {
+    private val above get() = if (hero) Where.HERO else Where.TOP
     var where by mutableStateOf(if (hero || rows.isEmpty()) above else Where.ROW)
     var row by mutableIntStateOf(0)
     var tab by mutableIntStateOf(active)
@@ -48,7 +48,7 @@ private class PageFocus(val rows: List<Section>, val tabs: Int, active: Int, pri
 
     val column: Int get() = columns[row] ?: 0
 
-    private fun lastColumn() = rows[row].tiles.orEmpty().lastIndex
+    private fun lastColumn() = rows.getOrNull(row)?.tiles.orEmpty().lastIndex
 
     fun press(word: Word): Boolean {
         when (word) {
@@ -109,14 +109,20 @@ fun Browse(shell: Shell, seen: Seen) {
     val current = seen.route?.screen?.value ?: "home"
     val active = tabs.indexOfFirst { it.screen.value == current }.coerceAtLeast(0)
     val person = seen.profiles.firstOrNull { it.id == seen.active } ?: seen.profiles.firstOrNull()
-    val focus = remember(data) { PageFocus(rows, tabs.size, active, lead != null) }
+    // A page is drawn from what was kept and then from the fresh answer. The focus belongs to the page.
+    val focus = remember(current, seen.route?.genre) { PageFocus(rows, tabs.size, active, lead != null) }
+    focus.rows = rows
+    focus.tabs = tabs.size
+    focus.hero = lead != null
     val store = rememberDetails()
     val rise = with(LocalDensity.current) { RISE.ref.roundToPx() }
 
     fun choose() {
         when {
             focus.where == Where.TOP -> tabs.getOrNull(focus.tab)?.let { shell.go(tabAddress(it.screen.value)) }
-            focus.where == Where.ROW -> shell.go(titleAddress(rows[focus.row].tiles.orEmpty()[focus.column].title))
+            focus.where == Where.ROW -> rows.getOrNull(focus.row)?.tiles?.getOrNull(focus.column)?.let {
+                shell.go(titleAddress(it.title))
+            }
             lead == null -> Unit
             focus.button == 1 || lead.isSeries() -> shell.go(titleAddress(lead.title))
             else -> shell.go(watchAddress(lead.title))
@@ -146,7 +152,11 @@ fun Browse(shell: Shell, seen: Seen) {
                         (slideOutVertically(move) { -way * rise } + fadeOut(time))
                 },
                 label = "row",
-            ) { row -> OpenRow(shell, seen.words, store, rows[row], if (row == focus.row) focus.column else 0) }
+            ) { row ->
+                rows.getOrNull(row)?.let {
+                    OpenRow(shell, seen.words, store, it, if (row == focus.row) focus.column else 0)
+                }
+            }
         } else if (lead != null) {
             HeroCard(shell, seen, store, lead, if (focus.where == Where.HERO) focus.button else -1)
         } else if (rows.isEmpty()) {
