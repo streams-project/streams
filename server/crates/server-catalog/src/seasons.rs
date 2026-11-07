@@ -54,6 +54,22 @@ pub fn seasons_of(db: &Path, series: u32) -> Vec<SeasonFact> {
     read().unwrap_or_default()
 }
 
+/// The episode after this one in the set's order, across seasons. Specials sit in season 0 and
+/// are left out, the same as in the list a viewer sees.
+#[must_use]
+pub fn next_episode(db: &Path, series: u32, season: u32, episode: u32) -> Option<(u32, u32)> {
+    open(db)?
+        .query_row(
+            "SELECT season_number, episode_number FROM episodes
+             WHERE media_type = 'tv' AND title_id = ?1 AND season_number > 0
+               AND (season_number > ?2 OR (season_number = ?2 AND episode_number > ?3))
+             ORDER BY season_number, episode_number LIMIT 1",
+            params![series, season, episode],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .ok()
+}
+
 /// One season's name and episodes, or none when the set does not have it.
 #[must_use]
 pub fn episodes_of(

@@ -155,7 +155,14 @@ pub async fn title(
             .store()
             .list(watching.scope.profile(), MAX_KEYS_PER_LIST)
             .await?;
-        page = page.saved(saved.contains(&key));
+        let rated = library
+            .store()
+            .rated(watching.scope.profile(), MAX_KEYS_PER_LIST)
+            .await?;
+        let said = rated.iter().find(|(title, _)| *title == key);
+        page = page
+            .saved(saved.contains(&key))
+            .rated(said.map(|(_, rating)| *rating));
     }
     send_cleared(&headers, &page, Keep::Private)
 }

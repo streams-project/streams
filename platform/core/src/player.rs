@@ -25,6 +25,8 @@ const NO_PICTURE_MEDIA_MS: u64 = 2_500;
 
 /// How long the age card stays up.
 const AGE_CARD_MS: u64 = 5_000;
+/// Episodes that may start by themselves before the core asks whether anyone is watching.
+const STILL_AFTER: u32 = 3;
 
 /// A skip button hides this long before the end it moves to.
 const SKIP_HIDES_EARLY_MS: u64 = 1_000;
@@ -81,6 +83,7 @@ struct Play {
     more: bool,
     age_card: Option<AgeCard>,
     next_episode: Option<EpisodeRef>,
+    still_asking: bool,
     autoplay_next: bool,
     state: PlayState,
     /// Kept across every source change.
@@ -101,6 +104,8 @@ struct Play {
 /// One play session at a time.
 pub struct Player {
     play: Option<Play>,
+    /// Episodes that started by themselves since the viewer last did anything.
+    run: u32,
     /// Never goes back, so a late event from any earlier open is dropped.
     generation: u32,
     serial: u32,
@@ -122,6 +127,7 @@ impl Player {
             generation: 0,
             serial: 0,
             open: false,
+            run: 0,
         }
     }
 
@@ -160,7 +166,13 @@ impl Player {
                 .map(|attempt| attempt.id.clone()),
             windows: play.windows.clone(),
             next_episode: play.next_episode.clone(),
+            still_asking: play.still_asking,
         })
+    }
+
+    /// The viewer did something, so the run of episodes that started by themselves is over.
+    pub(crate) fn viewer_here(&mut self) {
+        self.run = 0;
     }
 
     /// Start a new session. A new resolve means the same address attaches again.
@@ -182,6 +194,7 @@ impl Player {
             more: false,
             age_card: None,
             next_episode: None,
+            still_asking: false,
             autoplay_next: false,
             state: PlayState::Resolving,
             position_ms: 0,
@@ -438,8 +451,13 @@ impl Player {
                 play.heartbeat_mono = None;
                 save(play, tick);
                 tick.view = true;
-                if play.autoplay_next {
-                    tick.next = play.next_episode.clone().map(|next| (play.title, next));
+                if play.autoplay_next && play.next_episode.is_some() {
+                    if self.run + 1 < STILL_AFTER {
+                        self.run += 1;
+                        tick.next = play.next_episode.clone().map(|next| (play.title, next));
+                    } else {
+                        play.still_asking = true;
+                    }
                 }
                 self.close(tick);
             }
@@ -512,8 +530,10 @@ impl Player {
         }
     }
 
-    /// Seek, held to the video's length. A seek starts the picture check again.
-    pub(crate) fn seek(&mut self, to_ms: u64, tick: &mut Tick) {
+    /// Seek, held to the video's length. A seek starts the picture check again. A seek stalls by
+    /// nature, so while the viewer keeps seeking the wait starts again from the latest one, and
+    /// a dead source still runs out once they stop.
+    pub(crate) fn seek(&mut self, to_ms: u64, mono_ms: u64, deadline_ms: u32, tick: &mut Tick) {
         let open = self.open;
         let Some(play) = self
             .play
@@ -529,6 +549,9 @@ impl Player {
         };
         play.position_ms = to_ms;
         play.no_picture_since = None;
+        if play.state == PlayState::Stalled {
+            play.deadline_mono = Some(mono_ms + u64::from(deadline_ms));
+        }
         if open {
             tick.driver.push(DriverCommand::Seek { to_ms });
         }

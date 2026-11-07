@@ -104,5 +104,15 @@
   "help.title": "Get Help",
   "help.intro": "Find answers about your account, watching and more.",
   "help.off": "Help is not set up on this server.",
-  "help.policies": "Policies"
+  "help.policies": "Policies",
+  "player.with_subtitles": "{audio} with Subtitles",
+  "player.other": "Other…",
+  "player.audio": "Audio",
+  "player.subtitles": "Subtitles",
+  "player.subtitles_off": "Off",
+  "player.skip_intro": "Skip Intro",
+  "player.skip_recap": "Skip Recap",
+  "player.still": "Are you still watching?",
+  "player.still.yes": "Continue Watching",
+  "player.still.no": "I'm Done"
 }

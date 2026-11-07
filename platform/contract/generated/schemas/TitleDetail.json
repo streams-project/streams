@@ -107,6 +107,15 @@
       ],
       "type": "string"
     },
+    "Rating": {
+      "description": "Rating words on the wire. Screens use the words like, love and dislike.",
+      "enum": [
+        "down",
+        "up",
+        "love"
+      ],
+      "type": "string"
+    },
     "SeasonSummary": {
       "description": "A season named on a title page.",
       "properties": {
@@ -211,6 +220,10 @@
     },
     "overview": {
       "type": "string"
+    },
+    "rating": {
+      "$ref": "#/$defs/Rating",
+      "description": "What this profile said about the title."
     },
     "runtime_min": {
       "maximum": 4294967295,

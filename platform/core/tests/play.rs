@@ -304,3 +304,90 @@ fn c58_a_skip_window_with_nothing_left_to_show_is_dropped() {
     assert_eq!(shown[0]["end_ms"], 19_000);
     assert_eq!(shown[0]["seek_to_ms"], 20_000);
 }
+
+#[test]
+fn a_viewer_who_keeps_seeking_is_not_a_dead_source_but_a_stall_after_it_still_runs_out() {
+    let mut core = playing();
+    // the first seek stalls at 5 s, and with no more seeks the wait would end at 20 s
+    step(&mut core, 5_000, &driver(1, &json!({"kind": "stalled"})));
+    step(
+        &mut core,
+        10_000,
+        &action("a", json!({"action": "seek", "to_ms": 100_000})),
+    );
+    step(
+        &mut core,
+        18_000,
+        &action("b", json!({"action": "seek", "to_ms": 200_000})),
+    );
+    let waiting = step(&mut core, 25_000, &json!([]));
+    assert!(
+        player_ops(&waiting).is_empty(),
+        "the last seek was only 7 s ago"
+    );
+    // 15 s after the last seek the source really is gone
+    let moved = step(&mut core, 33_001, &json!([]));
+    assert_eq!(
+        player_ops(&moved),
+        [json!({"op": "close"}), open(2, 200_000, SECOND)]
+    );
+}
+
+/// Starts this episode, as the address of an episode that follows would, up to its first frame.
+fn episode_plays(core: &mut Core, mono_ms: u64, out: &Value, generation: u32, next: u32) -> Value {
+    let play = effect_id(out, "/v1/play");
+    let answer = json!({
+        "play_id": format!("p{generation}"),
+        "attempts": [attempt("one", FIRST, "g1")],
+        "start_at_ms": 0,
+        "next_episode": {"season": 1, "episode": next},
+        "autoplay_next": true,
+        "dropped": 0,
+        "more": false,
+    });
+    step(
+        core,
+        mono_ms,
+        &json!([{"id": play, "type": "http_done", "status": 200, "body": answer.to_string()}]),
+    );
+    step(
+        core,
+        mono_ms + 1,
+        &driver(generation, &json!({"kind": "first_frame"})),
+    )
+}
+
+#[test]
+fn the_third_episode_in_a_row_with_nobody_there_waits_to_be_asked() {
+    let mut core = watching();
+    let mut out = step(
+        &mut core,
+        6,
+        &action(
+            "a1",
+            json!({"action": "play", "title": "tv:7", "episode": {"season": 1, "episode": 1}}),
+        ),
+    );
+    let mut clock = 10;
+    for episode in 1..=2 {
+        episode_plays(&mut core, clock, &out, episode, episode + 1);
+        out = step(
+            &mut core,
+            clock + 2,
+            &driver(episode, &json!({"kind": "ended"})),
+        );
+        assert_ne!(
+            out["view"]["play"]["still_asking"], true,
+            "episode {episode}"
+        );
+        assert!(
+            http_paths(&out).iter().any(|path| path == "/v1/play"),
+            "episode {episode} moved on by itself: {out}"
+        );
+        clock += 10;
+    }
+    episode_plays(&mut core, clock, &out, 3, 4);
+    let out = step(&mut core, clock + 2, &driver(3, &json!({"kind": "ended"})));
+    assert_eq!(out["view"]["play"]["still_asking"], true, "{out}");
+    assert!(http_paths(&out).is_empty(), "nothing starts: {out}");
+}

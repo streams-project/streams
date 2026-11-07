@@ -16,6 +16,7 @@ import contract.CoreOut
 import contract.DeviceClass
 import contract.DriverEvent
 import contract.DriverEventPosition
+import contract.DriverEventTracks
 import contract.Effect
 import contract.EffectHttp
 import contract.EffectLog
@@ -96,6 +97,7 @@ class Host(
             if (event is DriverEventPosition) {
                 state.update { it.copy(positionMs = event.timeMs, lengthMs = event.durationMs ?: it.lengthMs) }
             }
+            if (event is DriverEventTracks) state.update { it.copy(audio = event.audio, text = event.text) }
             send(listOf(EventDriver(event = event, generation = generation)))
         }
         val kept = secrets.get(SERVER)

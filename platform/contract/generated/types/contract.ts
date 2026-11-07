@@ -1188,6 +1188,8 @@ export interface PlayView {
   /** Absent on the last episode, so no screen offers one that does not exist. */
   next_episode?: EpisodeRef;
   state: PlayState;
+  /** Several episodes started by themselves with nobody touching anything, so the next one waits until the viewer says they are still there. */
+  still_asking?: boolean;
   title: TitleKey;
   windows?: TimeWindow[];
 }
@@ -1501,6 +1503,8 @@ export interface TitleDetail {
   more_like_this?: Tile[];
   name: string;
   overview?: string;
+  /** What this profile said about the title. */
+  rating?: Rating;
   runtime_min?: number;
   seasons?: SeasonSummary[];
   title: TitleKey;
@@ -1518,6 +1522,8 @@ export interface Track {
   id: string;
   label?: string;
   lang?: string;
+  /** True for the track playing now. */
+  selected?: boolean;
 }
 
 /** The wire dates a server answers. Never compared for equality. */

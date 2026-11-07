@@ -489,6 +489,10 @@ wire! {
         /// Absent on the last episode, so no screen offers one that does not exist.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub next_episode: Option<EpisodeRef>,
+        /// Several episodes started by themselves with nobody touching anything, so the next
+        /// one waits until the viewer says they are still there.
+        #[serde(default, skip_serializing_if = "core::ops::Not::not")]
+        pub still_asking: bool,
     }
 
     /// Changed screen state. A part that is absent did not change.

@@ -55,6 +55,9 @@ wire! {
         pub lang: Option<String>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub label: Option<String>,
+        /// True for the track playing now.
+        #[serde(default, skip_serializing_if = "core::ops::Not::not")]
+        pub selected: bool,
     }
 
     /// What the driver reports. No driver decides failover or no picture by itself.

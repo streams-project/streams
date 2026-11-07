@@ -703,10 +703,14 @@ impl Core {
             }
             other => {
                 let mut tick = Tick::default();
+                self.player.viewer_here();
                 match other {
                     Action::Pause => self.player.pause(&mut tick),
                     Action::Unpause => self.player.unpause(now.mono_ms, &mut tick),
-                    Action::Seek { to_ms } => self.player.seek(to_ms, &mut tick),
+                    Action::Seek { to_ms } => {
+                        let deadline = self.config.start_deadline_ms();
+                        self.player.seek(to_ms, now.mono_ms, deadline, &mut tick);
+                    }
                     Action::SelectAudio { track } => self.player.select_audio(track, &mut tick),
                     Action::SelectText { track } => self.player.select_text(track, &mut tick),
                     Action::Stop => self.player.stop(&mut tick),
@@ -768,7 +772,10 @@ impl Core {
                     self.end(now, EndReason::Elsewhere, out);
                 }
             }
-            EventBody::Address { address } => self.open_address(now, address, true, out),
+            EventBody::Address { address } => {
+                self.player.viewer_here();
+                self.open_address(now, address, true, out);
+            }
             EventBody::Action { action } => self.action(now, id, action, out),
             EventBody::Driver { generation, event } => {
                 let deadline = self.config.start_deadline_ms();

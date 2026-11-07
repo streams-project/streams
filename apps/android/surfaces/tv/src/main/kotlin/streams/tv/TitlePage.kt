@@ -79,7 +79,7 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) ->
     var part by remember { mutableStateOf(Part.MENU) }
     var row by remember { mutableIntStateOf(0) }
     var reaction by remember { mutableIntStateOf(1) }
-    var rating by remember { mutableStateOf<Rating?>(null) }
+    var rating by remember(data.title, data.rating) { mutableStateOf(data.rating) }
     var saved by remember(data.title, data.inList) { mutableStateOf(data.inList == true) }
     val scope = rememberCoroutineScope()
 

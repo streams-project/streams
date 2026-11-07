@@ -156,6 +156,26 @@ async fn c34_a_series_needs_an_episode_and_a_film_takes_none() {
 }
 
 #[tokio::test]
+async fn the_answer_names_the_next_episode_and_none_after_the_last() {
+    for (episode, next) in [(1, Some(json!({ "season": 1, "episode": 2 }))), (2, None)] {
+        // The test finder answers one request.
+        let finder = Arc::new(MemoryFinder::answering(found(&[
+            "https://host.example/1.m3u8",
+        ])));
+        let server = harness_play(finder);
+        let token = enter(&server, false).await;
+        let series = format!("tv:{}", special::SHARED_ID);
+        let answer = call(Method::POST, "/v1/play")
+            .token(&token)
+            .json(json!({ "title": series, "episode": { "season": 1, "episode": episode } }))
+            .on(&server.state)
+            .await;
+        assert_eq!(answer.status, StatusCode::OK, "{}", answer.body);
+        assert_eq!(answer.body.get("next_episode").cloned(), next);
+    }
+}
+
+#[tokio::test]
 async fn h17_a_miss_is_a_real_answer_and_a_dead_finder_is_not_a_miss() {
     let finder = Arc::new(MemoryFinder::default());
     let server = harness_play(finder.clone());
