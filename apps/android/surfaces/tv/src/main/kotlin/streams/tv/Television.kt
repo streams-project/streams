@@ -41,7 +41,7 @@ fun Television(shell: Shell) {
                     target == Target.NOT_FOUND -> NotFoundProblem(shell, seen)
                     target == Target.UPGRADE -> UpgradeProblem(seen)
                     target == Target.SCREEN && seen.route?.screen?.value == "search" -> Search(shell, seen, search)
-                    target == Target.SCREEN && seen.route?.screen?.value == "help" -> HelpPage(shell, seen)
+                    target == Target.SCREEN && seen.route?.screen?.value == "help" -> GetHelp(shell, seen)
                     target == Target.SCREEN && seen.route?.screen?.value == "settings" -> Settings(shell, seen)
                     target == Target.HOME || target == Target.KIDS_HOME || target == Target.SCREEN ->
                         BrowseOrProblem(shell, seen)

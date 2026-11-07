@@ -168,5 +168,7 @@
   "title.play_episode": "エピソード{n}を再生",
   "title.season.many": "{n}シーズン",
   "title.season.number": "シーズン{n}",
-  "title.season.one": "{n}シーズン"
+  "title.season.one": "{n}シーズン",
+  "title.resume": "続きから再生",
+  "title.continue_episode": "エピソード{n}の続きを再生"
 }

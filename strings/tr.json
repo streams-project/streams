@@ -168,5 +168,7 @@
   "title.play_episode": "{n}. Bölümü Oynat",
   "title.season.many": "{n} Sezon",
   "title.season.number": "{n}. Sezon",
-  "title.season.one": "{n} Sezon"
+  "title.season.one": "{n} Sezon",
+  "title.resume": "Devam et",
+  "title.continue_episode": "{n}. bölüme devam et"
 }

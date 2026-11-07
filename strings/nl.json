@@ -168,5 +168,7 @@
   "title.play_episode": "Aflevering {n} starten",
   "title.season.many": "{n} seizoenen",
   "title.season.number": "Seizoen {n}",
-  "title.season.one": "{n} seizoen"
+  "title.season.one": "{n} seizoen",
+  "title.resume": "Hervatten",
+  "title.continue_episode": "Aflevering {n} hervatten"
 }

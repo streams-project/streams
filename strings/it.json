@@ -168,5 +168,7 @@
   "title.play_episode": "Riproduci ep. {n}",
   "title.season.many": "{n} stagioni",
   "title.season.number": "Stagione {n}",
-  "title.season.one": "{n} stagione"
+  "title.season.one": "{n} stagione",
+  "title.resume": "Riprendi",
+  "title.continue_episode": "Riprendi episodio {n}"
 }

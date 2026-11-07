@@ -168,5 +168,7 @@
   "title.play_episode": "播放第 {n} 集",
   "title.season.many": "{n} 季",
   "title.season.number": "第 {n} 季",
-  "title.season.one": "{n} 季"
+  "title.season.one": "{n} 季",
+  "title.resume": "继续播放",
+  "title.continue_episode": "继续播放第 {n} 集"
 }

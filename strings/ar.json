@@ -168,5 +168,7 @@
   "title.play_episode": "تشغيل الحلقة {n}",
   "title.season.many": "{n} مواسم",
   "title.season.number": "الموسم {n}",
-  "title.season.one": "موسم {n}"
+  "title.season.one": "موسم {n}",
+  "title.resume": "استئناف",
+  "title.continue_episode": "متابعة الحلقة {n}"
 }

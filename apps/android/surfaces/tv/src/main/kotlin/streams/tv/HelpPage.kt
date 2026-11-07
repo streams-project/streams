@@ -122,7 +122,7 @@ private fun entries(home: HelpHome, topic: Int, policiesWord: String): List<Entr
 
 /** Topics on the left and their articles on the right. The words come from the server. */
 @Composable
-fun HelpPage(shell: Shell, seen: Seen) {
+fun HelpCentre(shell: Shell, seen: Seen, leave: () -> Unit) {
     val words = seen.words
     val home by produceState<HelpHome?>(null, seen.language) {
         value = shell.read("/v1/help${seen.query()}")
@@ -153,12 +153,12 @@ fun HelpPage(shell: Shell, seen: Seen) {
 
     fun press(word: Word): Boolean {
         if (home == null) {
-            if (word == Word.BACK) shell.back()
+            if (word == Word.BACK) leave()
             return true
         }
         when {
             word == Word.BACK && right -> right = false
-            word == Word.BACK -> shell.back()
+            word == Word.BACK -> leave()
             right && word == Word.LEFT -> right = false
             right && word == Word.UP -> if (line > 0) line -= 1
             right && word == Word.DOWN -> if (line < focusable.lastIndex) line += 1
@@ -177,7 +177,7 @@ fun HelpPage(shell: Shell, seen: Seen) {
     }
 
     Box(Modifier.fillMaxSize().background(Color.Black).remote(@DontMemoize { press(it) })) {
-        PageHead(words["help.title"].orEmpty(), words["help.intro"].orEmpty())
+        PageHead(words["help.centre"].orEmpty(), words["help.intro"].orEmpty())
         if (home == null) {
             Text(
                 words["help.off"].orEmpty(),

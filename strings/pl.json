@@ -168,5 +168,7 @@
   "title.play_episode": "Odtwórz odcinek {n}",
   "title.season.many": "Sezony: {n}",
   "title.season.number": "Sezon {n}",
-  "title.season.one": "{n} sezon"
+  "title.season.one": "{n} sezon",
+  "title.resume": "Wznów",
+  "title.continue_episode": "Wznów odcinek {n}"
 }

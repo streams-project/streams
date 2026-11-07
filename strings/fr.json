@@ -168,5 +168,7 @@
   "title.play_episode": "Lire l'épisode {n}",
   "title.season.many": "{n} saisons",
   "title.season.number": "Saison {n}",
-  "title.season.one": "{n} saison"
+  "title.season.one": "{n} saison",
+  "title.resume": "Reprendre",
+  "title.continue_episode": "Reprendre l'épisode {n}"
 }

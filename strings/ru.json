@@ -168,5 +168,7 @@
   "title.play_episode": "Смотреть серию {n}",
   "title.season.many": "Сезонов: {n}",
   "title.season.number": "Сезон {n}",
-  "title.season.one": "{n} сезон"
+  "title.season.one": "{n} сезон",
+  "title.resume": "Продолжить",
+  "title.continue_episode": "Продолжить серию {n}"
 }

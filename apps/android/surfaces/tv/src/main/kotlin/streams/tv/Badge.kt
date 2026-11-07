@@ -15,7 +15,6 @@ import androidx.compose.ui.text.font.FontWeight
 import contract.Badge
 import contract.BadgeKind
 import contract.Tile
-import streams.shared.Accent
 import streams.shared.ref
 import streams.shared.refType
 
@@ -35,7 +34,7 @@ private fun badgeLabel(badge: Badge, words: Map<String, String>): String = when 
 fun TileBadges(tile: Tile, modifier: Modifier = Modifier, words: Map<String, String> = keptWords) {
     val badges = tile.badges.orEmpty()
     if (badges.isEmpty()) return
-    val shape = RoundedCornerShape(6.ref)
+    val shape = RoundedCornerShape(8.ref)
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.ref),
@@ -45,7 +44,7 @@ fun TileBadges(tile: Tile, modifier: Modifier = Modifier, words: Map<String, Str
             val text = badgeLabel(badge, words)
             Box(
                 Modifier
-                    .background(Accent, shape)
+                    .background(Color.Black.copy(alpha = 0.72f), shape)
                     .padding(horizontal = 12.ref, vertical = 4.ref),
                 contentAlignment = Alignment.Center,
             ) {

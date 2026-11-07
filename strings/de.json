@@ -168,5 +168,7 @@
   "title.play_episode": "Folge {n} abspielen",
   "title.season.many": "{n} Staffeln",
   "title.season.number": "Staffel {n}",
-  "title.season.one": "{n} Staffel"
+  "title.season.one": "{n} Staffel",
+  "title.resume": "Fortsetzen",
+  "title.continue_episode": "Folge {n} fortsetzen"
 }
