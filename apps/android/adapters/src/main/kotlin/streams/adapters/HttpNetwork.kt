@@ -1,5 +1,7 @@
 package streams.adapters
 
+import android.content.Context
+import android.net.ConnectivityManager
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
@@ -12,8 +14,16 @@ import streams.ports.NoReply
 import streams.ports.Reply
 
 /** The network port, on the system's own connection. */
-class HttpNetwork : Network {
+class HttpNetwork(private val context: Context) : Network {
     private val pool = Executors.newFixedThreadPool(4)
+
+    override fun watch(changed: (online: Boolean) -> Unit) {
+        val links = context.getSystemService(ConnectivityManager::class.java)
+        links.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: android.net.Network) = changed(true)
+            override fun onLost(network: android.net.Network) = changed(false)
+        })
+    }
 
     override fun send(call: Call, done: (Answer) -> Unit) {
         pool.execute { done(run(call)) }

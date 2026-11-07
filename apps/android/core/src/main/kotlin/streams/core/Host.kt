@@ -5,6 +5,7 @@ import android.os.HandlerThread
 import android.os.SystemClock
 import contract.ABI_VERSION
 import contract.Action
+import contract.ActionPause
 import contract.ActionRequest
 import contract.BodyTarget
 import contract.CoreConfig
@@ -23,15 +24,20 @@ import contract.EffectLog
 import contract.EffectOpen
 import contract.EffectPlayer
 import contract.EffectSecret
+import contract.EffectStore
 import contract.EffectView
 import contract.Event
 import contract.EventAction
+import contract.EventActivity
 import contract.EventAddress
 import contract.EventDriver
 import contract.EventHttpDone
 import contract.EventHttpFailed
+import contract.EventNetwork
 import contract.EventSecretDone
+import contract.EventStoreDone
 import contract.EventUnsupported
+import contract.EventVisibility
 import contract.Form
 import contract.HttpMethod
 import contract.Nav
@@ -39,6 +45,7 @@ import contract.NoAnswerReason
 import contract.Profile
 import contract.Screen
 import contract.SecretOp
+import contract.StoreOp
 import contract.Strings
 import contract.TitleDetail
 import contract.WIRE_VERSION
@@ -57,6 +64,7 @@ import streams.ports.Reply
 import streams.ports.Secrets
 import streams.ports.Seen
 import streams.ports.Shell
+import streams.ports.Store
 
 /**
  * Steps the core and performs what it asks, through the ports. It holds no rules and no screens.
@@ -65,6 +73,7 @@ import streams.ports.Shell
 class Host(
     private val network: Network,
     private val secrets: Secrets,
+    private val store: Store,
     override val player: Player,
     override val reel: Reel,
     private val deviceClass: DeviceClass,
@@ -75,6 +84,7 @@ class Host(
         const val SERVER = "app:server"
         const val DEFAULT_LANGUAGE = "en"
         const val WAKE_CAP_MS = 60_000L
+        const val TOUCH_EVERY_MS = 10_000L
     }
 
     private val thread = HandlerThread("core").apply { start() }
@@ -89,10 +99,12 @@ class Host(
     private val trail = ArrayDeque<String>()
     private var here = "/"
     private val wake = Runnable { send(emptyList()) }
+    private var lastTouch = 0L
 
     override val seen: StateFlow<Seen> = state
 
     init {
+        network.watch { online -> send(listOf(EventNetwork(online = online))) }
         player.listen { generation, event ->
             if (event is DriverEventPosition) {
                 state.update { it.copy(positionMs = event.timeMs, lengthMs = event.durationMs ?: it.lengthMs) }
@@ -142,6 +154,21 @@ class Host(
             here = address
             send(listOf(EventAddress(address = address)))
         }
+    }
+
+    /** The app left the screen or came back. Nobody can see a film off screen, so it pauses. */
+    fun shown(visible: Boolean) {
+        reel.hold(!visible)
+        val pause = if (visible) emptyList() else listOf(EventAction(action = ActionPause))
+        send(pause + EventVisibility(visible = visible))
+    }
+
+    /** A key or a touch. The core only needs to hear this now and then. */
+    fun touched() {
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastTouch < TOUCH_EVERY_MS) return
+        lastTouch = now
+        send(listOf(EventActivity()))
     }
 
     override fun swap(address: String) {
@@ -267,12 +294,30 @@ class Host(
         when (effect) {
             is EffectHttp -> http(effect)
             is EffectSecret -> queue.addLast(secret(effect))
+            is EffectStore -> queue.addLast(kept(effect))
             is EffectPlayer -> player.command(effect.command)
             is EffectView -> effect.notice?.let { notice ->
                 state.update { now -> now.copy(notice = notice.text.ifEmpty { now.words[notice.label] }) }
             }
             is EffectOpen, is EffectLog -> Unit
             else -> queue.addLast(EventUnsupported(id = effect.id))
+        }
+    }
+
+    private fun kept(effect: EffectStore): Event {
+        val key = effect.key.orEmpty()
+        return when (effect.op) {
+            StoreOp.GET -> EventStoreDone(id = effect.id, value = store.get(key))
+            StoreOp.PUT -> {
+                store.put(key, effect.value.orEmpty())
+                EventStoreDone(id = effect.id)
+            }
+            StoreOp.DELETE -> {
+                store.delete(key)
+                EventStoreDone(id = effect.id)
+            }
+            StoreOp.LIST -> EventStoreDone(id = effect.id, keys = store.keys(key))
+            else -> EventUnsupported(id = effect.id)
         }
     }
 
