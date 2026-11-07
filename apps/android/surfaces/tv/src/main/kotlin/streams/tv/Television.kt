@@ -40,6 +40,7 @@ fun Television(shell: Shell) {
                     target == Target.WATCH -> Watch(shell, seen)
                     target == Target.SCREEN && seen.route?.screen?.value == "search" -> Search(shell, seen, search)
                     target == Target.SCREEN && seen.route?.screen?.value == "help" -> HelpPage(shell, seen)
+                    target == Target.SCREEN && seen.route?.screen?.value == "settings" -> Settings(shell, seen)
                     target == Target.HOME || target == Target.KIDS_HOME || target == Target.SCREEN ->
                         Browse(shell, seen)
                     else -> Text("", Modifier.align(Alignment.Center))
