@@ -3,7 +3,9 @@ package streams.tv
 import androidx.compose.foundation.focusable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -31,11 +33,13 @@ private fun wordOf(event: KeyEvent): Word? = when (event.key) {
 @Composable
 fun Modifier.remote(press: (Word) -> Boolean): Modifier {
     val focus = remember { FocusRequester() }
+    // A key always reaches the newest answer, with what the screen holds now.
+    val latest by rememberUpdatedState(press)
     LaunchedEffect(Unit) { focus.requestFocus() }
     return focusRequester(focus)
         .focusable()
         .onPreviewKeyEvent { event ->
             val word = wordOf(event)
-            word != null && event.type == KeyEventType.KeyDown && press(word)
+            word != null && event.type == KeyEventType.KeyDown && latest(word)
         }
 }

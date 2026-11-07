@@ -26,6 +26,9 @@ import streams.shared.R
 import streams.shared.ref
 import streams.shared.refType
 
+/** The place of the search button, to the left of the first tab. */
+const val SEARCH_TAB = -2
+
 /** The tabs that fit the bar. Genres live on their own pages. */
 fun tabsOf(nav: List<NavItem>): List<NavItem> = nav.filter { it.screen.value != "genre" }.take(5)
 
@@ -47,18 +50,35 @@ private fun Tab(item: NavItem, active: Boolean, on: Boolean) {
 /** Who is watching, search, the tabs and the mark, at the top of every signed in page. */
 @Composable
 fun TopBar(tabs: List<NavItem>, active: Int, focus: Int, person: Profile?, server: String) {
+    val searchOn = focus == SEARCH_TAB
+    val searchHere = active == SEARCH_TAB
     Box(Modifier.offset(68.ref, 46.ref)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Face(person, 48, 8, server, Modifier.size(48.ref))
             Icon(painterResource(R.drawable.icon_caret_down), null, Modifier.size(22.ref), tint = Color.White)
         }
     }
-    Icon(
-        painterResource(R.drawable.icon_search),
-        null,
-        Modifier.offset(554.ref, 50.ref).size(34.ref),
-        tint = Color.White,
-    )
+    Box(
+        Modifier
+            .offset(539.ref, 35.ref)
+            .size(64.ref)
+            .background(
+                when {
+                    searchOn -> Color.White
+                    searchHere -> Color.White.copy(alpha = 0.16f)
+                    else -> Color.Transparent
+                },
+                CircleShape,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            painterResource(R.drawable.icon_search),
+            null,
+            Modifier.size(34.ref),
+            tint = if (searchOn) Back else Color.White,
+        )
+    }
     Row(Modifier.offset(609.ref, 36.ref)) {
         tabs.forEachIndexed { index, item ->
             Tab(item, index == active, index == focus)

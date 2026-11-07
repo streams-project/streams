@@ -69,11 +69,13 @@ private class PageFocus(var rows: List<Section>, var tabs: Int, active: Int, var
             }
             Word.LEFT -> when {
                 where == Where.TOP && tab > 0 -> tab -= 1
+                where == Where.TOP && tab == 0 -> tab = SEARCH_TAB
                 where == Where.HERO -> button = 0
                 where == Where.ROW && column > 0 -> columns[row] = column - 1
                 else -> return false
             }
             Word.RIGHT -> when {
+                where == Where.TOP && tab == SEARCH_TAB -> tab = 0
                 where == Where.TOP && tab < tabs - 1 -> tab += 1
                 where == Where.HERO -> button = 1
                 where == Where.ROW && column < lastColumn() -> columns[row] = column + 1
@@ -119,6 +121,7 @@ fun Browse(shell: Shell, seen: Seen) {
 
     fun choose() {
         when {
+            focus.where == Where.TOP && focus.tab == SEARCH_TAB -> shell.go("/search")
             focus.where == Where.TOP -> tabs.getOrNull(focus.tab)?.let { shell.go(tabAddress(it.screen.value)) }
             focus.where == Where.ROW -> rows.getOrNull(focus.row)?.tiles?.getOrNull(focus.column)?.let {
                 shell.go(titleAddress(it.title))
@@ -131,11 +134,18 @@ fun Browse(shell: Shell, seen: Seen) {
 
     Box(
         Modifier.fillMaxSize().remote { word ->
-            if (word == Word.OK) {
-                choose()
-                true
-            } else {
-                focus.press(word)
+            when {
+                word == Word.OK -> {
+                    choose()
+                    true
+                }
+                focus.press(word) -> true
+                // Back from the top of any page but Home goes Home. From Home it leaves the app.
+                word == Word.BACK && current != "home" -> {
+                    shell.go("/home")
+                    true
+                }
+                else -> false
             }
         },
     ) {

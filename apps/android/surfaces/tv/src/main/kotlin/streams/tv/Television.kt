@@ -8,6 +8,7 @@ import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +24,7 @@ import streams.shared.BrandFont
 @Composable
 fun Television(shell: Shell) {
     val seen by shell.seen.collectAsStateWithLifecycle()
+    val search = remember { SearchState() }
     Brand {
         ProvideTextStyle(TextStyle(fontFamily = BrandFont)) {
             Box(Modifier.fillMaxSize().background(Color.Black)) {
@@ -35,6 +37,7 @@ fun Television(shell: Shell) {
                     target == Target.PROFILES -> Profiles(shell, seen)
                     target == Target.TITLE -> TitlePage(shell, seen)
                     target == Target.WATCH -> Watch(shell, seen, true)
+                    target == Target.SCREEN && seen.route?.screen?.value == "search" -> Search(shell, seen, search)
                     target == Target.HOME || target == Target.KIDS_HOME || target == Target.SCREEN ->
                         Browse(shell, seen)
                     else -> Text("", Modifier.align(Alignment.Center))

@@ -65,5 +65,6 @@
   "title.episodes.count": "{n} episodes",
   "nav.mine": "My {brand}",
   "row.liked": "Series & Films You've Liked",
-  "mine.empty": "Titles you save, like or start will show up here."
+  "mine.empty": "Titles you save, like or start will show up here.",
+  "search.recommended": "Your Search Recommendations"
 }
