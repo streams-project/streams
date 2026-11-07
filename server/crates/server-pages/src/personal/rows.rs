@@ -393,13 +393,7 @@ impl<'a> PageContext<'a> {
             ) {
                 rows.push(r);
             }
-            if let Some(r) = self.list_row(
-                1,
-                &own_lists.saved,
-                "list",
-                "row.my_list",
-                "saved",
-            ) {
+            if let Some(r) = self.list_row(1, &own_lists.saved, "list", "row.my_list", "saved") {
                 rows.push(r);
             }
         }

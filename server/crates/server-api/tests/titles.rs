@@ -247,7 +247,11 @@ async fn a_series_names_its_seasons_and_a_season_lists_its_episodes() {
         .on(&server.state)
         .await;
     let seasons = series.body["seasons"].as_array().unwrap();
-    assert_eq!(seasons.len(), 1, "specials are not on the menu: {seasons:?}");
+    assert_eq!(
+        seasons.len(),
+        1,
+        "specials are not on the menu: {seasons:?}"
+    );
     assert_eq!(seasons[0]["number"], 1);
     assert_eq!(seasons[0]["episode_count"], 2);
 

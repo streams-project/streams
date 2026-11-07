@@ -29,9 +29,11 @@ impl Words {
     /// The text of a key, if the strings file has it.
     #[must_use]
     pub fn known(&self, key: &str) -> Option<String> {
-        ENGLISH
-            .get(key)
-            .map(|text| text.replace(PLACEHOLDER_BRAND, &self.brand).trim().to_owned())
+        ENGLISH.get(key).map(|text| {
+            text.replace(PLACEHOLDER_BRAND, &self.brand)
+                .trim()
+                .to_owned()
+        })
     }
 
     /// The text of a key, or the key itself, which a test then shows as a missing word.

@@ -664,9 +664,27 @@ impl Pages {
     fn mine_screen(&self, data: &DataSet, viewer: &Viewer, ask: &ScreenAsk) -> SafeScreen {
         let signals = &ask.personal.signals;
         let parts = [
-            ("continue", "row.continue_watching", SectionKind::Continue, "continue", &signals.recent),
-            ("my-list", "row.my_list", SectionKind::Row, "list", &signals.saved),
-            ("liked", "row.liked", SectionKind::Row, "liked", &signals.liked),
+            (
+                "continue",
+                "row.continue_watching",
+                SectionKind::Continue,
+                "continue",
+                &signals.recent,
+            ),
+            (
+                "my-list",
+                "row.my_list",
+                SectionKind::Row,
+                "list",
+                &signals.saved,
+            ),
+            (
+                "liked",
+                "row.liked",
+                SectionKind::Row,
+                "liked",
+                &signals.liked,
+            ),
         ];
         let sections = parts
             .into_iter()

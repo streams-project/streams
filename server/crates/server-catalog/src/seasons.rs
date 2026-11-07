@@ -56,7 +56,11 @@ pub fn seasons_of(db: &Path, series: u32) -> Vec<SeasonFact> {
 
 /// One season's name and episodes, or none when the set does not have it.
 #[must_use]
-pub fn episodes_of(db: &Path, series: u32, season: u32) -> Option<(Option<String>, Vec<EpisodeFact>)> {
+pub fn episodes_of(
+    db: &Path,
+    series: u32,
+    season: u32,
+) -> Option<(Option<String>, Vec<EpisodeFact>)> {
     let conn = open(db)?;
     let name = conn
         .query_row(

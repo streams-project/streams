@@ -7,6 +7,7 @@ use std::fmt::Write as _;
 use std::fs::{self, File};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
+use std::sync::OnceLock;
 use std::time::{Duration, Instant};
 
 use kit_core::host::{Mode, run};
@@ -66,21 +67,27 @@ fn differ(name: &str, wanted: &str, have: &str) -> Option<String> {
 /// template takes that folder from `TARGET_DIR`, so the library it links is the one this build
 /// just wrote and no fixed `target` name is assumed.
 fn terminal() -> PathBuf {
-    let target = target_root();
-    let built = Command::new("make")
-        .arg("-C")
-        .arg(root().join("templates/terminal"))
-        .arg(format!("TARGET_DIR={}", target.display()))
-        .env("CARGO", cargo())
-        .output()
-        .expect("make runs");
-    assert!(
-        built.status.success(),
-        "{}\n{}",
-        String::from_utf8_lossy(&built.stdout),
-        String::from_utf8_lossy(&built.stderr)
-    );
-    target.join("terminal/terminal")
+    // Tests run side by side and all want this one file, so it is built once.
+    static BUILT: OnceLock<PathBuf> = OnceLock::new();
+    BUILT
+        .get_or_init(|| {
+            let target = target_root();
+            let built = Command::new("make")
+                .arg("-C")
+                .arg(root().join("templates/terminal"))
+                .arg(format!("TARGET_DIR={}", target.display()))
+                .env("CARGO", cargo())
+                .output()
+                .expect("make runs");
+            assert!(
+                built.status.success(),
+                "{}\n{}",
+                String::from_utf8_lossy(&built.stdout),
+                String::from_utf8_lossy(&built.stderr)
+            );
+            target.join("terminal/terminal")
+        })
+        .clone()
 }
 
 #[test]

@@ -662,7 +662,11 @@ async fn a_profile_keeps_a_language_the_server_has_and_refuses_one_it_does_not()
         .iter()
         .map(|language| language["name"].as_str().unwrap())
         .collect();
-    assert_eq!(names, ["Deutsch", "English"], "a file with no name is no language");
+    assert_eq!(
+        names,
+        ["Deutsch", "English"],
+        "a file with no name is no language"
+    );
 
     let rows = get("/v1/profiles")
         .token(&signed.access_token)
@@ -708,7 +712,10 @@ async fn a_kids_profile_is_offered_only_the_kids_pictures() {
         .on(&server.state)
         .await;
     let pictures = |row: usize| {
-        let id = rows.body["profiles"][row]["id"].as_str().unwrap().to_owned();
+        let id = rows.body["profiles"][row]["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
         get(&format!("/v1/profiles/{id}/avatars")).token(&signed.access_token)
     };
     let main = pictures(0).on(&server.state).await;

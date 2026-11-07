@@ -1,18 +1,24 @@
-// The one place that plugs adapters into ports, and the app people install.
+// The one place that plugs adapters into ports, and the app people install. Its name and id come
+// from brand.json, so a copy under another name is its own app.
+import groovy.json.JsonSlurper
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val brand = JsonSlurper().parse(rootDir.resolve("../../brand.json")) as Map<*, *>
+
 android {
     namespace = "streams.app"
     compileSdk = 37
     defaultConfig {
-        applicationId = "streams.app"
+        applicationId = "${brand["command"]}.app"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
+        resValue("string", "app_name", brand["name"].toString())
     }
     buildTypes {
         release {

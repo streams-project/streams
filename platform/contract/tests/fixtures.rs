@@ -5,12 +5,12 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use contract::account::{
-    Account, AccountExport, AccountUpdate, AvatarSets, CodeSend, CodeSent, CodeSignIn, Confirm, Confirmed,
-    Consent, DeviceCardAnswer, DeviceCardRequest, DeviceCode, DeviceCodeRequest, DeviceDecision,
-    DeviceList, DeviceTokenAnswer, DeviceTokenRequest, Done, EmailChange, PasswordChange,
-    PasswordSignIn, PhoneChange, PinSet, Profile, ProfileCreate, ProfileEnter, ProfileEntered,
-    ProfileLimits, ProfileList, ProfileSettings, ProfileTransfer, ProfileUpdate, RecoveryFinish,
-    RecoveryStart, RefreshRequest, SignOut, SignUp, SignedIn,
+    Account, AccountExport, AccountUpdate, AvatarSets, CodeSend, CodeSent, CodeSignIn, Confirm,
+    Confirmed, Consent, DeviceCardAnswer, DeviceCardRequest, DeviceCode, DeviceCodeRequest,
+    DeviceDecision, DeviceList, DeviceTokenAnswer, DeviceTokenRequest, Done, EmailChange,
+    PasswordChange, PasswordSignIn, PhoneChange, PinSet, Profile, ProfileCreate, ProfileEnter,
+    ProfileEntered, ProfileLimits, ProfileList, ProfileSettings, ProfileTransfer, ProfileUpdate,
+    RecoveryFinish, RecoveryStart, RefreshRequest, SignOut, SignUp, SignedIn,
 };
 use contract::api::ROUTES;
 use contract::client::CapabilityCard;

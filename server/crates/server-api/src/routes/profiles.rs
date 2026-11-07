@@ -9,8 +9,8 @@ use contract::account::{
 };
 use contract::command::SettingKey;
 use contract::screen::ScreenName;
-use server_rules::{Tier, Viewer};
 use server_accounts::{Door, Profile, ProfileId, ProfileKind, ProfileLimitsRow, ProfilePatch};
+use server_rules::{Tier, Viewer};
 
 use crate::answer::{Body, Keep, send, send_cleared};
 use crate::caller::Caller;
@@ -55,7 +55,8 @@ async fn keep_language(state: &Shared, profile: ProfileId, code: &str) -> ApiRes
     let mut tx = library.store().begin(profile).await?;
     let seq = tx.next_seq().await?;
     let at = state.clock.now_ms();
-    tx.put_setting(SettingKey::UiLanguage, code, at, seq).await?;
+    tx.put_setting(SettingKey::UiLanguage, code, at, seq)
+        .await?;
     tx.commit().await?;
     Ok(())
 }
@@ -153,10 +154,10 @@ pub async fn update(
     Body(asked): Body<ProfileUpdate>,
 ) -> ApiResult<Response> {
     let profile = ProfileId::parse(&id)?;
-    if let Some(code) = &asked.language {
-        if !has_language(&state, code) {
-            return Err(ApiError::refused("language_refused"));
-        }
+    if let Some(code) = &asked.language
+        && !has_language(&state, code)
+    {
+        return Err(ApiError::refused("language_refused"));
     }
     let patch = ProfilePatch {
         name: asked.name,

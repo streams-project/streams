@@ -644,14 +644,25 @@ async fn the_viewers_own_page_is_named_by_the_brand_and_holds_my_list_as_a_row()
         .map(|item| item["label"].as_str().unwrap())
         .collect();
     assert!(labels.contains(&"My Sample"), "{labels:?}");
-    assert!(!labels.contains(&"My List"), "My List is a row, not a tab: {labels:?}");
+    assert!(
+        !labels.contains(&"My List"),
+        "My List is a row, not a tab: {labels:?}"
+    );
 
-    let empty = get("/v1/screens/mine").token(&token).on(&server.state).await;
+    let empty = get("/v1/screens/mine")
+        .token(&token)
+        .on(&server.state)
+        .await;
     assert_eq!(empty.status, axum::http::StatusCode::OK, "{}", empty.body);
     assert!(empty.body["sections"].as_array().unwrap().is_empty());
 
     add_to_list(&server, &token, "movie:100").await;
-    let mine = screen(get("/v1/screens/mine").token(&token).on(&server.state).await);
+    let mine = screen(
+        get("/v1/screens/mine")
+            .token(&token)
+            .on(&server.state)
+            .await,
+    );
     assert!(
         mine.sections
             .iter()

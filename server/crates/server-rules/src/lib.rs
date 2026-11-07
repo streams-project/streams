@@ -2,8 +2,8 @@
 //! through [`Viewer`], and a response can only be built from a [`Visible`] title, so a row, hero,
 //! event header or play answer cannot carry an unfiltered title.
 
-#[allow(clippy::disallowed_types)]
 pub mod age;
+#[allow(clippy::disallowed_types)]
 pub mod answer;
 mod block;
 mod eligibility;
