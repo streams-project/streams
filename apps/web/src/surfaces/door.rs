@@ -1,6 +1,7 @@
 //! The way in: the landing page, sign in, joining, and who is watching.
 
 use contract::account::Profile;
+use contract::address;
 use contract::core_msg::{Action, HttpMethod};
 use contract::error::ErrorBody;
 use leptos::prelude::*;
@@ -14,7 +15,7 @@ use crate::state::Shared;
 pub fn Logo() -> impl IntoView {
     let shared = expect_context::<Shared>();
     view! {
-        <a class="logo" href="/home">
+        <a class="logo" href=address::HOME>
             <img src="/lockup.svg" alt=move || brand_name(shared)/>
         </a>
     }
@@ -35,7 +36,7 @@ pub fn Landing() -> impl IntoView {
         <div class="door">
             <header class="door-top">
                 <Logo/>
-                <button class="glass" on:click=move |_| host::go("/sign-in")>"Sign in"</button>
+                <button class="glass" on:click=move |_| host::go(address::SIGN_IN)>"Sign in"</button>
             </header>
             <main class="door-card">
                 {move || if joining.get() {
@@ -47,7 +48,7 @@ pub fn Landing() -> impl IntoView {
                         <div class="row-of-buttons">
                             <button class="join" on:click=move |_| joining.set(true)>"Get started"</button>
                             {move || open().then(|| view! {
-                                <button class="glass" on:click=move |_| host::go("/home")>"Browse"</button>
+                                <button class="glass" on:click=move |_| host::go(address::HOME)>"Browse"</button>
                             })}
                         </div>
                     }.into_any()

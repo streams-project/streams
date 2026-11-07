@@ -47,6 +47,14 @@ pub fn write(items: &[Item]) -> String {
     let mut out = String::from("// Generated from the contract. Do not edit.\n\n");
     let _ = writeln!(out, "export const WIRE_VERSION = \"{WIRE_VERSION}\";");
     let _ = writeln!(out, "export const ABI_VERSION = {ABI_VERSION};");
+    let _ = writeln!(
+        out,
+        "/** Every address the apps open. */\nexport const ADDRESS = {{"
+    );
+    for (name, value) in contract::address::ALL {
+        let _ = writeln!(out, "  {name}: \"{value}\",");
+    }
+    let _ = writeln!(out, "}} as const;\n");
     for item in items {
         out.push('\n');
         comment(&mut out, "", item.doc.as_ref());

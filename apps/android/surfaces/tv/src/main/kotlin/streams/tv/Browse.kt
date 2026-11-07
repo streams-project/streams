@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import contract.Address
 import contract.Section
 import contract.SectionKind
 import contract.Tile
@@ -95,23 +96,24 @@ private class PageFocus(var rows: List<Section>, var tabs: Int, active: Int, var
     }
 }
 
-fun titleAddress(key: TitleKey) = "/title/" + key.value.replace(':', '/')
+fun titleAddress(key: TitleKey) = Address.TITLE + key.value.replace(':', '-')
 
-private fun watchAddress(key: TitleKey) = "/watch/" + key.value.replace(':', '/')
+private fun watchAddress(key: TitleKey) = Address.WATCH + key.value.replace(':', '/')
 
 private fun Tile.isSeries() = title.value.startsWith("tv:")
 
-private fun tabAddress(screen: String) = if (screen == "home") "/home" else "/$screen"
+private fun tabAddress(screen: String) = Address.of(screen)
 
 /** A page of rows. The parts draw, and this file only knows where the focus is. */
 @Composable
 fun Browse(shell: Shell, seen: Seen) {
     val data = seen.screen ?: return
-    val sections = data.sections.filter { !it.tiles.isNullOrEmpty() }
+    val current = seen.route?.screen?.value ?: "home"
+    // Games has no rows yet, and the kept page behind it belongs to the tab before.
+    val sections = if (current == "games") emptyList() else data.sections.filter { !it.tiles.isNullOrEmpty() }
     val rows = sections.filter { it.kind in RowKinds }
     val lead = sections.firstOrNull { it.kind == SectionKind.HERO }?.tiles?.first()
     val tabs = tabsOf(seen.nav)
-    val current = seen.route?.screen?.value ?: "home"
     val active = tabs.indexOfFirst { it.screen.value == current }.coerceAtLeast(0)
     val person = seen.profiles.firstOrNull { it.id == seen.active } ?: seen.profiles.firstOrNull()
     // A page is drawn from what was kept and then from the fresh answer. The focus belongs to the page.
@@ -126,7 +128,7 @@ fun Browse(shell: Shell, seen: Seen) {
     fun choose() {
         when {
             focus.where == Where.TOP && focus.tab == WHO_TAB -> menu = true
-            focus.where == Where.TOP && focus.tab == SEARCH_TAB -> shell.go("/search")
+            focus.where == Where.TOP && focus.tab == SEARCH_TAB -> shell.go(Address.SEARCH)
             focus.where == Where.TOP -> tabs.getOrNull(focus.tab)?.let { shell.go(tabAddress(it.screen.value)) }
             focus.where == Where.ROW -> rows.getOrNull(focus.row)?.tiles?.getOrNull(focus.column)?.let {
                 shell.go(titleAddress(it.title))
@@ -145,7 +147,7 @@ fun Browse(shell: Shell, seen: Seen) {
         focus.press(word) -> true
         // Back from the top of any page but Home goes Home. From Home it leaves the app.
         word == Word.BACK && current != "home" -> {
-            shell.go("/home")
+            shell.go(Address.HOME)
             true
         }
         else -> false
@@ -174,7 +176,7 @@ fun Browse(shell: Shell, seen: Seen) {
             HeroCard(shell, seen, store, lead, if (focus.where == Where.HERO) focus.button else -1)
         } else if (rows.isEmpty()) {
             Text(
-                seen.words["mine.empty"].orEmpty(),
+                seen.words[if (current == "games") "games.soon" else "mine.empty"].orEmpty(),
                 Modifier.align(Alignment.Center),
                 fontSize = 32.refType,
                 color = Muted,

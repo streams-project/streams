@@ -15,6 +15,52 @@ import kotlinx.serialization.modules.polymorphic
 const val WIRE_VERSION = "2026-11-05"
 const val ABI_VERSION = 1
 
+/** Every address the apps open. */
+object Address {
+    const val START = "/"
+    const val HOME = "/browse"
+    const val KIDS = "/kids"
+    const val SERIES = "/browse/genre/83"
+    const val FILMS = "/browse/genre/34399"
+    const val NEW = "/latest"
+    const val GAMES = "/games"
+    const val MY_LIST = "/browse/my-list"
+    const val MINE = "/mine"
+    const val LANGUAGE = "/browse/original-audio"
+    const val SEARCH = "/search"
+    const val NOTIFICATIONS = "/notifications"
+    const val ACTIVITY = "/settings/viewed"
+    const val CLIPS = "/clips"
+    const val HELP = "/help"
+    const val SETTINGS = "/settings"
+    const val PROFILES = "/profiles"
+    const val SIGN_IN = "/login"
+    const val ACTIVATE = "/activate"
+    const val GENRE = "/browse/genre/"
+    const val TITLE = "/title/"
+    const val WATCH = "/watch/"
+
+    /** Where a tab lives, by the screen's word. */
+    fun of(screen: String): String = when (screen) {
+        "home" -> "/browse"
+        "kids" -> "/kids"
+        "series" -> "/browse/genre/83"
+        "films" -> "/browse/genre/34399"
+        "new" -> "/latest"
+        "games" -> "/games"
+        "my-list" -> "/browse/my-list"
+        "mine" -> "/mine"
+        "language" -> "/browse/original-audio"
+        "search" -> "/search"
+        "notifications" -> "/notifications"
+        "activity" -> "/settings/viewed"
+        "clips" -> "/clips"
+        "help" -> "/help"
+        "settings" -> "/settings"
+        else -> HOME
+    }
+}
+
 /** Ignores unknown fields and reads an unknown tag as the Unknown variant. */
 val contractJson = Json {
     ignoreUnknownKeys = true

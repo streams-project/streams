@@ -33,7 +33,7 @@
    "at_ms": 790000,
    "events": [
     {
-     "address": "/my-list",
+     "address": "/browse/my-list",
      "type": "address"
     }
    ],

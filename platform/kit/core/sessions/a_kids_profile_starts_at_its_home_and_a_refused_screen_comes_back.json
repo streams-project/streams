@@ -56,7 +56,7 @@
    "at_ms": 1000,
    "events": [
     {
-     "address": "/films",
+     "address": "/browse/genre/34399",
      "type": "address"
     }
    ],

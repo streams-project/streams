@@ -128,7 +128,7 @@ mod tests {
     #[tokio::test]
     async fn any_other_address_gets_the_page_so_a_deep_link_opens() {
         let dir = folder();
-        for path in ["/", "/home", "/title/movie/7", "/watch/tv/1/2/3"] {
+        for path in ["/", "/browse", "/title/movie-7", "/watch/tv/1/2/3"] {
             let (status, body, _) = read(app(&dir), path).await;
             assert_eq!(
                 (status, body.as_str()),

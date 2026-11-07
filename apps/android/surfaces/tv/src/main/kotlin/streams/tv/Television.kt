@@ -38,10 +38,13 @@ fun Television(shell: Shell) {
                     target == Target.PROFILES -> Profiles(shell, seen)
                     target == Target.TITLE -> TitlePage(shell, seen)
                     target == Target.WATCH -> Watch(shell, seen)
+                    target == Target.NOT_FOUND -> NotFoundProblem(shell, seen)
+                    target == Target.UPGRADE -> UpgradeProblem(seen)
                     target == Target.SCREEN && seen.route?.screen?.value == "search" -> Search(shell, seen, search)
-                    target == Target.SCREEN && seen.route?.screen?.value == "help" -> HelpPage(shell, seen)
+                    target == Target.SCREEN && seen.route?.screen?.value == "help" -> GetHelp(shell, seen)
+                    target == Target.SCREEN && seen.route?.screen?.value == "settings" -> Settings(shell, seen)
                     target == Target.HOME || target == Target.KIDS_HOME || target == Target.SCREEN ->
-                        Browse(shell, seen)
+                        BrowseOrProblem(shell, seen)
                     else -> Text("", Modifier.align(Alignment.Center))
                 }
                 if (target == Target.TITLE) BackHandler { shell.back() }

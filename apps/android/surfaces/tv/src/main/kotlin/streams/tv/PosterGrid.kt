@@ -7,10 +7,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -57,6 +59,7 @@ fun PosterGrid(tiles: List<Tile>, focus: Int, left: Int, top: Int) {
                         .background(Raised),
                 ) {
                     Art(tall(tile.images), Modifier.fillMaxSize())
+                    TileBadges(tile, Modifier.align(Alignment.BottomStart).padding(12.ref))
                     if (index == focus) Box(Modifier.fillMaxSize().border(4.ref, Color.White, shape))
                 }
             }

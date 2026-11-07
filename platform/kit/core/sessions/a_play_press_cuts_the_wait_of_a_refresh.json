@@ -1,5 +1,5 @@
 {
- "about": "A refresh that got no answer waits 300 s, and a play press cuts that wait.",
+ "about": "A refresh that got no answer waits 5 s at first, and a play press cuts that wait.",
  "covers": [
   "C5",
   "C88"
@@ -15,11 +15,11 @@
     "sent": [
      "POST /v1/auth/refresh"
     ],
-    "wake": 1080100
+    "wake": 785100
    }
   },
   {
-   "at_ms": 790000,
+   "at_ms": 782000,
    "events": [
     {
      "action": {

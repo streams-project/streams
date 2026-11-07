@@ -38,17 +38,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import contract.Address
 import contract.Image
 import contract.ImageRole
 import contract.Section
 import contract.SectionKind
 import contract.Tile
 import contract.TitleKey
+import streams.ports.Seen
+import streams.ports.Shell
 import streams.shared.Back
 import streams.shared.Muted
 import streams.shared.Raised
-import streams.ports.Seen
-import streams.ports.Shell
 
 fun Modifier.focusRing(changed: (Boolean) -> Unit): Modifier = onFocusChanged { changed(it.isFocused) }
 
@@ -58,7 +59,7 @@ fun picture(images: List<Image>?): String? {
         .firstNotNullOfOrNull { role -> list.firstOrNull { it.role == role } }?.url
 }
 
-fun titleAddress(key: TitleKey): String = "/title/" + key.value.replace(':', '/')
+fun titleAddress(key: TitleKey): String = Address.TITLE + key.value.replace(':', '-')
 
 @Composable
 fun Browse(shell: Shell, seen: Seen, tv: Boolean) {

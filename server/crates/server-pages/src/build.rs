@@ -1028,8 +1028,11 @@ impl Pages {
             named_item(&self.words, "series", ScreenName::Series),
             named_item(&self.words, "films", ScreenName::Films),
             named_item(&self.words, "new", ScreenName::New),
-            named_item(&self.words, "mine", ScreenName::Mine),
         ]);
+        if !kids {
+            items.push(named_item(&self.words, "games", ScreenName::Games));
+        }
+        items.push(named_item(&self.words, "mine", ScreenName::Mine));
         let composed = self.facts(data).requests.version >= 2;
         for page in crate::genre_pages::PAGES
             .iter()

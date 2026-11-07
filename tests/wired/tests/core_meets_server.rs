@@ -348,7 +348,7 @@ async fn a_visitor_opens_the_app_sees_home_and_a_title_starts_playing() {
 
     // The app opens, then the device asks for the address it was launched at.
     host.step(Vec::new()).await;
-    host.step(vec![json!({"type": "address", "address": "/home"})])
+    host.step(vec![json!({"type": "address", "address": "/browse"})])
         .await;
     assert!(
         host.sent.iter().any(|line| line.ends_with("/v1/hello")),
@@ -453,7 +453,7 @@ async fn a_visitor_opens_the_app_sees_home_and_a_title_starts_playing() {
         }}}),
     ])
     .await;
-    host.step(vec![json!({"type": "address", "address": "/home"})])
+    host.step(vec![json!({"type": "address", "address": "/browse"})])
         .await;
     let sections = host.pages.last().expect("home again")["sections"].clone();
     let sections = sections.as_array().expect("sections");
@@ -531,7 +531,7 @@ async fn a_tv_shows_a_code_a_phone_denies_then_approves_and_the_core_reaches_the
     }});
     tv.step(Vec::new()).await;
     tv.step(vec![
-        json!({"type": "address", "address": "/sign-in"}),
+        json!({"type": "address", "address": "/login"}),
         press.clone(),
     ])
     .await;

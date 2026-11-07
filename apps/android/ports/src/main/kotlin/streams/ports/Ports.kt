@@ -30,6 +30,9 @@ data class NoReply(val reason: String) : Answer
 
 interface Network {
     fun send(call: Call, done: (Answer) -> Unit)
+
+    /** Says when the device gains or loses its connection. */
+    fun watch(changed: (online: Boolean) -> Unit)
 }
 
 /** What the core keeps between runs. */
@@ -39,12 +42,23 @@ interface Secrets {
     fun drop(name: String)
 }
 
+/** What the core's offline layer keeps between runs: waiting commands and kept pages. */
+interface Store {
+    fun get(key: String): String?
+    fun put(key: String, value: String)
+    fun delete(key: String)
+    fun keys(prefix: String): List<String>
+}
+
 /** Plays films, reports facts, and decides nothing. */
 interface Player {
     fun command(given: DriverCommand)
     fun listen(report: (generation: Long, event: DriverEvent) -> Unit)
     /** The picture, as an object only the surface's own toolkit understands. */
     fun picture(context: Any): Any
+
+    /** Where the picture is now, read fresh for drawing subtitles. */
+    fun now(): Long
 
     /** Raises subtitles by this share of the picture's height, to clear the controls. */
     fun lift(share: Float)
@@ -59,6 +73,8 @@ interface Reel {
     fun picture(context: Any, url: String, loop: Boolean, ended: () -> Unit): Any
     /** Hands back the decoder, because a television has few and the title player needs one. */
     fun release(picture: Any)
+    /** Holds every film still while the app is off screen, and lets them go on after. */
+    fun hold(still: Boolean)
 }
 
 /** All a surface knows. It reads state and hands back what the viewer asked for. */

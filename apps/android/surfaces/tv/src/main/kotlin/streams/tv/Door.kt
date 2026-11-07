@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.viewinterop.AndroidView
+import contract.Address
 import kotlinx.coroutines.delay
 import streams.ports.Seen
 import streams.ports.Shell
@@ -128,8 +129,8 @@ private fun Landing(shell: Shell, seen: Seen) {
             Word.UP -> if (at.ordinal >= Stop.HELP.ordinal) at = Stop.TAB
             Word.DOWN -> if (at.ordinal < Stop.HELP.ordinal) at = Stop.SIGN_IN
             Word.OK -> when (at) {
-                Stop.SIGN_IN, Stop.JOIN -> shell.go("/sign-in")
-                Stop.HELP -> shell.go("/help")
+                Stop.SIGN_IN, Stop.JOIN -> shell.go(Address.SIGN_IN)
+                Stop.HELP -> shell.go(Address.HELP)
                 else -> Unit
             }
             Word.BACK -> return false

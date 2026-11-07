@@ -2,6 +2,32 @@
 
 export const WIRE_VERSION = "2026-11-05";
 export const ABI_VERSION = 1;
+/** Every address the apps open. */
+export const ADDRESS = {
+  START: "/",
+  HOME: "/browse",
+  KIDS: "/kids",
+  SERIES: "/browse/genre/83",
+  FILMS: "/browse/genre/34399",
+  NEW: "/latest",
+  GAMES: "/games",
+  MY_LIST: "/browse/my-list",
+  MINE: "/mine",
+  LANGUAGE: "/browse/original-audio",
+  SEARCH: "/search",
+  NOTIFICATIONS: "/notifications",
+  ACTIVITY: "/settings/viewed",
+  CLIPS: "/clips",
+  HELP: "/help",
+  SETTINGS: "/settings",
+  PROFILES: "/profiles",
+  SIGN_IN: "/login",
+  ACTIVATE: "/activate",
+  GENRE: "/browse/genre/",
+  TITLE: "/title/",
+  WATCH: "/watch/",
+} as const;
+
 
 export interface Account {
   email: string;

@@ -1,5 +1,6 @@
 package streams.surfaces
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.background
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,19 +25,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import contract.Address
 import contract.Season
 import contract.TitleDetail
 import contract.contractJson
-import streams.shared.Back
-import streams.shared.Muted
 import streams.ports.Seen
 import streams.ports.Shell
+import streams.shared.Back
+import streams.shared.Muted
 
 /** A series always plays an episode, so Play starts the first one of the first season. */
 private fun play(shell: Shell, data: TitleDetail) {
     val (kind, id) = data.title.value.split(":")
     if (kind != "tv") {
-        shell.go("/watch/$kind/$id")
+        shell.go("${Address.WATCH}$kind/$id")
         return
     }
     val number = data.seasons?.firstOrNull()?.number ?: 1
@@ -47,7 +48,7 @@ private fun play(shell: Shell, data: TitleDetail) {
         } else {
             1
         }
-        shell.go("/watch/$kind/$id/$number/$first")
+        shell.go("${Address.WATCH}$kind/$id/$number/$first")
     }
 }
 

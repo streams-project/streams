@@ -99,6 +99,13 @@ impl Images {
         [
             self.image(ImageRole::Poster, item.poster_path.as_deref()),
             self.image(ImageRole::Backdrop, item.backdrop_path.as_deref()),
+            // Drawings are left out: a client shows a picture, and the name stands in for it.
+            self.image(
+                ImageRole::Logo,
+                item.logo_path
+                    .as_deref()
+                    .filter(|path| !path.ends_with(".svg")),
+            ),
         ]
         .into_iter()
         .flatten()

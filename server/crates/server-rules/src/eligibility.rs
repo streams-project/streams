@@ -153,6 +153,7 @@ mod tests {
             director: None,
             poster_path: None,
             backdrop_path: None,
+            logo_path: None,
             vote_average: 7.0,
             popularity: 10.0,
             is_anime: false,

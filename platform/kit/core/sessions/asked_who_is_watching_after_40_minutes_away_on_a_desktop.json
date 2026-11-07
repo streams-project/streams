@@ -11,7 +11,7 @@
    "at_ms": 2000,
    "events": [
     {
-     "address": "/my-list",
+     "address": "/browse/my-list",
      "type": "address"
     }
    ]

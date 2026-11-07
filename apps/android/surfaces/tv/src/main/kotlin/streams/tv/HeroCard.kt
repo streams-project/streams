@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -22,9 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import contract.ImageRole
 import contract.Tile
 import streams.ports.Seen
 import streams.ports.Shell
@@ -53,7 +57,20 @@ fun HeroCard(shell: Shell, seen: Seen, store: DetailStore, lead: Tile, button: I
         Box(Modifier.fillMaxSize().background(Side))
         Box(Modifier.fillMaxSize().background(Foot))
         Column(Modifier.align(Alignment.BottomStart).padding(start = 30.ref, bottom = 34.ref).width(760.ref)) {
-            Text(lead.name, fontSize = 76.refType, lineHeight = 80.refType, fontWeight = FontWeight.ExtraBold)
+            val logo = (lead.images.orEmpty() + detail?.images.orEmpty())
+                .firstOrNull { it.role == ImageRole.LOGO }
+                ?.url
+            if (logo != null) {
+                AsyncImage(
+                    logo,
+                    lead.name,
+                    Modifier.sizeIn(maxWidth = 600.ref, maxHeight = 200.ref),
+                    alignment = Alignment.BottomStart,
+                    contentScale = ContentScale.Fit,
+                )
+            } else {
+                Text(lead.name, fontSize = 76.refType, lineHeight = 80.refType, fontWeight = FontWeight.ExtraBold)
+            }
             Spacer(Modifier.height(16.ref))
             detail?.let { Facts(it, seen.words) }
             Spacer(Modifier.height(16.ref))

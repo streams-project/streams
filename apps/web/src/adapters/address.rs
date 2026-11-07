@@ -1,5 +1,6 @@
 //! The address port: the bar, the back button and what they mean to the core.
 
+use contract::address;
 use contract::core_msg::{RouteTarget, Target};
 
 use crate::host::window;
@@ -29,19 +30,19 @@ fn address_of(target: &RouteTarget) -> Option<String> {
     let address = match target.target {
         Target::Start => "/".to_owned(),
         Target::SignIn => match &target.next {
-            Some(next) => format!("/sign-in?next={}", in_address(next)),
-            None => "/sign-in".to_owned(),
+            Some(next) => format!("{}?next={}", address::SIGN_IN, in_address(next)),
+            None => address::SIGN_IN.to_owned(),
         },
         Target::Activate => match &target.code {
             Some(code) => format!("/activate?code={}", in_address(code)),
             None => "/activate".to_owned(),
         },
-        Target::Profiles => "/profiles".to_owned(),
-        Target::Home => "/home".to_owned(),
+        Target::Profiles => address::PROFILES.to_owned(),
+        Target::Home => address::HOME.to_owned(),
         Target::KidsHome => "/kids".to_owned(),
         Target::Title => {
             let (kind, id) = pair?;
-            format!("/title/{kind}/{id}")
+            format!("{}{kind}-{id}", address::TITLE)
         }
         Target::Watch => {
             let (kind, id) = pair?;
@@ -52,13 +53,7 @@ fn address_of(target: &RouteTarget) -> Option<String> {
                 None => format!("/watch/{kind}/{id}"),
             }
         }
-        Target::Screen => {
-            let word = serde_json::to_value(target.screen?).ok()?;
-            match &target.genre {
-                Some(genre) => format!("/genre/{genre}"),
-                None => format!("/{}", word.as_str()?),
-            }
-        }
+        Target::Screen => address::of_screen(target.screen?, target.genre.as_deref()),
         _ => return None,
     };
     Some(address)

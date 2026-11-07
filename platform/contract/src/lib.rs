@@ -10,6 +10,7 @@ extern crate alloc;
 #[macro_use]
 mod macros;
 pub mod account;
+pub mod address;
 pub mod api;
 pub mod client;
 pub mod command;

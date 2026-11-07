@@ -412,7 +412,7 @@ impl Core {
         // read their own routes.
         if matches!(
             name,
-            ScreenName::Search | ScreenName::Help | ScreenName::Settings
+            ScreenName::Search | ScreenName::Help | ScreenName::Settings | ScreenName::Games
         ) {
             return;
         }

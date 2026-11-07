@@ -3,7 +3,9 @@
 
 pub mod clean;
 pub mod detect;
+mod http;
 pub mod lang_tag;
 mod source;
 
+pub use http::HttpSubtitles;
 pub use source::{FoundFile, MemorySubtitles, SubtitleError, SubtitleSource, Subtitles};

@@ -24,7 +24,7 @@
    "at_ms": 3100,
    "events": [
     {
-     "address": "/my-list",
+     "address": "/browse/my-list",
      "type": "address"
     }
    ],

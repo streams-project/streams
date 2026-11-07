@@ -287,7 +287,7 @@ fn n9_tokens_feed_the_normal_sign_in_and_the_address_moves_to_the_picker() {
     let out = step(
         &mut core,
         5,
-        &json!([{"type": "address", "address": "/sign-in"}]),
+        &json!([{"type": "address", "address": "/login"}]),
     );
     assert_eq!(out["view"]["route"]["target"], "sign_in");
     let id = id_of(&press(&mut core, 10), CODE);

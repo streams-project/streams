@@ -359,7 +359,7 @@ fn the_sign_in_address_holds_when_hello_arrives_after_it() {
     let out = step(
         &mut core,
         2,
-        &json!([{"type": "address", "address": "/sign-in"}]),
+        &json!([{"type": "address", "address": "/login"}]),
     );
     assert_eq!(out["view"]["route"]["target"], "sign_in", "{out}");
     let out = step(
@@ -407,7 +407,7 @@ fn p35_a_title_waiting_in_the_address_survives_the_profile_pick() {
     step(
         &mut core,
         4,
-        &json!([{"type": "address", "address": "/home?title=tv:9"}]),
+        &json!([{"type": "address", "address": "/browse?title=tv:9"}]),
     );
     let out = step(
         &mut core,
@@ -439,7 +439,7 @@ fn c131_an_address_waits_while_the_kept_session_is_unknown_even_with_hello_in_ha
         1,
         &json!([
             {"id": hello_id, "type": "http_done", "status": 200, "body": hello},
-            {"type": "address", "address": "/my-list"},
+            {"type": "address", "address": "/browse/my-list"},
         ]),
     );
     assert_eq!(out["view"]["route"], Value::Null, "{out}");
@@ -449,7 +449,7 @@ fn c131_an_address_waits_while_the_kept_session_is_unknown_even_with_hello_in_ha
         &json!([{"id": session_id, "type": "secret_done"}]),
     );
     assert_eq!(out["view"]["route"]["target"], "sign_in");
-    assert_eq!(out["view"]["route"]["next"], "/my-list");
+    assert_eq!(out["view"]["route"]["next"], "/browse/my-list");
 }
 
 #[test]

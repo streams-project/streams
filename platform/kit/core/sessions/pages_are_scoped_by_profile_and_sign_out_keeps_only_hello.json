@@ -10,7 +10,7 @@
    "at_ms": 1000,
    "events": [
     {
-     "address": "/my-list",
+     "address": "/browse/my-list",
      "type": "address"
     }
    ],
@@ -36,7 +36,7 @@
    "at_ms": 3000,
    "events": [
     {
-     "address": "/my-list",
+     "address": "/browse/my-list",
      "type": "address"
     }
    ],

@@ -5,6 +5,54 @@ import Foundation
 public let wireVersion = "2026-11-05"
 public let abiVersion = 1
 
+/// Every address the apps open.
+public enum Address {
+    public static let start = "/"
+    public static let home = "/browse"
+    public static let kids = "/kids"
+    public static let series = "/browse/genre/83"
+    public static let films = "/browse/genre/34399"
+    public static let new = "/latest"
+    public static let games = "/games"
+    public static let my_list = "/browse/my-list"
+    public static let mine = "/mine"
+    public static let language = "/browse/original-audio"
+    public static let search = "/search"
+    public static let notifications = "/notifications"
+    public static let activity = "/settings/viewed"
+    public static let clips = "/clips"
+    public static let help = "/help"
+    public static let settings = "/settings"
+    public static let profiles = "/profiles"
+    public static let sign_in = "/login"
+    public static let activate = "/activate"
+    public static let genre = "/browse/genre/"
+    public static let title = "/title/"
+    public static let watch = "/watch/"
+
+    /// Where a tab lives, by the screen's word.
+    public static func of(_ screen: String) -> String {
+        switch screen {
+        case "home": return "/browse"
+        case "kids": return "/kids"
+        case "series": return "/browse/genre/83"
+        case "films": return "/browse/genre/34399"
+        case "new": return "/latest"
+        case "games": return "/games"
+        case "my-list": return "/browse/my-list"
+        case "mine": return "/mine"
+        case "language": return "/browse/original-audio"
+        case "search": return "/search"
+        case "notifications": return "/notifications"
+        case "activity": return "/settings/viewed"
+        case "clips": return "/clips"
+        case "help": return "/help"
+        case "settings": return "/settings"
+        default: return home
+        }
+    }
+}
+
 /// A value the contract refuses, named by its type.
 public enum ContractError: Error { case refused(String) }
 
