@@ -4,9 +4,9 @@
 
 use alloc::string::String;
 use alloc::vec::Vec;
-use contract::command::{Command, FeedbackEvent};
+use contract::command::{Command, FeedbackEvent, SettingKey};
 use contract::core_msg::{PlayState, PlayView};
-use contract::driver::{DriverCommand, DriverEvent};
+use contract::driver::{DriverCommand, DriverEvent, Track};
 use contract::play::{
     AgeCard, Attempt, AttemptKind, MarksRequest, MoreAttempts, PlayAnswer, TimeWindow, WindowKind,
 };
@@ -41,6 +41,53 @@ pub fn host_of(url: &str) -> String {
         .and_then(|(_, rest)| rest.split('/').next())
         .unwrap_or("")
         .to_ascii_lowercase()
+}
+
+/// The main part of a language tag, so pt-BR meets pt.
+fn main_language(tag: &str) -> &str {
+    tag.split(['-', '_']).next().unwrap_or(tag)
+}
+
+/// The track of a language: the exact tag first, then the same language in any region.
+fn track_for<'a>(tracks: &'a [Track], wanted: &str) -> Option<&'a Track> {
+    let tagged = |same: &dyn Fn(&str) -> bool| {
+        tracks
+            .iter()
+            .find(|track| track.lang.as_deref().is_some_and(same))
+    };
+    tagged(&|tag| tag.eq_ignore_ascii_case(wanted))
+        .or_else(|| tagged(&|tag| main_language(tag).eq_ignore_ascii_case(main_language(wanted))))
+}
+
+fn language_of_track(tracks: &[Track], id: &str) -> Option<String> {
+    tracks
+        .iter()
+        .find(|track| track.id == id)
+        .and_then(|track| track.lang.clone())
+}
+
+/// Sets a new source to the languages this profile keeps. With no subtitle language kept,
+/// subtitles stay off whatever the source marks as its default.
+fn first_tracks(play: &Play, audio: &[Track], text: &[Track], tick: &mut Tick) {
+    let sound = play
+        .audio_default
+        .as_deref()
+        .and_then(|wanted| track_for(audio, wanted));
+    if let Some(track) = sound.filter(|track| !track.selected) {
+        tick.driver.push(DriverCommand::SelectAudio {
+            track: track.id.clone(),
+        });
+    }
+    let words = play
+        .subtitle_default
+        .as_deref()
+        .and_then(|wanted| track_for(text, wanted));
+    let showing = text.iter().find(|track| track.selected);
+    if words.map(|track| &track.id) != showing.map(|track| &track.id) {
+        tick.driver.push(DriverCommand::SelectText {
+            track: words.map(|track| track.id.clone()),
+        });
+    }
 }
 
 /// The attempt to try after `failed`: the next on another host, skipping other streams of the
@@ -84,6 +131,13 @@ struct Play {
     age_card: Option<AgeCard>,
     next_episode: Option<EpisodeRef>,
     still_asking: bool,
+    /// The languages this profile keeps, and the tracks the driver last reported.
+    audio_default: Option<String>,
+    subtitle_default: Option<String>,
+    audio: Vec<Track>,
+    text: Vec<Track>,
+    /// False until the tracks of this attempt have been set to what the profile keeps.
+    tracks_set: bool,
     autoplay_next: bool,
     state: PlayState,
     /// Kept across every source change.
@@ -195,6 +249,11 @@ impl Player {
             age_card: None,
             next_episode: None,
             still_asking: false,
+            audio_default: None,
+            subtitle_default: None,
+            audio: Vec::new(),
+            text: Vec::new(),
+            tracks_set: false,
             autoplay_next: false,
             state: PlayState::Resolving,
             position_ms: 0,
@@ -257,6 +316,8 @@ impl Player {
         play.age_card = answer.age_card;
         play.next_episode = answer.next_episode;
         play.autoplay_next = answer.autoplay_next;
+        play.audio_default = answer.audio_default;
+        play.subtitle_default = answer.subtitle_default;
         if play.attempts.is_empty() {
             self.out_of_attempts(tick);
         } else {
@@ -343,6 +404,7 @@ impl Player {
         play.active = Some(index);
         play.state = state;
         play.frame_seen = false;
+        play.tracks_set = false;
         play.heartbeat_mono = None;
         play.no_picture_since = None;
         play.deadline_mono = Some(mono_ms + u64::from(deadline_ms));
@@ -461,6 +523,14 @@ impl Player {
                 }
                 self.close(tick);
             }
+            DriverEvent::Tracks { audio, text } => {
+                if !play.tracks_set && !(audio.is_empty() && text.is_empty()) {
+                    play.tracks_set = true;
+                    first_tracks(play, &audio, &text, tick);
+                }
+                play.audio = audio;
+                play.text = text;
+            }
             DriverEvent::Error { .. } => self.failover(mono_ms, deadline_ms, tick),
             _ => {}
         }
@@ -558,16 +628,38 @@ impl Player {
         save(play, tick);
     }
 
+    /// The viewer's choice is kept for the profile, so the next episode starts the same way.
     pub(crate) fn select_audio(&self, track: String, tick: &mut Tick) {
-        if self.open {
-            tick.driver.push(DriverCommand::SelectAudio { track });
+        if !self.open {
+            return;
         }
+        let tracks = self.play.as_ref().map_or(&[][..], |play| &play.audio);
+        if let Some(language) = language_of_track(tracks, &track) {
+            tick.commands.push(Command::Setting {
+                key: SettingKey::AudioLanguage,
+                value: language,
+            });
+        }
+        tick.driver.push(DriverCommand::SelectAudio { track });
     }
 
+    /// Subtitles turned off are kept as no language.
     pub(crate) fn select_text(&self, track: Option<String>, tick: &mut Tick) {
-        if self.open {
-            tick.driver.push(DriverCommand::SelectText { track });
+        if !self.open {
+            return;
         }
+        let tracks = self.play.as_ref().map_or(&[][..], |play| &play.text);
+        let language = match &track {
+            Some(id) => language_of_track(tracks, id),
+            None => Some(String::new()),
+        };
+        if let Some(language) = language {
+            tick.commands.push(Command::Setting {
+                key: SettingKey::SubtitleLanguage,
+                value: language,
+            });
+        }
+        tick.driver.push(DriverCommand::SelectText { track });
     }
 
     /// Exit: save, close and show the end. The session stays for its last view.

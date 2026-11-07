@@ -391,3 +391,88 @@ fn the_third_episode_in_a_row_with_nobody_there_waits_to_be_asked() {
     assert_eq!(out["view"]["play"]["still_asking"], true, "{out}");
     assert!(http_paths(&out).is_empty(), "nothing starts: {out}");
 }
+
+/// A play that has shown a frame, from an answer with these languages.
+fn playing_with(core: &mut Core, audio: Option<&str>, subtitles: Option<&str>) {
+    let out = step(
+        core,
+        6,
+        &action("a1", json!({"action": "play", "title": "movie:7"})),
+    );
+    let play = effect_id(&out, "/v1/play");
+    let answer = json!({
+        "play_id": "p1",
+        "attempts": [attempt("one", FIRST, "g1")],
+        "start_at_ms": 0,
+        "audio_default": audio,
+        "subtitle_default": subtitles,
+        "dropped": 0,
+        "more": false,
+    });
+    step(
+        core,
+        7,
+        &json!([{"id": play, "type": "http_done", "status": 200, "body": answer.to_string()}]),
+    );
+    step(core, 8, &driver(1, &json!({"kind": "first_frame"})));
+}
+
+fn tracks() -> Value {
+    json!({
+        "kind": "tracks",
+        "audio": [{"id": "a1", "lang": "en", "selected": true}, {"id": "a2", "lang": "de"}],
+        "text": [{"id": "t1", "lang": "en", "selected": true}, {"id": "t2", "lang": "fr-CA"}],
+    })
+}
+
+#[test]
+fn the_languages_a_profile_keeps_are_set_once_the_tracks_are_known() {
+    let mut core = watching();
+    playing_with(&mut core, Some("de"), Some("fr"));
+    let out = step(&mut core, 9, &driver(1, &tracks()));
+    assert_eq!(
+        player_ops(&out),
+        [
+            json!({"op": "select_audio", "track": "a2"}),
+            json!({"op": "select_text", "track": "t2"}),
+        ]
+    );
+    // the same report after the change is not a reason to set them again
+    let again = step(&mut core, 10, &driver(1, &tracks()));
+    assert!(player_ops(&again).is_empty());
+}
+
+#[test]
+fn with_no_language_kept_subtitles_stay_off_whatever_the_source_marks() {
+    let mut core = watching();
+    playing_with(&mut core, None, None);
+    let out = step(&mut core, 9, &driver(1, &tracks()));
+    assert_eq!(player_ops(&out), [json!({"op": "select_text"})]);
+}
+
+#[test]
+fn a_choice_in_the_player_is_kept_for_the_profile() {
+    let mut core = watching();
+    playing_with(&mut core, None, None);
+    step(&mut core, 9, &driver(1, &tracks()));
+    let out = step(
+        &mut core,
+        10,
+        &action("a2", json!({"action": "select_audio", "track": "a2"})),
+    );
+    assert_eq!(
+        player_ops(&out),
+        [json!({"op": "select_audio", "track": "a2"})]
+    );
+    let saved = out["effects"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|effect| effect["path"] == "/v1/commands")
+        .unwrap_or_else(|| panic!("nothing saved: {out}"));
+    let body = saved["body"].as_str().unwrap();
+    assert!(
+        body.contains("audio_language") && body.contains("\"de\""),
+        "{body}"
+    );
+}

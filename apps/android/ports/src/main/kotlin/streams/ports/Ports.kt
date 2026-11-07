@@ -48,6 +48,9 @@ interface Player {
 
     /** Raises subtitles by this share of the picture's height, to clear the controls. */
     fun lift(share: Float)
+
+    /** The look a profile keeps for subtitles: size 0, 1 or 2, and colours as #rrggbb or none. */
+    fun wordsLook(size: Int, color: String, background: String)
 }
 
 /** Brand films on the way in. The title player belongs to the core, so these stay apart from it. */

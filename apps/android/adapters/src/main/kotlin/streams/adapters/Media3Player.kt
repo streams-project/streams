@@ -1,6 +1,7 @@
 package streams.adapters
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import androidx.media3.common.C
@@ -12,7 +13,9 @@ import androidx.media3.common.Tracks
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.ui.CaptionStyleCompat
 import androidx.media3.ui.PlayerView
+import androidx.media3.ui.SubtitleView
 import contract.DriverCommand
 import contract.DriverCommandClose
 import contract.DriverCommandOpen
@@ -36,6 +39,11 @@ import streams.ports.Player
 
 private const val LIFT_MS = 240L
 
+/** Subtitle sizes against the toolkit's own default, for size 0, 1 and 2. */
+private val Sizes = listOf(0.8f, 1f, 1.3f)
+
+private data class Look(val size: Int, val color: String, val background: String)
+
 /** The player port, on Media3. It reports facts, and the core picks every next step. */
 class Media3Player(context: Context) : Player {
     private val main = Handler(Looper.getMainLooper())
@@ -47,6 +55,7 @@ class Media3Player(context: Context) : Player {
     private var generation = 0L
     private var firstFrame = false
     private var view: PlayerView? = null
+    private var look = Look(1, "#ffffff", "none")
 
     private val tick = object : Runnable {
         override fun run() {
@@ -99,7 +108,31 @@ class Media3Player(context: Context) : Player {
             player = engine
             useController = false
             view = this
+            dress(this)
         }
+
+    override fun wordsLook(size: Int, color: String, background: String) {
+        look = Look(size, color, background)
+        view?.let(::dress)
+    }
+
+    private fun dress(view: PlayerView) {
+        val words = view.subtitleView ?: return
+        val paint = fun(text: String, otherwise: Int) = runCatching { Color.parseColor(text) }.getOrDefault(otherwise)
+        words.setApplyEmbeddedStyles(false)
+        words.setApplyEmbeddedFontSizes(false)
+        words.setFractionalTextSize(SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * Sizes.getOrElse(look.size) { 1f })
+        words.setStyle(
+            CaptionStyleCompat(
+                paint(look.color, Color.WHITE),
+                paint(look.background, Color.TRANSPARENT),
+                Color.TRANSPARENT,
+                CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW,
+                Color.BLACK,
+                null,
+            ),
+        )
+    }
 
     override fun lift(share: Float) {
         val words = view?.subtitleView ?: return

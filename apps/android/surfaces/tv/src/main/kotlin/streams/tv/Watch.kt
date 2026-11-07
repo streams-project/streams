@@ -44,6 +44,7 @@ import contract.ActionStop
 import contract.ActionUnpause
 import contract.CommandRate
 import contract.PlayState
+import contract.ProfileSettings
 import contract.Rating
 import contract.TitleDetail
 import contract.WindowKind
@@ -229,6 +230,16 @@ fun Watch(shell: Shell, seen: Seen) {
         }
     }
     LaunchedEffect(shown) { shell.player.lift(if (shown) WORDS_HIGH else WORDS_LOW) }
+    LaunchedEffect(Unit) {
+        val kept = shell.read("/v1/profiles/me/settings")
+            ?.let { contractJson.decodeFromString(ProfileSettings.serializer(), it) }
+            ?.subtitleStyle.orEmpty()
+        shell.player.wordsLook(
+            kept["size"]?.toIntOrNull() ?: 1,
+            kept["color"] ?: "#ffffff",
+            kept["background"] ?: "none",
+        )
+    }
     // When the next episode is starting, the state moves on and this never reaches the back.
     LaunchedEffect(play?.state, asking) {
         if (play?.state == PlayState.ENDED && !asking) {
