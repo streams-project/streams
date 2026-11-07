@@ -1,6 +1,7 @@
 package streams.tv
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +30,9 @@ import streams.shared.refType
 
 /** The place of the search button, to the left of the first tab. */
 const val SEARCH_TAB = -2
+
+/** The place of the profile, to the left of search. */
+const val WHO_TAB = -3
 
 /** The tabs that fit the bar. Genres live on their own pages. */
 fun tabsOf(nav: List<NavItem>): List<NavItem> = nav.filter { it.screen.value != "genre" }.take(5)
@@ -51,10 +56,11 @@ private fun Tab(item: NavItem, active: Boolean, on: Boolean) {
 @Composable
 fun TopBar(tabs: List<NavItem>, active: Int, focus: Int, person: Profile?, server: String) {
     val searchOn = focus == SEARCH_TAB
+    val whoOn = focus == WHO_TAB
     val searchHere = active == SEARCH_TAB
     Box(Modifier.offset(68.ref, 46.ref)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Face(person, 48, 8, server, Modifier.size(48.ref))
+            Face(person, 48, 8, server, if (whoOn) Modifier.size(48.ref).border(3.ref, Color.White, RoundedCornerShape(8.ref)) else Modifier.size(48.ref))
             Icon(painterResource(R.drawable.icon_caret_down), null, Modifier.size(22.ref), tint = Color.White)
         }
     }

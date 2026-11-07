@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DontMemoize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -70,11 +71,13 @@ private class PageFocus(var rows: List<Section>, var tabs: Int, active: Int, var
             Word.LEFT -> when {
                 where == Where.TOP && tab > 0 -> tab -= 1
                 where == Where.TOP && tab == 0 -> tab = SEARCH_TAB
+                where == Where.TOP && tab == SEARCH_TAB -> tab = WHO_TAB
                 where == Where.HERO -> button = 0
                 where == Where.ROW && column > 0 -> columns[row] = column - 1
                 else -> return false
             }
             Word.RIGHT -> when {
+                where == Where.TOP && tab == WHO_TAB -> tab = SEARCH_TAB
                 where == Where.TOP && tab == SEARCH_TAB -> tab = 0
                 where == Where.TOP && tab < tabs - 1 -> tab += 1
                 where == Where.HERO -> button = 1
@@ -118,9 +121,11 @@ fun Browse(shell: Shell, seen: Seen) {
     focus.hero = lead != null
     val store = rememberDetails()
     val rise = with(LocalDensity.current) { RISE.ref.roundToPx() }
+    var menu by remember { mutableStateOf(false) }
 
     fun choose() {
         when {
+            focus.where == Where.TOP && focus.tab == WHO_TAB -> menu = true
             focus.where == Where.TOP && focus.tab == SEARCH_TAB -> shell.go("/search")
             focus.where == Where.TOP -> tabs.getOrNull(focus.tab)?.let { shell.go(tabAddress(it.screen.value)) }
             focus.where == Where.ROW -> rows.getOrNull(focus.row)?.tiles?.getOrNull(focus.column)?.let {
@@ -132,23 +137,21 @@ fun Browse(shell: Shell, seen: Seen) {
         }
     }
 
-    Box(
-        Modifier.fillMaxSize().remote { word ->
-            when {
-                word == Word.OK -> {
-                    choose()
-                    true
-                }
-                focus.press(word) -> true
-                // Back from the top of any page but Home goes Home. From Home it leaves the app.
-                word == Word.BACK && current != "home" -> {
-                    shell.go("/home")
-                    true
-                }
-                else -> false
-            }
-        },
-    ) {
+    fun press(word: Word): Boolean = when {
+        word == Word.OK -> {
+            choose()
+            true
+        }
+        focus.press(word) -> true
+        // Back from the top of any page but Home goes Home. From Home it leaves the app.
+        word == Word.BACK && current != "home" -> {
+            shell.go("/home")
+            true
+        }
+        else -> false
+    }
+
+    Box(Modifier.fillMaxSize().remote(!menu, @DontMemoize { press(it) })) {
         val inRow = focus.where == Where.ROW
         TopBar(tabs, active, if (focus.where == Where.TOP) focus.tab else -1, person, seen.server)
         if (inRow) {
@@ -179,4 +182,5 @@ fun Browse(shell: Shell, seen: Seen) {
         }
         (if (inRow) rows.getOrNull(focus.row + 1) else rows.firstOrNull())?.let { NextRow(it, !inRow) }
     }
+    if (menu) ProfileMenu(shell, seen, person) { menu = false }
 }

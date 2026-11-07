@@ -8,6 +8,8 @@ plugins {
 }
 
 val brand = JsonSlurper().parse(rootDir.resolve("../../brand.json")) as Map<*, *>
+// A second copy on one device: -PappSuffix=.owner installs beside the normal app, with its own sign in.
+val suffix = providers.gradleProperty("appSuffix").orNull
 
 android {
     namespace = "streams.app"
@@ -18,7 +20,8 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
-        resValue("string", "app_name", brand["name"].toString())
+        applicationIdSuffix = suffix
+        resValue("string", "app_name", "${brand["name"]}${suffix.orEmpty()}")
     }
     buildTypes {
         release {
@@ -29,7 +32,10 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        resValues = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

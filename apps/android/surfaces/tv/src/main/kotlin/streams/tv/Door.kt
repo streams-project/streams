@@ -127,7 +127,11 @@ private fun Landing(shell: Shell, seen: Seen) {
             Word.RIGHT -> if (at.ordinal < stops.lastIndex) at = stops[at.ordinal + 1]
             Word.UP -> if (at.ordinal >= Stop.HELP.ordinal) at = Stop.TAB
             Word.DOWN -> if (at.ordinal < Stop.HELP.ordinal) at = Stop.SIGN_IN
-            Word.OK -> if (at == Stop.SIGN_IN || at == Stop.JOIN) shell.go("/sign-in")
+            Word.OK -> when (at) {
+                Stop.SIGN_IN, Stop.JOIN -> shell.go("/sign-in")
+                Stop.HELP -> shell.go("/help")
+                else -> Unit
+            }
             Word.BACK -> return false
         }
         return true

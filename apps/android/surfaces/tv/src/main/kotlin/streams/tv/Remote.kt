@@ -31,11 +31,17 @@ private fun wordOf(event: KeyEvent): Word? = when (event.key) {
 
 /** Gives a whole screen the remote. The screen keeps its own focus as plain state. */
 @Composable
-fun Modifier.remote(press: (Word) -> Boolean): Modifier {
+fun Modifier.remote(press: (Word) -> Boolean): Modifier = remote(true, press)
+
+/** `on` goes false while something drawn over the screen holds the remote, and takes it back after. */
+@Composable
+fun Modifier.remote(on: Boolean, press: (Word) -> Boolean): Modifier {
     val focus = remember { FocusRequester() }
     // A key always reaches the newest answer, with what the screen holds now.
     val latest by rememberUpdatedState(press)
-    LaunchedEffect(Unit) { focus.requestFocus() }
+    LaunchedEffect(on) {
+        if (on) focus.requestFocus()
+    }
     return focusRequester(focus)
         .focusable()
         .onPreviewKeyEvent { event ->

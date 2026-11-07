@@ -408,8 +408,12 @@ impl Core {
             let request = Request::new(HttpMethod::Get, "/v1/nav", Purpose::Page).for_screen();
             self.send(now, request, out);
         }
-        // Search has no page of its own: its results are read once the viewer has typed.
-        if name == ScreenName::Search {
+        // These have no page of rows. Search reads once the viewer has typed, and the others
+        // read their own routes.
+        if matches!(
+            name,
+            ScreenName::Search | ScreenName::Help | ScreenName::Settings
+        ) {
             return;
         }
         let Some(word) = screen_word(name) else {

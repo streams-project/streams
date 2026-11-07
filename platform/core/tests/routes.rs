@@ -276,3 +276,17 @@ fn c131_a_moved_table_that_leads_back_to_itself_ends_at_home() {
     };
     assert_eq!(decide("/home", &who).target, Target::Home);
 }
+
+#[test]
+fn help_opens_for_a_visitor_and_settings_asks_to_sign_in_first() {
+    let open = decide("/help", &VISITOR);
+    assert_eq!(open.target, Target::Screen);
+    assert_eq!(open.screen, Some(ScreenName::Help));
+    let closed = decide("/settings", &VISITOR);
+    assert_eq!(closed.target, Target::SignIn);
+    assert_eq!(closed.next.as_deref(), Some("/settings"));
+    assert_eq!(
+        decide("/settings", &MEMBER).screen,
+        Some(ScreenName::Settings)
+    );
+}

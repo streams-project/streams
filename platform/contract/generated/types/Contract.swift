@@ -4138,6 +4138,8 @@ public struct ScreenName: RawRepresentable, Codable, Hashable, Sendable {
     public static let clips = ScreenName(rawValue: "clips")
     public static let language = ScreenName(rawValue: "language")
     public static let mine = ScreenName(rawValue: "mine")
+    public static let help = ScreenName(rawValue: "help")
+    public static let settings = ScreenName(rawValue: "settings")
 }
 
 /// One season with its episodes.

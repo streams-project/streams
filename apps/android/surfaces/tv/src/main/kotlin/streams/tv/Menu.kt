@@ -23,9 +23,12 @@ import streams.shared.refType
 /** One line of a menu. */
 data class MenuLine(val word: String, val icon: Int? = null)
 
-/** Plain rows of words. The one in focus is a white pill. Pages share this as it stands. */
+/**
+ * Plain rows of words. The one in focus is a white pill, and `kept` marks the line another part of
+ * the page belongs to while the focus is there. Pages share this as it stands.
+ */
 @Composable
-fun Menu(lines: List<MenuLine>, focus: Int, modifier: Modifier = Modifier, width: Int = 395) {
+fun Menu(lines: List<MenuLine>, focus: Int, modifier: Modifier = Modifier, width: Int = 395, kept: Int = -1) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(6.ref)) {
         lines.forEachIndexed { index, line ->
             val on = index == focus
@@ -34,7 +37,14 @@ fun Menu(lines: List<MenuLine>, focus: Int, modifier: Modifier = Modifier, width
                 Modifier
                     .width(width.ref)
                     .height(63.ref)
-                    .background(if (on) Color.White else Color.Transparent, CircleShape),
+                    .background(
+                        when {
+                            on -> Color.White
+                            index == kept -> Color.White.copy(alpha = 0.14f)
+                            else -> Color.Transparent
+                        },
+                        CircleShape,
+                    ),
             ) {
                 line.icon?.let {
                     Icon(

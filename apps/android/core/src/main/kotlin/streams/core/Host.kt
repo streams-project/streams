@@ -86,7 +86,7 @@ class Host(
     private var asks = 0
     private val waiting = HashMap<String, (Int, String) -> Unit>()
     private val trail = ArrayDeque<String>()
-    private var here = "/home"
+    private var here = "/"
     private val wake = Runnable { send(emptyList()) }
 
     override val seen: StateFlow<Seen> = state
@@ -144,7 +144,7 @@ class Host(
 
     override fun back() {
         loop.post {
-            here = trail.removeLastOrNull() ?: "/home"
+            here = trail.removeLastOrNull() ?: "/"
             send(listOf(EventAddress(address = here)))
         }
     }

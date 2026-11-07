@@ -40,7 +40,10 @@ enum Place {
 
 impl Place {
     const fn open_to_visitors(&self) -> bool {
-        matches!(self, Self::Start | Self::SignIn | Self::Title(_))
+        matches!(
+            self,
+            Self::Start | Self::SignIn | Self::Title(_) | Self::Screen(ScreenName::Help, _)
+        )
     }
 
     /// Approving a device gives it this account, so a visitor who may browse still signs in.
@@ -119,6 +122,8 @@ const fn screen_named(word: &str) -> Option<ScreenName> {
         b"games" => Some(ScreenName::Games),
         b"clips" => Some(ScreenName::Clips),
         b"language" => Some(ScreenName::Language),
+        b"help" => Some(ScreenName::Help),
+        b"settings" => Some(ScreenName::Settings),
         _ => None,
     }
 }
@@ -269,7 +274,7 @@ fn decide_from(address: &str, who: &Who<'_>, follow_next: bool) -> RouteTarget {
             route.next = next_of(query);
             route
         }
-        Place::Start | Place::Title(_) => member_target(found, query),
+        place if place.open_to_visitors() => member_target(place, query),
         _ if who.member => member_target(found, query),
         _ if who.accounts_required == Some(false) && !found.needs_account() => {
             member_target(found, query)

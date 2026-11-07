@@ -13,6 +13,7 @@ const ALLOWED: &[(&str, &[&str])] = &[
         &["server-accounts", "server-catalog", "contract"],
     ),
     ("server-library", &["server-accounts", "contract"]),
+    ("server-help", &["contract"]),
     (
         "server-pages",
         &[
@@ -39,6 +40,7 @@ const ALLOWED: &[(&str, &[&str])] = &[
             "server-accounts",
             "server-catalog",
             "server-rules",
+            "server-help",
             "server-library",
             "server-pages",
             "server-play",

@@ -602,7 +602,9 @@ impl Pages {
         ask: &ScreenAsk,
     ) -> Result<SafeScreen, PageError> {
         match ask.screen {
-            ScreenName::Search => return Err(PageError::NotFound),
+            ScreenName::Search | ScreenName::Help | ScreenName::Settings => {
+                return Err(PageError::NotFound);
+            }
             ScreenName::Games => return Err(PageError::Off("games")),
             ScreenName::Clips => return Err(PageError::Off("clips")),
             ScreenName::MyList | ScreenName::Activity | ScreenName::Notifications => {

@@ -31,6 +31,10 @@ words! {
         Games,
         Clips,
         Language,
+        /// Help. Its text comes from the help routes, so it has no page of rows.
+        Help,
+        /// The viewer's settings, which also have no page of rows.
+        Settings,
     }
 }
 

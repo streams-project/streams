@@ -545,6 +545,16 @@
           "const": "mine",
           "description": "The viewer's own page: what they are watching, saved and liked.",
           "type": "string"
+        },
+        {
+          "const": "help",
+          "description": "Help. Its text comes from the help routes, so it has no page of rows.",
+          "type": "string"
+        },
+        {
+          "const": "settings",
+          "description": "The viewer's settings, which also have no page of rows.",
+          "type": "string"
         }
       ]
     },

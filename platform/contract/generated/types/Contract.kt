@@ -1977,6 +1977,8 @@ value class ScreenName(val value: String) {
         val CLIPS = ScreenName("clips")
         val LANGUAGE = ScreenName("language")
         val MINE = ScreenName("mine")
+        val HELP = ScreenName("help")
+        val SETTINGS = ScreenName("settings")
     }
 }
 

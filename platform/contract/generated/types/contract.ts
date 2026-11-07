@@ -1348,7 +1348,7 @@ export interface ScreenBody {
 }
 
 /** The screens the server builds. */
-export type ScreenName = "home" | "films" | "series" | "genre" | "new" | "my-list" | "kids" | "search" | "notifications" | "activity" | "games" | "clips" | "language" | "mine" | (string & {});
+export type ScreenName = "home" | "films" | "series" | "genre" | "new" | "my-list" | "kids" | "search" | "notifications" | "activity" | "games" | "clips" | "language" | "mine" | "help" | "settings" | (string & {});
 
 /** One season with its episodes. */
 export interface Season {

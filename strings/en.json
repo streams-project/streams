@@ -88,5 +88,14 @@
   "door.sign_in": "Sign In",
   "door.join": "Get Started",
   "door.help": "Get Help",
-  "door.trending": "Trending Now"
+  "door.trending": "Trending Now",
+  "menu.switch": "Switch Profile",
+  "menu.help": "Get Help",
+  "menu.settings": "Settings",
+  "menu.sign_out": "Sign Out",
+  "menu.sign_out.ask": "Sign out of this TV?",
+  "help.title": "Get Help",
+  "help.intro": "Find answers about your account, watching and more.",
+  "help.off": "Help is not set up on this server.",
+  "help.policies": "Policies"
 }
