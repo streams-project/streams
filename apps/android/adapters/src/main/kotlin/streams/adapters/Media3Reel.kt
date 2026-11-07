@@ -11,6 +11,8 @@ import streams.ports.Reel
 
 /** Brand films, each on its own engine so it can be handed back as soon as it is off screen. */
 class Media3Reel : Reel {
+    private val playing = mutableSetOf<ExoPlayer>()
+
     override fun picture(context: Any, url: String, loop: Boolean, ended: () -> Unit): Any {
         val engine = ExoPlayer.Builder(context as Context).build()
         engine.repeatMode = if (loop) Media.REPEAT_MODE_ONE else Media.REPEAT_MODE_OFF
@@ -24,6 +26,7 @@ class Media3Reel : Reel {
         engine.setMediaItem(MediaItem.fromUri(url))
         engine.prepare()
         engine.playWhenReady = true
+        playing.add(engine)
         return PlayerView(context).apply {
             player = engine
             useController = false
@@ -35,7 +38,12 @@ class Media3Reel : Reel {
 
     override fun release(picture: Any) {
         val view = picture as PlayerView
+        playing.remove(view.player)
         view.player?.release()
         view.player = null
+    }
+
+    override fun hold(still: Boolean) {
+        playing.forEach { it.playWhenReady = !still }
     }
 }

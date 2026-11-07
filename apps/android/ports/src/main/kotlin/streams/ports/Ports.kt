@@ -30,6 +30,9 @@ data class NoReply(val reason: String) : Answer
 
 interface Network {
     fun send(call: Call, done: (Answer) -> Unit)
+
+    /** Says when the device gains or loses its connection. */
+    fun watch(changed: (online: Boolean) -> Unit)
 }
 
 /** What the core keeps between runs. */
@@ -37,6 +40,14 @@ interface Secrets {
     fun get(name: String): String?
     fun put(name: String, value: String)
     fun drop(name: String)
+}
+
+/** What the core's offline layer keeps between runs: waiting commands and kept pages. */
+interface Store {
+    fun get(key: String): String?
+    fun put(key: String, value: String)
+    fun delete(key: String)
+    fun keys(prefix: String): List<String>
 }
 
 /** Plays films, reports facts, and decides nothing. */
@@ -59,6 +70,8 @@ interface Reel {
     fun picture(context: Any, url: String, loop: Boolean, ended: () -> Unit): Any
     /** Hands back the decoder, because a television has few and the title player needs one. */
     fun release(picture: Any)
+    /** Holds every film still while the app is off screen, and lets them go on after. */
+    fun hold(still: Boolean)
 }
 
 /** All a surface knows. It reads state and hands back what the viewer asked for. */
