@@ -1,0 +1,1352 @@
+{
+  "articles": {
+    "accessibility": {
+      "body": "- <b>Undertexter.</b> Välj språk under din profils <b>Språk</b>, och storlek, färg och bakgrund under <b>Undertexternas utseende</b>. Se <a=/help/article/subtitles>Använda undertexter eller välja ljudspråk</a>.\n- <b>Tangentbord.</b> Använd <b>Tab</b> för att gå mellan kontrollerna och <b>Esc</b> för att stänga fönster. Spelaren har egna tangenter, se <a=/help/article/shortcuts>Kortkommandon</a>.\n- <b>Textstorlek.</b> Zooma i webbläsaren med <b>Ctrl</b> och <b>+</b> (<b>Cmd</b> och <b>+</b> på Mac). Layouten anpassar sig.\n- <b>Rörelse.</b> Om din enhet ber om minskad rörelse står den animerade logotypen stilla.\n\nOm något är svårt att använda, berätta det på sidan <a=/help/article/report-bug>Rapportera ett problem</a>. Vi tar sådana rapporter på allvar.",
+      "keywords": "tillgänglighet undertexter tangentbord zooma rörelse",
+      "related": [
+        "subtitles",
+        "shortcuts",
+        "language",
+        "phone-tablet",
+        "report-bug"
+      ],
+      "summary": "Undertexter, tangentbordsstyrning och visningsinställningar som hjälper.",
+      "title": "Tillgänglighet på {brand}"
+    },
+    "autoplay-blocked": {
+      "body": "Webbläsare låter inte en sida starta video med ljud förrän du har klickat eller tryckt på sidan. {brand} försöker först starta med ljud. Om webbläsaren nekar startar videon utan ljud och visar den överstrukna högtalaren. Slå på ljudet med <b>M</b> eller högtalarknappen.\n\n- För att förhandsvisningar inte ska starta av sig själva stänger du av <b>Spela upp förhandsvisningar automatiskt</b> i din profils <b>Uppspelningsinställningar</b>.\n- Om en titel aldrig startar, se <a=/help/article/wont-play>En titel spelas inte upp</a>.",
+      "keywords": "automatisk uppspelning blockerad utan ljud start webbläsare förhandsvisningar trailer",
+      "related": [
+        "no-sound",
+        "trailers-clips",
+        "wont-play",
+        "shortcuts",
+        "slow-pages"
+      ],
+      "summary": "Varför webbläsare inte låter ljud starta av sig självt, och hur {brand} hanterar det.",
+      "title": "Videon startar utan ljud eller startar inte av sig själv"
+    },
+    "black-screen": {
+      "body": "1. Tryck på <b>F</b> för att lämna och öppna helskärm igen, eller tryck på <b>Esc</b> och spela upp igen.\n2. Ladda om sidan.\n3. Stäng av hårdvaruacceleration i webbläsarens inställningar, starta om webbläsaren och försök igen.\n4. Uppdatera din webbläsare och din grafikdrivrutin.\n5. Prova en annan webbläsare.\n\n!! Obs! Vissa webbläsartillägg som ändrar sidans färger eller blockerar media kan också dölja bilden. Se <a=/help/article/extensions-blockers>Tillägg som blockerar spelaren</a>.\n\n@@ diagnostics",
+      "keywords": "svart bild svart skärm ljud men ingen bild hårdvaruacceleration",
+      "related": [
+        "wont-play",
+        "supported-browsers",
+        "extensions-blockers",
+        "fix-phone",
+        "fix-tv"
+      ],
+      "summary": "Bilden saknas men du hör titeln.",
+      "title": "Svart bild med ljud"
+    },
+    "browse-language": {
+      "body": "1. Öppna <b>Bläddra efter språk</b> i fältet högst upp.\n2. <b>Originalspråk</b> är redan valt. Välj ett språk för att se titlar som ursprungligen gjordes på det språket.\n\n!! Obs! Sidan visar titlar efter originalspråk. Dubbat ljud och undertexter beror på källan för varje titel och visas under <b>Ljud & undertexter</b> medan den spelas.",
+      "keywords": "bläddra efter språk originalspråk utländsk internationell världsfilm anime koreansk spansk",
+      "related": [
+        "language",
+        "subtitles",
+        "search-browse",
+        "new-popular",
+        "recommendations"
+      ],
+      "summary": "Hitta titlar efter språket de gjordes på.",
+      "title": "Bläddra efter språk"
+    },
+    "buffering": {
+      "body": "En stream stannar när din anslutning levererar data långsammare än videon behöver.\n\n- Stäng andra flikar, nedladdningar och enheter som använder samma nätverk.\n- Flytta dig närmare routern eller använd en kabel.\n- Pausa en minut så att spelaren hinner ladda i förväg, och tryck sedan på spela.\n- Stäng av ett VPN, eller välj en server som ligger närmare.\n- Försök igen senare. Källorna är långsammare när många tittar.\n\nKällan bestämmer vilken kvalitet som erbjuds, så bildens skärpa kan ändras under uppspelningen.\n\n@@ diagnostics",
+      "keywords": "buffring hackar långsam laddar fryser anslutning hastighet kvalitet",
+      "related": [
+        "wont-play",
+        "slow-pages",
+        "supported-browsers",
+        "extensions-blockers",
+        "fix-tv"
+      ],
+      "summary": "Förbättra en stream som hela tiden stannar för att ladda.",
+      "title": "Buffring, frysningar eller långsam start"
+    },
+    "change-email-password": {
+      "body": "Öppna profilmenyn och välj <b>Konto</b>. Dina uppgifter finns under <b>Kontouppgifter</b>. Före en ändring kan vi be dig bekräfta att det är du, med ditt lösenord eller en kod vi mejlar dig.\n\n## Lösenord\n1. Välj <b>Lösenord</b>.\n2. Skriv ditt nuvarande lösenord och sedan det nya två gånger. Det måste ha minst 8 tecken.\n3. Slå på <b>Logga ut från alla enheter</b> om någon annan kan känna till det gamla lösenordet, och välj <b>Spara</b>.\n\n## E-post\n1. Välj <b>E-post</b> och skriv den nya adressen.\n2. Öppna länken vi skickar till den nya adressen för att slutföra ändringen.\n\n## Mobiltelefon och namn\nVälj <b>Mobiltelefon</b> för att lägga till ett nummer som hjälper dig att komma tillbaka in i kontot, eller <b>Namn</b> för att byta namn. Huvudprofilen följer ditt förnamn.",
+      "keywords": "ändra e-post byta lösenord uppdatera lösenord telefonnummer mobil kontouppgifter namn säkerhet",
+      "related": [
+        "forgot-password",
+        "devices-sign-out",
+        "sign-in",
+        "delete-account",
+        "privacy-data"
+      ],
+      "summary": "Uppdatera uppgifterna du loggar in med och använder för att komma tillbaka in i kontot.",
+      "title": "Ändra e-postadress, lösenord eller telefonnummer"
+    },
+    "clear-data": {
+      "body": "Om du rensar webbplatsdata i en webbläsare loggas du ut där och kopian av dina profiler och inställningar försvinner från den. Allt finns kvar i ditt konto och kommer tillbaka när du loggar in igen.\n\n## Chrome, Edge och Brave\n1. Välj ikonen för webbplatsinformation till vänster i adressfältet och välj <b>Cookies och webbplatsdata</b>, sedan <b>Hantera webbplatsdata på enheten</b>.\n2. Ta bort posterna för den här webbplatsen.\n\n## Firefox\n1. Välj hänglåset i adressfältet och välj <b>Rensa kakor och webbplatsdata</b>.\n\n## Safari på Mac\n1. Öppna <b>Safari</b>, sedan <b>Inställningar</b>, <b>Integritet</b> och <b>Hantera webbplatsdata</b>.\n2. Leta upp webbplatsen och välj <b>Ta bort</b>.\n\n## Safari på iPhone och iPad\nÖppna appen <b>Inställningar</b>, sedan <b>Appar</b>, <b>Safari</b>, <b>Avancerat</b>, <b>Webbplatsdata</b>, och ta bort webbplatsen.\n\n## Radera uppgifter från ditt konto\n- För att ta bort titlar från din tittaraktivitet, se <a=/help/article/viewing-history>Hantera din tittarhistorik</a>.\n- För att radera en profil, se <a=/help/article/profiles-manage>Skapa, redigera eller radera profiler</a>.\n- För att radera allt, se <a=/help/article/delete-account>Radera ditt konto</a>.\n\n@@ data",
+      "keywords": "rensa uppgifter webbplatsdata cookies ta bort webbläsare logga ut",
+      "related": [
+        "saved-data",
+        "delete-account",
+        "viewing-history",
+        "privacy-data",
+        "sign-in"
+      ],
+      "summary": "Ta bort det som den här webbläsaren sparar för {brand}, eller radera uppgifter från ditt konto.",
+      "title": "Rensa sparade uppgifter"
+    },
+    "clips": {
+      "body": "<b>Clips</b> visar korta förhandsvisningar efter varandra, på mobilen i fältet längst ner.\n\n1. Scrolla eller svep till nästa klipp.\n2. Välj högtalarknappen för att slå på eller av ljudet. Klippen startar utan ljud.\n3. Välj <b>Min lista</b> för att spara titeln, <b>Spela</b> för att titta, eller <b>Info</b> för att läsa om den.",
+      "keywords": "clips korta videor scrolla stående trailers ljud",
+      "related": [
+        "trailers-clips",
+        "my-list",
+        "new-popular",
+        "search-browse",
+        "recommendations"
+      ],
+      "summary": "Bläddra bland korta förhandsvisningar och lägg till det du gillar i din lista.",
+      "title": "Använda Clips"
+    },
+    "continue-watching": {
+      "body": "Titlar du har börjat titta på visas i raden <b>Fortsätt titta</b>, med en stapel som visar hur långt du har kommit. Raden finns också i <b>Mitt {brand}</b>.\n\n## Återuppta\nVälj titeln. Uppspelningen börjar där du slutade, på alla enheter där du loggar in.\n\n## Ta bort en titel från raden\n1. Öppna alternativmenyn på titelkortet.\n2. Välj <b>Ta bort från Fortsätt titta</b>.\n\nVill du också ta bort titeln från din tittaraktivitet, se <a=/help/article/viewing-history>Hantera din tittarhistorik</a>.",
+      "keywords": "fortsätt titta återuppta framsteg ta bort rad slutade halvsedd",
+      "related": [
+        "viewing-history",
+        "my-list",
+        "saved-data",
+        "clear-data",
+        "skip-intro-next"
+      ],
+      "summary": "Fortsätt där du slutade och ta bort titlar från raden.",
+      "title": "Använda Fortsätt titta"
+    },
+    "contribute": {
+      "body": "{brand} byggs öppet. Du kan hjälpa till på flera sätt:\n\n- <b>Översättningar.</b> Gränssnittets texter ligger i vanliga textfiler, en per språk, så en översättning är en textfil som du kan redigera.\n- <b>Felrapporter.</b> Se <a=/help/article/report-bug>Rapportera ett problem</a>.\n- <b>Rättningar och funktioner.</b> Skicka en beskrivning eller en patch.\n- <b>Idéer.</b> Berätta vad du önskar att hjälpcentret eller appen gjorde.\n\nSkriv till <a=mailto:{support_email}>{support_email}</a> med några rader om vad du vill göra.",
+      "keywords": "bidra hjälpa översätta rapportera fel idéer",
+      "related": [
+        "report-bug",
+        "title-feedback",
+        "what-is",
+        "getting-started",
+        "free-to-use"
+      ],
+      "summary": "Idéer, rättningar, översättningar och felrapporter är välkomna.",
+      "title": "Hur kan jag bidra?"
+    },
+    "cookies-explained": {
+      "related": [
+        "privacy-data",
+        "saved-data",
+        "clear-data",
+        "recommendations",
+        "sources"
+      ],
+      "summary": "Vad din webbläsare sparar för {brand}, med enkla ord.",
+      "title": "Cookies och lokal lagring förklarade"
+    },
+    "copyright": {
+      "body": "{brand} lagrar inga videofiler. Det listar länkar till titlar som finns hos andra tjänster. Om du äger rättigheterna till en titel och tror att en länk gör intrång i dem, skicka en anmälan till oss så granskar vi den.\n\nEn anmälan ska innehålla:\n1. Ditt namn och dina kontaktuppgifter.\n2. En beskrivning av verket som du äger.\n3. Adressen till sidan på {brand} som länkar till det.\n4. Ett intygande om att du är rättighetsinnehavare eller får agera för den.\n\nSkicka den till <a=mailto:{support_email}>{support_email}</a> med ämnet <b>DMCA-anmälan</b>. Hela processen finns på <a=/help/legal/dmca>DMCA-sidan</a>.",
+      "keywords": "upphovsrätt dmca ta bort rättighetsinnehavare anmälan",
+      "related": [
+        "sources",
+        "what-is",
+        "privacy-data",
+        "title-feedback",
+        "report-bug"
+      ],
+      "summary": "Rättighetsinnehavare kan be om att en länk tas bort.",
+      "title": "Rapportera ett upphovsrättsproblem"
+    },
+    "delete-account": {
+      "body": "När du raderar ditt konto tas det bort direkt, med alla profiler, listor, betyg, inställningar och all tittaraktivitet. Det går inte att ångra.\n\n1. Öppna profilmenyn och välj <b>Konto</b>.\n2. Välj <b>Radera konto</b> längst ner på sidan.\n3. Bekräfta att det är du och välj <b>Radera permanent</b>.\n\nVill du bara ta bort en person raderar du hellre den personens profil. Se <a=/help/article/profiles-manage>Skapa, redigera eller radera profiler</a>.\n\n!! Obs! Vill du behålla en kopia av dina uppgifter laddar du ner den först. Se <a=/help/article/download-data>Ladda ner en kopia av dina uppgifter</a>.",
+      "keywords": "radera konto stänga konto ta bort konto radera uppgifter avsluta konto",
+      "related": [
+        "download-data",
+        "profiles-manage",
+        "privacy-data",
+        "transfer-profile",
+        "clear-data"
+      ],
+      "summary": "Ta bort ditt konto och allt i det för gott.",
+      "title": "Radera ditt konto"
+    },
+    "devices-sign-out": {
+      "body": "1. Öppna profilmenyn och välj <b>Konto</b>.\n2. Välj <b>Åtkomst och enheter</b>.\n3. Välj <b>Logga ut från denna enhet</b>, eller <b>Logga ut från alla enheter</b> för att logga ut från alla webbläsare där ditt konto är öppet, även den här.\n\n<b>Senaste säkerhetsaktivitet</b> på samma sida visar de senaste inloggningarna och ändringarna i ditt konto. Vi mejlar dig också när en ny enhet loggar in.\n\n!! Obs! Om du ser en inloggning du inte känner igen, logga ut från alla enheter och byt lösenord. Se <a=/help/article/change-email-password>Ändra e-postadress, lösenord eller telefonnummer</a>.",
+      "keywords": "logga ut alla enheter inloggade enheter sessioner säkerhet ny enhet borttappad telefon offentlig dator",
+      "related": [
+        "change-email-password",
+        "sign-in",
+        "forgot-password",
+        "security-report",
+        "privacy-data"
+      ],
+      "summary": "Se var ditt konto är inloggat och logga ut från enheter du inte använder längre.",
+      "title": "Logga ut från en enhet eller från alla enheter"
+    },
+    "download-data": {
+      "body": "1. Öppna profilmenyn och välj <b>Konto</b>.\n2. Välj <b>Åtkomst till personuppgifter</b>.\n3. Följ stegen för att spara filen.\n\nFilen innehåller dina kontouppgifter, profiler, inställningar, Min lista, betyg och tittaraktivitet. Den sparas på din enhet, så förvara den säkert.\n\nFör att ladda ner en profils tittaraktivitet som kalkylblad öppnar du profilens <b>Visningsaktivitet</b> och väljer <b>Ladda ner alla</b>.",
+      "keywords": "ladda ner mina uppgifter personuppgifter kopia exportera gdpr registerutdrag",
+      "related": [
+        "privacy-data",
+        "delete-account",
+        "viewing-history",
+        "transfer-profile",
+        "saved-data"
+      ],
+      "summary": "Få en fil med de personuppgifter som ditt konto har.",
+      "title": "Ladda ner en kopia av dina uppgifter"
+    },
+    "episodes": {
+      "body": "## Innan du trycker på spela\nÖppna en serie och välj <b>Avsnitt</b>. Byt säsong med säsongsmenyn och välj sedan ett avsnitt.\n\n## Medan du tittar\n- Välj <b>Avsnitt</b> i spelarens kontroller för att öppna listan utan att lämna spelaren.\n- Välj <b>Nästa avsnitt</b>, eller låt det starta av sig självt. Se <a=/help/article/skip-intro-next>\"Hoppa över intro\" och \"Nästa avsnitt\"</a>.",
+      "keywords": "avsnitt säsonger serie lista nästa avsnitt",
+      "related": [
+        "skip-intro-next",
+        "continue-watching",
+        "shortcuts",
+        "title-details",
+        "my-list"
+      ],
+      "summary": "Välj en säsong och ett avsnitt i detaljfönstret eller i spelaren.",
+      "title": "Säsonger och avsnitt"
+    },
+    "extensions-blockers": {
+      "body": "Spelaren hämtar streamar från externa källor. Verktyg som blockerar skript, ramar eller media från andra webbplatser kan stoppa den.\n\n1. Öppna tillägget och pausa det för den här webbplatsen, och ladda sedan om.\n2. Om du använder ett filter för hela nätverket, till exempel ett DNS-filter eller ett skol- eller jobbnätverk, prova ett annat nätverk.\n3. Fungerar uppspelningen sedan, lägg till {brand} i tilläggets lista över tillåtna webbplatser.\n\n!! Obs! Vi ber dig aldrig installera ett webbläsartillägg eller en kodek för att titta. Stäng sidor som gör det.\n\n@@ diagnostics",
+      "keywords": "tillägg annonsblockerare adblock ublock ghostery integritet skriptblockering vpn dns filter",
+      "related": [
+        "wont-play",
+        "playback-unavailable",
+        "supported-browsers",
+        "black-screen",
+        "sources"
+      ],
+      "summary": "Annonsblockerare och integritetsverktyg kan hindra en stream från att laddas.",
+      "title": "Tillägg som blockerar spelaren"
+    },
+    "fix-phone": {
+      "body": "1. Stäng fliken och öppna {brand} igen.\n2. Uppdatera webbläsaren från appbutiken.\n3. Stäng av datasparläge eller energisparläge medan du tittar.\n4. Kontrollera att du har en stabil anslutning. Se <a=/help/article/buffering>Buffring, frysningar eller långsam start</a>.\n5. Om du har lagt {brand} på hemskärmen och det ser gammalt ut tar du bort det och lägger till det igen. Se <a=/help/article/install-app>Installera {brand} som app</a>.\n\n@@ diagnostics\n\n@@ refresh",
+      "keywords": "mobil surfplatta iphone ipad android telefon problem",
+      "related": [
+        "phone-tablet",
+        "install-app",
+        "supported-browsers",
+        "wont-play",
+        "buffering"
+      ],
+      "summary": "Steg för iPhone, iPad och Android.",
+      "title": "Åtgärda ett problem på mobil eller surfplatta"
+    },
+    "fix-tv": {
+      "body": "{brand} har ingen tv-app. Du tittar via tv:ns webbläsare eller genom att casta en webbläsarflik från en dator eller mobil.\n\n- Uppdatera tv:ns programvara och webbläsare.\n- Starta om tv:n eller streamingstickan.\n- Om du castar en flik, håll den sändande enheten på samma nätverk och stäng andra flikar där.\n- Om tv:ns webbläsare är långsam, casta hellre fliken från en dator.\n\nSe <a=/help/article/watch-on-tv>Titta på tv:n</a>.\n\n@@ diagnostics",
+      "keywords": "tv smart-tv casta chromecast webbläsare problem",
+      "related": [
+        "watch-on-tv",
+        "wont-play",
+        "supported-browsers",
+        "buffering",
+        "black-screen"
+      ],
+      "summary": "Steg när du tittar via tv:ns webbläsare eller castar.",
+      "title": "Åtgärda ett problem på tv:n"
+    },
+    "forgot-password": {
+      "keywords": "glömt lösenord återställ lösenord tappat lösenord kan inte logga in nytt lösenord länk",
+      "related": [
+        "sign-in",
+        "change-email-password",
+        "devices-sign-out",
+        "need-account"
+      ],
+      "summary": "Få en länk via e-post för att välja ett nytt lösenord.",
+      "title": "Jag har glömt mitt lösenord"
+    },
+    "forgot-pin": {
+      "body": "1. Öppna profilmenyn, välj <b>Konto</b>, sedan <b>Hantera profiler</b>, och välj den låsta profilen.\n2. Välj <b>Profillås</b> och skriv kontots lösenord.\n3. Välj <b>Glömt din PIN-kod?</b> och sedan <b>Ta bort profillås</b>.\n\nProfilen öppnas igen utan PIN-kod och du kan välja en ny. Se <a=/help/article/profile-pin>Lägga till, ändra eller ta bort en profils PIN-kod</a>.\n\n!! Obs! Bara den som kan kontots lösenord kan ta bort en PIN-kod. Om du också har glömt lösenordet, se <a=/help/article/forgot-password>Jag har glömt mitt lösenord</a>.\n\n@@ profiles",
+      "keywords": "glömt pin pinkod tappat bort profillås ta bort",
+      "related": [
+        "profile-pin",
+        "forgot-password",
+        "profiles-manage",
+        "kids-profile",
+        "switch-profile"
+      ],
+      "summary": "Ta bort PIN-koden med kontots lösenord och välj en ny.",
+      "title": "Jag har glömt min profils PIN-kod"
+    },
+    "free-to-use": {
+      "body": "{brand} tar inte ut någon avgift, har inget abonnemang och ber inte om kortuppgifter. Det finns inga abonnemangsnivåer, provperioder eller faktureringsdatum.\n\nOm en sida, ett mejl eller ett meddelande utger sig för att vara {brand} och ber dig betala kommer det inte från oss. Skriv inte in några betaluppgifter. Vidarebefordra det till <a=mailto:{support_email}>{support_email}</a> så tittar vi på det.\n\n{brand} är en förteckning över länkar till titlar som andra tjänster tillhandahåller. Om en tjänst tar betalt för sitt eget innehåll bestämmer den tjänsten själv. Se <a=/help/article/sources>Var titlarna kommer ifrån</a>.",
+      "keywords": "gratis kostnad betala abonnemang pris kreditkort",
+      "related": [
+        "what-is",
+        "need-account",
+        "sources",
+        "getting-started",
+        "contribute"
+      ],
+      "summary": "Det finns inget att betala för i {brand}.",
+      "title": "Är {brand} gratis?"
+    },
+    "genres": {
+      "body": "1. Öppna <b>Filmer</b> eller <b>Serier</b> i fältet högst upp.\n2. Välj <b>Genrer</b> bredvid sidans titel.\n3. Välj en genre. Sidan visar då bara den genren, med rader gjorda för den.\n\nÖppna <b>Filmer</b> eller <b>Serier</b> igen för att se allt. På mobilen glider genrelistan upp nerifrån.",
+      "keywords": "genrer kategorier komedi drama skräck action filtrera",
+      "related": [
+        "search-browse",
+        "browse-language",
+        "new-popular",
+        "recommendations",
+        "top-10"
+      ],
+      "summary": "Smalna av Filmer och Serier till den sortens titel du vill ha.",
+      "title": "Bläddra efter genre"
+    },
+    "getting-started": {
+      "body": "1. <b>Skapa ditt gratis konto.</b> Se <a=/help/article/need-account>Behöver jag ett konto?</a>\n2. <b>Välj eller skapa en profil.</b> Se <a=/help/article/profiles-manage>Skapa, redigera eller radera profiler</a>.\n3. <b>Titta runt på startsidan.</b> Raderna är grupperade efter tema, och den stora titeln högst upp byts ut.\n4. <b>Sök</b> efter en titel, skådespelare eller regissör med förstoringsglaset. Se <a=/help/article/search-browse>Söka och bläddra</a>.\n5. <b>Välj en titel</b> för att läsa om den, se trailern och spela upp.\n6. <b>Lägg till titlar i Min lista</b> med knappen <b>+</b>.\n\nLär dig tangenterna som hjälper när du tittar: <a=/help/article/shortcuts>Kortkommandon</a>.",
+      "keywords": "kom igång börja första gången guide ny användare grunder",
+      "related": [
+        "what-is",
+        "profiles-manage",
+        "search-browse",
+        "install-app",
+        "need-account"
+      ],
+      "summary": "Dina första fem minuter: konto, profiler, hitta en titel och spara den.",
+      "title": "Kom igång med {brand}"
+    },
+    "install-app": {
+      "body": "{brand} är en webbapp. Det finns inget att ladda ner från en butik. Din webbläsare kan installera appen så att den öppnas i ett eget fönster med egen symbol.\n\n## Chrome och Edge på Windows, Mac och Linux\nVälj installationsikonen till höger i adressfältet, eller öppna webbläsarens meny och välj <b>Installera {brand}</b> (i Edge: <b>Appar</b> och sedan <b>Installera den här webbplatsen som en app</b>).\n\n## Safari på Mac\nÖppna menyn <b>Arkiv</b> och välj <b>Lägg till i Dock</b>.\n\n## Android\nÖppna webbläsarens meny och välj <b>Installera app</b> eller <b>Lägg till på startskärmen</b>.\n\n## iPhone och iPad\nVälj knappen <b>Dela</b> i Safari och sedan <b>Lägg till på hemskärmen</b>.\n\n!! Obs! Firefox på datorn kan inte installera webbplatser som appar. Använd ett bokmärke, eller installera från Chrome, Edge eller Safari. En installerad app är samma webbplats: den uppdaterar sig själv och håller dig inloggad precis som webbläsaren.",
+      "keywords": "installera app hemskärm dock skrivbord pwa",
+      "related": [
+        "phone-tablet",
+        "supported-browsers",
+        "fix-phone",
+        "getting-started",
+        "watch-on-tv"
+      ],
+      "summary": "Lägg till {brand} på hemskärmen, i Dock eller på skrivbordet så att det öppnas i ett eget fönster.",
+      "title": "Installera {brand} som app"
+    },
+    "is-down": {
+      "body": "{brand} har tre delar som kan sluta fungera var för sig:\n\n- <b>Appen</b>, som du tittar på nu.\n- <b>Film- och seriekatalogen</b>, som ger detaljer och bilder.\n- <b>Streamkällorna</b>, som levererar videon.\n\nKör kontrollen för att se vilka av dem som svarar från din enhet. Om katalogen eller källorna inte svarar för någon, vänta några minuter och försök igen. Om någon bara är onåbar för dig, se <a=/help/article/vpn-network>VPN, skol- och jobbnätverk</a>.\n\n@@ diagnostics",
+      "keywords": "nere driftstörning status fungerar inte offline",
+      "related": [
+        "vpn-network",
+        "wont-play",
+        "rows-wont-load",
+        "sources",
+        "report-bug"
+      ],
+      "summary": "Kontrollera vilka delar som fungerar från din enhet.",
+      "title": "Ligger {brand} nere?"
+    },
+    "kids-profile": {
+      "body": "En barnprofil visar bara titlar som passar barn, med en egen startsida och egna menyer för barn.\n\n1. Öppna <b>Hantera profiler</b> och välj <b>Lägg till profil</b>.\n2. Skriv ett namn och slå på <b>Barnprofil</b>.\n3. Välj <b>Spara</b>.\n\nVill du göra en befintlig profil till barnprofil redigerar du den och slår på <b>Barnprofil</b>. Huvudprofilen kan inte vara en barnprofil.\n\nVälj <b>Lämna Barn</b> och sedan en annan profil för att lämna barnsidorna. Vill du hindra ett barn från att byta profil låser du de andra profilerna med en PIN-kod. Se <a=/help/article/profile-pin>Lägga till, ändra eller ta bort en profils PIN-kod</a>.\n\nFör äldre barn kan du i stället sätta en åldersgräns på vilken profil som helst. Se <a=/help/article/parental-controls>Föräldrakontroll: åldersgränser och blockerade titlar</a>.\n\n!! Obs! Titlarna kommer från oberoende källor och alla har inte en åldersgräns. En barnprofil begränsar vad ett barn kan hitta, men ersätter inte att titta tillsammans.\n\n@@ profiles",
+      "keywords": "barnprofil barn kids säker ålder föräldrar",
+      "related": [
+        "parental-controls",
+        "profile-pin",
+        "profiles-manage",
+        "switch-profile",
+        "recommendations"
+      ],
+      "summary": "En barnprofil visar titlar som är gjorda för barn och håller allt annat borta.",
+      "title": "Skapa en profil för barn"
+    },
+    "language": {
+      "body": "## Visningsspråk\n1. Öppna profilmenyn, välj <b>Konto</b>, sedan <b>Hantera profiler</b>, och välj din profil.\n2. Välj <b>Språk</b>, sedan <b>Visningsspråk</b>, och välj ett språk.\n\nValet hör till profilen, så det följer med dig till alla dina enheter. I hjälpcentret kan du också välja språk längst ner på varje sida.\n\n## Ljud- och undertextspråk\n1. Öppna <b>Språk</b> för din profil, som ovan, och sedan <b>Ljud och undertexter</b>.\n2. Välj ett <b>Ljudspråk</b> och ett <b>Undertextspråk</b>. <b>Samma som visningsspråk</b> följer appens språk.\n\nSpelaren använder dem när en titel erbjuder dem.\n\n!! Obs! Bara språk som är helt översatta visas i listan.\n\n@@ language",
+      "keywords": "byta språk visningsspråk undertextspråk ljudspråk",
+      "related": [
+        "subtitles",
+        "browse-language",
+        "subtitles-missing",
+        "shortcuts",
+        "accessibility"
+      ],
+      "summary": "Byt språk i {brand} och de språk du tittar på.",
+      "title": "Byta språk"
+    },
+    "list-missing": {
+      "body": "Min lista och ditt framsteg hör till en profil och sparas i ditt konto. Om de ser tomma ut:\n\n- Kontrollera att du är i rätt profil. Varje profil har sin egen lista. Byt via profilmenyn.\n- Kontrollera att du har loggat in med samma konto som tidigare.\n- Ge en ny enhet några sekunder att ladda ditt konto efter inloggningen, eller ladda om sidan.\n- Titlar som du har dolt i tittaraktiviteten försvinner också från Fortsätt titta.\n\nSaknas något fortfarande på en enhet loggar du ut och in igen där. Se <a=/help/article/saved-data>Var dina profiler, din lista och ditt framsteg sparas</a>.\n\n@@ profiles",
+      "keywords": "min lista borta försvunnen tom fortsätt titta framsteg",
+      "related": [
+        "my-list",
+        "saved-data",
+        "switch-profile",
+        "continue-watching",
+        "sign-in"
+      ],
+      "summary": "Varför Min lista eller Fortsätt titta kan se tomma ut, och hur du får tillbaka dem.",
+      "title": "Min lista eller mitt framsteg har försvunnit"
+    },
+    "my-list": {
+      "body": "## Lägga till en titel\nVälj knappen <b>+</b> på ett titelkort, i detaljfönstret eller vid den stora titeln högst upp på sidan.\n\n## Ta bort en titel\nVälj bocken på titeln. Den blir ett <b>+</b> igen.\n\n## Se din lista\nÖppna <b>Mitt {brand}</b> i fältet högst upp, eller i fältet längst ner på mobilen. Där finns din lista, bredvid <b>Fortsätt titta</b>, titlarna du har gillat och trailrarna du har sett.\n\nMin lista hör till profilen och sparas i ditt konto, så den är likadan på alla enheter.",
+      "keywords": "min lista lägga till ta bort spara till senare favoriter plus",
+      "related": [
+        "list-missing",
+        "continue-watching",
+        "viewing-history",
+        "saved-data",
+        "recommendations"
+      ],
+      "summary": "Spara titlar till senare och hitta dem igen.",
+      "title": "Använda Min lista"
+    },
+    "need-account": {
+      "body": "Ja. Du behöver ett gratis konto för att titta på {brand}. Det tar en minut att skapa och frågar aldrig efter betaluppgifter.\n\n1. Skriv din e-postadress på {brand}s startsida och välj <b>Kom igång</b>.\n2. Skriv ditt för- och efternamn och välj ett lösenord på minst 8 tecken.\n3. Öppna länken vi mejlar dig för att bekräfta adressen, och logga sedan in.\n\nDitt konto sparar dina profiler, Min lista, dina betyg, din tittaraktivitet och dina inställningar, så att allt är likadant på alla enheter där du loggar in. Ditt förnamn blir namnet på din huvudprofil.\n\n!! Obs! {brand} är gratis och kommer aldrig att be om ett kortnummer. Se <a=/help/article/free-to-use>Är {brand} gratis?</a>",
+      "keywords": "behöver konto gratis registrera skapa konto",
+      "related": [
+        "sign-in",
+        "free-to-use",
+        "profiles-manage",
+        "saved-data",
+        "privacy-data"
+      ],
+      "summary": "Ja, ett gratis konto. Så här mycket sparar det åt dig.",
+      "title": "Behöver jag ett konto?"
+    },
+    "new-popular": {
+      "body": "<b>Nya & Populära</b> i fältet högst upp visar nya och populära titlar. Öppna en titel för detaljer och lägg till den i <b>Min lista</b> så hittar du den senare.\n\nListorna uppdateras från katalogen och ändras alltså från dag till dag.",
+      "keywords": "nytt populärt kommer snart trendar nya titlar",
+      "related": [
+        "notifications",
+        "search-browse",
+        "trailers-clips",
+        "recommendations",
+        "my-list"
+      ],
+      "summary": "Se vad som kommer och vad folk tittar på just nu.",
+      "title": "Nya & Populära"
+    },
+    "no-sound": {
+      "body": "1. Tryck på <b>M</b>, eller välj högtalarknappen i spelaren, för att slå på ljudet. Webbläsare startar ofta en video utan ljud när den börjar av sig själv, se <a=/help/article/autoplay-blocked>Videon startar utan ljud eller startar inte av sig själv</a>.\n2. Tryck på <b>Uppåtpil</b> för att höja volymen, och kontrollera enhetens volym.\n3. Kontrollera att webbläsarfliken inte är ljudlös. Högerklicka på fliken för att se.\n4. Öppna <b>Ljud & undertexter</b> och välj ett annat ljudspår om det finns ett.\n5. Om du använder Bluetooth, koppla från och anslut hörlurarna igen.",
+      "keywords": "inget ljud tyst volym högtalare bluetooth hörlurar",
+      "related": [
+        "autoplay-blocked",
+        "shortcuts",
+        "subtitles",
+        "wont-play",
+        "black-screen"
+      ],
+      "summary": "Åtgärda en titel som spelas utan ljud.",
+      "title": "Det hörs inget ljud"
+    },
+    "notifications": {
+      "body": "Klockan i fältet högst upp visar titlar som är värda en titt, till exempel nyheter och populära titlar. Välj en post för att öppna titelns detaljer.\n\nPoster du öppnar markeras som lästa, och siffran på klockan visar hur många som fortfarande är olästa.\n\nDin profils <b>Meddelandeinställningar</b> har val för e-post och pushnotiser. De sparas med profilen, men {brand} skickar ännu inga mejl eller pushnotiser om titlar. Mejl om ditt konto, till exempel inloggningslänkar, kommer alltid fram.",
+      "keywords": "aviseringar klocka nytt meddelanden e-post push",
+      "related": [
+        "new-popular",
+        "my-list",
+        "recommendations",
+        "trailers-clips",
+        "search-browse"
+      ],
+      "summary": "Vad klockan i fältet högst upp visar och hur saker markeras som lästa.",
+      "title": "Aviseringar"
+    },
+    "parental-controls": {
+      "body": "Varje profil kan ha egna gränser. Öppna profilmenyn, välj <b>Konto</b>, sedan <b>Hantera profiler</b>, välj profilen och välj <b>Justera föräldrakontroll</b>.\n\n## Åldersgränser\n1. Välj <b>Åldersgränser</b>.\n2. Välj den högsta åldersgräns som profilen får se. Bara titlar upp till den gränsen visas, och titlar utan åldersgräns döljs också.\n\n<b>Åldersmärkning</b> styr vilka märkningar du ser: brittiska (U, PG, 12, 15, 18) eller amerikanska (G, PG, PG-13, R, NC-17). <b>Automatiskt</b> följer landet du loggar in från.\n\n## Blockera titlar\n1. Välj <b>Blockera titlar</b>.\n2. Skriv namnet på en serie eller film och välj <b>Lägg till</b>.\n\nBlockerade titlar visas inte i den profilen. Välj <b>Ta bort</b> för att visa en igen.\n\n!! Obs! Titlarna kommer från oberoende källor och vissa saknar åldersgräns. För små barn är en barnprofil det säkrare valet. Se <a=/help/article/kids-profile>Skapa en profil för barn</a>.\n\n@@ profiles",
+      "keywords": "föräldrakontroll åldersgräns begränsningar blockera titel dölja barn tonåringar 7 11 15 18",
+      "related": [
+        "kids-profile",
+        "profile-pin",
+        "profiles-manage",
+        "viewing-history",
+        "switch-profile"
+      ],
+      "summary": "Begränsa en profil till titlar upp till en viss åldersgräns, eller dölj titlar efter namn.",
+      "title": "Föräldrakontroll: åldersgränser och blockerade titlar"
+    },
+    "phone-tablet": {
+      "body": "Öppna webbplatsen i mobilens webbläsare. Sidan byter till en layout gjord för pekskärm, med ett fält längst ner för <b>Hem</b>, <b>Clips</b>, <b>Sök</b> och <b>Mitt {brand}</b>.\n\n- Tryck på ett kort för detaljer och sedan på uppspelningsknappen för att börja.\n- Vrid mobilen till liggande läge för bästa bild.\n- Vill du att det ska kännas som en app, se <a=/help/article/install-app>Installera {brand} som app</a>.",
+      "keywords": "mobil surfplatta telefon fält längst ner",
+      "related": [
+        "install-app",
+        "fix-phone",
+        "supported-browsers",
+        "getting-started",
+        "shortcuts"
+      ],
+      "summary": "Mobillayouten, fältet längst ner och tips för små skärmar.",
+      "title": "Använda {brand} på mobil eller surfplatta"
+    },
+    "playback-unavailable": {
+      "body": "Du kan se <b>Uppspelning ej tillgänglig</b> eller <b>Det går inte att strömma videon. Alla källor var otillgängliga eller stöds inte av din webbläsare.</b>\n\nDet betyder att spelaren har frågat alla källor den känner till efter den här titeln och att ingen gav en stream som din webbläsare kan spela upp.\n\n1. Vänta en minut och tryck på spela igen. Källor går ibland ner en stund.\n2. Stäng av blockerare. Se <a=/help/article/extensions-blockers>Tillägg som blockerar spelaren</a>.\n3. Prova en annan webbläsare. Vissa streamar behöver funktioner som saknas i äldre webbläsare.\n4. Prova en annan titel för att se om problemet bara gäller den här.\n\nOm samma titel misslyckas en hel dag, <a=/help/article/report-bug>berätta för oss</a>. Ange titel, år och vilken webbläsare du använde.\n\n@@ diagnostics",
+      "keywords": "uppspelning ej tillgänglig felmeddelande källa ingen stream",
+      "related": [
+        "wont-play",
+        "sources",
+        "extensions-blockers",
+        "supported-browsers",
+        "report-bug"
+      ],
+      "summary": "Vad meddelandet betyder och vad du kan göra.",
+      "title": "{brand} säger \"Uppspelning ej tillgänglig\""
+    },
+    "privacy-data": {
+      "keywords": "integritet uppgifter samla in personuppgifter policy vad sparar ni",
+      "related": [
+        "download-data",
+        "delete-account",
+        "saved-data",
+        "recommendations",
+        "cookies-explained"
+      ],
+      "summary": "En kort sammanfattning av vad som sparas, vad som skickas och var du läser hela policyn.",
+      "title": "Vilka uppgifter samlar {brand} in?"
+    },
+    "profile-icons": {
+      "body": "1. Öppna <b>Hantera profiler</b> och välj profilen.\n2. Välj bilden.\n3. Välj en ny och sedan <b>Spara</b>.\n\nDu kan också byta den under <b>Konto</b>, i <b>Hantera profiler</b>: välj profilen och sedan dess bild. En barnprofil använder barnbilden tills du väljer en annan.",
+      "keywords": "profilbild bild avatar ikon välja",
+      "related": [
+        "profiles-manage",
+        "kids-profile",
+        "switch-profile",
+        "profile-pin",
+        "saved-data"
+      ],
+      "summary": "Välj en bild till en profil.",
+      "title": "Välja profilbild"
+    },
+    "profile-pin": {
+      "body": "Ett profillås frågar efter en PIN-kod på 4 siffror innan profilen öppnas. PIN-koden hör till ditt konto, så den gäller på alla enheter där du loggar in.\n\n## Slå på profillås\n1. Öppna profilmenyn, välj <b>Konto</b>, sedan <b>Hantera profiler</b>, och välj profilen.\n2. Välj <b>Profillås</b> och skriv ditt kontolösenord för att bekräfta att det är du.\n3. Skriv fyra siffror och välj <b>Spara</b>.\n\nDu kan också slå på <b>Profillås</b> när du lägger till eller redigerar en profil i <b>Hantera profiler</b>.\n\n## Ändra eller ta bort PIN-koden\n1. Öppna profilens <b>Profillås</b>, som ovan.\n2. Välj <b>Ändra PIN</b>, eller <b>Ta bort profillås</b> och skriv den nuvarande PIN-koden.\n\n!! Obs! Efter för många felaktiga försök förblir profilen låst en stund. Om du har glömt PIN-koden, se <a=/help/article/forgot-pin>Jag har glömt min profils PIN-kod</a>.\n\n@@ profiles",
+      "keywords": "pin pinkod lås profillås kod privat skydda profil",
+      "related": [
+        "forgot-pin",
+        "kids-profile",
+        "profiles-manage",
+        "switch-profile",
+        "saved-data"
+      ],
+      "summary": "Lås en profil med en PIN-kod på 4 siffror så att bara rätt person kan öppna den.",
+      "title": "Lägga till, ändra eller ta bort en profils PIN-kod"
+    },
+    "profiles-manage": {
+      "body": "Alla i hemmet kan ha en egen profil med eget namn, egen bild, Min lista, tittaraktivitet och rekommendationer. Ett konto rymmer upp till 5 profiler.\n\n## Lägga till en profil\n1. Öppna profilmenyn uppe till höger och välj <b>Hantera profiler</b>, eller välj <b>Hantera profiler</b> på skärmen <b>Vem tittar?</b>.\n2. Välj <b>Lägg till profil</b>.\n3. Skriv ett namn och välj en bild. Slå på <b>Barnprofil</b> om profilen är till ett barn.\n4. Välj <b>Spara</b>.\n\n## Redigera eller radera en profil\n1. Öppna <b>Hantera profiler</b> och välj profilen du vill ändra.\n2. Ändra namnet eller bilden, eller slå på eller av <b>Barnprofil</b> eller <b>Profillås</b>, och välj sedan <b>Spara</b>.\n3. Välj <b>Radera profil</b> för att ta bort profilen. Profilens tittaraktivitet och inställningar försvinner med den.\n\nSpråk, undertexter, föräldrakontroll och profilens övriga inställningar finns under <b>Konto</b>, i <b>Hantera profiler</b>.\n\n!! Obs! Profilerna sparas i ditt konto, så de syns på alla enheter där du loggar in.\n\n@@ profiles\n\n>> Det går inte att radera en profil\nHuvudprofilen, den som har ditt förnamn, kan inte raderas, och ett konto har alltid minst en profil. Alla andra profiler kan raderas.",
+      "keywords": "skapa profil redigera profil radera profil hantera profiler namn bild",
+      "related": [
+        "switch-profile",
+        "profile-pin",
+        "kids-profile",
+        "parental-controls",
+        "transfer-profile"
+      ],
+      "summary": "Lägg till en profil för varje person, byt namn eller bild, lås en profil eller radera en du inte behöver längre.",
+      "title": "Skapa, redigera eller radera profiler"
+    },
+    "recommendations": {
+      "body": "Raderna utgår från vad titlarna är: genrer, stämning, ämnen, land och decennium, till exempel <b>Romantiska komedier att må bra av</b> eller <b>Koreanska kriminalserier</b>. Inom varje rad följer ordningen din smak.\n\n## Vad som ändrar dina rader\n- Vad du startar och tittar klart på, vad du betygsätter och vad du lägger till i Min lista.\n- Rader som <b>Eftersom du såg</b>, <b>Dagens bästa val för dig</b> och <b>Titta härnäst</b> kommer från dina senaste titlar. På en genres sida håller de sig inom den genren.\n- Profilen du använder. Varje profil har sin egen smak, och en barnprofil visar bara titlar för barn.\n- Dagen och årstiden. Rader för högtider och evenemang dyker upp under sin säsong.\n\n## Stänga av det\nStäng av <b>Personliga rekommendationer</b> under din profils <b>Integritet och datainställningar</b>. Då ser du samma förslag som alla andra.\n\nVi använder aldrig ditt namn eller din e-postadress för att välja titlar. Se <a=/help/article/privacy-data>Vilka uppgifter samlar {brand} in?</a>\n\n@@ data",
+      "keywords": "rekommendationer rader förslag eftersom du såg smak personligt",
+      "related": [
+        "viewing-history",
+        "privacy-data",
+        "my-list",
+        "search-browse",
+        "kids-profile"
+      ],
+      "summary": "Hur raderna skapas och vad som ändrar dem.",
+      "title": "Så fungerar rekommendationer"
+    },
+    "report-bug": {
+      "body": "Ju mer vi vet, desto snabbare kan vi åtgärda det. Ta med:\n\n1. Vad du gjorde och vad du väntade dig.\n2. Vad som hände i stället, och vilket meddelande du såg.\n3. Titeln, om det gäller uppspelning.\n4. Din enhet och webbläsare.\n\nSidan <a=/help/contact>Kontakta oss</a> har en knapp som öppnar ett mejl där webbläsarens uppgifter redan är ifyllda.\n\n@@ diagnostics",
+      "keywords": "rapportera problem fel bugg kontakt",
+      "related": [
+        "title-feedback",
+        "contribute",
+        "rows-wont-load",
+        "wont-play"
+      ],
+      "summary": "Vad du ska ta med så att vi snabbt kan hitta och åtgärda ett fel.",
+      "title": "Rapportera ett problem"
+    },
+    "rows-wont-load": {
+      "body": "Raderna och sökningen kommer från vår rekommendationstjänst. Affischer och detaljer kommer från en öppen filmkatalog. Om någon av dem inte svarar kan du se tomma rader, en laddningssymbol eller saknade bilder.\n\n1. Ladda om sidan.\n2. Kontrollera din anslutning.\n3. Stäng av blockerare för den här webbplatsen. Se <a=/help/article/extensions-blockers>Tillägg som blockerar spelaren</a>.\n4. Försök igen om några minuter.\n\nDina profiler, Min lista och dina inställningar är säkra i ditt konto under tiden. Om problemet varar mer än en timme, <a=/help/article/report-bug>hör av dig</a>.\n\n@@ diagnostics\n\n@@ refresh",
+      "keywords": "rader tomma laddar tom sida bilder affischer laddas inte startsida fel rekommendationer",
+      "related": [
+        "supported-browsers",
+        "report-bug",
+        "recommendations",
+        "extensions-blockers"
+      ],
+      "summary": "Sidan visar tomma rader, en laddningssymbol eller saknade bilder.",
+      "title": "Rader eller bilder laddas inte"
+    },
+    "saved-data": {
+      "body": "Dina profiler, Min lista, dina betyg, din tittaraktivitet och dina inställningar sparas i ditt konto. Varje webbläsare där du loggar in har en kopia, så sidorna öppnas direkt och fungerar en stund utan anslutning. Ändringar når ditt konto inom några sekunder och dina andra enheter när du öppnar {brand} där.\n\n## Vad det betyder\n- Logga in på en annan enhet så finns allt där.\n- Om du rensar webbplatsdata i en webbläsare loggas du ut där och kopian försvinner. Ditt konto sparar allt.\n- I ett privat fönster tas kopian bort när du stänger fönstret.\n\n## Vad mer som skickas till våra servrar\nNär du startar en titel får rekommendationstjänsten veta vilken, så att dina rader följer din smak. Du kan stänga av det med <b>Personliga rekommendationer</b> under <b>Integritet och datainställningar</b>. Se <a=/help/article/recommendations>Så fungerar rekommendationer</a>.\n\n@@ data",
+      "keywords": "sparade uppgifter konto synkronisera enheter webbläsare kopia framsteg lista",
+      "related": [
+        "clear-data",
+        "privacy-data",
+        "need-account",
+        "list-missing",
+        "viewing-history"
+      ],
+      "summary": "Ditt konto sparar dem, och varje webbläsare har en kopia så att sidorna öppnas snabbt.",
+      "title": "Var dina profiler, din lista och ditt framsteg sparas"
+    },
+    "search-browse": {
+      "body": "## Söka\n1. Välj förstoringsglaset i fältet högst upp.\n2. Skriv en titel, skådespelare eller regissör. Resultaten visas medan du skriver, och små stavfel gör inget.\n\n## Bläddra\n- <b>Serier</b> och <b>Filmer</b> i fältet högst upp öppnar en sida för varje sorts titel. Använd <b>Genrer</b> där för att smalna av.\n- Raderna på startsidan är grupperade efter tema. Se <a=/help/article/recommendations>Så fungerar rekommendationer</a>.\n- <b>Bläddra efter språk</b> hittar titlar efter originalspråk. Se <a=/help/article/browse-language>Bläddra efter språk</a>.",
+      "keywords": "söka bläddra titel skådespelare regissör genre",
+      "related": [
+        "browse-language",
+        "new-popular",
+        "recommendations",
+        "my-list",
+        "trailers-clips"
+      ],
+      "summary": "Hitta en titel efter namn, genre eller stämning.",
+      "title": "Söka och bläddra"
+    },
+    "security-report": {
+      "body": "Om du har hittat ett sätt att läsa någon annans uppgifter, kringgå en profils PIN-kod eller få webbplatsen att gå sönder, berätta det för oss innan du berättar för någon annan.\n\n1. Skriv till <a=mailto:{support_email}>{support_email}</a> med ämnet <b>Säkerhet</b>.\n2. Beskriv vad du hittade, stegen för att upprepa det och sidan eller adressen det gäller.\n3. Titta inte på andras uppgifter och testa inte med automatiska mängder av förfrågningar.\n\nVi läser varje rapport. Samma uppgifter finns i den maskinläsbara filen på <a=/.well-known/security.txt>/.well-known/security.txt</a>.",
+      "keywords": "säkerhet sårbarhet svaghet rapportera ansvarsfullt",
+      "related": [
+        "report-bug",
+        "privacy-data",
+        "profile-pin",
+        "contribute"
+      ],
+      "summary": "Hur du tryggt berättar för oss om en svaghet.",
+      "title": "Rapportera ett säkerhetsproblem"
+    },
+    "share": {
+      "body": "1. Öppna en titels detaljer och välj <b>Dela</b>.\n2. Välj <b>WhatsApp</b> eller <b>Meddelanden</b> för att skicka länken, eller <b>Kopiera länk</b> för att klistra in den var du vill.\n3. För Instagram och Snapchat kopieras länken och du klistrar in den i appen.\n\nLänken öppnar titeln på {brand}. Den som öppnar den behöver logga in, eller skapa ett gratis konto, för att titta.",
+      "keywords": "dela länk whatsapp meddelanden kopiera",
+      "related": [
+        "title-details",
+        "my-list",
+        "search-browse",
+        "title-feedback",
+        "new-popular"
+      ],
+      "summary": "Skicka en länk till en titel till en vän.",
+      "title": "Dela en titel"
+    },
+    "shortcuts": {
+      "body": "De här tangenterna fungerar på en dator medan en titel spelas.\n\n- <b>Mellanslag</b> eller <b>K</b>: spela eller pausa\n- <b>Vänsterpil</b> eller <b>J</b>: 10 sekunder bakåt\n- <b>Högerpil</b> eller <b>L</b>: 10 sekunder framåt\n- <b>Uppåtpil</b> och <b>Nedåtpil</b>: högre och lägre volym\n- <b>M</b>: stäng av eller slå på ljudet\n- <b>F</b>: helskärm på eller av",
+      "keywords": "kortkommandon tangentbord mellanslag paus volym helskärm",
+      "related": [
+        "accessibility",
+        "skip-intro-next",
+        "subtitles",
+        "continue-watching",
+        "wont-play"
+      ],
+      "summary": "Styr spelaren utan mus.",
+      "title": "Kortkommandon"
+    },
+    "sign-in": {
+      "body": "## Logga in\n1. Välj <b>Logga in</b> högst upp på {brand}s startsida.\n2. Skriv din e-postadress och ditt lösenord och välj <b>Logga in</b>.\n\nLåt <b>Kom ihåg mig</b> vara påslaget för att förbli inloggad på den här enheten. Om du loggade ut från enheten för en liten stund sedan kan du fortsätta utan att skriva lösenordet igen.\n\n## Logga ut\nÖppna profilmenyn och välj <b>Logga ut från {brand}</b>. Vill du logga ut överallt på en gång, se <a=/help/article/devices-sign-out>Logga ut från en enhet eller från alla enheter</a>.\n\n## Inloggningen fungerar inte\n- Kontrollera att e-postadressen är rätt stavad. Lösenordet skiljer på stora och små bokstäver.\n- Om du precis har registrerat dig öppnar du först bekräftelselänken vi mejlade. <b>Skicka bekräftelsemejlet igen</b> skickar en ny.\n- Efter för många försök väntar du en minut och försöker igen.\n- Glömt lösenordet? Se <a=/help/article/forgot-password>Jag har glömt mitt lösenord</a>.",
+      "keywords": "logga in inloggning logga ut kom ihåg mig e-post lösenord konto",
+      "related": [
+        "need-account",
+        "forgot-password",
+        "devices-sign-out",
+        "change-email-password",
+        "saved-data"
+      ],
+      "summary": "Logga in med e-post och lösenord, förbli inloggad och logga ut.",
+      "title": "Logga in och logga ut"
+    },
+    "skip-intro-next": {
+      "body": "- <b>Hoppa över intro</b> visas några sekunder när introt till ett avsnitt börjar. Välj det för att hoppa direkt till handlingen.\n- <b>Nästa avsnitt</b> i spelarens kontroller startar nästa avsnitt.\n- <b>Avsnitt</b> öppnar en lista över säsongen så att du kan välja vilket avsnitt som helst.\n\nVill du bestämma vad som händer när ett avsnitt tar slut öppnar du din profils <b>Uppspelningsinställningar</b> och slår på eller av <b>Spela upp nästa avsnitt automatiskt</b>.",
+      "keywords": "hoppa över intro nästa avsnitt spela upp automatiskt sträcktitta avsnitt säsong",
+      "related": [
+        "shortcuts",
+        "episodes",
+        "continue-watching",
+        "subtitles",
+        "my-list"
+      ],
+      "summary": "Hoppa förbi introt eller gå vidare till nästa avsnitt.",
+      "title": "\"Hoppa över intro\" och \"Nästa avsnitt\""
+    },
+    "slow-pages": {
+      "body": "Vid första besöket laddas appen ner, ungefär 2 MB. Därefter är det mest bilder och förhandsvisningar som tar tid.\n\n- Stäng av <b>Spela upp förhandsvisningar automatiskt</b> i din profils <b>Uppspelningsinställningar</b>. Förhandsvisningar som startar av sig själva drar data och minne.\n- Stäng flikar och andra appar som använder nätverket eller mycket minne.\n- Använd en aktuell webbläsare. Äldre kör appen långsammare.\n- Byt till wifi om du kan när du använder mobildata.\n\n@@ diagnostics",
+      "keywords": "långsam laggar prestanda hastighet laddning minne gammal telefon förhandsvisningar",
+      "related": [
+        "buffering",
+        "supported-browsers",
+        "vpn-network",
+        "trailers-clips",
+        "wont-play"
+      ],
+      "summary": "Gör surfandet snabbare på en långsam anslutning eller en äldre enhet.",
+      "title": "Sidorna laddas långsamt"
+    },
+    "sources": {
+      "body": "Detaljer, affischer och betyg kommer från en öppen film- och tv-katalog. Själva videon finns inte på {brand}. När du trycker på spela frågar spelaren oberoende externa källor efter en stream.\n\n- En titel kan finnas hos en källa men inte hos en annan.\n- En källa kan gå offline utan förvarning.\n- Kvalitet, ljudspår och undertexter kommer från källan.\n\nVi styr inte över och kontrollerar inte de källorna. Se <a=/help/legal/disclaimer>Ansvarsfriskrivningen</a>. Om du är rättighetsinnehavare, se <a=/help/article/copyright>Rapportera ett upphovsrättsproblem</a>.",
+      "keywords": "källor var kommer titlar ifrån stream fungerar inte",
+      "related": [
+        "what-is",
+        "wont-play",
+        "playback-unavailable",
+        "copyright",
+        "free-to-use"
+      ],
+      "summary": "Hur {brand} hittar streamar, och varför en titel kan fungera ena dagen och inte nästa.",
+      "title": "Var titlarna kommer ifrån"
+    },
+    "stuck-loading": {
+      "body": "Medan {brand} startar ser du kublogotypen med en rad prickar som rör sig. Det ska ta några sekunder. {brand} körs som en WebAssembly-app, så en webbläsare eller inställning som stänger av WebAssembly gör att du fastnar på den skärmen.\n\n1. Ladda om med <b>Ctrl + Skift + R</b> (<b>Cmd + Skift + R</b> på Mac) för att hämta den senaste versionen.\n2. Öppna sidan i ett privat fönster. Om den fungerar där är det ett tillägg som stör. Se <a=/help/article/extensions-blockers>Tillägg som blockerar spelaren</a>.\n3. Uppdatera din webbläsare. Se <a=/help/article/supported-browsers>Webbläsare som stöds</a>.\n4. Stäng av alla lägen som begränsar webbfunktioner för den här webbplatsen, till exempel Låst läge på Apple-enheter eller strikt säkerhet i Edge.\n5. Rensa den här webbplatsens data och logga in igen. Se <a=/help/article/clear-data>Rensa sparade uppgifter</a>.\n\n@@ refresh",
+      "keywords": "fastnar laddar logotyp tom vit skärm startar inte webassembly wasm fryst uppstart",
+      "related": [
+        "supported-browsers",
+        "extensions-blockers",
+        "clear-data",
+        "rows-wont-load"
+      ],
+      "summary": "Vad du kan prova när {brand} aldrig blir klar med att starta.",
+      "title": "Sidan fastnar på logotypen eller en tom skärm"
+    },
+    "subtitles": {
+      "body": "## Slå på eller av undertexter\n1. Starta en titel och för pekaren över spelaren, eller tryck på skärmen.\n2. Välj <b>Ljud & undertexter</b>.\n3. Välj ett undertextspråk, eller <b>Av</b>.\n\nOm texten kommer för tidigt eller för sent använder du <b>-0.5s</b> och <b>+0.5s</b> i samma panel för att flytta den.\n\n## Ändra hur undertexterna ser ut\n1. Öppna profilmenyn, välj <b>Konto</b>, sedan <b>Hantera profiler</b>, och välj din profil.\n2. Välj <b>Undertexternas utseende</b>.\n3. Välj textstorlek, textfärg, kant, bakgrund och fönsterfärg. Förhandsvisningen visar resultatet. <b>Återställ till standard</b> tar bort dina ändringar.\n\n!! Obs! Vilka språk och ljudspår som finns beror på titelns källa. Se <a=/help/article/subtitles-missing>Undertexter saknas eller är osynkade</a>.",
+      "keywords": "undertexter slå på stänga av språk storlek färg utseende",
+      "related": [
+        "language",
+        "subtitles-missing",
+        "shortcuts",
+        "accessibility",
+        "browse-language"
+      ],
+      "summary": "Slå på undertexter, välj ett spår och ändra hur de ser ut.",
+      "title": "Använda undertexter eller välja ljudspråk"
+    },
+    "subtitles-missing": {
+      "body": "1. Välj <b>Ljud & undertexter</b> i spelaren och kontrollera att ett undertextspråk är valt.\n2. Välj ett annat spår om listan har något. Spåren kommer från källan och skiljer sig mellan titlar.\n3. Ställ in profilens föredragna undertextspråk. Se <a=/help/article/language>Byta språk</a>.\n4. Om texten kommer för tidigt eller sent, använd <b>-0.5s</b> eller <b>+0.5s</b> i <b>Ljud & undertexter</b> tills den stämmer med talet.\n\nOm en titel inte har några undertexter alls har källan inte levererat några.\n\n@@ language",
+      "keywords": "undertexter saknas fel språk osynkade fördröjning text",
+      "related": [
+        "subtitles",
+        "language",
+        "wont-play",
+        "playback-unavailable",
+        "report-bug"
+      ],
+      "summary": "Åtgärda undertexter som inte syns, visar fel språk eller släpar efter talet.",
+      "title": "Undertexter saknas eller är osynkade"
+    },
+    "supported-browsers": {
+      "body": "{brand} fungerar i aktuella versioner av de här webbläsarna:\n\n- <b>Google Chrome</b>, <b>Microsoft Edge</b>, <b>Brave</b> och andra Chromium-webbläsare på Windows, macOS, Linux och Android\n- <b>Mozilla Firefox</b> på Windows, macOS, Linux och Android\n- <b>Safari</b> på Mac, iPhone och iPad\n\nInternet Explorer stöds inte. Håll webbläsaren uppdaterad och låt webbplatsen använda JavaScript och webbplatsdata.\n\n@@ diagnostics\n\n>> Webbläsaren visar ett fel innan sidan laddas\nLadda om med <b>Ctrl + Skift + R</b> på Windows och Linux, eller <b>Cmd + Skift + R</b> på Mac, för att hämta den senaste versionen av appen, och försök sedan igen.",
+      "keywords": "webbläsare chrome firefox safari edge brave opera internet explorer version uppdatera",
+      "related": [
+        "wont-play",
+        "install-app",
+        "fix-phone",
+        "fix-tv",
+        "extensions-blockers"
+      ],
+      "summary": "Vilka webbläsare och system som fungerar bäst.",
+      "title": "Webbläsare som stöds"
+    },
+    "switch-profile": {
+      "body": "1. Öppna profilmenyn uppe till höger på sidan. På mobilen trycker du på din profilbild i fältet längst ner.\n2. Välj profilen du vill använda.\n3. Om profilen är låst skriver du dess PIN-kod med 4 siffror.\n\nRekommendationer, <b>Min lista</b> och <b>Fortsätt titta</b> följer den profil du väljer.\n\n!! Obs! Du kan låsa en profil med en PIN-kod. Se <a=/help/article/profile-pin>Lägga till, ändra eller ta bort en profils PIN-kod</a>.\n\n@@ profiles",
+      "keywords": "byta profil annan profil vem tittar profilmeny",
+      "related": [
+        "profiles-manage",
+        "profile-pin",
+        "kids-profile",
+        "forgot-pin",
+        "saved-data"
+      ],
+      "summary": "Byt vem som tittar utan att lämna sidan.",
+      "title": "Byta profil"
+    },
+    "title-details": {
+      "body": "Välj ett titelkort, eller <b>Mer info</b>, för att öppna detaljerna.\n\n- <b>Spela</b> eller <b>Återuppta</b> startar titeln där du slutade.\n- <b>Min lista</b> sparar den, och med tummen betygsätter du den.\n- Sammanfattningen, rollistan, genrerna och några ord om stämningen hjälper dig att bestämma dig.\n- För serier visar <b>Avsnitt</b> säsongerna.\n- <b>Mer som detta</b> visar liknande titlar, ett bra sätt att hitta något nytt.",
+      "keywords": "detaljer titel mer info spela betyg",
+      "related": [
+        "my-list",
+        "episodes",
+        "share",
+        "recommendations",
+        "trailers-clips"
+      ],
+      "summary": "Vad du kan läsa och göra innan du trycker på spela.",
+      "title": "Titelns detaljfönster"
+    },
+    "title-feedback": {
+      "body": "Skriv till <a=mailto:{support_email}>{support_email}</a> och ange:\n\n- titeln och året\n- adressen till sidan på {brand}\n- vad som är fel, till exempel fel affisch, en säsong som saknas eller en titel som aldrig spelas upp\n\nDetaljerna kommer från en öppen katalog, så en felaktig beskrivning rättas bäst vid källan. Rättelser vi får skickar vi vidare.",
+      "keywords": "synpunkter titel fel beskrivning saknas säsong",
+      "related": [
+        "report-bug",
+        "contribute",
+        "wont-play",
+        "recommendations",
+        "copyright"
+      ],
+      "summary": "Rapportera en felaktig beskrivning, en titel som saknas eller en titel som aldrig spelas upp.",
+      "title": "Synpunkter på en titel på {brand}"
+    },
+    "top-10": {
+      "body": "En <b>Topp 10</b>-rad visar de tio populäraste filmerna eller serierna just nu, med en stor siffra på varje. Den följer titlarnas dagliga popularitet i filmkatalogen och ändras alltså från dag till dag. Den är likadan för alla och beror inte på din profil.",
+      "keywords": "topp 10 tio populära topplista siffror rad",
+      "related": [
+        "new-popular",
+        "genres",
+        "recommendations",
+        "search-browse",
+        "trailers-clips"
+      ],
+      "summary": "En rad med de tio populäraste titlarna just nu.",
+      "title": "Vad är Topp 10-raderna?"
+    },
+    "trailers-clips": {
+      "keywords": "trailers klipp förhandsvisning korta ljud automatisk uppspelning",
+      "related": [
+        "new-popular",
+        "search-browse",
+        "my-list",
+        "recommendations",
+        "notifications"
+      ],
+      "summary": "Kika på en titel innan du bestämmer dig.",
+      "title": "Trailers och klipp"
+    },
+    "transfer-profile": {
+      "body": "En profil kan kopieras till ett annat konto, till exempel när någon flyttar hemifrån. Kopian behåller namn, bild, inställningar och tittaraktivitet.\n\n## Spara profilen\n1. Öppna profilmenyn och välj <b>Överför profil</b>.\n2. Välj profilen och välj <b>Ladda ner profilfil</b>. Förvara filen säkert.\n\n## Lägga till den i det andra kontot\n1. Logga in på det andra kontot och öppna <b>Hantera profiler</b>.\n2. Välj <b>Importera en profil</b> och välj filen.\n\n!! Obs! Filen innehåller inte profilens PIN-kod. Vem som helst som har filen kan lägga till profilen i sitt konto, så dela den inte.\n\n<b>Profilöverföring</b> under <b>Konto</b> slår på eller av kopiering av profiler från ditt konto. Den blockerar aldrig profiler som kommer in.",
+      "keywords": "överföra profil flytta kopiera profil annat konto importera exportera profilfil",
+      "related": [
+        "profiles-manage",
+        "download-data",
+        "delete-account",
+        "profile-pin",
+        "saved-data"
+      ],
+      "summary": "Spara en profil som fil och lägg till den i ett annat konto med historik och inställningar.",
+      "title": "Flytta en profil till ett annat konto"
+    },
+    "translate": {
+      "body": "Alla gränssnittets texter finns i en vanlig textfil per språk. Du behöver inte kunna programmera för att översätta.\n\n## Bra att veta\n- Meddelanden ser ut som <b>nyckel = text</b>. Ändra bara texten efter likhetstecknet.\n- Ord inom klammerparenteser, som <b>{ \"{brand}\" }</b>, fylls i av appen. Låt dem vara som de är och placera dem där ditt språk behöver dem.\n- Vissa meddelanden har former för en och för flera (<b>1 säsong</b>, <b>2 säsonger</b>). Språk med fler än två former kan lägga till alla.\n- Där ditt språk böjer ett ord efter genus eller kasus skriver du den form som passar i meningen.\n\n## Så skickar du en översättning\nSkriv till <a=mailto:{support_email}>{support_email}</a> med språket och antingen filen eller en länk till din ändring. Personer med språket som modersmål som granskar varandras arbete är den bästa kontroll vi har.",
+      "keywords": "översätta översättning språk bidra ftl fluent",
+      "related": [
+        "contribute",
+        "language",
+        "report-bug",
+        "what-is",
+        "getting-started"
+      ],
+      "summary": "Gränssnittets texter ligger i enkla filer, en per språk, och alla kan förbättra dem.",
+      "title": "Hjälp till att översätta {brand}"
+    },
+    "viewing-history": {
+      "body": "Varje profil har en sida med <b>Visningsaktivitet</b> som visar titlarna profilen har sett, de senaste först. {brand} använder den för Fortsätt titta och för rekommendationer.\n\n1. Öppna profilmenyn, välj <b>Konto</b>, sedan <b>Hantera profiler</b>, och välj profilen.\n2. Välj <b>Visningsaktivitet</b>.\n3. Välj <b>Dölj denna titel</b> bredvid en titel, eller <b>Dölj alla</b>.\n\nEn dold titel försvinner från Fortsätt titta och påverkar inte längre rekommendationerna, på alla enheter. <b>Ladda ner alla</b> sparar listan som kalkylblad.\n\n@@ data",
+      "keywords": "tittarhistorik visningsaktivitet dölja ta bort ladda ner",
+      "related": [
+        "continue-watching",
+        "clear-data",
+        "saved-data",
+        "recommendations",
+        "privacy-data"
+      ],
+      "summary": "Vad som registreras när du tittar och hur du tar bort det.",
+      "title": "Hantera din tittarhistorik"
+    },
+    "vpn-network": {
+      "body": "{brand} hämtar detaljer och bilder från en öppen filmkatalog och streamar från oberoende källor. Vissa nätverk blockerar de webbplatserna, och vissa källor nekar vissa adresser.\n\n- <b>VPN eller proxy.</b> Vissa källor svarar inte på VPN-adresser. Stäng av VPN:et eller välj ett annat land.\n- <b>Wifi i skolan, på jobbet eller offentligt.</b> Filter blockerar ofta streaming eller katalogen. Prova mobilens mobildata.\n- <b>DNS-filter.</b> En filtrerande DNS-tjänst kan blockera katalogen så att rader eller bilder blir tomma. Använd en annan DNS eller stäng av filtret för den här webbplatsen.\n\nEnhetskontrollen visar vilken tjänst ditt nätverk inte når.\n\n@@ diagnostics",
+      "keywords": "vpn proxy skola jobb nätverk blockerat dns",
+      "related": [
+        "is-down",
+        "wont-play",
+        "playback-unavailable",
+        "rows-wont-load",
+        "sources"
+      ],
+      "summary": "Varför vissa nätverk blockerar titlar eller bilder, och vad du kan prova.",
+      "title": "VPN, skol- och jobbnätverk"
+    },
+    "watch-on-tv": {
+      "body": "Det finns ännu ingen {brand}-app för tv. De här sätten fungerar redan nu:\n\n- <b>Tv:ns webbläsare.</b> Öppna {brand}s adress i webbläsaren som finns på din tv.\n- <b>Casta en flik.</b> Öppna webbläsarens meny i Chrome eller Edge på en dator, välj <b>Casta</b> och välj sedan din tv eller streamingsticka.\n- <b>Kabel.</b> Anslut en bärbar dator till tv:n med en HDMI-kabel och använd helskärm.\n\nOm bild eller ljud inte stämmer, se <a=/help/article/fix-tv>Åtgärda ett problem på tv:n</a>.",
+      "keywords": "tv titta casta hdmi webbläsare",
+      "related": [
+        "fix-tv",
+        "install-app",
+        "supported-browsers",
+        "getting-started",
+        "shortcuts"
+      ],
+      "summary": "Använd tv:ns webbläsare, eller skicka en webbläsarflik från en dator eller mobil.",
+      "title": "Titta på tv:n"
+    },
+    "what-is": {
+      "body": "{brand} hjälper dig att hitta din nästa film eller serie. Det lär sig vad du gillar och ordnar katalogen i rader åt dig, på en sida som känns som de streamingtjänster du känner till.\n\n{brand} är en förteckning över länkar. Det lagrar eller laddar inte upp video. När du trycker på spela frågar spelaren oberoende källor efter en stream och spelar den första som fungerar. Se <a=/help/article/sources>Var titlarna kommer ifrån</a>.\n\nDet finns inget att köpa och inget abonnemang. Se <a=/help/article/free-to-use>Är {brand} gratis?</a>",
+      "keywords": "vad är streams tjänst förklaring länkar katalog",
+      "related": [
+        "getting-started",
+        "sources",
+        "free-to-use",
+        "need-account",
+        "contribute"
+      ],
+      "summary": "En kort beskrivning av {brand}: vad det gör och inte gör.",
+      "title": "Vad är {brand}?"
+    },
+    "wont-play": {
+      "body": "Prova de här stegen i ordning. Testa efter varje steg.\n\n1. Ladda om sidan. Ett tillfälligt fel hos källan är den vanligaste orsaken.\n2. Välj ett annat avsnitt, eller starta titeln igen från detaljfönstret. Spelaren provar de tillgängliga källorna en efter en.\n3. Stäng av annonsblockerare och integritetstillägg för den här webbplatsen. Se <a=/help/article/extensions-blockers>Tillägg som blockerar spelaren</a>.\n4. Använd en aktuell version av Chrome, Edge, Firefox eller Safari. Se <a=/help/article/supported-browsers>Webbläsare som stöds</a>.\n5. Byt nätverk, till exempel från wifi till mobildata, eller stäng av ett VPN. Vissa källor nekar vissa nätverk.\n\n@@ diagnostics\n\n>> Spelas fortfarande inte upp\nVissa titlar finns inte hos någon källa vid ett visst tillfälle. Försök igen senare. Om en populär titel aldrig spelas upp, berätta vilken på sidan <a=/help/article/report-bug>Rapportera ett problem</a>.",
+      "keywords": "spelas inte upp fungerar inte fel svart skärm startar inte",
+      "related": [
+        "playback-unavailable",
+        "black-screen",
+        "buffering",
+        "extensions-blockers",
+        "supported-browsers"
+      ],
+      "summary": "De snabbaste lösningarna när spelaren visar ett fel, förblir svart eller aldrig startar.",
+      "title": "En titel spelas inte upp"
+    }
+  },
+  "policies": {
+    "cookie-policy": {
+      "sections": [
+        {
+          "body": "{brand} använder inga reklam- eller analyscookies. Vi använder webbläsarens lokala lagring, en plats på din enhet som bara den här webbplatsen kan läsa, till:",
+          "bullets": [
+            "<b>Inloggning:</b> det som håller dig inloggad i den här webbläsaren, och en cookie med din profils namn så att Hjälpcenter visar dig som inloggad.",
+            "<b>Snabbhet:</b> en kopia av dina profiler, inställningar och ditt framsteg, så att sidorna öppnas direkt.",
+            "<b>Dina val:</b> dina val om cookies och personalisering, och ditt visningsspråk."
+          ],
+          "title": "Hur vi använder cookies och lagring"
+        }
+      ],
+      "title": "Cookiepolicy",
+      "updated": "Senast uppdaterad: oktober 2026"
+    },
+    "credits": {
+      "sections": [
+        {
+          "body": "Logotypen är satt i ett pixeltypsnitt, gränssnittet i Inter och samlingarnas titlar i dekorativa typsnitt:",
+          "bullets": [
+            "<b>Baby Blocks</b> av Colorful Typhoon, används till {brand}-logotypen enligt typsnittets freewarevillkor för icke-kommersiellt bruk. Se <a href=\"https://www.fontspace.com/baby-blocks-font-f3699\" target=\"_blank\" rel=\"noopener\">typsnittet på FontSpace</a>.",
+            "<b>Inter</b> av Rasmus Andersson, används under SIL Open Font License 1.1.",
+            "<b>Abril Fatface, Caveat Brush, DM Serif Display, Fredoka, Gochi Hand, Kalam, Londrina Solid, Playfair Display och Sedgwick Ave</b> från Google Fonts, används enligt SIL Open Font License 1.1.",
+            "<b>Permanent Marker</b> och <b>Rock Salt</b> från Google Fonts, används enligt Apache License 2.0."
+          ],
+          "title": "1. Typsnitt"
+        },
+        {
+          "body": "Gränssnittsikoner kommer från Phosphor Icons, Tabler Icons och Hugeicons, används under MIT License, och från Remix Icon och IBM Carbon, används under Apache License 2.0.",
+          "bullets": [],
+          "title": "2. Ikoner"
+        },
+        {
+          "bullets": [],
+          "title": "3. Film och serieinformation"
+        },
+        {
+          "body": "{brand} byggs med öppen källkod, varje används under sin egen licens:",
+          "bullets": [
+            "<b>Rust</b> och <b>Leptos</b> för applikationen (MIT och Apache 2.0).",
+            "<b>Tailwind CSS</b> för stil (MIT).",
+            "<b>hls.js</b> för adaptiv videospelning (Apache 2.0).",
+            "<b>Project Fluent</b> för översatta gränssnittstexter (Apache 2.0 och MIT)."
+          ],
+          "title": "4. Programvara"
+        },
+        {
+          "body": "Namn, logotyper, bildförklaringar och konstverk för filmer, serier och tjänster som visas på {brand} tillhör deras ägare. De visas för att identifiera titeln och innebär inte att ägaren stödjer {brand}.",
+          "bullets": [],
+          "title": "5. Märken och konstverk"
+        },
+        {
+          "body": "Om du tror att något här är krediterat felaktigt eller behöver ändras, skriv till {support_email}.",
+          "bullets": [],
+          "title": "6. Kontakt"
+        }
+      ],
+      "title": "Licenser och krediteringar",
+      "updated": "Senast uppdaterad: Oktober 2026"
+    },
+    "disclaimer": {
+      "sections": [
+        {
+          "body": "{brand} är en länkaggregator och sökmotor för offentligt tillgängliga inbäddade medie-länkar. Vi har ingen server där vi har upplagt, uppladdat, lagrat, överfört eller kontrollerat något video, ljud eller medieinnehåll.",
+          "bullets": [],
+          "title": "1. Inget innehållsöverföring"
+        },
+        {
+          "body": "Allt innehåll som är tillgängligt via länkar som är indexerade av {brand} kommer från externa, oberoende tredjepartskällor. {brand} har ingen kontroll över och tar ingen ansvar för lagligheten, korrektheten, kvaliteten eller tillgängligheten hos sådant innehåll.",
+          "bullets": [],
+          "title": "2. Tredjepartsinnehåll – Inget ansvar"
+        },
+        {
+          "body": "Du godkänner och samtycker till att din användning av {brand} och din tillgång till något innehåll via externa inbäddade länkar är helt på ditt eget ansvar. {brand} uttryckligen ansvarsfriskrivs från alla garantier, uttryckta eller implicita.",
+          "bullets": [],
+          "title": "3. Användarens ansvar för risk"
+        },
+        {
+          "body": "Inbäddade länkar som är indexerade av {brand} pekar på resurser på tredjeparts-server. Vi kan inte garantera att den pågående tillgängligheten, kvaliteten eller fullständigheten hos något länkad innehåll är säkerställd, och länkar kan brytas eller bli otillgängliga utan varsel.",
+          "bullets": [],
+          "title": "4. Länkens tillgänglighet"
+        },
+        {
+          "bullets": [],
+          "title": "5. Korrekthet av information"
+        }
+      ],
+      "title": "Ansvarsfriskrivning",
+      "updated": "Senast uppdaterad: Augusti 2026"
+    },
+    "dmca": {
+      "sections": [
+        {
+          "body": "{brand} är en länkaggregator och sökmotor. Vi har inte uppladdat, lagrat, överfört eller kontrollerat någon video eller medieinnehåll. Allt innehåll levereras från tredjepartservrar som helt ligger utanför vår kontroll.",
+          "bullets": [],
+          "title": "1. Vårt roll — Länkaggregat, inte en värd"
+        },
+        {
+          "body": "Om du är en upphovsrättshavare eller en agent som är tillåten att agera i namn för en upphovsrättshavare och du tror att en länk i vår index bryter mot din upphovsrätt, vänligen skicka ett skriftligt meddelande till {support_email} som innehåller:",
+          "bullets": [
+            "<b>Fysiskt eller elektroniskt signatur</b> av upphovsrättsinnehavaren eller deras tillåten agent.",
+            "<b>Identifiering av upphovsrättsskyddat arbete</b> som du påstår har blivit brytande, eller om flera arbeten täcks av ett enda meddelande, en representativ lista över sådana arbeten.",
+            "<b>Identifiering av materialet</b> (dvs den specifika {brand} länken eller URL:en) som du påstår är brytande, med tillräckligt med information för att tillåta oss att hitta det."
+          ],
+          "title": "2. Meddelande-och-taggning-procedur"
+        },
+        {
+          "body": "Din DMCA-meddelande måste också innehålla:",
+          "bullets": [
+            "<b>Din kontaktinformation</b> — namn, adress, telefonnummer och e-postadress.",
+            "<b>Ett uttalande om god tro</b> — att du har en god tro att användningen av materialet i den påstådda sättet inte är tillåten av upphovsrättsinnehavaren, dess agent eller lag.",
+            "<b>Ett uttalande om noggrannhet</b> — att informationen i meddelandet är korrekt och, under straff av perjury, att du är tillåten att agera i namn för upphovsrättsinnehavaren.",
+            "<b>Skicka meddelanden till:</b> {support_email}",
+            "Vi kommer att granska alla meddelanden och ta bort länkar från vår index som uppfyller ovanstående lagstiftning.",
+            "<b>Återmeddelande:</b> Om du tror att din länk togs bort felaktigt, kan du skicka ett återmeddelande enligt 17 U.S.C. § 512(g)."
+          ],
+          "title": "3. Ytterligare Krävda Element"
+        },
+        {
+          "body": "Eftersom {brand} inte har några medier på servern kan vi endast ta bort länken från vår sökindex. Vi kan inte ta bort underliggande innehåll från servern där det är upplagt.",
+          "bullets": [],
+          "title": "4. Viktigt Gränsfall — Vi Kan Endast Ta Bort Länkar"
+        },
+        {
+          "body": "I lämpliga situationer och på vår egen instämning kommer {brand} att inaktivera eller avsluta åtkomst till användare eller konton som är upprepade upphovsrättsbrott.",
+          "bullets": [],
+          "title": "5. Politik för upprepade upphovsrättsbrott"
+        },
+        {
+          "body": "Att ta bort en länk från vårt index i svar på en DMCA-anknutning utgör inte en anmärkning av {brand} att något upphovsrättsskydd har skett.",
+          "bullets": [],
+          "title": "6. Inga anmärkningar om ansvar"
+        }
+      ],
+      "title": "DMCA säkerhetsfångstmeddelande",
+      "updated": "Senast uppdaterad: Augusti 2026"
+    },
+    "privacy": {
+      "sections": [
+        {
+          "body": "{brand} är en länkaggregator och sökmotor. Denna integritetspolicy förklarar hur vi samlar in, använder och skyddar din personuppgifter när du använder vår tjänst.",
+          "bullets": [],
+          "title": "1. Introduktion"
+        },
+        {
+          "body": "Vi samlar in begränsad personuppgifter för att erbjuda och förbättra tjänsten:",
+          "bullets": [
+            "<b>Kontouppgifter:</b> ditt för- och efternamn, din e-postadress och ditt lösenord (som vår inloggningstjänst bara sparar krypterat), och ett mobilnummer om du lägger till ett.",
+            "<b>Profiler och aktivitet:</b> dina profiler och deras inställningar, Min lista, dina betyg, ditt framsteg och din tittaraktivitet. De är kopplade till ditt konto så att de följer med dig till alla enheter.",
+            "<b>Säkerhetsloggar:</b> de senaste inloggningarna och ändringarna i ditt konto, med webbläsare, system och land de kom från, så att vi kan visa dina enheter och varna dig för en ny inloggning.",
+            "<b>Lagring på din enhet:</b> det som håller dig inloggad, en kopia av dina profiler och inställningar så att sidorna öppnas snabbt, och dina val om cookies. Se cookiepolicyn."
+          ],
+          "title": "2. Information Vi Samlar In"
+        },
+        {
+          "body": "Vi är engagerade i din integritet:",
+          "bullets": [
+            "<b>Delar Din Data:</b> Vi delar inte personuppgifter med annonserare eller datahandlare.",
+            "<b>Säljer Din Data:</b> Vi säljer, hyr eller handlar aldrig någon personuppgifter till tredje part.",
+            "<b>Spåra dig:</b> Vi använder inga reklam- eller analyscookies, tar inga fingeravtryck av webbläsaren och följer dig inte på andra webbplatser."
+          ],
+          "title": "3. Vad Vi Inte Gör"
+        },
+        {
+          "body": "Under UK General Data Protection Regulation (UK GDPR) är de lagliga grundarna vi förlitar oss på för behandling av denna information:",
+          "bullets": [
+            "<b>Avtal:</b> för att ge dig ditt konto, dina profiler och funktionerna du använder.",
+            "<b>Berättigat intresse:</b> för att skydda konton (inloggningsloggar) och för att tjänsten ska fungera och bli bättre.",
+            "<b>Samtycke:</b> för att använda det du tittar på till personliga rekommendationer. Du kan ta tillbaka det när som helst under Integritet och datainställningar."
+          ],
+          "title": "4. Laglig Grund För Behandling (UK GDPR)"
+        },
+        {
+          "body": "Dina kontouppgifter lagras hos Supabase, vår databasleverantör, med säkerhet på radnivå så att bara ditt konto kan läsa dem. Varje webbläsare där du loggar in sparar en kopia för att gå snabbare. När du raderar ditt konto raderas uppgifterna direkt.",
+          "bullets": [],
+          "title": "5. Hur Vi Lagrar Dina Data"
+        },
+        {
+          "bullets": [],
+          "title": "6. Tredjeparts-tjänster"
+        },
+        {
+          "body": "Enligt UK GDPR har du följande rättigheter:",
+          "bullets": [
+            "<b>Rätt till tillgång:</b> ladda ner en kopia av dina uppgifter när som helst under Konto, Åtkomst till personuppgifter.",
+            "<b>Rätt till radering:</b> radera ditt konto när som helst under Konto, Radera konto. Allt i det raderas direkt.",
+            "<b>Rätt till rättelse:</b> ändra ditt namn, din e-postadress och ditt telefonnummer under Konto, eller be oss rätta något annat.",
+            "<b>Rätt att invända:</b> stäng av personliga rekommendationer, eller skriv till oss för att invända mot behandling som grundar sig på berättigat intresse."
+          ],
+          "title": "7. Dina dataskyddsreformer"
+        },
+        {
+          "body": "Om du har frågor om den här integritetspolicyn eller vill använda dina rättigheter, skriv till {support_email}.",
+          "bullets": [],
+          "title": "8. Kontakta"
+        }
+      ],
+      "title": "Integritetspolicy",
+      "updated": "Senast uppdaterad: oktober 2026"
+    },
+    "terms": {
+      "sections": [
+        {
+          "body": "Genom att komma åt eller använda {brand}, godkänner du att du är bunden av dessa villkor för tjänst och vår integritetspolicy. Om du inte godkänner, använd inte tjänsten.",
+          "bullets": [],
+          "title": "1. Acceptans av villkor"
+        },
+        {
+          "body": "{brand} är en länkaggregator och sökmotor. Vi har inte värd, uppladdat, sänder eller kontrollerar någon videokontent på våra servrar. All media hämtas från tredjepartsplattformar.",
+          "bullets": [],
+          "title": "2. Naturen av tjänsten"
+        },
+        {
+          "body": "Du behöver ett gratis konto för att använda {brand}. Du ansvarar för att hålla ditt lösenord säkert och för det som händer på ditt konto. Hör av dig direkt om du tror att någon annan använder det.",
+          "bullets": [],
+          "title": "3. Användarkonton"
+        },
+        {
+          "body": "Du godkänner inte att använda tjänsten för:",
+          "bullets": [
+            "Övergå, inaktivera eller störa säkerhetsrelaterade funktioner i tjänsten.",
+            "Använd automatiserade verktyg (t.ex. botar, skrapare eller kryssare) för att komma åt eller fråga tjänsten på ett sätt som kan påverka prestandan.",
+            "Försök att undersöka, skanna eller testa tjänstens infrastruktur.",
+            "Engagera dig i något som är olagligt, skadligt eller som vi bedömer vara oacceptabelt."
+          ],
+          "title": "4. Acceptabel användning"
+        },
+        {
+          "body": "Det {brand} varumärket, gränssnittet och den ursprungliga programkoden skyddas av upphovsrätt. Alla medier innehåll tillgängligt via {brand} är fortfarande egendom till sina respektive rättshavare.",
+          "bullets": [],
+          "title": "5. Intellektuell egendom"
+        },
+        {
+          "body": "Tjänsten tillhandahålls \"som den är\" och \"som tillgänglig\" utan någon garantier. {brand} ger inte någon säkerhet för kontinuerlig tillgänglighet och är inte ansvarig för några indirekta eller följdskadeförhållanden.",
+          "bullets": [],
+          "title": "6. Undantag och begränsning av ansvar"
+        },
+        {
+          "body": "{brand} ger tillgång till länkar till innehåll som finns på oberoende tredjepartservrar. Vi har ingen kontroll över och tar ingen ansvar för innehållet, integritetspolicyerna eller praxisen på några tredjepartswebbplatser.",
+          "bullets": [],
+          "title": "7. Tredjepartsinnehåll"
+        },
+        {
+          "body": "Vi behåller rätt att sitta eller avsluta ditt konto och tillgång till tjänsten på vår egen försiktighet, utan föregående varning, för beteende som vi tror bryter mot dessa villkor eller är skadligt för andra användare, oss eller tredjepartsskydd.",
+          "bullets": [],
+          "title": "8. Avslutning"
+        },
+        {
+          "body": "Dessa villkor ska regleras och tolkas enligt lagarna i England och Wales, utan hänsyn till konfliktlagar.",
+          "bullets": [],
+          "title": "9. Ansvarsrätt"
+        },
+        {
+          "body": "För frågor angående dessa villkor, vänligen kontakta oss via Kontaktsidan.",
+          "bullets": [],
+          "title": "10. Kontakta"
+        }
+      ],
+      "title": "Användarvillkor",
+      "updated": "Senast uppdaterad: oktober 2026"
+    }
+  },
+  "popular": [
+    "what-is",
+    "wont-play",
+    "profiles-manage",
+    "kids-profile",
+    "need-account"
+  ],
+  "topics": [
+    {
+      "groups": [
+        {
+          "articles": [
+            "profiles-manage",
+            "switch-profile",
+            "profile-pin",
+            "kids-profile",
+            "parental-controls",
+            "profile-icons",
+            "transfer-profile"
+          ],
+          "id": "profiles",
+          "title": "Profil"
+        },
+        {
+          "articles": [
+            "need-account",
+            "sign-in",
+            "forgot-password",
+            "change-email-password",
+            "devices-sign-out"
+          ],
+          "id": "signing-in",
+          "title": "Inloggning och säkerhet"
+        },
+        {
+          "articles": [
+            "saved-data",
+            "clear-data",
+            "download-data",
+            "delete-account",
+            "privacy-data",
+            "cookies-explained"
+          ],
+          "id": "account-data",
+          "title": "Dina uppgifter och din integritet"
+        },
+        {
+          "articles": [
+            "free-to-use"
+          ],
+          "id": "paying",
+          "title": "Betala för {brand}"
+        }
+      ],
+      "id": "account",
+      "title": "Konto och profiler"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "wont-play",
+            "playback-unavailable",
+            "black-screen",
+            "buffering",
+            "subtitles-missing",
+            "no-sound",
+            "autoplay-blocked"
+          ],
+          "id": "playback-issues",
+          "title": "Spelspelarproblem"
+        },
+        {
+          "articles": [
+            "supported-browsers",
+            "fix-phone",
+            "fix-tv",
+            "extensions-blockers",
+            "vpn-network"
+          ],
+          "id": "device-issues",
+          "title": "Webbläsare och enheter"
+        },
+        {
+          "articles": [
+            "rows-wont-load",
+            "list-missing",
+            "forgot-pin",
+            "stuck-loading",
+            "slow-pages",
+            "is-down"
+          ],
+          "id": "page-issues",
+          "title": "Sidor och listor"
+        }
+      ],
+      "id": "fix",
+      "title": "Fixa ett problem"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "language",
+            "subtitles",
+            "shortcuts",
+            "skip-intro-next",
+            "accessibility",
+            "episodes"
+          ],
+          "id": "features",
+          "title": "Funktioner och inställningar"
+        },
+        {
+          "articles": [
+            "my-list",
+            "continue-watching",
+            "viewing-history",
+            "notifications",
+            "share"
+          ],
+          "id": "library",
+          "title": "Min lista och historik"
+        },
+        {
+          "articles": [
+            "search-browse",
+            "browse-language",
+            "new-popular",
+            "recommendations",
+            "trailers-clips",
+            "genres",
+            "top-10",
+            "title-details",
+            "clips"
+          ],
+          "id": "finding",
+          "title": "Att hitta något att titta på"
+        }
+      ],
+      "id": "watching",
+      "title": "Att titta"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "what-is",
+            "getting-started",
+            "sources",
+            "contribute",
+            "translate"
+          ],
+          "id": "about",
+          "title": "Om {brand}"
+        },
+        {
+          "articles": [
+            "install-app",
+            "phone-tablet",
+            "watch-on-tv"
+          ],
+          "id": "setup",
+          "title": "Enhetsinställning"
+        },
+        {
+          "articles": [
+            "copyright",
+            "title-feedback",
+            "report-bug",
+            "security-report"
+          ],
+          "id": "reporting",
+          "title": "Redovisning och juridiskt"
+        }
+      ],
+      "id": "start",
+      "title": "Att börja"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "doc:privacy",
+            "doc:terms",
+            "doc:cookie-policy",
+            "doc:dmca",
+            "doc:disclaimer",
+            "doc:credits"
+          ],
+          "id": "policies",
+          "title": "Filer"
+        }
+      ],
+      "id": "legal",
+      "title": "Lagliga och filer"
+    }
+  ]
+}

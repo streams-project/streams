@@ -1,0 +1,1472 @@
+{
+  "articles": {
+    "accessibility": {
+      "body": "- <b>Subtitles.</b> Choose the language in your profile's <b>Languages</b>, and the size, colour and background in <b>Subtitle Appearance</b>. See <a=/help/article/subtitles>How to use subtitles, captions, or choose the audio language</a>.\n- <b>Keyboard.</b> Use <b>Tab</b> to move between controls and <b>Esc</b> to close windows. The player has its own keys, see <a=/help/article/shortcuts>Keyboard shortcuts</a>.\n- <b>Text size.</b> Zoom your browser with <b>Ctrl</b> and <b>+</b> (<b>Cmd</b> and <b>+</b> on a Mac). The layout adjusts.\n- <b>Motion.</b> If your device asks for reduced motion, the animated logo stays still.\n\nIf something is hard to use, tell us on the <a=/help/article/report-bug>Report a problem</a> page. We take these reports seriously.",
+      "keywords": "accessibility screen reader keyboard subtitles captions size contrast zoom reduced motion disability",
+      "related": [
+        "subtitles",
+        "shortcuts",
+        "language",
+        "phone-tablet",
+        "report-bug"
+      ],
+      "summary": "Subtitles, keyboard control and display settings that help.",
+      "title": "Accessibility on {brand}"
+    },
+    "autoplay-blocked": {
+      "body": "Browsers do not let a page start video with sound until you have clicked or tapped on it. {brand} first tries to start with sound. If the browser refuses, it starts muted and shows the muted speaker. Unmute with <b>M</b> or the speaker button.\n\n- To stop previews from starting by themselves, turn off <b>Autoplay previews</b> in your profile's <b>Playback Settings</b>.\n- If a title never starts, see <a=/help/article/wont-play>A title will not play</a>.",
+      "keywords": "autoplay blocked muted start policy browser sound auto play previews trailer",
+      "related": [
+        "no-sound",
+        "trailers-clips",
+        "wont-play",
+        "shortcuts",
+        "slow-pages"
+      ],
+      "summary": "Why browsers stop sound from starting alone, and how {brand} handles it.",
+      "title": "Video starts muted or does not start by itself"
+    },
+    "black-screen": {
+      "body": "1. Press <b>F</b> to leave and re-enter full screen, or press <b>Esc</b> and play again.\n2. Reload the page.\n3. Turn off hardware acceleration in your browser settings, restart the browser and try again.\n4. Update your browser and graphics driver.\n5. Try another browser.\n\n!! Note: Some browser extensions that change page colors or block media can also hide the picture. See <a=/help/article/extensions-blockers>Extensions that block the player</a>.\n\n@@ diagnostics",
+      "keywords": "black screen no picture audio only video missing blank green screen",
+      "related": [
+        "wont-play",
+        "supported-browsers",
+        "extensions-blockers",
+        "fix-phone",
+        "fix-tv"
+      ],
+      "summary": "The picture is missing but you can hear the title.",
+      "title": "Black screen with sound"
+    },
+    "browse-language": {
+      "body": "1. Open <b>Browse by language</b> in the top bar.\n2. <b>Original Language</b> is already selected. Choose a language to see titles first made in it.\n\n!! Note: The page lists titles by their original language. Dubbed audio and subtitles depend on the source of each title and show in <b>Audio & Subtitles</b> while it plays.",
+      "keywords": "browse by language original language foreign international world cinema anime korean spanish",
+      "related": [
+        "language",
+        "subtitles",
+        "search-browse",
+        "new-popular",
+        "recommendations"
+      ],
+      "summary": "Find titles by the language they were made in.",
+      "title": "Browse by language"
+    },
+    "buffering": {
+      "body": "A stream pauses when your connection delivers data slower than the video needs.\n\n- Close other tabs, downloads and devices that use the same network.\n- Move closer to the router or use a cable.\n- Pause for a minute so the player can load ahead, then press play.\n- Turn off a VPN, or choose a closer server in the VPN.\n- Try again later. Sources are slower at busy hours.\n\nThe source decides which quality level is offered, so the picture sharpness may change during playback.\n\n@@ diagnostics",
+      "keywords": "buffering lag slow freezing stutter loading spinner connection speed quality",
+      "related": [
+        "wont-play",
+        "slow-pages",
+        "supported-browsers",
+        "extensions-blockers",
+        "fix-tv"
+      ],
+      "summary": "Improve a stream that keeps pausing to load.",
+      "title": "Buffering, freezing or slow start"
+    },
+    "change-email-password": {
+      "body": "Open the profile menu and choose <b>Account</b>. Your details are under <b>Account Details</b>. Before a change we may ask you to confirm it's you, with your password or a code we email you.\n\n## Password\n1. Choose <b>Password</b>.\n2. Enter your current password, then the new one twice. It needs at least 8 characters.\n3. Turn on <b>Sign out of all devices</b> if someone else might know the old password, then choose <b>Save</b>.\n\n## Email\n1. Choose <b>Email</b> and enter the new address.\n2. Open the link we send to the new address to finish the change.\n\n## Mobile phone and name\nChoose <b>Mobile phone</b> to add a number that helps you get back into your account, or <b>Name</b> to change your name. The main profile follows your first name.",
+      "keywords": "change email change password update password phone number mobile account details name security",
+      "related": [
+        "forgot-password",
+        "devices-sign-out",
+        "sign-in",
+        "delete-account",
+        "privacy-data"
+      ],
+      "summary": "Update the details you use to sign in and to get back into your account.",
+      "title": "Change your email, password or phone number"
+    },
+    "clear-data": {
+      "body": "Clearing site data in a browser signs you out there and removes the copy of your profiles and settings that the browser keeps. Everything stays in your account and comes back when you sign in again.\n\n## Chrome, Edge and Brave\n1. Select the site information icon at the left of the address bar and choose <b>Cookies and site data</b>, then <b>Manage on-device site data</b>.\n2. Remove the entries for this site.\n\n## Firefox\n1. Select the padlock icon in the address bar and choose <b>Clear cookies and site data</b>.\n\n## Safari on a Mac\n1. Open <b>Safari</b>, then <b>Settings</b>, then <b>Privacy</b>, then <b>Manage Website Data</b>.\n2. Find this site and choose <b>Remove</b>.\n\n## Safari on iPhone and iPad\nOpen the <b>Settings</b> app, then <b>Apps</b>, <b>Safari</b>, <b>Advanced</b>, <b>Website Data</b>, and remove this site.\n\n## Delete data from your account\n- To remove titles from your viewing activity, see <a=/help/article/viewing-history>How to manage your viewing history</a>.\n- To delete a profile, see <a=/help/article/profiles-manage>How to create, edit, or delete profiles</a>.\n- To delete everything, see <a=/help/article/delete-account>Delete your account</a>.\n\n@@ data",
+      "keywords": "clear delete reset remove data history cache storage cookies start over",
+      "related": [
+        "saved-data",
+        "delete-account",
+        "viewing-history",
+        "privacy-data",
+        "sign-in"
+      ],
+      "summary": "Remove what this browser keeps for {brand}, or delete data from your account.",
+      "title": "How to clear your saved data"
+    },
+    "clips": {
+      "body": "<b>Clips</b> shows short previews one after another, in the bottom bar on a phone.\n\n1. Scroll or swipe to the next clip.\n2. Select the speaker button to turn sound on or off. Clips start muted.\n3. Select <b>My List</b> to save the title, <b>Play</b> to watch it, or <b>Info</b> to read about it.",
+      "keywords": "clips shorts previews scroll vertical trailers swipe mute info my list",
+      "related": [
+        "trailers-clips",
+        "my-list",
+        "new-popular",
+        "search-browse",
+        "recommendations"
+      ],
+      "summary": "Scroll short previews and add what you like to your list.",
+      "title": "Using Clips"
+    },
+    "continue-watching": {
+      "body": "Titles you started appear in the <b>Continue Watching</b> row, with a bar that shows how far you got. It is also on <b>My {brand}</b>.\n\n## Resume\nSelect the title. Playback starts where you stopped, on any device where you sign in.\n\n## Remove a title from the row\n1. Open the options menu on the title card.\n2. Choose <b>Remove from Continue Watching</b>.\n\nTo remove a title from your viewing activity as well, see <a=/help/article/viewing-history>How to manage your viewing history</a>.",
+      "keywords": "continue watching resume progress remove row stopped half watched",
+      "related": [
+        "viewing-history",
+        "my-list",
+        "saved-data",
+        "clear-data",
+        "skip-intro-next"
+      ],
+      "summary": "Pick up where you stopped and remove titles from the row.",
+      "title": "How to use Continue Watching"
+    },
+    "contribute": {
+      "body": "{brand} is built in the open. You can help in several ways:\n\n- <b>Translations.</b> Interface text lives in plain text files, one per language, so a translation is a text file you can edit.\n- <b>Bug reports.</b> See <a=/help/article/report-bug>Report a problem</a>.\n- <b>Fixes and features.</b> Send a description or a patch.\n- <b>Ideas.</b> Tell us what you wish the Help Centre or the app did.\n\nWrite to <a=mailto:{support_email}>{support_email}</a> with a few lines about what you want to do.",
+      "keywords": "contribute contributing volunteer translate translation code github help improve suggestions",
+      "related": [
+        "report-bug",
+        "title-feedback",
+        "what-is",
+        "getting-started",
+        "free-to-use"
+      ],
+      "summary": "Ideas, fixes, translations and bug reports are welcome.",
+      "title": "How can I contribute?"
+    },
+    "cookies-explained": {
+      "body": "<b>Cookies</b> are small notes a website asks your browser to keep. <b>Local storage</b> is a similar place that only the site itself can read and that is not sent with every request.\n\n{brand} uses local storage, not advertising or tracking cookies. It keeps:\n- what keeps you signed in,\n- a copy of your profiles, settings and progress, so pages open fast,\n- your cookie and personalisation choices.\n\nTrailers can come from an outside video service, which can set its own cookies, and pictures come from a public film catalog. We do not control those. See <a=/help/article/sources>Where titles come from</a>.\n\n## Your choices\n- On your first visit a banner asks whether recommendations may use what you watch. Change your mind at any time under <b>Privacy and data settings</b>, or with the tool below.\n- <b>Reject</b> keeps only what the site needs to work and turns off personalisation.\n- If your browser clears site data, you are signed out on that browser. Your account keeps everything.\n\n@@ cookies",
+      "keywords": "cookies local storage browser data tracking consent banner preferences session third party",
+      "related": [
+        "privacy-data",
+        "saved-data",
+        "clear-data",
+        "recommendations",
+        "sources"
+      ],
+      "summary": "What your browser keeps for {brand}, in plain words.",
+      "title": "Cookies and local storage explained"
+    },
+    "copyright": {
+      "body": "{brand} does not host video files. It lists links to titles hosted by other services. If you own the rights to a title and you believe a link infringes them, send us a notice and we will review it.\n\nA notice should include:\n1. Your name and contact details.\n2. A description of the work you own.\n3. The address of the page on {brand} that links to it.\n4. A statement that you are the rights holder or are allowed to act for them.\n\nSend it to <a=mailto:{support_email}>{support_email}</a> with the subject <b>DMCA notice</b>. The full process is on the <a=/help/legal/dmca>DMCA page</a>.",
+      "keywords": "copyright dmca takedown infringement rights holder remove report notice legal",
+      "related": [
+        "sources",
+        "what-is",
+        "privacy-data",
+        "title-feedback",
+        "report-bug"
+      ],
+      "summary": "Rights holders can ask for a link to be removed.",
+      "title": "How to report a copyright problem"
+    },
+    "delete-account": {
+      "body": "Deleting your account removes it straight away, with every profile, list, rating, setting and all viewing activity. It cannot be undone.\n\n1. Open the profile menu and choose <b>Account</b>.\n2. Choose <b>Delete account</b> at the bottom of the page.\n3. Confirm it's you, then choose <b>Permanently delete</b>.\n\nIf you only want to remove one person, delete their profile instead. See <a=/help/article/profiles-manage>How to create, edit, or delete profiles</a>.\n\n!! Note: To keep a copy of your data, download it first. See <a=/help/article/download-data>Download a copy of your data</a>.",
+      "keywords": "delete account close account remove account erase data cancel account",
+      "related": [
+        "download-data",
+        "profiles-manage",
+        "privacy-data",
+        "transfer-profile",
+        "clear-data"
+      ],
+      "summary": "Remove your account and everything in it for good.",
+      "title": "Delete your account"
+    },
+    "devices-sign-out": {
+      "body": "1. Open the profile menu and choose <b>Account</b>.\n2. Choose <b>Access and devices</b>.\n3. Choose <b>Sign out of this device</b>, or <b>Sign out of all devices</b> to sign out every browser where your account is open, this one included.\n\n<b>Recent security activity</b> on the same page lists recent sign ins and changes to your account. We also email you when a new device signs in.\n\n!! Note: If you see a sign in you don't recognise, sign out of all devices and change your password. See <a=/help/article/change-email-password>Change your email, password or phone number</a>.",
+      "keywords": "sign out all devices devices signed in sessions security new device lost phone public computer",
+      "related": [
+        "change-email-password",
+        "sign-in",
+        "forgot-password",
+        "security-report",
+        "privacy-data"
+      ],
+      "summary": "See where your account is signed in and sign out of devices you no longer use.",
+      "title": "Sign out of a device or of all devices"
+    },
+    "download-data": {
+      "body": "1. Open the profile menu and choose <b>Account</b>.\n2. Choose <b>Personal information access</b>.\n3. Follow the steps to save the file.\n\nThe file lists your account details, profiles, settings, My List, ratings and viewing activity. It is saved on your device, so keep it somewhere safe.\n\nTo download the viewing activity of one profile as a spreadsheet, open <b>Viewing activity</b> for that profile and choose <b>Download all</b>.",
+      "keywords": "download my data personal information copy export gdpr data request access",
+      "related": [
+        "privacy-data",
+        "delete-account",
+        "viewing-history",
+        "transfer-profile",
+        "saved-data"
+      ],
+      "summary": "Get a file with the personal information your account holds.",
+      "title": "Download a copy of your data"
+    },
+    "episodes": {
+      "body": "## Before you press play\nOpen a series and select <b>Episodes</b>. Use the season menu to change season, then select an episode.\n\n## While you watch\n- Select <b>Episodes</b> in the player controls to open the list without leaving.\n- Select <b>Next Episode</b>, or let it start by itself. See <a=/help/article/skip-intro-next>Skip Intro and Next Episode</a>.",
+      "keywords": "seasons episodes series list next episode drawer binge selector tv shows",
+      "related": [
+        "skip-intro-next",
+        "continue-watching",
+        "shortcuts",
+        "title-details",
+        "my-list"
+      ],
+      "summary": "Pick a season and an episode from the details window or the player.",
+      "title": "Seasons and episodes"
+    },
+    "extensions-blockers": {
+      "body": "The player loads streams from third party sources. Tools that block scripts, frames or media from other sites can stop it.\n\n1. Open your extension and pause it for this site, then reload.\n2. If you use a network wide filter, such as a DNS filter or a school or work network, try another network.\n3. If playback works afterwards, add {brand} to the extension's allow list.\n\n!! Note: We never ask you to install a browser extension or a codec to watch. Close any page that does.\n\n@@ diagnostics",
+      "keywords": "extension adblock ublock ghostery privacy blocker script blocking vpn dns filter",
+      "related": [
+        "wont-play",
+        "playback-unavailable",
+        "supported-browsers",
+        "black-screen",
+        "sources"
+      ],
+      "summary": "Ad blockers and privacy tools can stop a stream from loading.",
+      "title": "Extensions that block the player"
+    },
+    "fix-phone": {
+      "body": "1. Close the tab and open {brand} again.\n2. Update your browser from the app store.\n3. Turn off data saver or low power mode while you watch.\n4. Check that you have a stable connection. See <a=/help/article/buffering>Buffering, freezing or slow start</a>.\n5. If you added {brand} to your home screen and it looks out of date, remove it and add it again. See <a=/help/article/install-app>How to install {brand} as an app</a>.\n\n@@ diagnostics\n\n@@ refresh",
+      "keywords": "phone tablet android iphone ipad mobile fix problem app",
+      "related": [
+        "phone-tablet",
+        "install-app",
+        "supported-browsers",
+        "wont-play",
+        "buffering"
+      ],
+      "summary": "Steps for iPhone, iPad and Android.",
+      "title": "Fix a problem on your phone or tablet"
+    },
+    "fix-tv": {
+      "body": "{brand} has no TV app. You watch through your TV's web browser or by sending a browser tab from a computer or phone.\n\n- Update the TV's software and its browser.\n- Restart the TV or streaming stick.\n- If you cast a tab, keep the sending device on the same network and close other tabs on it.\n- If the TV browser is slow, send the tab from a computer instead.\n\nSee <a=/help/article/watch-on-tv>How to watch on your TV</a>.\n\n@@ diagnostics",
+      "keywords": "tv television smart tv chromecast cast fix problem hdmi stick browser",
+      "related": [
+        "watch-on-tv",
+        "wont-play",
+        "supported-browsers",
+        "buffering",
+        "black-screen"
+      ],
+      "summary": "Steps when you watch through a TV browser or a cast.",
+      "title": "Fix a problem on your TV"
+    },
+    "forgot-password": {
+      "body": "1. On the sign in page, choose <b>Forgot your password?</b>\n2. Enter the email address of your account and choose <b>Send the link</b>.\n3. Open the email from {brand} and follow the link to choose a new password.\n\nThe link works once and for a limited time. If no email arrives within a few minutes, look in your spam folder, then try again.\n\n!! Note: We never ask for your password by email, chat or phone.",
+      "keywords": "forgot password reset password lost password can't sign in new password link",
+      "related": [
+        "sign-in",
+        "change-email-password",
+        "devices-sign-out",
+        "need-account"
+      ],
+      "summary": "Get a link by email to choose a new password.",
+      "title": "I forgot my password"
+    },
+    "forgot-pin": {
+      "body": "1. Open the profile menu, choose <b>Account</b>, then <b>Manage profiles</b>, and select the locked profile.\n2. Choose <b>Profile lock</b> and enter your account password.\n3. Choose <b>Forgot your PIN?</b>, then <b>Remove profile lock</b>.\n\nThe profile opens without a PIN again, and you can set a new one. See <a=/help/article/profile-pin>How to add, edit, or remove a profile PIN</a>.\n\n!! Note: Only someone who knows the account password can remove a PIN. If you forgot the password too, see <a=/help/article/forgot-password>I forgot my password</a>.\n\n@@ profiles",
+      "keywords": "forgot pin reset lost passcode locked out profile lock",
+      "related": [
+        "profile-pin",
+        "forgot-password",
+        "profiles-manage",
+        "kids-profile",
+        "switch-profile"
+      ],
+      "summary": "Remove the PIN with your account password and set a new one.",
+      "title": "I forgot my profile PIN"
+    },
+    "free-to-use": {
+      "body": "{brand} does not charge a fee, run a subscription or ask for card details. There are no plans, trials or billing dates.\n\nIf a page, email or message claims to be {brand} and asks you to pay, it is not from us. Do not enter payment details. Forward it to <a=mailto:{support_email}>{support_email}</a> and we will look into it.\n\n{brand} is an index of links to titles hosted by other services. Whether a service charges for its own content is up to that service. See <a=/help/article/sources>Where titles come from</a>.",
+      "keywords": "free price cost pay payment subscription billing card credit plan trial",
+      "related": [
+        "what-is",
+        "need-account",
+        "sources",
+        "getting-started",
+        "contribute"
+      ],
+      "summary": "There is nothing to pay for in {brand}.",
+      "title": "Is {brand} free?"
+    },
+    "genres": {
+      "body": "1. Open <b>Films</b> or <b>Series</b> in the top bar.\n2. Select <b>Genres</b> next to the page title.\n3. Choose a genre. The page then shows only that genre, with rows made for it.\n\nTo go back to everything, open <b>Films</b> or <b>Series</b> again. On a phone the genre list opens as a sheet from the bottom.",
+      "keywords": "genres categories comedy drama horror action filter browse films series sub menu",
+      "related": [
+        "search-browse",
+        "browse-language",
+        "new-popular",
+        "recommendations",
+        "top-10"
+      ],
+      "summary": "Narrow Films and Series to the kind of title you want.",
+      "title": "Browse by genre"
+    },
+    "getting-started": {
+      "body": "1. <b>Create your free account.</b> See <a=/help/article/need-account>Do I need an account?</a>\n2. <b>Pick or create a profile.</b> See <a=/help/article/profiles-manage>How to create, edit, or delete profiles</a>.\n3. <b>Look around the home page.</b> Rows are grouped by theme, and the big title at the top changes.\n4. <b>Search</b> for a title, an actor or a director with the magnifying glass. See <a=/help/article/search-browse>How to search and browse</a>.\n5. <b>Select a title</b> to read about it, watch the trailer, and press play.\n6. <b>Add titles to My List</b> with the <b>+</b> button.\n\nLearn the keys that help while you watch: <a=/help/article/shortcuts>Keyboard shortcuts</a>.",
+      "keywords": "getting started begin first time tour new user how to use guide basics",
+      "related": [
+        "what-is",
+        "profiles-manage",
+        "search-browse",
+        "install-app",
+        "need-account"
+      ],
+      "summary": "Your first five minutes: account, profiles, finding a title and saving it.",
+      "title": "Getting started with {brand}"
+    },
+    "install-app": {
+      "body": "{brand} is a web app. There is no store download. Your browser can install it so it opens in its own window with its own icon.\n\n## Chrome and Edge on Windows, Mac and Linux\nSelect the install icon at the right of the address bar, or open the browser menu and choose <b>Install {brand}</b> (in Edge: <b>Apps</b>, then <b>Install this site as an app</b>).\n\n## Safari on a Mac\nOpen the <b>File</b> menu and choose <b>Add to Dock</b>.\n\n## Android\nOpen the browser menu and choose <b>Install app</b> or <b>Add to Home screen</b>.\n\n## iPhone and iPad\nIn Safari, select the <b>Share</b> button, then <b>Add to Home Screen</b>.\n\n!! Note: Firefox on a computer cannot install sites as apps. Use a bookmark, or install from Chrome, Edge or Safari. An installed app is the same website: it updates itself and keeps you signed in like the browser.",
+      "keywords": "install app pwa add to home screen desktop shortcut icon web app",
+      "related": [
+        "phone-tablet",
+        "supported-browsers",
+        "fix-phone",
+        "getting-started",
+        "watch-on-tv"
+      ],
+      "summary": "Add {brand} to your home screen, dock or desktop so it opens in its own window.",
+      "title": "How to install {brand} as an app"
+    },
+    "is-down": {
+      "body": "{brand} has three parts that can fail separately:\n\n- <b>The app</b>, which you are looking at now.\n- <b>The film and series catalog</b>, which gives details and pictures.\n- <b>The stream sources</b>, which provide the video.\n\nRun the check to see which of them answers from your device. If the catalog or the sources do not answer for everyone, wait a few minutes and try again. If one is unreachable only for you, see <a=/help/article/vpn-network>VPNs, school and work networks</a>.\n\n@@ diagnostics",
+      "keywords": "down outage status not working offline unavailable server maintenance error site",
+      "related": [
+        "vpn-network",
+        "wont-play",
+        "rows-wont-load",
+        "sources",
+        "report-bug"
+      ],
+      "summary": "Check which parts are working from your device.",
+      "title": "Is {brand} down?"
+    },
+    "kids-profile": {
+      "body": "A Kids profile only shows titles suited to children, with its own home page and menus made for kids.\n\n1. Open <b>Manage Profiles</b> and choose <b>Add Profile</b>.\n2. Type a name and turn on <b>Kids Profile</b>.\n3. Choose <b>Save</b>.\n\nTo turn an existing profile into a Kids profile, edit it and turn on <b>Kids Profile</b>. The main profile cannot be a Kids profile.\n\nTo leave the Kids pages, choose <b>Exit Kids</b> and pick another profile. To stop a child from switching, lock the other profiles with a PIN. See <a=/help/article/profile-pin>How to add, edit, or remove a profile PIN</a>.\n\nFor older children, you can set an age rating on any profile instead. See <a=/help/article/parental-controls>Parental controls: age ratings and blocked titles</a>.\n\n!! Note: Titles come from independent sources, and not every title carries an age rating. A Kids profile reduces what a child can find. It does not replace watching together.\n\n@@ profiles",
+      "keywords": "kids children child family parental controls safe young profile",
+      "related": [
+        "parental-controls",
+        "profile-pin",
+        "profiles-manage",
+        "switch-profile",
+        "recommendations"
+      ],
+      "summary": "A Kids profile shows titles made for children and keeps everything else out of reach.",
+      "title": "How to create a profile for kids"
+    },
+    "language": {
+      "body": "## Display language\n1. Open the profile menu, choose <b>Account</b>, then <b>Manage profiles</b>, and select your profile.\n2. Choose <b>Languages</b>, then <b>Display language</b>, and pick a language.\n\nThe choice belongs to the profile, so it follows you to every device. In the Help Centre you can also pick a language at the bottom of any page.\n\n## Audio and subtitle languages\n1. Open <b>Languages</b> for your profile, as above, then <b>Audio and subtitles</b>.\n2. Choose an <b>Audio language</b> and a <b>Subtitle language</b>. <b>Same as display language</b> follows the language of the app.\n\nThe player uses these whenever a title offers them.\n\n!! Note: Only languages that are fully translated appear in the list.\n\n@@ language",
+      "keywords": "language change translate interface display subtitle audio english spanish french arabic",
+      "related": [
+        "subtitles",
+        "browse-language",
+        "subtitles-missing",
+        "shortcuts",
+        "accessibility"
+      ],
+      "summary": "Change the language of {brand} and the languages you watch in.",
+      "title": "How to change the language"
+    },
+    "list-missing": {
+      "body": "My List and your viewing progress belong to a profile and are saved in your account. If they look empty:\n\n- Check that you are on the right profile. Each profile has its own list. Switch from the profile menu.\n- Check that you signed in with the same account as before.\n- Give a new device a few seconds to load your account after you sign in, or reload the page.\n- Titles you hid from your viewing activity also leave Continue Watching.\n\nIf something is still missing on one device, sign out and sign in again there. See <a=/help/article/saved-data>Where your profiles, list and progress are saved</a>.\n\n@@ profiles",
+      "keywords": "my list missing gone disappeared empty lost continue watching progress reset",
+      "related": [
+        "my-list",
+        "saved-data",
+        "switch-profile",
+        "continue-watching",
+        "sign-in"
+      ],
+      "summary": "Why My List or Continue Watching can look empty, and how to get it back.",
+      "title": "My List or progress disappeared"
+    },
+    "my-list": {
+      "body": "## Add a title\nSelect the <b>+</b> button on a title card, in its details window, or in the big title at the top of the page.\n\n## Remove a title\nSelect the check mark on the title. It turns back into <b>+</b>.\n\n## See your list\nOpen <b>My {brand}</b> in the top bar, or in the bar at the bottom on a phone. Your list is there, next to <b>Continue Watching</b>, the titles you liked and the trailers you watched.\n\nMy List belongs to the profile and is saved in your account, so it is the same on every device.",
+      "keywords": "my list add remove watchlist save later favorites plus",
+      "related": [
+        "list-missing",
+        "continue-watching",
+        "viewing-history",
+        "saved-data",
+        "recommendations"
+      ],
+      "summary": "Save titles for later and find them again.",
+      "title": "How to use My List"
+    },
+    "need-account": {
+      "body": "Yes. You need a free account to watch on {brand}, and you must be 18 or older to create one. Creating one takes a minute and never asks for payment details.\n\n1. On the {brand} home page, enter your email address and choose <b>Get Started</b>.\n2. Enter your first and last name and choose a password of at least 8 characters.\n3. Open the link we email you to confirm your address, then sign in.\n\nYour account keeps your profiles, My List, ratings, viewing activity and settings, so they are the same on every device where you sign in. Your first name becomes the name of your main profile.\n\n!! Note: {brand} is free and will never ask for a card number. See <a=/help/article/free-to-use>Is {brand} free?</a>",
+      "keywords": "account sign up register login required membership",
+      "related": [
+        "sign-in",
+        "free-to-use",
+        "profiles-manage",
+        "saved-data",
+        "privacy-data"
+      ],
+      "summary": "Yes, a free account for adults. Here is what it keeps for you.",
+      "title": "Do I need an account?"
+    },
+    "new-popular": {
+      "body": "<b>New & Popular</b> in the top bar lists titles that are recent or trending. Open a title for its details, then add it to <b>My List</b> to find it later.\n\nThe lists refresh from the catalog, so they change from day to day.",
+      "keywords": "new popular trending latest top 10 coming soon this week",
+      "related": [
+        "notifications",
+        "search-browse",
+        "trailers-clips",
+        "recommendations",
+        "my-list"
+      ],
+      "summary": "See what is arriving and what people are watching now.",
+      "title": "New & Popular"
+    },
+    "no-sound": {
+      "body": "1. Press <b>M</b>, or select the speaker button in the player, to unmute. Browsers often start a video muted when it begins by itself, see <a=/help/article/autoplay-blocked>Video starts muted</a>.\n2. Press the <b>Up arrow</b> to raise the volume, and check the volume of your device.\n3. Check that the browser tab is not muted. Right click the tab to see.\n4. Open <b>Audio & Subtitles</b> and choose another audio track if there is one.\n5. If you use Bluetooth, disconnect and reconnect your headphones.",
+      "keywords": "no sound audio muted silent volume speaker bluetooth headphones autoplay",
+      "related": [
+        "autoplay-blocked",
+        "shortcuts",
+        "subtitles",
+        "wont-play",
+        "black-screen"
+      ],
+      "summary": "Fix a title that plays without audio.",
+      "title": "There is no sound"
+    },
+    "notifications": {
+      "body": "The bell in the top bar lists titles worth a look, such as new arrivals and popular picks. Select an item to open the title's details.\n\nItems you opened are marked as read, and the count on the bell shows how many are still unread.\n\n<b>Notification settings</b> in your profile has choices for email and push messages. They are saved with the profile, but {brand} does not send email or push messages about titles yet. Emails about your account, such as sign in links, always arrive.",
+      "keywords": "notifications bell alerts new arrival updates read unread",
+      "related": [
+        "new-popular",
+        "my-list",
+        "recommendations",
+        "trailers-clips",
+        "search-browse"
+      ],
+      "summary": "What the bell in the top bar shows and how items are marked as read.",
+      "title": "Notifications"
+    },
+    "parental-controls": {
+      "body": "Any profile can have its own limits. Open the profile menu, choose <b>Account</b>, then <b>Manage profiles</b>, select the profile and choose <b>Adjust parental controls</b>.\n\n## Age ratings\n1. Choose <b>Age ratings</b>.\n2. Pick the highest rating the profile may see. Only titles up to that rating are shown, and titles without a rating are hidden as well.\n\n<b>Rating labels</b> sets which labels you read, British (U, PG, 12, 15, 18) or American (G, PG, PG-13, R, NC-17). <b>Automatic</b> follows the country you sign in from.\n\n## Block titles\n1. Choose <b>Block titles</b>.\n2. Type the name of a series or film and choose <b>Add</b>.\n\nBlocked titles are not shown on that profile. Choose <b>Remove</b> to show one again.\n\n!! Note: Titles come from independent sources and some have no rating. For young children, a Kids profile is the safer choice. See <a=/help/article/kids-profile>How to create a profile for kids</a>.\n\n@@ profiles",
+      "keywords": "parental controls age rating maturity restrictions block title hide kids teen certificate pg 12 15 18",
+      "related": [
+        "kids-profile",
+        "profile-pin",
+        "profiles-manage",
+        "viewing-history",
+        "switch-profile"
+      ],
+      "summary": "Limit a profile to titles up to an age rating, or hide titles by name.",
+      "title": "Parental controls: age ratings and blocked titles"
+    },
+    "phone-tablet": {
+      "body": "Open the site in your phone's browser. The page switches to a layout built for touch, with a bar at the bottom for <b>Home</b>, <b>Clips</b>, <b>Search</b> and <b>My {brand}</b>.\n\n- Tap a card for its details, then the play button to start.\n- Rotate the phone to landscape for the best picture.\n- To make it feel like an app, see <a=/help/article/install-app>How to install {brand} as an app</a>.",
+      "keywords": "phone tablet mobile android iphone ipad touch bottom bar app layout",
+      "related": [
+        "install-app",
+        "fix-phone",
+        "supported-browsers",
+        "getting-started",
+        "shortcuts"
+      ],
+      "summary": "The mobile layout, the bottom bar and tips for small screens.",
+      "title": "How to use {brand} on your phone or tablet"
+    },
+    "playback-unavailable": {
+      "body": "You may see <b>Playback Unavailable</b> or <b>Unable to stream video. All source providers were unavailable or unsupported by your browser.</b>\n\nIt means the player asked every source it knows for this title and none returned a stream your browser can play.\n\n1. Wait a minute and press play again. Sources go up and down.\n2. Turn off blockers. See <a=/help/article/extensions-blockers>Extensions that block the player</a>.\n3. Try a different browser. Some streams need features that are missing in older browsers.\n4. Try another title to check whether the problem is only this one.\n\nIf the same title fails for a day, <a=/help/article/report-bug>tell us</a>. Include the title, the year and the browser you used.\n\n@@ diagnostics",
+      "keywords": "playback unavailable error message unable to stream providers unsupported",
+      "related": [
+        "wont-play",
+        "sources",
+        "extensions-blockers",
+        "supported-browsers",
+        "report-bug"
+      ],
+      "summary": "What the message means and what to do next.",
+      "title": "{brand} says \"Playback Unavailable\""
+    },
+    "privacy-data": {
+      "body": "We do not sell personal data and we do not show ads. Here is the short version. The <a=/help/legal/privacy>Privacy Policy</a> has the full text.\n\n## Kept in your account\nYour name, email address, an optional phone number, your profiles, My List, ratings, viewing activity and settings, and a list of recent sign ins and the devices they came from.\n\n## Sent when you use the app\n- Requests for titles, pictures and details go to a public film catalog and to our recommendation service.\n- When you start a title, the recommendation service learns which title it was, so your rows follow your taste. Turn this off with <b>Personalised recommendations</b> in <b>Privacy and data settings</b>.\n- Video comes from independent third party sources, and trailers from an outside video service. They see your IP address like any website you visit.\n\n## Your choices\n- Download a copy of your data. See <a=/help/article/download-data>Download a copy of your data</a>.\n- Delete your account at any time. See <a=/help/article/delete-account>Delete your account</a>.\n\nFor cookies and browser storage, see the <a=/help/legal/cookies>Cookie Policy</a>.\n\n@@ cookies\n\n@@ data",
+      "keywords": "privacy data collect personal information tracking sell share cookies analytics",
+      "related": [
+        "download-data",
+        "delete-account",
+        "saved-data",
+        "recommendations",
+        "cookies-explained"
+      ],
+      "summary": "A short summary of what is stored, what is sent, and where to read the full policy.",
+      "title": "What data does {brand} collect?"
+    },
+    "profile-icons": {
+      "body": "1. Open <b>Manage Profiles</b> and select the profile.\n2. Select the picture.\n3. Pick a new one, then choose <b>Save</b>.\n\nYou can also change it in <b>Account</b>, under <b>Manage profiles</b>: select the profile, then its picture. A Kids profile uses the Kids picture until you choose another.",
+      "keywords": "profile icon avatar picture image change choose character",
+      "related": [
+        "profiles-manage",
+        "kids-profile",
+        "switch-profile",
+        "profile-pin",
+        "saved-data"
+      ],
+      "summary": "Pick a picture for a profile.",
+      "title": "How to choose a profile picture"
+    },
+    "profile-pin": {
+      "body": "A profile lock asks for a 4 digit PIN before the profile opens. The PIN belongs to your account, so it works on every device where you sign in.\n\n## Turn on a profile lock\n1. Open the profile menu, choose <b>Account</b>, then <b>Manage profiles</b>, and select the profile.\n2. Choose <b>Profile lock</b> and enter your account password to confirm it's you.\n3. Type four digits and choose <b>Save</b>.\n\nYou can also turn on <b>Profile Lock</b> when you add or edit a profile in <b>Manage Profiles</b>.\n\n## Change or remove the PIN\n1. Open <b>Profile lock</b> for the profile, as above.\n2. Choose <b>Change PIN</b>, or <b>Remove profile lock</b> and type the current PIN.\n\n!! Note: After too many wrong tries the profile stays locked for a while. If you forgot the PIN, see <a=/help/article/forgot-pin>I forgot my profile PIN</a>.\n\n@@ profiles",
+      "keywords": "pin lock profile lock passcode private protect profile code",
+      "related": [
+        "forgot-pin",
+        "kids-profile",
+        "profiles-manage",
+        "switch-profile",
+        "saved-data"
+      ],
+      "summary": "Lock a profile with a 4 digit PIN so only the right person can open it.",
+      "title": "How to add, edit, or remove a profile PIN"
+    },
+    "profiles-manage": {
+      "body": "Everyone at home can have a profile with its own name, picture, My List, viewing activity and recommendations. An account holds up to 5 profiles.\n\n## Add a profile\n1. Open the profile menu at the top right and choose <b>Manage Profiles</b>, or select <b>Manage Profiles</b> on the <b>Who's watching?</b> screen.\n2. Select <b>Add Profile</b>.\n3. Type a name and pick a picture. Turn on <b>Kids Profile</b> if the profile is for a child.\n4. Choose <b>Save</b>.\n\n## Edit or delete a profile\n1. Open <b>Manage Profiles</b> and select the profile you want to change.\n2. Change the name or picture, or turn <b>Kids Profile</b> or <b>Profile Lock</b> on or off, then choose <b>Save</b>.\n3. To remove the profile, choose <b>Delete Profile</b>. Its viewing activity and settings go with it.\n\nLanguages, subtitles, parental controls and the other preferences of a profile are in <b>Account</b>, under <b>Manage profiles</b>.\n\n!! Note: Profiles are saved in your account, so they appear on every device where you sign in.\n\n@@ profiles\n\n>> Can't delete a profile\nThe main profile, the one named after you, cannot be deleted, and an account always keeps at least one profile. Every other profile can be deleted.",
+      "keywords": "profile profiles add create edit delete remove name icon avatar who's watching",
+      "related": [
+        "switch-profile",
+        "profile-pin",
+        "kids-profile",
+        "parental-controls",
+        "transfer-profile"
+      ],
+      "summary": "Add a profile for each person, change a name or picture, lock a profile, or remove one you no longer need.",
+      "title": "How to create, edit, or delete profiles"
+    },
+    "recommendations": {
+      "body": "Rows are made from what titles are: their genres, moods, subjects, country and decade, for example <b>Feel-good Romantic Comedies</b> or <b>Korean Crime Series</b>. Within a row, the order follows your taste.\n\n## What changes your rows\n- What you start and finish, what you rate, and what you add to My List.\n- Rows such as <b>Because You Watched</b>, <b>Today's Top Picks for You</b> and <b>Your Next Watch</b> come from your recent titles. On a genre page they stay inside that genre.\n- The profile you use. Each profile has its own taste, and a Kids profile only shows titles for children.\n- The day and the season. Rows for holidays and events appear in their season.\n\n## Turn it off\nTurn off <b>Personalised recommendations</b> in your profile's <b>Privacy and data settings</b>. You then see the same picks as everyone else.\n\nWe never use your name or email to choose titles. See <a=/help/article/privacy-data>What data does {brand} collect?</a>\n\n@@ data",
+      "keywords": "recommendations rows suggestions because you watched taste algorithm for you personalised personalized",
+      "related": [
+        "viewing-history",
+        "privacy-data",
+        "my-list",
+        "search-browse",
+        "kids-profile"
+      ],
+      "summary": "How the rows are made and what changes them.",
+      "title": "How recommendations work"
+    },
+    "report-bug": {
+      "body": "The more we know, the faster we can fix it. Please include:\n\n1. What you were doing and what you expected.\n2. What happened instead, and any message you saw.\n3. The title, if it is about playback.\n4. Your device and browser.\n\nThe <a=/help/contact>Contact Us</a> page has a button that opens an email with your browser details filled in.\n\n@@ diagnostics",
+      "keywords": "report bug problem issue error crash broken not working feedback contact",
+      "related": [
+        "title-feedback",
+        "contribute",
+        "rows-wont-load",
+        "wont-play"
+      ],
+      "summary": "What to include so we can find and fix a bug quickly.",
+      "title": "Report a problem"
+    },
+    "rows-wont-load": {
+      "body": "The rows and search come from our recommendation service. Posters and details come from a public film catalog. If either is out of reach, you may see empty rows, a spinner or missing pictures.\n\n1. Reload the page.\n2. Check your connection.\n3. Turn off blockers for this site. See <a=/help/article/extensions-blockers>Extensions that block the player</a>.\n4. Try again in a few minutes.\n\nYour profiles, My List and settings are safe in your account while this happens. If the problem lasts more than an hour, <a=/help/article/report-bug>tell us</a>.\n\n@@ diagnostics\n\n@@ refresh",
+      "keywords": "rows empty loading blank page pictures images posters not loading home error recommendations down",
+      "related": [
+        "supported-browsers",
+        "report-bug",
+        "recommendations",
+        "extensions-blockers"
+      ],
+      "summary": "The page shows empty rows, a spinner or missing images.",
+      "title": "Rows or pictures do not load"
+    },
+    "saved-data": {
+      "body": "Your profiles, My List, ratings, viewing activity and settings are saved in your account. Each browser where you sign in keeps a copy, so pages open at once and work for a while without a connection. Changes go to your account within a few seconds and reach your other devices when you open {brand} there.\n\n## What this means\n- Sign in on another device and everything is there.\n- Clearing site data in a browser signs you out there and removes that copy. Your account keeps everything.\n- In a private or incognito window, the copy is removed when the window closes.\n\n## What else is sent to our servers\nWhen you start a title, the recommendation service learns which title it was, so your rows can follow your taste. You can turn this off with <b>Personalised recommendations</b> in <b>Privacy and data settings</b>. See <a=/help/article/recommendations>How recommendations work</a>.\n\n@@ data",
+      "keywords": "saved data storage local browser device lost sync progress history profiles cookies",
+      "related": [
+        "clear-data",
+        "privacy-data",
+        "need-account",
+        "list-missing",
+        "viewing-history"
+      ],
+      "summary": "Your account keeps them, and each browser keeps a copy so pages open fast.",
+      "title": "Where your profiles, list and progress are saved"
+    },
+    "search-browse": {
+      "body": "## Search\n1. Select the magnifying glass in the top bar.\n2. Type a title, an actor or a director. Results appear as you type, and small typing mistakes are forgiven.\n\n## Browse\n- <b>Series</b> and <b>Films</b> in the top bar open a page for each kind of title. Use <b>Genres</b> there to narrow it down.\n- Rows on the home page are grouped by theme. See <a=/help/article/recommendations>How recommendations work</a>.\n- <b>Browse by language</b> finds titles by the language they were made in. See <a=/help/article/browse-language>Browse by language</a>.",
+      "keywords": "search browse find genre films series category look for title actor director",
+      "related": [
+        "browse-language",
+        "new-popular",
+        "recommendations",
+        "my-list",
+        "trailers-clips"
+      ],
+      "summary": "Find a title by name, genre or mood.",
+      "title": "How to search and browse"
+    },
+    "security-report": {
+      "body": "If you found a way to read someone else's data, bypass a profile PIN, or break the site, please tell us before you tell anyone else.\n\n1. Write to <a=mailto:{support_email}>{support_email}</a> with the subject <b>Security</b>.\n2. Describe what you found, the steps to repeat it and the page or address it affects.\n3. Do not access other people's data and do not test with automated floods of requests.\n\nWe read every report. The same details are in the machine readable file at <a=/.well-known/security.txt>/.well-known/security.txt</a>.",
+      "keywords": "security vulnerability bug bounty responsible disclosure exploit hack report weakness",
+      "related": [
+        "report-bug",
+        "privacy-data",
+        "profile-pin",
+        "contribute"
+      ],
+      "summary": "How to tell us about a weakness safely.",
+      "title": "Report a security problem"
+    },
+    "share": {
+      "body": "Sharing works on a phone.\n\n1. Open a title's details and select the <b>Share</b> button.\n2. Choose <b>WhatsApp</b>, <b>Messages</b> or <b>X</b> to send the link, or <b>Copy link</b> to paste it anywhere.\n3. For Instagram and Snapchat the link is copied, then you paste it into the app.\n\nThe link opens the title's own page on {brand}, with its trailers, episodes and details, even for someone without an account. To watch, they sign in or create a free account. If they already have an account, the link opens the title's details.",
+      "keywords": "share link whatsapp messages instagram snapchat x twitter copy send friend phone mobile",
+      "related": [
+        "title-details",
+        "my-list",
+        "search-browse",
+        "title-feedback",
+        "new-popular"
+      ],
+      "summary": "Send a friend a link to a title from your phone.",
+      "title": "How to share a title from your phone"
+    },
+    "shortcuts": {
+      "body": "These keys work while a title is playing on a computer.\n\n- <b>Space</b> or <b>K</b>: play or pause\n- <b>Left arrow</b> or <b>J</b>: back 10 seconds\n- <b>Right arrow</b> or <b>L</b>: forward 10 seconds\n- <b>Up arrow</b> and <b>Down arrow</b>: volume up and down\n- <b>M</b>: mute or unmute\n- <b>F</b>: full screen on or off",
+      "keywords": "keyboard shortcuts keys space arrow fullscreen mute volume skip rewind hotkeys",
+      "related": [
+        "accessibility",
+        "skip-intro-next",
+        "subtitles",
+        "continue-watching",
+        "wont-play"
+      ],
+      "summary": "Control the player without the mouse.",
+      "title": "Keyboard shortcuts"
+    },
+    "sign-in": {
+      "body": "## Sign in\n1. Choose <b>Sign In</b> at the top of the {brand} home page.\n2. Enter your email address and password, then choose <b>Sign In</b>.\n\nLeave <b>Remember me</b> on to stay signed in on this device. If you signed out of this device a short while ago, you can continue without typing your password again.\n\n## Sign out\nOpen the profile menu and choose <b>Sign out of {brand}</b>. To sign out everywhere at once, see <a=/help/article/devices-sign-out>Sign out of a device or of all devices</a>.\n\n## Sign in does not work\n- Check the email address for typing mistakes. The password is case sensitive.\n- If you just signed up, open the confirmation link we emailed you first. <b>Send the confirmation email again</b> sends a new one.\n- After too many tries, wait a minute and try again.\n- Forgot your password? See <a=/help/article/forgot-password>I forgot my password</a>.",
+      "keywords": "sign in log in login sign out log out remember me email password account",
+      "related": [
+        "need-account",
+        "forgot-password",
+        "devices-sign-out",
+        "change-email-password",
+        "saved-data"
+      ],
+      "summary": "Sign in with your email and password, stay signed in, and sign out.",
+      "title": "Signing in and out"
+    },
+    "skip-intro-next": {
+      "body": "- <b>Skip Intro</b> appears for a few seconds when the opening of an episode starts. Select it to jump to the story.\n- <b>Next Episode</b> in the player controls starts the next episode.\n- <b>Episodes</b> opens a list of the season, so you can pick any episode.\n\nTo choose what happens when an episode ends, open your profile's <b>Playback Settings</b> and turn <b>Autoplay next episode</b> on or off.",
+      "keywords": "skip intro next episode autoplay binge episodes season drawer",
+      "related": [
+        "shortcuts",
+        "episodes",
+        "continue-watching",
+        "subtitles",
+        "my-list"
+      ],
+      "summary": "Jump past the opening or move on to the next episode.",
+      "title": "Skip Intro and Next Episode"
+    },
+    "slow-pages": {
+      "body": "The first visit downloads the app, about 2 MB. After that, most of the wait is pictures and previews.\n\n- Turn off <b>Autoplay previews</b> in your profile's <b>Playback Settings</b>. Previews that start by themselves use data and memory.\n- Close tabs and other apps that use the network or a lot of memory.\n- Use a current browser. Older ones run the app more slowly.\n- On mobile data, switch to Wi-Fi if you can.\n\n@@ diagnostics",
+      "keywords": "slow lag performance speed loading memory old phone laggy scrolling previews",
+      "related": [
+        "buffering",
+        "supported-browsers",
+        "vpn-network",
+        "trailers-clips",
+        "wont-play"
+      ],
+      "summary": "Make browsing faster on a slow connection or an older device.",
+      "title": "Pages load slowly"
+    },
+    "sources": {
+      "body": "Details, posters and ratings come from a public film and TV catalog. The video itself is not on {brand}. When you press play, the player asks independent third party sources for a stream.\n\n- A title can be available from one source and not from another.\n- A source can go offline without warning.\n- Quality, audio tracks and subtitles come from the source.\n\nWe do not control or check those sources. See the <a=/help/legal/disclaimer>Disclaimer</a>. If you are a rights holder, see <a=/help/article/copyright>How to report a copyright problem</a>.",
+      "keywords": "sources providers hosted links third party where from catalog metadata availability",
+      "related": [
+        "what-is",
+        "wont-play",
+        "playback-unavailable",
+        "copyright",
+        "free-to-use"
+      ],
+      "summary": "How {brand} finds streams, and why a title may work one day and fail the next.",
+      "title": "Where titles come from"
+    },
+    "stuck-loading": {
+      "body": "While {brand} starts you see the cube logo with a row of moving dots. It should take a few seconds. {brand} runs as a WebAssembly app, so a browser or setting that switches WebAssembly off leaves you on that screen.\n\n1. Reload with <b>Ctrl + Shift + R</b> (<b>Cmd + Shift + R</b> on a Mac) to fetch the newest version.\n2. Open the page in a private window. If it works there, an extension is in the way. See <a=/help/article/extensions-blockers>Extensions that block the player</a>.\n3. Update your browser. See <a=/help/article/supported-browsers>Supported browsers</a>.\n4. Turn off any mode that limits web features for this site, such as Lockdown Mode on Apple devices or strict security settings in Edge.\n5. Clear this site's data, then sign in again. See <a=/help/article/clear-data>How to clear your saved data</a>.\n\n@@ refresh",
+      "keywords": "stuck loading logo blank white screen splash not starting webassembly wasm frozen startup",
+      "related": [
+        "supported-browsers",
+        "extensions-blockers",
+        "clear-data",
+        "rows-wont-load"
+      ],
+      "summary": "What to try when {brand} never finishes starting.",
+      "title": "The page stays on the logo or a blank screen"
+    },
+    "subtitles": {
+      "body": "## Turn subtitles on or off\n1. Start a title and move the pointer over the player, or tap the screen.\n2. Select <b>Audio & Subtitles</b>.\n3. Choose a subtitle language, or <b>Off</b>.\n\nIf the words come too early or too late, use <b>-0.5s</b> and <b>+0.5s</b> in the same panel to move them.\n\n## Change how subtitles look\n1. Open the profile menu, choose <b>Account</b>, then <b>Manage profiles</b>, and select your profile.\n2. Choose <b>Subtitle Appearance</b>.\n3. Pick the text size, text colour, edge, background and window colour. The preview shows the result. <b>Reset to default</b> undoes your changes.\n\n!! Note: Which languages and audio tracks exist depends on the source of the title. See <a=/help/article/subtitles-missing>Subtitles are missing or out of sync</a>.",
+      "keywords": "subtitles captions cc audio language track size color appearance background",
+      "related": [
+        "language",
+        "subtitles-missing",
+        "shortcuts",
+        "accessibility",
+        "browse-language"
+      ],
+      "summary": "Turn subtitles on, pick a track, and change how they look.",
+      "title": "How to use subtitles, captions, or choose the audio language"
+    },
+    "subtitles-missing": {
+      "body": "1. Select <b>Audio & Subtitles</b> in the player and make sure a subtitle language is selected.\n2. Choose another track if the list offers one. Tracks come from the source and differ between titles.\n3. Set your preferred subtitle language for the profile. See <a=/help/article/language>How to change the language</a>.\n4. If the text is early or late, use <b>-0.5s</b> or <b>+0.5s</b> in <b>Audio & Subtitles</b> until it matches the speech.\n\nIf a title has no subtitles at all, the source did not provide any.\n\n@@ language",
+      "keywords": "subtitles captions missing wrong language out of sync delay cc text",
+      "related": [
+        "subtitles",
+        "language",
+        "wont-play",
+        "playback-unavailable",
+        "report-bug"
+      ],
+      "summary": "Fix subtitles that do not appear, show the wrong language or lag behind the speech.",
+      "title": "Subtitles are missing or out of sync"
+    },
+    "supported-browsers": {
+      "body": "{brand} works in current versions of these browsers:\n\n- <b>Google Chrome</b>, <b>Microsoft Edge</b>, <b>Brave</b> and other Chromium browsers on Windows, macOS, Linux and Android\n- <b>Mozilla Firefox</b> on Windows, macOS, Linux and Android\n- <b>Safari</b> on Mac, iPhone and iPad\n\nInternet Explorer is not supported. Keep your browser up to date and allow the site to use JavaScript and site data.\n\n@@ diagnostics\n\n>> Browser shows an error before the page loads\nReload with <b>Ctrl + Shift + R</b> on Windows and Linux, or <b>Cmd + Shift + R</b> on a Mac, to fetch the newest version of the app, then try again.",
+      "keywords": "browser chrome firefox safari edge brave opera internet explorer version update compatible",
+      "related": [
+        "wont-play",
+        "install-app",
+        "fix-phone",
+        "fix-tv",
+        "extensions-blockers"
+      ],
+      "summary": "Which browsers and systems work best.",
+      "title": "Supported browsers"
+    },
+    "switch-profile": {
+      "body": "1. Open the profile menu at the top right of the page. On a phone, tap your profile picture in the bar at the bottom.\n2. Select the profile you want to use.\n3. If the profile is locked, type its 4 digit PIN.\n\nRecommendations, <b>My List</b> and <b>Continue Watching</b> change with the profile you pick.\n\n!! Note: You can lock a profile with a PIN. See <a=/help/article/profile-pin>How to add, edit, or remove a profile PIN</a>.\n\n@@ profiles",
+      "keywords": "switch change profile who's watching menu",
+      "related": [
+        "profiles-manage",
+        "profile-pin",
+        "kids-profile",
+        "forgot-pin",
+        "saved-data"
+      ],
+      "summary": "Change who is watching without leaving the page.",
+      "title": "How to switch profiles"
+    },
+    "title-details": {
+      "body": "Select a title card, or <b>More Info</b>, to open its details.\n\n- <b>Play</b> or <b>Resume</b> starts the title where you left it.\n- <b>My List</b> saves it, and the thumb rates it.\n- The summary, cast, genres and a few words that describe the mood help you decide.\n- For series, <b>Episodes</b> lists the seasons.\n- <b>More Like This</b> shows titles that are close in meaning, which is a good way to find something new.",
+      "keywords": "more info details modal cast genres synopsis similar more like this trailer rating match",
+      "related": [
+        "my-list",
+        "episodes",
+        "share",
+        "recommendations",
+        "trailers-clips"
+      ],
+      "summary": "What you can read and do before you press play.",
+      "title": "The title details window"
+    },
+    "title-feedback": {
+      "body": "Write to <a=mailto:{support_email}>{support_email}</a> and include:\n\n- the title and the year\n- the address of its page on {brand}\n- what is wrong, for example a wrong poster, a missing season, or a title that never plays\n\nDetails come from a public catalog, so a wrong description is best fixed at its source. We can pass on corrections we receive.",
+      "keywords": "feedback title wrong description missing request movie series add report incorrect poster",
+      "related": [
+        "report-bug",
+        "contribute",
+        "wont-play",
+        "recommendations",
+        "copyright"
+      ],
+      "summary": "Report a wrong description, a missing title or a title that never plays.",
+      "title": "Feedback about a title on {brand}"
+    },
+    "top-10": {
+      "body": "A <b>Top 10</b> row shows the ten most popular films or series of the moment, with a large number on each. It follows the daily popularity of titles in the film catalog, so it changes from day to day. It is the same for everyone and does not depend on your profile.",
+      "keywords": "top 10 top ten popular trending ranking numbers row most watched",
+      "related": [
+        "new-popular",
+        "genres",
+        "recommendations",
+        "search-browse",
+        "trailers-clips"
+      ],
+      "summary": "A row of the ten most popular titles right now.",
+      "title": "What are the Top 10 rows?"
+    },
+    "trailers-clips": {
+      "body": "- Hover over a title card on a computer, or open its details, to see a trailer preview.\n- <b>Clips</b> shows short vertical previews you can scroll through.\n- Use the speaker button to turn preview sound on or off.\n\nTrailers are played from an outside video service. To stop previews from starting by themselves, turn off <b>Autoplay previews</b> in your profile's <b>Playback Settings</b>.",
+      "keywords": "trailers clips preview short videos teaser mute sound autoplay previews",
+      "related": [
+        "new-popular",
+        "search-browse",
+        "my-list",
+        "recommendations",
+        "notifications"
+      ],
+      "summary": "Preview a title before you commit.",
+      "title": "Trailers and clips"
+    },
+    "transfer-profile": {
+      "body": "A profile can be copied to another account, for example when someone moves out. The copy keeps the name, picture, settings and viewing activity.\n\n## Save the profile\n1. Open the profile menu and choose <b>Transfer Profile</b>.\n2. Select the profile and choose <b>Download profile file</b>. Keep the file safe.\n\n## Add it to the other account\n1. Sign in to the other account and open <b>Manage profiles</b>.\n2. Choose <b>Import a profile</b> and select the file.\n\n!! Note: The file does not contain the profile's PIN. Anyone with the file can add the profile to their account, so do not share it.\n\n<b>Profile transfer</b> in <b>Account</b> turns copying out of your account on or off. It never blocks profiles coming in.",
+      "keywords": "transfer profile move copy profile another account import export profile file",
+      "related": [
+        "profiles-manage",
+        "download-data",
+        "delete-account",
+        "profile-pin",
+        "saved-data"
+      ],
+      "summary": "Save a profile as a file and add it to another account with its history and settings.",
+      "title": "Move a profile to another account"
+    },
+    "translate": {
+      "body": "All interface text is stored in one plain text file per language. A translation does not need programming.\n\n## What to know\n- Messages look like <b>key = text</b>. Only change the text after the equals sign.\n- Words in curly brackets, such as <b>{ \"{brand}\" }</b>, are filled in by the app. Keep them as they are, and move them where your language needs them.\n- Some messages have forms for one and for many (<b>1 season</b>, <b>2 seasons</b>). Languages with more than two forms can add all of them.\n- Where your language changes a word for gender or case, write the form that fits the sentence.\n\n## How to send one\nWrite to <a=mailto:{support_email}>{support_email}</a> with the language and either the file or a link to your change. Native speakers who review each other's work are the best check we have.",
+      "keywords": "translate translation localisation localization language contribute ftl fluent grammar gender plural",
+      "related": [
+        "contribute",
+        "language",
+        "report-bug",
+        "what-is",
+        "getting-started"
+      ],
+      "summary": "Interface text lives in plain files, one per language, and anyone can improve one.",
+      "title": "Help translate {brand}"
+    },
+    "viewing-history": {
+      "body": "Each profile has a <b>Viewing activity</b> page with the titles it watched, newest first. {brand} uses it for Continue Watching and for recommendations.\n\n1. Open the profile menu, choose <b>Account</b>, then <b>Manage profiles</b>, and select the profile.\n2. Choose <b>Viewing activity</b>.\n3. Choose <b>Hide this title</b> next to a title, or <b>Hide all</b>.\n\nA hidden title leaves Continue Watching and no longer shapes recommendations, on every device. <b>Download all</b> saves the list as a spreadsheet.\n\n@@ data",
+      "keywords": "viewing history watched activity delete clear remove ratings recommendations",
+      "related": [
+        "continue-watching",
+        "clear-data",
+        "saved-data",
+        "recommendations",
+        "privacy-data"
+      ],
+      "summary": "What is recorded when you watch and how to remove it.",
+      "title": "How to manage your viewing history"
+    },
+    "vpn-network": {
+      "body": "{brand} loads details and pictures from a public film catalog and streams from independent sources. Some networks block those sites, and some sources refuse certain addresses.\n\n- <b>VPN or proxy.</b> Some sources do not answer VPN addresses. Turn it off, or choose another country.\n- <b>School, work or public Wi-Fi.</b> Filters often block streaming or the catalog. Try your phone's mobile data.\n- <b>DNS filters.</b> A filtering DNS service can block the catalog and leave rows or pictures empty. Use a different DNS or turn the filter off for this site.\n\nThe device check shows which service your network cannot reach.\n\n@@ diagnostics",
+      "keywords": "vpn proxy school work network firewall dns filter blocked safedns restricted wifi",
+      "related": [
+        "is-down",
+        "wont-play",
+        "playback-unavailable",
+        "rows-wont-load",
+        "sources"
+      ],
+      "summary": "Why some networks block titles or pictures, and what to try.",
+      "title": "VPNs, school and work networks"
+    },
+    "watch-on-tv": {
+      "body": "There is no {brand} app for TVs yet. These options work today:\n\n- <b>TV browser.</b> Open the {brand} address in the browser that came with your TV.\n- <b>Cast a tab.</b> In Chrome or Edge on a computer, open the browser menu and choose <b>Cast</b>, then pick your TV or streaming stick.\n- <b>Cable.</b> Connect a laptop to the TV with an HDMI cable and use full screen.\n\nIf the picture or sound is not right, see <a=/help/article/fix-tv>Fix a problem on your TV</a>.",
+      "keywords": "tv television smart tv cast chromecast airplay hdmi fire stick big screen",
+      "related": [
+        "fix-tv",
+        "install-app",
+        "supported-browsers",
+        "getting-started",
+        "shortcuts"
+      ],
+      "summary": "Use your TV's browser, or send a browser tab from a computer or phone.",
+      "title": "How to watch on your TV"
+    },
+    "what-is": {
+      "body": "{brand} helps you find your next film or series. It learns what you like and arranges the catalog into rows for you, in a page that feels like the streaming services you know.\n\n{brand} is an index of links. It does not host or upload video. When you press play, the player asks independent sources for a stream and plays the first one that works. See <a=/help/article/sources>Where titles come from</a>.\n\nThere is nothing to buy and no subscription. See <a=/help/article/free-to-use>Is {brand} free?</a>",
+      "keywords": "what is about streams service explain index links catalog",
+      "related": [
+        "getting-started",
+        "sources",
+        "free-to-use",
+        "need-account",
+        "contribute"
+      ],
+      "summary": "A short description of {brand} and what it does and does not do.",
+      "title": "What is {brand}?"
+    },
+    "wont-play": {
+      "body": "Try these steps in order. Test after each one.\n\n1. Reload the page. A temporary failure at the source is the most common cause.\n2. Pick another episode, or start the title again from its details page. The player tries the available sources one after another.\n3. Turn off ad blockers and privacy extensions for this site. See <a=/help/article/extensions-blockers>Extensions that block the player</a>.\n4. Use a current version of Chrome, Edge, Firefox or Safari. See <a=/help/article/supported-browsers>Supported browsers</a>.\n5. Switch network, for example from Wi-Fi to mobile data, or turn off a VPN. Some sources refuse some networks.\n\n@@ diagnostics\n\n>> Still not playing\nSome titles are not available from any source at a given moment. Try again later. If a popular title never plays, tell us which one on the <a=/help/article/report-bug>Report a problem</a> page.",
+      "keywords": "not playing won't play error cannot play video fails loading spinner stuck player",
+      "related": [
+        "playback-unavailable",
+        "black-screen",
+        "buffering",
+        "extensions-blockers",
+        "supported-browsers"
+      ],
+      "summary": "The quickest fixes when the player shows an error, stays black or never starts.",
+      "title": "A title will not play"
+    }
+  },
+  "policies": {
+    "cookie-policy": {
+      "sections": [
+        {
+          "body": "{brand} does not use advertising or analytics cookies. We use your browser's local storage, a place on your device that only this site can read, for:",
+          "bullets": [
+            "<b>Signing in:</b> what keeps you signed in on this browser, and a cookie with your profile's name so the Help Centre shows you as signed in.",
+            "<b>Speed:</b> a copy of your profiles, settings and viewing progress, so pages open at once.",
+            "<b>Your choices:</b> your cookie and personalisation choices and your display language."
+          ],
+          "title": "1. What we keep in your browser"
+        },
+        {
+          "body": "Trailers can come from an outside video service, which may set its own cookies when a trailer plays. Posters and details come from a public film catalog, and streams from independent sources; those sites can set their own cookies when your browser loads from them. We do not control them.",
+          "bullets": [],
+          "title": "2. Other sites"
+        },
+        {
+          "body": "Open Cookie Preferences, at the bottom of the Help Centre and sign in pages or in Privacy and data settings, to see every item we keep and to turn personalisation on or off. Deleting this site's data in your browser signs you out on that browser; your account keeps everything.",
+          "bullets": [],
+          "title": "3. Your choices"
+        },
+        {
+          "body": "When what we keep in your browser changes, we update this policy and the list in Cookie Preferences.",
+          "bullets": [],
+          "title": "4. Changes to this policy"
+        }
+      ],
+      "title": "Cookie Policy",
+      "updated": "Last updated: October 2026"
+    },
+    "credits": {
+      "sections": [
+        {
+          "body": "The logo is set in a pixel font, the interface in Inter, and the titles of collections in display fonts:",
+          "bullets": [
+            "<b>Baby Blocks</b> by Colorful Typhoon, used for the {brand} logo under its freeware terms for non-commercial use. See <a href=\"https://www.fontspace.com/baby-blocks-font-f3699\" target=\"_blank\" rel=\"noopener\">the font on FontSpace</a>.",
+            "<b>Inter</b> by Rasmus Andersson, used under the SIL Open Font License 1.1.",
+            "<b>Abril Fatface, Caveat Brush, DM Serif Display, Fredoka, Gochi Hand, Kalam, Londrina Solid, Playfair Display and Sedgwick Ave</b> from Google Fonts, used under the SIL Open Font License 1.1.",
+            "<b>Permanent Marker</b> and <b>Rock Salt</b> from Google Fonts, used under the Apache License 2.0."
+          ],
+          "title": "1. Fonts"
+        },
+        {
+          "body": "Interface icons come from Phosphor Icons, Tabler Icons and Hugeicons, used under the MIT License, and from Remix Icon and IBM Carbon, used under the Apache License 2.0.",
+          "bullets": [],
+          "title": "2. Icons"
+        },
+        {
+          "body": "Film and series information comes from public catalogs, which do not endorse or certify this product. Titles, summaries, posters, ratings and cast information come from <a href=\"https://www.themoviedb.org\" target=\"_blank\" rel=\"noopener\">The Movie Database</a>.",
+          "bullets": [],
+          "title": "3. Film and series information"
+        },
+        {
+          "body": "{brand} is built with open source software, each used under its own license:",
+          "bullets": [
+            "<b>Rust</b> and <b>Leptos</b> for the application (MIT and Apache 2.0).",
+            "<b>Tailwind CSS</b> for styling (MIT).",
+            "<b>hls.js</b> for adaptive video playback (Apache 2.0).",
+            "<b>Project Fluent</b> for translated interface text (Apache 2.0 and MIT)."
+          ],
+          "title": "4. Software"
+        },
+        {
+          "body": "Names, logos, posters and artwork of films, series and services shown on {brand} belong to their owners. They are shown to identify the title and do not mean that the owner supports {brand}.",
+          "bullets": [],
+          "title": "5. Trademarks and artwork"
+        },
+        {
+          "body": "If you believe something here is credited wrongly or needs to change, please write to {support_email}.",
+          "bullets": [],
+          "title": "6. Contact"
+        }
+      ],
+      "title": "Licenses and credits",
+      "updated": "Last updated: October 2026"
+    },
+    "disclaimer": {
+      "sections": [
+        {
+          "body": "{brand} is a link aggregator and search engine for publicly available embedded media links. We do not host, upload, store, transmit, or control any video, audio, or media content on our servers.",
+          "bullets": [],
+          "title": "1. No Content Hosting"
+        },
+        {
+          "body": "All content accessible via links indexed by {brand} originates from external, independent third-party sources. {brand} has no control over, and assumes no responsibility for, the legality, accuracy, quality, or availability of such content.",
+          "bullets": [],
+          "title": "2. Third-Party Content — No Liability"
+        },
+        {
+          "body": "You acknowledge and agree that your use of {brand} and your access to any content via external embedded links is entirely at your own risk. {brand} expressly disclaims all warranties, express or implied.",
+          "bullets": [],
+          "title": "3. User Assumption of Risk"
+        },
+        {
+          "body": "Embedded links indexed by {brand} point to resources on third-party servers. We cannot guarantee the ongoing availability, quality, or completeness of any linked content, and links may break or become unavailable without notice.",
+          "bullets": [],
+          "title": "4. Link Availability"
+        },
+        {
+          "body": "Metadata displayed on {brand} (including titles, descriptions, ratings, and images) is sourced from third-party data providers. We do not guarantee the accuracy or completeness of this metadata.",
+          "bullets": [],
+          "title": "5. Accuracy of Information"
+        }
+      ],
+      "title": "Disclaimer",
+      "updated": "Last updated: August 2026"
+    },
+    "dmca": {
+      "sections": [
+        {
+          "body": "{brand} is a link aggregator and search engine. We do not host, upload, store, transmit, or control any video or media content. All content is served from third-party servers that are entirely outside of our control.",
+          "bullets": [],
+          "title": "1. Our Role — Link Aggregator, Not a Host"
+        },
+        {
+          "body": "If you are a copyright owner, or an agent authorised to act on behalf of a copyright owner, and you believe that a link in our index infringes your copyright, please send a written notice to {support_email} containing:",
+          "bullets": [
+            "<b>Physical or electronic signature</b> of the copyright owner or their authorised agent.",
+            "<b>Identification of the copyrighted work</b> you claim has been infringed, or if multiple works are covered by a single notice, a representative list of such works.",
+            "<b>Identification of the material</b> (i.e. the specific {brand} link or URL) that you claim is infringing, with sufficient information to permit us to locate it."
+          ],
+          "title": "2. Notice-and-Takedown Procedure"
+        },
+        {
+          "body": "Your DMCA notice must also include:",
+          "bullets": [
+            "<b>Your contact information</b> — name, address, telephone number, and email address.",
+            "<b>A statement of good faith</b> — that you have a good faith belief that the use of the material in the manner complained of is not authorised by the copyright owner, its agent, or the law.",
+            "<b>A statement of accuracy</b> — that the information in the notice is accurate and, under penalty of perjury, that you are authorised to act on behalf of the copyright owner.",
+            "<b>Send notices to:</b> {support_email}",
+            "We will review all notices and remove links from our index that satisfy the above statutory requirements.",
+            "<b>Counter-Notification:</b> If you believe your link was removed in error, you may submit a counter-notification under 17 U.S.C. § 512(g)."
+          ],
+          "title": "3. Additional Required Elements"
+        },
+        {
+          "body": "Because {brand} does not host any media files, we are only able to remove the link from our search index. We cannot remove the underlying content from the server on which it is hosted.",
+          "bullets": [],
+          "title": "4. Important Limitation — We Can Only Remove Links"
+        },
+        {
+          "body": "In appropriate circumstances, and at our sole discretion, {brand} will disable or terminate access for users or accounts that are repeat infringers.",
+          "bullets": [],
+          "title": "5. Repeat Infringer Policy"
+        },
+        {
+          "body": "Removal of a link from our index in response to a DMCA notice does not constitute an admission by {brand} that any infringement has occurred.",
+          "bullets": [],
+          "title": "6. No Admission of Liability"
+        }
+      ],
+      "title": "DMCA Safe Harbor Notice",
+      "updated": "Last updated: August 2026"
+    },
+    "privacy": {
+      "sections": [
+        {
+          "body": "{brand} is run by the operator of this server, who is the controller of your personal information. You can reach us at {support_email}. This policy explains what we collect, why we collect it, who we share it with, how long we keep it and the rights you have. {brand} is a link aggregator and search engine: it does not host the films and series it shows.",
+          "bullets": [],
+          "title": "1. Who we are"
+        },
+        {
+          "body": "We collect only what the service needs:",
+          "bullets": [
+            "<b>Account information:</b> your first and last name, email address and password (kept only in scrambled form by our sign in provider), and a mobile number if you add one.",
+            "<b>Profiles and activity:</b> your profiles and their settings, profile PINs (kept only in scrambled form), My List, ratings, viewing progress and viewing activity. They are linked to your account, so they follow you to every device.",
+            "<b>Security records:</b> recent sign ins and changes to your account, with the browser, system and country they came from. Our sign in provider also keeps the IP address and browser of each signed in session.",
+            "<b>Storage on your device:</b> what keeps you signed in, a copy of your profiles and settings so pages open fast, and your cookie choices. See the Cookie Policy.",
+            "<b>Messages you send us:</b> your emails to our addresses and what they contain, such as a problem report with your browser details."
+          ],
+          "title": "2. Information we collect"
+        },
+        {
+          "body": "Almost everything comes from you: what you type when you sign up, the profiles and settings you create and what you do in the app. When you sign in, your browser tells us its type, your system and the country of your connection. We do not buy information about you or receive it from other companies.",
+          "bullets": [],
+          "title": "3. Where it comes from"
+        },
+        {
+          "body": "Under the UK GDPR each use needs a lawful basis, shown in brackets. We use your information to:",
+          "bullets": [
+            "create and run your account, profiles, My List, ratings and Continue Watching on every device (contract);",
+            "keep your account safe: confirm it is you, show your devices, lock a profile after too many wrong PINs and tell you about new sign ins (legitimate interests);",
+            "send the emails your account needs, such as confirmation links, sign in codes and security alerts (contract);",
+            "personalise your rows from what you watch, if you allow it (consent);",
+            "answer your messages and fix the problems you report (legitimate interests)."
+          ],
+          "title": "4. How we use it"
+        },
+        {
+          "body": "We are committed to your privacy:",
+          "bullets": [
+            "<b>Share Your Data:</b> We do not share personal data with advertisers or data brokers.",
+            "<b>Sell Your Data:</b> We do not sell, rent, or trade any personal data to third parties, ever.",
+            "<b>Track You:</b> We do not use advertising or analytics cookies, we do not fingerprint browsers, and we do not follow you across other websites."
+          ],
+          "title": "5. What we do not do"
+        },
+        {
+          "body": "We use these providers to run the service. Each handles your information only to provide its part, under its own privacy policy:",
+          "bullets": [
+            "<b>Supabase:</b> accounts and the account database, stored in the European Union (Ireland).",
+            "<b>Hosting and email providers:</b> hosting the site and forwarding email to our inboxes.",
+            "<b>Hugging Face:</b> hosting the recommendation service, which receives the titles you start and a random session number when personalisation is on.",
+            "<b>Resend:</b> sending account emails.",
+            "<b>Catalog and video services:</b> film and series information, pictures and trailers, which your browser loads directly from them.",
+            "<b>Stream sources:</b> video comes from independent third party sources, which see your IP address like any website you visit. We may also share information when the law requires it."
+          ],
+          "title": "6. Who we share it with"
+        },
+        {
+          "body": "Your account database is kept in the European Union (Ireland). Some of the providers above are based in, or process data in, the United States and other countries outside the UK. When personal information leaves the UK, we rely on the protections UK law provides, such as adequacy regulations (including the UK Extension to the EU-US Data Privacy Framework where a provider is certified) or the standard contractual clauses in the provider's terms.",
+          "bullets": [],
+          "title": "7. International transfers"
+        },
+        {
+          "body": "We keep information only as long as we need it:",
+          "bullets": [
+            "<b>Your account:</b> account information, profiles, My List, ratings and viewing activity stay while your account exists. Deleting your account deletes them at once.",
+            "<b>Hidden viewing activity:</b> titles you hide are no longer shown or used for recommendations; they are deleted with the profile or the account.",
+            "<b>Security events:</b> 365 days.",
+            "<b>Signed in sessions:</b> while you use them. A session unused for 30 days ends, and the IP address and browser kept for it are deleted with it. Signing out of a device, or of all devices, ends it at once.",
+            "<b>Recommendation sessions:</b> about 24 hours after your last activity.",
+            "<b>Emails you send us:</b> as long as we need them to answer and resolve your request.",
+            "<b>Copies in your browser:</b> until the session on that browser ends (you sign out here or everywhere, or it runs out) or you clear this site's data. The browser then keeps only its own settings, such as your language and cookie choices."
+          ],
+          "title": "8. How long we keep it"
+        },
+        {
+          "body": "We protect your information with:",
+          "bullets": [
+            "row level security, so the database lets only your own account read or change your data;",
+            "passwords and profile PINs kept only in scrambled (hashed) form;",
+            "encrypted connections (HTTPS) for every page and request;",
+            "a lockout after too many wrong PINs, and an email when a new device signs in.",
+            "No system is perfectly secure. If you think your account has been misused, change your password and write to us."
+          ],
+          "title": "9. How we keep it safe"
+        },
+        {
+          "body": "Everyone who can sign in to your account can open its profiles and see their My List, ratings and viewing activity, unless a profile is locked with a PIN. The account holder can manage, transfer or delete every profile. Choose carefully who you share your sign in with, and lock the profiles you want to keep private.",
+          "bullets": [],
+          "title": "10. Your account and profiles"
+        },
+        {
+          "body": "Under the UK GDPR you have these rights:",
+          "bullets": [
+            "<b>Right of access:</b> download a copy of your data at any time in Account, under Personal information access.",
+            "<b>Right to erasure:</b> delete your account at any time in Account, under Delete account. Everything in it is deleted straight away.",
+            "<b>Right to rectification:</b> change your name, email address and phone number in Account, or ask us to correct anything else.",
+            "<b>Right to object:</b> turn off personalised recommendations, or write to us to object to processing based on legitimate interests.",
+            "<b>Rights to restriction and portability:</b> ask us to pause using your information while a question is settled, or take your data with you: the file from Personal information access is in a common machine readable format (JSON).",
+            "<b>Withdrawing consent:</b> turn off Personalised recommendations at any time. This does not affect what happened before.",
+            "<b>Complaints:</b> if you are unhappy with how we handle your information, write to us first. You can also complain to the Information Commissioner's Office at <a href=\"https://ico.org.uk/make-a-complaint/\" target=\"_blank\" rel=\"noopener\">ico.org.uk</a>."
+          ],
+          "title": "11. Your rights"
+        },
+        {
+          "body": "You must be 18 or older to create an account. Children can watch through a Kids profile, or a profile with age limits, that the account holder sets up and supervises. We do not knowingly collect information from children beyond the profile details the account holder enters. If you think a child has created an account, write to us at {support_email} and we will delete it.",
+          "bullets": [],
+          "title": "12. Children"
+        },
+        {
+          "body": "We may update this policy when the service or the law changes. The date at the top shows the latest version. If a change affects how we use your information, we will tell you by email or in the app before it takes effect.",
+          "bullets": [],
+          "title": "13. Changes to this policy"
+        },
+        {
+          "body": "For questions about this policy, or to use your rights, write to {support_email}. We answer requests about your rights within one month.",
+          "bullets": [],
+          "title": "14. Contact"
+        }
+      ],
+      "title": "Privacy Policy",
+      "updated": "Last updated: October 2026"
+    },
+    "terms": {
+      "sections": [
+        {
+          "body": "By accessing or using {brand}, you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree, do not use the service.",
+          "bullets": [],
+          "title": "1. Acceptance of Terms"
+        },
+        {
+          "body": "{brand} is run by the operator of this server. You can reach us at {support_email}.",
+          "bullets": [],
+          "title": "2. Who we are"
+        },
+        {
+          "body": "{brand} is a link aggregator and search engine. We do not host, upload, transmit, or control any video content on our servers. All media is sourced from third-party platforms.",
+          "bullets": [],
+          "title": "3. Nature of the Service"
+        },
+        {
+          "body": "You need a free account to use {brand}, and you must be 18 or older to create one. You are responsible for keeping your password safe and for what happens on your account. Tell us at once if you think someone else is using it.",
+          "bullets": [],
+          "title": "4. Your Account"
+        },
+        {
+          "body": "An account can have up to 5 profiles for the people in your household. Anyone signed in to the account can open a profile and see its activity unless it is locked with a PIN. Children may use the service only through a profile that an adult account holder sets up and supervises.",
+          "bullets": [],
+          "title": "5. Profiles and Household Use"
+        },
+        {
+          "body": "{brand} is for your personal, non commercial use. You may not sell, rent, publicly show or charge for access to it, or copy or reuse its interface, data or code beyond what the law allows.",
+          "bullets": [],
+          "title": "6. Personal Use"
+        },
+        {
+          "body": "You agree not to use the service to:",
+          "bullets": [
+            "Circumvent, disable, or interfere with security-related features of the service.",
+            "Use automated tools (such as bots, scrapers, or crawlers) to access or query the service at a rate that could impair performance.",
+            "Attempt to probe, scan, or test the vulnerability of the service's infrastructure.",
+            "Engage in any conduct that is unlawful, harmful, or that we determine to be inappropriate."
+          ],
+          "title": "7. Acceptable Use"
+        },
+        {
+          "body": "We may add, change or remove features, titles and languages at any time, and the service may be unavailable while we work on it. Titles come from independent sources and can stop working without notice.",
+          "bullets": [],
+          "title": "8. Availability and Changes to the Service"
+        },
+        {
+          "body": "You need an internet connection and a current browser; the Help Centre lists the supported ones. {brand} is a web app that updates itself. An installed app is the same website and updates the same way.",
+          "bullets": [],
+          "title": "9. Technical Requirements and Updates"
+        },
+        {
+          "body": "We send the emails your account needs, such as confirmation links, sign in codes and security alerts. You cannot turn these off while you have an account. We do not send marketing emails.",
+          "bullets": [],
+          "title": "10. Emails From Us"
+        },
+        {
+          "body": "If you send us ideas, translations, fixes or other feedback, you allow us to use them to improve {brand} without payment, unless we agree otherwise in writing.",
+          "bullets": [],
+          "title": "11. Ideas and Feedback"
+        },
+        {
+          "body": "The {brand} brand, interface design, and original software code are protected by copyright. All media content accessible via {brand} remains the property of its respective rights holders.",
+          "bullets": [],
+          "title": "12. Intellectual Property"
+        },
+        {
+          "body": "The service is provided \"as is\" and \"as available\" without any warranty of any kind. {brand} does not guarantee continuous availability and is not liable for any indirect or consequential damages. Nothing in these terms limits liability that cannot be limited by law, such as for death or personal injury caused by negligence, or for fraud.",
+          "bullets": [],
+          "title": "13. Disclaimers and Limitation of Liability"
+        },
+        {
+          "body": "{brand} provides access to links pointing to content hosted on independent third-party servers. We have no control over, and assume no responsibility for, the content, privacy policies, or practices of any third-party sites.",
+          "bullets": [],
+          "title": "14. Third-Party Content"
+        },
+        {
+          "body": "You can stop using the service and delete your account at any time. We reserve the right to suspend or terminate your account and access to the service at our sole discretion, without prior notice, for conduct that we believe violates these Terms or is harmful to other users, us, or third parties.",
+          "bullets": [],
+          "title": "15. Termination"
+        },
+        {
+          "body": "We may update these terms. The date at the top shows the latest version. If a change matters, we will tell you by email or in the app before it takes effect. If you keep using {brand} after that, the new terms apply.",
+          "bullets": [],
+          "title": "16. Changes to These Terms"
+        },
+        {
+          "body": "These Terms of Service shall be governed by and construed in accordance with the laws of England and Wales, without regard to conflict-of-law provisions. If you live in Scotland or Northern Ireland, you can also bring a claim in your local courts.",
+          "bullets": [],
+          "title": "17. Governing Law"
+        },
+        {
+          "body": "For any questions regarding these Terms of Service, write to {support_email} or use the Contact page.",
+          "bullets": [],
+          "title": "18. Contact"
+        }
+      ],
+      "title": "Terms of Service",
+      "updated": "Last updated: October 2026"
+    }
+  },
+  "popular": [
+    "what-is",
+    "wont-play",
+    "profiles-manage",
+    "kids-profile",
+    "need-account"
+  ],
+  "topics": [
+    {
+      "groups": [
+        {
+          "articles": [
+            "profiles-manage",
+            "switch-profile",
+            "profile-pin",
+            "kids-profile",
+            "parental-controls",
+            "profile-icons",
+            "transfer-profile"
+          ],
+          "id": "profiles",
+          "title": "Profiles"
+        },
+        {
+          "articles": [
+            "need-account",
+            "sign-in",
+            "forgot-password",
+            "change-email-password",
+            "devices-sign-out"
+          ],
+          "id": "signing-in",
+          "title": "Signing In and Security"
+        },
+        {
+          "articles": [
+            "saved-data",
+            "clear-data",
+            "download-data",
+            "delete-account",
+            "privacy-data",
+            "cookies-explained"
+          ],
+          "id": "account-data",
+          "title": "Your Data and Privacy"
+        },
+        {
+          "articles": [
+            "free-to-use"
+          ],
+          "id": "paying",
+          "title": "Paying for {brand}"
+        }
+      ],
+      "id": "account",
+      "title": "Account and Profiles"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "wont-play",
+            "playback-unavailable",
+            "black-screen",
+            "buffering",
+            "subtitles-missing",
+            "no-sound",
+            "autoplay-blocked"
+          ],
+          "id": "playback-issues",
+          "title": "Playback Problems"
+        },
+        {
+          "articles": [
+            "supported-browsers",
+            "fix-phone",
+            "fix-tv",
+            "extensions-blockers",
+            "vpn-network"
+          ],
+          "id": "device-issues",
+          "title": "Browsers and Devices"
+        },
+        {
+          "articles": [
+            "rows-wont-load",
+            "list-missing",
+            "forgot-pin",
+            "stuck-loading",
+            "slow-pages",
+            "is-down"
+          ],
+          "id": "page-issues",
+          "title": "Pages and Lists"
+        }
+      ],
+      "id": "fix",
+      "title": "Fix a Problem"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "language",
+            "subtitles",
+            "shortcuts",
+            "skip-intro-next",
+            "accessibility",
+            "episodes"
+          ],
+          "id": "features",
+          "title": "Features and Settings"
+        },
+        {
+          "articles": [
+            "my-list",
+            "continue-watching",
+            "viewing-history",
+            "notifications",
+            "share"
+          ],
+          "id": "library",
+          "title": "My List and History"
+        },
+        {
+          "articles": [
+            "search-browse",
+            "browse-language",
+            "new-popular",
+            "recommendations",
+            "trailers-clips",
+            "genres",
+            "top-10",
+            "title-details",
+            "clips"
+          ],
+          "id": "finding",
+          "title": "Finding Something to Watch"
+        }
+      ],
+      "id": "watching",
+      "title": "Watching"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "what-is",
+            "getting-started",
+            "sources",
+            "contribute",
+            "translate"
+          ],
+          "id": "about",
+          "title": "About {brand}"
+        },
+        {
+          "articles": [
+            "install-app",
+            "phone-tablet",
+            "watch-on-tv"
+          ],
+          "id": "setup",
+          "title": "Device Setup"
+        },
+        {
+          "articles": [
+            "copyright",
+            "title-feedback",
+            "report-bug",
+            "security-report"
+          ],
+          "id": "reporting",
+          "title": "Reporting and Legal"
+        }
+      ],
+      "id": "start",
+      "title": "Getting Started"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "doc:privacy",
+            "doc:terms",
+            "doc:cookie-policy",
+            "doc:dmca",
+            "doc:disclaimer",
+            "doc:credits"
+          ],
+          "id": "policies",
+          "title": "Policies"
+        }
+      ],
+      "id": "legal",
+      "title": "Legal and Policies"
+    }
+  ]
+}

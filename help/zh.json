@@ -1,0 +1,1351 @@
+{
+  "articles": {
+    "accessibility": {
+      "body": "- <b>字幕。</b>在个人资料的<b>语言</b>中选择语言，在<b>字幕外观</b>中选择大小、颜色和背景。请参阅<a=/help/article/subtitles>如何使用字幕或选择音频语言</a>。\n- <b>键盘。</b>用 <b>Tab</b> 在控件之间移动，用 <b>Esc</b> 关闭窗口。播放器有自己的按键，请参阅<a=/help/article/shortcuts>键盘快捷键</a>。\n- <b>文字大小。</b>用 <b>Ctrl</b> 和 <b>+</b>（Mac 上用 <b>Cmd</b> 和 <b>+</b>）放大浏览器，布局会自动调整。\n- <b>动态效果。</b>如果你的设备开启了减弱动态效果，动画标志会保持静止。\n\n如果有什么地方不好用，请在<a=/help/article/report-bug>报告问题</a>页面告诉我们。我们会认真对待这些反馈。",
+      "keywords": "无障碍 屏幕阅读器 键盘 字幕 隐藏字幕 大小 对比度 缩放 减弱动态效果 残障",
+      "related": [
+        "subtitles",
+        "shortcuts",
+        "language",
+        "phone-tablet",
+        "report-bug"
+      ],
+      "summary": "有帮助的字幕、键盘操作和显示设置。",
+      "title": "{brand} 的无障碍功能"
+    },
+    "autoplay-blocked": {
+      "body": "在你点击或点按页面之前，浏览器不允许页面自动播放有声音的视频。{brand} 会先尝试有声播放；如果浏览器拒绝，就静音开始，并显示静音的扬声器图标。按 <b>M</b> 或选择扬声器按钮即可取消静音。\n\n- 要让预览不再自动开始，在个人资料的<b>播放设置</b>中关闭<b>自动播放预览</b>。\n- 如果作品一直不开始播放，请参阅<a=/help/article/wont-play>作品无法播放</a>。",
+      "keywords": "自动播放 被阻止 静音 播放策略 浏览器 声音 预览 预告片",
+      "related": [
+        "no-sound",
+        "trailers-clips",
+        "wont-play",
+        "shortcuts",
+        "slow-pages"
+      ],
+      "summary": "浏览器为什么不让声音自动播放，以及 {brand} 如何处理。",
+      "title": "视频静音开始或不会自动播放"
+    },
+    "black-screen": {
+      "body": "1. 按 <b>F</b> 退出再重新进入全屏，或按 <b>Esc</b> 后重新播放。\n2. 重新加载页面。\n3. 在浏览器设置中关闭硬件加速，重启浏览器后再试。\n4. 更新浏览器和显卡驱动程序。\n5. 换一个浏览器试试。\n\n!! 注意：一些会改变页面颜色或拦截媒体的浏览器扩展程序也可能遮住画面。请参阅<a=/help/article/extensions-blockers>会拦截播放器的扩展程序</a>。\n\n@@ diagnostics",
+      "keywords": "黑屏 没有画面 只有声音 视频不见 空白 绿屏",
+      "related": [
+        "wont-play",
+        "supported-browsers",
+        "extensions-blockers",
+        "fix-phone",
+        "fix-tv"
+      ],
+      "summary": "听得到声音，但看不到画面。",
+      "title": "有声音但画面全黑"
+    },
+    "browse-language": {
+      "body": "1. 打开顶部栏中的<b>按语言浏览</b>。\n2. <b>原始语言</b>已经选好。选择一种语言，就能看到最初用这种语言制作的作品。\n\n!! 注意：这个页面按作品的原始语言列出作品。配音和字幕取决于每部作品的来源，播放时可以在<b>音频和字幕</b>中查看。",
+      "keywords": "按语言浏览 原始语言 外国 国际 世界电影 动漫 韩国 西班牙",
+      "related": [
+        "language",
+        "subtitles",
+        "search-browse",
+        "new-popular",
+        "recommendations"
+      ],
+      "summary": "按作品制作时使用的语言找作品。",
+      "title": "按语言浏览"
+    },
+    "buffering": {
+      "body": "当你的网络传送数据的速度跟不上视频所需时，视频流就会暂停。\n\n- 关闭使用同一网络的其他标签页、下载和设备。\n- 靠近路由器，或改用网线。\n- 暂停一分钟，让播放器提前缓冲，然后再播放。\n- 关闭 VPN，或在 VPN 中选择更近的服务器。\n- 稍后再试。高峰时段来源会更慢。\n\n提供哪种画质由来源决定，所以播放过程中清晰度可能会变化。\n\n@@ diagnostics",
+      "keywords": "缓冲 卡顿 慢 冻结 断断续续 加载 网络连接 速度 画质",
+      "related": [
+        "wont-play",
+        "slow-pages",
+        "supported-browsers",
+        "extensions-blockers",
+        "fix-tv"
+      ],
+      "summary": "改善一直停下来加载的视频流。",
+      "title": "缓冲、卡顿或启动缓慢"
+    },
+    "change-email-password": {
+      "body": "打开个人资料菜单，选择<b>账户</b>。你的信息在<b>账户详情</b>中。更改前，我们可能会用你的密码或发到邮箱的验证码确认是你本人。\n\n## 密码\n1. 选择<b>密码</b>。\n2. 输入当前密码，再输入两次新密码。新密码至少需要 8 个字符。\n3. 如果别人可能知道旧密码，打开<b>在所有设备上退出登录</b>，然后选择<b>保存</b>。\n\n## 电子邮件\n1. 选择<b>电子邮件</b>，输入新地址。\n2. 打开我们发到新地址的链接，完成更改。\n\n## 手机号码和姓名\n选择<b>手机号码</b>可以添加一个帮你找回账户的号码，选择<b>姓名</b>可以更改你的名字。主个人资料的名称会跟随你的名字。",
+      "keywords": "更改邮箱 更改密码 修改密码 手机号码 账户详情 姓名 安全",
+      "related": [
+        "forgot-password",
+        "devices-sign-out",
+        "sign-in",
+        "delete-account",
+        "privacy-data"
+      ],
+      "summary": "更新你用来登录和找回账户的信息。",
+      "title": "更改电子邮件、密码或手机号码"
+    },
+    "clear-data": {
+      "body": "在浏览器中清除网站数据，会在该浏览器上退出登录，并删除它保留的个人资料和设置副本。所有内容仍保存在你的账户中，重新登录后就会回来。\n\n## Chrome、Edge 和 Brave\n1. 选择地址栏左侧的网站信息图标，选择 <b>Cookie 和网站数据</b>，然后选择<b>管理设备上的网站数据</b>。\n2. 删除这个网站的条目。\n\n## Firefox\n1. 选择地址栏中的锁形图标，然后选择<b>清除 Cookie 和网站数据</b>。\n\n## Mac 上的 Safari\n1. 依次打开 <b>Safari 浏览器</b>、<b>设置</b>、<b>隐私</b>、<b>管理网站数据</b>。\n2. 找到这个网站，选择<b>移除</b>。\n\n## iPhone 和 iPad 上的 Safari\n打开<b>设置</b> App，依次进入<b>App</b>、<b>Safari 浏览器</b>、<b>高级</b>、<b>网站数据</b>，然后删除这个网站。\n\n## 从你的账户中删除数据\n- 要从观看记录中删除作品，请参阅<a=/help/article/viewing-history>如何管理观看记录</a>。\n- 要删除个人资料，请参阅<a=/help/article/profiles-manage>如何创建、编辑或删除个人资料</a>。\n- 要删除所有内容，请参阅<a=/help/article/delete-account>删除你的账户</a>。\n\n@@ data",
+      "keywords": "清除 删除 重置 数据 记录 缓存 存储 cookie 重新开始",
+      "related": [
+        "saved-data",
+        "delete-account",
+        "viewing-history",
+        "privacy-data",
+        "sign-in"
+      ],
+      "summary": "删除这个浏览器为 {brand} 保留的数据，或从你的账户中删除数据。",
+      "title": "如何清除保存的数据"
+    },
+    "clips": {
+      "body": "<b>片段</b>会一个接一个地显示短预览，在手机上位于底部栏中。\n\n1. 滚动或滑动到下一个片段。\n2. 选择扬声器按钮打开或关闭声音。片段开始时是静音的。\n3. 选择<b>我的片单</b>收藏作品，选择<b>播放</b>观看，或选择<b>详情</b>了解更多。",
+      "keywords": "片段 短视频 预览 滑动 竖屏 预告片 静音 详情 我的片单",
+      "related": [
+        "trailers-clips",
+        "my-list",
+        "new-popular",
+        "search-browse",
+        "recommendations"
+      ],
+      "summary": "滑动浏览短预览，并把喜欢的加入片单。",
+      "title": "使用片段"
+    },
+    "continue-watching": {
+      "body": "你开始看的作品会出现在<b>继续观看</b>这一行，进度条显示你看到了哪里。它也在<b>我的 {brand}</b>中。\n\n## 接着看\n选择这部作品。在你登录的任何设备上，都会从上次停下的地方开始播放。\n\n## 从这一行中移除作品\n1. 打开作品卡片上的选项菜单。\n2. 选择<b>从“继续观看”中移除</b>。\n\n如果还想从观看记录中删除这部作品，请参阅<a=/help/article/viewing-history>如何管理观看记录</a>。",
+      "keywords": "继续观看 接着看 进度 移除 内容行 中断 看了一半",
+      "related": [
+        "viewing-history",
+        "my-list",
+        "saved-data",
+        "clear-data",
+        "skip-intro-next"
+      ],
+      "summary": "从上次停下的地方继续看，并从这一行中移除作品。",
+      "title": "如何使用“继续观看”"
+    },
+    "contribute": {
+      "body": "{brand} 是公开开发的。你可以通过几种方式帮忙：\n\n- <b>翻译。</b>界面文字保存在纯文本文件中，每种语言一个文件，所以翻译就是编辑一个文本文件。\n- <b>问题报告。</b>请参阅<a=/help/article/report-bug>报告问题</a>。\n- <b>修复和功能。</b>发送说明或补丁。\n- <b>想法。</b>告诉我们你希望帮助中心或应用能做什么。\n\n写几句话说明你想做什么，发送到 <a=mailto:{support_email}>{support_email}</a>。",
+      "keywords": "参与 贡献 志愿者 翻译 代码 github 帮助 改进 建议",
+      "related": [
+        "report-bug",
+        "title-feedback",
+        "what-is",
+        "getting-started",
+        "free-to-use"
+      ],
+      "summary": "欢迎提供想法、修复、翻译和问题报告。",
+      "title": "我可以怎样参与？"
+    },
+    "cookies-explained": {
+      "keywords": "cookie 本地存储 浏览器 数据 追踪 同意 横幅 偏好 会话 第三方",
+      "related": [
+        "privacy-data",
+        "saved-data",
+        "clear-data",
+        "recommendations",
+        "sources"
+      ],
+      "summary": "用简单的话说明你的浏览器为 {brand} 保留了什么。",
+      "title": "Cookie 和本地存储说明"
+    },
+    "copyright": {
+      "body": "{brand} 不托管视频文件，它列出指向其他服务所托管作品的链接。如果你拥有某部作品的权利，并认为某个链接侵犯了这些权利，请给我们发送通知，我们会审查。\n\n通知应包括：\n1. 你的姓名和联系方式。\n2. 对你拥有的作品的说明。\n3. {brand} 上链接到该作品的页面地址。\n4. 一份声明，说明你是权利人或有权代表权利人行事。\n\n请发送到 <a=mailto:{support_email}>{support_email}</a>，邮件主题写<b>DMCA 通知</b>。完整流程见 <a=/help/legal/dmca>DMCA 页面</a>。",
+      "keywords": "版权 dmca 删除 侵权 权利人 移除 举报 通知 法律",
+      "related": [
+        "sources",
+        "what-is",
+        "privacy-data",
+        "title-feedback",
+        "report-bug"
+      ],
+      "summary": "权利人可以要求删除链接。",
+      "title": "如何举报版权问题"
+    },
+    "delete-account": {
+      "body": "删除账户后，账户会立即被删除，连同所有个人资料、片单、评分、设置和全部观看记录。此操作无法撤销。\n\n1. 打开个人资料菜单，选择<b>账户</b>。\n2. 选择页面底部的<b>删除账户</b>。\n3. 确认是你本人，然后选择<b>永久删除</b>。\n\n如果只想移除一个人，删除他的个人资料就行。请参阅<a=/help/article/profiles-manage>如何创建、编辑或删除个人资料</a>。\n\n!! 注意：如果想保留数据副本，请先下载。请参阅<a=/help/article/download-data>下载你的数据副本</a>。",
+      "keywords": "删除账户 注销账户 关闭账户 清除数据 取消账户",
+      "related": [
+        "download-data",
+        "profiles-manage",
+        "privacy-data",
+        "transfer-profile",
+        "clear-data"
+      ],
+      "summary": "永久删除你的账户及其中的一切。",
+      "title": "删除你的账户"
+    },
+    "devices-sign-out": {
+      "body": "1. 打开个人资料菜单，选择<b>账户</b>。\n2. 选择<b>访问与设备</b>。\n3. 选择<b>在此设备上退出登录</b>，或选择<b>在所有设备上退出登录</b>，退出所有打开了你账户的浏览器（包括当前这个）。\n\n同一页面上的<b>最近的安全活动</b>会列出最近的登录和账户变更。有新设备登录时，我们也会发邮件通知你。\n\n!! 注意：如果看到你不认识的登录，请在所有设备上退出登录并更改密码。请参阅<a=/help/article/change-email-password>更改电子邮件、密码或手机号码</a>。",
+      "keywords": "退出登录 所有设备 已登录设备 会话 安全 新设备 手机丢失 公共电脑",
+      "related": [
+        "change-email-password",
+        "sign-in",
+        "forgot-password",
+        "security-report",
+        "privacy-data"
+      ],
+      "summary": "查看你的账户在哪里登录，并从不再使用的设备上退出。",
+      "title": "在一台或所有设备上退出登录"
+    },
+    "download-data": {
+      "body": "1. 打开个人资料菜单，选择<b>账户</b>。\n2. 选择<b>个人信息访问</b>。\n3. 按步骤保存文件。\n\n文件包含你的账户详情、个人资料、设置、我的片单、评分和观看记录。文件保存在你的设备上，请放在安全的地方。\n\n要把某个个人资料的观看记录下载为表格，打开这个个人资料的<b>观看记录</b>，然后选择<b>全部下载</b>。",
+      "keywords": "下载 我的数据 个人信息 副本 导出 gdpr 数据请求 访问",
+      "related": [
+        "privacy-data",
+        "delete-account",
+        "viewing-history",
+        "transfer-profile",
+        "saved-data"
+      ],
+      "summary": "获取一份包含你账户中个人信息的文件。",
+      "title": "下载你的数据副本"
+    },
+    "episodes": {
+      "body": "## 播放之前\n打开一部剧集，选择<b>剧集</b>。用季菜单切换季，然后选择一集。\n\n## 观看时\n- 在播放器控件中选择<b>剧集</b>，不用离开播放器就能打开列表。\n- 选择<b>下一集</b>，或等它自动开始。请参阅<a=/help/article/skip-intro-next>跳过片头和下一集</a>。",
+      "keywords": "季 集 剧集 列表 下一集 追剧 选集 电视剧",
+      "related": [
+        "skip-intro-next",
+        "continue-watching",
+        "shortcuts",
+        "title-details",
+        "my-list"
+      ],
+      "summary": "在详情窗口或播放器中选择季和集。",
+      "title": "季和集"
+    },
+    "extensions-blockers": {
+      "body": "播放器从第三方来源加载视频流。拦截其他网站脚本、框架或媒体的工具可能会让它无法运行。\n\n1. 打开你的扩展程序，暂停它在这个网站上的运行，然后重新加载。\n2. 如果你使用的是整个网络的过滤，例如 DNS 过滤或学校、公司的网络，换一个网络试试。\n3. 如果之后能播放了，把 {brand} 加入扩展程序的允许列表。\n\n!! 注意：我们从不要求你安装浏览器扩展程序或解码器才能观看。遇到这样要求的页面，请直接关闭。\n\n@@ diagnostics",
+      "keywords": "扩展程序 广告拦截 adblock ublock ghostery 隐私 拦截器 脚本拦截 vpn dns 过滤",
+      "related": [
+        "wont-play",
+        "playback-unavailable",
+        "supported-browsers",
+        "black-screen",
+        "sources"
+      ],
+      "summary": "广告拦截器和隐私工具可能会让视频流加载不了。",
+      "title": "会拦截播放器的扩展程序"
+    },
+    "fix-phone": {
+      "body": "1. 关闭标签页，重新打开 {brand}。\n2. 从应用商店更新浏览器。\n3. 观看时关闭省流量模式或低电量模式。\n4. 确认网络连接稳定。请参阅<a=/help/article/buffering>缓冲、卡顿或启动缓慢</a>。\n5. 如果你把 {brand} 添加到了主屏幕，而它看起来是旧版本，把它删除后再重新添加。请参阅<a=/help/article/install-app>如何将 {brand} 安装为应用</a>。\n\n@@ diagnostics\n\n@@ refresh",
+      "keywords": "手机 平板 android iphone ipad 移动 解决 问题 应用",
+      "related": [
+        "phone-tablet",
+        "install-app",
+        "supported-browsers",
+        "wont-play",
+        "buffering"
+      ],
+      "summary": "iPhone、iPad 和 Android 上的处理步骤。",
+      "title": "解决手机或平板上的问题"
+    },
+    "fix-tv": {
+      "body": "{brand} 没有电视应用。你可以用电视的网页浏览器观看，或从电脑或手机投放浏览器标签页。\n\n- 更新电视的系统软件和浏览器。\n- 重启电视或电视棒。\n- 如果是投放标签页，让投放设备连接同一网络，并关闭它上面的其他标签页。\n- 如果电视浏览器很慢，改从电脑投放标签页。\n\n请参阅<a=/help/article/watch-on-tv>如何在电视上观看</a>。\n\n@@ diagnostics",
+      "keywords": "电视 智能电视 chromecast 投屏 解决 问题 hdmi 电视棒 浏览器",
+      "related": [
+        "watch-on-tv",
+        "wont-play",
+        "supported-browsers",
+        "buffering",
+        "black-screen"
+      ],
+      "summary": "通过电视浏览器或投屏观看时的处理步骤。",
+      "title": "解决电视上的问题"
+    },
+    "forgot-password": {
+      "keywords": "忘记密码 重置密码 找回密码 无法登录 新密码 链接",
+      "related": [
+        "sign-in",
+        "change-email-password",
+        "devices-sign-out",
+        "need-account"
+      ],
+      "summary": "通过邮件获取链接，设置新密码。",
+      "title": "我忘记了密码"
+    },
+    "forgot-pin": {
+      "body": "1. 打开个人资料菜单，依次选择<b>账户</b>和<b>管理个人资料</b>，然后选择被锁定的个人资料。\n2. 选择<b>个人资料锁</b>，输入账户密码。\n3. 选择<b>忘记 PIN 码了？</b>，然后选择<b>移除个人资料锁</b>。\n\n这个个人资料就可以不用 PIN 码打开了，你也可以设置新的 PIN 码。请参阅<a=/help/article/profile-pin>如何添加、更改或移除个人资料 PIN 码</a>。\n\n!! 注意：只有知道账户密码的人才能移除 PIN 码。如果密码也忘了，请参阅<a=/help/article/forgot-password>我忘记了密码</a>。\n\n@@ profiles",
+      "keywords": "忘记 pin 码 重置 丢失 密码 被锁 个人资料锁",
+      "related": [
+        "profile-pin",
+        "forgot-password",
+        "profiles-manage",
+        "kids-profile",
+        "switch-profile"
+      ],
+      "summary": "用账户密码移除 PIN 码，再设置一个新的。",
+      "title": "我忘记了个人资料 PIN 码"
+    },
+    "free-to-use": {
+      "body": "{brand} 不收费，不卖订阅，也不要求银行卡信息。没有套餐、试用期或扣款日期。\n\n如果某个页面、邮件或消息自称是 {brand} 并要求你付款，那不是我们发的。不要输入付款信息。请把它转发到 <a=mailto:{support_email}>{support_email}</a>，我们会处理。\n\n{brand} 是一个指向其他服务所托管作品的链接索引。某个服务是否对自己的内容收费，由那个服务决定。请参阅<a=/help/article/sources>作品从哪里来</a>。",
+      "keywords": "免费 价格 费用 付费 支付 订阅 账单 银行卡 信用卡 套餐 试用",
+      "related": [
+        "what-is",
+        "need-account",
+        "sources",
+        "getting-started",
+        "contribute"
+      ],
+      "summary": "在 {brand} 上没有任何需要付费的东西。",
+      "title": "{brand} 免费吗？"
+    },
+    "genres": {
+      "body": "1. 打开顶部栏中的<b>电影</b>或<b>电视剧</b>。\n2. 选择页面标题旁边的<b>类型</b>。\n3. 选择一种类型。页面就会只显示这个类型，并配上为它生成的内容行。\n\n要回到全部内容，再次打开<b>电影</b>或<b>电视剧</b>。在手机上，类型列表会从底部弹出。",
+      "keywords": "类型 分类 喜剧 剧情 恐怖 动作 筛选 浏览 电影 电视剧 子菜单",
+      "related": [
+        "search-browse",
+        "browse-language",
+        "new-popular",
+        "recommendations",
+        "top-10"
+      ],
+      "summary": "把电影和电视剧缩小到你想看的类型。",
+      "title": "按类型浏览"
+    },
+    "getting-started": {
+      "body": "1. <b>创建免费账户。</b>请参阅<a=/help/article/need-account>我需要账户吗？</a>\n2. <b>选择或创建个人资料。</b>请参阅<a=/help/article/profiles-manage>如何创建、编辑或删除个人资料</a>。\n3. <b>逛逛首页。</b>内容行按主题分组，顶部的大幅作品会轮换。\n4. 用放大镜<b>搜索</b>作品、演员或导演。请参阅<a=/help/article/search-browse>如何搜索和浏览</a>。\n5. <b>选择一部作品</b>，可以阅读介绍、观看预告片，然后开始播放。\n6. 用 <b>+</b> 按钮<b>把作品加入我的片单</b>。\n\n了解观看时好用的按键：<a=/help/article/shortcuts>键盘快捷键</a>。",
+      "keywords": "入门 开始 第一次 导览 新用户 使用方法 指南 基础",
+      "related": [
+        "what-is",
+        "profiles-manage",
+        "search-browse",
+        "install-app",
+        "need-account"
+      ],
+      "summary": "最初的五分钟：账户、个人资料、找作品和收藏作品。",
+      "title": "{brand} 入门"
+    },
+    "install-app": {
+      "body": "{brand} 是一个网页应用，不需要从应用商店下载。你的浏览器可以安装它，让它带着自己的图标在单独的窗口中打开。\n\n## Windows、Mac 和 Linux 上的 Chrome 和 Edge\n选择地址栏右侧的安装图标，或打开浏览器菜单并选择<b>安装 {brand}</b>（在 Edge 中：<b>应用</b>，然后选择<b>将此站点作为应用安装</b>）。\n\n## Mac 上的 Safari\n打开<b>文件</b>菜单，选择<b>添加到程序坞</b>。\n\n## Android\n打开浏览器菜单，选择<b>安装应用</b>或<b>添加到主屏幕</b>。\n\n## iPhone 和 iPad\n在 Safari 中选择<b>分享</b>按钮，然后选择<b>添加到主屏幕</b>。\n\n!! 注意：电脑上的 Firefox 无法把网站安装为应用。可以使用书签，或从 Chrome、Edge 或 Safari 安装。安装后的应用就是同一个网站：它会自动更新，也会像浏览器一样保持登录。",
+      "keywords": "安装 应用 pwa 添加到主屏幕 桌面 快捷方式 图标 网页应用",
+      "related": [
+        "phone-tablet",
+        "supported-browsers",
+        "fix-phone",
+        "getting-started",
+        "watch-on-tv"
+      ],
+      "summary": "把 {brand} 添加到主屏幕、程序坞或桌面，让它在单独的窗口中打开。",
+      "title": "如何将 {brand} 安装为应用"
+    },
+    "is-down": {
+      "body": "{brand} 由三部分组成，它们可能各自出问题：\n\n- <b>应用</b>，就是你现在看到的。\n- <b>影视目录</b>，提供详情和图片。\n- <b>视频来源</b>，提供视频。\n\n运行检查，看看从你的设备能连上哪些。如果目录或来源对所有人都没有响应，等几分钟再试。如果只有你连不上，请参阅<a=/help/article/vpn-network>VPN、学校和公司网络</a>。\n\n@@ diagnostics",
+      "keywords": "故障 宕机 状态 无法使用 离线 不可用 服务器 维护 错误 网站",
+      "related": [
+        "vpn-network",
+        "wont-play",
+        "rows-wont-load",
+        "sources",
+        "report-bug"
+      ],
+      "summary": "从你的设备检查哪些部分在正常工作。",
+      "title": "{brand} 出故障了吗？"
+    },
+    "kids-profile": {
+      "body": "儿童个人资料只显示适合孩子的作品，还有专为孩子设计的首页和菜单。\n\n1. 打开<b>管理个人资料</b>，选择<b>添加个人资料</b>。\n2. 输入名称，然后打开<b>儿童个人资料</b>。\n3. 选择<b>保存</b>。\n\n要把已有的个人资料变成儿童个人资料，编辑它并打开<b>儿童个人资料</b>。主个人资料不能设为儿童个人资料。\n\n要离开儿童页面，选择<b>退出儿童模式</b>，然后选择其他个人资料。为了防止孩子随意切换，可以用 PIN 码锁定其他个人资料。请参阅<a=/help/article/profile-pin>如何添加、更改或移除个人资料 PIN 码</a>。\n\n对于大一点的孩子，也可以给任何个人资料设置年龄分级。请参阅<a=/help/article/parental-controls>家长控制：年龄分级和屏蔽作品</a>。\n\n!! 注意：作品来自独立来源，并不是每部作品都有年龄分级。儿童个人资料能减少孩子可以找到的内容，但不能代替陪孩子一起看。\n\n@@ profiles",
+      "keywords": "儿童 孩子 小孩 家庭 家长控制 安全 个人资料",
+      "related": [
+        "parental-controls",
+        "profile-pin",
+        "profiles-manage",
+        "switch-profile",
+        "recommendations"
+      ],
+      "summary": "儿童个人资料只显示为孩子制作的作品，其他作品都看不到。",
+      "title": "如何创建儿童个人资料"
+    },
+    "language": {
+      "body": "## 显示语言\n1. 打开个人资料菜单，依次选择<b>账户</b>和<b>管理个人资料</b>，然后选择你的个人资料。\n2. 依次选择<b>语言</b>和<b>显示语言</b>，然后选择一种语言。\n\n这个选择属于个人资料，所以在每台设备上都一样。在帮助中心，你也可以在任意页面底部选择语言。\n\n## 音频和字幕语言\n1. 按上面的方法打开你个人资料的<b>语言</b>，然后选择<b>音频和字幕</b>。\n2. 选择<b>音频语言</b>和<b>字幕语言</b>。<b>与显示语言相同</b>会跟随应用的语言。\n\n只要作品提供这些语言，播放器就会使用它们。\n\n!! 注意：只有完整翻译的语言才会出现在列表中。\n\n@@ language",
+      "keywords": "语言 更改 翻译 界面 显示 字幕 音频 英语 中文 西班牙语 法语",
+      "related": [
+        "subtitles",
+        "browse-language",
+        "subtitles-missing",
+        "shortcuts",
+        "accessibility"
+      ],
+      "summary": "更改 {brand} 的语言以及你观看时使用的语言。",
+      "title": "如何更改语言"
+    },
+    "list-missing": {
+      "body": "我的片单和观看进度属于某个个人资料，并保存在你的账户中。如果它们看起来是空的：\n\n- 确认你用的是正确的个人资料。每个个人资料都有自己的片单。可以从个人资料菜单切换。\n- 确认你登录的是之前那个账户。\n- 在新设备上登录后，等几秒让账户加载，或者重新加载页面。\n- 你从观看记录中隐藏的作品也会从“继续观看”中消失。\n\n如果某台设备上仍然缺少内容，在那台设备上退出登录再重新登录。请参阅<a=/help/article/saved-data>你的个人资料、片单和进度保存在哪里</a>。\n\n@@ profiles",
+      "keywords": "我的片单 不见了 消失 空 丢失 继续观看 进度 重置",
+      "related": [
+        "my-list",
+        "saved-data",
+        "switch-profile",
+        "continue-watching",
+        "sign-in"
+      ],
+      "summary": "我的片单或“继续观看”看起来是空的原因，以及怎样找回。",
+      "title": "我的片单或进度不见了"
+    },
+    "my-list": {
+      "body": "## 添加作品\n在作品卡片、详情窗口或页面顶部的大幅作品上选择 <b>+</b> 按钮。\n\n## 移除作品\n选择作品上的勾号，它会变回 <b>+</b>。\n\n## 查看你的片单\n打开顶部栏中的<b>我的 {brand}</b>（手机上在底部栏中）。你的片单就在那里，旁边还有<b>继续观看</b>、你点赞的作品和你看过的预告片。\n\n我的片单属于个人资料，并保存在你的账户中，所以在每台设备上都一样。",
+      "keywords": "我的片单 添加 移除 想看 稍后观看 收藏 加号",
+      "related": [
+        "list-missing",
+        "continue-watching",
+        "viewing-history",
+        "saved-data",
+        "recommendations"
+      ],
+      "summary": "把作品存起来，之后再找。",
+      "title": "如何使用我的片单"
+    },
+    "need-account": {
+      "body": "需要。在 {brand} 上观看需要一个免费账户。创建只要一分钟，也从不要求付款信息。\n\n1. 在 {brand} 首页输入你的电子邮件地址，然后选择<b>开始使用</b>。\n2. 输入你的名字和姓氏，并设置至少 8 个字符的密码。\n3. 打开我们发到你邮箱的链接确认地址，然后登录。\n\n你的账户会保存个人资料、我的片单、评分、观看记录和设置，所以在你登录的每台设备上都一样。你的名字会成为主个人资料的名称。\n\n!! 注意：{brand} 是免费的，从不会要求你提供银行卡号。请参阅<a=/help/article/free-to-use>{brand} 免费吗？</a>",
+      "keywords": "账户 注册 登录 必须 会员",
+      "related": [
+        "sign-in",
+        "free-to-use",
+        "profiles-manage",
+        "saved-data",
+        "privacy-data"
+      ],
+      "summary": "需要，一个免费账户。下面说明它会为你保存什么。",
+      "title": "我需要账户吗？"
+    },
+    "new-popular": {
+      "body": "顶部栏中的<b>新片与热门</b>列出最近上线或正在流行的作品。打开作品查看详情，再把它加入<b>我的片单</b>，方便以后找到。\n\n这些列表会根据目录更新，所以每天都会变化。",
+      "keywords": "新片 热门 趋势 最新 top 10 即将上线 本周",
+      "related": [
+        "notifications",
+        "search-browse",
+        "trailers-clips",
+        "recommendations",
+        "my-list"
+      ],
+      "summary": "看看有什么新上线，以及大家现在在看什么。",
+      "title": "新片与热门"
+    },
+    "no-sound": {
+      "body": "1. 按 <b>M</b>，或选择播放器中的扬声器按钮取消静音。视频自动开始时，浏览器经常会让它静音，请参阅<a=/help/article/autoplay-blocked>视频静音开始或不会自动播放</a>。\n2. 按<b>上方向键</b>调高音量，并检查设备的音量。\n3. 检查浏览器标签页是否被静音。右键点击标签页即可查看。\n4. 打开<b>音频和字幕</b>，如果有其他音轨，换一个试试。\n5. 如果使用蓝牙，断开耳机再重新连接。",
+      "keywords": "没有声音 音频 静音 无声 音量 扬声器 蓝牙 耳机 自动播放",
+      "related": [
+        "autoplay-blocked",
+        "shortcuts",
+        "subtitles",
+        "wont-play",
+        "black-screen"
+      ],
+      "summary": "解决作品播放时没有声音的问题。",
+      "title": "没有声音"
+    },
+    "notifications": {
+      "body": "顶部栏的铃铛会列出值得一看的作品，例如新上线和热门推荐。选择一项即可打开该作品的详情。\n\n你打开过的项目会标记为已读，铃铛上的数字显示还有几项未读。\n\n个人资料中的<b>通知设置</b>有邮件和推送消息的选项。这些设置会保存在个人资料中，但 {brand} 目前还不会发送关于作品的邮件或推送消息。关于账户的邮件（例如登录链接）始终会发送。",
+      "keywords": "通知 铃铛 提醒 新上线 更新 已读 未读",
+      "related": [
+        "new-popular",
+        "my-list",
+        "recommendations",
+        "trailers-clips",
+        "search-browse"
+      ],
+      "summary": "顶部栏的铃铛会显示什么，以及项目如何标记为已读。",
+      "title": "通知"
+    },
+    "parental-controls": {
+      "body": "每个个人资料都可以有自己的限制。打开个人资料菜单，依次选择<b>账户</b>和<b>管理个人资料</b>，选择个人资料，然后选择<b>调整家长控制</b>。\n\n## 年龄分级\n1. 选择<b>年龄分级</b>。\n2. 选择这个个人资料可以观看的最高分级。只会显示不高于这个分级的作品，没有分级的作品也会被隐藏。\n\n<b>分级标识</b>决定你看到哪套标识：英国（U、PG、12、15、18）或美国（G、PG、PG-13、R、NC-17）。<b>自动</b>会跟随你登录所在的国家/地区。\n\n## 屏蔽作品\n1. 选择<b>屏蔽作品</b>。\n2. 输入剧集或电影的名称，然后选择<b>添加</b>。\n\n被屏蔽的作品不会在这个个人资料中显示。选择<b>移除</b>可以让它重新显示。\n\n!! 注意：作品来自独立来源，有些作品没有分级。对于年幼的孩子，儿童个人资料更稳妥。请参阅<a=/help/article/kids-profile>如何创建儿童个人资料</a>。\n\n@@ profiles",
+      "keywords": "家长控制 年龄分级 限制 屏蔽 作品 隐藏 儿童 青少年 pg 12 15 18",
+      "related": [
+        "kids-profile",
+        "profile-pin",
+        "profiles-manage",
+        "viewing-history",
+        "switch-profile"
+      ],
+      "summary": "把个人资料限制在某个年龄分级以内，或按名称隐藏作品。",
+      "title": "家长控制：年龄分级和屏蔽作品"
+    },
+    "phone-tablet": {
+      "body": "用手机浏览器打开网站。页面会切换为适合触摸的布局，底部有一个包含<b>首页</b>、<b>片段</b>、<b>搜索</b>和<b>我的 {brand}</b>的栏。\n\n- 点按卡片查看详情，再点按播放按钮开始观看。\n- 把手机横过来，画面效果最好。\n- 想让它用起来像应用，请参阅<a=/help/article/install-app>如何将 {brand} 安装为应用</a>。",
+      "keywords": "手机 平板 移动 android iphone ipad 触摸 底部栏 应用 布局",
+      "related": [
+        "install-app",
+        "fix-phone",
+        "supported-browsers",
+        "getting-started",
+        "shortcuts"
+      ],
+      "summary": "移动版布局、底部栏和小屏幕使用技巧。",
+      "title": "如何在手机或平板上使用 {brand}"
+    },
+    "playback-unavailable": {
+      "body": "你可能会看到<b>无法播放</b>或<b>无法播放视频。所有来源都不可用，或你的浏览器不支持。</b>\n\n这表示播放器向它知道的所有来源请求了这部作品，但没有一个返回你的浏览器能播放的视频流。\n\n1. 等一分钟再按播放。来源时好时坏。\n2. 关闭拦截工具。请参阅<a=/help/article/extensions-blockers>会拦截播放器的扩展程序</a>。\n3. 换一个浏览器试试。有些视频流需要旧浏览器没有的功能。\n4. 换一部作品试试，看看是不是只有这一部有问题。\n\n如果同一部作品一整天都无法播放，<a=/help/article/report-bug>请告诉我们</a>，并写上作品名、年份和你用的浏览器。\n\n@@ diagnostics",
+      "keywords": "无法播放 错误 消息 无法串流 来源 不支持",
+      "related": [
+        "wont-play",
+        "sources",
+        "extensions-blockers",
+        "supported-browsers",
+        "report-bug"
+      ],
+      "summary": "这条消息是什么意思，接下来该怎么做。",
+      "title": "{brand} 显示“无法播放”"
+    },
+    "privacy-data": {
+      "keywords": "隐私 数据 收集 个人信息 追踪 出售 分享 cookie 分析",
+      "related": [
+        "download-data",
+        "delete-account",
+        "saved-data",
+        "recommendations",
+        "cookies-explained"
+      ],
+      "summary": "简单说明保存了什么、发送了什么，以及在哪里阅读完整政策。",
+      "title": "{brand} 会收集哪些数据？"
+    },
+    "profile-icons": {
+      "body": "1. 打开<b>管理个人资料</b>，选择个人资料。\n2. 选择头像。\n3. 选一个新的，然后选择<b>保存</b>。\n\n你也可以在<b>账户</b>的<b>管理个人资料</b>中更改：选择个人资料，再选择它的头像。儿童个人资料会一直使用儿童头像，直到你选择别的。",
+      "keywords": "个人资料 图标 头像 图片 更换 选择 角色",
+      "related": [
+        "profiles-manage",
+        "kids-profile",
+        "switch-profile",
+        "profile-pin",
+        "saved-data"
+      ],
+      "summary": "为个人资料选一个头像。",
+      "title": "如何选择个人资料头像"
+    },
+    "profile-pin": {
+      "body": "个人资料锁会在打开个人资料前要求输入 4 位 PIN 码。PIN 码属于你的账户，因此在你登录的每台设备上都有效。\n\n## 开启个人资料锁\n1. 打开个人资料菜单，依次选择<b>账户</b>和<b>管理个人资料</b>，然后选择这个个人资料。\n2. 选择<b>个人资料锁</b>，并输入账户密码确认是你本人。\n3. 输入四位数字，然后选择<b>保存</b>。\n\n在<b>管理个人资料</b>中添加或编辑个人资料时，也可以打开<b>个人资料锁</b>。\n\n## 更改或移除 PIN 码\n1. 按上面的方法打开这个个人资料的<b>个人资料锁</b>。\n2. 选择<b>更改 PIN 码</b>，或选择<b>移除个人资料锁</b>并输入当前 PIN 码。\n\n!! 注意：输错次数过多后，个人资料会锁定一段时间。如果忘记了 PIN 码，请参阅<a=/help/article/forgot-pin>我忘记了个人资料 PIN 码</a>。\n\n@@ profiles",
+      "keywords": "pin 码 锁 个人资料锁 密码 私密 保护",
+      "related": [
+        "forgot-pin",
+        "kids-profile",
+        "profiles-manage",
+        "switch-profile",
+        "saved-data"
+      ],
+      "summary": "用 4 位 PIN 码锁定个人资料，只有对的人才能打开。",
+      "title": "如何添加、更改或移除个人资料 PIN 码"
+    },
+    "profiles-manage": {
+      "body": "家里每个人都可以有自己的个人资料，包括名称、头像、我的片单、观看记录和推荐。一个账户最多可以有 5 个个人资料。\n\n## 添加个人资料\n1. 打开右上角的个人资料菜单，选择<b>管理个人资料</b>，或者在<b>谁在看？</b>页面选择<b>管理个人资料</b>。\n2. 选择<b>添加个人资料</b>。\n3. 输入名称并选择头像。如果是给孩子用的，打开<b>儿童个人资料</b>。\n4. 选择<b>保存</b>。\n\n## 编辑或删除个人资料\n1. 打开<b>管理个人资料</b>，选择要更改的个人资料。\n2. 更改名称或头像，或者打开或关闭<b>儿童个人资料</b>或<b>个人资料锁</b>，然后选择<b>保存</b>。\n3. 要删除这个个人资料，选择<b>删除个人资料</b>。它的观看记录和设置也会一起删除。\n\n语言、字幕、家长控制等个人资料偏好在<b>账户</b>的<b>管理个人资料</b>中。\n\n!! 注意：个人资料保存在你的账户中，因此会出现在你登录的每台设备上。\n\n@@ profiles\n\n>> 无法删除个人资料\n主个人资料（以你的名字命名的那个）不能删除，而且账户中至少要保留一个个人资料。其他个人资料都可以删除。",
+      "keywords": "个人资料 添加 创建 编辑 删除 移除 名称 头像 谁在看",
+      "related": [
+        "switch-profile",
+        "profile-pin",
+        "kids-profile",
+        "parental-controls",
+        "transfer-profile"
+      ],
+      "summary": "为每个人添加个人资料，更改名称或头像，锁定个人资料，或删除不再需要的个人资料。",
+      "title": "如何创建、编辑或删除个人资料"
+    },
+    "recommendations": {
+      "body": "内容行根据作品本身生成：类型、氛围、题材、国家和年代，例如<b>暖心浪漫喜剧</b>或<b>韩国犯罪剧集</b>。在一行内部，排序会跟随你的口味。\n\n## 什么会改变你的内容行\n- 你开始看和看完的作品、你的评分，以及你加入我的片单的作品。\n- <b>因为你看过《…》</b>、<b>今日为你精选</b>和<b>接下来看什么</b>这类内容行来自你最近看的作品。在类型页面中，它们只会在该类型里挑选。\n- 你使用的个人资料。每个个人资料都有自己的口味，儿童个人资料只显示适合孩子的作品。\n- 日期和季节。节日和活动的内容行会在对应的时候出现。\n\n## 关闭\n在个人资料的<b>隐私与数据设置</b>中关闭<b>个性化推荐</b>。之后你会看到和其他人一样的推荐。\n\n我们从不用你的姓名或电子邮件来挑选作品。请参阅<a=/help/article/privacy-data>{brand} 会收集哪些数据？</a>\n\n@@ data",
+      "keywords": "推荐 内容行 建议 因为你看过 口味 算法 为你 个性化",
+      "related": [
+        "viewing-history",
+        "privacy-data",
+        "my-list",
+        "search-browse",
+        "kids-profile"
+      ],
+      "summary": "内容行是怎样生成的，以及什么会改变它们。",
+      "title": "推荐是如何运作的"
+    },
+    "report-bug": {
+      "body": "我们知道得越多，修得越快。请写上：\n\n1. 你当时在做什么，以及你原本期望发生什么。\n2. 实际发生了什么，以及看到的任何消息。\n3. 如果是播放问题，写上作品名。\n4. 你的设备和浏览器。\n\n<a=/help/contact>联系我们</a>页面有一个按钮，会打开一封已经填好浏览器信息的邮件。\n\n@@ diagnostics",
+      "keywords": "报告 问题 故障 错误 崩溃 坏了 不工作 反馈 联系",
+      "related": [
+        "title-feedback",
+        "contribute",
+        "rows-wont-load",
+        "wont-play"
+      ],
+      "summary": "写清楚哪些信息，我们才能快速找到并修复问题。",
+      "title": "报告问题"
+    },
+    "rows-wont-load": {
+      "body": "内容行和搜索来自我们的推荐服务，海报和详情来自公开的影视目录。如果其中一个连接不上，你可能会看到空的内容行、一直转的加载图标或缺失的图片。\n\n1. 重新加载页面。\n2. 检查你的网络连接。\n3. 为这个网站关闭拦截工具。请参阅<a=/help/article/extensions-blockers>会拦截播放器的扩展程序</a>。\n4. 过几分钟再试。\n\n在此期间，你的个人资料、我的片单和设置都安全地保存在账户中。如果问题持续超过一小时，<a=/help/article/report-bug>请告诉我们</a>。\n\n@@ diagnostics\n\n@@ refresh",
+      "keywords": "内容行 空白 加载 空页面 图片 海报 无法加载 首页 错误 推荐 故障",
+      "related": [
+        "supported-browsers",
+        "report-bug",
+        "recommendations",
+        "extensions-blockers"
+      ],
+      "summary": "页面显示空的内容行、加载图标或缺少图片。",
+      "title": "内容行或图片无法加载"
+    },
+    "saved-data": {
+      "body": "你的个人资料、我的片单、评分、观看记录和设置都保存在你的账户中。你登录的每个浏览器也会保留一份副本，所以页面能马上打开，没有网络时也能用一会儿。更改会在几秒内同步到你的账户，并在你其他设备上打开 {brand} 时出现。\n\n## 这意味着\n- 在另一台设备上登录，所有内容都在。\n- 在浏览器中清除网站数据，会在该浏览器上退出登录并删除那份副本。你的账户会保留所有内容。\n- 在无痕或隐私窗口中，副本会在关闭窗口时删除。\n\n## 还会发送到我们服务器的内容\n你开始播放某部作品时，推荐服务会知道是哪一部，这样你的内容行才能贴合你的口味。你可以在<b>隐私与数据设置</b>中关闭<b>个性化推荐</b>。请参阅<a=/help/article/recommendations>推荐是如何运作的</a>。\n\n@@ data",
+      "keywords": "保存的数据 存储 本地 浏览器 设备 丢失 同步 进度 记录 个人资料 cookie",
+      "related": [
+        "clear-data",
+        "privacy-data",
+        "need-account",
+        "list-missing",
+        "viewing-history"
+      ],
+      "summary": "保存在你的账户中，每个浏览器还会保留一份副本，让页面打开得更快。",
+      "title": "你的个人资料、片单和进度保存在哪里"
+    },
+    "search-browse": {
+      "body": "## 搜索\n1. 选择顶部栏中的放大镜。\n2. 输入作品名、演员或导演。结果会边输入边出现，小的拼写错误也没关系。\n\n## 浏览\n- 顶部栏的<b>电视剧</b>和<b>电影</b>会打开对应类别的页面。在那里用<b>类型</b>进一步筛选。\n- 首页的内容行按主题分组。请参阅<a=/help/article/recommendations>推荐是如何运作的</a>。\n- <b>按语言浏览</b>可以按作品的原始语言找作品。请参阅<a=/help/article/browse-language>按语言浏览</a>。",
+      "keywords": "搜索 浏览 查找 类型 电影 剧集 分类 作品 演员 导演",
+      "related": [
+        "browse-language",
+        "new-popular",
+        "recommendations",
+        "my-list",
+        "trailers-clips"
+      ],
+      "summary": "按名称、类型或氛围找作品。",
+      "title": "如何搜索和浏览"
+    },
+    "security-report": {
+      "body": "如果你发现了读取别人数据、绕过个人资料 PIN 码或破坏网站的方法，请在告诉任何人之前先告诉我们。\n\n1. 写信到 <a=mailto:{support_email}>{support_email}</a>，邮件主题写<b>安全</b>。\n2. 说明你发现了什么、复现步骤，以及涉及的页面或地址。\n3. 不要访问别人的数据，也不要用大量自动请求进行测试。\n\n我们会阅读每一份报告。同样的信息也在机器可读的文件 <a=/.well-known/security.txt>/.well-known/security.txt</a> 中。",
+      "keywords": "安全 漏洞 漏洞赏金 负责任的披露 利用 黑客 报告 弱点",
+      "related": [
+        "report-bug",
+        "privacy-data",
+        "profile-pin",
+        "contribute"
+      ],
+      "summary": "如何安全地告诉我们一个漏洞。",
+      "title": "报告安全问题"
+    },
+    "share": {
+      "body": "1. 打开作品详情，选择<b>分享</b>。\n2. 选择 <b>WhatsApp</b> 或<b>消息</b>发送链接，或选择<b>复制链接</b>粘贴到任何地方。\n3. 对于 Instagram 和 Snapchat，链接会被复制，你再把它粘贴到应用里。\n\n链接会在 {brand} 上打开这部作品。打开链接的人需要登录或创建免费账户才能观看。",
+      "keywords": "分享 链接 whatsapp 信息 instagram snapchat 复制 发送 朋友",
+      "related": [
+        "title-details",
+        "my-list",
+        "search-browse",
+        "title-feedback",
+        "new-popular"
+      ],
+      "summary": "把作品链接发给朋友。",
+      "title": "如何分享作品"
+    },
+    "shortcuts": {
+      "body": "在电脑上播放作品时，这些按键可以使用。\n\n- <b>空格键</b>或 <b>K</b>：播放或暂停\n- <b>左方向键</b>或 <b>J</b>：后退 10 秒\n- <b>右方向键</b>或 <b>L</b>：前进 10 秒\n- <b>上方向键</b>和<b>下方向键</b>：调高和调低音量\n- <b>M</b>：静音或取消静音\n- <b>F</b>：打开或关闭全屏",
+      "keywords": "键盘 快捷键 按键 空格 方向键 全屏 静音 音量 快进 快退 热键",
+      "related": [
+        "accessibility",
+        "skip-intro-next",
+        "subtitles",
+        "continue-watching",
+        "wont-play"
+      ],
+      "summary": "不用鼠标也能控制播放器。",
+      "title": "键盘快捷键"
+    },
+    "sign-in": {
+      "body": "## 登录\n1. 在 {brand} 首页顶部选择<b>登录</b>。\n2. 输入电子邮件地址和密码，然后选择<b>登录</b>。\n\n保持<b>记住我</b>开启，就能在这台设备上保持登录。如果你不久前刚在这台设备上退出，可以不用重新输入密码就继续。\n\n## 退出登录\n打开个人资料菜单，选择<b>退出 {brand}</b>。要一次在所有设备上退出，请参阅<a=/help/article/devices-sign-out>在一台或所有设备上退出登录</a>。\n\n## 无法登录\n- 检查电子邮件地址有没有打错。密码区分大小写。\n- 如果刚注册，先打开我们发到你邮箱的确认链接。<b>重新发送确认邮件</b>会再发一封。\n- 尝试次数过多时，等一分钟再试。\n- 忘记密码了？请参阅<a=/help/article/forgot-password>我忘记了密码</a>。",
+      "keywords": "登录 退出 注销 记住我 电子邮件 密码 账户",
+      "related": [
+        "need-account",
+        "forgot-password",
+        "devices-sign-out",
+        "change-email-password",
+        "saved-data"
+      ],
+      "summary": "用电子邮件和密码登录、保持登录状态，以及退出登录。",
+      "title": "登录和退出"
+    },
+    "skip-intro-next": {
+      "body": "- 每集片头开始时，<b>跳过片头</b>会出现几秒钟。选择它可以直接进入正片。\n- 播放器控件中的<b>下一集</b>会开始播放下一集。\n- <b>剧集</b>会打开本季的列表，你可以选任意一集。\n\n要设置一集播完后怎么做，打开个人资料的<b>播放设置</b>，打开或关闭<b>自动播放下一集</b>。",
+      "keywords": "跳过片头 下一集 自动播放 追剧 剧集 季 列表",
+      "related": [
+        "shortcuts",
+        "episodes",
+        "continue-watching",
+        "subtitles",
+        "my-list"
+      ],
+      "summary": "跳过开头，或直接看下一集。",
+      "title": "跳过片头和下一集"
+    },
+    "slow-pages": {
+      "body": "第一次访问会下载应用，大约 2 MB。之后大部分等待时间都花在图片和预览上。\n\n- 在个人资料的<b>播放设置</b>中关闭<b>自动播放预览</b>。自动开始的预览会占用流量和内存。\n- 关闭占用网络或大量内存的标签页和其他应用。\n- 使用新版浏览器。旧版浏览器运行应用会更慢。\n- 使用移动数据时，尽量换成 Wi-Fi。\n\n@@ diagnostics",
+      "keywords": "慢 卡 性能 速度 加载 内存 旧手机 卡顿 滚动 预览",
+      "related": [
+        "buffering",
+        "supported-browsers",
+        "vpn-network",
+        "trailers-clips",
+        "wont-play"
+      ],
+      "summary": "在网速慢或设备旧的情况下让浏览更快。",
+      "title": "页面加载缓慢"
+    },
+    "sources": {
+      "body": "详情、海报和评分来自公开的影视目录。视频本身不在 {brand} 上。你按下播放时，播放器会向独立的第三方来源请求视频流。\n\n- 一部作品可能在一个来源可以播放，在另一个来源不行。\n- 来源可能会毫无预兆地下线。\n- 画质、音轨和字幕都取决于来源。\n\n我们不控制也不检查这些来源。请参阅<a=/help/legal/disclaimer>免责声明</a>。如果你是权利人，请参阅<a=/help/article/copyright>如何举报版权问题</a>。",
+      "related": [
+        "what-is",
+        "wont-play",
+        "playback-unavailable",
+        "copyright",
+        "free-to-use"
+      ],
+      "summary": "{brand} 如何找到视频流，以及为什么一部作品今天能播、明天可能就不行。",
+      "title": "作品从哪里来"
+    },
+    "stuck-loading": {
+      "body": "{brand} 启动时，你会看到立方体标志和一排移动的圆点，通常只需要几秒。{brand} 是一个 WebAssembly 应用，所以如果浏览器或某项设置关闭了 WebAssembly，就会一直停在这个画面。\n\n1. 按 <b>Ctrl + Shift + R</b>（Mac 上按 <b>Cmd + Shift + R</b>）重新加载，获取最新版本。\n2. 在无痕窗口中打开页面。如果在那里能用，说明是某个扩展程序在干扰。请参阅<a=/help/article/extensions-blockers>会拦截播放器的扩展程序</a>。\n3. 更新浏览器。请参阅<a=/help/article/supported-browsers>支持的浏览器</a>。\n4. 为这个网站关闭限制网页功能的模式，例如 Apple 设备上的锁定模式或 Edge 中严格的安全设置。\n5. 清除这个网站的数据，然后重新登录。请参阅<a=/help/article/clear-data>如何清除保存的数据</a>。\n\n@@ refresh",
+      "keywords": "卡住 加载 标志 空白 白屏 启动页 无法启动 webassembly wasm 冻结",
+      "related": [
+        "supported-browsers",
+        "extensions-blockers",
+        "clear-data",
+        "rows-wont-load"
+      ],
+      "summary": "{brand} 一直启动不完时可以试试这些。",
+      "title": "页面停在标志或空白屏幕"
+    },
+    "subtitles": {
+      "body": "## 打开或关闭字幕\n1. 播放作品，把指针移到播放器上，或点按屏幕。\n2. 选择<b>音频和字幕</b>。\n3. 选择一种字幕语言，或选择<b>关闭</b>。\n\n如果字幕出现得太早或太晚，可以在同一面板中用 <b>-0.5s</b> 和 <b>+0.5s</b> 调整。\n\n## 更改字幕外观\n1. 打开个人资料菜单，依次选择<b>账户</b>和<b>管理个人资料</b>，然后选择你的个人资料。\n2. 选择<b>字幕外观</b>。\n3. 选择文字大小、文字颜色、描边、背景和窗口颜色。预览会显示效果。<b>恢复默认</b>会撤销你的更改。\n\n!! 注意：有哪些语言和音轨取决于作品的来源。请参阅<a=/help/article/subtitles-missing>字幕缺失或不同步</a>。",
+      "keywords": "字幕 隐藏字幕 cc 音频 语言 轨道 大小 颜色 外观 背景",
+      "related": [
+        "language",
+        "subtitles-missing",
+        "shortcuts",
+        "accessibility",
+        "browse-language"
+      ],
+      "summary": "打开字幕、选择字幕轨道，并更改字幕的样子。",
+      "title": "如何使用字幕或选择音频语言"
+    },
+    "subtitles-missing": {
+      "body": "1. 在播放器中选择<b>音频和字幕</b>，确认已选择一种字幕语言。\n2. 如果列表中有其他轨道，换一个试试。轨道来自来源，不同作品各不相同。\n3. 为个人资料设置首选字幕语言。请参阅<a=/help/article/language>如何更改语言</a>。\n4. 如果字幕太早或太晚，在<b>音频和字幕</b>中用 <b>-0.5s</b> 或 <b>+0.5s</b> 调整，直到和台词对上。\n\n如果某部作品完全没有字幕，说明来源没有提供。\n\n@@ language",
+      "keywords": "字幕 隐藏字幕 缺失 语言错误 不同步 延迟 cc 文字",
+      "related": [
+        "subtitles",
+        "language",
+        "wont-play",
+        "playback-unavailable",
+        "report-bug"
+      ],
+      "summary": "解决字幕不出现、语言不对或落后于台词的问题。",
+      "title": "字幕缺失或不同步"
+    },
+    "supported-browsers": {
+      "body": "{brand} 支持以下浏览器的最新版本：\n\n- Windows、macOS、Linux 和 Android 上的 <b>Google Chrome</b>、<b>Microsoft Edge</b>、<b>Brave</b> 及其他 Chromium 浏览器\n- Windows、macOS、Linux 和 Android 上的 <b>Mozilla Firefox</b>\n- Mac、iPhone 和 iPad 上的 <b>Safari</b>\n\n不支持 Internet Explorer。请保持浏览器为最新版本，并允许这个网站使用 JavaScript 和网站数据。\n\n@@ diagnostics\n\n>> 页面加载前浏览器就显示错误\n在 Windows 和 Linux 上按 <b>Ctrl + Shift + R</b>，在 Mac 上按 <b>Cmd + Shift + R</b> 重新加载，获取应用的最新版本，然后再试一次。",
+      "keywords": "浏览器 chrome firefox safari edge brave opera internet explorer 版本 更新 兼容",
+      "related": [
+        "wont-play",
+        "install-app",
+        "fix-phone",
+        "fix-tv",
+        "extensions-blockers"
+      ],
+      "summary": "哪些浏览器和系统效果最好。",
+      "title": "支持的浏览器"
+    },
+    "switch-profile": {
+      "body": "1. 打开页面右上角的个人资料菜单。在手机上，点按底部栏中的个人资料头像。\n2. 选择要使用的个人资料。\n3. 如果个人资料已锁定，输入它的 4 位 PIN 码。\n\n推荐、<b>我的片单</b>和<b>继续观看</b>会随你选择的个人资料而变化。\n\n!! 注意：你可以用 PIN 码锁定个人资料。请参阅<a=/help/article/profile-pin>如何添加、更改或移除个人资料 PIN 码</a>。\n\n@@ profiles",
+      "keywords": "切换 更换 个人资料 谁在看 菜单",
+      "related": [
+        "profiles-manage",
+        "profile-pin",
+        "kids-profile",
+        "forgot-pin",
+        "saved-data"
+      ],
+      "summary": "不用离开当前页面就能换人观看。",
+      "title": "如何切换个人资料"
+    },
+    "title-details": {
+      "body": "选择作品卡片或<b>更多信息</b>，打开它的详情。\n\n- <b>播放</b>或<b>继续播放</b>会从你上次停下的地方开始。\n- <b>我的片单</b>可以收藏它，大拇指可以给它评分。\n- 简介、演员、类型和几个描述氛围的词能帮你做决定。\n- 对于剧集，<b>剧集</b>会列出各季。\n- <b>更多类似内容</b>显示内容相近的作品，是发现新作品的好办法。",
+      "keywords": "更多信息 详情 弹窗 演员 类型 简介 相似 更多类似内容 预告片 评分",
+      "related": [
+        "my-list",
+        "episodes",
+        "share",
+        "recommendations",
+        "trailers-clips"
+      ],
+      "summary": "按播放之前，你可以看到和做些什么。",
+      "title": "作品详情窗口"
+    },
+    "title-feedback": {
+      "body": "请写信到 <a=mailto:{support_email}>{support_email}</a>，并写上：\n\n- 作品名和年份\n- 它在 {brand} 上的页面地址\n- 哪里有问题，例如海报错误、缺少某一季，或作品一直无法播放\n\n详情来自公开的目录，所以错误的简介最好在源头修正。我们可以帮忙转达收到的更正。",
+      "keywords": "反馈 作品 错误 简介 缺少 请求 电影 剧集 添加 报告 海报",
+      "related": [
+        "report-bug",
+        "contribute",
+        "wont-play",
+        "recommendations",
+        "copyright"
+      ],
+      "summary": "报告错误的简介、缺少的作品，或一直无法播放的作品。",
+      "title": "关于 {brand} 上作品的反馈"
+    },
+    "top-10": {
+      "body": "<b>Top 10</b> 内容行展示当下最受欢迎的十部电影或剧集，每部都带着一个大数字。它跟随影视目录中每天的热度变化，所以每天都不一样。所有人看到的都相同，不受你的个人资料影响。",
+      "keywords": "top 10 前十 热门 趋势 排行 数字 内容行 最多观看",
+      "related": [
+        "new-popular",
+        "genres",
+        "recommendations",
+        "search-browse",
+        "trailers-clips"
+      ],
+      "summary": "一行当下最受欢迎的十部作品。",
+      "title": "什么是 Top 10 内容行？"
+    },
+    "trailers-clips": {
+      "keywords": "预告片 片段 预览 短视频 先导片 静音 声音 自动播放",
+      "related": [
+        "new-popular",
+        "search-browse",
+        "my-list",
+        "recommendations",
+        "notifications"
+      ],
+      "summary": "决定看之前先预览一下。",
+      "title": "预告片和片段"
+    },
+    "transfer-profile": {
+      "body": "个人资料可以复制到另一个账户，比如家里有人搬出去时。副本会保留名称、头像、设置和观看记录。\n\n## 保存个人资料\n1. 打开个人资料菜单，选择<b>转移个人资料</b>。\n2. 选择个人资料，然后选择<b>下载个人资料文件</b>。请妥善保管这个文件。\n\n## 添加到另一个账户\n1. 登录另一个账户，打开<b>管理个人资料</b>。\n2. 选择<b>导入个人资料</b>，然后选择文件。\n\n!! 注意：文件中不包含个人资料的 PIN 码。任何拿到文件的人都能把这个个人资料添加到自己的账户，所以不要分享它。\n\n<b>账户</b>中的<b>个人资料转移</b>可以开启或关闭从你的账户复制出去。它从不阻止个人资料转入。",
+      "keywords": "转移 个人资料 移动 复制 另一个账户 导入 导出 文件",
+      "related": [
+        "profiles-manage",
+        "download-data",
+        "delete-account",
+        "profile-pin",
+        "saved-data"
+      ],
+      "summary": "把个人资料保存为文件，连同记录和设置一起添加到另一个账户。",
+      "title": "把个人资料转移到另一个账户"
+    },
+    "translate": {
+      "body": "所有界面文字都保存在每种语言一个的纯文本文件中。翻译不需要会编程。\n\n## 需要了解的\n- 消息的格式是<b>键 = 文字</b>。只修改等号后面的文字。\n- 大括号里的词，例如 <b>{ \"{brand}\" }</b>，由应用自动填入。保持原样，并把它们放到你的语言需要的位置。\n- 有些消息分单数和复数形式（例如英语的 <b>1 season</b> 和 <b>2 seasons</b>）。形式超过两种的语言可以全部加上。\n- 如果你的语言会因性别或格变化词形，请写出适合句子的形式。\n\n## 如何提交\n发送到 <a=mailto:{support_email}>{support_email}</a>，写明语言，并附上文件或你修改内容的链接。母语者互相审阅，是我们最好的检查方式。",
+      "keywords": "翻译 本地化 语言 参与 贡献 ftl fluent 语法 性别 复数",
+      "related": [
+        "contribute",
+        "language",
+        "report-bug",
+        "what-is",
+        "getting-started"
+      ],
+      "summary": "界面文字保存在简单的文件中，每种语言一个，任何人都可以改进。",
+      "title": "帮助翻译 {brand}"
+    },
+    "viewing-history": {
+      "body": "每个个人资料都有一个<b>观看记录</b>页面，按从新到旧列出看过的作品。{brand} 用它来生成“继续观看”和推荐。\n\n1. 打开个人资料菜单，依次选择<b>账户</b>和<b>管理个人资料</b>，然后选择这个个人资料。\n2. 选择<b>观看记录</b>。\n3. 选择作品旁边的<b>隐藏此作品</b>，或选择<b>全部隐藏</b>。\n\n被隐藏的作品会在所有设备上从“继续观看”中消失，也不再影响推荐。<b>全部下载</b>会把列表保存为表格。\n\n@@ data",
+      "keywords": "观看记录 看过 活动 删除 清除 移除 评分 推荐",
+      "related": [
+        "continue-watching",
+        "clear-data",
+        "saved-data",
+        "recommendations",
+        "privacy-data"
+      ],
+      "summary": "观看时会记录什么，以及如何删除。",
+      "title": "如何管理观看记录"
+    },
+    "vpn-network": {
+      "body": "{brand} 从公开的影视目录加载详情和图片，从独立来源加载视频流。有些网络会拦截这些网站，有些来源会拒绝某些地址。\n\n- <b>VPN 或代理。</b>有些来源不响应 VPN 地址。关闭它，或选择其他国家/地区。\n- <b>学校、公司或公共 Wi-Fi。</b>过滤规则经常会拦截流媒体或目录。试试手机的移动数据。\n- <b>DNS 过滤。</b>带过滤功能的 DNS 服务可能会拦截目录，让内容行或图片变成空白。换一个 DNS，或为这个网站关闭过滤。\n\n设备检查会显示你的网络连不上哪项服务。\n\n@@ diagnostics",
+      "keywords": "vpn 代理 学校 公司 网络 防火墙 dns 过滤 被拦截 safedns 限制 wifi",
+      "related": [
+        "is-down",
+        "wont-play",
+        "playback-unavailable",
+        "rows-wont-load",
+        "sources"
+      ],
+      "summary": "为什么有些网络会拦截作品或图片，以及可以试试什么。",
+      "title": "VPN、学校和公司网络"
+    },
+    "watch-on-tv": {
+      "body": "{brand} 暂时还没有电视应用。下面这些方法现在就能用：\n\n- <b>电视浏览器。</b>在电视自带的浏览器中打开 {brand} 的网址。\n- <b>投放标签页。</b>在电脑上的 Chrome 或 Edge 中打开浏览器菜单，选择<b>投放</b>，然后选择你的电视或电视棒。\n- <b>线缆。</b>用 HDMI 线把笔记本电脑连接到电视，并使用全屏。\n\n如果画面或声音不对，请参阅<a=/help/article/fix-tv>解决电视上的问题</a>。",
+      "keywords": "电视 智能电视 投屏 chromecast airplay hdmi 电视棒 大屏幕",
+      "related": [
+        "fix-tv",
+        "install-app",
+        "supported-browsers",
+        "getting-started",
+        "shortcuts"
+      ],
+      "summary": "使用电视的浏览器，或从电脑、手机投放浏览器标签页。",
+      "title": "如何在电视上观看"
+    },
+    "what-is": {
+      "body": "{brand} 帮你找到下一部想看的电影或剧集。它会了解你的喜好，把目录整理成一行行内容，页面感觉就像你熟悉的流媒体服务。\n\n{brand} 是一个链接索引。它不托管也不上传视频。你按下播放时，播放器会向独立来源请求视频流，并播放第一个能用的。请参阅<a=/help/article/sources>作品从哪里来</a>。\n\n这里没有需要购买的东西，也没有订阅。请参阅<a=/help/article/free-to-use>{brand} 免费吗？</a>",
+      "related": [
+        "getting-started",
+        "sources",
+        "free-to-use",
+        "need-account",
+        "contribute"
+      ],
+      "summary": "简单介绍 {brand} 能做什么、不做什么。",
+      "title": "什么是 {brand}？"
+    },
+    "wont-play": {
+      "body": "按顺序试试这些步骤，每做一步都测试一下。\n\n1. 重新加载页面。来源的临时故障是最常见的原因。\n2. 换一集，或从详情页面重新播放作品。播放器会依次尝试可用的来源。\n3. 为这个网站关闭广告拦截器和隐私扩展程序。请参阅<a=/help/article/extensions-blockers>会拦截播放器的扩展程序</a>。\n4. 使用新版 Chrome、Edge、Firefox 或 Safari。请参阅<a=/help/article/supported-browsers>支持的浏览器</a>。\n5. 换个网络，例如从 Wi-Fi 换成移动数据，或关闭 VPN。有些来源会拒绝某些网络。\n\n@@ diagnostics\n\n>> 还是无法播放\n有些作品在某个时刻没有任何来源可用，请稍后再试。如果某部热门作品一直无法播放，请在<a=/help/article/report-bug>报告问题</a>页面告诉我们是哪一部。",
+      "keywords": "无法播放 播放不了 错误 视频 失败 加载 卡住 播放器",
+      "related": [
+        "playback-unavailable",
+        "black-screen",
+        "buffering",
+        "extensions-blockers",
+        "supported-browsers"
+      ],
+      "summary": "播放器报错、一直黑屏或无法开始时，最快的解决办法。",
+      "title": "作品无法播放"
+    }
+  },
+  "policies": {
+    "cookie-policy": {
+      "sections": [
+        {
+          "body": "{brand} 不使用广告或分析 Cookie。我们使用浏览器的本地存储（设备上只有本网站能读取的空间）来保存：",
+          "bullets": [
+            "<b>登录：</b>让你在这个浏览器上保持登录的信息，以及一个保存你的个人资料名称的 Cookie，让帮助中心显示你已登录。",
+            "<b>速度：</b>你的个人资料、设置和观看进度的副本，让页面立刻打开。",
+            "<b>你的选择：</b>你的 Cookie 和个性化选择，以及显示语言。"
+          ],
+          "title": "我们如何使用 Cookie 和存储"
+        }
+      ],
+      "title": "Cookie 政策",
+      "updated": "最后更新：2026 年 10 月"
+    },
+    "credits": {
+      "sections": [
+        {
+          "body": "标志使用像素字体，界面使用 Inter，合集标题使用展示字体：",
+          "bullets": [
+            "<b>Baby Blocks</b>，作者 Colorful Typhoon，依据其非商业免费使用条款用于 {brand} 标志。见<a href=\"https://www.fontspace.com/baby-blocks-font-f3699\" target=\"_blank\" rel=\"noopener\">FontSpace 上的字体页面</a>。",
+            "<b>Inter</b>，作者 Rasmus Andersson，依据 SIL Open Font License 1.1 使用。",
+            "来自 Google Fonts 的 <b>Abril Fatface、Caveat Brush、DM Serif Display、Fredoka、Gochi Hand、Kalam、Londrina Solid、Playfair Display 和 Sedgwick Ave</b>，依据 SIL Open Font License 1.1 使用。",
+            "来自 Google Fonts 的 <b>Permanent Marker</b> 和 <b>Rock Salt</b>，依据 Apache License 2.0 使用。"
+          ],
+          "title": "1. 字体"
+        },
+        {
+          "body": "界面图标来自 Phosphor Icons、Tabler Icons 和 Hugeicons，依据 MIT 许可证使用；以及 Remix Icon 和 IBM Carbon，依据 Apache 2.0 许可证使用。",
+          "bullets": [],
+          "title": "2. 图标"
+        },
+        {
+          "bullets": [],
+          "title": "3. 影视信息"
+        },
+        {
+          "body": "{brand} 使用开源软件构建，各自依据其许可证使用：",
+          "bullets": [
+            "应用程序使用 <b>Rust</b> 和 <b>Leptos</b>（MIT 和 Apache 2.0）。",
+            "样式使用 <b>Tailwind CSS</b>（MIT）。",
+            "自适应视频播放使用 <b>hls.js</b>（Apache 2.0）。",
+            "界面翻译使用 <b>Project Fluent</b>（Apache 2.0 和 MIT）。"
+          ],
+          "title": "4. 软件"
+        },
+        {
+          "body": "{brand} 上显示的电影、剧集和服务的名称、标志、海报和图片归其所有者所有。展示它们是为了标识作品，并不代表所有者支持 {brand}。",
+          "bullets": [],
+          "title": "5. 商标和图片"
+        },
+        {
+          "body": "如果你认为这里的鸣谢有误或需要更改，请发邮件至 {support_email}。",
+          "bullets": [],
+          "title": "6. 联系方式"
+        }
+      ],
+      "title": "许可与鸣谢",
+      "updated": "最后更新：2026 年 10 月"
+    },
+    "disclaimer": {
+      "sections": [
+        {
+          "body": "{brand} 是一个针对公开可用的嵌入式媒体链接的链接聚合和搜索引擎。我们不在服务器上托管、上传、存储、传输或控制任何视频、音频或媒体内容。",
+          "bullets": [],
+          "title": "1. 不托管内容"
+        },
+        {
+          "body": "通过 {brand} 索引的链接可访问的所有内容均来自外部独立的第三方来源。{brand} 无法控制此类内容的合法性、准确性、质量或可用性，也不承担任何责任。",
+          "bullets": [],
+          "title": "2. 第三方内容：不承担责任"
+        },
+        {
+          "body": "你承认并同意，使用 {brand} 以及通过外部嵌入链接访问任何内容，风险完全由你自行承担。{brand} 明确否认一切明示或暗示的保证。",
+          "bullets": [],
+          "title": "3. 用户自担风险"
+        },
+        {
+          "body": "{brand} 索引的嵌入链接指向第三方服务器上的资源。我们无法保证任何链接内容持续可用、质量或完整，链接可能会在没有通知的情况下失效或无法使用。",
+          "bullets": [],
+          "title": "4. 链接可用性"
+        },
+        {
+          "bullets": [],
+          "title": "5. 信息准确性"
+        }
+      ],
+      "title": "免责声明",
+      "updated": "最后更新：2026 年 8 月"
+    },
+    "dmca": {
+      "sections": [
+        {
+          "body": "{brand} 是一个链接聚合和搜索引擎。我们不托管、上传、存储、传输或控制任何视频或媒体内容。所有内容均由完全不受我们控制的第三方服务器提供。",
+          "bullets": [],
+          "title": "1. 我们的角色：链接聚合，而非托管方"
+        },
+        {
+          "body": "如果你是版权所有者，或经授权代表版权所有者行事的代理人，并认为我们索引中的某个链接侵犯了你的版权，请向 {support_email} 发送书面通知，内容包括：",
+          "bullets": [
+            "版权所有者或其授权代理人的<b>亲笔签名或电子签名</b>。",
+            "你声称被侵权的<b>作品的说明</b>；如果一份通知涉及多部作品，请提供这些作品的代表性清单。",
+            "你声称构成侵权的<b>材料的说明</b>（即具体的 {brand} 链接或网址），以及足以让我们找到它的信息。"
+          ],
+          "title": "2. 通知和删除程序"
+        },
+        {
+          "body": "你的 DMCA 通知还必须包括：",
+          "bullets": [
+            "<b>你的联系方式</b>：姓名、地址、电话号码和电子邮件地址。",
+            "<b>善意声明</b>：说明你善意地相信，以投诉的方式使用该材料未经版权所有者、其代理人或法律授权。",
+            "<b>准确性声明</b>：说明通知中的信息准确无误，并在伪证处罚的前提下声明你有权代表版权所有者行事。",
+            "<b>通知发送至：</b>{support_email}",
+            "我们会审查所有通知，并从索引中删除符合上述法定要求的链接。",
+            "<b>反通知：</b>如果你认为你的链接被错误删除，可以根据 17 U.S.C. § 512(g) 提交反通知。"
+          ],
+          "title": "3. 其他必要内容"
+        },
+        {
+          "body": "由于 {brand} 不托管任何媒体文件，我们只能从搜索索引中删除链接，无法从托管内容的服务器上删除内容本身。",
+          "bullets": [],
+          "title": "4. 重要限制：我们只能删除链接"
+        },
+        {
+          "body": "在适当情况下，{brand} 会自行决定停用或终止重复侵权的用户或账户的访问权限。",
+          "bullets": [],
+          "title": "5. 重复侵权者政策"
+        },
+        {
+          "body": "根据 DMCA 通知从索引中删除链接，并不代表 {brand} 承认发生了任何侵权行为。",
+          "bullets": [],
+          "title": "6. 不构成责任承认"
+        }
+      ],
+      "title": "DMCA 安全港声明",
+      "updated": "最后更新：2026 年 8 月"
+    },
+    "privacy": {
+      "sections": [
+        {
+          "body": "{brand} 是一个链接聚合和搜索引擎。本隐私政策说明你使用我们的服务时，我们如何收集、使用和保护你的个人信息。",
+          "bullets": [],
+          "title": "1. 简介"
+        },
+        {
+          "body": "为了提供和改进服务，我们只收集有限的个人信息：",
+          "bullets": [
+            "<b>账户信息：</b>你的姓名、电子邮件地址和密码（我们的登录服务商只以无法还原的形式保存），以及你添加的手机号码。",
+            "<b>个人资料和活动：</b>你的个人资料及其设置、我的片单、评分、观看进度和观看记录。它们与你的账户关联，因此在每台设备上都一样。",
+            "<b>安全记录：</b>最近的登录和账户变更，以及对应的浏览器、系统和国家/地区，用于向你显示你的设备，并在有新的登录时提醒你。",
+            "<b>设备上的存储：</b>保持你登录状态的信息、让页面快速打开的个人资料和设置副本，以及你的 Cookie 选择。请参阅 Cookie 政策。"
+          ],
+          "title": "2. 我们收集的信息"
+        },
+        {
+          "body": "我们重视你的隐私，绝不会：",
+          "bullets": [
+            "<b>分享你的数据：</b>我们不会与广告商或数据经纪商分享个人数据。",
+            "<b>出售你的数据：</b>我们绝不会向第三方出售、出租或交易任何个人数据。",
+            "<b>追踪你：</b>我们不使用广告或分析 Cookie，不对浏览器进行指纹识别，也不会在其他网站上追踪你。"
+          ],
+          "title": "3. 我们不做的事"
+        },
+        {
+          "body": "根据英国《通用数据保护条例》（UK GDPR），我们处理这些信息所依据的法律基础如下：",
+          "bullets": [
+            "<b>合同：</b>为你提供账户、个人资料和你使用的功能。",
+            "<b>合法利益：</b>保障账户安全（登录记录），并让服务持续运行和改进。",
+            "<b>同意：</b>将你观看的内容用于个性化推荐。你可以随时在“隐私与数据设置”中撤回同意。"
+          ],
+          "title": "4. 处理的法律依据（英国 GDPR）"
+        },
+        {
+          "body": "你的账户数据存储在我们的数据库服务商 Supabase，并启用行级安全，只有你的账户才能读取。为了加快速度，你登录的每个浏览器也会保存一份副本。删除账户后，其数据会立即删除。",
+          "bullets": [],
+          "title": "5. 我们如何存储你的数据"
+        },
+        {
+          "bullets": [],
+          "title": "6. 第三方服务"
+        },
+        {
+          "body": "根据英国 GDPR，你享有以下权利：",
+          "bullets": [
+            "<b>访问权：</b>随时在“账户”的“个人信息访问”中下载你的数据副本。",
+            "<b>删除权：</b>随时在“账户”的“删除账户”中删除你的账户。账户中的所有内容都会立即删除。",
+            "<b>更正权：</b>在“账户”中更改你的姓名、电子邮件地址和电话号码，或请我们更正其他信息。",
+            "<b>反对权：</b>关闭个性化推荐，或写信给我们，反对基于合法利益的处理。"
+          ],
+          "title": "7. 你的数据保护权利"
+        },
+        {
+          "body": "如果你对本隐私政策有疑问，或想行使你的权利，请发邮件至 {support_email}。",
+          "bullets": [],
+          "title": "8. 联系方式"
+        }
+      ],
+      "title": "隐私政策",
+      "updated": "最后更新：2026 年 10 月"
+    },
+    "terms": {
+      "sections": [
+        {
+          "body": "访问或使用 {brand}，即表示你同意受本服务条款和我们的隐私政策约束。如果你不同意，请不要使用本服务。",
+          "bullets": [],
+          "title": "1. 接受条款"
+        },
+        {
+          "body": "{brand} 是一个链接聚合和搜索引擎。我们不在服务器上托管、上传、传输或控制任何视频内容。所有媒体均来自第三方平台。",
+          "bullets": [],
+          "title": "2. 服务性质"
+        },
+        {
+          "body": "使用 {brand} 需要一个免费账户。你有责任保管好自己的密码，并对账户中发生的事情负责。如果你认为有人在使用你的账户，请立即告诉我们。",
+          "bullets": [],
+          "title": "3. 用户账户"
+        },
+        {
+          "body": "你同意不将本服务用于：",
+          "bullets": [
+            "规避、禁用或干扰服务的安全相关功能。",
+            "使用自动化工具（如机器人、爬虫或抓取程序）以可能影响性能的频率访问或查询服务。",
+            "试图探测、扫描或测试服务基础设施的漏洞。",
+            "从事任何违法、有害或我们认为不当的行为。"
+          ],
+          "title": "4. 可接受的使用"
+        },
+        {
+          "body": "{brand} 品牌、界面设计和原创软件代码受版权保护。通过 {brand} 访问的所有媒体内容仍归其各自的权利人所有。",
+          "bullets": [],
+          "title": "5. 知识产权"
+        },
+        {
+          "body": "本服务按“现状”和“现有”提供，不附带任何形式的保证。{brand} 不保证服务持续可用，也不对任何间接或后果性损失负责。",
+          "bullets": [],
+          "title": "6. 免责声明和责任限制"
+        },
+        {
+          "body": "{brand} 提供指向托管在独立第三方服务器上的内容的链接。我们无法控制任何第三方网站的内容、隐私政策或做法，也不承担任何责任。",
+          "bullets": [],
+          "title": "7. 第三方内容"
+        },
+        {
+          "body": "对于我们认为违反本条款，或对其他用户、我们或第三方有害的行为，我们保留自行决定在不事先通知的情况下暂停或终止你的账户和服务访问的权利。",
+          "bullets": [],
+          "title": "8. 终止"
+        },
+        {
+          "body": "本服务条款受英格兰和威尔士法律管辖并据其解释，不考虑法律冲突规则。",
+          "bullets": [],
+          "title": "9. 适用法律"
+        },
+        {
+          "body": "如对本服务条款有任何疑问，请通过“联系我们”页面与我们联系。",
+          "bullets": [],
+          "title": "10. 联系方式"
+        }
+      ],
+      "title": "服务条款",
+      "updated": "最后更新：2026 年 10 月"
+    }
+  },
+  "popular": [
+    "what-is",
+    "wont-play",
+    "profiles-manage",
+    "kids-profile",
+    "need-account"
+  ],
+  "topics": [
+    {
+      "groups": [
+        {
+          "articles": [
+            "profiles-manage",
+            "switch-profile",
+            "profile-pin",
+            "kids-profile",
+            "parental-controls",
+            "profile-icons",
+            "transfer-profile"
+          ],
+          "id": "profiles",
+          "title": "个人资料"
+        },
+        {
+          "articles": [
+            "need-account",
+            "sign-in",
+            "forgot-password",
+            "change-email-password",
+            "devices-sign-out"
+          ],
+          "id": "signing-in",
+          "title": "登录与安全"
+        },
+        {
+          "articles": [
+            "saved-data",
+            "clear-data",
+            "download-data",
+            "delete-account",
+            "privacy-data",
+            "cookies-explained"
+          ],
+          "id": "account-data",
+          "title": "数据与隐私"
+        },
+        {
+          "articles": [
+            "free-to-use"
+          ],
+          "id": "paying",
+          "title": "{brand} 的费用"
+        }
+      ],
+      "id": "account",
+      "title": "账户和个人资料"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "wont-play",
+            "playback-unavailable",
+            "black-screen",
+            "buffering",
+            "subtitles-missing",
+            "no-sound",
+            "autoplay-blocked"
+          ],
+          "id": "playback-issues",
+          "title": "播放问题"
+        },
+        {
+          "articles": [
+            "supported-browsers",
+            "fix-phone",
+            "fix-tv",
+            "extensions-blockers",
+            "vpn-network"
+          ],
+          "id": "device-issues",
+          "title": "浏览器和设备"
+        },
+        {
+          "articles": [
+            "rows-wont-load",
+            "list-missing",
+            "forgot-pin",
+            "stuck-loading",
+            "slow-pages",
+            "is-down"
+          ],
+          "id": "page-issues",
+          "title": "页面和列表"
+        }
+      ],
+      "id": "fix",
+      "title": "解决问题"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "language",
+            "subtitles",
+            "shortcuts",
+            "skip-intro-next",
+            "accessibility",
+            "episodes"
+          ],
+          "id": "features",
+          "title": "功能和设置"
+        },
+        {
+          "articles": [
+            "my-list",
+            "continue-watching",
+            "viewing-history",
+            "notifications",
+            "share"
+          ],
+          "id": "library",
+          "title": "我的片单和记录"
+        },
+        {
+          "articles": [
+            "search-browse",
+            "browse-language",
+            "new-popular",
+            "recommendations",
+            "trailers-clips",
+            "genres",
+            "top-10",
+            "title-details",
+            "clips"
+          ],
+          "id": "finding",
+          "title": "找点东西看"
+        }
+      ],
+      "id": "watching",
+      "title": "观看"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "what-is",
+            "getting-started",
+            "sources",
+            "contribute",
+            "translate"
+          ],
+          "id": "about",
+          "title": "关于 {brand}"
+        },
+        {
+          "articles": [
+            "install-app",
+            "phone-tablet",
+            "watch-on-tv"
+          ],
+          "id": "setup",
+          "title": "设备设置"
+        },
+        {
+          "articles": [
+            "copyright",
+            "title-feedback",
+            "report-bug",
+            "security-report"
+          ],
+          "id": "reporting",
+          "title": "举报与法律"
+        }
+      ],
+      "id": "start",
+      "title": "入门"
+    },
+    {
+      "groups": [
+        {
+          "articles": [
+            "doc:privacy",
+            "doc:terms",
+            "doc:cookie-policy",
+            "doc:dmca",
+            "doc:disclaimer",
+            "doc:credits"
+          ],
+          "id": "policies",
+          "title": "政策"
+        }
+      ],
+      "id": "legal",
+      "title": "法律与政策"
+    }
+  ]
+}
