@@ -14,6 +14,7 @@ import contract.Language
 import contract.LanguageList
 import contract.Profile
 import contract.ProfileLimits
+import contract.ProfileList
 import contract.ProfileUpdate
 import contract.contractJson
 import kotlinx.coroutines.launch
@@ -21,7 +22,7 @@ import streams.ports.Seen
 import streams.ports.Shell
 
 /** The pages of Edit Profile. */
-enum class EditStep { MENU, NAME, ICON, LANGUAGE }
+enum class EditStep { MENU, NAME, ICON, LANGUAGE, DELETE }
 
 private fun rowsOf(sets: AvatarSets?, history: String, person: Profile): List<PictureRow> {
     val rows = sets?.sets.orEmpty().map { set -> PictureRow(set.name, set.pictures.map { it.path }) }
@@ -67,9 +68,21 @@ fun EditProfile(shell: Shell, seen: Seen, start: Profile, leave: () -> Unit) {
         }
     }
 
+    fun remove() {
+        scope.launch {
+            if (shell.write("DELETE", "/v1/profiles/${person.id}", "") != null) {
+                val updated = shell.read("/v1/profiles")
+                    ?.let { contractJson.decodeFromString(ProfileList.serializer(), it).profiles }
+                    ?: seen.profiles.filter { it.id != person.id }
+                shell.keepAll(updated)
+                leave()
+            }
+        }
+    }
+
     val server = seen.server
     when (step) {
-        EditStep.MENU -> EditMenu(
+        EditStep.MENU, EditStep.DELETE -> EditMenu(
             words,
             person,
             limit,
@@ -78,7 +91,7 @@ fun EditProfile(shell: Shell, seen: Seen, start: Profile, leave: () -> Unit) {
             server,
             menuAt,
             { menuAt = it },
-            { step = it },
+            { chosen -> if (chosen == EditStep.DELETE) remove() else step = chosen },
             leave,
         )
         EditStep.NAME -> EditName(words, person, server, refused) { name ->
