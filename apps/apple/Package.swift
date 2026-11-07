@@ -4,6 +4,7 @@ import PackageDescription
 let package = Package(
     name: "AppleFamily",
     platforms: [
+        .macOS(.v14),
         .tvOS(.v17),
         .iOS(.v17),
     ],
@@ -49,7 +50,8 @@ let package = Package(
         .target(
             name: "SurfacesTV",
             dependencies: ["Contract", "Ports", "CoreHost"],
-            path: "Sources/SurfacesTV"
+            path: "Sources/SurfacesTV",
+            resources: [.process("Resources")]
         ),
     ]
 )

@@ -52,6 +52,7 @@ FAMILIES = {
         "ends": {".swift"},
         "skip": set(),
         "banned": {
+            "the address table": r'"/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)[/"?]',
             "the network port": r"\bURLSession\b",
             "the secrets port": r"\bSecItem\w*\b",
             "the player port": r"\bAVPlayer\b",
