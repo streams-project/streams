@@ -26,11 +26,11 @@
       "state": "signed_in"
      }
     },
-    "wake": 301000
+    "wake": 6000
    }
   },
   {
-   "at_ms": 301100,
+   "at_ms": 6100,
    "want": {
     "bearers": [
      "access-2"
