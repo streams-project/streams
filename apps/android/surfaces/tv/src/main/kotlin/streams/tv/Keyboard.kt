@@ -132,7 +132,7 @@ fun KeyboardState.press(word: Word, cancel: String, done: String, finish: (Strin
     val caps = rows[row]
     val here = caps.first { column in it.column until it.column + it.span }
     when (word) {
-        Word.UP -> if (row > 0) row -= 1
+        Word.UP -> if (row > 0) row -= 1 else return false
         Word.DOWN -> if (row < rows.lastIndex) row += 1
         Word.LEFT -> if (here.column > 0) column = here.column - 1
         Word.RIGHT -> if (here.column + here.span < COLUMNS) column = here.column + here.span

@@ -66,5 +66,16 @@
   "nav.mine": "My {brand}",
   "row.liked": "Series & Films You've Liked",
   "mine.empty": "Titles you save, like or start will show up here.",
-  "search.recommended": "Your Search Recommendations"
+  "search.recommended": "Your Search Recommendations",
+  "signin.choose": "Choose how to sign in",
+  "signin.phone": "Use Phone",
+  "signin.remote": "Use Remote",
+  "signin.step1": "Use your phone or tablet's camera and point to this code, or go to {address}",
+  "signin.step2": "Confirm this code on your phone or tablet",
+  "signin.email": "Email address",
+  "signin.password": "Password",
+  "signin.getting": "Getting a code...",
+  "signin.off": "This server cannot sign in a television yet.",
+  "common.back": "Back",
+  "common.next": "Next"
 }

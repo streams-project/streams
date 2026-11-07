@@ -45,10 +45,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import contract.ActionDeviceSignIn
-import contract.ActionEnterProfile
-import contract.ActionSignIn
-import contract.Profile
 import streams.shared.Accent
 import streams.shared.Muted
 import streams.ports.Seen
@@ -97,50 +93,5 @@ fun Door(shell: Shell, seen: Seen) {
         val first = remember { FocusRequester() }
         Button({ shell.go("/sign-in") }, Modifier.focusRequester(first)) { Text("Sign in") }
         LaunchedEffect(Unit) { first.requestFocus() }
-    }
-}
-
-@Composable
-fun SignIn(shell: Shell, seen: Seen) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    Column(
-        Modifier.fillMaxSize().padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text("Sign in", fontSize = 32.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(24.dp))
-        OutlinedTextField(email, { email = it }, Modifier.fillMaxWidth(), label = { Text("Email") })
-        Spacer(Modifier.height(12.dp))
-        OutlinedTextField(
-            password, { password = it }, Modifier.fillMaxWidth(), label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
-        )
-        Spacer(Modifier.height(24.dp))
-        Button({ shell.act(ActionSignIn(email = email, password = password)) }) { Text("Sign in") }
-        seen.notice?.let {
-            Spacer(Modifier.height(16.dp))
-            Text(it, color = Muted)
-        }
-    }
-}
-
-/** A remote has no keyboard to speak of, so a television signs in with a code a phone approves. */
-@Composable
-fun Code(shell: Shell, seen: Seen) {
-    LaunchedEffect(Unit) { shell.act(ActionDeviceSignIn(deviceName = "Android TV")) }
-    Column(Modifier.fillMaxSize().padding(64.dp), verticalArrangement = Arrangement.Center) {
-        Text("Sign in on your phone", fontSize = 40.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(24.dp))
-        val device = seen.device
-        if (device?.userCode == null) {
-            Text("Getting a code...", color = Muted, fontSize = 24.sp)
-        } else {
-            Text("Go to", color = Muted, fontSize = 24.sp)
-            Text(device.verificationUri.orEmpty(), fontSize = 28.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(12.dp))
-            Text("and enter", color = Muted, fontSize = 24.sp)
-            Text(device.userCode.orEmpty(), fontSize = 72.sp, fontWeight = FontWeight.Black)
-        }
     }
 }

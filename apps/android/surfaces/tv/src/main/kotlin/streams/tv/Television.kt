@@ -33,7 +33,7 @@ fun Television(shell: Shell) {
                     seen.server.isEmpty() -> Server(shell)
                     target == null || target == Target.WAIT -> Unit
                     target == Target.START -> Door(shell, seen)
-                    target == Target.SIGN_IN -> Code(shell, seen)
+                    target == Target.SIGN_IN -> SignIn(shell, seen)
                     target == Target.PROFILES -> Profiles(shell, seen)
                     target == Target.TITLE -> TitlePage(shell, seen)
                     target == Target.WATCH -> Watch(shell, seen, true)
