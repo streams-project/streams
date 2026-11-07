@@ -95,6 +95,8 @@ interface Shell {
     fun send(method: String, path: String, body: String, reply: (status: Int, text: String) -> Unit)
     /** A saved profile, so every screen shows the change. */
     fun keep(profile: Profile)
+    /** Replace the kept profile list after adding or deleting a profile. */
+    fun keepAll(profiles: List<Profile>)
     /** Read the words of this language, or the default when there is none. */
     fun speak(language: String?)
 }

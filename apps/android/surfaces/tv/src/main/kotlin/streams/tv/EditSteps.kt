@@ -13,7 +13,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DontMemoize
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,11 +48,11 @@ private fun LowPill(word: String, on: Boolean, top: Int) {
 
 /** What this profile may watch. The server holds the rule, and this only says it. */
 @Composable
-private fun AgeNote(words: Map<String, String>, person: Profile, limit: String) {
+private fun AgeNote(words: Map<String, String>, person: Profile, limit: String, top: Int = 690) {
     val key = if (person.kids) "kids" else limit
     val chip = words["profile.age.$key"] ?: words.say("profile.age.limit").replace("{age}", limit)
     val line = words["profile.age.$key.help"] ?: words.say("profile.age.limit.help")
-    Box(Modifier.offset(157.ref, 690.ref)) {
+    Box(Modifier.offset(157.ref, top.ref)) {
         Text(
             chip,
             Modifier.background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(6.ref)).padding(horizontal = 10.ref),
@@ -58,7 +60,7 @@ private fun AgeNote(words: Map<String, String>, person: Profile, limit: String) 
             fontWeight = FontWeight.Bold,
         )
     }
-    Text(line, Modifier.offset(157.ref, 738.ref).width(900.ref), fontSize = 30.refType)
+    Text(line, Modifier.offset(157.ref, (top + 48).ref).width(900.ref), fontSize = 30.refType)
 }
 
 /** The first page: what can be changed. */
@@ -75,27 +77,61 @@ fun EditMenu(
     open: (EditStep) -> Unit,
     leave: () -> Unit,
 ) {
+    var asking by remember { mutableStateOf(false) }
+    var askAt by remember { mutableIntStateOf(1) }
     val lines = buildList {
         add(EditStep.NAME to MenuLine(words.say("profile.name"), R.drawable.icon_person))
         if (pictures) add(EditStep.ICON to MenuLine(words.say("profile.icon"), R.drawable.icon_face))
         add(EditStep.LANGUAGE to MenuLine(words.say("profile.language"), R.drawable.icon_language))
+        if (!person.main) add(EditStep.DELETE to MenuLine(words.say("profile.delete")))
     }
+    val askLines = listOf(
+        MenuLine(words.say("profile.delete")),
+        MenuLine(words.say("common.cancel")),
+    )
     Box(
-        Modifier.fillMaxSize().remote { word ->
+        Modifier.fillMaxSize().remote(@DontMemoize { word ->
+            if (asking) {
+                when (word) {
+                    Word.UP -> if (askAt > 0) askAt -= 1
+                    Word.DOWN -> if (askAt < askLines.lastIndex) askAt += 1
+                    Word.OK -> if (askAt == 0) open(EditStep.DELETE) else asking = false
+                    Word.BACK -> asking = false
+                    else -> return@remote false
+                }
+                return@remote true
+            }
             when (word) {
                 Word.UP -> if (at > 0) move(at - 1)
                 Word.DOWN -> if (at < lines.size) move(at + 1)
-                Word.OK -> lines.getOrNull(at)?.let { open(it.first) } ?: leave()
+                Word.OK -> {
+                    val chosen = lines.getOrNull(at)?.first
+                    when (chosen) {
+                        null -> leave()
+                        EditStep.DELETE -> {
+                            asking = true
+                            askAt = 1
+                        }
+                        else -> open(chosen)
+                    }
+                }
                 Word.BACK -> leave()
                 else -> return@remote false
             }
             true
-        },
+        }),
     ) {
-        PageHead(words.say("profile.edit"), words.say("profile.edit.help"))
-        Menu(lines.map { it.second }, at, Modifier.offset(127.ref, 397.ref))
-        AgeNote(words, person, limit)
-        LowPill(words.say("common.done"), at == lines.size, 897)
+        PageHead(
+            words.say("profile.edit"),
+            if (asking) words.say("profile.delete.ask") else words.say("profile.edit.help"),
+        )
+        if (asking) {
+            Menu(askLines, askAt, Modifier.offset(127.ref, 397.ref))
+        } else {
+            Menu(lines.map { it.second }, at, Modifier.offset(127.ref, 397.ref))
+            AgeNote(words, person, limit, if (lines.size > 4) 750 else 690)
+            LowPill(words.say("common.done"), at == lines.size, 897)
+        }
         ProfileCard(person, server, { CardName(person.name) }, language)
     }
 }
