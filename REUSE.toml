@@ -8,7 +8,7 @@ SPDX-License-Identifier = "MIT OR Apache-2.0"
 
 # The name and marks are the original project's own. Everything else here is open.
 [[annotations]]
-path = "brand/streams/**"
+path = ["brand/streams/**", "apps/android/app/src/main/res/drawable-xhdpi/**", "apps/android/app/src/main/res/mipmap-xxxhdpi/**"]
 precedence = "override"
 SPDX-FileCopyrightText = "2026 The Streams project"
 SPDX-License-Identifier = "LicenseRef-Brand"

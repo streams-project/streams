@@ -9,6 +9,7 @@ import contract.DeviceClass
 import contract.Form
 import streams.adapters.HttpNetwork
 import streams.adapters.Media3Player
+import streams.adapters.Media3Reel
 import streams.adapters.PrefsSecrets
 import streams.core.Host
 import streams.surfaces.Root
@@ -24,6 +25,7 @@ class Main : ComponentActivity() {
             network = HttpNetwork(),
             secrets = PrefsSecrets(this),
             player = Media3Player(this),
+            reel = Media3Reel(),
             deviceClass = if (tv) DeviceClass.TV else DeviceClass.PHONE,
             form = if (tv) Form.TV else Form.PHONE,
             version = "0.1.0",

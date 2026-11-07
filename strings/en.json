@@ -84,5 +84,9 @@
   "player.down": "Not for me",
   "player.up": "I like this",
   "player.love": "Love this!",
-  "player.hint": "Enjoying this? Rating helps us know if we should recommend more like this."
+  "player.hint": "Enjoying this? Rating helps us know if we should recommend more like this.",
+  "door.sign_in": "Sign In",
+  "door.join": "Get Started",
+  "door.help": "Get Help",
+  "door.trending": "Trending Now"
 }

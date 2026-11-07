@@ -25,6 +25,7 @@ import streams.shared.BrandFont
 fun Television(shell: Shell) {
     val seen by shell.seen.collectAsStateWithLifecycle()
     val search = remember { SearchState() }
+    val door = remember { DoorState() }
     Brand {
         ProvideTextStyle(TextStyle(fontFamily = BrandFont)) {
             Box(Modifier.fillMaxSize().background(Color.Black)) {
@@ -32,7 +33,7 @@ fun Television(shell: Shell) {
                 when {
                     seen.server.isEmpty() -> Server(shell)
                     target == null || target == Target.WAIT -> Unit
-                    target == Target.START -> Door(shell, seen)
+                    target == Target.START -> Door(shell, seen, door)
                     target == Target.SIGN_IN -> SignIn(shell, seen)
                     target == Target.PROFILES -> Profiles(shell, seen)
                     target == Target.TITLE -> TitlePage(shell, seen)

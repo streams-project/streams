@@ -46,6 +46,14 @@ interface Player {
     fun picture(context: Any): Any
 }
 
+/** Brand films on the way in. The title player belongs to the core, so these stay apart from it. */
+interface Reel {
+    /** A picture that plays this address. `ended` runs when it finishes or cannot play. */
+    fun picture(context: Any, url: String, loop: Boolean, ended: () -> Unit): Any
+    /** Hands back the decoder, because a television has few and the title player needs one. */
+    fun release(picture: Any)
+}
+
 /** All a surface knows. It reads state and hands back what the viewer asked for. */
 data class Seen(
     val route: RouteTarget? = null,
@@ -70,6 +78,7 @@ data class Seen(
 interface Shell {
     val seen: StateFlow<Seen>
     val player: Player
+    val reel: Reel
     fun connect(server: String)
     fun go(address: String)
     fun back()

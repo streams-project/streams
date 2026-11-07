@@ -80,18 +80,3 @@ fun Server(shell: Shell) {
         Button({ shell.connect(address) }) { Text("Connect") }
     }
 }
-
-@Composable
-fun Door(shell: Shell, seen: Seen) {
-    Column(
-        Modifier.fillMaxSize().padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(seen.brand, fontSize = 56.sp, fontWeight = FontWeight.Black)
-        Spacer(Modifier.height(32.dp))
-        val first = remember { FocusRequester() }
-        Button({ shell.go("/sign-in") }, Modifier.focusRequester(first)) { Text("Sign in") }
-        LaunchedEffect(Unit) { first.requestFocus() }
-    }
-}

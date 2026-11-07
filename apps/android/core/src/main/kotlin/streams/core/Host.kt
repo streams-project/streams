@@ -51,6 +51,7 @@ import streams.ports.Call
 import streams.ports.Network
 import streams.ports.NoReply
 import streams.ports.Player
+import streams.ports.Reel
 import streams.ports.Reply
 import streams.ports.Secrets
 import streams.ports.Seen
@@ -64,6 +65,7 @@ class Host(
     private val network: Network,
     private val secrets: Secrets,
     override val player: Player,
+    override val reel: Reel,
     private val deviceClass: DeviceClass,
     private val form: Form,
     private val version: String,
