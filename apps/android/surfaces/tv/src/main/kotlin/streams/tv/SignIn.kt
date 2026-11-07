@@ -127,7 +127,7 @@ private fun Field(label: String, value: String, hidden: Boolean) {
         contentAlignment = Alignment.CenterStart,
     ) {
         Text(
-            if (hidden) "•".repeat(value.length) else value.ifEmpty { label },
+            if (value.isEmpty()) label else if (hidden) "•".repeat(value.length) else value,
             color = if (value.isEmpty()) Muted else Color.White,
             fontSize = 32.refType,
             maxLines = 1,

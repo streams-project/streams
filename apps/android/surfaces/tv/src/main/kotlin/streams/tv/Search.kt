@@ -1,5 +1,6 @@
 package streams.tv
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -18,7 +19,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import contract.Screen
 import contract.Tile
 import contract.contractJson
-import java.net.URLEncoder
 import kotlinx.coroutines.delay
 import streams.ports.Seen
 import streams.ports.Shell
@@ -68,7 +68,7 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
             return@LaunchedEffect
         }
         delay(SETTLE_MS)
-        val query = URLEncoder.encode(state.text.trim(), "UTF-8")
+        val query = Uri.encode(state.text.trim())
         state.results = shell.read("/v1/search?q=$query")?.let { tilesOf(it, Int.MAX_VALUE) }.orEmpty()
         state.result = 0
     }

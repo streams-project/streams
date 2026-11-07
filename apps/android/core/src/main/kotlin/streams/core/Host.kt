@@ -255,7 +255,9 @@ class Host(
             is EffectHttp -> http(effect)
             is EffectSecret -> queue.addLast(secret(effect))
             is EffectPlayer -> player.command(effect.command)
-            is EffectView -> effect.notice?.let { notice -> state.update { it.copy(notice = notice.text) } }
+            is EffectView -> effect.notice?.let { notice ->
+                state.update { now -> now.copy(notice = notice.text.ifEmpty { now.words[notice.label] }) }
+            }
             is EffectOpen, is EffectLog -> Unit
             else -> queue.addLast(EventUnsupported(id = effect.id))
         }
