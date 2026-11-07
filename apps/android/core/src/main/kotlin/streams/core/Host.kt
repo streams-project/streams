@@ -177,6 +177,8 @@ class Host(
         }
     }
 
+    override fun keepAll(profiles: List<Profile>) = state.update { it.copy(profiles = profiles) }
+
     override fun speak(language: String?) = readWords(language ?: DEFAULT_LANGUAGE, state.value.brand)
 
     private fun send(events: List<Event>) {
