@@ -17,7 +17,7 @@
    "at_ms": 1000,
    "events": [
     {
-     "address": "/home",
+     "address": "/browse",
      "type": "address"
     }
    ],
@@ -33,7 +33,7 @@
    "at_ms": 5000,
    "events": [
     {
-     "address": "/home",
+     "address": "/browse",
      "type": "address"
     }
    ],
@@ -42,7 +42,7 @@
    "want_off": {
     "view": {
      "route": {
-      "next": "/home",
+      "next": "/browse",
       "target": "sign_in"
      }
     }

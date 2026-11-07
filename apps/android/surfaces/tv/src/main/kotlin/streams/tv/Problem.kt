@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import contract.Address
 import contract.Target
 import kotlinx.coroutines.delay
 import streams.ports.Seen
@@ -92,8 +93,8 @@ fun NotFoundProblem(shell: Shell, seen: Seen) {
         heading = seen.words["problem.not_found"].orEmpty(),
         line = seen.words["problem.not_found.help"].orEmpty(),
         buttonWord = seen.words["nav.home"].orEmpty(),
-        onPress = { shell.go("/home") },
-        onBack = { shell.go("/home") },
+        onPress = { shell.go(Address.HOME) },
+        onBack = { shell.go(Address.HOME) },
     )
 }
 

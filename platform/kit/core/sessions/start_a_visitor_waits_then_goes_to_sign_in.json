@@ -10,7 +10,7 @@
    "at_ms": 0,
    "events": [
     {
-     "address": "/my-list",
+     "address": "/browse/my-list",
      "type": "address"
     }
    ],
@@ -20,7 +20,7 @@
       "target": "wait"
      },
      {
-      "next": "/my-list",
+      "next": "/browse/my-list",
       "target": "sign_in"
      }
     ],
@@ -29,7 +29,7 @@
     ],
     "view": {
      "route": {
-      "next": "/my-list",
+      "next": "/browse/my-list",
       "target": "sign_in"
      },
      "session": {

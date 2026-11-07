@@ -6,13 +6,14 @@
 use alloc::format;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
+use contract::address;
 use contract::core_msg::{RouteTarget, Target};
 use contract::hello::MovedAddress;
 use contract::screen::ScreenName;
 use contract::{EpisodeRef, TitleKey};
 
 /// Where a member lands when nothing else was asked.
-pub const HOME_ADDRESS: &str = "/home";
+pub const HOME_ADDRESS: &str = address::HOME;
 
 /// What the decision needs to know.
 #[derive(Clone, Copy, Debug)]
@@ -111,17 +112,11 @@ fn title_key(kind: &str, id: &str) -> Option<TitleKey> {
 
 const fn screen_named(word: &str) -> Option<ScreenName> {
     match word.as_bytes() {
-        b"films" => Some(ScreenName::Films),
-        b"series" => Some(ScreenName::Series),
-        b"new" => Some(ScreenName::New),
-        b"my-list" => Some(ScreenName::MyList),
         b"mine" => Some(ScreenName::Mine),
         b"search" => Some(ScreenName::Search),
         b"notifications" => Some(ScreenName::Notifications),
-        b"activity" => Some(ScreenName::Activity),
         b"games" => Some(ScreenName::Games),
         b"clips" => Some(ScreenName::Clips),
-        b"language" => Some(ScreenName::Language),
         b"help" => Some(ScreenName::Help),
         b"settings" => Some(ScreenName::Settings),
         _ => None,
@@ -136,20 +131,30 @@ fn episode_of(query: &str) -> Option<EpisodeRef> {
 }
 
 fn place(path: &str, query: &str) -> Option<Place> {
+    // Details asked for over any page. A device has no page behind them, so the title opens.
+    if let Some(slug) = query_value(query, &[address::DETAILS_QUERY]) {
+        return title_of(slug).map(Place::Title);
+    }
     let parts: Vec<&str> = path.trim_start_matches('/').split('/').collect();
     match parts.as_slice() {
         [""] => Some(Place::Start),
-        ["sign-in"] => Some(Place::SignIn),
+        ["login"] => Some(Place::SignIn),
         ["profiles"] => Some(Place::Profiles),
-        ["home"] => Some(Place::Home),
+        ["browse"] => Some(Place::Home),
         ["kids"] => Some(Place::Kids),
-        ["activate"] => Some(Place::Activate(
+        ["activate" | "tv2"] => Some(Place::Activate(
             query_value(query, &["code"]).and_then(decode),
         )),
-        ["genre", id] if !id.is_empty() => {
+        ["latest"] | ["browse", "coming-soon"] => Some(Place::Screen(ScreenName::New, None)),
+        ["browse", "my-list"] => Some(Place::Screen(ScreenName::MyList, None)),
+        ["browse", "original-audio"] => Some(Place::Screen(ScreenName::Language, None)),
+        ["settings", "viewed"] => Some(Place::Screen(ScreenName::Activity, None)),
+        ["browse", "genre", "83"] => Some(Place::Screen(ScreenName::Series, None)),
+        ["browse", "genre", "34399"] => Some(Place::Screen(ScreenName::Films, None)),
+        ["browse", "genre", id] if !id.is_empty() => {
             Some(Place::Screen(ScreenName::Genre, Some((*id).to_string())))
         }
-        ["title", kind, id] => title_key(kind, id).map(Place::Title),
+        ["title", slug] => title_of(slug).map(Place::Title),
         ["watch", kind, id] => {
             let title = title_key(kind, id)?;
             Some(Place::Watch(title, episode_of(query)))
@@ -165,6 +170,12 @@ fn place(path: &str, query: &str) -> Option<Place> {
         [word] => screen_named(word).map(|name| Place::Screen(name, None)),
         _ => None,
     }
+}
+
+/// A title from its address form, `tv-1399`.
+fn title_of(slug: &str) -> Option<TitleKey> {
+    let (kind, id) = slug.split_once('-')?;
+    title_key(kind, id)
 }
 
 fn moved_path<'a>(path: &str, moved: &'a [MovedAddress]) -> Option<&'a str> {

@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import contract.Address
 import contract.Episode
 import contract.Season
 import contract.SeasonSummary
@@ -143,7 +144,7 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
                 card = 0
                 inList = false
             } else {
-                episodes.getOrNull(card)?.let { shell.go("/watch/$path/$number/${it.number}") }
+                episodes.getOrNull(card)?.let { shell.go("${Address.WATCH}$path/$number/${it.number}") }
             }
             Word.BACK -> leave()
         }

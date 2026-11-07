@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import coil3.compose.AsyncImage
 import contract.ActionCommand
+import contract.Address
 import contract.CommandList
 import contract.CommandRate
 import contract.ImageRole
@@ -102,19 +103,19 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) ->
 
     fun play() {
         if (!data.isSeries()) {
-            shell.go("/watch/" + data.path())
+            shell.go(Address.WATCH + data.path())
             return
         }
         val next = data.resume?.episode
         if (next != null) {
-            shell.go("/watch/${data.path()}/${next.season}/${next.episode}")
+            shell.go("${Address.WATCH}${data.path()}/${next.season}/${next.episode}")
             return
         }
         val number = data.seasons?.firstOrNull()?.number ?: 1
         scope.launch {
             val season = shell.read("/v1/titles/${data.path()}/seasons/$number")
                 ?.let { contractJson.decodeFromString(Season.serializer(), it) }
-            shell.go("/watch/${data.path()}/$number/${season?.episodes?.firstOrNull()?.number ?: 1}")
+            shell.go("${Address.WATCH}${data.path()}/$number/${season?.episodes?.firstOrNull()?.number ?: 1}")
         }
     }
 

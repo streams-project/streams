@@ -27,7 +27,7 @@
    "at_ms": 2000,
    "events": [
     {
-     "address": "/home",
+     "address": "/browse",
      "type": "address"
     }
    ],
@@ -67,7 +67,7 @@
    "at_ms": 4000,
    "events": [
     {
-     "address": "/home",
+     "address": "/browse",
      "type": "address"
     }
    ],

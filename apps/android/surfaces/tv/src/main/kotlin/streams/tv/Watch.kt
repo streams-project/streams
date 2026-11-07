@@ -43,6 +43,7 @@ import contract.ActionSelectAudio
 import contract.ActionSelectText
 import contract.ActionStop
 import contract.ActionUnpause
+import contract.Address
 import contract.CommandRate
 import contract.CommandSetting
 import contract.PlayState
@@ -286,7 +287,7 @@ fun Watch(shell: Shell, seen: Seen) {
 
     fun goNext() {
         val episode = next ?: return
-        shell.swap("/watch/" + play.title.value.replace(':', '/') + "/${episode.season}/${episode.episode}")
+        shell.swap(Address.WATCH + play.title.value.replace(':', '/') + "/${episode.season}/${episode.episode}")
     }
 
     fun chooseLine(line: Track?) {

@@ -47,11 +47,12 @@ import androidx.compose.ui.unit.sp
 import contract.ActionDeviceSignIn
 import contract.ActionEnterProfile
 import contract.ActionSignIn
+import contract.Address
 import contract.Profile
-import streams.shared.Accent
-import streams.shared.Muted
 import streams.ports.Seen
 import streams.ports.Shell
+import streams.shared.Accent
+import streams.shared.Muted
 
 /** Where this app finds its server. Everyone runs their own, so nothing is built in. */
 @Composable
@@ -94,7 +95,7 @@ fun Door(shell: Shell, seen: Seen) {
         Text(seen.brand, fontSize = 56.sp, fontWeight = FontWeight.Black)
         Spacer(Modifier.height(32.dp))
         val first = remember { FocusRequester() }
-        Button({ shell.go("/sign-in") }, Modifier.focusRequester(first)) { Text("Sign in") }
+        Button({ shell.go(Address.SIGN_IN) }, Modifier.focusRequester(first)) { Text("Sign in") }
         LaunchedEffect(Unit) { first.requestFocus() }
     }
 }

@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import contract.Account
 import contract.ActionSignOut
+import contract.Address
 import contract.Hello
 import contract.contractJson
 import java.util.Locale
@@ -119,7 +120,7 @@ fun GetHelp(shell: Shell, seen: Seen) {
         when (line) {
             Line.BACK -> shell.back()
             Line.CENTRE -> centre = true
-            Line.SETTINGS -> shell.go("/settings")
+            Line.SETTINGS -> shell.go(Address.SETTINGS)
             Line.CHECK -> check()
             Line.RELOAD -> shell.go("/")
             Line.EXIT -> (context as? Activity)?.finish()

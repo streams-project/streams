@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import contract.ActionEnterProfile
+import contract.Address
 import contract.Profile
 import streams.ports.Seen
 import streams.ports.Shell
@@ -77,14 +78,14 @@ fun ProfileMenu(shell: Shell, seen: Seen, person: Profile?, leave: () -> Unit) {
 
     fun choose() {
         when (val pick = picks[at]) {
-            Switch -> shell.go("/profiles")
+            Switch -> shell.go(Address.PROFILES)
             is Other -> if (pick.person.hasPin) {
-                shell.go("/profiles")
+                shell.go(Address.PROFILES)
             } else {
                 shell.speak(pick.person.language)
                 shell.act(ActionEnterProfile(profile = pick.person.id))
             }
-            Help -> shell.go("/help")
+            Help -> shell.go(Address.HELP)
             Leave -> (context as? Activity)?.finish()
         }
     }

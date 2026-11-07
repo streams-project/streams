@@ -64,11 +64,11 @@
      "type": "network"
     },
     {
-     "address": "/films",
+     "address": "/browse/genre/34399",
      "type": "address"
     },
     {
-     "address": "/my-list",
+     "address": "/browse/my-list",
      "type": "address"
     }
    ],

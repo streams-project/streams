@@ -28,6 +28,7 @@ FAMILIES = {
         "ends": {".rs"},
         "skip": set(),
         "banned": {
+            "the address table": r'"/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)[/"?]',
             "the network port": r"\bfetch_with|\bRequestInit\b|\breqwest\b",
             "the secrets port": r"\blocal_storage\b|\bsession_storage\b",
             "the address port": r"\bhistory\(\)|\bpush_state",
@@ -40,6 +41,7 @@ FAMILIES = {
         "ends": {".kt"},
         "skip": set(),
         "banned": {
+            "the address table": r'"/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)[/"?]',
             "the network port": r"\bjava\.net\b|\bokhttp3\b|\bHttpURLConnection\b",
             "the secrets port": r"\bSharedPreferences\b",
             "the player port": r"\bandroidx\.media3\b|\bExoPlayer\b",

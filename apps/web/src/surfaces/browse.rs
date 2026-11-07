@@ -1,5 +1,6 @@
 //! The pages of rows: home, films, series, a genre, my list, search.
 
+use contract::address;
 use contract::core_msg::{Action, HttpMethod, SessionState};
 use contract::screen::{ImageRole, More, NavItem, Screen, ScreenName, Section, SectionKind, Tile};
 use leptos::prelude::*;
@@ -10,19 +11,12 @@ use crate::host;
 use crate::state::Shared;
 
 fn address_of(item: &NavItem) -> String {
-    let word = serde_json::to_value(item.screen)
-        .ok()
-        .and_then(|word| word.as_str().map(str::to_owned))
-        .unwrap_or_default();
-    match &item.genre {
-        Some(genre) => format!("/genre/{genre}"),
-        None => format!("/{word}"),
-    }
+    address::of_screen(item.screen, item.genre.as_deref())
 }
 
 fn title_address(tile: &Tile) -> String {
     let title = &tile.title;
-    format!("/title/{}/{}", title.kind().word(), title.id())
+    format!("{}{}-{}", address::TITLE, title.kind().word(), title.id())
 }
 
 #[component]
@@ -52,14 +46,14 @@ fn Top() -> impl IntoView {
                 }).collect_view()}
             </nav>
             <div class="top-end">
-                <button class="link" on:click=move |_| host::go("/search")>"Search"</button>
+                <button class="link" on:click=move |_| host::go(address::SEARCH)>"Search"</button>
                 {move || if signed_in() {
                     view! {
-                        <button class="link" on:click=move |_| host::go("/profiles")>"Profiles"</button>
+                        <button class="link" on:click=move |_| host::go(address::PROFILES)>"Profiles"</button>
                         <button class="link" on:click=move |_| host::act(Action::SignOut { everywhere: false })>"Sign out"</button>
                     }.into_any()
                 } else {
-                    view! { <button class="link" on:click=move |_| host::go("/sign-in")>"Sign in"</button> }.into_any()
+                    view! { <button class="link" on:click=move |_| host::go(address::SIGN_IN)>"Sign in"</button> }.into_any()
                 }}
             </div>
         </header>

@@ -214,6 +214,19 @@ pub fn write(items: &[Item]) -> String {
     out.push_str("import kotlinx.serialization.modules.polymorphic\n\n");
     let _ = writeln!(out, "const val WIRE_VERSION = \"{WIRE_VERSION}\"");
     let _ = writeln!(out, "const val ABI_VERSION = {ABI_VERSION}\n");
+    let _ = writeln!(
+        out,
+        "/** Every address the apps open. */\nobject Address {{"
+    );
+    for (name, value) in contract::address::ALL {
+        let _ = writeln!(out, "    const val {name} = \"{value}\"");
+    }
+    let _ = writeln!(out, "\n    /** Where a tab lives, by the screen's word. */");
+    let _ = writeln!(out, "    fun of(screen: String): String = when (screen) {{");
+    for (name, value) in contract::address::SCREENS {
+        let _ = writeln!(out, "        \"{name}\" -> \"{value}\"");
+    }
+    let _ = writeln!(out, "        else -> HOME\n    }}\n}}\n");
     out.push_str(
         "/** Ignores unknown fields and reads an unknown tag as the Unknown variant. */\n",
     );

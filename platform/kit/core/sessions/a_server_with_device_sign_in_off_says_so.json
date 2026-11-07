@@ -22,7 +22,7 @@
    "at_ms": 100,
    "events": [
     {
-     "address": "/sign-in",
+     "address": "/login",
      "type": "address"
     },
     {

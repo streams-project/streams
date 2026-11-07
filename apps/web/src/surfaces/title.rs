@@ -66,7 +66,12 @@ fn like_this(tile: Tile) -> impl IntoView {
         .as_ref()
         .map(|url| format!("background-image:url('{url}')"));
     let title = &tile.title;
-    let address = format!("/title/{}/{}", title.kind().word(), title.id());
+    let address = format!(
+        "{}{}-{}",
+        contract::address::TITLE,
+        title.kind().word(),
+        title.id()
+    );
     let name = tile.name;
     view! {
         <button class="card" style=style on:click=move |_| host::go(&address)>

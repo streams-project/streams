@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import contract.Address
 import contract.Screen
 import contract.Tile
 import contract.contractJson
@@ -80,7 +81,7 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
                 Word.LEFT -> if (state.tab == 0) state.tab = SEARCH_TAB else if (state.tab > 0) state.tab -= 1
                 Word.RIGHT -> if (state.tab == SEARCH_TAB) state.tab = 0 else if (state.tab < tabs.lastIndex) state.tab += 1
                 Word.DOWN -> state.zone = Zone.LETTERS
-                Word.OK -> tabs.getOrNull(state.tab)?.let { shell.go(if (it.screen.value == "home") "/home" else "/" + it.screen.value) }
+                Word.OK -> tabs.getOrNull(state.tab)?.let { shell.go(if (it.screen.value == "home") Address.HOME else "/" + it.screen.value) }
                 Word.BACK -> shell.back()
                 Word.UP -> Unit
             }

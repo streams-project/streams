@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import contract.Address
 import contract.Section
 import contract.SectionKind
 import contract.Tile
@@ -95,13 +96,13 @@ private class PageFocus(var rows: List<Section>, var tabs: Int, active: Int, var
     }
 }
 
-fun titleAddress(key: TitleKey) = "/title/" + key.value.replace(':', '/')
+fun titleAddress(key: TitleKey) = Address.TITLE + key.value.replace(':', '-')
 
-private fun watchAddress(key: TitleKey) = "/watch/" + key.value.replace(':', '/')
+private fun watchAddress(key: TitleKey) = Address.WATCH + key.value.replace(':', '/')
 
 private fun Tile.isSeries() = title.value.startsWith("tv:")
 
-private fun tabAddress(screen: String) = if (screen == "home") "/home" else "/$screen"
+private fun tabAddress(screen: String) = Address.of(screen)
 
 /** A page of rows. The parts draw, and this file only knows where the focus is. */
 @Composable
@@ -127,7 +128,7 @@ fun Browse(shell: Shell, seen: Seen) {
     fun choose() {
         when {
             focus.where == Where.TOP && focus.tab == WHO_TAB -> menu = true
-            focus.where == Where.TOP && focus.tab == SEARCH_TAB -> shell.go("/search")
+            focus.where == Where.TOP && focus.tab == SEARCH_TAB -> shell.go(Address.SEARCH)
             focus.where == Where.TOP -> tabs.getOrNull(focus.tab)?.let { shell.go(tabAddress(it.screen.value)) }
             focus.where == Where.ROW -> rows.getOrNull(focus.row)?.tiles?.getOrNull(focus.column)?.let {
                 shell.go(titleAddress(it.title))
@@ -146,7 +147,7 @@ fun Browse(shell: Shell, seen: Seen) {
         focus.press(word) -> true
         // Back from the top of any page but Home goes Home. From Home it leaves the app.
         word == Word.BACK && current != "home" -> {
-            shell.go("/home")
+            shell.go(Address.HOME)
             true
         }
         else -> false

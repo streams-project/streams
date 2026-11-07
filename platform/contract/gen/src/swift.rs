@@ -307,6 +307,26 @@ pub fn write(items: &[Item]) -> String {
     out.push_str("import Foundation\n\n");
     let _ = writeln!(out, "public let wireVersion = \"{WIRE_VERSION}\"");
     let _ = writeln!(out, "public let abiVersion = {ABI_VERSION}");
+    let _ = writeln!(
+        out,
+        "\n/// Every address the apps open.\npublic enum Address {{"
+    );
+    for (name, value) in contract::address::ALL {
+        let _ = writeln!(
+            out,
+            "    public static let {} = \"{value}\"",
+            name.to_lowercase()
+        );
+    }
+    let _ = writeln!(out, "\n    /// Where a tab lives, by the screen's word.");
+    let _ = writeln!(
+        out,
+        "    public static func of(_ screen: String) -> String {{\n        switch screen {{"
+    );
+    for (name, value) in contract::address::SCREENS {
+        let _ = writeln!(out, "        case \"{name}\": return \"{value}\"");
+    }
+    let _ = writeln!(out, "        default: return home\n        }}\n    }}\n}}");
     out.push_str("\n/// A value the contract refuses, named by its type.\n");
     out.push_str("public enum ContractError: Error { case refused(String) }\n");
     for item in items {

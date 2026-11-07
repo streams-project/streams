@@ -5,6 +5,7 @@ mod door;
 mod title;
 mod watch;
 
+use contract::address;
 use contract::core_msg::Target;
 use contract::screen::{Image, ImageRole};
 use leptos::prelude::*;
@@ -47,7 +48,7 @@ pub fn label_text(shared: Shared, label: &str) -> String {
 
 #[component]
 fn Message(text: &'static str) -> impl IntoView {
-    view! { <div class="message"><p>{text}</p><a href="/home">"Back to home"</a></div> }
+    view! { <div class="message"><p>{text}</p><a href=address::HOME>"Back to home"</a></div> }
 }
 
 #[component]

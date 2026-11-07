@@ -8,7 +8,7 @@
    "at_ms": 1000,
    "events": [
     {
-     "address": "/title/movie/404",
+     "address": "/title/movie-404",
      "type": "address"
     }
    ],
@@ -24,7 +24,7 @@
    "at_ms": 2000,
    "events": [
     {
-     "address": "/films",
+     "address": "/browse/genre/34399",
      "type": "address"
     }
    ],
