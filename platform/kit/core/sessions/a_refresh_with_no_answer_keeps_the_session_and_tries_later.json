@@ -1,5 +1,5 @@
 {
- "about": "With no answer the session stays, the next try waits 300 s, and a network return cuts the wait.",
+ "about": "With no answer the session stays, the next try waits 5 s at first, and a network return cuts the wait.",
  "covers": [
   "C5",
   "C71",
@@ -21,11 +21,11 @@
       "state": "signed_in"
      }
     },
-    "wake": 1080100
+    "wake": 785100
    }
   },
   {
-   "at_ms": 790000,
+   "at_ms": 782000,
    "events": [
     {
      "online": true,
@@ -42,7 +42,7 @@
       "state": "signed_in"
      }
     },
-    "wake": 1570000
+    "wake": 1562000
    }
   }
  ],
