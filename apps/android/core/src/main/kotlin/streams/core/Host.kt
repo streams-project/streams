@@ -144,6 +144,13 @@ class Host(
         }
     }
 
+    override fun swap(address: String) {
+        loop.post {
+            here = address
+            send(listOf(EventAddress(address = address)))
+        }
+    }
+
     override fun back() {
         loop.post {
             here = trail.removeLastOrNull() ?: "/"

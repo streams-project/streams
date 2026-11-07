@@ -255,7 +255,7 @@ fun Watch(shell: Shell, seen: Seen) {
 
     fun goNext() {
         val episode = next ?: return
-        shell.go("/watch/" + play.title.value.replace(':', '/') + "/${episode.season}/${episode.episode}")
+        shell.swap("/watch/" + play.title.value.replace(':', '/') + "/${episode.season}/${episode.episode}")
     }
 
     fun choose(choice: Choice) {

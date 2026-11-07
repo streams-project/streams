@@ -88,6 +88,8 @@ interface Shell {
     val reel: Reel
     fun connect(server: String)
     fun go(address: String)
+    /** Goes to this address in place of the one here, so Back passes over it. */
+    fun swap(address: String)
     fun back()
     fun act(action: Action)
     fun ask(path: String, reply: (status: Int, text: String) -> Unit)
