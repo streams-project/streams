@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DontMemoize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -66,7 +67,7 @@ fun Profiles(shell: Shell, seen: Seen) {
         return true
     }
 
-    Box(Modifier.fillMaxSize().remote(::press)) {
+    Box(Modifier.fillMaxSize().remote(@DontMemoize { press(it) })) {
         ProfileFeature(shell, person.id)
         Column(Modifier.offset(190.ref, 44.ref).width(200.ref), horizontalAlignment = Alignment.CenterHorizontally) {
             AsyncImage("${seen.server}/mark.svg", null, Modifier.size(68.ref))

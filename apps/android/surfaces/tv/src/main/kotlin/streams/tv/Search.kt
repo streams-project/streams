@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DontMemoize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -55,7 +56,6 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
     val tabs = tabsOf(seen.nav)
     val genres = seen.nav.filter { it.screen.value == "genre" }.take(GENRES)
     val person = seen.profiles.firstOrNull { it.id == seen.active } ?: seen.profiles.firstOrNull()
-    var zone by state::zone
 
     LaunchedEffect(Unit) {
         if (state.offered.isEmpty()) {
@@ -75,11 +75,11 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
     val shown = if (state.text.isBlank()) state.offered else state.results
 
     fun press(word: Word): Boolean {
-        when (zone) {
+        when (state.zone) {
             Zone.TOP -> when (word) {
                 Word.LEFT -> if (state.tab == 0) state.tab = SEARCH_TAB else if (state.tab > 0) state.tab -= 1
                 Word.RIGHT -> if (state.tab == SEARCH_TAB) state.tab = 0 else if (state.tab < tabs.lastIndex) state.tab += 1
-                Word.DOWN -> zone = Zone.LETTERS
+                Word.DOWN -> state.zone = Zone.LETTERS
                 Word.OK -> tabs.getOrNull(state.tab)?.let { shell.go(if (it.screen.value == "home") "/home" else "/" + it.screen.value) }
                 Word.BACK -> shell.back()
                 Word.UP -> Unit
@@ -91,37 +91,37 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
                     val next = state.place.move(word)
                     when {
                         next != null -> state.place = next
-                        word == Word.UP -> zone = Zone.TOP
-                        word == Word.DOWN && genres.isNotEmpty() -> zone = Zone.GENRES
-                        word == Word.RIGHT && shown.isNotEmpty() -> zone = Zone.RESULTS
+                        word == Word.UP -> state.zone = Zone.TOP
+                        word == Word.DOWN && genres.isNotEmpty() -> state.zone = Zone.GENRES
+                        word == Word.RIGHT && shown.isNotEmpty() -> state.zone = Zone.RESULTS
                     }
                 }
             }
             Zone.GENRES -> when (word) {
-                Word.UP -> if (state.genre > 0) state.genre -= 1 else zone = Zone.LETTERS
+                Word.UP -> if (state.genre > 0) state.genre -= 1 else state.zone = Zone.LETTERS
                 Word.DOWN -> if (state.genre < genres.lastIndex) state.genre += 1
-                Word.RIGHT -> if (shown.isNotEmpty()) zone = Zone.RESULTS
+                Word.RIGHT -> if (shown.isNotEmpty()) state.zone = Zone.RESULTS
                 Word.OK -> genres.getOrNull(state.genre)?.genre?.let { shell.go("/genre/$it") }
                 Word.BACK -> shell.back()
                 Word.LEFT -> Unit
             }
             Zone.RESULTS -> when {
                 word == Word.OK -> shown.getOrNull(state.result)?.let { shell.go(titleAddress(it.title)) }
-                word == Word.BACK -> zone = Zone.LETTERS
-                word == Word.LEFT && state.result % POSTERS_ACROSS == 0 -> zone = Zone.LETTERS
+                word == Word.BACK -> state.zone = Zone.LETTERS
+                word == Word.LEFT && state.result % POSTERS_ACROSS == 0 -> state.zone = Zone.LETTERS
                 else -> state.result = gridMove(state.result, word, shown.lastIndex)
             }
         }
         return true
     }
 
-    Box(Modifier.fillMaxSize().remote(::press)) {
-        PosterGrid(shown, if (zone == Zone.RESULTS) state.result else -1, 566, 232)
-        TopBar(tabs, SEARCH_TAB, if (zone == Zone.TOP) state.tab else -1, person, seen.server)
-        LetterGrid(if (zone == Zone.LETTERS) state.place else null, Modifier.offset(68.ref, 160.ref))
+    Box(Modifier.fillMaxSize().remote(@DontMemoize { press(it) })) {
+        PosterGrid(shown, if (state.zone == Zone.RESULTS) state.result else -1, 566, 232)
+        TopBar(tabs, SEARCH_TAB, if (state.zone == Zone.TOP) state.tab else -1, person, seen.server)
+        LetterGrid(if (state.zone == Zone.LETTERS) state.place else null, Modifier.offset(68.ref, 160.ref))
         Menu(
             genres.map { MenuLine(it.label) },
-            if (zone == Zone.GENRES) state.genre else -1,
+            if (state.zone == Zone.GENRES) state.genre else -1,
             Modifier.offset(40.ref, 636.ref),
             width = 440,
         )

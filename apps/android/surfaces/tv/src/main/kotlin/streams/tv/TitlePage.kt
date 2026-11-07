@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DontMemoize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -145,7 +146,7 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) ->
             )
         }
     }
-    Box(Modifier.fillMaxSize().remote(::press)) {
+    Box(Modifier.fillMaxSize().remote(@DontMemoize { press(it) })) {
         TitleBackdrop(data)
         Box(Modifier.offset(60.ref, 50.ref).size(900.ref, 176.ref), contentAlignment = Alignment.BottomStart) {
             Text(

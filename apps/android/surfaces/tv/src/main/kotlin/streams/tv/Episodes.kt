@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DontMemoize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
@@ -149,7 +150,7 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
         return true
     }
 
-    Box(Modifier.fillMaxSize().background(Color.Black).remote(::press)) {
+    Box(Modifier.fillMaxSize().background(Color.Black).remote(@DontMemoize { press(it) })) {
         Text(
             data.name,
             Modifier.offset(66.ref, 70.ref).width(640.ref),
