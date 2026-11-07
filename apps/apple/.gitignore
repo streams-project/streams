@@ -8,3 +8,8 @@ node_modules/
 *.keystore
 *.p12
 *.pem
+Brand.xcconfig
+.build/
+DerivedData/
+xcuserdata/
+*.xcworkspace/xcuserdata/
