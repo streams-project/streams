@@ -9,6 +9,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -16,6 +17,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import contract.Section
@@ -24,7 +26,9 @@ import contract.Tile
 import contract.TitleKey
 import streams.ports.Seen
 import streams.ports.Shell
+import streams.shared.Muted
 import streams.shared.ref
+import streams.shared.refType
 
 private const val RISE = 810
 private const val RISE_MS = 320
@@ -34,8 +38,9 @@ private enum class Where { TOP, HERO, ROW }
 private val RowKinds = setOf(SectionKind.ROW, SectionKind.RANKED, SectionKind.CONTINUE, SectionKind.GRID)
 
 /** Where the viewer is on a page of rows. It knows nothing about drawing. */
-private class PageFocus(val rows: List<Section>, val tabs: Int, active: Int) {
-    var where by mutableStateOf(Where.HERO)
+private class PageFocus(val rows: List<Section>, val tabs: Int, active: Int, private val hero: Boolean) {
+    private val above = if (hero) Where.HERO else Where.TOP
+    var where by mutableStateOf(if (hero || rows.isEmpty()) above else Where.ROW)
     var row by mutableIntStateOf(0)
     var tab by mutableIntStateOf(active)
     var button by mutableIntStateOf(0)
@@ -49,13 +54,13 @@ private class PageFocus(val rows: List<Section>, val tabs: Int, active: Int) {
         when (word) {
             Word.UP -> when {
                 where == Where.ROW && row > 0 -> row -= 1
-                where == Where.ROW -> where = Where.HERO
+                where == Where.ROW -> where = above
                 where == Where.HERO -> where = Where.TOP
                 else -> return false
             }
             Word.DOWN -> when {
-                where == Where.TOP -> where = Where.HERO
-                where == Where.HERO && rows.isNotEmpty() -> {
+                where == Where.TOP && hero -> where = Where.HERO
+                (where == Where.HERO || where == Where.TOP) && rows.isNotEmpty() -> {
                     where = Where.ROW
                     row = 0
                 }
@@ -75,7 +80,7 @@ private class PageFocus(val rows: List<Section>, val tabs: Int, active: Int) {
                 else -> return false
             }
             Word.BACK -> when (where) {
-                Where.ROW -> where = Where.HERO
+                Where.ROW -> where = above
                 Where.HERO -> where = Where.TOP
                 Where.TOP -> return false
             }
@@ -100,13 +105,11 @@ fun Browse(shell: Shell, seen: Seen) {
     val sections = data.sections.filter { !it.tiles.isNullOrEmpty() }
     val rows = sections.filter { it.kind in RowKinds }
     val lead = sections.firstOrNull { it.kind == SectionKind.HERO }?.tiles?.first()
-        ?: rows.firstOrNull()?.tiles?.first()
-        ?: return
     val tabs = tabsOf(seen.nav)
     val current = seen.route?.screen?.value ?: "home"
     val active = tabs.indexOfFirst { it.screen.value == current }.coerceAtLeast(0)
     val person = seen.profiles.firstOrNull { it.id == seen.active } ?: seen.profiles.firstOrNull()
-    val focus = remember(data) { PageFocus(rows, tabs.size, active) }
+    val focus = remember(data) { PageFocus(rows, tabs.size, active, lead != null) }
     val store = rememberDetails()
     val rise = with(LocalDensity.current) { RISE.ref.roundToPx() }
 
@@ -114,6 +117,7 @@ fun Browse(shell: Shell, seen: Seen) {
         when {
             focus.where == Where.TOP -> tabs.getOrNull(focus.tab)?.let { shell.go(tabAddress(it.screen.value)) }
             focus.where == Where.ROW -> shell.go(titleAddress(rows[focus.row].tiles.orEmpty()[focus.column].title))
+            lead == null -> Unit
             focus.button == 1 || lead.isSeries() -> shell.go(titleAddress(lead.title))
             else -> shell.go(watchAddress(lead.title))
         }
@@ -143,8 +147,15 @@ fun Browse(shell: Shell, seen: Seen) {
                 },
                 label = "row",
             ) { row -> OpenRow(shell, seen.words, store, rows[row], if (row == focus.row) focus.column else 0) }
-        } else {
+        } else if (lead != null) {
             HeroCard(shell, seen, store, lead, if (focus.where == Where.HERO) focus.button else -1)
+        } else if (rows.isEmpty()) {
+            Text(
+                seen.words["mine.empty"].orEmpty(),
+                Modifier.align(Alignment.Center),
+                fontSize = 32.refType,
+                color = Muted,
+            )
         }
         (if (inRow) rows.getOrNull(focus.row + 1) else rows.firstOrNull())?.let { NextRow(it, !inRow) }
     }

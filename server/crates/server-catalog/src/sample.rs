@@ -219,7 +219,12 @@ fn write_catalog(path: &Path, titles: &[SampleTitle]) -> rusqlite::Result<()> {
            vote_count INTEGER, adult INTEGER, original_language TEXT, tv_type TEXT,
            origin_country TEXT, keywords TEXT, runtime INTEGER, certs TEXT, networks TEXT,
            other_names TEXT);
-         CREATE VIRTUAL TABLE catalog_fts USING fts5(id UNINDEXED, overview, genres, director);",
+         CREATE VIRTUAL TABLE catalog_fts USING fts5(id UNINDEXED, overview, genres, director);
+         CREATE TABLE seasons (media_type TEXT, tmdb_id INTEGER, season_number INTEGER, name TEXT,
+           overview TEXT, air_date TEXT, poster_path TEXT, episode_count INTEGER);
+         CREATE TABLE episodes (media_type TEXT, tmdb_id INTEGER, season_number INTEGER,
+           episode_number INTEGER, name TEXT, overview TEXT, air_date TEXT, still_path TEXT,
+           runtime INTEGER, vote_average REAL);",
     )?;
     let mut insert = conn.prepare(
         "INSERT INTO catalog VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,0,'',?12,?13,?14,'en',?15,
@@ -258,6 +263,14 @@ fn write_catalog(path: &Path, titles: &[SampleTitle]) -> rusqlite::Result<()> {
         "INSERT INTO catalog_fts (id, overview, genres, director)
          SELECT id, overview, genres, director FROM catalog;",
     )?;
+    conn.execute_batch(&format!(
+        "INSERT INTO seasons VALUES ('tv',{id},0,'Specials','','','',1),
+           ('tv',{id},1,'Season 1','','','',2);
+         INSERT INTO episodes VALUES ('tv',{id},0,1,'A Special','','','',20,0),
+           ('tv',{id},1,1,'First Episode','It begins.','','/still-1.jpg',45,0),
+           ('tv',{id},1,2,'Second Episode','It goes on.','','/still-2.jpg',44,0);",
+        id = special::SHARED_ID,
+    ))?;
     Ok(())
 }
 

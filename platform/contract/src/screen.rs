@@ -22,6 +22,8 @@ words! {
         Genre,
         New,
         MyList,
+        /// The viewer's own page: what they are watching, saved and liked.
+        Mine,
         Kids,
         Search,
         Notifications,
@@ -243,6 +245,9 @@ wire! {
         /// Hidden when empty.
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         pub more_like_this: Vec<Tile>,
+        /// True when this profile has saved the title.
+        #[serde(default, skip_serializing_if = "core::ops::Not::not")]
+        pub in_list: bool,
     }
 
     /// Search suggestions.

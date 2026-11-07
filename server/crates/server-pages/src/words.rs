@@ -56,15 +56,15 @@ mod tests {
 
     #[test]
     fn the_name_comes_from_the_brand() {
-        assert_eq!(Words::new("Sample").say("nav.my-list"), "My Sample");
-        assert_eq!(Words::new("Other").say("nav.my-list"), "My Other");
+        assert_eq!(Words::new("Sample").say("nav.mine"), "My Sample");
+        assert_eq!(Words::new("Other").say("nav.mine"), "My Other");
     }
 
     #[test]
     fn a_row_without_a_known_key_keeps_its_title() {
         let words = Words::new("Sample");
         let meta = serde_json::json!({ "title_key": "row.my_list" });
-        assert_eq!(words.row_title(Some(&meta), "ignored"), "My Sample");
+        assert_eq!(words.row_title(Some(&meta), "ignored"), "My List");
         let meta = serde_json::json!({ "title_key": "row.not_in_strings" });
         assert_eq!(words.row_title(Some(&meta), "Kept"), "Kept");
     }

@@ -3908,6 +3908,7 @@ public struct ScreenName: RawRepresentable, Codable, Hashable, Sendable {
     public static let games = ScreenName(rawValue: "games")
     public static let clips = ScreenName(rawValue: "clips")
     public static let language = ScreenName(rawValue: "language")
+    public static let mine = ScreenName(rawValue: "mine")
 }
 
 /// One season with its episodes.
@@ -4312,6 +4313,8 @@ public struct TitleDetail: Codable, Equatable, Sendable {
     public var age: AgeMark?
     public var genres: [String]?
     public var images: [Image]?
+    /// True when this profile has saved the title.
+    public var inList: Bool?
     /// Hidden when empty.
     public var moreLikeThis: [Tile]?
     public var name: String
@@ -4325,6 +4328,7 @@ public struct TitleDetail: Codable, Equatable, Sendable {
         case age = "age"
         case genres = "genres"
         case images = "images"
+        case inList = "in_list"
         case moreLikeThis = "more_like_this"
         case name = "name"
         case overview = "overview"
@@ -4334,10 +4338,11 @@ public struct TitleDetail: Codable, Equatable, Sendable {
         case year = "year"
     }
 
-    public init(age: AgeMark? = nil, genres: [String]? = nil, images: [Image]? = nil, moreLikeThis: [Tile]? = nil, name: String, overview: String? = nil, runtimeMin: Int? = nil, seasons: [SeasonSummary]? = nil, title: TitleKey, year: Int? = nil) {
+    public init(age: AgeMark? = nil, genres: [String]? = nil, images: [Image]? = nil, inList: Bool? = nil, moreLikeThis: [Tile]? = nil, name: String, overview: String? = nil, runtimeMin: Int? = nil, seasons: [SeasonSummary]? = nil, title: TitleKey, year: Int? = nil) {
         self.age = age
         self.genres = genres
         self.images = images
+        self.inList = inList
         self.moreLikeThis = moreLikeThis
         self.name = name
         self.overview = overview

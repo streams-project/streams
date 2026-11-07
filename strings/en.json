@@ -46,11 +46,10 @@
   "nav.series": "Series",
   "nav.films": "Films",
   "nav.new": "New & Popular",
-  "nav.my-list": "My {brand}",
-  "row.my_list": "My {brand}",
+  "row.my_list": "My List",
   "row.continue_watching": "Continue Watching",
-  "list.add": "My {brand}",
-  "list.added": "In My {brand}",
+  "list.add": "My List",
+  "list.added": "In My List",
   "row.familiar_favourites": "Familiar Favourites",
   "common.play": "Play",
   "common.more_info": "More Info",
@@ -63,5 +62,8 @@
   "title.more_like": "More Like This",
   "title.episode": "Episode {n}",
   "title.season.number": "Season {n}",
-  "title.episodes.count": "{n} episodes"
+  "title.episodes.count": "{n} episodes",
+  "nav.mine": "My {brand}",
+  "row.liked": "Series & Films You've Liked",
+  "mine.empty": "Titles you save, like or start will show up here."
 }

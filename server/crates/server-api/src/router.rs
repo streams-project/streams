@@ -111,6 +111,7 @@ pub fn router(state: Shared) -> Router {
         )
         .route("/v1/profiles/me/settings", get(commands::settings))
         .route("/v1/titles/{kind}/{id}", get(titles::title))
+        .route("/v1/titles/{kind}/{id}/seasons/{n}", get(titles::season))
         .route("/v1/nav", get(pages::nav))
         .route("/v1/screens/{name}", get(pages::screen))
         .route("/v1/more/{cursor}", get(pages::more))

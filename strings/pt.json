@@ -4,12 +4,12 @@
   "common.more_info": "Mais informações",
   "common.play": "Reproduzir",
   "language.name": "Português",
-  "list.add": "Meu {brand}",
-  "list.added": "No meu {brand}",
+  "list.add": "A minha lista",
+  "list.added": "Na Minha lista",
   "nav.films": "Filmes",
   "nav.home": "Início",
   "nav.kids": "Início",
-  "nav.my-list": "Meu {brand}",
+  "nav.mine": "Meu {brand}",
   "nav.new": "Novidades",
   "nav.series": "Séries",
   "profile.age.18": "Todas as idades",
@@ -29,5 +29,5 @@
   "profile.name.help": "Cada pessoa que vive consigo pode ter o seu próprio perfil.",
   "profiles.choose": "Escolha um perfil",
   "row.continue_watching": "Continuar a ver",
-  "row.my_list": "Meu {brand}"
+  "row.my_list": "A minha lista"
 }

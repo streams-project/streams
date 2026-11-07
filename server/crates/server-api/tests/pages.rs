@@ -414,7 +414,7 @@ async fn h36_s91_my_list_comes_from_the_library_and_shows_on_home_from_three_tit
     assert!(
         home.sections
             .iter()
-            .any(|s| s.title.as_deref() == Some("My Sample")),
+            .any(|s| s.title.as_deref() == Some("My List")),
         "S91"
     );
 }
@@ -629,4 +629,47 @@ async fn c102_the_menu_follows_the_profile() {
     assert_eq!(grown.body["items"][0]["screen"], "home", "{}", grown.body);
     let small = get("/v1/nav").token(&kids).on(&server.state).await;
     assert_eq!(small.body["items"][0]["screen"], "kids");
+}
+
+#[tokio::test]
+async fn the_viewers_own_page_is_named_by_the_brand_and_holds_my_list_as_a_row() {
+    let server = harness(&[("BRAND_NAME", "Sample")]);
+    let (token, _) = enter(&server, false).await;
+
+    let nav = get("/v1/nav").token(&token).on(&server.state).await;
+    let labels: Vec<&str> = nav.body["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|item| item["label"].as_str().unwrap())
+        .collect();
+    assert!(labels.contains(&"My Sample"), "{labels:?}");
+    assert!(!labels.contains(&"My List"), "My List is a row, not a tab: {labels:?}");
+
+    let empty = get("/v1/screens/mine").token(&token).on(&server.state).await;
+    assert_eq!(empty.status, axum::http::StatusCode::OK, "{}", empty.body);
+    assert!(empty.body["sections"].as_array().unwrap().is_empty());
+
+    add_to_list(&server, &token, "movie:100").await;
+    let mine = screen(get("/v1/screens/mine").token(&token).on(&server.state).await);
+    assert!(
+        mine.sections
+            .iter()
+            .any(|s| s.title.as_deref() == Some("My List")),
+        "the saved titles are one row of the page"
+    );
+}
+
+#[tokio::test]
+async fn a_title_says_whether_this_profile_saved_it() {
+    let server = harness(&[]);
+    let (token, _) = enter(&server, false).await;
+    let read = |path: &'static str| get(path).token(&token);
+    let before = read("/v1/titles/movie/100").on(&server.state).await;
+    assert!(before.body.get("in_list").is_none(), "{}", before.body);
+    add_to_list(&server, &token, "movie:100").await;
+    let after = read("/v1/titles/movie/100").on(&server.state).await;
+    assert_eq!(after.body["in_list"], true, "{}", after.body);
+    let other = read("/v1/titles/movie/101").on(&server.state).await;
+    assert!(other.body.get("in_list").is_none(), "{}", other.body);
 }

@@ -1871,6 +1871,7 @@ value class ScreenName(val value: String) {
         val GAMES = ScreenName("games")
         val CLIPS = ScreenName("clips")
         val LANGUAGE = ScreenName("language")
+        val MINE = ScreenName("mine")
     }
 }
 
@@ -2116,6 +2117,8 @@ data class TitleDetail(
     @SerialName("age") val age: AgeMark? = null,
     @SerialName("genres") val genres: List<String>? = null,
     @SerialName("images") val images: List<Image>? = null,
+    /** True when this profile has saved the title. */
+    @SerialName("in_list") val inList: Boolean? = null,
     /** Hidden when empty. */
     @SerialName("more_like_this") val moreLikeThis: List<Tile>? = null,
     @SerialName("name") val name: String,

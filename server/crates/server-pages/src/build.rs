@@ -178,6 +178,12 @@ impl Pages {
         }
     }
 
+    /// The picture of one episode, under this set's image address.
+    #[must_use]
+    pub fn still(&self, path: Option<&str>) -> Vec<contract::screen::Image> {
+        self.images.still(path)
+    }
+
     /// These pages, with this brand's name in their words.
     #[must_use]
     pub fn branded(mut self, name: &str) -> Self {
@@ -602,6 +608,7 @@ impl Pages {
             ScreenName::MyList | ScreenName::Activity | ScreenName::Notifications => {
                 return self.keyed_screen(data, viewer, ask);
             }
+            ScreenName::Mine => return Ok(self.mine_screen(data, viewer, ask)),
             _ => {}
         }
         let shape = if ask.screen == ScreenName::New {
@@ -651,6 +658,36 @@ impl Pages {
         let composed = self.facts(data).requests.version >= 2;
         let shown = Self::share_out(data, viewer, &rows, ask, composed);
         (rows, shown)
+    }
+
+    /// The viewer's own page: a row each for what they are watching, saved and liked.
+    fn mine_screen(&self, data: &DataSet, viewer: &Viewer, ask: &ScreenAsk) -> SafeScreen {
+        let signals = &ask.personal.signals;
+        let parts = [
+            ("continue", "row.continue_watching", SectionKind::Continue, "continue", &signals.recent),
+            ("my-list", "row.my_list", SectionKind::Row, "list", &signals.saved),
+            ("liked", "row.liked", SectionKind::Row, "liked", &signals.liked),
+        ];
+        let sections = parts
+            .into_iter()
+            .filter_map(|(id, key, kind, archetype, keys)| {
+                let row = Row {
+                    title: String::new(),
+                    archetype: String::from(archetype),
+                    kind: String::new(),
+                    items: Vec::new(),
+                    meta: None,
+                };
+                let tiles: Vec<SafeTile> = keys
+                    .iter()
+                    .filter_map(|title| self.tile(data, viewer, &row, *title, None, ask))
+                    .collect();
+                (!tiles.is_empty()).then(|| {
+                    SafeSection::new(String::from(id), kind, self.words.known(key), tiles, None)
+                })
+            })
+            .collect();
+        SafeScreen::new(ask.screen, sections, SCREEN_TTL_S, refresh_triggers(), None)
     }
 
     /// A screen whose titles come from the library or the fresh list.
@@ -971,7 +1008,7 @@ impl Pages {
             named_item(&self.words, "series", ScreenName::Series),
             named_item(&self.words, "films", ScreenName::Films),
             named_item(&self.words, "new", ScreenName::New),
-            named_item(&self.words, "my-list", ScreenName::MyList),
+            named_item(&self.words, "mine", ScreenName::Mine),
         ]);
         let composed = self.facts(data).requests.version >= 2;
         for page in crate::genre_pages::PAGES

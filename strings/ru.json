@@ -4,12 +4,12 @@
   "common.more_info": "Подробнее",
   "common.play": "Смотреть",
   "language.name": "Русский",
-  "list.add": "Мой {brand}",
-  "list.added": "В моём {brand}",
+  "list.add": "Мой список",
+  "list.added": "В моём списке",
   "nav.films": "Фильмы",
   "nav.home": "Главная",
   "nav.kids": "Главная",
-  "nav.my-list": "Мой {brand}",
+  "nav.mine": "Мой {brand}",
   "nav.new": "Новое и популярное",
   "nav.series": "Сериалы",
   "profile.age.18": "Все возрасты",
@@ -29,5 +29,5 @@
   "profile.name.help": "У каждого, кто живёт с вами, может быть свой профиль.",
   "profiles.choose": "Выберите профиль",
   "row.continue_watching": "Продолжить просмотр",
-  "row.my_list": "Мой {brand}"
+  "row.my_list": "Мой список"
 }

@@ -4,12 +4,12 @@
   "common.more_info": "Altre info",
   "common.play": "Riproduci",
   "language.name": "Italiano",
-  "list.add": "Il mio {brand}",
-  "list.added": "Nel mio {brand}",
+  "list.add": "La mia lista",
+  "list.added": "Nella mia lista",
   "nav.films": "Film",
   "nav.home": "Home",
   "nav.kids": "Home",
-  "nav.my-list": "Il mio {brand}",
+  "nav.mine": "Il mio {brand}",
   "nav.new": "Nuovi e popolari",
   "nav.series": "Serie",
   "profile.age.18": "Tutte le età",
@@ -29,5 +29,5 @@
   "profile.name.help": "Chi vive con te può avere il proprio profilo.",
   "profiles.choose": "Scegli un profilo",
   "row.continue_watching": "Continua a guardare",
-  "row.my_list": "Il mio {brand}"
+  "row.my_list": "La mia lista"
 }

@@ -4,12 +4,12 @@
   "common.more_info": "Mehr Infos",
   "common.play": "Abspielen",
   "language.name": "Deutsch",
-  "list.add": "Mein {brand}",
-  "list.added": "In meinem {brand}",
+  "list.add": "Meine Liste",
+  "list.added": "In meiner Liste",
   "nav.films": "Filme",
   "nav.home": "Startseite",
   "nav.kids": "Startseite",
-  "nav.my-list": "Mein {brand}",
+  "nav.mine": "Mein {brand}",
   "nav.new": "Neu & beliebt",
   "nav.series": "Serien",
   "profile.age.18": "Alle Altersfreigaben",
@@ -29,5 +29,5 @@
   "profile.name.help": "Alle, die bei dir wohnen, können ihr eigenes Profil nutzen.",
   "profiles.choose": "Profil auswählen",
   "row.continue_watching": "Weiterschauen",
-  "row.my_list": "Mein {brand}"
+  "row.my_list": "Meine Liste"
 }

@@ -93,7 +93,7 @@ fn facts(detail: &TitleDetail) -> String {
 #[component]
 pub fn Details() -> impl IntoView {
     let shared = expect_context::<Shared>();
-    let listed = RwSignal::new(false);
+    let listed = RwSignal::new(detail.in_list);
     move || {
         let detail = shared.detail.get()?;
         let picture = image(

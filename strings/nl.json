@@ -4,12 +4,12 @@
   "common.more_info": "Meer info",
   "common.play": "Afspelen",
   "language.name": "Nederlands",
-  "list.add": "Mijn {brand}",
-  "list.added": "In Mijn {brand}",
+  "list.add": "Mijn lijst",
+  "list.added": "In Mijn lijst",
   "nav.films": "Films",
   "nav.home": "Home",
   "nav.kids": "Home",
-  "nav.my-list": "Mijn {brand}",
+  "nav.mine": "Mijn {brand}",
   "nav.new": "Nieuw en populair",
   "nav.series": "Series",
   "profile.age.18": "Alle leeftijden",
@@ -29,5 +29,5 @@
   "profile.name.help": "Iedereen die bij je woont, kan een eigen profiel gebruiken.",
   "profiles.choose": "Kies een profiel",
   "row.continue_watching": "Verder kijken",
-  "row.my_list": "Mijn {brand}"
+  "row.my_list": "Mijn lijst"
 }

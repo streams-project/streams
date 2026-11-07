@@ -195,6 +195,10 @@
       },
       "type": "array"
     },
+    "in_list": {
+      "description": "True when this profile has saved the title.",
+      "type": "boolean"
+    },
     "more_like_this": {
       "description": "Hidden when empty.",
       "items": {

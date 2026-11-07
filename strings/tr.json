@@ -4,12 +4,12 @@
   "common.more_info": "Daha fazla bilgi",
   "common.play": "Oynat",
   "language.name": "Türkçe",
-  "list.add": "Benim {brand}",
-  "list.added": "Benim {brand} içinde",
+  "list.add": "Listem",
+  "list.added": "Listemde",
   "nav.films": "Filmler",
   "nav.home": "Ana Sayfa",
   "nav.kids": "Ana Sayfa",
-  "nav.my-list": "Benim {brand}",
+  "nav.mine": "Benim {brand}",
   "nav.new": "Yeni ve Popüler",
   "nav.series": "Diziler",
   "profile.age.18": "Tüm yaşlar",
@@ -29,5 +29,5 @@
   "profile.name.help": "Sizinle yaşayan herkes kendi profilini kullanabilir.",
   "profiles.choose": "Bir profil seçin",
   "row.continue_watching": "İzlemeye devam et",
-  "row.my_list": "Benim {brand}"
+  "row.my_list": "Listem"
 }

@@ -4,12 +4,12 @@
   "common.more_info": "مزيد من المعلومات",
   "common.play": "تشغيل",
   "language.name": "العربية",
-  "list.add": "{brand} الخاص بي",
-  "list.added": "في {brand} الخاص بي",
+  "list.add": "قائمتي",
+  "list.added": "في قائمتي",
   "nav.films": "الأفلام",
   "nav.home": "الرئيسية",
   "nav.kids": "الرئيسية",
-  "nav.my-list": "{brand} الخاص بي",
+  "nav.mine": "{brand} الخاص بي",
   "nav.new": "الجديد والرائج",
   "nav.series": "المسلسلات",
   "profile.age.18": "جميع الأعمار",
@@ -29,5 +29,5 @@
   "profile.name.help": "يمكن لكل من يعيش معك استخدام ملفه الشخصي الخاص.",
   "profiles.choose": "اختر ملفًا شخصيًا",
   "row.continue_watching": "متابعة المشاهدة",
-  "row.my_list": "{brand} الخاص بي"
+  "row.my_list": "قائمتي"
 }

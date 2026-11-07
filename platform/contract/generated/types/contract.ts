@@ -1266,7 +1266,7 @@ export interface ScreenBody {
 }
 
 /** The screens the server builds. */
-export type ScreenName = "home" | "films" | "series" | "genre" | "new" | "my-list" | "kids" | "search" | "notifications" | "activity" | "games" | "clips" | "language" | (string & {});
+export type ScreenName = "home" | "films" | "series" | "genre" | "new" | "my-list" | "kids" | "search" | "notifications" | "activity" | "games" | "clips" | "language" | "mine" | (string & {});
 
 /** One season with its episodes. */
 export interface Season {
@@ -1413,6 +1413,8 @@ export interface TitleDetail {
   age?: AgeMark;
   genres?: string[];
   images?: Image[];
+  /** True when this profile has saved the title. */
+  in_list?: boolean;
   /** Hidden when empty. */
   more_like_this?: Tile[];
   name: string;

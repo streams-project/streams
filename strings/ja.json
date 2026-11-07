@@ -4,12 +4,12 @@
   "common.more_info": "詳細情報",
   "common.play": "再生",
   "language.name": "日本語",
-  "list.add": "マイ {brand}",
-  "list.added": "マイ {brand} に追加済み",
+  "list.add": "マイリスト",
+  "list.added": "マイリストに追加済み",
   "nav.films": "映画",
   "nav.home": "ホーム",
   "nav.kids": "ホーム",
-  "nav.my-list": "マイ {brand}",
+  "nav.mine": "マイ {brand}",
   "nav.new": "新着・人気",
   "nav.series": "シリーズ",
   "profile.age.18": "すべての年齢区分",
@@ -29,5 +29,5 @@
   "profile.name.help": "一緒に暮らす方は、それぞれのプロフィールを使えます。",
   "profiles.choose": "プロフィールを選択",
   "row.continue_watching": "続きを見る",
-  "row.my_list": "マイ {brand}"
+  "row.my_list": "マイリスト"
 }

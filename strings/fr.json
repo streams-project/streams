@@ -4,12 +4,12 @@
   "common.more_info": "Plus d'infos",
   "common.play": "Lecture",
   "language.name": "Français",
-  "list.add": "Mon {brand}",
-  "list.added": "Dans Mon {brand}",
+  "list.add": "Ma liste",
+  "list.added": "Dans Ma liste",
   "nav.films": "Films",
   "nav.home": "Accueil",
   "nav.kids": "Accueil",
-  "nav.my-list": "Mon {brand}",
+  "nav.mine": "Mon {brand}",
   "nav.new": "Nouveautés",
   "nav.series": "Séries",
   "profile.age.18": "Tous les âges",
@@ -29,5 +29,5 @@
   "profile.name.help": "Chaque personne de votre foyer peut avoir son propre profil.",
   "profiles.choose": "Choisissez un profil",
   "row.continue_watching": "Reprendre",
-  "row.my_list": "Mon {brand}"
+  "row.my_list": "Ma liste"
 }

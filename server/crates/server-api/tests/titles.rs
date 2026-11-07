@@ -236,3 +236,34 @@ async fn s213_with_no_data_set_titles_say_they_are_off() {
             .contains("titles")
     );
 }
+
+#[tokio::test]
+async fn a_series_names_its_seasons_and_a_season_lists_its_episodes() {
+    let server = harness(&[]);
+    let token = watching(&server, false).await;
+    let id = special::SHARED_ID;
+    let series = get(&format!("/v1/titles/tv/{id}"))
+        .token(&token)
+        .on(&server.state)
+        .await;
+    let seasons = series.body["seasons"].as_array().unwrap();
+    assert_eq!(seasons.len(), 1, "specials are not on the menu: {seasons:?}");
+    assert_eq!(seasons[0]["number"], 1);
+    assert_eq!(seasons[0]["episode_count"], 2);
+
+    let season = get(&format!("/v1/titles/tv/{id}/seasons/1"))
+        .token(&token)
+        .on(&server.state)
+        .await;
+    assert_eq!(season.status, StatusCode::OK, "{}", season.body);
+    let episodes = season.body["episodes"].as_array().unwrap();
+    assert_eq!(episodes.len(), 2);
+    assert_eq!(episodes[0]["name"], "First Episode");
+    assert_eq!(episodes[1]["runtime_min"], 44);
+
+    let film = get(&format!("/v1/titles/movie/{id}/seasons/1"))
+        .token(&token)
+        .on(&server.state)
+        .await;
+    assert_eq!(film.status, StatusCode::NOT_FOUND, "a film has no seasons");
+}

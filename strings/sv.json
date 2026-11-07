@@ -4,12 +4,12 @@
   "common.more_info": "Mer info",
   "common.play": "Spela upp",
   "language.name": "Svenska",
-  "list.add": "Mitt {brand}",
-  "list.added": "I Mitt {brand}",
+  "list.add": "Min lista",
+  "list.added": "I Min lista",
   "nav.films": "Filmer",
   "nav.home": "Hem",
   "nav.kids": "Hem",
-  "nav.my-list": "Mitt {brand}",
+  "nav.mine": "Mitt {brand}",
   "nav.new": "Nytt och populärt",
   "nav.series": "Serier",
   "profile.age.18": "Alla åldrar",
@@ -29,5 +29,5 @@
   "profile.name.help": "Alla som bor med dig kan ha en egen profil.",
   "profiles.choose": "Välj en profil",
   "row.continue_watching": "Fortsätt titta",
-  "row.my_list": "Mitt {brand}"
+  "row.my_list": "Min lista"
 }

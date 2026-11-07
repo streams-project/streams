@@ -89,6 +89,12 @@ impl Images {
         })
     }
 
+    /// The picture of one episode, if it has one.
+    #[must_use]
+    pub fn still(&self, path: Option<&str>) -> Vec<Image> {
+        self.image(ImageRole::Still, path).into_iter().collect()
+    }
+
     fn of_title(&self, item: &CatalogItem) -> Vec<Image> {
         [
             self.image(ImageRole::Poster, item.poster_path.as_deref()),
@@ -231,7 +237,22 @@ impl SafeTitleDetail {
             images: images.of_title(item),
             seasons: extras.seasons,
             more_like_this: wires(extras.more_like_this),
+            in_list: false,
         }))
+    }
+
+    /// Names the seasons a series has.
+    #[must_use]
+    pub fn with_seasons(mut self, seasons: Vec<SeasonSummary>) -> Self {
+        self.0.seasons = seasons;
+        self
+    }
+
+    /// Says whether this profile has saved the title.
+    #[must_use]
+    pub fn saved(mut self, in_list: bool) -> Self {
+        self.0.in_list = in_list;
+        self
     }
 }
 

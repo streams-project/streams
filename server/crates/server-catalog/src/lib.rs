@@ -19,6 +19,7 @@ pub mod profiles;
 pub mod quality;
 #[cfg(feature = "sample")]
 pub mod sample;
+pub mod seasons;
 pub mod support;
 pub mod taxonomy;
 pub mod topics;

@@ -112,6 +112,7 @@ const fn screen_named(word: &str) -> Option<ScreenName> {
         b"series" => Some(ScreenName::Series),
         b"new" => Some(ScreenName::New),
         b"my-list" => Some(ScreenName::MyList),
+        b"mine" => Some(ScreenName::Mine),
         b"search" => Some(ScreenName::Search),
         b"notifications" => Some(ScreenName::Notifications),
         b"activity" => Some(ScreenName::Activity),

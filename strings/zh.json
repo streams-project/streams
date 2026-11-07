@@ -4,12 +4,12 @@
   "common.more_info": "更多信息",
   "common.play": "播放",
   "language.name": "中文",
-  "list.add": "我的 {brand}",
-  "list.added": "已在我的 {brand}",
+  "list.add": "我的片单",
+  "list.added": "已在我的片单",
   "nav.films": "电影",
   "nav.home": "首页",
   "nav.kids": "首页",
-  "nav.my-list": "我的 {brand}",
+  "nav.mine": "我的 {brand}",
   "nav.new": "最新热门",
   "nav.series": "剧集",
   "profile.age.18": "所有年龄分级",
@@ -29,5 +29,5 @@
   "profile.name.help": "与您同住的每个人都可以拥有自己的个人资料。",
   "profiles.choose": "选择个人资料",
   "row.continue_watching": "继续观看",
-  "row.my_list": "我的 {brand}"
+  "row.my_list": "我的片单"
 }

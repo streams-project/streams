@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import contract.ActionCommand
+import contract.CommandList
 import contract.CommandRate
 import contract.Rating
 import contract.Season
@@ -39,7 +40,7 @@ private val Foot = Brush.verticalGradient(0.42f to Color.Transparent, 0.92f to B
 
 private enum class Part { REACTIONS, MENU }
 private enum class Page { TITLE, EPISODES, MORE }
-private enum class Row { PLAY, EPISODES, MORE }
+private enum class Row { PLAY, EPISODES, MORE, LIST }
 
 private fun TitleDetail.isSeries() = title.value.startsWith("tv:")
 
@@ -72,11 +73,13 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) ->
         add(Row.PLAY)
         if (!data.seasons.isNullOrEmpty()) add(Row.EPISODES)
         if (!data.moreLikeThis.isNullOrEmpty()) add(Row.MORE)
+        add(Row.LIST)
     }
     var part by remember { mutableStateOf(Part.MENU) }
     var row by remember { mutableIntStateOf(0) }
     var reaction by remember { mutableIntStateOf(1) }
     var rating by remember { mutableStateOf<Rating?>(null) }
+    var saved by remember(data.title) { mutableStateOf(data.inList == true) }
     val scope = rememberCoroutineScope()
 
     fun play() {
@@ -98,6 +101,11 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) ->
         shell.act(ActionCommand(CommandRate(rating = rating, title = data.title)))
     }
 
+    fun toggleList() {
+        saved = !saved
+        shell.act(ActionCommand(CommandList(inList = saved, title = data.title)))
+    }
+
     fun press(word: Word): Boolean {
         when (word) {
             Word.UP -> when {
@@ -115,6 +123,7 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) ->
                 part == Part.REACTIONS -> rate()
                 rows[row] == Row.PLAY -> play()
                 rows[row] == Row.EPISODES -> open(Page.EPISODES)
+                rows[row] == Row.LIST -> toggleList()
                 else -> open(Page.MORE)
             }
             Word.BACK -> return false
@@ -130,6 +139,10 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) ->
             )
             Row.EPISODES -> MenuLine(words["title.episodes_more"].orEmpty(), R.drawable.icon_episodes)
             Row.MORE -> MenuLine(words["title.more_like"].orEmpty(), R.drawable.icon_grid)
+            Row.LIST -> MenuLine(
+                words[if (saved) "list.added" else "list.add"].orEmpty(),
+                if (saved) R.drawable.icon_check else R.drawable.icon_plus,
+            )
         }
     }
     Box(Modifier.fillMaxSize().remote(::press)) {

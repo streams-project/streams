@@ -6,11 +6,14 @@ use axum::http::header::ACCEPT_LANGUAGE;
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::Response;
 use contract::error::ErrorCode;
-use contract::{TitleKey, TitleKind};
+use contract::screen::{Episode, SeasonSummary};
+use contract::{MAX_KEYS_PER_LIST, TitleKey, TitleKind};
+use server_catalog::manifest::role;
+use server_catalog::seasons::{episodes_of, seasons_of};
 use server_catalog::{DataSet, item_key};
 use server_rules::Viewer;
 use server_rules::age::{RatingSystem, system_of_country};
-use server_rules::answer::SafeTitleDetail;
+use server_rules::answer::{SafeSeason, SafeTitleDetail};
 
 use crate::answer::{Keep, send_cleared};
 use crate::caller::Reader;
@@ -83,6 +86,59 @@ fn detail(
         .ok_or_else(no_longer_available)
 }
 
+/// The catalogue file of a data set.
+fn catalogue(set: &DataSet) -> Option<&std::path::Path> {
+    set.files.get(role::CATALOG)
+}
+
+/// The seasons a series has. A film has none.
+fn season_list(set: &DataSet, key: TitleKey) -> Vec<SeasonSummary> {
+    if key.kind() != TitleKind::Tv {
+        return Vec::new();
+    }
+    catalogue(set)
+        .map(|db| seasons_of(db, key.id()))
+        .unwrap_or_default()
+        .into_iter()
+        .map(|season| SeasonSummary {
+            number: season.number,
+            episode_count: season.episodes,
+        })
+        .collect()
+}
+
+/// `GET /v1/titles/{kind}/{id}/seasons/{n}`.
+pub async fn season(
+    State(state): State<Shared>,
+    reader: Reader,
+    Path((kind, id, number)): Path<(String, String, u32)>,
+    headers: HeaderMap,
+) -> ApiResult<Response> {
+    let key = key_of(&kind, &id)?;
+    let set = data(&state)?;
+    let visible = reader
+        .viewer
+        .see(&set, packed(key))
+        .ok_or_else(|| ApiError::refused("title_refused"))?;
+    let (name, facts) = catalogue(&set)
+        .filter(|_| key.kind() == TitleKind::Tv)
+        .and_then(|db| episodes_of(db, key.id(), number))
+        .ok_or_else(ApiError::not_found)?;
+    let episodes = facts
+        .into_iter()
+        .map(|fact| Episode {
+            number: fact.number,
+            name: fact.name,
+            overview: fact.overview,
+            runtime_min: fact.runtime,
+            images: state.pages.still(fact.still.as_deref()),
+            percent: None,
+        })
+        .collect();
+    let page = SafeSeason::new(visible, number, name, episodes);
+    send_cleared(&headers, &page, Keep::Private)
+}
+
 /// `GET /v1/titles/{kind}/{id}`.
 pub async fn title(
     State(state): State<Shared>,
@@ -92,7 +148,15 @@ pub async fn title(
 ) -> ApiResult<Response> {
     let key = key_of(&kind, &id)?;
     let set = data(&state)?;
-    let page = detail(&state, &set, &reader.viewer, key, rating_system(&headers))?;
+    let mut page = detail(&state, &set, &reader.viewer, key, rating_system(&headers))?
+        .with_seasons(season_list(&set, key));
+    if let (Some(watching), Some(library)) = (&reader.watching, &state.library) {
+        let saved = library
+            .store()
+            .list(watching.scope.profile(), MAX_KEYS_PER_LIST)
+            .await?;
+        page = page.saved(saved.contains(&key));
+    }
     send_cleared(&headers, &page, Keep::Private)
 }
 

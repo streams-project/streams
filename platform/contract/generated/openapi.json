@@ -4109,22 +4109,31 @@
       },
       "ScreenName": {
         "description": "The screens the server builds.",
-        "enum": [
-          "home",
-          "films",
-          "series",
-          "genre",
-          "new",
-          "my-list",
-          "kids",
-          "search",
-          "notifications",
-          "activity",
-          "games",
-          "clips",
-          "language"
-        ],
-        "type": "string"
+        "oneOf": [
+          {
+            "enum": [
+              "home",
+              "films",
+              "series",
+              "genre",
+              "new",
+              "my-list",
+              "kids",
+              "search",
+              "notifications",
+              "activity",
+              "games",
+              "clips",
+              "language"
+            ],
+            "type": "string"
+          },
+          {
+            "const": "mine",
+            "description": "The viewer's own page: what they are watching, saved and liked.",
+            "type": "string"
+          }
+        ]
       },
       "Season": {
         "description": "One season with its episodes.",
@@ -4601,6 +4610,10 @@
               "$ref": "#/components/schemas/Image"
             },
             "type": "array"
+          },
+          "in_list": {
+            "description": "True when this profile has saved the title.",
+            "type": "boolean"
           },
           "more_like_this": {
             "description": "Hidden when empty.",

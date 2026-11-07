@@ -4,12 +4,12 @@
   "common.more_info": "अधिक जानकारी",
   "common.play": "चलाएँ",
   "language.name": "हिन्दी",
-  "list.add": "मेरा {brand}",
-  "list.added": "मेरे {brand} में",
+  "list.add": "मेरी लिस्ट",
+  "list.added": "मेरी सूची में",
   "nav.films": "फ़िल्में",
   "nav.home": "होम",
   "nav.kids": "होम",
-  "nav.my-list": "मेरा {brand}",
+  "nav.mine": "मेरा {brand}",
   "nav.new": "नया और लोकप्रिय",
   "nav.series": "सीरीज़",
   "profile.age.18": "सभी आयु वर्ग",
@@ -29,5 +29,5 @@
   "profile.name.help": "आपके साथ रहने वाला हर व्यक्ति अपनी प्रोफ़ाइल रख सकता है।",
   "profiles.choose": "प्रोफ़ाइल चुनें",
   "row.continue_watching": "देखना जारी रखें",
-  "row.my_list": "मेरा {brand}"
+  "row.my_list": "मेरी लिस्ट"
 }

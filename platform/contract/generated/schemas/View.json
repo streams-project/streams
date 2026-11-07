@@ -522,22 +522,31 @@
     },
     "ScreenName": {
       "description": "The screens the server builds.",
-      "enum": [
-        "home",
-        "films",
-        "series",
-        "genre",
-        "new",
-        "my-list",
-        "kids",
-        "search",
-        "notifications",
-        "activity",
-        "games",
-        "clips",
-        "language"
-      ],
-      "type": "string"
+      "oneOf": [
+        {
+          "enum": [
+            "home",
+            "films",
+            "series",
+            "genre",
+            "new",
+            "my-list",
+            "kids",
+            "search",
+            "notifications",
+            "activity",
+            "games",
+            "clips",
+            "language"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "mine",
+          "description": "The viewer's own page: what they are watching, saved and liked.",
+          "type": "string"
+        }
+      ]
     },
     "SessionState": {
       "description": "Where sign in stands.",

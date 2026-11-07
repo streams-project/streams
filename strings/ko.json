@@ -4,12 +4,12 @@
   "common.more_info": "상세 정보",
   "common.play": "재생",
   "language.name": "한국어",
-  "list.add": "나의 {brand}",
-  "list.added": "나의 {brand}에 있음",
+  "list.add": "내가 찜한 콘텐츠",
+  "list.added": "내가 찜한 리스트에 있음",
   "nav.films": "영화",
   "nav.home": "홈",
   "nav.kids": "홈",
-  "nav.my-list": "나의 {brand}",
+  "nav.mine": "나의 {brand}",
   "nav.new": "신규 및 인기",
   "nav.series": "시리즈",
   "profile.age.18": "모든 연령 등급",
@@ -29,5 +29,5 @@
   "profile.name.help": "함께 사는 분은 각자의 프로필을 사용할 수 있습니다.",
   "profiles.choose": "프로필 선택",
   "row.continue_watching": "이어서 보기",
-  "row.my_list": "나의 {brand}"
+  "row.my_list": "내가 찜한 콘텐츠"
 }

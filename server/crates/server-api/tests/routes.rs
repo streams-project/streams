@@ -8,14 +8,7 @@ use common::{call, harness};
 use contract::api::{Auth, Group, ROUTES};
 
 /// Routes not built yet, each with what it waits for.
-const STILL_TO_BUILD: [(&str, &str, &str); 2] = [
-    (
-        "GET",
-        "/v1/titles/{kind}/{id}/seasons/{n}",
-        "no episode data in the data set",
-    ),
-    ("POST", "/v1/core/step", "server-hosted"),
-];
+const STILL_TO_BUILD: [(&str, &str, &str); 1] = [("POST", "/v1/core/step", "server-hosted")];
 
 fn filled(path: &str) -> String {
     path.replace("{kind}", "movie")

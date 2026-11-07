@@ -4,12 +4,12 @@
   "common.more_info": "Więcej informacji",
   "common.play": "Odtwórz",
   "language.name": "Polski",
-  "list.add": "Mój {brand}",
-  "list.added": "W moim {brand}",
+  "list.add": "Moja lista",
+  "list.added": "Na Mojej liście",
   "nav.films": "Filmy",
   "nav.home": "Strona główna",
   "nav.kids": "Strona główna",
-  "nav.my-list": "Mój {brand}",
+  "nav.mine": "Mój {brand}",
   "nav.new": "Nowe i popularne",
   "nav.series": "Seriale",
   "profile.age.18": "Wszystkie kategorie wiekowe",
@@ -29,5 +29,5 @@
   "profile.name.help": "Każdy domownik może mieć własny profil.",
   "profiles.choose": "Wybierz profil",
   "row.continue_watching": "Oglądaj dalej",
-  "row.my_list": "Mój {brand}"
+  "row.my_list": "Moja lista"
 }
