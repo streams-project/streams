@@ -16,11 +16,11 @@ pub const MAX_MEMORY_BYTES: usize = 16 * 1024 * 1024;
 const WASM_PAGE_BYTES: u64 = 65_536;
 const MAX_MEMORY_PAGES: u64 = (MAX_MEMORY_BYTES as u64) / WASM_PAGE_BYTES;
 
-// In the sample paddle game, `game_init` clears all 57,600 pixels in ~175,000 fuel units and
-// `game_frame` updates physics and dirty rectangles in ~7,500 fuel units. A limit of 4,000,000
-// fuel units allows over 20 full-screen passes per frame while stopping an infinite loop in a
-// few milliseconds.
-const FUEL_PER_FRAME: u64 = 4_000_000;
+// `paddle.wasm` uses 37,391 fuel units per frame and `plasma.wasm` (computing all 57,600
+// pixels every frame from a sine table) uses 4,049,915 fuel units per frame. A limit of
+// 10,000,000 fuel units gives over 2x headroom for a full-screen per-pixel effect while
+// stopping an infinite loop in a few milliseconds.
+const FUEL_PER_FRAME: u64 = 10_000_000;
 
 pub const BUTTON_UP: u32 = 1;
 pub const BUTTON_DOWN: u32 = 2;
@@ -60,6 +60,7 @@ pub struct Game {
     memory: Memory,
     game_frame: TypedFunc<(i64, i32), ()>,
     game_screen: TypedFunc<(), i32>,
+    last_fuel: u64,
 }
 
 impl Game {
@@ -156,7 +157,13 @@ impl Game {
             memory,
             game_frame,
             game_screen,
+            last_fuel: 0,
         })
+    }
+
+    /// Fuel consumed during the most recent `frame` call.
+    pub fn last_frame_fuel(&self) -> u64 {
+        self.last_fuel
     }
 
     /// One step. `buttons` is the bits above. Runs out of fuel rather than running forever.
@@ -173,6 +180,8 @@ impl Game {
             .game_screen
             .call(&mut self.store, ())
             .map_err(|_| GameError::ExecutionFailed)?;
+        let remaining = self.store.get_fuel().unwrap_or(0);
+        self.last_fuel = FUEL_PER_FRAME.saturating_sub(remaining);
         if ptr < 0 {
             return Err(GameError::ScreenOutOfBounds);
         }

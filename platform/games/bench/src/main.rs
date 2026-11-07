@@ -1,15 +1,37 @@
-//! Speed benchmark running 1,000 frames of the sample paddle game inside `game-host`.
+//! Speed benchmark running 1,000 frames of a Wasm game inside `game-host`.
 
+use std::path::Path;
 use std::time::Instant;
 
 use game_host::{BUTTON_DOWN, BUTTON_UP, Game, SCREEN_BYTES};
 
 const PADDLE_WASM: &[u8] = include_bytes!("../../host/tests/paddle.wasm");
+const PLASMA_WASM: &[u8] = include_bytes!("../../host/tests/plasma.wasm");
 const FRAMES: usize = 1_000;
 
+fn load_bytes(arg: Option<&str>) -> (String, Vec<u8>) {
+    match arg {
+        None | Some("paddle") => ("paddle.wasm".to_owned(), PADDLE_WASM.to_vec()),
+        Some("plasma") => ("plasma.wasm".to_owned(), PLASMA_WASM.to_vec()),
+        Some(path) => {
+            let p = Path::new(path);
+            let name = p
+                .file_name()
+                .and_then(|s| s.to_str())
+                .unwrap_or(path)
+                .to_owned();
+            let bytes = std::fs::read(p).expect("read wasm file");
+            (name, bytes)
+        }
+    }
+}
+
 fn main() {
-    let mut game = Game::load(PADDLE_WASM, 0x1234_5678).expect("load paddle.wasm");
+    let arg = std::env::args().nth(1);
+    let (label, wasm_bytes) = load_bytes(arg.as_deref());
+    let mut game = Game::load(&wasm_bytes, 0x1234_5678).expect("load game module");
     let mut times_ms = Vec::with_capacity(FRAMES);
+    let mut fuel_per_frame = 0u64;
 
     let total_start = Instant::now();
     for i in 0..FRAMES {
@@ -26,6 +48,7 @@ fn main() {
         std::hint::black_box(screen[SCREEN_BYTES - 1]);
         let elapsed_ms = t0.elapsed().as_secs_f64() * 1000.0;
         times_ms.push(elapsed_ms);
+        fuel_per_frame = game.last_frame_fuel();
     }
     let total_secs = total_start.elapsed().as_secs_f64();
 
@@ -36,6 +59,6 @@ fn main() {
     let fps = (FRAMES as f64) / total_secs;
 
     println!(
-        "frames={FRAMES} median_ms={median_ms:.3} p95_ms={p95_ms:.3} worst_ms={worst_ms:.3} fps={fps:.1}"
+        "file={label} frames={FRAMES} fuel_per_frame={fuel_per_frame} median_ms={median_ms:.3} p95_ms={p95_ms:.3} worst_ms={worst_ms:.3} fps={fps:.1}"
     );
 }

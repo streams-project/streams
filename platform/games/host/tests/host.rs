@@ -4,6 +4,7 @@ use game_host::{BUTTON_DOWN, BUTTON_UP, Game, GameError, SCREEN_BYTES};
 use sha2::{Digest, Sha256};
 
 const PADDLE_WASM: &[u8] = include_bytes!("paddle.wasm");
+const PLASMA_WASM: &[u8] = include_bytes!("plasma.wasm");
 const LOOP_WAT: &[u8] = include_bytes!("loop.wat");
 
 fn run_600_frames(seed: u64) -> [u8; 32] {
@@ -101,4 +102,12 @@ fn memory_over_the_limit_is_refused() {
         .err()
         .expect("must refuse oversized memory");
     assert!(matches!(err, GameError::MemoryLimitExceeded));
+}
+
+#[test]
+fn plasma_computes_full_screen_within_fuel_budget() {
+    let mut game = Game::load(PLASMA_WASM, 7).expect("load plasma.wasm");
+    let screen = game.frame(16, BUTTON_UP).expect("plasma frame");
+    assert_eq!(screen.len(), SCREEN_BYTES);
+    assert!(game.last_frame_fuel() > 4_000_000);
 }
