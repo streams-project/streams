@@ -684,3 +684,26 @@ async fn a_title_says_whether_this_profile_saved_it() {
     let other = read("/v1/titles/movie/101").on(&server.state).await;
     assert!(other.body.get("in_list").is_none(), "{}", other.body);
 }
+
+#[tokio::test]
+async fn a_title_says_what_this_profile_rated_it() {
+    let server = harness(&[]);
+    let (token, _) = enter(&server, false).await;
+    let before = get("/v1/titles/movie/100")
+        .token(&token)
+        .on(&server.state)
+        .await;
+    assert!(before.body.get("rating").is_none(), "{}", before.body);
+    let rate = json!({ "ops": [{ "op_id": "rate-1", "command": "rate", "title": "movie:100", "rating": "love" }] });
+    let sent = call(Method::POST, "/v1/commands")
+        .token(&token)
+        .json(rate)
+        .on(&server.state)
+        .await;
+    assert_eq!(sent.status, StatusCode::OK, "{}", sent.body);
+    let after = get("/v1/titles/movie/100")
+        .token(&token)
+        .on(&server.state)
+        .await;
+    assert_eq!(after.body["rating"], "love", "{}", after.body);
+}

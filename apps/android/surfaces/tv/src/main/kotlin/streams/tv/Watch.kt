@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,11 +40,14 @@ import contract.ActionPause
 import contract.ActionSeek
 import contract.ActionSelectAudio
 import contract.ActionSelectText
+import contract.ActionStop
 import contract.ActionUnpause
 import contract.CommandRate
 import contract.PlayState
 import contract.Rating
+import contract.TitleDetail
 import contract.WindowKind
+import contract.contractJson
 import kotlinx.coroutines.delay
 import streams.ports.Seen
 import streams.ports.Shell
@@ -59,6 +63,9 @@ private const val SEEK_MS = 10_000L
 /** How long the bar waits for the next press before it seeks, and for the picture to catch up. */
 private const val SEEK_SETTLE_MS = 350L
 private const val SEEK_CATCH_UP_MS = 1500L
+
+/** How long the end waits, so the next episode can start before the page goes back. */
+private const val ENDED_WAIT_MS = 800L
 
 /** Where subtitles sit, as a share of the picture's height. */
 private const val WORDS_LOW = 0.08f
@@ -190,7 +197,16 @@ fun Watch(shell: Shell, seen: Seen) {
     var zone by remember { mutableStateOf(Reach.BAR) }
     var top by remember { mutableIntStateOf(0) }
     var rate by remember { mutableIntStateOf(1) }
-    var rated by remember { mutableStateOf<Rating?>(null) }
+    val detail by produceState(seen.detail?.takeIf { it.title == play?.title }, play?.title) {
+        val key = play?.title ?: return@produceState
+        if (value == null) {
+            value = shell.read("/v1/titles/" + key.value.replace(':', '/'))
+                ?.let { contractJson.decodeFromString(TitleDetail.serializer(), it) }
+        }
+    }
+    var rated by remember(detail?.rating) { mutableStateOf(detail?.rating) }
+    val asking = play?.stillAsking == true
+    var stay by remember { mutableIntStateOf(0) }
     var track by remember { mutableIntStateOf(0) }
     var aim by remember { mutableStateOf<Long?>(null) }
     val panel = remember { TrackPanelState() }
@@ -213,6 +229,13 @@ fun Watch(shell: Shell, seen: Seen) {
         }
     }
     LaunchedEffect(shown) { shell.player.lift(if (shown) WORDS_HIGH else WORDS_LOW) }
+    // When the next episode is starting, the state moves on and this never reaches the back.
+    LaunchedEffect(play?.state, asking) {
+        if (play?.state == PlayState.ENDED && !asking) {
+            delay(ENDED_WAIT_MS)
+            shell.back()
+        }
+    }
     LaunchedEffect(aim) {
         val target = aim ?: return@LaunchedEffect
         delay(SEEK_SETTLE_MS)
@@ -251,6 +274,20 @@ fun Watch(shell: Shell, seen: Seen) {
             return true
         }
         if (word == Word.BACK) return false
+        if (asking) {
+            when (word) {
+                Word.LEFT -> stay = 0
+                Word.RIGHT -> stay = 1
+                Word.OK -> if (stay == 0) {
+                    goNext()
+                } else {
+                    shell.act(ActionStop)
+                    shell.back()
+                }
+                else -> Unit
+            }
+            return true
+        }
         val wasHidden = !shown
         awake += 1
         if (failed) return true
@@ -327,7 +364,7 @@ fun Watch(shell: Shell, seen: Seen) {
             Box(Modifier.fillMaxSize().background(Shade))
             TopIcons(controls, if (zone == Reach.TOP) top else -1, words)
             Column(Modifier.align(Alignment.TopEnd).padding(top = 96.ref, end = 124.ref), horizontalAlignment = Alignment.End) {
-                Text(seen.detail?.takeIf { it.title == title }?.name.orEmpty(), fontSize = 34.refType, fontWeight = FontWeight.Bold)
+                Text(detail?.name.orEmpty(), fontSize = 34.refType, fontWeight = FontWeight.Bold)
                 play?.episode?.let {
                     Text("S${it.season}: E${it.episode}", fontSize = 30.refType, color = Color.White.copy(alpha = 0.75f))
                 }
@@ -347,5 +384,6 @@ fun Watch(shell: Shell, seen: Seen) {
             moment?.let { MomentPill(it, !shown, shown) }
         }
         if (panel.open) TrackPanel(panel, seen)
+        if (asking) StillAsking(words, stay)
     }
 }

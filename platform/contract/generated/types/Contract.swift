@@ -3671,6 +3671,8 @@ public struct PlayView: Codable, Equatable, Sendable {
     /// Absent on the last episode, so no screen offers one that does not exist.
     public var nextEpisode: EpisodeRef?
     public var state: PlayState
+    /// Several episodes started by themselves with nobody touching anything, so the next one waits until the viewer says they are still there.
+    public var stillAsking: Bool?
     public var title: TitleKey
     public var windows: [TimeWindow]?
 
@@ -3679,15 +3681,17 @@ public struct PlayView: Codable, Equatable, Sendable {
         case episode = "episode"
         case nextEpisode = "next_episode"
         case state = "state"
+        case stillAsking = "still_asking"
         case title = "title"
         case windows = "windows"
     }
 
-    public init(attempt: String? = nil, episode: EpisodeRef? = nil, nextEpisode: EpisodeRef? = nil, state: PlayState, title: TitleKey, windows: [TimeWindow]? = nil) {
+    public init(attempt: String? = nil, episode: EpisodeRef? = nil, nextEpisode: EpisodeRef? = nil, state: PlayState, stillAsking: Bool? = nil, title: TitleKey, windows: [TimeWindow]? = nil) {
         self.attempt = attempt
         self.episode = episode
         self.nextEpisode = nextEpisode
         self.state = state
+        self.stillAsking = stillAsking
         self.title = title
         self.windows = windows
     }
@@ -4550,6 +4554,8 @@ public struct TitleDetail: Codable, Equatable, Sendable {
     public var moreLikeThis: [Tile]?
     public var name: String
     public var overview: String?
+    /// What this profile said about the title.
+    public var rating: Rating?
     public var runtimeMin: Int?
     public var seasons: [SeasonSummary]?
     public var title: TitleKey
@@ -4563,13 +4569,14 @@ public struct TitleDetail: Codable, Equatable, Sendable {
         case moreLikeThis = "more_like_this"
         case name = "name"
         case overview = "overview"
+        case rating = "rating"
         case runtimeMin = "runtime_min"
         case seasons = "seasons"
         case title = "title"
         case year = "year"
     }
 
-    public init(age: AgeMark? = nil, genres: [String]? = nil, images: [Image]? = nil, inList: Bool? = nil, moreLikeThis: [Tile]? = nil, name: String, overview: String? = nil, runtimeMin: Int? = nil, seasons: [SeasonSummary]? = nil, title: TitleKey, year: Int? = nil) {
+    public init(age: AgeMark? = nil, genres: [String]? = nil, images: [Image]? = nil, inList: Bool? = nil, moreLikeThis: [Tile]? = nil, name: String, overview: String? = nil, rating: Rating? = nil, runtimeMin: Int? = nil, seasons: [SeasonSummary]? = nil, title: TitleKey, year: Int? = nil) {
         self.age = age
         self.genres = genres
         self.images = images
@@ -4577,6 +4584,7 @@ public struct TitleDetail: Codable, Equatable, Sendable {
         self.moreLikeThis = moreLikeThis
         self.name = name
         self.overview = overview
+        self.rating = rating
         self.runtimeMin = runtimeMin
         self.seasons = seasons
         self.title = title

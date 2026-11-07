@@ -3903,6 +3903,10 @@
           "state": {
             "$ref": "#/components/schemas/PlayState"
           },
+          "still_asking": {
+            "description": "Several episodes started by themselves with nobody touching anything, so the next\none waits until the viewer says they are still there.",
+            "type": "boolean"
+          },
           "title": {
             "$ref": "#/components/schemas/TitleKey"
           },
@@ -4910,6 +4914,10 @@
           },
           "overview": {
             "type": "string"
+          },
+          "rating": {
+            "$ref": "#/components/schemas/Rating",
+            "description": "What this profile said about the title."
           },
           "runtime_min": {
             "maximum": 4294967295,

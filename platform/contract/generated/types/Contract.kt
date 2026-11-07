@@ -1761,6 +1761,8 @@ data class PlayView(
     /** Absent on the last episode, so no screen offers one that does not exist. */
     @SerialName("next_episode") val nextEpisode: EpisodeRef? = null,
     @SerialName("state") val state: PlayState,
+    /** Several episodes started by themselves with nobody touching anything, so the next one waits until the viewer says they are still there. */
+    @SerialName("still_asking") val stillAsking: Boolean? = null,
     @SerialName("title") val title: TitleKey,
     @SerialName("windows") val windows: List<TimeWindow>? = null,
 )
@@ -2230,6 +2232,8 @@ data class TitleDetail(
     @SerialName("more_like_this") val moreLikeThis: List<Tile>? = null,
     @SerialName("name") val name: String,
     @SerialName("overview") val overview: String? = null,
+    /** What this profile said about the title. */
+    @SerialName("rating") val rating: Rating? = null,
     @SerialName("runtime_min") val runtimeMin: Long? = null,
     @SerialName("seasons") val seasons: List<SeasonSummary>? = null,
     @SerialName("title") val title: TitleKey,

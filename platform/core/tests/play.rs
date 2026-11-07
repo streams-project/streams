@@ -332,3 +332,62 @@ fn a_viewer_who_keeps_seeking_is_not_a_dead_source_but_a_stall_after_it_still_ru
         [json!({"op": "close"}), open(2, 200_000, SECOND)]
     );
 }
+
+/// Starts this episode, as the address of an episode that follows would, up to its first frame.
+fn episode_plays(core: &mut Core, mono_ms: u64, out: &Value, generation: u32, next: u32) -> Value {
+    let play = effect_id(out, "/v1/play");
+    let answer = json!({
+        "play_id": format!("p{generation}"),
+        "attempts": [attempt("one", FIRST, "g1")],
+        "start_at_ms": 0,
+        "next_episode": {"season": 1, "episode": next},
+        "autoplay_next": true,
+        "dropped": 0,
+        "more": false,
+    });
+    step(
+        core,
+        mono_ms,
+        &json!([{"id": play, "type": "http_done", "status": 200, "body": answer.to_string()}]),
+    );
+    step(
+        core,
+        mono_ms + 1,
+        &driver(generation, &json!({"kind": "first_frame"})),
+    )
+}
+
+#[test]
+fn the_third_episode_in_a_row_with_nobody_there_waits_to_be_asked() {
+    let mut core = watching();
+    let mut out = step(
+        &mut core,
+        6,
+        &action(
+            "a1",
+            json!({"action": "play", "title": "tv:7", "episode": {"season": 1, "episode": 1}}),
+        ),
+    );
+    let mut clock = 10;
+    for episode in 1..=2 {
+        episode_plays(&mut core, clock, &out, episode, episode + 1);
+        out = step(
+            &mut core,
+            clock + 2,
+            &driver(episode, &json!({"kind": "ended"})),
+        );
+        assert_ne!(
+            out["view"]["play"]["still_asking"], true,
+            "episode {episode}"
+        );
+        assert!(
+            http_paths(&out).iter().any(|path| path == "/v1/play"),
+            "episode {episode} moved on by itself: {out}"
+        );
+        clock += 10;
+    }
+    episode_plays(&mut core, clock, &out, 3, 4);
+    let out = step(&mut core, clock + 2, &driver(3, &json!({"kind": "ended"})));
+    assert_eq!(out["view"]["play"]["still_asking"], true, "{out}");
+    assert!(http_paths(&out).is_empty(), "nothing starts: {out}");
+}

@@ -5,7 +5,7 @@ use alloc::vec::Vec;
 use serde::{Deserialize, Serialize};
 
 use crate::error::Notice;
-use crate::title::{EpisodeRef, TitleKey};
+use crate::title::{EpisodeRef, Rating, TitleKey};
 
 /// An opaque position in a list. Clients hand it back and never read it.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -252,6 +252,9 @@ wire! {
         /// True when this profile has saved the title.
         #[serde(default, skip_serializing_if = "core::ops::Not::not")]
         pub in_list: bool,
+        /// What this profile said about the title.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub rating: Option<Rating>,
     }
 
     /// Search suggestions.

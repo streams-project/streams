@@ -104,5 +104,8 @@
   "player.subtitles": "Subtitles",
   "player.subtitles_off": "Off",
   "player.skip_intro": "Skip Intro",
-  "player.skip_recap": "Skip Recap"
+  "player.skip_recap": "Skip Recap",
+  "player.still": "Are you still watching?",
+  "player.still.yes": "Continue Watching",
+  "player.still.no": "I'm Done"
 }

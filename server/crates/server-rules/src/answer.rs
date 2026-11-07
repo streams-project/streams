@@ -238,6 +238,7 @@ impl SafeTitleDetail {
             seasons: extras.seasons,
             more_like_this: wires(extras.more_like_this),
             in_list: false,
+            rating: None,
         }))
     }
 
@@ -252,6 +253,13 @@ impl SafeTitleDetail {
     #[must_use]
     pub fn saved(mut self, in_list: bool) -> Self {
         self.0.in_list = in_list;
+        self
+    }
+
+    /// Adds what this profile said about the title.
+    #[must_use]
+    pub fn rated(mut self, rating: Option<contract::Rating>) -> Self {
+        self.0.rating = rating;
         self
     }
 }

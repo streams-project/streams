@@ -1,10 +1,13 @@
 package streams.tv
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -55,5 +58,19 @@ fun AgeNote(label: String) {
             fontSize = 44.refType,
             fontWeight = FontWeight.Bold,
         )
+    }
+}
+
+/** Several episodes went by with nobody touching the remote. The picture waits for an answer. */
+@Composable
+fun StillAsking(words: Map<String, String>, focus: Int) {
+    Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.8f)), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(words["player.still"].orEmpty(), fontSize = 56.refType, fontWeight = FontWeight.Bold)
+            Row(Modifier.padding(top = 48.ref), horizontalArrangement = Arrangement.spacedBy(24.ref)) {
+                Pill(words["player.still.yes"].orEmpty(), focus == 0)
+                Pill(words["player.still.no"].orEmpty(), focus == 1)
+            }
+        }
     }
 }

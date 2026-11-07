@@ -404,6 +404,10 @@
         "state": {
           "$ref": "#/$defs/PlayState"
         },
+        "still_asking": {
+          "description": "Several episodes started by themselves with nobody touching anything, so the next\none waits until the viewer says they are still there.",
+          "type": "boolean"
+        },
         "title": {
           "$ref": "#/$defs/TitleKey"
         },
