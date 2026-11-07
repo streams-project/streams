@@ -304,3 +304,31 @@ fn c58_a_skip_window_with_nothing_left_to_show_is_dropped() {
     assert_eq!(shown[0]["end_ms"], 19_000);
     assert_eq!(shown[0]["seek_to_ms"], 20_000);
 }
+
+#[test]
+fn a_viewer_who_keeps_seeking_is_not_a_dead_source_but_a_stall_after_it_still_runs_out() {
+    let mut core = playing();
+    // the first seek stalls at 5 s, and with no more seeks the wait would end at 20 s
+    step(&mut core, 5_000, &driver(1, &json!({"kind": "stalled"})));
+    step(
+        &mut core,
+        10_000,
+        &action("a", json!({"action": "seek", "to_ms": 100_000})),
+    );
+    step(
+        &mut core,
+        18_000,
+        &action("b", json!({"action": "seek", "to_ms": 200_000})),
+    );
+    let waiting = step(&mut core, 25_000, &json!([]));
+    assert!(
+        player_ops(&waiting).is_empty(),
+        "the last seek was only 7 s ago"
+    );
+    // 15 s after the last seek the source really is gone
+    let moved = step(&mut core, 33_001, &json!([]));
+    assert_eq!(
+        player_ops(&moved),
+        [json!({"op": "close"}), open(2, 200_000, SECOND)]
+    );
+}

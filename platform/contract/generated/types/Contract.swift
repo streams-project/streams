@@ -4618,17 +4618,21 @@ public struct Track: Codable, Equatable, Sendable {
     public var id: String
     public var label: String?
     public var lang: String?
+    /// True for the track playing now.
+    public var selected: Bool?
 
     enum CodingKeys: String, CodingKey {
         case id = "id"
         case label = "label"
         case lang = "lang"
+        case selected = "selected"
     }
 
-    public init(id: String, label: String? = nil, lang: String? = nil) {
+    public init(id: String, label: String? = nil, lang: String? = nil, selected: Bool? = nil) {
         self.id = id
         self.label = label
         self.lang = lang
+        self.selected = selected
     }
 }
 

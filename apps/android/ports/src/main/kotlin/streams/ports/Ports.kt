@@ -12,6 +12,7 @@ import contract.Profile
 import contract.RouteTarget
 import contract.Screen
 import contract.TitleDetail
+import contract.Track
 import kotlinx.coroutines.flow.StateFlow
 
 /** One request. `done` gets a [Reply] or a [NoReply], from any thread. */
@@ -44,6 +45,9 @@ interface Player {
     fun listen(report: (generation: Long, event: DriverEvent) -> Unit)
     /** The picture, as an object only the surface's own toolkit understands. */
     fun picture(context: Any): Any
+
+    /** Moves subtitles up the picture, as a share of its height, to clear the controls. */
+    fun lift(share: Float)
 }
 
 /** Brand films on the way in. The title player belongs to the core, so these stay apart from it. */
@@ -73,6 +77,9 @@ data class Seen(
     val server: String = "",
     val positionMs: Long = 0,
     val lengthMs: Long = 0,
+    /** The sound and subtitle tracks of what is playing. */
+    val audio: List<Track> = emptyList(),
+    val text: List<Track> = emptyList(),
 )
 
 interface Shell {

@@ -2261,6 +2261,8 @@ data class Track(
     @SerialName("id") val id: String,
     @SerialName("label") val label: String? = null,
     @SerialName("lang") val lang: String? = null,
+    /** True for the track playing now. */
+    @SerialName("selected") val selected: Boolean? = null,
 )
 
 /** The wire dates a server answers. Never compared for equality. */

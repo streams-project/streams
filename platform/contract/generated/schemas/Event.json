@@ -669,6 +669,10 @@
         },
         "lang": {
           "type": "string"
+        },
+        "selected": {
+          "description": "True for the track playing now.",
+          "type": "boolean"
         }
       },
       "required": [

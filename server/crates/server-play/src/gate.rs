@@ -11,6 +11,8 @@ use contract::{EpisodeRef, TitleKey, TitleKind};
 use moka::sync::Cache;
 use server_accounts::ProfileScope;
 use server_catalog::catalog::cert_label;
+use server_catalog::manifest::role;
+use server_catalog::seasons::next_episode;
 use server_catalog::{DataSet, item_key};
 use server_library::Library;
 use server_rules::Viewer;
@@ -196,6 +198,11 @@ impl Play {
             .unwrap_or(0);
         let more = found.job.is_some();
         let reasons = reasons_of(data, title, episode.as_ref());
+        let next_episode = episode.as_ref().and_then(|now| {
+            let catalog = data.files.get(role::CATALOG)?;
+            let (season, episode) = next_episode(catalog, title.id(), now.season, now.episode)?;
+            Some(EpisodeRef { season, episode })
+        });
         self.sessions.insert(
             play_id.clone(),
             PlaySession {
@@ -216,7 +223,7 @@ impl Play {
             }),
             audio_default: settings.audio_language,
             subtitle_default: settings.subtitle_language,
-            next_episode: None,
+            next_episode,
             autoplay_next: settings.autoplay_next,
             dropped,
             more,

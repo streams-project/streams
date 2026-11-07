@@ -512,8 +512,10 @@ impl Player {
         }
     }
 
-    /// Seek, held to the video's length. A seek starts the picture check again.
-    pub(crate) fn seek(&mut self, to_ms: u64, tick: &mut Tick) {
+    /// Seek, held to the video's length. A seek starts the picture check again. A seek stalls by
+    /// nature, so while the viewer keeps seeking the wait starts again from the latest one, and
+    /// a dead source still runs out once they stop.
+    pub(crate) fn seek(&mut self, to_ms: u64, mono_ms: u64, deadline_ms: u32, tick: &mut Tick) {
         let open = self.open;
         let Some(play) = self
             .play
@@ -529,6 +531,9 @@ impl Player {
         };
         play.position_ms = to_ms;
         play.no_picture_since = None;
+        if play.state == PlayState::Stalled {
+            play.deadline_mono = Some(mono_ms + u64::from(deadline_ms));
+        }
         if open {
             tick.driver.push(DriverCommand::Seek { to_ms });
         }

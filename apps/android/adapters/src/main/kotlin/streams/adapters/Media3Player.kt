@@ -3,9 +3,12 @@ package streams.adapters
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player as Media
+import androidx.media3.common.TrackSelectionOverride
+import androidx.media3.common.Tracks
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
@@ -15,7 +18,10 @@ import contract.DriverCommandClose
 import contract.DriverCommandOpen
 import contract.DriverCommandPause
 import contract.DriverCommandPlay
+import contract.DriverCommandRate
 import contract.DriverCommandSeek
+import contract.DriverCommandSelectAudio
+import contract.DriverCommandSelectText
 import contract.DriverCommandVolume
 import contract.DriverEvent
 import contract.DriverEventEnded
@@ -23,7 +29,9 @@ import contract.DriverEventError
 import contract.DriverEventFirstFrame
 import contract.DriverEventPosition
 import contract.DriverEventStalled
+import contract.DriverEventTracks
 import contract.ErrorClass
+import contract.Track
 import streams.ports.Player
 
 /** The player port, on Media3. It reports facts, and the core picks every next step. */
@@ -36,6 +44,7 @@ class Media3Player(context: Context) : Player {
     private var report: (Long, DriverEvent) -> Unit = { _, _ -> }
     private var generation = 0L
     private var firstFrame = false
+    private var view: PlayerView? = null
 
     private val tick = object : Runnable {
         override fun run() {
@@ -53,6 +62,10 @@ class Media3Player(context: Context) : Player {
                 if (firstFrame) return
                 firstFrame = true
                 report(generation, DriverEventFirstFrame)
+            }
+
+            override fun onTracksChanged(tracks: Tracks) {
+                report(generation, DriverEventTracks(audio = listed(tracks, C.TRACK_TYPE_AUDIO), text = listed(tracks, C.TRACK_TYPE_TEXT)))
             }
 
             override fun onPlaybackStateChanged(state: Int) {
@@ -83,7 +96,12 @@ class Media3Player(context: Context) : Player {
         PlayerView(context as Context).apply {
             player = engine
             useController = false
+            view = this
         }
+
+    override fun lift(share: Float) {
+        view?.subtitleView?.setBottomPaddingFraction(share)
+    }
 
     override fun command(given: DriverCommand) {
         main.post {
@@ -93,10 +111,34 @@ class Media3Player(context: Context) : Player {
                 DriverCommandPause -> engine.pause()
                 is DriverCommandSeek -> engine.seekTo(given.toMs)
                 is DriverCommandVolume -> engine.volume = given.percent / 100f
+                is DriverCommandRate -> engine.setPlaybackSpeed(given.percent / 100f)
+                is DriverCommandSelectAudio -> choose(C.TRACK_TYPE_AUDIO, given.track)
+                is DriverCommandSelectText -> choose(C.TRACK_TYPE_TEXT, given.track)
                 DriverCommandClose -> engine.stop()
                 else -> Unit
             }
         }
+    }
+
+    /** A track's id is its place in the engine's list, so it holds only until the list changes. */
+    private fun listed(tracks: Tracks, type: Int): List<Track> =
+        tracks.groups.flatMapIndexed { group, found ->
+            if (found.type != type) return@flatMapIndexed emptyList()
+            (0 until found.length).filter(found::isTrackSupported).map { index ->
+                val format = found.getTrackFormat(index)
+                Track(id = "$group:$index", label = format.label, lang = format.language, selected = found.isTrackSelected(index))
+            }
+        }
+
+    private fun choose(type: Int, id: String?) {
+        val change = engine.trackSelectionParameters.buildUpon().clearOverridesOfType(type)
+        change.setTrackTypeDisabled(type, id == null)
+        if (id != null) {
+            val (group, index) = id.split(':').map(String::toInt)
+            val found = engine.currentTracks.groups.getOrNull(group) ?: return
+            change.setOverrideForType(TrackSelectionOverride(found.mediaTrackGroup, index))
+        }
+        engine.trackSelectionParameters = change.build()
     }
 
     private fun open(given: DriverCommandOpen) {

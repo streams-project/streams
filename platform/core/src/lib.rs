@@ -706,7 +706,10 @@ impl Core {
                 match other {
                     Action::Pause => self.player.pause(&mut tick),
                     Action::Unpause => self.player.unpause(now.mono_ms, &mut tick),
-                    Action::Seek { to_ms } => self.player.seek(to_ms, &mut tick),
+                    Action::Seek { to_ms } => {
+                        let deadline = self.config.start_deadline_ms();
+                        self.player.seek(to_ms, now.mono_ms, deadline, &mut tick);
+                    }
                     Action::SelectAudio { track } => self.player.select_audio(track, &mut tick),
                     Action::SelectText { track } => self.player.select_text(track, &mut tick),
                     Action::Stop => self.player.stop(&mut tick),

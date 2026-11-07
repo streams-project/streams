@@ -1518,6 +1518,8 @@ export interface Track {
   id: string;
   label?: string;
   lang?: string;
+  /** True for the track playing now. */
+  selected?: boolean;
 }
 
 /** The wire dates a server answers. Never compared for equality. */
