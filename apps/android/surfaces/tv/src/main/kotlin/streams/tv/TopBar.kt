@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +21,6 @@ import androidx.compose.ui.text.font.FontWeight
 import coil3.compose.AsyncImage
 import contract.NavItem
 import contract.Profile
-import streams.shared.Accent
 import streams.shared.Back
 import streams.shared.R
 import streams.shared.ref
@@ -30,24 +28,6 @@ import streams.shared.refType
 
 /** The tabs that fit the bar. Genres live on their own pages. */
 fun tabsOf(nav: List<NavItem>): List<NavItem> = nav.filter { it.screen.value != "genre" }.take(5)
-
-/** A profile's picture, or its first letter when it has none. */
-@Composable
-fun Face(person: Profile?, size: Int, server: String) {
-    val shape = RoundedCornerShape(8.ref)
-    val avatar = person?.avatar?.takeIf { it.startsWith("/") || it.startsWith("http") }
-    Box(Modifier.size(size.ref).background(Accent, shape), contentAlignment = Alignment.Center) {
-        if (avatar != null) {
-            Art(if (avatar.startsWith("/")) server + avatar else avatar, Modifier.size(size.ref))
-        } else {
-            Text(
-                person?.name?.take(1)?.uppercase().orEmpty(),
-                fontSize = (size * 46 / 100).refType,
-                fontWeight = FontWeight.ExtraBold,
-            )
-        }
-    }
-}
 
 @Composable
 private fun Tab(item: NavItem, active: Boolean, on: Boolean) {
@@ -69,7 +49,7 @@ private fun Tab(item: NavItem, active: Boolean, on: Boolean) {
 fun TopBar(tabs: List<NavItem>, active: Int, focus: Int, person: Profile?, server: String) {
     Box(Modifier.offset(68.ref, 46.ref)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Face(person, 48, server)
+            Face(person, 48, 8, server, Modifier.size(48.ref))
             Icon(painterResource(R.drawable.icon_caret_down), null, Modifier.size(22.ref), tint = Color.White)
         }
     }

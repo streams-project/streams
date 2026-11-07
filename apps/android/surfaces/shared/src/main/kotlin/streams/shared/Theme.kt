@@ -18,6 +18,7 @@ val Plate = Color(0xFF16161D)
 val Raised = Color(0xFF24242E)
 val Muted = Color(0xFFA6A6B3)
 val Accent = Color(0xFF2F6BFF)
+val Join = Color(0xFFE5352B)
 
 @Composable
 fun Brand(content: @Composable () -> Unit) {
