@@ -49,7 +49,7 @@
     "sent": [
      "POST /v1/auth/refresh"
     ],
-    "wake": 305100
+    "wake": 10100
    }
   },
   {
