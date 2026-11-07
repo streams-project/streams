@@ -222,6 +222,8 @@ fn subtitle_pack(stack: &Stack, token: &str) -> Result<Option<(Program, String)>
         env: base_env(&[
             ("FINDER_BIND", format!("127.0.0.1:{port}")),
             ("FINDER_SERVICE_TOKEN", token.to_owned()),
+            // Programs start with a clean environment. This one keeps its key in the home folder.
+            ("HOME", std::env::var("HOME").unwrap_or_default()),
         ]),
     };
     Ok(Some((program, format!("http://127.0.0.1:{port}"))))
