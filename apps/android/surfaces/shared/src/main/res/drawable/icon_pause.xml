@@ -1,0 +1,4 @@
+<!-- Written by platform/tools/make_icons.py. Change platform/icons/icons.json instead. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <path android:pathData="M6 5h2v14H6zm10 0h2v14h-2z" android:fillColor="#FFFFFFFF" />
+</vector>

@@ -107,6 +107,10 @@
   "source": "ph:skip-forward-bold",
   "body": "<path fill=\"currentColor\" d=\"M200 28a12 12 0 0 0-12 12v62L74.55 31A20 20 0 0 0 44 47.88v160.24A20 20 0 0 0 74.55 225L188 154v62a12 12 0 0 0 24 0V40a12 12 0 0 0-12-12M68 200.73V55.27L184.3 128Z\"/>"
  },
+ "pause": {
+  "source": "ri:pause-fill",
+  "body": "<path fill=\"currentColor\" d=\"M6 5h2v14H6zm10 0h2v14h-2z\"/>"
+ },
  "pencil": {
   "source": "ri:pencil-line",
   "body": "<path fill=\"currentColor\" d=\"m15.728 9.576l-1.414-1.414L5 17.476v1.414h1.414zm1.414-1.414l1.414-1.414l-1.414-1.414l-1.414 1.414zm-9.9 12.728H3v-4.243L16.435 3.212a1 1 0 0 1 1.414 0l2.829 2.829a1 1 0 0 1 0 1.414z\"/>"
@@ -126,6 +130,10 @@
  "report": {
   "source": "ri:flag-line",
   "body": "<path fill=\"currentColor\" d=\"M12.382 3a1 1 0 0 1 .894.553L14 5h6a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-6.382a1 1 0 0 1-.894-.553L12 16H5v6H3V3zm-.618 2H5v9h8.236l1 2H19V7h-6.236z\"/>"
+ },
+ "restart": {
+  "source": "ri:restart-line",
+  "body": "<path fill=\"currentColor\" d=\"M18.537 19.567A9.96 9.96 0 0 1 12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10c0 2.136-.67 4.116-1.81 5.74L17 12h3a8 8 0 1 0-2.46 5.772z\"/>"
  },
  "search": {
   "source": "ri:search-line",

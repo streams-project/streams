@@ -36,7 +36,7 @@ fun Television(shell: Shell) {
                     target == Target.SIGN_IN -> SignIn(shell, seen)
                     target == Target.PROFILES -> Profiles(shell, seen)
                     target == Target.TITLE -> TitlePage(shell, seen)
-                    target == Target.WATCH -> Watch(shell, seen, true)
+                    target == Target.WATCH -> Watch(shell, seen)
                     target == Target.SCREEN && seen.route?.screen?.value == "search" -> Search(shell, seen, search)
                     target == Target.HOME || target == Target.KIDS_HOME || target == Target.SCREEN ->
                         Browse(shell, seen)
