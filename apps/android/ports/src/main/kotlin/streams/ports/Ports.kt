@@ -46,7 +46,7 @@ interface Player {
     /** The picture, as an object only the surface's own toolkit understands. */
     fun picture(context: Any): Any
 
-    /** Moves subtitles up the picture, as a share of its height, to clear the controls. */
+    /** Raises subtitles by this share of the picture's height, to clear the controls. */
     fun lift(share: Float)
 }
 

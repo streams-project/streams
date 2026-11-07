@@ -10,11 +10,10 @@ class Choice(val word: String, val audio: Track?, val text: Track?, val ticked: 
 /** True for the track in play. */
 val Track.playing: Boolean get() = selected == true
 
-/** What a viewer reads for a track: the name the source gave it, or its language. */
+/** What a viewer reads for a track: its language, as sources often label tracks for machines. */
 fun nameOf(track: Track, language: String): String {
-    track.label?.takeIf { it.isNotBlank() }?.let { return it }
-    val tag = track.lang ?: return track.id
-    return Locale.forLanguageTag(tag).getDisplayLanguage(Locale.forLanguageTag(language)).ifEmpty { tag }
+    val word = track.lang?.let { Locale.forLanguageTag(it).getDisplayLanguage(Locale.forLanguageTag(language)) }
+    return word?.takeIf { it.isNotBlank() } ?: track.label?.takeIf { it.isNotBlank() } ?: track.id
 }
 
 /** One line per language, keeping the track in play when several share a language. */

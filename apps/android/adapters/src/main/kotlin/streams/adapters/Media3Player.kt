@@ -34,6 +34,8 @@ import contract.ErrorClass
 import contract.Track
 import streams.ports.Player
 
+private const val LIFT_MS = 240L
+
 /** The player port, on Media3. It reports facts, and the core picks every next step. */
 class Media3Player(context: Context) : Player {
     private val main = Handler(Looper.getMainLooper())
@@ -100,7 +102,8 @@ class Media3Player(context: Context) : Player {
         }
 
     override fun lift(share: Float) {
-        view?.subtitleView?.setBottomPaddingFraction(share)
+        val words = view?.subtitleView ?: return
+        words.animate().translationY(-share * words.height).setDuration(LIFT_MS).start()
     }
 
     override fun command(given: DriverCommand) {

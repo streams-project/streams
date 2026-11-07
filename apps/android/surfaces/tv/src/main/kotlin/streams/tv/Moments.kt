@@ -18,6 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import contract.TimeWindow
 import contract.WindowKind
@@ -55,6 +57,7 @@ fun AgeNote(label: String) {
         Text(
             label,
             Modifier.align(Alignment.CenterVertically).padding(start = 22.ref),
+            style = TextStyle(shadow = Shadow(Color.Black, blurRadius = 12f)),
             fontSize = 44.refType,
             fontWeight = FontWeight.Bold,
         )

@@ -67,9 +67,9 @@ private const val SEEK_CATCH_UP_MS = 1500L
 /** How long the end waits, so the next episode can start before the page goes back. */
 private const val ENDED_WAIT_MS = 800L
 
-/** Where subtitles sit, as a share of the picture's height. */
-private const val WORDS_LOW = 0.08f
-private const val WORDS_HIGH = 0.26f
+/** How far subtitles rise, as a share of the picture's height. */
+private const val WORDS_LOW = 0f
+private const val WORDS_HIGH = 0.2f
 
 private enum class Reach { TOP, RATE, BAR, TRACKS }
 private enum class Control { BACK, RESTART, NEXT }
