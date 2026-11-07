@@ -6,7 +6,8 @@
     holder.className = "icon";
     holder.style.width = size + "px";
     holder.style.height = size + "px";
-    holder.innerHTML = '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '">' + (window.tvIcons[name] || "") + "</svg>";
+    var icon = window.tvIcons[name] || { body: "", grid: 24 };
+    holder.innerHTML = '<svg viewBox="0 0 ' + icon.grid + " " + icon.grid + '" width="' + size + '" height="' + size + '">' + icon.body + "</svg>";
     return holder;
   };
 })();

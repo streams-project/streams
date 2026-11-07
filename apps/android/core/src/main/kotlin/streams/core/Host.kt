@@ -79,6 +79,7 @@ class Host(
     private val state = MutableStateFlow(Seen())
     private var handle = 0L
     private var base = ""
+    private var matched: String? = null
     private val queue = ArrayDeque<Event>()
     private var asks = 0
     private val waiting = HashMap<String, (Int, String) -> Unit>()
@@ -214,6 +215,16 @@ class Host(
         }
     }
 
+    /** A profile kept from an earlier run speaks its own language from the start. */
+    private fun matchLanguage() {
+        val now = state.value
+        val wanted = now.profiles.firstOrNull { it.id == now.active }?.language ?: return
+        if (wanted != now.language && wanted != matched) {
+            matched = wanted
+            readWords(wanted, now.brand)
+        }
+    }
+
     private fun apply(out: CoreOut) {
         out.view?.hello?.let { hello ->
             if (state.value.words.isEmpty()) readWords(DEFAULT_LANGUAGE, hello.brand.name)
@@ -229,6 +240,7 @@ class Host(
                     active = view.session?.profile ?: now.active,
                 )
             }
+            matchLanguage()
         }
         loop.removeCallbacks(wake)
         out.nextWakeMs?.let { at ->

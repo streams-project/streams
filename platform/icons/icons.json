@@ -63,6 +63,10 @@
   "source": "ri:fullscreen-line",
   "body": "<path fill=\"currentColor\" d=\"M8 3v2H4v4H2V3zM2 21v-6h2v4h4v2zm20 0h-6v-2h4v-4h2zm0-12h-2V5h-4V3h6z\"/>"
  },
+ "grid": {
+  "source": "ri:layout-grid-line",
+  "body": "<path fill=\"currentColor\" d=\"M21 3a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM11 13H4v6h7zm9 0h-7v6h7zm-9-8H4v6h7zm9 0h-7v6h7z\"/>"
+ },
  "home": {
   "source": "ri:home-6-line",
   "body": "<path fill=\"currentColor\" d=\"M21 20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.49a1 1 0 0 1 .386-.79l8-6.223a1 1 0 0 1 1.228 0l8 6.223a1 1 0 0 1 .386.79zm-2-1V9.978l-7-5.444l-7 5.444V19zM7 15h10v2H7z\"/>"

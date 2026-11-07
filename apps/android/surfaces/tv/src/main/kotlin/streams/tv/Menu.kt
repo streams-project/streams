@@ -25,14 +25,14 @@ data class MenuLine(val word: String, val icon: Int? = null)
 
 /** Plain rows of words. The one in focus is a white pill. Pages share this as it stands. */
 @Composable
-fun Menu(lines: List<MenuLine>, focus: Int, modifier: Modifier = Modifier) {
+fun Menu(lines: List<MenuLine>, focus: Int, modifier: Modifier = Modifier, width: Int = 395) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(6.ref)) {
         lines.forEachIndexed { index, line ->
             val on = index == focus
             val ink = if (on) Back else Color.White
             Box(
                 Modifier
-                    .width(395.ref)
+                    .width(width.ref)
                     .height(63.ref)
                     .background(if (on) Color.White else Color.Transparent, CircleShape),
             ) {

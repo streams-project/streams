@@ -6,10 +6,16 @@ from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[2]
 ICONS = json.loads((ROOT / "platform/icons/icons.json").read_text("utf-8"))
+# The drawing grid of each source set. Every other set draws on 24.
+GRIDS = {"carbon": 32, "ph": 256}
+
+
+def grid(icon: dict) -> int:
+    return GRIDS.get(icon["source"].split(":")[0], 24)
 
 
 def television() -> None:
-    bodies = {name: icon["body"] for name, icon in sorted(ICONS.items())}
+    bodies = {name: {"body": icon["body"], "grid": grid(icon)} for name, icon in sorted(ICONS.items())}
     text = json.dumps(bodies, ensure_ascii=False, separators=(",", ":"), indent=0)
     (ROOT / "apps/tv/page/surfaces/parts/icon-data.js").write_text(
         "// Written by platform/tools/make_icons.py. Change platform/icons/icons.json instead.\n"
@@ -60,7 +66,7 @@ def android() -> None:
             "<!-- Written by platform/tools/make_icons.py. Change platform/icons/icons.json instead. -->\n"
             '<vector xmlns:android="http://schemas.android.com/apk/res/android" '
             'android:width="24dp" android:height="24dp" '
-            'android:viewportWidth="24" android:viewportHeight="24">\n'
+            f'android:viewportWidth="{grid(icon)}" android:viewportHeight="{grid(icon)}">\n'
             + "".join(shapes)
             + "</vector>\n",
             "utf-8",

@@ -57,5 +57,11 @@
   "title.season.one": "{n} Season",
   "title.season.many": "{n} Seasons",
   "profile.age.18": "All Age Ratings",
-  "profile.age.18.help": "Showing titles of all age ratings for this profile."
+  "profile.age.18.help": "Showing titles of all age ratings for this profile.",
+  "title.play_episode": "Play Episode {n}",
+  "title.episodes_more": "Episodes & More",
+  "title.more_like": "More Like This",
+  "title.episode": "Episode {n}",
+  "title.season.number": "Season {n}",
+  "title.episodes.count": "{n} episodes"
 }

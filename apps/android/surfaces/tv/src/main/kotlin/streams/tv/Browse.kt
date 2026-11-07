@@ -85,7 +85,7 @@ private class PageFocus(val rows: List<Section>, val tabs: Int, active: Int) {
     }
 }
 
-private fun titleAddress(key: TitleKey) = "/title/" + key.value.replace(':', '/')
+fun titleAddress(key: TitleKey) = "/title/" + key.value.replace(':', '/')
 
 private fun watchAddress(key: TitleKey) = "/watch/" + key.value.replace(':', '/')
 

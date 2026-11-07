@@ -33,7 +33,7 @@ fun Television(shell: Shell) {
                     target == Target.START -> Door(shell, seen)
                     target == Target.SIGN_IN -> Code(shell, seen)
                     target == Target.PROFILES -> Profiles(shell, seen)
-                    target == Target.TITLE -> Title(shell, seen, true)
+                    target == Target.TITLE -> TitlePage(shell, seen)
                     target == Target.WATCH -> Watch(shell, seen, true)
                     target == Target.HOME || target == Target.KIDS_HOME || target == Target.SCREEN ->
                         Browse(shell, seen)
