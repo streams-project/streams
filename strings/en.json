@@ -35,8 +35,6 @@
   "profile.icon": "Icon",
   "profile.language": "Language",
   "profile.icon.history": "History",
-  "profile.age.all": "All Age Ratings",
-  "profile.age.all.help": "Showing titles of all age ratings for this profile.",
   "profile.age.kids": "Kids",
   "profile.age.kids.help": "Showing titles for kids on this profile.",
   "profile.age.limit": "Up to {age}",
@@ -57,5 +55,7 @@
   "common.play": "Play",
   "common.more_info": "More Info",
   "title.season.one": "{n} Season",
-  "title.season.many": "{n} Seasons"
+  "title.season.many": "{n} Seasons",
+  "profile.age.18": "All Age Ratings",
+  "profile.age.18.help": "Showing titles of all age ratings for this profile."
 }

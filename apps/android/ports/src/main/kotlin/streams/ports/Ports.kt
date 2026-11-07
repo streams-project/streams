@@ -57,6 +57,8 @@ data class Seen(
     val active: String? = null,
     /** The words of the interface, with the brand filled in. */
     val words: Map<String, String> = emptyMap(),
+    /** The language those words are in. */
+    val language: String = "",
     val detail: TitleDetail? = null,
     val notice: String? = null,
     val brand: String = "",
@@ -73,4 +75,10 @@ interface Shell {
     fun back()
     fun act(action: Action)
     fun ask(path: String, reply: (status: Int, text: String) -> Unit)
+    /** A change the viewer made. The core adds what the route needs. */
+    fun send(method: String, path: String, body: String, reply: (status: Int, text: String) -> Unit)
+    /** A saved profile, so every screen shows the change. */
+    fun keep(profile: Profile)
+    /** Read the words of this language, or the default when there is none. */
+    fun speak(language: String?)
 }

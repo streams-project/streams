@@ -35,6 +35,7 @@ import contract.Form
 import contract.HttpMethod
 import contract.Nav
 import contract.NoAnswerReason
+import contract.Profile
 import contract.Screen
 import contract.SecretOp
 import contract.Strings
@@ -157,6 +158,24 @@ class Host(
         }
     }
 
+    override fun send(method: String, path: String, body: String, reply: (Int, String) -> Unit) {
+        loop.post {
+            asks += 1
+            val id = "ask-$asks"
+            waiting[id] = reply
+            val action = ActionRequest(method = HttpMethod(method), path = path, body = body)
+            send(listOf(EventAction(id = id, action = action)))
+        }
+    }
+
+    override fun keep(profile: Profile) {
+        state.update { now ->
+            now.copy(profiles = now.profiles.map { if (it.id == profile.id) profile else it })
+        }
+    }
+
+    override fun speak(language: String?) = readWords(language ?: DEFAULT_LANGUAGE, state.value.brand)
+
     private fun send(events: List<Event>) {
         loop.post {
             if (handle == 0L) return@post
@@ -184,9 +203,12 @@ class Host(
     private fun readWords(language: String, brand: String) {
         ask("/v1/strings/$language") { status, text ->
             if (status in 200..299) {
-                val texts = contractJson.decodeFromString(Strings.serializer(), text).texts
+                val read = contractJson.decodeFromString(Strings.serializer(), text)
                 state.update { now ->
-                    now.copy(words = texts.mapValues { (_, word) -> word.replace("{brand}", brand) })
+                    now.copy(
+                        words = read.texts.mapValues { (_, word) -> word.replace("{brand}", brand) },
+                        language = read.lang,
+                    )
                 }
             }
         }

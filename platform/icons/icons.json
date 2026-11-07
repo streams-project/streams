@@ -43,9 +43,17 @@
   "source": "ph:cards-bold",
   "body": "<path fill=\"currentColor\" d=\"M180 72H36a20 20 0 0 0-20 20v112a20 20 0 0 0 20 20h144a20 20 0 0 0 20-20V92a20 20 0 0 0-20-20m-4 128H40V96h136Zm64-148v124a12 12 0 0 1-24 0V56H64a12 12 0 0 1 0-24h156a20 20 0 0 1 20 20\"/>"
  },
+ "erase": {
+  "source": "ri:delete-back-2-line",
+  "body": "<path fill=\"currentColor\" d=\"M6.535 3h14.464a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6.535a1 1 0 0 1-.833-.445l-5.333-8a1 1 0 0 1 0-1.11l5.333-8A1 1 0 0 1 6.535 3m.535 2l-4.667 7l4.667 7H20V5zM13 10.586l2.828-2.829l1.414 1.415L14.414 12l2.828 2.828l-1.414 1.415l-2.829-2.829l-2.828 2.829l-1.414-1.415L11.585 12L8.757 9.172l1.414-1.415z\"/>"
+ },
  "exit-full-screen": {
   "source": "ri:fullscreen-exit-line",
   "body": "<path fill=\"currentColor\" d=\"M18 7h4v2h-6V3h2zM8 9H2V7h4V3h2zm10 8v4h-2v-6h6v2zM8 15v6H6v-4H2v-2z\"/>"
+ },
+ "face": {
+  "source": "ri:emotion-line",
+  "body": "<path fill=\"currentColor\" d=\"M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10m0-2a8 8 0 1 0 0-16a8 8 0 0 0 0 16m-4-7h8a4 4 0 0 1-8 0m0-2a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3m8 0a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3\"/>"
  },
  "forward-10": {
   "source": "hugeicons:go-forward-10-sec",
@@ -66,6 +74,10 @@
  "info": {
   "source": "ri:information-line",
   "body": "<path fill=\"currentColor\" d=\"M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10m0-2a8 8 0 1 0 0-16a8 8 0 0 0 0 16M11 7h2v2h-2zm0 4h2v6h-2z\"/>"
+ },
+ "language": {
+  "source": "ri:translate-2",
+  "body": "<path fill=\"currentColor\" d=\"m18.5 10l4.4 11h-2.155l-1.201-3h-4.09l-1.199 3h-2.154L16.5 10zM10 2v2h6v2h-1.968a18.2 18.2 0 0 1-3.62 6.301a15 15 0 0 0 2.335 1.707l-.75 1.878A17 17 0 0 1 9 13.725a16.7 16.7 0 0 1-6.201 3.548l-.536-1.929a14.7 14.7 0 0 0 5.327-3.042A18 18 0 0 1 4.767 8h2.24A16 16 0 0 0 9 10.877a16.2 16.2 0 0 0 2.91-4.876L2 6V4h6V2zm7.5 10.885L16.253 16h2.492z\"/>"
  },
  "lock-open": {
   "source": "ri:lock-unlock-line",
@@ -95,6 +107,10 @@
   "source": "ri:pencil-line",
   "body": "<path fill=\"currentColor\" d=\"m15.728 9.576l-1.414-1.414L5 17.476v1.414h1.414zm1.414-1.414l1.414-1.414l-1.414-1.414l-1.414 1.414zm-9.9 12.728H3v-4.243L16.435 3.212a1 1 0 0 1 1.414 0l2.829 2.829a1 1 0 0 1 0 1.414z\"/>"
  },
+ "person": {
+  "source": "ri:user-line",
+  "body": "<path fill=\"currentColor\" d=\"M4 22a8 8 0 1 1 16 0h-2a6 6 0 0 0-12 0zm8-9c-3.315 0-6-2.685-6-6s2.685-6 6-6s6 2.685 6 6s-2.685 6-6 6m0-2c2.21 0 4-1.79 4-4s-1.79-4-4-4s-4 1.79-4 4s1.79 4 4 4\"/>"
+ },
  "play": {
   "source": "ri:play-large-fill",
   "body": "<path fill=\"currentColor\" d=\"M6 20.196V3.804a1 1 0 0 1 1.53-.848l13.113 8.196a1 1 0 0 1 0 1.696L7.53 21.044A1 1 0 0 1 6 20.196\"/>"
@@ -114,6 +130,14 @@
  "share": {
   "source": "ri:share-fill",
   "body": "<path fill=\"currentColor\" d=\"m13.576 17.271l-5.11-2.787a3.5 3.5 0 1 1 0-4.968l5.11-2.787a3.5 3.5 0 1 1 .958 1.755l-5.11 2.787a3.5 3.5 0 0 1 0 1.457l5.11 2.788a3.5 3.5 0 1 1-.958 1.755\"/>"
+ },
+ "shift": {
+  "source": "ri:arrow-up-line",
+  "body": "<path fill=\"currentColor\" d=\"M13 7.828V20h-2V7.828l-5.364 5.364l-1.414-1.414L12 4l7.778 7.778l-1.414 1.414z\"/>"
+ },
+ "space": {
+  "source": "ri:space",
+  "body": "<path fill=\"currentColor\" d=\"M4 9v4h16V9h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V9z\"/>"
  },
  "speaker": {
   "source": "ri:volume-up-line",

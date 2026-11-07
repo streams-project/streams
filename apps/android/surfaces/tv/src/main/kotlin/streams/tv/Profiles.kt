@@ -33,6 +33,14 @@ fun Profiles(shell: Shell, seen: Seen) {
     var at by remember { mutableIntStateOf(0) }
     var pencil by remember { mutableStateOf(false) }
     var locked by remember { mutableStateOf<Profile?>(null) }
+    var editing by remember { mutableStateOf<Profile?>(null) }
+    editing?.let { person ->
+        EditProfile(shell, seen, person) {
+            editing = null
+            pencil = false
+        }
+        return
+    }
     locked?.let { person ->
         PinPanel(shell, person, seen.server) { locked = null }
         return
@@ -46,9 +54,12 @@ fun Profiles(shell: Shell, seen: Seen) {
             Word.LEFT -> if (person.hasPin) return false else pencil = true
             Word.RIGHT -> pencil = false
             Word.OK -> when {
-                pencil -> Unit
+                pencil -> editing = person
                 person.hasPin -> locked = person
-                else -> shell.act(ActionEnterProfile(profile = person.id))
+                else -> {
+                    shell.speak(person.language)
+                    shell.act(ActionEnterProfile(profile = person.id))
+                }
             }
             Word.BACK -> return false
         }
