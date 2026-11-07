@@ -83,6 +83,9 @@ fun EditMenu(
         add(EditStep.NAME to MenuLine(words.say("profile.name"), R.drawable.icon_person))
         if (pictures) add(EditStep.ICON to MenuLine(words.say("profile.icon"), R.drawable.icon_face))
         add(EditStep.LANGUAGE to MenuLine(words.say("profile.language"), R.drawable.icon_language))
+        val lockWord = words.say(if (person.hasPin) "profile.lock.remove" else "profile.lock")
+        val lockIcon = if (person.hasPin) R.drawable.icon_lock_open else R.drawable.icon_locked
+        add(EditStep.LOCK to MenuLine(lockWord, lockIcon))
         if (!person.main) add(EditStep.DELETE to MenuLine(words.say("profile.delete")))
     }
     val askLines = listOf(
