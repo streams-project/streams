@@ -20,14 +20,10 @@ else
 fi
 
 DEST="$HERE/target/libbridge_c.a"
-if [ ! -f "$DEST" ]; then
-    OUT_DIR="${CARGO_TARGET_DIR:-$HERE/target/cargo}"
-    ARCHIVE="$OUT_DIR/$TARGET/native/libbridge_c.a"
-    if [ ! -f "$ARCHIVE" ]; then
-        cd "$ROOT"
-        RUSTC_BOOTSTRAP=1 CARGO_TARGET_DIR="$OUT_DIR" CARGO_BUILD_JOBS=3 \
-            nice -n 10 cargo build --locked --profile native -p bridge-c \
-            --target "$TARGET" -Z build-std=std,panic_unwind
-    fi
-    cp "$ARCHIVE" "$DEST"
-fi
+OUT_DIR="${CARGO_TARGET_DIR:-$HERE/target/cargo}"
+ARCHIVE="$OUT_DIR/$TARGET/native/libbridge_c.a"
+cd "$ROOT"
+RUSTC_BOOTSTRAP=1 CARGO_TARGET_DIR="$OUT_DIR" CARGO_BUILD_JOBS=3 \
+    nice -n 10 cargo build --locked --profile native -p bridge-c \
+    --target "$TARGET" -Z build-std=std,panic_unwind
+cp "$ARCHIVE" "$DEST"
