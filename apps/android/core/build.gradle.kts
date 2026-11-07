@@ -38,6 +38,8 @@ val buildCores = cores.values.map { target ->
         environment("CARGO_TARGET_DIR", coreFolder.path)
         commandLine("cargo", "build", "--locked", "--profile", "native", "-p", "bridge-c", "--target", target)
         outputs.file(coreFolder.resolve("$target/native/libbridge_c.a"))
+        // Cargo knows what the core is made of, so it decides whether anything changed.
+        outputs.upToDateWhen { false }
     }
 }
 
