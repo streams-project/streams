@@ -40,7 +40,7 @@ pub fn seasons_of(db: &Path, series: u32) -> Vec<SeasonFact> {
         };
         let mut statement = conn.prepare(
             "SELECT season_number, count(*) FROM episodes
-             WHERE media_type = 'tv' AND tmdb_id = ?1 AND season_number > 0
+             WHERE media_type = 'tv' AND title_id = ?1 AND season_number > 0
              GROUP BY season_number ORDER BY season_number",
         )?;
         let rows = statement.query_map(params![series], |row| {
@@ -64,7 +64,7 @@ pub fn episodes_of(
     let conn = open(db)?;
     let name = conn
         .query_row(
-            "SELECT name FROM seasons WHERE media_type = 'tv' AND tmdb_id = ?1 AND season_number = ?2",
+            "SELECT name FROM seasons WHERE media_type = 'tv' AND title_id = ?1 AND season_number = ?2",
             params![series, season],
             |row| row.get::<_, Option<String>>(0),
         )
@@ -73,7 +73,7 @@ pub fn episodes_of(
     let mut statement = conn
         .prepare(
             "SELECT episode_number, name, overview, still_path, runtime FROM episodes
-             WHERE media_type = 'tv' AND tmdb_id = ?1 AND season_number = ?2
+             WHERE media_type = 'tv' AND title_id = ?1 AND season_number = ?2
              ORDER BY episode_number",
         )
         .ok()?;

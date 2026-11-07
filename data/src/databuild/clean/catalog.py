@@ -31,12 +31,12 @@ CREATE TABLE titles (
 CREATE UNIQUE INDEX idx_titles_key ON titles(media_type, tmdb_id);
 CREATE INDEX idx_titles_popularity ON titles(popularity DESC);
 CREATE TABLE seasons (
-  media_type TEXT, tmdb_id INTEGER, season_number INTEGER, name TEXT, overview TEXT, air_date TEXT,
-  poster_path TEXT, episode_count INTEGER, PRIMARY KEY (media_type, tmdb_id, season_number));
+  media_type TEXT, title_id INTEGER, season_number INTEGER, name TEXT, overview TEXT, air_date TEXT,
+  poster_path TEXT, episode_count INTEGER, PRIMARY KEY (media_type, title_id, season_number));
 CREATE TABLE episodes (
-  media_type TEXT, tmdb_id INTEGER, season_number INTEGER, episode_number INTEGER, name TEXT,
+  media_type TEXT, title_id INTEGER, season_number INTEGER, episode_number INTEGER, name TEXT,
   overview TEXT, air_date TEXT, still_path TEXT, runtime INTEGER, vote_average REAL,
-  PRIMARY KEY (media_type, tmdb_id, season_number, episode_number));
+  PRIMARY KEY (media_type, title_id, season_number, episode_number));
 """
 
 TITLE_COLUMNS = (

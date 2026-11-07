@@ -220,9 +220,9 @@ fn write_catalog(path: &Path, titles: &[SampleTitle]) -> rusqlite::Result<()> {
            origin_country TEXT, keywords TEXT, runtime INTEGER, certs TEXT, networks TEXT,
            other_names TEXT);
          CREATE VIRTUAL TABLE catalog_fts USING fts5(id UNINDEXED, overview, genres, director);
-         CREATE TABLE seasons (media_type TEXT, tmdb_id INTEGER, season_number INTEGER, name TEXT,
+         CREATE TABLE seasons (media_type TEXT, title_id INTEGER, season_number INTEGER, name TEXT,
            overview TEXT, air_date TEXT, poster_path TEXT, episode_count INTEGER);
-         CREATE TABLE episodes (media_type TEXT, tmdb_id INTEGER, season_number INTEGER,
+         CREATE TABLE episodes (media_type TEXT, title_id INTEGER, season_number INTEGER,
            episode_number INTEGER, name TEXT, overview TEXT, air_date TEXT, still_path TEXT,
            runtime INTEGER, vote_average REAL);",
     )?;
