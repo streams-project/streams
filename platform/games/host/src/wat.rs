@@ -65,7 +65,7 @@ fn tokenize(text: &str) -> Vec<String> {
         } else if ch == '"' {
             let mut s = String::new();
             s.push(chars.next().unwrap_or('"'));
-            while let Some(c) = chars.next() {
+            for c in chars.by_ref() {
                 s.push(c);
                 if c == '"' {
                     break;

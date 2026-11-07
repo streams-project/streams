@@ -80,8 +80,7 @@ fn game_that_loops_forever_returns_error_rather_than_hanging() {
     let mut game = Game::load(LOOP_WAT, 1).expect("load loop.wat");
     let err = game
         .frame(16, 0)
-        .err()
-        .expect("infinite loop must run out of fuel");
+        .expect_err("infinite loop must run out of fuel");
     assert!(matches!(err, GameError::ExecutionFailed));
 }
 
