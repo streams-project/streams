@@ -31,6 +31,7 @@ public struct SectionRow: View {
 
     @State private var hiddenTitles: Set<String> = []
     @State private var gridOpen: Bool = false
+    @Environment(\.layoutDirection) private var layoutDirection
 
     public init(
         section: Contract.Section,
@@ -72,8 +73,9 @@ public struct SectionRow: View {
                                 .brand(18, 700)
                                 .foregroundStyle(.white)
                                 .lineLimit(1)
+                                .truncationMode(.tail)
                             if hasMore {
-                                Text("›")
+                                Text(layoutDirection == .rightToLeft ? "‹" : "›")
                                     .brand(18, 700)
                                     .foregroundStyle(.white.opacity(0.7))
                             }
@@ -273,6 +275,7 @@ private struct ContinueCard: View {
 /// One tile: the title's tall picture, rounded by the brand.
 /// Tall first row tiles show the TOP 10 corner badge and lower caption chip.
 private struct TileCard: View {
+    @Environment(\.layoutDirection) private var layoutDirection
     let tile: Tile
     let wide: CGFloat
     let high: CGFloat
@@ -284,6 +287,7 @@ private struct TileCard: View {
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: Corner.card)
+        let isRTL = layoutDirection == .rightToLeft
 
         Button(action: open) {
             ZStack(alignment: .topLeading) {
@@ -297,15 +301,16 @@ private struct TileCard: View {
                         Text(words["badge.top_10"] ?? "TOP 10")
                             .brand(11, 700)
                             .foregroundStyle(.white)
+                            .lineLimit(1)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 4)
                             .background(
                                 Accent,
                                 in: UnevenRoundedRectangle(
-                                    topLeadingRadius: Corner.card,
-                                    bottomLeadingRadius: 0,
-                                    bottomTrailingRadius: 6,
-                                    topTrailingRadius: 0
+                                    topLeadingRadius: isRTL ? 0 : Corner.card,
+                                    bottomLeadingRadius: isRTL ? 6 : 0,
+                                    bottomTrailingRadius: isRTL ? 0 : 6,
+                                    topTrailingRadius: isRTL ? Corner.card : 0
                                 )
                             )
                     }
@@ -322,6 +327,7 @@ private struct TileCard: View {
                             Text(caption)
                                 .brand(11, 700)
                                 .foregroundStyle(.white)
+                                .lineLimit(1)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
                                 .background(Color.black.opacity(0.75), in: RoundedRectangle(cornerRadius: 4))

@@ -118,20 +118,12 @@ private struct Tags: View {
     var body: some View {
         let kind = words[tile.isSeries ? "title.kind.series" : "title.kind.film"] ?? (tile.isSeries ? "Series" : "Film")
         let tags = tile.tags?.prefix(4) ?? []
-        HStack(spacing: 4) {
-            Text(kind)
-                .brand(14, 700)
-                .foregroundStyle(.white)
-            ForEach(Array(tags), id: \.self) { tag in
-                Text(" • ")
-                    .brand(14, 400)
-                    .foregroundStyle(tagInk)
-                Text(tag)
-                    .brand(14, 400)
-                    .foregroundStyle(tagInk)
-            }
-        }
-        .lineLimit(1)
+        let extra = tags.isEmpty ? "" : "  •  " + tags.joined(separator: "  •  ")
+        (Text(kind).font(BrandFont.of(14, 700)).foregroundColor(.white) +
+         Text(extra).font(BrandFont.of(14, 400)).foregroundColor(tagInk))
+            .lineLimit(1)
+            .truncationMode(.tail)
+            .padding(.horizontal, 8)
     }
 }
 
@@ -145,13 +137,15 @@ private struct WideButton: View {
 
     var body: some View {
         Button(action: go) {
-            HStack(spacing: 8) {
-                Icon(icon, 26, tint: ink)
+            HStack(spacing: 6) {
+                Icon(icon, 22, tint: ink)
                 Text(word)
-                    .brand(17, 600)
+                    .brand(15, 600)
                     .foregroundStyle(ink)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.75)
             }
+            .padding(.horizontal, 8)
             .frame(maxWidth: .infinity, minHeight: 48)
             .background(fill, in: RoundedRectangle(cornerRadius: min(Corner.button, 24)))
         }

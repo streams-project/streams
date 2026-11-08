@@ -20,11 +20,16 @@ private let chosenFill = Color(red: 0x38 / 255, green: 0x38 / 255, blue: 0x38 / 
 private let idleInk = Color(red: 0xC0 / 255, green: 0xC0 / 255, blue: 0xC0 / 255)
 
 /// The bar at the foot of every main page, floating as the reference's does. It sits in the reading
-/// direction, so it turns with a right to left language.
+/// direction, so it turns with a right to left language. All shapes and corners come from brand.json
+/// (`Corner.button`), never hardcoded Capsule.
 struct BottomBar: View {
     let items: [BarItem]
 
     var body: some View {
+        let barCorner = min(Corner.button, 32)
+        let itemCorner = min(Corner.button, 24)
+        let minItemWidth: CGFloat = items.count > 4 ? 58 : 66
+
         HStack(spacing: 0) {
             ForEach(items) { item in
                 Button(action: item.go) {
@@ -38,17 +43,22 @@ struct BottomBar: View {
                             .brand(11, 400)
                             .foregroundStyle(item.here ? .white : idleInk)
                             .lineLimit(1)
+                            .truncationMode(.tail)
+                            .minimumScaleFactor(0.8)
                     }
-                    .frame(width: 76, height: 48)
-                    .background(item.here ? chosenFill : Color.clear, in: Capsule())
+                    .padding(.horizontal, 6)
+                    .frame(height: 48)
+                    .frame(minWidth: minItemWidth)
+                    .background(item.here ? chosenFill : Color.clear, in: RoundedRectangle(cornerRadius: itemCorner))
                 }
                 .buttonStyle(.plain)
+                .padding(.horizontal, 2)
             }
         }
         .padding(.horizontal, 7)
         .frame(height: 63)
-        .background(barFill, in: Capsule())
-        .overlay(Capsule().stroke(Color.white.opacity(0.10), lineWidth: 1))
+        .background(barFill, in: RoundedRectangle(cornerRadius: barCorner))
+        .overlay(RoundedRectangle(cornerRadius: barCorner).stroke(Color.white.opacity(0.10), lineWidth: 1))
     }
 }
 

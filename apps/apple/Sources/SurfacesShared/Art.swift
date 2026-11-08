@@ -103,6 +103,7 @@ public struct Icon: SwiftUI.View {
             .aspectRatio(contentMode: .fit)
             .frame(width: size.ref, height: size.ref)
             .foregroundStyle(tint)
+            .flipsForRightToLeftLayoutDirection(name == "icon_back" || name == "icon_leave")
     }
 }
 

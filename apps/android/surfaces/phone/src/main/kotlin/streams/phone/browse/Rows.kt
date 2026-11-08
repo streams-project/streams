@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,10 +38,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -106,8 +111,8 @@ fun SectionRow(
     Column(Modifier.fillMaxWidth().padding(bottom = 12.dp)) {
         Box(
             modifier = Modifier
-                .height(34.dp)
-                .padding(start = RowStart)
+                .defaultMinSize(minHeight = 34.dp)
+                .padding(horizontal = RowStart)
                 .then(if (hasMore) Modifier.clickable(onClick = ::onTitleTap) else Modifier),
             contentAlignment = Alignment.CenterStart,
         ) {
@@ -118,11 +123,13 @@ fun SectionRow(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
                 )
                 if (hasMore) {
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        text = "›",
+                        text = if (LocalLayoutDirection.current == LayoutDirection.Rtl) "‹" else "›",
                         color = Color.White.copy(alpha = 0.7f),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
@@ -394,6 +401,8 @@ private fun TileCard(
                         color = Color.White,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -415,6 +424,8 @@ private fun TileCard(
                     color = Color.White,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         } else {
@@ -472,6 +483,7 @@ private fun FullPageGrid(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         BackHandler(onBack = onClose)
+        val layoutDir = LocalLayoutDirection.current
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -487,14 +499,16 @@ private fun FullPageGrid(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(48.dp, 44.dp)
+                        .size(48.dp, 48.dp)
                         .clickable(onClick = onClose),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.icon_back),
                         contentDescription = "Back",
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(24.dp).graphicsLayer {
+                            if (layoutDir == LayoutDirection.Rtl) scaleX = -1f
+                        },
                         tint = Color.White,
                     )
                 }
@@ -505,6 +519,8 @@ private fun FullPageGrid(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
                 )
             }
             LazyVerticalGrid(

@@ -40,7 +40,9 @@ struct TopBar: View {
                 .brand(24, 700)
                 .foregroundStyle(.white)
                 .lineLimit(1)
+                .truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.trailing, bell == nil ? 8 : 0)
 
             if let bell {
                 Button(action: bell) {
@@ -73,6 +75,7 @@ struct Chip: Identifiable {
 /// `chip_end_radius`), every other corner takes `chip_radius`. Start and end follow the reading
 /// direction, so the group mirrors in Arabic and Hebrew.
 struct ChipRow: View {
+    @Environment(\.layoutDirection) private var layoutDirection
     let chips: [Chip]
     let shown: CGFloat
 
@@ -81,25 +84,21 @@ struct ChipRow: View {
         let high = outline ? outlineHigh : chipHigh
         let inner = Corner.chip
         let outer = min(Corner.chipEnd, high / 2)
+        let isRTL = layoutDirection == .rightToLeft
 
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 6) {
                 ForEach(Array(chips.enumerated()), id: \.element.id) { index, chip in
                     let first = index == 0
                     let last = index == chips.count - 1
-                    let shape = outline
-                        ? UnevenRoundedRectangle(
-                            topLeadingRadius: inner,
-                            bottomLeadingRadius: inner,
-                            bottomTrailingRadius: inner,
-                            topTrailingRadius: inner
-                        )
-                        : UnevenRoundedRectangle(
-                            topLeadingRadius: first ? outer : inner,
-                            bottomLeadingRadius: first ? outer : inner,
-                            bottomTrailingRadius: last ? outer : inner,
-                            topTrailingRadius: last ? outer : inner
-                        )
+                    let leadRadius = outline ? inner : (isRTL ? (last ? outer : inner) : (first ? outer : inner))
+                    let trailRadius = outline ? inner : (isRTL ? (first ? outer : inner) : (last ? outer : inner))
+                    let shape = UnevenRoundedRectangle(
+                        topLeadingRadius: leadRadius,
+                        bottomLeadingRadius: leadRadius,
+                        bottomTrailingRadius: trailRadius,
+                        topTrailingRadius: trailRadius
+                    )
                     let fill = chip.chosen ? Color.white : outline ? Color.clear : Color.white.opacity(0.10)
                     let edge = chip.chosen ? Color.clear : outline ? Color.white.opacity(0.40) : Color.white.opacity(0.10)
                     let ink = chip.chosen ? Color.black : chipInk
@@ -114,6 +113,7 @@ struct ChipRow: View {
                                 Icon("icon_caret_down", 18, tint: ink)
                             }
                         }
+                        .fixedSize(horizontal: true, vertical: false)
                         .padding(.horizontal, 16)
                         .frame(height: high)
                         .background(fill, in: shape)
