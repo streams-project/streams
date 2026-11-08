@@ -50,6 +50,7 @@ fun MoreLike(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
                 fontWeight = FontWeight.ExtraBold,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
+                style = storyStyle(),
             )
             Facts(data, seen.words)
         }

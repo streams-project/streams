@@ -1,5 +1,9 @@
 package streams.tv
 
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.graphics.Color
@@ -65,3 +69,16 @@ fun fromStart(vararg stops: Pair<Float, Color>): Brush =
     } else {
         Brush.horizontalGradient(*stops)
     }
+
+/**
+ * Text from the catalog (a story, a title's name): it runs in its own direction, so an English
+ * story in a right to left interface keeps its full stops and ends where they belong, and it sits
+ * against the side the interface reads from.
+ */
+@Composable
+fun storyStyle(): TextStyle = LocalTextStyle.current.merge(
+    TextStyle(
+        textDirection = TextDirection.Content,
+        textAlign = if (LocalLayoutDirection.current == LayoutDirection.Rtl) TextAlign.Right else TextAlign.Left,
+    ),
+)

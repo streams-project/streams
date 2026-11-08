@@ -238,5 +238,7 @@
   "genre.news": "न्यूज़",
   "genre.war": "युद्ध",
   "genre.music": "संगीत",
-  "genre.tv_movie": "टीवी फ़िल्म"
+  "genre.tv_movie": "टीवी फ़िल्म",
+  "title.length.hours": "{h} घं {m} मि",
+  "title.length.minutes": "{m} मि"
 }

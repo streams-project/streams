@@ -185,6 +185,7 @@ private fun TitleCard(title: TitleDetail, words: Map<String, String>, current: B
             lineHeight = 39.refType,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
+            style = storyStyle(),
         )
         Box(Modifier.align(Alignment.TopEnd).offset((-INSET).ref, 720.ref)) { Ask(words["door.watch"].orEmpty(), on, Join, Color.White) }
     }

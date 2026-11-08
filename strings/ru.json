@@ -238,5 +238,7 @@
   "genre.news": "Новости",
   "genre.war": "Военный",
   "genre.music": "Музыка",
-  "genre.tv_movie": "Телефильм"
+  "genre.tv_movie": "Телефильм",
+  "title.length.hours": "{h} ч {m} мин",
+  "title.length.minutes": "{m} мин"
 }

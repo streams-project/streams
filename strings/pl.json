@@ -238,5 +238,7 @@
   "genre.news": "Wiadomości",
   "genre.war": "Wojenny",
   "genre.music": "Muzyczny",
-  "genre.tv_movie": "Film telewizyjny"
+  "genre.tv_movie": "Film telewizyjny",
+  "title.length.hours": "{h} godz. {m} min",
+  "title.length.minutes": "{m} min"
 }

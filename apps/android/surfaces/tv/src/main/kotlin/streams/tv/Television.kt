@@ -1,5 +1,9 @@
 package streams.tv
 
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.activity.compose.BackHandler
@@ -45,10 +49,18 @@ fun Television(shell: Shell) {
                 Box(Modifier.fillMaxSize().graphicsLayer { alpha = if (opening.shown || opening.opened) 1f else 0f }) {
                 // A right to left language mirrors every screen; the player keeps its own way (Watch).
                 val way = if (seen.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
+                // A language may ask for larger text (Arabic letters read small beside Latin at one size).
+                val scale = seen.words["language.text_scale"]?.toFloatOrNull()?.coerceIn(0.8f, 1.4f) ?: 1f
+                val density = LocalDensity.current
                 CompositionLocalProvider(
                     LocalCovered provides !opening.opened,
                     LocalPages provides pages,
                     LocalLayoutDirection provides way,
+                    LocalDensity provides Density(density.density, density.fontScale * scale),
+                    // Interface words run the interface's way; catalog text sets its own (storyStyle).
+                    LocalTextStyle provides LocalTextStyle.current.merge(
+                        TextStyle(textDirection = if (seen.rtl) TextDirection.Rtl else TextDirection.Ltr),
+                    ),
                 ) {
                 if (target != null && target != Target.WAIT && target != Target.PROFILES && target != Target.START &&
                     target != Target.SIGN_IN

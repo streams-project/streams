@@ -80,6 +80,7 @@ fun HeroCard(shell: Shell, seen: Seen, store: DetailStore, lead: Tile, button: I
                 lineHeight = 39.refType,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
+                style = storyStyle(),
             )
             Spacer(Modifier.height(30.ref))
             Row(horizontalArrangement = Arrangement.spacedBy(16.ref)) {
