@@ -1,5 +1,6 @@
 package streams.tv
 
+import streams.shared.number
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,6 +46,8 @@ class SearchState {
     var result by mutableIntStateOf(0)
     /** True while the keyboard shows English letters in place of the profile language's own. */
     var english by mutableStateOf(false)
+    /** True while the keyboard shows digits in place of letters. */
+    var digits by mutableStateOf(false)
 }
 
 private fun tilesOf(text: String, limit: Int): List<Tile> =
@@ -63,8 +66,14 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
     val own = seen.words["search.letters"]?.filter { !it.isWhitespace() && it != '\u200F' }.orEmpty()
     val hasOwn = own.isNotEmpty() && own != ENGLISH_LETTERS
     val english = !hasOwn || state.english
-    // English letters in a right to left screen fill their lines from the left, so they read a to z.
-    val keys = LetterKeys(if (english) ENGLISH_LETTERS else own, globe = hasOwn, mirrored = english && seen.rtl)
+    val alphabet = if (english) ENGLISH_LETTERS else own
+    // English letters and digits in a right to left screen fill their lines from the left.
+    val keys = LetterKeys(
+        letters = if (state.digits) DIGIT_KEYS else alphabet,
+        globe = hasOwn,
+        mirrored = (english || state.digits) && seen.rtl,
+        switchWord = if (state.digits) alphabet.take(3) else number("123"),
+    )
 
     LaunchedEffect(Unit) {
         if (state.offered.isEmpty()) {
@@ -98,10 +107,13 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
                 Word.UP -> Unit
             }
             Zone.LETTERS -> when (word) {
-                Word.OK -> if (state.place.top(keys) == TopKey.GLOBE) {
-                    state.english = !state.english
-                } else {
-                    state.text = state.place.press(state.text, keys)
+                Word.OK -> when (state.place.top(keys)) {
+                    TopKey.GLOBE -> {
+                        state.english = !state.english
+                        state.digits = false
+                    }
+                    TopKey.DIGITS -> state.digits = !state.digits
+                    else -> state.text = state.place.press(state.text, keys)
                 }
                 Word.BACK -> shell.back()
                 else -> {

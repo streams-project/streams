@@ -11,7 +11,7 @@ api_base = ""
 exports_base = ""
 key_file = ""
 # Translations kept for each title: the interface languages. Any region of a language is kept.
-languages = ["en-US", "ar-SA", "de-DE", "es-ES", "fr-FR", "hi-IN", "it-IT", "ja-JP", "ko-KR", "nl-NL", "pl-PL", "pt-BR", "ru-RU", "sv-SE", "tr-TR", "zh-CN"]
+languages = ["en-US", "ar-SA", "de-DE", "es-ES", "fr-FR", "he-IL", "hi-IN", "it-IT", "ja-JP", "ko-KR", "nl-NL", "pl-PL", "pt-BR", "ru-RU", "sv-SE", "tr-TR", "zh-CN"]
 min_popularity = 2.0
 rps = 30.0
 workers = 24

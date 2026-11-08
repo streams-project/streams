@@ -23,6 +23,10 @@ pub fn normalise(text: &str) -> String {
         if ('\u{064B}'..='\u{0652}').contains(&c) || c == '\u{0640}' || c == '\u{0670}' {
             continue;
         }
+        // Hebrew vowel points and cantillation marks carry no letter either.
+        if ('\u{0591}'..='\u{05C7}').contains(&c) && c != '\u{05BE}' {
+            continue;
+        }
         if c.is_alphanumeric() {
             for lower in c.to_lowercase() {
                 fold(lower, &mut out);
@@ -62,6 +66,12 @@ fn fold(c: char, out: &mut String) {
         'ة' => 'ه',
         'ى' | 'ئ' => 'ي',
         'ؤ' => 'و',
+        // Hebrew final forms are the same letters at a word's end.
+        'ך' => 'כ',
+        'ם' => 'מ',
+        'ן' => 'נ',
+        'ף' => 'פ',
+        'ץ' => 'צ',
         '\u{0660}'..='\u{0669}' => char::from_u32(c as u32 - 0x0660 + u32::from(b'0')).unwrap_or(c),
         '\u{06F0}'..='\u{06F9}' => char::from_u32(c as u32 - 0x06F0 + u32::from(b'0')).unwrap_or(c),
         other => other,
@@ -224,6 +234,11 @@ mod tests {
         assert_eq!(normalise("الأوديسة"), normalise("الاوديسه"));
         assert_eq!(normalise("مُسَلْسَل"), "مسلسل");
         assert_eq!(normalise("عام ٢٠٢٤"), "عام 2024");
+    }
+
+    #[test]
+    fn hebrew_points_and_final_forms_fold() {
+        assert_eq!(normalise("שָׁלוֹם"), normalise("שלומ"));
     }
 
     #[test]
