@@ -413,7 +413,11 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
         Box(
             Modifier
                 .offset(EDGE.ref, CARD_TOP.ref)
-                .graphicsLayer { translationX = slide.value * width - moved * step }
+                // A card that leaves to the left fades as it goes, so no sliver of it waits at the edge.
+                .graphicsLayer {
+                    translationX = slide.value * width - moved * step
+                    alpha = (1f - moved).coerceIn(0f, 1f)
+                }
                 .size(1542.ref, 864.ref)
                 .border(3.ref, CardEdge, shape)
                 .clip(shape)
@@ -452,7 +456,10 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
             val card = index + 1
             if (card in page - 1..page + 1) {
                 key(title.title) {
-                    Box(Modifier.offset(EDGE.ref, CARD_TOP.ref).graphicsLayer { translationX = (card - moved) * step }) {
+                    Box(Modifier.offset(EDGE.ref, CARD_TOP.ref).graphicsLayer {
+                        translationX = (card - moved) * step
+                        alpha = (1f - (moved - card)).coerceIn(0f, 1f)
+                    }) {
                         TitleCard(title, words, current = card == page, on = card == page && at == Stop.WATCH)
                     }
                 }

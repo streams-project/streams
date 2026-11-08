@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -167,16 +168,18 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
     }
 
     Box(Modifier.fillMaxSize().background(Color.Black).remote(@DontMemoize { press(it) })) {
-        Text(
-            data.name,
-            Modifier.offset(PAGE_EDGE.ref, 70.ref).width(640.ref),
-            fontSize = 56.refType,
-            lineHeight = 62.refType,
-            fontWeight = FontWeight.ExtraBold,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Facts(data, words, Modifier.offset(PAGE_EDGE.ref, 214.ref))
+        // The facts follow the name, however many lines it takes; the seasons keep their place.
+        Column(Modifier.offset(PAGE_EDGE.ref, 70.ref).width(640.ref), verticalArrangement = Arrangement.spacedBy(20.ref)) {
+            Text(
+                data.name,
+                fontSize = 56.refType,
+                lineHeight = 62.refType,
+                fontWeight = FontWeight.ExtraBold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Facts(data, words)
+        }
         Column(Modifier.offset(PAGE_EDGE.ref, 346.ref)) {
             seasons.forEachIndexed { index, season ->
                 SeasonLine(words, season, index == chosen, inList && index == line)
