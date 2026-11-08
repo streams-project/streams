@@ -66,20 +66,29 @@ extension String {
 }
 
 /// How the interface's language writes numbers and counts: its code (for plural forms) and its
-/// digits (`language.digits` in its strings, `arab` for Arabic-Indic). The app sets both as the
-/// words arrive.
+/// digits (`language.digits` in its strings: `arab` for Arabic-Indic ٠-٩, `arabext` for Eastern
+/// Arabic-Indic / Persian ۰-۹, `latn` for Western 0-9). The app sets both as the words arrive.
 public enum Speaking {
     nonisolated(unsafe) public static var code = "en"
-    nonisolated(unsafe) public static var arabicDigits = false
+    nonisolated(unsafe) public static var digits = "latn"
+    public static var arabicDigits: Bool {
+        get { digits == "arab" }
+        set { digits = newValue ? "arab" : "latn" }
+    }
 }
 
 /// A number as the interface's language writes it.
 public func number(_ value: Any) -> String {
     let plain = "\(value)"
-    guard Speaking.arabicDigits else { return plain }
+    let offset: UInt32? = switch Speaking.digits {
+    case "arab": 0x0660
+    case "arabext": 0x06F0
+    default: nil
+    }
+    guard let offset else { return plain }
     return String(plain.map { c -> Character in
         guard let digit = c.wholeNumberValue, c.isASCII else { return c }
-        return Character(UnicodeScalar(0x0660 + digit)!)
+        return Character(UnicodeScalar(offset + UInt32(digit))!)
     })
 }
 
@@ -105,6 +114,8 @@ public func pluralOf(_ n: Int, _ lang: String) -> String {
         return n == 1 ? "one" : n == 2 ? "two" : "other"
     case "ja", "ko", "zh":
         return "other"
+    case "fa":
+        return n == 1 ? "one" : "other"
     case "fr", "pt", "hi":
         return n <= 1 ? "one" : "other"
     default:
@@ -118,5 +129,21 @@ extension Dictionary where Key == String, Value == String {
         let form = pluralOf(n, Speaking.code)
         let word = [form, "other", "many", "one"].lazy.compactMap { self["\(base).\($0)"] }.first ?? ""
         return word.fill("n", n)
+    }
+}
+
+/// A formatted runtime length in hours and minutes, joined by the language's conjunction.
+public func formatLength(_ words: [String: String], _ minutes: Int) -> String {
+    let h = minutes / 60
+    let m = minutes % 60
+    if h > 0 && m > 0 {
+        let hText = words.counted("title.length.hours", h)
+        let mText = words.counted("title.length.minutes", m)
+        let pattern = words["title.length.both"] ?? "{hours} {minutes}"
+        return pattern.replacingOccurrences(of: "{hours}", with: hText).replacingOccurrences(of: "{minutes}", with: mText)
+    } else if h > 0 {
+        return words.counted("title.length.hours", h)
+    } else {
+        return words.counted("title.length.minutes", m)
     }
 }

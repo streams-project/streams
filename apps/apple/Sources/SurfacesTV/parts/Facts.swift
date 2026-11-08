@@ -1,6 +1,21 @@
 import Contract
 import SwiftUI
 
+private func formatLength(_ words: [String: String], _ minutes: Int) -> String {
+    let h = minutes / 60
+    let m = minutes % 60
+    if h > 0 && m > 0 {
+        let hText = words.counted("title.length.hours", h)
+        let mText = words.counted("title.length.minutes", m)
+        let pattern = words["title.length.both"] ?? "{hours} {minutes}"
+        return pattern.replacingOccurrences(of: "{hours}", with: hText).replacingOccurrences(of: "{minutes}", with: mText)
+    } else if h > 0 {
+        return words.counted("title.length.hours", h)
+    } else {
+        return words.counted("title.length.minutes", m)
+    }
+}
+
 private func facts(_ detail: TitleDetail, _ words: [String: String]) -> [String] {
     var out: [String] = []
     if let genre = detail.genres?.first { out.append(genre) }
@@ -8,12 +23,13 @@ private func facts(_ detail: TitleDetail, _ words: [String: String]) -> [String]
     let seasons = detail.seasons?.count ?? 0
     if seasons > 0 {
         out.append(words.counted("title.season", seasons))
-    } else if let minutes = detail.runtimeMin, minutes >= 60 {
-        out.append((words["title.length.hours"] ?? "").fill("h", minutes / 60).fill("m", minutes % 60))
-    } else if let minutes = detail.runtimeMin {
-        out.append((words["title.length.minutes"] ?? "").fill("m", minutes))
+    } else if let minutes = detail.runtimeMin, minutes > 0 {
+        out.append(formatLength(words, minutes))
     }
-    if let age = detail.age { out.append(age.label) }
+    if let age = detail.age {
+        let translated = words["age.\(age.label)"] ?? number(age.label)
+        out.append(translated)
+    }
     return out
 }
 
