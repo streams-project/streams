@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Check that every strings/<lang>.json file has all keys and matching placeholders from en.json."""
+"""Check that every strings/<lang>.json file has all keys and matching placeholders from en.json,
+and that strings/rows/<lang>.json translates every row name in strings/rows/names.json (the English
+names the page builder makes, written by the row_names test in server-pages)."""
 
 from __future__ import annotations
 
@@ -45,6 +47,19 @@ def main() -> int:
                     f"placeholder {lang} {key}: expected {sorted(expected_ph)}, got {sorted(actual_ph)}"
                 )
                 failed = True
+
+    names_path = strings_dir / "rows" / "names.json"
+    names: list[str] = json.loads(names_path.read_text(encoding="utf-8")) if names_path.is_file() else []
+    for path in sorted(strings_dir.glob("*.json")):
+        lang = path.stem
+        if lang == "en" or not names:
+            continue
+        rows_path = strings_dir / "rows" / f"{lang}.json"
+        rows: dict[str, str] = json.loads(rows_path.read_text(encoding="utf-8")) if rows_path.is_file() else {}
+        missing = [name for name in names if not str(rows.get(name, "")).strip()]
+        if missing:
+            print(f"rows {lang}: {len(missing)} of {len(names)} row names untranslated, first {missing[0]!r}")
+            failed = True
 
     return 1 if failed else 0
 

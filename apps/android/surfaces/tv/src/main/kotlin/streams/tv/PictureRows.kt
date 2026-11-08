@@ -61,7 +61,8 @@ class PictureFocus {
 @Composable
 private fun OneRow(row: PictureRow, index: Int, focus: PictureFocus, server: String) {
     val at = focus.column(index)
-    val step = with(LocalDensity.current) { ACROSS.ref.toPx() }
+    // In a right to left language the row runs leftwards: every move along it turns.
+    val step = with(LocalDensity.current) { ACROSS.ref.toPx() } * along()
     val moved by animateFloatAsState(at.toFloat(), tween(MOVE_MS, easing = Glide), label = "across")
     Text(
         row.label,

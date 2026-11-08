@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Writes each family's copy of the icon set from platform/icons/icons.json."""
+"""Writes each family's copy of the icon set from platform/icons/icons.json.
+
+An icon marked `"mirror": true` points along the reading direction (back, leave) and turns in a
+right to left language; every other icon, the media controls among them, never turns."""
 import json
 from pathlib import Path
 from xml.etree import ElementTree
@@ -65,7 +68,8 @@ def android() -> None:
         (out / f"icon_{name.replace('-', '_')}.xml").write_text(
             "<!-- Written by platform/tools/make_icons.py. Change platform/icons/icons.json instead. -->\n"
             '<vector xmlns:android="http://schemas.android.com/apk/res/android" '
-            'android:width="24dp" android:height="24dp" '
+            + ('android:autoMirrored="true" ' if icon.get("mirror") else "")
+            + 'android:width="24dp" android:height="24dp" '
             f'android:viewportWidth="{grid(icon)}" android:viewportHeight="{grid(icon)}">\n'
             + "".join(shapes)
             + "</vector>\n",

@@ -1,5 +1,6 @@
 package streams.tv
 
+import streams.shared.fill
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -49,7 +50,7 @@ private fun LowPill(word: String, on: Boolean, top: Int) {
 @Composable
 private fun AgeNote(words: Map<String, String>, person: Profile, limit: String, top: Int = 690) {
     val key = if (person.kids) "kids" else limit
-    val chip = words["profile.age.$key"] ?: words.say("profile.age.limit").replace("{age}", limit)
+    val chip = words["profile.age.$key"] ?: words.say("profile.age.limit").fill("age", limit)
     val line = words["profile.age.$key.help"] ?: words.say("profile.age.limit.help")
     Box(Modifier.offset(157.ref, top.ref)) {
         Text(

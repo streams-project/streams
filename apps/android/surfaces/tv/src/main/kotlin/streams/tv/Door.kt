@@ -132,7 +132,7 @@ private const val CARD_MOVE_MS = 320
 private const val SLIDE_EVERY_MS = 4_500L
 private const val SLIDE_FADE_MS = 700
 
-private val TitleSide = Brush.horizontalGradient(0f to Color.Black.copy(alpha = 0.8f), 0.62f to Color.Transparent)
+private val TitleSide = arrayOf(0f to Color.Black.copy(alpha = 0.8f), 0.62f to Color.Transparent)
 private val TitleFoot = Brush.verticalGradient(0.45f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.75f))
 
 /** The pictures of a title card in turn: its backdrop, then its episodes. */
@@ -160,7 +160,7 @@ private fun TitleCard(title: TitleDetail, words: Map<String, String>, current: B
     val shape = shapeOf(Round.panel)
     Box(Modifier.size(1542.ref, 864.ref).border(3.ref, CardEdge, shape).clip(shape).background(Raised)) {
         Slideshow(slidesOf(title), current)
-        Box(Modifier.fillMaxSize().background(TitleSide))
+        Box(Modifier.fillMaxSize().background(fromStart(*TitleSide)))
         Box(Modifier.fillMaxSize().background(TitleFoot))
         val logo = title.images?.firstOrNull { it.role == ImageRole.LOGO }?.url
         Box(Modifier.offset(INSET.ref, 424.ref).size(520.ref, 180.ref), contentAlignment = Alignment.BottomStart) {
@@ -257,7 +257,9 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
     var film by remember { mutableStateOf(opening) }
     val slide = remember { Animatable(if (opening) 0f else Slide.first()) }
     val width = with(LocalDensity.current) { STAGE.ref.toPx() }
-    val step = with(LocalDensity.current) { CARD_STEP.ref.toPx() }
+    // In a right to left language the cards run leftwards: every move along them turns.
+    val way = along()
+    val step = with(LocalDensity.current) { CARD_STEP.ref.toPx() } * way
     val moved by animateFloatAsState(page.toFloat(), tween(CARD_MOVE_MS, easing = Glide), label = "cards")
 
     // The titles and all their pictures load at once, under the opening when there is one, so every
@@ -348,7 +350,7 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
     }
 
     val shape = shapeOf(Round.panel)
-    Box(Modifier.fillMaxSize().background(Back).drawBehind { glow() }.remote(@DontMemoize { press(it) })) {
+    Box(Modifier.fillMaxSize().background(Back).drawBehind { if (way < 0f) scale(-1f, 1f) { glow() } else glow() }.remote(@DontMemoize { press(it) })) {
         if (row < 1f) BrandLockup(LOCKUP_HIGH, Modifier.offset(EDGE.ref, (ROW_MID - LOCKUP_HIGH.toInt() / 2).ref).alpha(1 - row))
         if (row > 0f) {
             Row(Modifier.offset(EDGE.ref, (ROW_MID - ROW_HIGH / 2).ref).alpha(row), verticalAlignment = Alignment.CenterVertically) {
@@ -415,7 +417,7 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
                 .offset(EDGE.ref, CARD_TOP.ref)
                 // A card that leaves to the left fades as it goes, so no sliver of it waits at the edge.
                 .graphicsLayer {
-                    translationX = slide.value * width - moved * step
+                    translationX = slide.value * width * way - moved * step
                     alpha = (1f - moved).coerceIn(0f, 1f)
                 }
                 .size(1542.ref, 864.ref)

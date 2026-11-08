@@ -56,6 +56,20 @@ async fn work<T: Send + 'static>(
     .map_err(|_| closed())
 }
 
+/// The language the caller's profile reads, or empty (English) for a visitor or no library.
+pub(crate) async fn language_of(state: &Shared, reader: &Reader) -> String {
+    let (Some(watching), Some(library)) = (&reader.watching, &state.library) else {
+        return String::new();
+    };
+    library
+        .store()
+        .settings(watching.scope.profile())
+        .await
+        .ok()
+        .and_then(|settings| settings.ui_language)
+        .unwrap_or_default()
+}
+
 /// What this caller's request asks of the page builder.
 async fn ask_of(
     state: &Shared,
@@ -73,6 +87,7 @@ async fn ask_of(
         .iter()
         .map(|title| title.to_lowercase())
         .collect();
+    let language = language_of(state, reader).await;
     let Some(watching) = &reader.watching else {
         return Ok(ScreenAsk {
             screen,
@@ -83,6 +98,7 @@ async fn ask_of(
             seed: String::new(),
             personal: Personal::default(),
             blocked_rows,
+            language,
         });
     };
     let scope = &watching.scope;
@@ -105,6 +121,7 @@ async fn ask_of(
         seed,
         personal,
         blocked_rows,
+        language,
     })
 }
 
@@ -116,8 +133,9 @@ pub async fn nav(
 ) -> ApiResult<Response> {
     let set = data(&state)?;
     let tier = reader.viewer.tier();
+    let language = language_of(&state, &reader).await;
     let job = state.clone();
-    let menu = work(&state, move || job.pages.nav(&set, tier)).await?;
+    let menu = work(&state, move || job.pages.nav(&set, tier, &language)).await?;
     send(&headers, &menu, Keep::Private)
 }
 

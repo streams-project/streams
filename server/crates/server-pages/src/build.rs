@@ -30,7 +30,7 @@ use crate::requests::RequestStore;
 use crate::search::{TitleIndex, load_aliases, search_keys};
 use crate::signals::Signals;
 use crate::tags::{item_badges, item_tags};
-use crate::words::Words;
+use crate::words::{Books, Words};
 
 /// Seconds a screen stays good on a client.
 const SCREEN_TTL_S: u32 = 30;
@@ -93,6 +93,9 @@ pub struct ScreenAsk {
     pub personal: Personal,
     /// Row titles the operator took off every page, lower case.
     pub blocked_rows: Vec<String>,
+    /// The profile's language: the page's words, row names and title text are in it, with
+    /// English for whatever it lacks. Empty speaks English.
+    pub language: String,
 }
 
 /// Facts built once per data set.
@@ -187,8 +190,38 @@ impl Pages {
     /// These pages, with this brand's name in their words.
     #[must_use]
     pub fn branded(mut self, name: &str) -> Self {
-        self.words = Words::new(name);
+        self.words = Words::new(name).with_books(self.words.books());
         self
+    }
+
+    /// These pages, reading every language's words from the strings folder.
+    #[must_use]
+    pub fn speaking_from(mut self, books: Arc<Books>) -> Self {
+        self.words = self.words.with_books(books);
+        self
+    }
+
+    /// A row's title in a language: its key with its arguments, a title named in it in that
+    /// language, else the row's name translated whole.
+    fn row_title(&self, data: &DataSet, row: &Row, lang: &str) -> String {
+        let words = self.words.speaking(lang);
+        let meta = row.meta.as_ref();
+        // A row about one title names that title as the language does.
+        let named = meta
+            .and_then(|meta| meta.get("reason"))
+            .and_then(|reason| {
+                let id = u32::try_from(reason.get("id")?.as_u64()?).ok()?;
+                let kind = reason.get("media_type")?.as_str()?;
+                data.title_text(server_catalog::catalog::item_key(kind, id), words.lang())
+            })
+            .map(|text| text.title.clone())
+            .filter(|name| !name.is_empty());
+        let args = named.and_then(|name| {
+            let mut args = meta?.get("title_args")?.as_object()?.clone();
+            args.insert(String::from("title"), serde_json::Value::String(name));
+            Some(args)
+        });
+        words.row_title(meta, &row.title, args.as_ref())
     }
 
     fn facts(&self, data: &DataSet) -> Arc<SetFacts> {
@@ -413,7 +446,41 @@ impl Pages {
             episode: progress.and_then(|(_, episode)| episode.clone()),
             percent: progress.map(|(percent, _)| *percent),
         };
-        SafeTile::new(title, &self.images, extras)
+        SafeTile::new(title, &self.images, extras).map(|tile| self.named_tile(data, key, &ask.language, tile))
+    }
+
+    /// A tile named as the language names its title, when the catalog has a translation.
+    fn named_tile(&self, data: &DataSet, key: u32, lang: &str, tile: SafeTile) -> SafeTile {
+        let words = self.words.speaking(lang);
+        match data.title_text(key, words.lang()) {
+            Some(text) => tile.named(&text.title),
+            None => tile,
+        }
+    }
+
+    /// A title page in the profile's language: name and story from the catalog's translations,
+    /// genres by their names in the strings files, More Like This named the same way. English, or
+    /// a title with no translation, keeps the catalog's own words.
+    #[must_use]
+    pub fn speak_title(&self, data: &DataSet, page: SafeTitleDetail, key: u32, lang: &str) -> SafeTitleDetail {
+        let words = self.words.speaking(lang);
+        if words.lang() == crate::words::ENGLISH_CODE {
+            return page;
+        }
+        let code = words.lang().to_owned();
+        let text = data.title_text(key, &code);
+        let name = text.as_ref().map(|text| text.title.clone()).unwrap_or_default();
+        let overview = text.as_ref().map(|text| text.overview.clone()).unwrap_or_default();
+        page.speaking(
+            &name,
+            &overview,
+            |genre| words.genre(genre),
+            |title| {
+                let kind = if title.kind() == contract::TitleKind::Tv { "tv" } else { "movie" };
+                let key = server_catalog::catalog::item_key(kind, title.id());
+                data.title_text(key, &code).map(|text| text.title.clone())
+            },
+        )
     }
 
     /// Rows with the seen titles out, titles shared out, short rows dropped, and each name checked
@@ -536,7 +603,7 @@ impl Pages {
         SafeSection::new(
             shown.id.clone(),
             kind,
-            Some(self.words.row_title(row.meta.as_ref(), &row.title)),
+            Some(self.row_title(data, row, &ask.language)),
             tiles,
             cursor,
         )
@@ -703,7 +770,13 @@ impl Pages {
                     .filter_map(|title| self.tile(data, viewer, &row, *title, None, ask))
                     .collect();
                 (!tiles.is_empty()).then(|| {
-                    SafeSection::new(String::from(id), kind, self.words.known(key), tiles, None)
+                    SafeSection::new(
+                        String::from(id),
+                        kind,
+                        self.words.speaking(&ask.language).known(key),
+                        tiles,
+                        None,
+                    )
                 })
             })
             .collect();
@@ -1017,22 +1090,23 @@ fn named_item(words: &Words, id: &str, screen: ScreenName) -> NavItem {
 impl Pages {
     /// The menu for this tier. Kids get their own home and pages.
     #[must_use]
-    pub fn nav(&self, data: &DataSet, tier: Tier) -> Nav {
+    pub fn nav(&self, data: &DataSet, tier: Tier, lang: &str) -> Nav {
+        let words = self.words.speaking(lang);
         let kids = tier.is_kids();
         let mut items = if kids {
-            vec![named_item(&self.words, "kids", ScreenName::Kids)]
+            vec![named_item(&words, "kids", ScreenName::Kids)]
         } else {
-            vec![named_item(&self.words, "home", ScreenName::Home)]
+            vec![named_item(&words, "home", ScreenName::Home)]
         };
         items.extend([
-            named_item(&self.words, "series", ScreenName::Series),
-            named_item(&self.words, "films", ScreenName::Films),
-            named_item(&self.words, "new", ScreenName::New),
+            named_item(&words, "series", ScreenName::Series),
+            named_item(&words, "films", ScreenName::Films),
+            named_item(&words, "new", ScreenName::New),
         ]);
         if !kids {
-            items.push(named_item(&self.words, "games", ScreenName::Games));
+            items.push(named_item(&words, "games", ScreenName::Games));
         }
-        items.push(named_item(&self.words, "mine", ScreenName::Mine));
+        items.push(named_item(&words, "mine", ScreenName::Mine));
         let composed = self.facts(data).requests.version >= 2;
         for page in crate::genre_pages::PAGES
             .iter()
@@ -1055,7 +1129,7 @@ impl Pages {
             if plan.supported() {
                 items.push(nav_item(
                     page.id,
-                    page.name,
+                    &words.name(page.name),
                     ScreenName::Genre,
                     Some(page.id),
                 ));

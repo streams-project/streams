@@ -47,6 +47,7 @@ import contract.Screen
 import contract.SecretOp
 import contract.StoreOp
 import contract.Strings
+import contract.TextDirection
 import contract.TitleDetail
 import contract.WIRE_VERSION
 import contract.WireDate
@@ -249,6 +250,7 @@ class Host(
                     now.copy(
                         words = read.texts.mapValues { (_, word) -> word.replace("{brand}", brand) },
                         language = read.lang,
+                        rtl = read.dir == TextDirection.RTL,
                     )
                 }
             }

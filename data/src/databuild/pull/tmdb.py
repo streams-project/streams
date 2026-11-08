@@ -87,11 +87,13 @@ def _companies(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _translations(doc: dict[str, Any], languages: Iterable[str]) -> dict[str, dict[str, str]]:
-    wanted = set(languages)
+    """Every region of each wanted language (`ar-SA` asks for Arabic from any region). The server
+    picks the region its viewers read first and fills a gap from another."""
+    wanted = {tag.split("-")[0].lower() for tag in languages}
     out: dict[str, dict[str, str]] = {}
     for t in (doc.get("translations") or {}).get("translations", []):
         tag = f"{t.get('iso_639_1')}-{t.get('iso_3166_1')}"
-        if tag not in wanted:
+        if str(t.get("iso_639_1") or "").lower() not in wanted:
             continue
         data = t.get("data") or {}
         text = {

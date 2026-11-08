@@ -11,12 +11,25 @@ const fn yes() -> bool {
     true
 }
 
+const fn ltr() -> TextDirection {
+    TextDirection::Ltr
+}
+
 words! {
     /// State of a part of the service.
     pub enum ServiceState {
         Ready,
         Degraded,
         Down,
+    }
+}
+
+words! {
+    /// Which way a language's lines run. The apps lay out, mirror and move focus by it; the player's
+    /// timeline and the brand's art never turn.
+    pub enum TextDirection {
+        Ltr,
+        Rtl,
     }
 }
 
@@ -119,6 +132,9 @@ wire! {
     /// `/v1/strings/{lang}`. Text holds the placeholders below.
     pub struct Strings {
         pub lang: String,
+        /// Which way this language runs. Absent from older servers, which only spoke left to right.
+        #[serde(default = "ltr")]
+        pub dir: TextDirection,
         pub texts: BTreeMap<String, String>,
     }
 
@@ -126,6 +142,8 @@ wire! {
     pub struct Language {
         pub code: String,
         pub name: String,
+        #[serde(default = "ltr")]
+        pub dir: TextDirection,
     }
 
     pub struct LanguageList {

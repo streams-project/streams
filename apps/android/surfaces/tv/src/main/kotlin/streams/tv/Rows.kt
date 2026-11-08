@@ -84,7 +84,8 @@ fun OpenRow(shell: Shell, words: Map<String, String>, store: DetailStore, sectio
     keptWords = words
     val tiles = section.tiles.orEmpty()
     val tile = tiles[at.coerceAtMost(tiles.lastIndex)]
-    val step = with(LocalDensity.current) { STEP.ref.toPx() }
+    // In a right to left language the row runs leftwards: every move along it turns.
+    val step = with(LocalDensity.current) { STEP.ref.toPx() } * along()
     val moved by animateFloatAsState(at.toFloat(), tween(SLIDE_MS, easing = Glide), label = "posters")
     val detail by detailOf(shell, store, tile.title)
     val shown by animateFloatAsState(if (detail != null) 1f else 0f, tween(FADE_MS, easing = LinearEasing), label = "words")

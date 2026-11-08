@@ -1,5 +1,8 @@
 package streams.tv
 
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.runtime.CompositionLocalProvider
 import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -389,6 +392,9 @@ fun Watch(shell: Shell, seen: Seen) {
         return true
     }
 
+    // The player keeps left to right in every language: its timeline and seek keys follow the film,
+    // not the reading direction.
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
     Box(Modifier.fillMaxSize().background(Color.Black).remote(@DontMemoize { press(it) })) {
         AndroidView({ shell.player.picture(it) as View }, Modifier.fillMaxSize())
         when (play?.state) {
@@ -430,5 +436,6 @@ fun Watch(shell: Shell, seen: Seen) {
         SideLine(side, shell, shown)
         if (panel.open) TrackPanel(panel, seen, side.tracks)
         if (asking) StillAsking(words, stay)
+    }
     }
 }

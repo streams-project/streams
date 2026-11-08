@@ -1552,6 +1552,7 @@ value class InputKind(val value: String) {
 @Serializable
 data class Language(
     @SerialName("code") val code: String,
+    @SerialName("dir") val dir: TextDirection? = null,
     @SerialName("name") val name: String,
 )
 
@@ -2186,6 +2187,8 @@ value class StoreOp(val value: String) {
 /** `/v1/strings/{lang}`. Text holds the placeholders below. */
 @Serializable
 data class Strings(
+    /** Which way this language runs. Absent from older servers, which only spoke left to right. */
+    @SerialName("dir") val dir: TextDirection? = null,
     @SerialName("lang") val lang: String,
     @SerialName("texts") val texts: Map<String, String>,
 )
@@ -2241,6 +2244,16 @@ value class Target(val value: String) {
         val WAIT = Target("wait")
         val UPGRADE = Target("upgrade")
         val ACTIVATE = Target("activate")
+    }
+}
+
+/** Which way a language's lines run. The apps lay out, mirror and move focus by it; the player's timeline and the brand's art never turn. */
+@Serializable
+@JvmInline
+value class TextDirection(val value: String) {
+    companion object {
+        val LTR = TextDirection("ltr")
+        val RTL = TextDirection("rtl")
     }
 }
 

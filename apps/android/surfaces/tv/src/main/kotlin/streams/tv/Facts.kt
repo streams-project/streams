@@ -1,5 +1,6 @@
 package streams.tv
 
+import streams.shared.fill
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -24,7 +25,7 @@ private fun facts(detail: TitleDetail, words: Map<String, String>): List<String>
     when {
         seasons > 0 -> {
             val word = words[if (seasons == 1) "title.season.one" else "title.season.many"].orEmpty()
-            add(word.replace("{n}", seasons.toString()))
+            add(word.fill("n", seasons.toString()))
         }
         minutes != null -> add("${minutes / 60}h ${minutes % 60}m")
     }

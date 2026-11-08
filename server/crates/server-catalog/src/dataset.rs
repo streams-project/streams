@@ -57,6 +57,8 @@ pub struct DataSet {
     pub index: ArcSwapOption<HnswIndex>,
     /// Optional files that failed their check.
     pub dropped: Vec<String>,
+    /// Titles' names and stories in other languages, read from the catalog file when asked.
+    pub texts: Arc<crate::texts::TitleTexts>,
     /// Index searches that failed and fell back to the exact scan.
     pub index_errors: AtomicU64,
 }
@@ -138,6 +140,7 @@ impl DataSet {
         let vault = CentroidVault::compute(&catalog, &vectors);
         let db = need(role::CATALOG)?;
         require_text_index(&db)?;
+        let texts = Arc::new(crate::texts::TitleTexts::new(&db));
         let group_map = groups::load(&db);
         let group_names = groups::load_names(&db);
         let vibe = vibe::load(&db, groups::vibe_members(&group_map));
@@ -185,8 +188,17 @@ impl DataSet {
             kids_taxonomy,
             index: ArcSwapOption::empty(),
             dropped,
+            texts,
             index_errors: AtomicU64::new(0),
         })
+    }
+
+    /// A title's name, story and line in a language (a code such as `ar`), or None for English,
+    /// an unknown title or no translation.
+    #[must_use]
+    pub fn title_text(&self, key: u32, lang: &str) -> Option<Arc<crate::texts::TitleText>> {
+        let item = self.catalog.get(&key)?;
+        self.texts.get(key, &item.media_type, item.title_id, lang)
     }
 
     /// True when the index holds and has not failed.

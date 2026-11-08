@@ -3220,15 +3220,18 @@ public struct InputKind: RawRepresentable, Codable, Hashable, Sendable {
 /// A language this server has text for, named in itself.
 public struct Language: Codable, Equatable, Sendable {
     public var code: String
+    public var dir: TextDirection?
     public var name: String
 
     enum CodingKeys: String, CodingKey {
         case code = "code"
+        case dir = "dir"
         case name = "name"
     }
 
-    public init(code: String, name: String) {
+    public init(code: String, dir: TextDirection? = nil, name: String) {
         self.code = code
+        self.dir = dir
         self.name = name
     }
 }
@@ -4444,15 +4447,19 @@ public struct StoreOp: RawRepresentable, Codable, Hashable, Sendable {
 
 /// `/v1/strings/{lang}`. Text holds the placeholders below.
 public struct Strings: Codable, Equatable, Sendable {
+    /// Which way this language runs. Absent from older servers, which only spoke left to right.
+    public var dir: TextDirection?
     public var lang: String
     public var texts: [String: String]
 
     enum CodingKeys: String, CodingKey {
+        case dir = "dir"
         case lang = "lang"
         case texts = "texts"
     }
 
-    public init(lang: String, texts: [String: String]) {
+    public init(dir: TextDirection? = nil, lang: String, texts: [String: String]) {
+        self.dir = dir
         self.lang = lang
         self.texts = texts
     }
@@ -4551,6 +4558,14 @@ public struct Target: RawRepresentable, Codable, Hashable, Sendable {
     public static let wait = Target(rawValue: "wait")
     public static let upgrade = Target(rawValue: "upgrade")
     public static let activate = Target(rawValue: "activate")
+}
+
+/// Which way a language's lines run. The apps lay out, mirror and move focus by it; the player's timeline and the brand's art never turn.
+public struct TextDirection: RawRepresentable, Codable, Hashable, Sendable {
+    public var rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+    public static let ltr = TextDirection(rawValue: "ltr")
+    public static let rtl = TextDirection(rawValue: "rtl")
 }
 
 /// One title in a section.

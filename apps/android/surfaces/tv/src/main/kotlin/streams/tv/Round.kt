@@ -1,5 +1,10 @@
 package streams.tv
 
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import streams.shared.Corner
 import streams.shared.ref
@@ -44,3 +49,19 @@ const val PAGE_EDGE = 72
 const val SUB_EDGE = 130
 
 fun shapeOf(corner: Int) = RoundedCornerShape(corner.ref)
+
+/** 1 when lines run left to right, -1 when they run right to left: moves along a row multiply by it. */
+@Composable
+fun along(): Float = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1f else 1f
+
+/**
+ * A shade across the screen that starts dark on the side the words start from (left, or right in a
+ * right to left language) and fades towards the other side.
+ */
+@Composable
+fun fromStart(vararg stops: Pair<Float, Color>): Brush =
+    if (LocalLayoutDirection.current == LayoutDirection.Rtl) {
+        Brush.horizontalGradient(*stops, startX = Float.POSITIVE_INFINITY, endX = 0f)
+    } else {
+        Brush.horizontalGradient(*stops)
+    }

@@ -77,6 +77,11 @@ impl AppState {
                     None
                 }
             });
+        // Every language's words for the pages, from the same folder `/v1/strings` reads.
+        let books = Arc::new(config.strings_dir.as_deref().map_or_else(
+            server_pages::words::Books::default,
+            server_pages::words::Books::read,
+        ));
         Self {
             help,
             config,
@@ -84,7 +89,7 @@ impl AppState {
             door,
             data,
             library,
-            pages: Pages::new(images.clone()).branded(&brand),
+            pages: Pages::new(images.clone()).speaking_from(books).branded(&brand),
             play: None,
             play_log: None,
             subtitles,

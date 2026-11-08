@@ -22,6 +22,7 @@ pub mod sample;
 pub mod seasons;
 pub mod support;
 pub mod taxonomy;
+pub mod texts;
 pub mod topics;
 pub mod vectors;
 pub mod vibe;

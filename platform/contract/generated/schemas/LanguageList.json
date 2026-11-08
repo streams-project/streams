@@ -6,6 +6,10 @@
         "code": {
           "type": "string"
         },
+        "dir": {
+          "$ref": "#/$defs/TextDirection",
+          "default": "ltr"
+        },
         "name": {
           "type": "string"
         }
@@ -15,6 +19,14 @@
         "name"
       ],
       "type": "object"
+    },
+    "TextDirection": {
+      "description": "Which way a language's lines run. The apps lay out, mirror and move focus by it; the player's\ntimeline and the brand's art never turn.",
+      "enum": [
+        "ltr",
+        "rtl"
+      ],
+      "type": "string"
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
