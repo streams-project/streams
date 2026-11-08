@@ -1,0 +1,102 @@
+{
+  "titles": [
+    {
+      "line": {
+        "date": "2026-11-20",
+        "kind": "coming"
+      },
+      "tile": {
+        "images": [
+          {
+            "role": "poster",
+            "url": "https://images.example/p/2001.jpg",
+            "width": 780
+          },
+          {
+            "role": "backdrop",
+            "url": "https://images.example/b/2001.jpg",
+            "width": 780
+          },
+          {
+            "role": "logo",
+            "url": "https://images.example/l/2001.png",
+            "width": 500
+          },
+          {
+            "role": "art",
+            "url": "https://images.example/a/2001.jpg",
+            "width": 780
+          }
+        ],
+        "name": "Sample Premiere",
+        "title": "movie:2001"
+      }
+    },
+    {
+      "line": {
+        "date": "2026-11-21",
+        "kind": "seasons_coming"
+      },
+      "tile": {
+        "images": [
+          {
+            "role": "poster",
+            "url": "https://images.example/p/2002.jpg",
+            "width": 780
+          },
+          {
+            "role": "backdrop",
+            "url": "https://images.example/b/2002.jpg",
+            "width": 780
+          },
+          {
+            "role": "logo",
+            "url": "https://images.example/l/2002.png",
+            "width": 500
+          },
+          {
+            "role": "art",
+            "url": "https://images.example/a/2002.jpg",
+            "width": 780
+          }
+        ],
+        "name": "Sample Returning Series",
+        "title": "tv:2002"
+      }
+    },
+    {
+      "line": {
+        "kind": "ranked",
+        "media": "tv",
+        "rank": 5
+      },
+      "tile": {
+        "images": [
+          {
+            "role": "poster",
+            "url": "https://images.example/p/2003.jpg",
+            "width": 780
+          },
+          {
+            "role": "backdrop",
+            "url": "https://images.example/b/2003.jpg",
+            "width": 780
+          },
+          {
+            "role": "logo",
+            "url": "https://images.example/l/2003.png",
+            "width": 500
+          },
+          {
+            "role": "art",
+            "url": "https://images.example/a/2003.jpg",
+            "width": 780
+          }
+        ],
+        "name": "Sample Series",
+        "title": "tv:2003"
+      }
+    }
+  ],
+  "ttl_s": 3600
+}

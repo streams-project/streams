@@ -17,6 +17,7 @@ private let cardFoot = LinearGradient(
 private struct EpisodeCard: View {
     let episode: Episode
     let label: String
+    let runtime: String?
     let on: Bool
 
     var body: some View {
@@ -35,7 +36,7 @@ private struct EpisodeCard: View {
             VStack(alignment: .leading, spacing: 8.ref) {
                 Text(episode.name).brand(30, 700).foregroundStyle(.white).lineLimit(1)
                 Text(episode.overview ?? "").brand(24).lines(24, 32).foregroundStyle(.white.opacity(0.8)).lineLimit(3)
-                if let minutes = episode.runtimeMin { Text("(\(minutes)m)").brand(24).foregroundStyle(Muted) }
+                if let runtime { Text("(\(runtime))").brand(24).foregroundStyle(Muted) }
             }
             .frame(width: 590.ref, alignment: .leading)
             .offset(x: wordsX.ref, y: 44.ref)
@@ -129,6 +130,7 @@ struct Episodes: View {
                         EpisodeCard(
                             episode: episode,
                             label: seen.say("title.episode").fill("n", episode.number),
+                            runtime: episode.runtimeMin.map { seen.words.counted("title.length.minutes", $0) },
                             on: !inList && index == card
                         )
                         .offset(y: (CGFloat(index) * cardStep).ref)

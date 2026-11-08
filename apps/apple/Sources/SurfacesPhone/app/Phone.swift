@@ -14,7 +14,7 @@ public struct Phone: View {
     public var body: some View {
         let seen = shell.seen
         BrandFont.scale = min(max(CGFloat(Double(seen.words["language.text_scale"] ?? "") ?? 1), 0.8), 1.4)
-        Speaking.arabicDigits = seen.words["language.digits"] == "arab"
+        Speaking.digits = seen.words["language.digits"] ?? "latn"
         Speaking.code = seen.language.isEmpty ? "en" : seen.language
         return ZStack {
             Back.ignoresSafeArea()
@@ -34,7 +34,7 @@ public struct Phone: View {
         } else if target == .signIn {
             SignIn(shell: shell, seen: seen)
         } else if target == .profiles {
-            People(shell: shell, seen: seen)
+            GateView(shell: shell, seen: seen)
         } else if target == .title {
             Title(shell: shell, seen: seen)
         } else if target == .home || target == .kidsHome || target == .screen || target == .watch {

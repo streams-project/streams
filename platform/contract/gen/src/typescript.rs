@@ -11,7 +11,7 @@ use crate::shape::{Field, Item, Shape, Ty};
 fn template(name: &str) -> &'static str {
     match name {
         "TitleKey" => "`movie:${number}` | `tv:${number}`",
-        "WireDate" => "`${number}-${number}-${number}`",
+        "WireDate" | "CalendarDay" => "`${number}-${number}-${number}`",
         _ => "string",
     }
 }

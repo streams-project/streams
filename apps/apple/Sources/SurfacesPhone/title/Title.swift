@@ -140,12 +140,8 @@ public struct Title: View {
                                         Text(words.counted("title.season", seasonsCount))
                                             .brand(14, 400)
                                             .foregroundStyle(Muted)
-                                    } else if let minutes, minutes >= 60 {
-                                        Text((words["title.length.hours"] ?? "").fill("h", minutes / 60).fill("m", minutes % 60))
-                                            .brand(14, 400)
-                                            .foregroundStyle(Muted)
-                                    } else if let minutes {
-                                        Text((words["title.length.minutes"] ?? "").fill("m", minutes))
+                                    } else if let minutes, minutes > 0 {
+                                        Text(formatLength(words, minutes))
                                             .brand(14, 400)
                                             .foregroundStyle(Muted)
                                     }
@@ -526,7 +522,7 @@ private struct PhoneEpisodeRow: View {
                             .multilineTextAlignment(.leading)
 
                         if let minutes = episode.runtimeMin, minutes > 0 {
-                            Text("\(number(minutes))m")
+                            Text(shell.seen.words.counted("title.length.minutes", minutes))
                                 .brand(12, 400)
                                 .foregroundStyle(Muted)
                         }

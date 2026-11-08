@@ -1,0 +1,36 @@
+{
+  "titles": [
+    {
+      "line": {
+        "kind": "none"
+      },
+      "tile": {
+        "images": [
+          {
+            "role": "poster",
+            "url": "https://images.example/p/2004.jpg",
+            "width": 780
+          },
+          {
+            "role": "backdrop",
+            "url": "https://images.example/b/2004.jpg",
+            "width": 780
+          },
+          {
+            "role": "logo",
+            "url": "https://images.example/l/2004.png",
+            "width": 500
+          },
+          {
+            "role": "art",
+            "url": "https://images.example/a/2004.jpg",
+            "width": 780
+          }
+        ],
+        "name": "Sample Film",
+        "title": "movie:2004"
+      }
+    }
+  ],
+  "ttl_s": 3600
+}
