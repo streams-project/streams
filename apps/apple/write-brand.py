@@ -43,7 +43,7 @@ write(
 
 shape = brand["shape"]
 write(
-    HERE / "Sources/SurfacesTV/BrandShape.swift",
+    HERE / "Sources/SurfacesTV/app/BrandShape.swift",
     "// Generated from brand.json by write-brand.py. Do not commit.\n"
     "import CoreGraphics\n\n"
     "/// The brand's corners from brand.json `shape`, in points on a phone. Each family scales them.\n"

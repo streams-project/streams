@@ -51,6 +51,7 @@ let package = Package(
             name: "SurfacesTV",
             dependencies: ["Contract", "Ports"],
             path: "Sources/SurfacesTV",
+            exclude: ["README.md"],
             resources: [.process("Resources")]
         ),
     ]
