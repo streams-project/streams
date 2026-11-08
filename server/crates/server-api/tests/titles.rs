@@ -230,10 +230,18 @@ async fn the_public_trending_list_is_off_without_a_tier_and_keeps_to_it_with_one
     assert_eq!(answer.status, StatusCode::OK, "{}", answer.body);
     let list: contract::screen::PublicTitles =
         serde_json::from_value(answer.body.clone()).expect("PublicTitles");
-    assert!(!list.titles.is_empty(), "the sample set has titles: {}", answer.body);
+    assert!(
+        !list.titles.is_empty(),
+        "the sample set has titles: {}",
+        answer.body
+    );
     assert!(list.titles.len() <= 10);
     let adult = format!("movie:{}", special::ADULT_FLAG);
-    assert!(list.titles.iter().all(|title| title.title.to_string() != adult));
+    assert!(
+        list.titles
+            .iter()
+            .all(|title| title.title.to_string() != adult)
+    );
     assert!(
         answer.headers["cache-control"]
             .to_str()

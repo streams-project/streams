@@ -77,7 +77,7 @@ async fn n12_three_titles_mix_line_kinds_each_with_logo_and_art() {
     keys.dedup();
     assert_eq!(keys.len(), 3);
 
-    let kinds: Vec<GateLineKind> = answer.titles.iter().map(|t| t.line.kind.clone()).collect();
+    let kinds: Vec<GateLineKind> = answer.titles.iter().map(|t| t.line.kind).collect();
     assert_eq!(
         kinds,
         vec![
@@ -164,7 +164,9 @@ async fn n12_art_resolves_to_explicit_image_base_art() {
             .find(|i| i.role == ImageRole::Poster)
             .expect("poster image");
         assert!(
-            poster.url.starts_with("https://images.host.example/t/w780/"),
+            poster
+                .url
+                .starts_with("https://images.host.example/t/w780/"),
             "poster URL must use IMAGE_BASE: {}",
             poster.url
         );

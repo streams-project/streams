@@ -129,15 +129,15 @@ impl Brand {
                 bail!("font {name} must be a plain name, found {value}");
             }
         }
-        if let Some(arabic) = &self.fonts.arabic {
-            if !font_ok(arabic) {
-                bail!("font arabic must be a plain name, found {arabic}");
-            }
+        if let Some(arabic) = &self.fonts.arabic
+            && !font_ok(arabic)
+        {
+            bail!("font arabic must be a plain name, found {arabic}");
         }
-        if let Some(hebrew) = &self.fonts.hebrew {
-            if !font_ok(hebrew) {
-                bail!("font hebrew must be a plain name, found {hebrew}");
-            }
+        if let Some(hebrew) = &self.fonts.hebrew
+            && !font_ok(hebrew)
+        {
+            bail!("font hebrew must be a plain name, found {hebrew}");
         }
         Ok(())
     }

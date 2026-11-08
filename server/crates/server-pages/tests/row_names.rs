@@ -69,7 +69,8 @@ fn every_row_name() {
         for (screen, genre) in asks {
             for seed in 0..SEEDS {
                 let now = start + (seed as u64 % 12) * 30 * day + seed as u64 * day;
-                let Ok(page) = pages.screen(&data, &viewer, &ask(screen, genre.clone(), seed, now)) else {
+                let Ok(page) = pages.screen(&data, &viewer, &ask(screen, genre.clone(), seed, now))
+                else {
                     continue;
                 };
                 let page = serde_json::to_value(&page).expect("json");
@@ -81,7 +82,10 @@ fn every_row_name() {
             }
         }
     }
-    let list: Vec<String> = names.into_iter().filter(|name| !name.trim().is_empty()).collect();
+    let list: Vec<String> = names
+        .into_iter()
+        .filter(|name| !name.trim().is_empty())
+        .collect();
     std::fs::write(&out, serde_json::to_string_pretty(&list).expect("json")).expect("write");
     println!("{} names written to {}", list.len(), out.display());
 }

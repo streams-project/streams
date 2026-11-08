@@ -37,7 +37,9 @@ pub struct TitleTexts {
 
 impl std::fmt::Debug for TitleTexts {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("TitleTexts").field("path", &self.path).finish_non_exhaustive()
+        f.debug_struct("TitleTexts")
+            .field("path", &self.path)
+            .finish_non_exhaustive()
     }
 }
 
@@ -61,7 +63,10 @@ impl TitleTexts {
     }
 
     fn with_conn<T>(&self, read: impl FnOnce(&Connection) -> Option<T>) -> Option<T> {
-        let mut conn = self.conn.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        let mut conn = self
+            .conn
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         if conn.is_none() {
             *conn = Connection::open_with_flags(
                 &self.path,
@@ -100,7 +105,10 @@ impl TitleTexts {
                         Ok((item_key(&kind, id), name))
                     })
                     .ok()?;
-                Some(rows.filter_map(Result::ok).collect::<HashMap<u32, String>>())
+                Some(
+                    rows.filter_map(Result::ok)
+                        .collect::<HashMap<u32, String>>(),
+                )
             })
             .unwrap_or_default();
         let read = Arc::new(read);
@@ -122,7 +130,13 @@ impl TitleTexts {
 
     /// A title's name, story and line in `lang`, or None for English or no translation.
     #[must_use]
-    pub fn get(&self, key: u32, media_type: &str, title_id: u32, lang: &str) -> Option<Arc<TitleText>> {
+    pub fn get(
+        &self,
+        key: u32,
+        media_type: &str,
+        title_id: u32,
+        lang: &str,
+    ) -> Option<Arc<TitleText>> {
         if !plain(lang) {
             return None;
         }
@@ -177,7 +191,13 @@ mod tests {
         let key = item_key("movie", 7);
         assert_eq!(texts.name(key, "ar").as_deref(), Some("الأوديسة"));
         assert_eq!(texts.name(key, "en"), None);
-        assert_eq!(texts.get(key, "movie", 7, "ar").map(|t| t.overview.clone()).as_deref(), Some("قصة"));
+        assert_eq!(
+            texts
+                .get(key, "movie", 7, "ar")
+                .map(|t| t.overview.clone())
+                .as_deref(),
+            Some("قصة")
+        );
         assert!(texts.get(key, "movie", 7, "de").is_none());
     }
 }

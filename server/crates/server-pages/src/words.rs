@@ -175,7 +175,11 @@ impl Words {
     /// The text of a key in this language, else in English, if any strings file has it.
     #[must_use]
     pub fn known(&self, key: &str) -> Option<String> {
-        let own = self.books.texts.get(&self.lang).and_then(|book| book.get(key));
+        let own = self
+            .books
+            .texts
+            .get(&self.lang)
+            .and_then(|book| book.get(key));
         let english = || {
             self.books
                 .texts
@@ -298,21 +302,36 @@ mod tests {
         texts.insert(
             String::from("en"),
             BTreeMap::from([
-                (String::from("row.more_like"), String::from("More Like {title}")),
-                (String::from("genre.science_fiction"), String::from("Science Fiction")),
+                (
+                    String::from("row.more_like"),
+                    String::from("More Like {title}"),
+                ),
+                (
+                    String::from("genre.science_fiction"),
+                    String::from("Science Fiction"),
+                ),
             ]),
         );
         texts.insert(
             String::from("ar"),
             BTreeMap::from([
-                (String::from("row.more_like"), String::from("المزيد مثل {title}")),
-                (String::from("genre.science_fiction"), String::from("خيال علمي")),
+                (
+                    String::from("row.more_like"),
+                    String::from("المزيد مثل {title}"),
+                ),
+                (
+                    String::from("genre.science_fiction"),
+                    String::from("خيال علمي"),
+                ),
             ]),
         );
         let mut rows = BTreeMap::new();
         rows.insert(
             String::from("ar"),
-            BTreeMap::from([(String::from("Classic Comedies"), String::from("كوميديا كلاسيكية"))]),
+            BTreeMap::from([(
+                String::from("Classic Comedies"),
+                String::from("كوميديا كلاسيكية"),
+            )]),
         );
         Arc::new(Books::from_maps(texts, rows))
     }
@@ -345,7 +364,8 @@ mod tests {
     #[test]
     fn values_in_a_sentence_are_isolated() {
         let words = Words::new("Sample").with_books(books()).speaking("ar");
-        let meta = serde_json::json!({ "title_key": "row.more_like", "title_args": { "title": "Up" } });
+        let meta =
+            serde_json::json!({ "title_key": "row.more_like", "title_args": { "title": "Up" } });
         assert_eq!(
             words.row_title(Some(&meta), "More Like Up", None),
             "المزيد مثل \u{2068}Up\u{2069}"

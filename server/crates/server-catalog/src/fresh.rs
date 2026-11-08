@@ -1,7 +1,7 @@
 //! What is new, upcoming and trending right now. The catalogue knows only a release year; this
 //! file carries real release dates and titles too new for the catalogue.
-use std::collections::{BTreeMap, HashMap};
 use serde::Deserialize;
+use std::collections::{BTreeMap, HashMap};
 
 #[derive(Deserialize, Clone, Debug, Default)]
 pub struct FreshItem {

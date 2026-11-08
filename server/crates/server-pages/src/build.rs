@@ -488,7 +488,8 @@ impl Pages {
             episode: progress.and_then(|(_, episode)| episode.clone()),
             percent: progress.map(|(percent, _)| *percent),
         };
-        SafeTile::new(title, &self.images, extras).map(|tile| self.named_tile(data, key, &ask.language, tile))
+        SafeTile::new(title, &self.images, extras)
+            .map(|tile| self.named_tile(data, key, &ask.language, tile))
     }
 
     /// A tile named as the language names its title, when the catalog has a translation.
@@ -504,21 +505,37 @@ impl Pages {
     /// genres by their names in the strings files, More Like This named the same way. English, or
     /// a title with no translation, keeps the catalog's own words.
     #[must_use]
-    pub fn speak_title(&self, data: &DataSet, page: SafeTitleDetail, key: u32, lang: &str) -> SafeTitleDetail {
+    pub fn speak_title(
+        &self,
+        data: &DataSet,
+        page: SafeTitleDetail,
+        key: u32,
+        lang: &str,
+    ) -> SafeTitleDetail {
         let words = self.words.speaking(lang);
         if words.lang() == crate::words::ENGLISH_CODE {
             return page;
         }
         let code = words.lang().to_owned();
         let text = data.title_text(key, &code);
-        let name = text.as_ref().map(|text| text.title.clone()).unwrap_or_default();
-        let overview = text.as_ref().map(|text| text.overview.clone()).unwrap_or_default();
+        let name = text
+            .as_ref()
+            .map(|text| text.title.clone())
+            .unwrap_or_default();
+        let overview = text
+            .as_ref()
+            .map(|text| text.overview.clone())
+            .unwrap_or_default();
         page.speaking(
             &name,
             &overview,
             |genre| words.genre(genre),
             |title| {
-                let kind = if title.kind() == contract::TitleKind::Tv { "tv" } else { "movie" };
+                let kind = if title.kind() == contract::TitleKind::Tv {
+                    "tv"
+                } else {
+                    "movie"
+                };
                 let key = server_catalog::catalog::item_key(kind, title.id());
                 data.title_name(key, &code)
             },

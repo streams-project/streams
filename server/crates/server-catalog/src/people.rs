@@ -21,7 +21,11 @@ pub fn normalise(text: &str) -> String {
     for c in text.chars() {
         // Arabic short vowels and the stretching line carry no letter: drop them, do not split.
         // The Persian half-space (U+200C) carries no letter either.
-        if ('\u{064B}'..='\u{0652}').contains(&c) || c == '\u{0640}' || c == '\u{0670}' || c == '\u{200C}' {
+        if ('\u{064B}'..='\u{0652}').contains(&c)
+            || c == '\u{0640}'
+            || c == '\u{0670}'
+            || c == '\u{200C}'
+        {
             continue;
         }
         // Hebrew vowel points and cantillation marks carry no letter either.

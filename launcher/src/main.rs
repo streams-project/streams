@@ -104,7 +104,12 @@ fn copy_folder(from: &Path, to: &Path) -> Result<()> {
 /// opening's two sounds. A brand puts its own in `media/`, and the apps run without them. The
 /// opening itself is drawn by each app.
 fn copy_tv_media(assets: &Path, tv: &Path) -> Result<()> {
-    for name in ["showreel.mp4", "peek.jpg", "opening-chime.m4a", "opening-swell.m4a"] {
+    for name in [
+        "showreel.mp4",
+        "peek.jpg",
+        "opening-chime.m4a",
+        "opening-swell.m4a",
+    ] {
         let from = assets.join("media").join(name);
         if from.exists() {
             std::fs::copy(from, tv.join(name))?;

@@ -87,7 +87,12 @@ pub fn top_today<'a>(
 /// Today's most watched titles for a visitor, a series and a film in turn, at most `count`. The
 /// landing of a television shows them as cards after its showreel.
 #[must_use]
-pub fn public_trending(data: &DataSet, tier: Tier, today_days: i64, count: usize) -> Vec<&CatalogItem> {
+pub fn public_trending(
+    data: &DataSet,
+    tier: Tier,
+    today_days: i64,
+    count: usize,
+) -> Vec<&CatalogItem> {
     let today = server_catalog::fresh::ymd(today_days);
     let year: i32 = today[..4].parse().unwrap_or(0);
     let series = chart(data, tier, "tv", year, &today);

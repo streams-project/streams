@@ -92,7 +92,9 @@ impl AppState {
             door,
             data,
             library,
-            pages: Pages::new(images.clone()).speaking_from(books).branded(&brand),
+            pages: Pages::new(images.clone())
+                .speaking_from(books)
+                .branded(&brand),
             play: None,
             play_log: None,
             subtitles,
