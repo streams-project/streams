@@ -45,7 +45,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import contract.ActionDeviceSignIn
-import contract.ActionEnterProfile
 import contract.ActionSignIn
 import contract.Address
 import contract.Profile
@@ -143,48 +142,4 @@ fun Code(shell: Shell, seen: Seen) {
             Text(device.userCode.orEmpty(), fontSize = 72.sp, fontWeight = FontWeight.Black)
         }
     }
-}
-
-@Composable
-fun People(shell: Shell, seen: Seen, tv: Boolean) {
-    Column(
-        Modifier.fillMaxSize().padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text("Who's watching?", fontSize = if (tv) 44.sp else 30.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(32.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-            seen.profiles.forEachIndexed { index, person -> Face(shell, person, index == 0) }
-        }
-    }
-}
-
-@Composable
-private fun Face(shell: Shell, person: Profile, first: Boolean) {
-    val focus = remember { FocusRequester() }
-    var on by remember { mutableStateOf(false) }
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .focusRequester(focus)
-            .focusRing { on = it }
-            .clickable { shell.act(ActionEnterProfile(profile = person.id)) },
-    ) {
-        Text(
-            person.name.take(1).uppercase(),
-            Modifier
-                .size(120.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(if (on) Color.White else Accent)
-                .padding(top = 30.dp),
-            color = if (on) Color.Black else Color.White,
-            textAlign = TextAlign.Center,
-            fontSize = 44.sp,
-            fontWeight = FontWeight.Black,
-        )
-        Spacer(Modifier.height(10.dp))
-        Text(person.name)
-    }
-    if (first) LaunchedEffect(Unit) { focus.requestFocus() }
 }

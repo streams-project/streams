@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import contract.Profile
 import streams.shared.Accent
 import streams.shared.Art
+import streams.shared.Face
 import streams.shared.Join
 
 /**
@@ -77,15 +78,11 @@ fun BottomBar(items: List<BarItem>, modifier: Modifier = Modifier) {
 /** The profile's face at the bar's icon size: its picture, or its first letter on its colour. */
 @Composable
 private fun BarFace(person: Profile, server: String) {
-    val avatar = person.avatar?.takeIf { it.startsWith("/") || it.startsWith("http") }
-    Box(
-        Modifier.size(24.dp).clip(RoundedCornerShape(6.dp)).background(if (person.kids) Join else Accent),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (avatar != null) {
-            Art(if (avatar.startsWith("/")) server + avatar else avatar, Modifier.fillMaxSize())
-        } else {
-            Text(person.name.take(1).uppercase(), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold)
-        }
-    }
+    Face(
+        person = person,
+        server = server,
+        modifier = Modifier.size(24.dp),
+        shape = RoundedCornerShape(6.dp),
+        fontSize = 13.sp,
+    )
 }
