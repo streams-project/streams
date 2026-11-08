@@ -18,6 +18,10 @@ static ENGLISH: LazyLock<BTreeMap<String, String>> = LazyLock::new(|| {
     serde_json::from_str(include_str!("../../../../strings/en.json")).unwrap_or_default()
 });
 
+/// Opens every line of a right to left language, so a line that starts with a Latin name (the
+/// brand, a title) still runs right to left in any client.
+const RIGHT_TO_LEFT_MARK: char = '\u{200F}';
+
 /// Start and end of a value put into a sentence: Unicode isolates, so a number, a title or an
 /// address keeps its own order inside a line of either direction.
 const ISOLATE: (char, char) = ('\u{2068}', '\u{2069}');
@@ -80,6 +84,7 @@ impl Books {
 pub struct Words {
     brand: String,
     lang: String,
+    rtl: bool,
     books: Arc<Books>,
 }
 
@@ -100,6 +105,7 @@ impl Words {
         Self {
             brand: brand.to_owned(),
             lang: String::from(ENGLISH_CODE),
+            rtl: false,
             books: Arc::new(Books::default()),
         }
     }
@@ -120,9 +126,17 @@ impl Words {
         } else {
             String::from(ENGLISH_CODE)
         };
+        // The language's own file says which way it runs (`language.dir`).
+        let rtl = self
+            .books
+            .texts
+            .get(&lang)
+            .and_then(|book| book.get("language.dir"))
+            .is_some_and(|dir| dir == "rtl");
         Self {
             brand: self.brand.clone(),
             lang,
+            rtl,
             books: self.books.clone(),
         }
     }
@@ -140,7 +154,22 @@ impl Words {
     }
 
     fn branded(&self, text: &str) -> String {
-        text.replace(PLACEHOLDER_BRAND, &self.brand).trim().to_owned()
+        self.marked(text.replace(PLACEHOLDER_BRAND, &self.brand).trim())
+    }
+
+    /// A line of a right to left language opened with the right to left mark; any other unchanged.
+    fn marked(&self, text: &str) -> String {
+        if self.rtl && !text.starts_with(RIGHT_TO_LEFT_MARK) {
+            format!("{RIGHT_TO_LEFT_MARK}{text}")
+        } else {
+            text.to_owned()
+        }
+    }
+
+    /// True when this language runs right to left.
+    #[must_use]
+    pub fn rtl(&self) -> bool {
+        self.rtl
     }
 
     /// The text of a key in this language, else in English, if any strings file has it.
@@ -207,7 +236,7 @@ impl Words {
                 None
             }
         };
-        whole.or_else(shaped).unwrap_or_else(|| english.to_owned())
+        self.marked(&whole.or_else(shaped).unwrap_or_else(|| english.to_owned()))
     }
 
     /// A genre's name in this language: the `genre.<name>` key, else the name as the data has it.
@@ -321,6 +350,23 @@ mod tests {
             words.row_title(Some(&meta), "More Like Up", None),
             "المزيد مثل \u{2068}Up\u{2069}"
         );
+    }
+
+    #[test]
+    fn a_right_to_left_language_opens_its_lines_with_the_mark() {
+        let mut texts = BTreeMap::new();
+        texts.insert(
+            String::from("ar"),
+            BTreeMap::from([
+                (String::from("language.dir"), String::from("rtl")),
+                (String::from("nav.mine"), String::from("{brand} الخاص بي")),
+            ]),
+        );
+        let books = Arc::new(Books::from_maps(texts, BTreeMap::new()));
+        let words = Words::new("Sample").with_books(books).speaking("ar");
+        assert!(words.rtl());
+        assert_eq!(words.say("nav.mine"), "\u{200F}Sample الخاص بي");
+        assert_eq!(words.name("Kept"), "\u{200F}Kept");
     }
 
     #[test]
