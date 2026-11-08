@@ -230,13 +230,14 @@ public final class AvPlayer: Player {
     public func wordsLook(size: Int, color: String, background: String) {}
 }
 
-/// Brand films, each on its own engine so it can be handed back as soon as it is off screen.
+/// Brand films and sounds, each on its own engine so it can be handed back as soon as it is off screen.
 public final class AvReel: Reel {
     private var playing: [ReelView] = []
+    private var still = false
 
     public init() {}
 
-    public func picture(_ context: Any, url: String, loop: Bool, ended: @escaping () -> Void) -> Any {
+    public func picture(_ context: Any, url: String, loop: Bool, ready: @escaping () -> Void, ended: @escaping () -> Void) -> Any {
         let view = ReelView()
         guard let address = URL(string: url) else {
             DispatchQueue.main.async(execute: ended)
@@ -254,15 +255,31 @@ public final class AvReel: Reel {
         }
         view.watch.append(NotificationCenter.default.addObserver(
             forName: .AVPlayerItemFailedToPlayToEndTime, object: nil, queue: .main
-        ) { _ in ended() })
-        view.failed = engine.observe(\.currentItem?.status) { player, _ in
-            if player.currentItem?.status == .failed { DispatchQueue.main.async(execute: ended) }
+        ) { note in
+            if let failed = note.object as? AVPlayerItem, failed.asset === item.asset { ended() }
+        })
+        var told = false
+        view.status = engine.observe(\.currentItem?.status, options: [.initial, .new]) { player, _ in
+            let status = player.currentItem?.status
+            DispatchQueue.main.async {
+                if status == .readyToPlay && !told {
+                    told = true
+                    ready()
+                } else if status == .failed {
+                    ended()
+                }
+            }
         }
         view.screen.player = engine
         view.screen.videoGravity = .resizeAspectFill
-        engine.play()
         playing.append(view)
         return view
+    }
+
+    public func play(_ picture: Any, _ on: Bool) {
+        guard let view = picture as? ReelView else { return }
+        view.wanted = on
+        if on && !still { view.screen.player?.play() } else { view.screen.player?.pause() }
     }
 
     public func release(_ picture: Any) {
@@ -273,13 +290,14 @@ public final class AvReel: Reel {
         view.looper = nil
         view.watch.forEach(NotificationCenter.default.removeObserver)
         view.watch = []
-        view.failed = nil
+        view.status = nil
         view.screen.player = nil
     }
 
     public func hold(_ still: Bool) {
+        self.still = still
         for view in playing {
-            if still { view.screen.player?.pause() } else { view.screen.player?.play() }
+            if view.wanted && !still { view.screen.player?.play() } else { view.screen.player?.pause() }
         }
     }
 }
@@ -290,5 +308,6 @@ public final class ReelView: UIView {
     var screen: AVPlayerLayer { layer as! AVPlayerLayer }
     var looper: AVPlayerLooper?
     var watch: [NSObjectProtocol] = []
-    var failed: NSKeyValueObservation?
+    var status: NSKeyValueObservation?
+    var wanted = false
 }

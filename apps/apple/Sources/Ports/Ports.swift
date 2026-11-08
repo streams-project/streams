@@ -59,7 +59,11 @@ public protocol Player: AnyObject {
 }
 
 public protocol Reel: AnyObject {
-    func picture(_ context: Any, url: String, loop: Bool, ended: @escaping () -> Void) -> Any
+    /// A picture of this address. It starts still until `play` says so. `ready` runs once, when it
+    /// can show and play; `ended` runs when it finishes or cannot play.
+    func picture(_ context: Any, url: String, loop: Bool, ready: @escaping () -> Void, ended: @escaping () -> Void) -> Any
+    /// Starts or stops one film.
+    func play(_ picture: Any, _ on: Bool)
     func release(_ picture: Any)
     func hold(_ still: Bool)
 }

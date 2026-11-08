@@ -33,25 +33,39 @@ public final class DoorState {
     public init() {}
 }
 
-/// A brand film, handed back when it leaves the screen.
+/// A brand film or sound. It plays while `on`, and is handed back when it leaves the screen.
 struct Film: UIViewRepresentable {
     let shell: Shell
     let url: String
     let loop: Bool
+    var on = true
+    var ready: () -> Void = {}
     let ended: () -> Void
 
+    /// The newest answers, so a film made earlier reaches the page as it is now.
     final class Kept {
         var shell: Shell?
+        var ready: () -> Void = {}
+        var ended: () -> Void = {}
     }
 
     func makeCoordinator() -> Kept { Kept() }
 
     func makeUIView(context: Context) -> UIView {
-        context.coordinator.shell = shell
-        return shell.reel.picture(context, url: url, loop: loop, ended: ended) as? UIView ?? UIView()
+        let kept = context.coordinator
+        kept.shell = shell
+        kept.ready = ready
+        kept.ended = ended
+        let view = shell.reel.picture(context, url: url, loop: loop, ready: { kept.ready() }, ended: { kept.ended() }) as? UIView ?? UIView()
+        shell.reel.play(view, on)
+        return view
     }
 
-    func updateUIView(_ view: UIView, context: Context) {}
+    func updateUIView(_ view: UIView, context: Context) {
+        context.coordinator.ready = ready
+        context.coordinator.ended = ended
+        shell.reel.play(view, on)
+    }
 
     static func dismantleUIView(_ view: UIView, coordinator: Kept) {
         coordinator.shell?.reel.release(view)
@@ -74,13 +88,41 @@ private struct Ask: View {
     }
 }
 
+/// The violet light in the top left corner behind the card, as the approved opening renders it:
+/// strength (1 - (x / 1500 + y / 620)) ^ 1.5 of 5F28EB.
+private let glow = LinearGradient(
+    stops: [0, 0.25, 0.5, 0.75].map { f in
+        Gradient.Stop(color: Color(red: 0x5F / 255, green: 0x28 / 255, blue: 0xEB / 255).opacity(pow(1 - f, 1.5)), location: f)
+    } + [Gradient.Stop(color: .clear, location: 1)],
+    startPoint: .topLeading,
+    endPoint: UnitPoint(x: 219 / 1920, y: 530 / 1080)
+)
+
+/// The landing. After the opening it is already in place under it: the card does not slide, the
+/// showreel is there from the first frame, says when it is `ready`, and plays once `roll` is true.
+/// Coming back to it later, the card slides in and the showreel starts after it.
 private struct Landing: View {
     let shell: Shell
     let seen: Seen
+    let opening: Bool
+    let roll: Bool
+    let keys: Bool
+    let ready: () -> Void
     @State private var at = Stop.signIn
-    @State private var film = false
+    @State private var film: Bool
     @State private var peek = false
-    @State private var slide = slideSteps[0]
+    @State private var slide: CGFloat
+
+    init(shell: Shell, seen: Seen, opening: Bool, roll: Bool, keys: Bool, ready: @escaping () -> Void) {
+        self.shell = shell
+        self.seen = seen
+        self.opening = opening
+        self.roll = roll
+        self.keys = keys
+        self.ready = ready
+        _film = State(initialValue: opening)
+        _slide = State(initialValue: opening ? 0 : slideSteps[0])
+    }
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: 24.ref)
@@ -104,6 +146,7 @@ private struct Landing: View {
 
         return ZStack(alignment: .topLeading) {
             Back
+            glow
             HStack(spacing: 40.ref) {
                 Circle()
                     .fill(at == .home ? Color.white : Color.white.opacity(0.12))
@@ -124,7 +167,7 @@ private struct Landing: View {
             }
             ZStack(alignment: .topLeading) {
                 cardWash
-                if film { Film(shell: shell, url: "\(seen.server)/tv/showreel.mp4", loop: true) {} }
+                if film { Film(shell: shell, url: "\(seen.server)/tv/showreel.mp4", loop: true, on: roll, ready: ready) { ready() } }
                 Text(seen.say("door.help"))
                     .brand(24, 600)
                     .foregroundStyle(at == .help ? Back : .white.opacity(0.85))
@@ -142,41 +185,73 @@ private struct Landing: View {
             .offset(x: 55.ref + slide * stage.ref, y: 169.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { press($0) }
+        .remote(on: keys) { press($0) }
         .task {
+            guard !opening else { return }
             for value in slideSteps.dropFirst() {
                 withAnimation(.linear(duration: frameTime)) { slide = value }
                 try? await Task.sleep(nanoseconds: UInt64(frameTime * 1e9))
             }
             try? await Task.sleep(nanoseconds: UInt64(emptyCard * 1e9))
             film = true
+        }
+        .task(id: roll) {
+            guard roll else { return }
             try? await Task.sleep(nanoseconds: UInt64(peekAfter * 1e9))
             withAnimation(.linear(duration: peekFade)) { peek = true }
         }
     }
 }
 
-/// The way in: the opening film once, then the card that slides in with the two ways through.
+/// The way in: the opening, drawn live, once for each run of the app, over the landing it opens onto.
+/// The landing is built under it from the first frame so its showreel can load while the mark rests,
+/// and the opening's sounds live here so they play to their end.
 public struct Door: View {
     let shell: Shell
     let seen: Seen
     let state: DoorState
+    @State private var opening: Bool
+    @State private var ready = false
+    @State private var roll: Bool
+    @State private var shown: Bool
+    @State private var notes = false
+    @State private var swell = false
 
     public init(shell: Shell, seen: Seen, state: DoorState) {
         self.shell = shell
         self.seen = seen
         self.state = state
+        let first = !state.opened
+        _opening = State(initialValue: first)
+        _roll = State(initialValue: !first)
+        _shown = State(initialValue: !first)
     }
 
     public var body: some View {
-        if state.opened {
-            Landing(shell: shell, seen: seen)
-        } else {
-            ZStack {
-                Color.black
-                Film(shell: shell, url: "\(seen.server)/tv/opening.mp4", loop: false) { state.opened = true }
+        ZStack {
+            // Under the opening's cover the landing loads but is not drawn until the first stage is over.
+            Landing(shell: shell, seen: seen, opening: opening, roll: roll, keys: state.opened) { ready = true }
+                .opacity(shown ? 1 : 0)
+            if opening {
+                Film(shell: shell, url: "\(seen.server)/tv/opening-chime.m4a", loop: false, on: notes) {}
+                    .frame(width: 0, height: 0)
+                Film(shell: shell, url: "\(seen.server)/tv/opening-swell.m4a", loop: false, on: swell) {}
+                    .frame(width: 0, height: 0)
             }
-            .remote { _ in state.opened = true; return true }
+            if !state.opened {
+                Opening(ready: ready && !seen.words.isEmpty) { moment in
+                    switch moment {
+                    case .notes: notes = true
+                    case .warm: shown = true
+                    case .second: swell = true
+                    case .roll: roll = true
+                    case .done:
+                        shown = true
+                        roll = true
+                        state.opened = true
+                    }
+                }
+            }
         }
     }
 }
