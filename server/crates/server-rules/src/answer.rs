@@ -359,9 +359,11 @@ impl SafeTitleDetail {
     /// Adds pictures of the title's own episodes, after its other pictures.
     #[must_use]
     pub fn with_stills(mut self, stills: Vec<Image>) -> Self {
-        self.0
-            .images
-            .extend(stills.into_iter().filter(|image| image.role == ImageRole::Still));
+        self.0.images.extend(
+            stills
+                .into_iter()
+                .filter(|image| image.role == ImageRole::Still),
+        );
         self
     }
 }

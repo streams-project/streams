@@ -50,7 +50,7 @@ fun Television(shell: Shell) {
                 Box(Modifier.fillMaxSize().graphicsLayer { alpha = if (opening.shown || opening.opened) 1f else 0f }) {
                 // A right to left language mirrors every screen; the player keeps its own way (Watch).
                 val way = if (seen.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
-                Speaking.arabicDigits = seen.words["language.digits"] == "arab"
+                Speaking.digits = seen.words["language.digits"] ?: "latn"
                 Speaking.code = seen.language.ifEmpty { "en" }
                 // A language may ask for larger text (Arabic letters read small beside Latin at one size).
                 val scale = seen.words["language.text_scale"]?.toFloatOrNull()?.coerceIn(0.8f, 1.4f) ?: 1f

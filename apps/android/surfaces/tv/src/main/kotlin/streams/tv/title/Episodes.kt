@@ -88,8 +88,8 @@ private fun EpisodeCard(episode: Episode, label: String, on: Boolean, modifier: 
                 overflow = TextOverflow.Ellipsis,
                 style = storyStyle(),
             )
-            episode.runtimeMin?.let {
-                Text("(${it}m)", Modifier.padding(top = 8.ref), fontSize = 24.refType, color = Muted)
+            episode.runtimeMin?.takeIf { it > 0 }?.let {
+                Text("(${words.counted("title.length.minutes", it.toInt())})", Modifier.padding(top = 8.ref), fontSize = 24.refType, color = Muted)
             }
         }
     }

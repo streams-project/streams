@@ -20,7 +20,8 @@ pub fn normalise(text: &str) -> String {
     let mut space = true;
     for c in text.chars() {
         // Arabic short vowels and the stretching line carry no letter: drop them, do not split.
-        if ('\u{064B}'..='\u{0652}').contains(&c) || c == '\u{0640}' || c == '\u{0670}' {
+        // The Persian half-space (U+200C) carries no letter either.
+        if ('\u{064B}'..='\u{0652}').contains(&c) || c == '\u{0640}' || c == '\u{0670}' || c == '\u{200C}' {
             continue;
         }
         // Hebrew vowel points and cantillation marks carry no letter either.
@@ -64,7 +65,8 @@ fn fold(c: char, out: &mut String) {
         }
         'أ' | 'إ' | 'آ' | 'ٱ' => 'ا',
         'ة' => 'ه',
-        'ى' | 'ئ' => 'ي',
+        'ى' | 'ئ' | 'ی' => 'ي',
+        'ک' => 'ك',
         'ؤ' => 'و',
         // Hebrew final forms are the same letters at a word's end.
         'ך' => 'כ',
@@ -238,6 +240,14 @@ mod tests {
         assert_eq!(normalise("الأوديسة"), normalise("الاوديسه"));
         assert_eq!(normalise("مُسَلْسَل"), "مسلسل");
         assert_eq!(normalise("عام ٢٠٢٤"), "عام 2024");
+    }
+
+    #[test]
+    fn arabic_and_persian_letter_forms_fold() {
+        assert_eq!(normalise("كتاب"), normalise("کتاب"));
+        assert_eq!(normalise("ایران"), normalise("إيران"));
+        assert_eq!(normalise("خانه\u{200C}ها"), normalise("خانه‌ها"));
+        assert_eq!(normalise("۰۱۲۳۴۵۶۷۸۹"), "0123456789");
     }
 
     #[test]

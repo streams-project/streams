@@ -1,6 +1,6 @@
 //! What is new, upcoming and trending right now. The catalogue knows only a release year; this
 //! file carries real release dates and titles too new for the catalogue.
-use crate::det::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use serde::Deserialize;
 
 #[derive(Deserialize, Clone, Debug, Default)]
@@ -34,7 +34,7 @@ pub struct FreshItem {
     pub lists: Vec<String>,
     /// place of the title in each source list it came from (0 first)
     #[serde(default)]
-    pub ranks: HashMap<String, usize>,
+    pub ranks: BTreeMap<String, usize>,
     /// The next season of a series that has already aired, when its first episode has a date.
     #[serde(default)]
     pub next_season: Option<NextSeason>,
