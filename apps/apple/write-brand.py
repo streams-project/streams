@@ -27,12 +27,110 @@ write(
 catalog = HERE / "Sources/SurfacesShared/Resources/Brand.xcassets"
 write(catalog / "Contents.json", json.dumps({"info": {"author": "xcode", "version": 1}}, indent=2) + "\n")
 mark = catalog / "mark.imageset"
-write(mark / "mark.svg", (ROOT / brand["assets"] / "mark.svg").read_text("utf-8"))
+mark_svg = (ROOT / brand["assets"] / "mark.svg").read_text("utf-8")
+write(mark / "mark.svg", mark_svg)
 write(
     mark / "Contents.json",
     json.dumps(
         {
             "images": [{"filename": "mark.svg", "idiom": "universal"}],
+            "info": {"author": "xcode", "version": 1},
+            "properties": {"preserves-vector-representation": True},
+        },
+        indent=2,
+    )
+    + "\n",
+)
+
+# Layered tvOS icon: Back, Middle, Front
+bg_color = brand["colors"].get("background", "#0b0b10")
+surface_color = brand["colors"].get("surface", "#16161d")
+accent_color = brand["colors"].get("accent", "#2f6bff")
+
+back_svg = f"""<svg width="400" height="240" viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="{surface_color}"/>
+    <stop offset="100%" stop-color="{bg_color}"/>
+  </linearGradient>
+</defs>
+<rect width="400" height="240" fill="url(#bg)"/>
+</svg>"""
+
+middle_svg = f"""<svg width="400" height="240" viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg">
+<circle cx="200" cy="120" r="80" fill="{accent_color}" opacity="0.15" filter="blur(20px)"/>
+</svg>"""
+
+front_svg = mark_svg
+
+icon_stack = catalog / "App Icon.imagestack"
+write(
+    icon_stack / "Contents.json",
+    json.dumps(
+        {
+            "info": {"author": "xcode", "version": 1},
+            "layers": [
+                {"filename": "Front.imagestacklayer"},
+                {"filename": "Middle.imagestacklayer"},
+                {"filename": "Back.imagestacklayer"},
+            ],
+        },
+        indent=2,
+    )
+    + "\n",
+)
+
+for layer_name, svg_content in [
+    ("Back", back_svg),
+    ("Middle", middle_svg),
+    ("Front", front_svg),
+]:
+    layer_dir = icon_stack / f"{layer_name}.imagestacklayer" / "Content.imageset"
+    write(layer_dir / "content.svg", svg_content)
+    write(
+        layer_dir / "Contents.json",
+        json.dumps(
+            {
+                "images": [
+                    {"filename": "content.svg", "idiom": "tv", "scale": "1x"},
+                    {"filename": "content.svg", "idiom": "tv", "scale": "2x"},
+                ],
+                "info": {"author": "xcode", "version": 1},
+                "properties": {"preserves-vector-representation": True},
+            },
+            indent=2,
+        )
+        + "\n",
+    )
+    write(
+        icon_stack / f"{layer_name}.imagestacklayer" / "Contents.json",
+        json.dumps({"info": {"author": "xcode", "version": 1}}, indent=2) + "\n",
+    )
+
+# Top Shelf wide banner
+top_shelf = catalog / "Top Shelf Image.imageset"
+top_shelf_svg = f"""<svg width="1920" height="720" viewBox="0 0 1920 720" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="tsbg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="{surface_color}"/>
+    <stop offset="100%" stop-color="{bg_color}"/>
+  </linearGradient>
+</defs>
+<rect width="1920" height="720" fill="url(#tsbg)"/>
+<g transform="translate(860, 260) scale(2)">
+{mark_svg.split("<svg", 1)[-1].split(">", 1)[-1].rsplit("</svg>", 1)[0] if "<svg" in mark_svg else mark_svg}
+</g>
+</svg>"""
+
+write(top_shelf / "topshelf.svg", top_shelf_svg)
+write(
+    top_shelf / "Contents.json",
+    json.dumps(
+        {
+            "images": [
+                {"filename": "topshelf.svg", "idiom": "tv", "scale": "1x"},
+                {"filename": "topshelf.svg", "idiom": "tv", "scale": "2x"},
+            ],
             "info": {"author": "xcode", "version": 1},
             "properties": {"preserves-vector-representation": True},
         },

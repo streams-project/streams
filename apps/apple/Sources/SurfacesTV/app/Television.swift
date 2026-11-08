@@ -60,17 +60,23 @@ public struct Television: View {
                     // The player keeps left to right in every language: its timeline and seek keys follow
                     // the film, not the reading direction.
                     Watch(shell: shell, seen: seen).environment(\.layoutDirection, .leftToRight)
+                case .screen where seen.route?.screen == .settings:
+                    Settings(shell: shell, seen: seen)
                 case .screen where seen.route?.screen == .search:
                     Search(shell: shell, seen: seen, state: search)
                 case .screen where seen.route?.screen == .help:
                     GetHelp(shell: shell, seen: seen)
+                case .notFound:
+                    NotFoundProblem(shell: shell, seen: seen)
+                case .upgrade:
+                    UpgradeProblem(seen: seen)
                 case .home, .kidsHome, .screen:
-                    Browse(shell: shell, seen: seen)
+                    BrowseOrProblem(shell: shell, seen: seen)
                         .id("\(seen.route?.screen?.rawValue ?? "home") \(seen.route?.genre ?? "")")
                 case .wait:
                     Color.clear
                 default:
-                    Browse(shell: shell, seen: seen)
+                    BrowseOrProblem(shell: shell, seen: seen)
                 }
             } else {
                 Color.clear
