@@ -378,6 +378,12 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
                 "IMAGE_BASE",
                 std::env::var("IMAGE_BASE").unwrap_or_default(),
             ),
+            // What a visitor may look at before signing in: U, PG, 12 or 15. Unset, the landing
+            // shows its showreel and no title cards.
+            (
+                "VISITOR_TIER",
+                std::env::var("VISITOR_TIER").unwrap_or_default(),
+            ),
         ]),
     };
 

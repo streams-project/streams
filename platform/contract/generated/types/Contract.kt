@@ -1894,6 +1894,12 @@ data class ProgressState(
     @SerialName("version") val version: Long,
 )
 
+/** Titles a visitor may look at before signing in, most watched first. A series also carries pictures of its first episodes, so a television can show the title as a slideshow. */
+@Serializable
+data class PublicTitles(
+    @SerialName("titles") val titles: List<TitleDetail>,
+)
+
 /** Rating words on the wire. Screens use the words like, love and dislike. */
 @Serializable
 @JvmInline

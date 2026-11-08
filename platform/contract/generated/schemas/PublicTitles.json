@@ -1,0 +1,290 @@
+{
+  "$defs": {
+    "AgeMark": {
+      "description": "An age mark, as this viewer reads it. Each screen picks its shape.",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "tone": {
+          "$ref": "#/$defs/AgeTone"
+        }
+      },
+      "required": [
+        "label",
+        "tone"
+      ],
+      "type": "object"
+    },
+    "AgeTone": {
+      "description": "The colour family of an age mark. The server picks it and each app paints it.",
+      "enum": [
+        "green",
+        "yellow",
+        "orange",
+        "pink",
+        "red",
+        "dark_red",
+        "blue",
+        "grey"
+      ],
+      "type": "string"
+    },
+    "Badge": {
+      "description": "A mark on a tile.",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/BadgeKind"
+        },
+        "rank": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "BadgeKind": {
+      "description": "Marks on a tile.",
+      "enum": [
+        "ranked",
+        "new"
+      ],
+      "type": "string"
+    },
+    "EpisodeRef": {
+      "description": "One episode of a series. A film has none.",
+      "properties": {
+        "episode": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "season": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "season",
+        "episode"
+      ],
+      "type": "object"
+    },
+    "Image": {
+      "description": "One image address. Images go straight from the host to the viewer.",
+      "properties": {
+        "role": {
+          "$ref": "#/$defs/ImageRole"
+        },
+        "url": {
+          "type": "string"
+        },
+        "width": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "role",
+        "url"
+      ],
+      "type": "object"
+    },
+    "ImageRole": {
+      "description": "What an image is for.",
+      "enum": [
+        "poster",
+        "backdrop",
+        "logo",
+        "still",
+        "avatar"
+      ],
+      "type": "string"
+    },
+    "Rating": {
+      "description": "Rating words on the wire. Screens use the words like, love and dislike.",
+      "enum": [
+        "down",
+        "up",
+        "love"
+      ],
+      "type": "string"
+    },
+    "Resume": {
+      "description": "Where play picks up: the episode of a series, and 0 for one not started yet.",
+      "properties": {
+        "episode": {
+          "$ref": "#/$defs/EpisodeRef"
+        },
+        "position_s": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "position_s"
+      ],
+      "type": "object"
+    },
+    "SeasonSummary": {
+      "description": "A season named on a title page.",
+      "properties": {
+        "episode_count": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "number": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "number",
+        "episode_count"
+      ],
+      "type": "object"
+    },
+    "Tile": {
+      "description": "One title in a section.",
+      "properties": {
+        "badges": {
+          "items": {
+            "$ref": "#/$defs/Badge"
+          },
+          "type": "array"
+        },
+        "episode": {
+          "$ref": "#/$defs/EpisodeRef"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/Image"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "percent": {
+          "description": "Whole percent watched.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "title": {
+          "$ref": "#/$defs/TitleKey"
+        }
+      },
+      "required": [
+        "title",
+        "name"
+      ],
+      "type": "object"
+    },
+    "TitleDetail": {
+      "description": "Facts of one title.",
+      "properties": {
+        "age": {
+          "$ref": "#/$defs/AgeMark",
+          "description": "Absent when the title has no rating in either system."
+        },
+        "genres": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/Image"
+          },
+          "type": "array"
+        },
+        "in_list": {
+          "description": "True when this profile has saved the title.",
+          "type": "boolean"
+        },
+        "more_like_this": {
+          "description": "Hidden when empty.",
+          "items": {
+            "$ref": "#/$defs/Tile"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "overview": {
+          "type": "string"
+        },
+        "rating": {
+          "$ref": "#/$defs/Rating",
+          "description": "What this profile said about the title."
+        },
+        "resume": {
+          "$ref": "#/$defs/Resume",
+          "description": "Where this profile left off. Absent when there is nothing to go back to."
+        },
+        "runtime_min": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "seasons": {
+          "items": {
+            "$ref": "#/$defs/SeasonSummary"
+          },
+          "type": "array"
+        },
+        "title": {
+          "$ref": "#/$defs/TitleKey"
+        },
+        "year": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "title",
+        "name"
+      ],
+      "type": "object"
+    },
+    "TitleKey": {
+      "description": "movie:<id> or tv:<id>. A bare id does not parse.",
+      "pattern": "^(movie|tv):[1-9][0-9]{0,9}$",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Titles a visitor may look at before signing in, most watched first. A series also carries\npictures of its first episodes, so a television can show the title as a slideshow.",
+  "properties": {
+    "titles": {
+      "items": {
+        "$ref": "#/$defs/TitleDetail"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "titles"
+  ],
+  "title": "PublicTitles",
+  "type": "object"
+}

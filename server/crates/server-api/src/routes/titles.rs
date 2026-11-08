@@ -15,7 +15,7 @@ use server_catalog::{DataSet, item_key};
 use server_library::Reached;
 use server_rules::Viewer;
 use server_rules::age::{RatingSystem, system_of_country};
-use server_rules::answer::{SafeSeason, SafeTitleDetail};
+use server_rules::answer::{SafePublicTitles, SafeSeason, SafeTitleDetail, title_key};
 
 use crate::answer::{Keep, send_cleared};
 use crate::caller::Reader;
@@ -186,6 +186,47 @@ pub async fn title(
             .resuming(reached.and_then(|place| resume_from(&set, key, place)));
     }
     send_cleared(&headers, &page, Keep::Private)
+}
+
+/// Cards on a television's landing, after its showreel.
+const PUBLIC_TRENDING: usize = 10;
+/// Episode pictures a series card shows in turn, after its backdrop.
+const CARD_STILLS: usize = 4;
+
+/// `GET /v1/public/trending`: today's most watched titles under the visitor tier, a series and a
+/// film in turn. A series carries pictures of its first episodes, so a card can show the title as a
+/// slideshow. Off when the deployer stated no tier, like the visitor's title page.
+pub async fn public_trending(State(state): State<Shared>, headers: HeaderMap) -> ApiResult<Response> {
+    let tier = state
+        .config
+        .visitor_tier
+        .ok_or_else(|| ApiError::off("public_titles"))?;
+    let set = data(&state)?;
+    let viewer = Viewer::visitor(tier);
+    let system = rating_system(&headers);
+    let today = server_catalog::fresh::days_of_ms(state.clock.now_ms());
+    let titles = server_pages::new_popular::public_trending(&set, tier, today, PUBLIC_TRENDING)
+        .into_iter()
+        .filter_map(|item| {
+            let key = title_key(item)?;
+            let page = detail(&state, &set, &viewer, key, system).ok()?;
+            if key.kind() != TitleKind::Tv {
+                return Some(page);
+            }
+            let stills = catalogue(&set)
+                .and_then(|db| episodes_of(db, key.id(), 1))
+                .map(|(_, episodes)| {
+                    episodes
+                        .iter()
+                        .flat_map(|episode| state.pages.still(episode.still.as_deref()))
+                        .take(CARD_STILLS)
+                        .collect()
+                })
+                .unwrap_or_default();
+            Some(page.with_stills(stills))
+        })
+        .collect();
+    send_cleared(&headers, &SafePublicTitles::new(titles), Keep::Public(PUBLIC_TTL_S))
 }
 
 /// `GET /v1/public/titles/{kind}/{id}`: under the visitor tier, with no profile. Off when the

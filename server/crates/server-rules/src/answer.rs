@@ -6,8 +6,8 @@ use contract::command::Changes;
 use contract::error::Notice;
 use contract::play::{AgeCard, Attempt, PlayAnswer};
 use contract::screen::{
-    AgeMark, Badge, Cursor, Episode, Image, ImageRole, More, RefreshTrigger, Screen, ScreenName,
-    Season, SeasonSummary, Section, SectionKind, Suggestions, Tile, TitleDetail,
+    AgeMark, Badge, Cursor, Episode, Image, ImageRole, More, PublicTitles, RefreshTrigger, Screen,
+    ScreenName, Season, SeasonSummary, Section, SectionKind, Suggestions, Tile, TitleDetail,
 };
 use contract::{EpisodeRef, TitleKey, TitleKind};
 use serde::Serialize;
@@ -61,6 +61,8 @@ cleared! {
     SafePlayAnswer(PlayAnswer);
     /// Suggestions drawn from visible titles.
     SafeSuggestions(Suggestions);
+    /// Titles a visitor may look at, each a visible title page.
+    SafePublicTitles(PublicTitles);
     /// `Changes` naming only visible titles.
     SafeChanges(Changes);
 }
@@ -276,6 +278,25 @@ impl SafeTitleDetail {
     pub fn rated(mut self, rating: Option<contract::Rating>) -> Self {
         self.0.rating = rating;
         self
+    }
+
+    /// Adds pictures of the title's own episodes, after its other pictures.
+    #[must_use]
+    pub fn with_stills(mut self, stills: Vec<Image>) -> Self {
+        self.0
+            .images
+            .extend(stills.into_iter().filter(|image| image.role == ImageRole::Still));
+        self
+    }
+}
+
+impl SafePublicTitles {
+    /// A list of visible title pages, in their order.
+    #[must_use]
+    pub fn new(titles: Vec<SafeTitleDetail>) -> Self {
+        Self(PublicTitles {
+            titles: titles.into_iter().map(|title| title.0).collect(),
+        })
     }
 }
 

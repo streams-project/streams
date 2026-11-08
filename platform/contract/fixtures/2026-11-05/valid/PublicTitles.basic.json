@@ -1,0 +1,37 @@
+{
+  "titles": [
+    {
+      "images": [
+        {
+          "role": "still",
+          "url": "https://images.example/s/1001-1-1.jpg"
+        }
+      ],
+      "name": "Sample Series",
+      "seasons": [
+        {
+          "episode_count": 2,
+          "number": 1
+        }
+      ],
+      "title": "tv:1001"
+    },
+    {
+      "genres": [
+        "Drama"
+      ],
+      "images": [
+        {
+          "role": "poster",
+          "url": "https://images.example/p/1001.jpg",
+          "width": 342
+        }
+      ],
+      "name": "Sample Film",
+      "overview": "An invented film for tests.",
+      "runtime_min": 101,
+      "title": "movie:1001",
+      "year": 2024
+    }
+  ]
+}
