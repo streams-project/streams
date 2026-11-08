@@ -120,9 +120,14 @@ fun OpenRow(shell: Shell, words: Map<String, String>, store: DetailStore, sectio
     }
 }
 
-/** The next row, dim, cut by the screen's edge. */
+/**
+ * The next row, dim, cut by the screen's edge. It shows where the viewer left it: the kept tile
+ * first, the one before it at the edge, as the open row does.
+ */
 @Composable
-fun NextRow(section: Section, high: Boolean) {
+fun NextRow(section: Section, high: Boolean, at: Int = 0) {
+    val tiles = section.tiles.orEmpty()
+    val top = if (high) 1001 else 998
     Box(Modifier.fillMaxSize().alpha(0.5f)) {
         Text(
             section.title.orEmpty(),
@@ -130,8 +135,9 @@ fun NextRow(section: Section, high: Boolean) {
             fontSize = 32.refType,
             fontWeight = FontWeight.Bold,
         )
-        section.tiles.orEmpty().take(NEXT_POSTERS).forEachIndexed { index, tile ->
-            Poster(tile, Modifier.offset((PAGE_EDGE + index * STEP).ref, (if (high) 1001 else 998).ref))
+        if (at > 0) tiles.getOrNull(at - 1)?.let { Poster(it, Modifier.offset((PAGE_EDGE - STEP).ref, top.ref)) }
+        tiles.drop(at).take(NEXT_POSTERS).forEachIndexed { index, tile ->
+            Poster(tile, Modifier.offset((PAGE_EDGE + index * STEP).ref, top.ref))
         }
     }
 }
