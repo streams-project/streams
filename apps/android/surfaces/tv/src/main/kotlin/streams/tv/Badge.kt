@@ -24,7 +24,7 @@ private fun badgeLabel(badge: Badge, words: Map<String, String>): String = when 
     BadgeKind.NEW -> words["badge.new"].orEmpty()
     BadgeKind.RANKED -> {
         val rank = badge.rank ?: return ""
-        words["badge.ranked"].orEmpty().fill("rank", rank.toString())
+        words["badge.ranked"].orEmpty().fill("rank", rank)
     }
     else -> ""
 }

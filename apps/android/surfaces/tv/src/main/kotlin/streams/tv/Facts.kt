@@ -1,5 +1,6 @@
 package streams.tv
 
+import streams.shared.counted
 import streams.shared.number
 import streams.shared.fill
 import androidx.compose.foundation.background
@@ -24,10 +25,7 @@ private fun facts(detail: TitleDetail, words: Map<String, String>): List<String>
     val seasons = detail.seasons?.size ?: 0
     val minutes = detail.runtimeMin
     when {
-        seasons > 0 -> {
-            val word = words[if (seasons == 1) "title.season.one" else "title.season.many"].orEmpty()
-            add(word.fill("n", seasons.toString()))
-        }
+        seasons > 0 -> add(words.counted("title.season", seasons))
         minutes != null && minutes >= 60 ->
             add(words["title.length.hours"].orEmpty().fill("h", minutes / 60).fill("m", minutes % 60))
         minutes != null -> add(words["title.length.minutes"].orEmpty().fill("m", minutes))

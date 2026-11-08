@@ -167,7 +167,7 @@
   "title.episodes_more": "Odcinki i nie tylko",
   "title.more_like": "Więcej podobnych",
   "title.play_episode": "Odtwórz odcinek {n}",
-  "title.season.many": "Sezony: {n}",
+  "title.season.many": "{n} sezonów",
   "title.season.number": "Sezon {n}",
   "title.season.one": "{n} sezon",
   "title.resume": "Wznów",
@@ -240,5 +240,6 @@
   "genre.music": "Muzyczne",
   "genre.tv_movie": "Filmy telewizyjne",
   "title.length.hours": "{h} godz. {m} min",
-  "title.length.minutes": "{m} min"
+  "title.length.minutes": "{m} min",
+  "title.season.few": "{n} sezony"
 }

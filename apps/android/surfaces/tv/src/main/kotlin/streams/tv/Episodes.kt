@@ -103,13 +103,13 @@ private fun SeasonLine(words: Map<String, String>, season: SeasonSummary, chosen
     val ink = if (on) Back else Color.White
     Box(Modifier.width(546.ref).height(62.ref).background(back, CircleShape).padding(horizontal = 32.ref)) {
         Text(
-            words["title.season.number"].orEmpty().fill("n", season.number.toString()),
+            words["title.season.number"].orEmpty().fill("n", season.number),
             Modifier.align(Alignment.CenterStart),
             color = ink,
             fontSize = 30.refType,
         )
         Text(
-            words["title.episodes.count"].orEmpty().fill("n", season.episodeCount.toString()),
+            words["title.episodes.count"].orEmpty().fill("n", season.episodeCount),
             Modifier.align(Alignment.CenterEnd),
             color = ink,
             fontSize = 24.refType,
@@ -194,7 +194,7 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
                     key(episode.number) {
                         EpisodeCard(
                             episode,
-                            words["title.episode"].orEmpty().fill("n", episode.number.toString()),
+                            words["title.episode"].orEmpty().fill("n", episode.number),
                             !inList && index == card,
                             Modifier.offset(0.ref, (index * CARD_STEP).ref),
                         )
