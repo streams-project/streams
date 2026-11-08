@@ -22,8 +22,13 @@ public enum BrandFont {
     }()
     nonisolated(unsafe) private static var made: [Int: UIFont] = [:]
 
+    /// How much larger this language's text is drawn (`language.text_scale`; Arabic reads small
+    /// beside Latin at one size). Set from the words as they arrive.
+    nonisolated(unsafe) public static var scale: CGFloat = 1
+
     /// Inter at a reference size and a weight from 400 to 800.
     public static func of(_ size: CGFloat, _ weight: Int = 400) -> Font {
+        let size = size * scale
         let key = Int(size * 10) * 1000 + weight
         if let kept = made[key] { return Font(kept) }
         guard let face else { return .system(size: size) }
@@ -48,5 +53,13 @@ extension Seen {
     /// A word of the interface, or nothing while the words are still on their way.
     @MainActor public func say(_ key: String) -> String {
         words[key] ?? ""
+    }
+}
+
+extension String {
+    /// A word's `{name}` place filled with a value, isolated (U+2068, U+2069) so a number, a title
+    /// or an address keeps its own order inside a line of either direction.
+    public func fill(_ name: String, _ value: Any) -> String {
+        replacingOccurrences(of: "{\(name)}", with: "\u{2068}\(value)\u{2069}")
     }
 }

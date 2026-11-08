@@ -80,6 +80,8 @@ public final class Seen {
     public var active: String? = nil
     public var words: [String: String] = [:]
     public var language: String = ""
+    /// True when that language runs right to left: the interface mirrors, the player never does.
+    public var rtl: Bool = false
     public var detail: TitleDetail? = nil
     public var notice: String? = nil
     public var brand: String = ""

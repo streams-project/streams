@@ -59,7 +59,7 @@ private struct UsePhone: View {
             Step(number: 1, left: 170)
             // The address never breaks across lines: a word joiner between its letters keeps it whole.
             let address = (device?.verificationUri ?? "").map(String.init).joined(separator: "\u{2060}")
-            Text(seen.say("signin.step1").replacingOccurrences(of: "{address}", with: address))
+            Text(seen.say("signin.step1").fill("address", address))
                 .brand(32).lines(32, 42).foregroundStyle(.white)
                 .frame(width: 680.ref, alignment: .leading)
                 .offset(x: 240.ref, y: 214.ref)

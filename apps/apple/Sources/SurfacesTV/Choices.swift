@@ -58,7 +58,7 @@ func choicesOf(_ seen: Seen, _ files: [Track]) -> [Choice] {
     let same = lines.first { $0.lang == sound.lang } ?? lines.first { $0.lang == seen.language }
     var out = [Choice(word: name, audio: sound, text: nil, ticked: reading == nil)]
     if let same {
-        let word = seen.say("player.with_subtitles").replacingOccurrences(of: "{audio}", with: name)
+        let word = seen.say("player.with_subtitles").fill("audio", name)
         out.append(Choice(word: word, audio: sound, text: same, ticked: reading?.id == same.id))
     }
     let elsewhere = reading != nil && reading?.id != same?.id

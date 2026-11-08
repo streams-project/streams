@@ -17,13 +17,17 @@ public struct Television: View {
 
     public var body: some View {
         let seen = shell.seen
-        ZStack {
+        // A language may ask for larger text (Arabic letters read small beside Latin at one size).
+        BrandFont.scale = min(max(CGFloat(Double(seen.words["language.text_scale"] ?? "") ?? 1), 0.8), 1.4)
+        return ZStack {
             Color.black
             // Under the opening the first screen is built and loading, and drawn once the first stage is over.
             screens(seen)
                 .opacity(opening.shown || opening.opened ? 1 : 0)
                 .environment(\.covered, !opening.opened)
                 .environment(\.pages, memory)
+                // A right to left language mirrors every screen; the player keeps its own way (Watch).
+                .environment(\.layoutDirection, seen.rtl ? .rightToLeft : .leftToRight)
             if !seen.server.isEmpty { OpeningLayer(shell: shell, seen: seen, state: opening) }
         }
         .frame(width: 1920.ref, height: 1080.ref, alignment: .topLeading)
@@ -51,7 +55,9 @@ public struct Television: View {
                 case .title:
                     TitlePage(shell: shell, seen: seen)
                 case .watch:
-                    Watch(shell: shell, seen: seen)
+                    // The player keeps left to right in every language: its timeline and seek keys follow
+                    // the film, not the reading direction.
+                    Watch(shell: shell, seen: seen).environment(\.layoutDirection, .leftToRight)
                 case .screen where seen.route?.screen == .search:
                     Search(shell: shell, seen: seen, state: search)
                 case .screen where seen.route?.screen == .help:

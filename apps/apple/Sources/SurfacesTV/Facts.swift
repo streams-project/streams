@@ -8,9 +8,11 @@ private func facts(_ detail: TitleDetail, _ words: [String: String]) -> [String]
     let seasons = detail.seasons?.count ?? 0
     if seasons > 0 {
         let word = words[seasons == 1 ? "title.season.one" : "title.season.many"] ?? ""
-        out.append(word.replacingOccurrences(of: "{n}", with: String(seasons)))
+        out.append(word.fill("n", String(seasons)))
+    } else if let minutes = detail.runtimeMin, minutes >= 60 {
+        out.append((words["title.length.hours"] ?? "").fill("h", minutes / 60).fill("m", minutes % 60))
     } else if let minutes = detail.runtimeMin {
-        out.append("\(minutes / 60)h \(minutes % 60)m")
+        out.append((words["title.length.minutes"] ?? "").fill("m", minutes))
     }
     if let age = detail.age { out.append(age.label) }
     return out

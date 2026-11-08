@@ -119,6 +119,33 @@ extension View {
     /// The receiver lies over the screen, where it draws nothing: a picture of a film is a view of its
     /// own, and a receiver behind one that fills the screen can never take the focus.
     public func remote(on: Bool, _ press: @escaping (Word) -> Bool) -> some View {
-        overlay(RemoteReceiver(on: on, press: press))
+        modifier(RemoteHold(on: on, press: press))
+    }
+}
+
+/// Pages say Left for towards the start of a line. In a right to left language the start is on the
+/// right, so the remote's arrows swap here, once, for every page. The player keeps its own left to
+/// right way, so its arrows stay as they are.
+private struct RemoteHold: ViewModifier {
+    let on: Bool
+    let press: (Word) -> Bool
+    @Environment(\.layoutDirection) private var way
+
+    func body(content: Content) -> some View {
+        let turned = way == .rightToLeft
+        content.overlay(RemoteReceiver(on: on, press: { word in
+            press(turned ? word.turned : word)
+        }))
+    }
+}
+
+extension Word {
+    /// Left and right swapped, for a right to left page.
+    var turned: Word {
+        switch self {
+        case .left: .right
+        case .right: .left
+        default: self
+        }
     }
 }

@@ -92,7 +92,7 @@ public struct GetHelp: View {
                 let answered = await shell.read("/v1/ready") != nil
                 let took = Int(Date().timeIntervalSince(start) * 1000)
                 checked = answered
-                    ? seen.say("help.check.ok").replacingOccurrences(of: "{ms}", with: String(took))
+                    ? seen.say("help.check.ok").fill("ms", String(took))
                     : seen.say("help.check.fail")
             }
         }

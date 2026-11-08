@@ -270,10 +270,18 @@ public final class Host: Shell, @unchecked Sendable {
             guard let self = self else { return }
             if (200...299).contains(status),
                let read = try? self.decoder.decode(Strings.self, from: Data(text.utf8)) {
-                let mapped = read.texts.mapValues { $0.replacingOccurrences(of: "{brand}", with: brand) }
+                // A right to left language's words start with a right to left mark, so a line that
+                // opens with the brand's Latin name still reads right to left.
+                let rtl = read.dir == .rtl
+                var mapped: [String: String] = [:]
+                for (key, text) in read.texts {
+                    let mark = rtl && !key.hasPrefix("language.") ? "\u{200F}" : ""
+                    mapped[key] = mark + text.replacingOccurrences(of: "{brand}", with: brand)
+                }
                 Task { @MainActor in
                     self.seen.words = mapped
                     self.seen.language = read.lang
+                    self.seen.rtl = rtl
                 }
             }
         }

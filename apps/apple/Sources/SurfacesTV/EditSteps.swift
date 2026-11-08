@@ -27,7 +27,7 @@ struct AgeNote: View {
 
     var body: some View {
         let key = person.kids ? "kids" : limit
-        let chip = seen.words["profile.age.\(key)"] ?? seen.say("profile.age.limit").replacingOccurrences(of: "{age}", with: limit)
+        let chip = seen.words["profile.age.\(key)"] ?? seen.say("profile.age.limit").fill("age", limit)
         let line = seen.words["profile.age.\(key).help"] ?? seen.say("profile.age.limit.help")
         ZStack(alignment: .topLeading) {
             Text(chip).brand(24, 700).foregroundStyle(.white)
