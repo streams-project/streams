@@ -476,11 +476,11 @@ mod tests {
 
     #[test]
     fn art_resolves_art_size_from_poster_base() {
-        let images = Images::new(Some("https://image.tmdb.org/t/p/w780"));
+        let images = Images::new(Some("https://images.example/t/p/w780"));
         let poster = images.image(ImageRole::Poster, Some("/p.jpg")).unwrap();
-        assert_eq!(poster.url, "https://image.tmdb.org/t/p/w780/p.jpg");
+        assert_eq!(poster.url, "https://images.example/t/p/w780/p.jpg");
         let art = images.image(ImageRole::Art, Some("/art.jpg")).unwrap();
-        assert_eq!(art.url, "https://image.tmdb.org/t/p/w1280/art.jpg");
+        assert_eq!(art.url, "https://images.example/t/p/w1280/art.jpg");
     }
 
     #[test]
