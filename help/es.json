@@ -105,7 +105,7 @@
       "title": "Cómo usar Clips"
     },
     "continue-watching": {
-      "body": "Los títulos que empezaste aparecen en la fila <b>Continuar viendo</b>, con una barra que muestra cuánto viste. También está en <b>Mi {brand}</b>.\n\n## Reanudar\nSelecciona el título. La reproducción empieza donde lo dejaste, en cualquier dispositivo donde inicies sesión.\n\n## Quitar un título de la fila\n1. Abre el menú de opciones de la tarjeta del título.\n2. Elige <b>Quitar de Continuar viendo</b>.\n\nPara quitar también un título de tu actividad de visualización, consulta <a=/help/article/viewing-history>Cómo gestionar tu historial de visualización</a>.",
+      "body": "Los títulos que empezaste aparecen en la fila <b>Seguir viendo</b>, con una barra que muestra cuánto viste. También está en <b>Mi espacio</b>.\n\n## Reanudar\nSelecciona el título. La reproducción empieza donde lo dejaste, en cualquier dispositivo donde inicies sesión.\n\n## Quitar un título de la fila\n1. Abre el menú de opciones de la tarjeta del título.\n2. Elige <b>Quitar de Seguir viendo</b>.\n\nPara quitar también un título de tu actividad de visualización, consulta <a=/help/article/viewing-history>Cómo gestionar tu historial de visualización</a>.",
       "keywords": "continuar viendo reanudar progreso quitar fila detenido visto a medias",
       "related": [
         "viewing-history",
@@ -115,7 +115,7 @@
         "skip-intro-next"
       ],
       "summary": "Retoma donde te quedaste y quita títulos de la fila.",
-      "title": "Cómo usar Continuar viendo"
+      "title": "Cómo usar Seguir viendo"
     },
     "contribute": {
       "body": "{brand} se construye de forma abierta. Puedes ayudar de varias maneras:\n\n- <b>Traducciones.</b> El texto de la interfaz está en archivos de texto plano, uno por idioma, por lo que una traducción es un archivo de texto que puedes editar.\n- <b>Informes de errores.</b> Consulta <a=/help/article/report-bug>Reportar un problema</a>.\n- <b>Correcciones y funciones.</b> Envía una descripción o un parche.\n- <b>Ideas.</b> Dinos qué te gustaría que hiciera el Centro de ayuda o la aplicación.\n\nEscríbenos a <a=mailto:{support_email}>{support_email}</a> con unas líneas sobre lo que quieres hacer.",
@@ -362,7 +362,7 @@
       "title": "Cómo cambiar el idioma"
     },
     "list-missing": {
-      "body": "Mi lista y tu progreso pertenecen a un perfil y se guardan en tu cuenta. Si aparecen vacíos:\n\n- Comprueba que estás en el perfil correcto. Cada perfil tiene su propia lista. Cambia desde el menú de perfil.\n- Comprueba que iniciaste sesión con la misma cuenta que antes.\n- Dale a un dispositivo nuevo unos segundos para cargar tu cuenta después de iniciar sesión, o recarga la página.\n- Los títulos que ocultaste de tu actividad de visualización también salen de Continuar viendo.\n\nSi todavía falta algo en un dispositivo, cierra sesión y vuelve a iniciarla en él. Consulta <a=/help/article/saved-data>Dónde se guardan tus perfiles, tu lista y tu progreso</a>.\n\n@@ profiles",
+      "body": "Mi lista y tu progreso pertenecen a un perfil y se guardan en tu cuenta. Si aparecen vacíos:\n\n- Comprueba que estás en el perfil correcto. Cada perfil tiene su propia lista. Cambia desde el menú de perfil.\n- Comprueba que iniciaste sesión con la misma cuenta que antes.\n- Dale a un dispositivo nuevo unos segundos para cargar tu cuenta después de iniciar sesión, o recarga la página.\n- Los títulos que ocultaste de tu actividad de visualización también salen de Seguir viendo.\n\nSi todavía falta algo en un dispositivo, cierra sesión y vuelve a iniciarla en él. Consulta <a=/help/article/saved-data>Dónde se guardan tus perfiles, tu lista y tu progreso</a>.\n\n@@ profiles",
       "keywords": "mi lista falta desapareció vacía perdida continuar viendo progreso borrado",
       "related": [
         "my-list",
@@ -371,11 +371,11 @@
         "continue-watching",
         "sign-in"
       ],
-      "summary": "Por qué Mi lista o Continuar viendo pueden aparecer vacías y cómo recuperarlas.",
+      "summary": "Por qué Mi lista o Seguir viendo pueden aparecer vacías y cómo recuperarlas.",
       "title": "Mi lista o el progreso desaparecieron"
     },
     "my-list": {
-      "body": "## Agregar un título\nSelecciona el botón <b>+</b> en la tarjeta de un título, en su ventana de detalles o en el título destacado de la parte superior de la página.\n\n## Quitar un título\nSelecciona la marca de verificación del título. Vuelve a convertirse en <b>+</b>.\n\n## Ver tu lista\nAbre <b>Mi {brand}</b> en la barra superior, o en la barra de abajo en el teléfono. Ahí está tu lista, junto a <b>Continuar viendo</b>, los títulos que te gustaron y los avances que viste.\n\nMi lista pertenece al perfil y se guarda en tu cuenta, así que es la misma en todos los dispositivos.",
+      "body": "## Agregar un título\nSelecciona el botón <b>+</b> en la tarjeta de un título, en su ventana de detalles o en el título destacado de la parte superior de la página.\n\n## Quitar un título\nSelecciona la marca de verificación del título. Vuelve a convertirse en <b>+</b>.\n\n## Ver tu lista\nAbre <b>Mi espacio</b> en la barra superior, o en la barra de abajo en el teléfono. Ahí está tu lista, junto a <b>Seguir viendo</b>, los títulos que te gustaron y los avances que viste.\n\nMi lista pertenece al perfil y se guarda en tu cuenta, así que es la misma en todos los dispositivos.",
       "keywords": "mi lista agregar quitar lista de reproducción guardar para después favoritos más",
       "related": [
         "list-missing",
@@ -453,7 +453,7 @@
       "title": "Controles parentales: clasificaciones por edad y títulos bloqueados"
     },
     "phone-tablet": {
-      "body": "Abre el sitio en el navegador de tu teléfono. La página cambia a un diseño pensado para pantallas táctiles, con una barra abajo para <b>Inicio</b>, <b>Clips</b>, <b>Buscar</b> y <b>Mi {brand}</b>.\n\n- Toca una tarjeta para ver sus detalles y luego el botón de reproducir para empezar.\n- Gira el teléfono en horizontal para ver mejor la imagen.\n- Para que se sienta como una app, consulta <a=/help/article/install-app>Cómo instalar {brand} como aplicación</a>.",
+      "body": "Abre el sitio en el navegador de tu teléfono. La página cambia a un diseño pensado para pantallas táctiles, con una barra abajo para <b>Inicio</b>, <b>Clips</b>, <b>Buscar</b> y <b>Mi espacio</b>.\n\n- Toca una tarjeta para ver sus detalles y luego el botón de reproducir para empezar.\n- Gira el teléfono en horizontal para ver mejor la imagen.\n- Para que se sienta como una app, consulta <a=/help/article/install-app>Cómo instalar {brand} como aplicación</a>.",
       "keywords": "teléfono tableta móvil android iphone ipad táctil barra inferior aplicación diseño",
       "related": [
         "install-app",
@@ -733,7 +733,7 @@
       "title": "Navegadores compatibles"
     },
     "switch-profile": {
-      "body": "1. Abre el menú de perfil arriba a la derecha de la página. En el teléfono, toca tu imagen de perfil en la barra de abajo.\n2. Selecciona el perfil que quieres usar.\n3. Si el perfil está bloqueado, escribe su PIN de 4 dígitos.\n\nLas recomendaciones, <b>Mi lista</b> y <b>Continuar viendo</b> cambian según el perfil que elijas.\n\n!! Nota: Puedes bloquear un perfil con un PIN. Consulta <a=/help/article/profile-pin>Cómo agregar, editar o eliminar el PIN de un perfil</a>.\n\n@@ profiles",
+      "body": "1. Abre el menú de perfil arriba a la derecha de la página. En el teléfono, toca tu imagen de perfil en la barra de abajo.\n2. Selecciona el perfil que quieres usar.\n3. Si el perfil está bloqueado, escribe su PIN de 4 dígitos.\n\nLas recomendaciones, <b>Mi lista</b> y <b>Seguir viendo</b> cambian según el perfil que elijas.\n\n!! Nota: Puedes bloquear un perfil con un PIN. Consulta <a=/help/article/profile-pin>Cómo agregar, editar o eliminar el PIN de un perfil</a>.\n\n@@ profiles",
       "keywords": "cambiar cambiar perfil quién está viendo menú",
       "related": [
         "profiles-manage",
@@ -823,7 +823,7 @@
       "title": "Ayuda a traducir {brand}"
     },
     "viewing-history": {
-      "body": "Cada perfil tiene una página de <b>Actividad de visualización</b> con los títulos que vio, del más reciente al más antiguo. {brand} la usa para Continuar viendo y para las recomendaciones.\n\n1. Abre el menú de perfil, elige <b>Cuenta</b>, luego <b>Administrar perfiles</b>, y selecciona el perfil.\n2. Elige <b>Actividad de visualización</b>.\n3. Elige <b>Ocultar este título</b> junto a un título, o <b>Ocultar todo</b>.\n\nUn título oculto sale de Continuar viendo y deja de influir en las recomendaciones, en todos los dispositivos. <b>Descargar todo</b> guarda la lista como hoja de cálculo.\n\n@@ data",
+      "body": "Cada perfil tiene una página de <b>Actividad de visualización</b> con los títulos que vio, del más reciente al más antiguo. {brand} la usa para Seguir viendo y para las recomendaciones.\n\n1. Abre el menú de perfil, elige <b>Cuenta</b>, luego <b>Administrar perfiles</b>, y selecciona el perfil.\n2. Elige <b>Actividad de visualización</b>.\n3. Elige <b>Ocultar este título</b> junto a un título, o <b>Ocultar todo</b>.\n\nUn título oculto sale de Seguir viendo y deja de influir en las recomendaciones, en todos los dispositivos. <b>Descargar todo</b> guarda la lista como hoja de cálculo.\n\n@@ data",
       "keywords": "historial de visualización visto actividad eliminar borrar quitar valoraciones recomendaciones",
       "related": [
         "continue-watching",

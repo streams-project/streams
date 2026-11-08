@@ -105,7 +105,7 @@
       "title": "Klipleri kullanma"
     },
     "continue-watching": {
-      "body": "Başladığınız başlıklar, ne kadarını izlediğinizi gösteren bir çubukla <b>İzlemeye Devam Et</b> sırasında görünür. Bu sıra <b>{brand}'im</b>'de de bulunur.\n\n## Devam etme\nBaşlığı seçin. Oynatma, oturum açtığınız her cihazda kaldığınız yerden başlar.\n\n## Sıradan başlık kaldırma\n1. Başlık kartındaki seçenekler menüsünü açın.\n2. <b>İzlemeye Devam Et listesinden kaldır</b>'ı seçin.\n\nBir başlığı izleme etkinliğinizden de kaldırmak için bkz. <a=/help/article/viewing-history>İzleme geçmişinizi yönetme</a>.",
+      "body": "Başladığınız başlıklar, ne kadarını izlediğinizi gösteren bir çubukla <b>İzlemeye Devam Et</b> sırasında görünür. Bu sıra <b>Sayfam</b>'de de bulunur.\n\n## Devam etme\nBaşlığı seçin. Oynatma, oturum açtığınız her cihazda kaldığınız yerden başlar.\n\n## Sıradan başlık kaldırma\n1. Başlık kartındaki seçenekler menüsünü açın.\n2. <b>İzlemeye Devam Et listesinden kaldır</b>'ı seçin.\n\nBir başlığı izleme etkinliğinizden de kaldırmak için bkz. <a=/help/article/viewing-history>İzleme geçmişinizi yönetme</a>.",
       "keywords": "izlemeye devam et devam ilerleme kaldır sıra yarıda kalan",
       "related": [
         "viewing-history",
@@ -374,7 +374,7 @@
       "title": "Listem veya ilerlemem kayboldu"
     },
     "my-list": {
-      "body": "## Başlık ekleme\nBir başlık kartında, ayrıntılar penceresinde ya da sayfanın üstündeki büyük başlıkta <b>+</b> düğmesini seçin.\n\n## Başlık kaldırma\nBaşlıktaki onay işaretini seçin. Yeniden <b>+</b>'ya dönüşür.\n\n## Listenizi görme\nÜst çubukta veya telefonda alt çubukta <b>{brand}'im</b>'i açın. Listeniz orada, <b>İzlemeye Devam Et</b>, beğendiğiniz başlıklar ve izlediğiniz fragmanlarla birlikte yer alır.\n\nListem profile aittir ve hesabınızda saklanır, bu yüzden her cihazda aynıdır.",
+      "body": "## Başlık ekleme\nBir başlık kartında, ayrıntılar penceresinde ya da sayfanın üstündeki büyük başlıkta <b>+</b> düğmesini seçin.\n\n## Başlık kaldırma\nBaşlıktaki onay işaretini seçin. Yeniden <b>+</b>'ya dönüşür.\n\n## Listenizi görme\nÜst çubukta veya telefonda alt çubukta <b>Sayfam</b>'i açın. Listeniz orada, <b>İzlemeye Devam Et</b>, beğendiğiniz başlıklar ve izlediğiniz fragmanlarla birlikte yer alır.\n\nListem profile aittir ve hesabınızda saklanır, bu yüzden her cihazda aynıdır.",
       "keywords": "listem ekle kaldır sonra izle kaydet favoriler artı",
       "related": [
         "list-missing",
@@ -452,7 +452,7 @@
       "title": "Ebeveyn denetimleri: yaş derecelendirmeleri ve engellenen başlıklar"
     },
     "phone-tablet": {
-      "body": "Siteyi telefonunuzun tarayıcısında açın. Sayfa dokunmaya uygun bir düzene geçer ve altta <b>Ana Sayfa</b>, <b>Klipler</b>, <b>Ara</b> ve <b>{brand}'im</b> için bir çubuk bulunur.\n\n- Ayrıntılar için bir karta, başlamak için oynat düğmesine dokunun.\n- En iyi görüntü için telefonu yatay çevirin.\n- Bir uygulama gibi hissettirmesi için bkz. <a=/help/article/install-app>{brand} uygulamasını yükleme</a>.",
+      "body": "Siteyi telefonunuzun tarayıcısında açın. Sayfa dokunmaya uygun bir düzene geçer ve altta <b>Ana Sayfa</b>, <b>Klipler</b>, <b>Ara</b> ve <b>Sayfam</b> için bir çubuk bulunur.\n\n- Ayrıntılar için bir karta, başlamak için oynat düğmesine dokunun.\n- En iyi görüntü için telefonu yatay çevirin.\n- Bir uygulama gibi hissettirmesi için bkz. <a=/help/article/install-app>{brand} uygulamasını yükleme</a>.",
       "keywords": "telefon tablet mobil alt çubuk",
       "related": [
         "install-app",

@@ -14,7 +14,7 @@
       "title": "Accessibilité sur {brand}"
     },
     "autoplay-blocked": {
-      "body": "Les navigateurs n'autorisent pas une page à lancer une vidéo avec le son tant que vous n'avez pas cliqué ou touché la page. {brand} essaie d'abord de démarrer avec le son. Si le navigateur refuse, la vidéo démarre sans le son et affiche le haut-parleur barré. Rétablissez le son avec <b>M</b> ou le bouton du haut-parleur.\n\n- Pour que les aperçus ne démarrent plus seuls, désactivez <b>Lecture automatique des prévisualisations</b> dans les <b>Paramètres de lecture</b> de votre profil.\n- Si un titre ne démarre jamais, consultez <a=/help/article/wont-play>Un titre ne se lance pas</a>.",
+      "body": "Les navigateurs n'autorisent pas une page à lancer une vidéo avec le son tant que vous n'avez pas cliqué ou touché la page. {brand} essaie d'abord de démarrer avec le son. Si le navigateur refuse, la vidéo démarre sans le son et affiche le haut-parleur barré. Rétablissez le son avec <b>M</b> ou le bouton du haut-parleur.\n\n- Pour que les aperçus ne démarrent plus seuls, désactivez <b>Lecture automatique des aperçus</b> dans les <b>Paramètres de lecture</b> de votre profil.\n- Si un titre ne démarre jamais, consultez <a=/help/article/wont-play>Un titre ne se lance pas</a>.",
       "keywords": "lecture automatique bloquée muet démarrage politique navigateur son lecture auto aperçus bande-annonce",
       "related": [
         "no-sound",
@@ -92,7 +92,7 @@
       "title": "Comment effacer vos données enregistrées"
     },
     "clips": {
-      "body": "<b>Extraits</b> affiche de courts aperçus les uns après les autres, dans la barre inférieure sur téléphone.\n\n1. Faites défiler ou balayez l'écran pour passer à l'extrait suivant.\n2. Sélectionnez le bouton haut-parleur pour activer ou couper le son. Les extraits démarrent en sourdine.\n3. Sélectionnez <b>Ma liste</b> pour enregistrer le titre, <b>Lire</b> pour le regarder, ou <b>Infos</b> pour en savoir plus.",
+      "body": "<b>Extraits</b> affiche de courts aperçus les uns après les autres, dans la barre inférieure sur téléphone.\n\n1. Faites défiler ou balayez l'écran pour passer à l'extrait suivant.\n2. Sélectionnez le bouton haut-parleur pour activer ou couper le son. Les extraits démarrent en sourdine.\n3. Sélectionnez <b>Ma liste</b> pour enregistrer le titre, <b>Lecture</b> pour le regarder, ou <b>Infos</b> pour en savoir plus.",
       "keywords": "extraits clips courts aperçus défiler vertical bandes-annonces son muet infos ma liste",
       "related": [
         "trailers-clips",
@@ -657,7 +657,7 @@
       "title": "« Passer l'intro » et « Épisode suivant »"
     },
     "slow-pages": {
-      "body": "La première visite télécharge l'app, environ 2 Mo. Ensuite, l'essentiel de l'attente vient des images et des aperçus.\n\n- Désactivez <b>Lecture automatique des prévisualisations</b> dans les <b>Paramètres de lecture</b> de votre profil. Les aperçus qui démarrent seuls consomment des données et de la mémoire.\n- Fermez les onglets et les autres apps qui utilisent le réseau ou beaucoup de mémoire.\n- Utilisez un navigateur à jour. Les anciens font tourner l'app plus lentement.\n- En données mobiles, passez au Wi-Fi si vous le pouvez.\n\n@@ diagnostics",
+      "body": "La première visite télécharge l'app, environ 2 Mo. Ensuite, l'essentiel de l'attente vient des images et des aperçus.\n\n- Désactivez <b>Lecture automatique des aperçus</b> dans les <b>Paramètres de lecture</b> de votre profil. Les aperçus qui démarrent seuls consomment des données et de la mémoire.\n- Fermez les onglets et les autres apps qui utilisent le réseau ou beaucoup de mémoire.\n- Utilisez un navigateur à jour. Les anciens font tourner l'app plus lentement.\n- En données mobiles, passez au Wi-Fi si vous le pouvez.\n\n@@ diagnostics",
       "keywords": "lent lag performance vitesse chargement mémoire vieux téléphone saccadé défilement aperçus",
       "related": [
         "buffering",

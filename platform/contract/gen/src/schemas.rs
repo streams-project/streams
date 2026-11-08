@@ -25,7 +25,8 @@ use contract::play::{
     SubtitleBody, SubtitleList,
 };
 use contract::screen::{
-    More, Nav, PublicTitles, Resume, Screen, Season, Section, Suggestions, Tile, TitleDetail,
+    CalendarDay, GateLine, GateTitle, More, Nav, ProfileGate, PublicTitles, Resume, Screen, Season,
+    Section, Suggestions, Tile, TitleDetail,
 };
 use contract::version::VersionRange;
 use contract::{EpisodeRef, Rating, TitleKey, TitleKind};
@@ -145,6 +146,10 @@ pub fn definitions() -> (BTreeMap<String, Value>, Vec<String>) {
         Tile,
         TitleDetail,
         PublicTitles,
+        ProfileGate,
+        GateTitle,
+        GateLine,
+        CalendarDay,
         TitleKey,
         TitleKind,
         VersionRange,

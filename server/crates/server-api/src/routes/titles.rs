@@ -198,7 +198,10 @@ const CARD_STILLS: usize = 4;
 /// `GET /v1/public/trending`: today's most watched titles under the visitor tier, a series and a
 /// film in turn. A series carries pictures of its first episodes, so a card can show the title as a
 /// slideshow. Off when the deployer stated no tier, like the visitor's title page.
-pub async fn public_trending(State(state): State<Shared>, headers: HeaderMap) -> ApiResult<Response> {
+pub async fn public_trending(
+    State(state): State<Shared>,
+    headers: HeaderMap,
+) -> ApiResult<Response> {
     let tier = state
         .config
         .visitor_tier
@@ -228,7 +231,11 @@ pub async fn public_trending(State(state): State<Shared>, headers: HeaderMap) ->
             Some(page.with_stills(stills))
         })
         .collect();
-    send_cleared(&headers, &SafePublicTitles::new(titles), Keep::Public(PUBLIC_TTL_S))
+    send_cleared(
+        &headers,
+        &SafePublicTitles::new(titles),
+        Keep::Public(PUBLIC_TTL_S),
+    )
 }
 
 /// `GET /v1/public/titles/{kind}/{id}`: under the visitor tier, with no profile. Off when the

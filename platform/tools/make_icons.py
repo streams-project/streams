@@ -77,6 +77,44 @@ def android() -> None:
         )
 
 
+def apple() -> None:
+    catalog = ROOT / "apps/apple/Sources/SurfacesShared/Resources/Icons.xcassets"
+    catalog.mkdir(parents=True, exist_ok=True)
+    (catalog / "Contents.json").write_text(
+        json.dumps({"info": {"author": "xcode", "version": 1}}, indent=2) + "\n",
+        "utf-8",
+    )
+    for name, icon in sorted(ICONS.items()):
+        stem = f"icon_{name.replace('-', '_')}"
+        folder = catalog / f"{stem}.imageset"
+        folder.mkdir(parents=True, exist_ok=True)
+        size = grid(icon)
+        (folder / f"{stem}.svg").write_text(
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {size} {size}">{icon["body"]}</svg>\n',
+            "utf-8",
+        )
+        (folder / "Contents.json").write_text(
+            json.dumps(
+                {
+                    # A left to right picture that turns in a right to left interface.
+                    "images": [
+                        {"filename": f"{stem}.svg", "idiom": "universal"}
+                        | ({"language-direction": "left-to-right"} if icon.get("mirror") else {})
+                    ],
+                    "info": {"author": "xcode", "version": 1},
+                    "properties": {
+                        "preserves-vector-representation": True,
+                        "template-rendering-intent": "template",
+                    },
+                },
+                indent=2,
+            )
+            + "\n",
+            "utf-8",
+        )
+
+
 if __name__ == "__main__":
     television()
     android()
+    apple()

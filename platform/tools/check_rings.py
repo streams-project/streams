@@ -47,6 +47,17 @@ FAMILIES = {
             "the player port": r"\bandroidx\.media3\b|\bExoPlayer\b",
         },
     },
+    "apple": {
+        "code": "apps/apple",
+        "ends": {".swift"},
+        "skip": set(),
+        "banned": {
+            "the address table": r'"/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)[/"?]',
+            "the network port": r"\bURLSession\b",
+            "the secrets port": r"\bSecItem\w*\b",
+            "the player port": r"\bAVPlayer\b",
+        },
+    },
 }
 PARTS = ("adapters", "surfaces")
 

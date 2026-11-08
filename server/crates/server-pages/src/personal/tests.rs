@@ -14,6 +14,7 @@ fn item(rating: f32, popularity: f32, votes: u32) -> CatalogItem {
         poster_path: Some("/p.jpg".into()),
         backdrop_path: Some("/b.jpg".into()),
         logo_path: None,
+        art_path: None,
         vote_average: rating,
         popularity,
         is_anime: false,

@@ -325,6 +325,15 @@ data class BrandValues(
     @SerialName("support_email") val supportEmail: String,
 )
 
+/** A day of the calendar, YYYY-MM-DD. The app writes it out in the viewer's own words. */
+@Serializable
+@JvmInline
+value class CalendarDay(val value: String) {
+    init {
+        require(Regex("^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])\$").matches(value)) { "not a CalendarDay" }
+    }
+}
+
 /** What a device can do. The server filters attempts and sections by this card. */
 @Serializable
 data class CapabilityCard(
@@ -1351,6 +1360,37 @@ data class FoundSource(
     @SerialName("verified") val verified: Boolean,
 )
 
+/** The facts of the line under a title's logo on the profile chooser. Never words: the app writes them in the viewer's language, with the date in its own month names and digits. */
+@Serializable
+data class GateLine(
+    /** The day, for `coming` and `seasons_coming`. */
+    @SerialName("date") val date: CalendarDay? = null,
+    @SerialName("kind") val kind: GateLineKind,
+    /** Films or series, for `ranked`. */
+    @SerialName("media") val media: TitleKind? = null,
+    /** The place from 1, for `ranked`. */
+    @SerialName("rank") val rank: Long? = null,
+)
+
+/** What the line under a title's logo on the profile chooser tells. The app writes the words. */
+@Serializable
+@JvmInline
+value class GateLineKind(val value: String) {
+    companion object {
+        val COMING = GateLineKind("coming")
+        val SEASONS_COMING = GateLineKind("seasons_coming")
+        val RANKED = GateLineKind("ranked")
+        val NONE = GateLineKind("none")
+    }
+}
+
+/** One title shown over the profile chooser: its tile, with art, logo and poster, and its line. */
+@Serializable
+data class GateTitle(
+    @SerialName("line") val line: GateLine,
+    @SerialName("tile") val tile: Tile,
+)
+
 /** True while the who is watching prompt should show. */
 @Serializable
 data class GateView(
@@ -1531,6 +1571,7 @@ value class ImageRole(val value: String) {
         val LOGO = ImageRole("logo")
         val STILL = ImageRole("still")
         val AVATAR = ImageRole("avatar")
+        val ART = ImageRole("art")
     }
 }
 
@@ -1843,6 +1884,14 @@ data class ProfileEnter(
 data class ProfileEntered(
     @SerialName("home") val home: ScreenName,
     @SerialName("profile") val profile: Profile,
+)
+
+/** Titles shown over the profile chooser before anyone has chosen a profile, at most three, in order. Chosen for the whole account: never above the most open tier among its profiles. */
+@Serializable
+data class ProfileGate(
+    @SerialName("titles") val titles: List<GateTitle>,
+    /** Seconds this answer stays good. */
+    @SerialName("ttl_s") val ttlS: Long,
 )
 
 /** Needs a step up. Never reachable through a queued command. */

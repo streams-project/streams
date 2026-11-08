@@ -20,7 +20,12 @@ pub fn normalise(text: &str) -> String {
     let mut space = true;
     for c in text.chars() {
         // Arabic short vowels and the stretching line carry no letter: drop them, do not split.
-        if ('\u{064B}'..='\u{0652}').contains(&c) || c == '\u{0640}' || c == '\u{0670}' {
+        // The Persian half-space (U+200C) carries no letter either.
+        if ('\u{064B}'..='\u{0652}').contains(&c)
+            || c == '\u{0640}'
+            || c == '\u{0670}'
+            || c == '\u{200C}'
+        {
             continue;
         }
         // Hebrew vowel points and cantillation marks carry no letter either.
@@ -64,7 +69,8 @@ fn fold(c: char, out: &mut String) {
         }
         'أ' | 'إ' | 'آ' | 'ٱ' => 'ا',
         'ة' => 'ه',
-        'ى' | 'ئ' => 'ي',
+        'ى' | 'ئ' | 'ی' => 'ي',
+        'ک' => 'ك',
         'ؤ' => 'و',
         // Hebrew final forms are the same letters at a word's end.
         'ך' => 'כ',
@@ -74,6 +80,10 @@ fn fold(c: char, out: &mut String) {
         'ץ' => 'צ',
         '\u{0660}'..='\u{0669}' => char::from_u32(c as u32 - 0x0660 + u32::from(b'0')).unwrap_or(c),
         '\u{06F0}'..='\u{06F9}' => char::from_u32(c as u32 - 0x06F0 + u32::from(b'0')).unwrap_or(c),
+        // Katakana folds to Hiragana so either script matches in search.
+        '\u{30A1}'..='\u{30F6}' => char::from_u32(c as u32 - 0x60).unwrap_or(c),
+        // Full-width ASCII folds to standard ASCII.
+        '\u{FF01}'..='\u{FF5E}' => char::from_u32(c as u32 - 0xFF01 + 0x21).unwrap_or(c),
         other => other,
     };
     out.push(plain);
@@ -237,8 +247,23 @@ mod tests {
     }
 
     #[test]
+    fn arabic_and_persian_letter_forms_fold() {
+        assert_eq!(normalise("كتاب"), normalise("کتاب"));
+        assert_eq!(normalise("ایران"), normalise("إيران"));
+        assert_eq!(normalise("خانه\u{200C}ها"), normalise("خانه‌ها"));
+        assert_eq!(normalise("۰۱۲۳۴۵۶۷۸۹"), "0123456789");
+    }
+
+    #[test]
     fn hebrew_points_and_final_forms_fold() {
         assert_eq!(normalise("שָׁלוֹם"), normalise("שלומ"));
+    }
+
+    #[test]
+    fn katakana_and_fullwidth_fold() {
+        assert_eq!(normalise("アニメ"), "あにめ");
+        assert_eq!(normalise("ガンダム"), "がんだむ");
+        assert_eq!(normalise("ＴＯＫＹＯ　２０２４"), "tokyo 2024");
     }
 
     #[test]

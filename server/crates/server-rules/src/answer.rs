@@ -6,8 +6,9 @@ use contract::command::Changes;
 use contract::error::Notice;
 use contract::play::{AgeCard, Attempt, PlayAnswer};
 use contract::screen::{
-    AgeMark, Badge, Cursor, Episode, Image, ImageRole, More, PublicTitles, RefreshTrigger, Screen,
-    ScreenName, Season, SeasonSummary, Section, SectionKind, Suggestions, Tile, TitleDetail,
+    AgeMark, Badge, Cursor, Episode, GateLine, GateTitle, Image, ImageRole, More, ProfileGate,
+    PublicTitles, RefreshTrigger, Screen, ScreenName, Season, SeasonSummary, Section, SectionKind,
+    Suggestions, Tile, TitleDetail,
 };
 use contract::{EpisodeRef, TitleKey, TitleKind};
 use serde::Serialize;
@@ -63,6 +64,8 @@ cleared! {
     SafeSuggestions(Suggestions);
     /// Titles a visitor may look at, each a visible title page.
     SafePublicTitles(PublicTitles);
+    /// Titles over the profile chooser, each a visible tile with its line.
+    SafeProfileGate(ProfileGate);
     /// `Changes` naming only visible titles.
     SafeChanges(Changes);
 }
@@ -71,19 +74,44 @@ cleared! {
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Images {
     base: Option<String>,
+    art_base: Option<String>,
 }
 
 impl Images {
-    /// Images under a base address, or none.
+    /// Images under a base address, or none. When the base address contains `/w780`, art URLs
+    /// resolve to `/w1280` so the textless portrait poster fills a tall display without upscaling.
     #[must_use]
     pub fn new(base: Option<&str>) -> Self {
-        Self {
-            base: base.map(|text| text.trim_end_matches('/').to_owned()),
-        }
+        Self::with_art_base(base, None)
+    }
+
+    /// Images under a base address, with an optional separate address for art (`ImageRole::Art`).
+    /// If no separate art address is given and the base address contains `/w780`, art URLs
+    /// resolve with `/w1280` substituted for `/w780`.
+    #[must_use]
+    pub fn with_art_base(base: Option<&str>, art_base: Option<&str>) -> Self {
+        let base = base.map(|text| text.trim_end_matches('/').to_owned());
+        let art_base = art_base
+            .map(|text| text.trim_end_matches('/').to_owned())
+            .or_else(|| {
+                base.as_ref().map(|b| {
+                    if b.contains("/w780") {
+                        b.replace("/w780", "/w1280")
+                    } else {
+                        b.clone()
+                    }
+                })
+            });
+        Self { base, art_base }
     }
 
     fn image(&self, role: ImageRole, path: Option<&str>) -> Option<Image> {
-        let (base, path) = (self.base.as_deref()?, path.filter(|p| !p.is_empty())?);
+        let base = if role == ImageRole::Art {
+            self.art_base.as_deref().or(self.base.as_deref())?
+        } else {
+            self.base.as_deref()?
+        };
+        let path = path.filter(|p| !p.is_empty())?;
         Some(Image {
             role,
             url: format!("{base}{path}"),
@@ -95,6 +123,11 @@ impl Images {
     #[must_use]
     pub fn still(&self, path: Option<&str>) -> Vec<Image> {
         self.image(ImageRole::Still, path).into_iter().collect()
+    }
+
+    /// The title's poster with no words on it, if it has one.
+    fn art(&self, item: &CatalogItem) -> Option<Image> {
+        self.image(ImageRole::Art, item.art_path.as_deref())
     }
 
     fn of_title(&self, item: &CatalogItem) -> Vec<Image> {
@@ -149,6 +182,14 @@ impl SafeTile {
             episode: extras.episode,
             percent: extras.percent,
         }))
+    }
+
+    /// The tile with the title's poster with no words on it, for a screen that fills a tall
+    /// display. A title with none keeps the pictures it has.
+    #[must_use]
+    pub fn with_art(mut self, title: Visible<'_>, images: &Images) -> Self {
+        self.0.images.extend(images.art(title.item()));
+        self
     }
 
     /// The tile named as the viewer's language names the title. An empty name keeps the catalog's.
@@ -318,9 +359,11 @@ impl SafeTitleDetail {
     /// Adds pictures of the title's own episodes, after its other pictures.
     #[must_use]
     pub fn with_stills(mut self, stills: Vec<Image>) -> Self {
-        self.0
-            .images
-            .extend(stills.into_iter().filter(|image| image.role == ImageRole::Still));
+        self.0.images.extend(
+            stills
+                .into_iter()
+                .filter(|image| image.role == ImageRole::Still),
+        );
         self
     }
 }
@@ -331,6 +374,20 @@ impl SafePublicTitles {
     pub fn new(titles: Vec<SafeTitleDetail>) -> Self {
         Self(PublicTitles {
             titles: titles.into_iter().map(|title| title.0).collect(),
+        })
+    }
+}
+
+impl SafeProfileGate {
+    /// Visible tiles with their lines, in their order.
+    #[must_use]
+    pub fn new(titles: Vec<(SafeTile, GateLine)>, ttl_s: u32) -> Self {
+        Self(ProfileGate {
+            titles: titles
+                .into_iter()
+                .map(|(tile, line)| GateTitle { tile: tile.0, line })
+                .collect(),
+            ttl_s,
         })
     }
 }
@@ -410,5 +467,38 @@ impl SafeChanges {
             _ => true,
         });
         Self(changes)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn art_resolves_art_size_from_poster_base() {
+        let images = Images::new(Some("https://images.example/t/p/w780"));
+        let poster = images.image(ImageRole::Poster, Some("/p.jpg")).unwrap();
+        assert_eq!(poster.url, "https://images.example/t/p/w780/p.jpg");
+        let art = images.image(ImageRole::Art, Some("/art.jpg")).unwrap();
+        assert_eq!(art.url, "https://images.example/t/p/w1280/art.jpg");
+    }
+
+    #[test]
+    fn art_resolves_explicit_art_base() {
+        let images = Images::with_art_base(
+            Some("https://images.example/t/w780"),
+            Some("https://custom.example/w1280"),
+        );
+        let poster = images.image(ImageRole::Poster, Some("/p.jpg")).unwrap();
+        assert_eq!(poster.url, "https://images.example/t/w780/p.jpg");
+        let art = images.image(ImageRole::Art, Some("/art.jpg")).unwrap();
+        assert_eq!(art.url, "https://custom.example/w1280/art.jpg");
+    }
+
+    #[test]
+    fn art_falls_back_to_base_without_replacement() {
+        let images = Images::new(Some("https://images.example/t"));
+        let art = images.image(ImageRole::Art, Some("/art.jpg")).unwrap();
+        assert_eq!(art.url, "https://images.example/t/art.jpg");
     }
 }

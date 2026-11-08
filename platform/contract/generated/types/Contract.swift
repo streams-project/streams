@@ -615,6 +615,27 @@ public struct BrandValues: Codable, Equatable, Sendable {
     }
 }
 
+/// A day of the calendar, YYYY-MM-DD. The app writes it out in the viewer's own words.
+public struct CalendarDay: Codable, Hashable, Sendable {
+    public let rawValue: String
+
+    public init(_ rawValue: String) throws {
+        guard rawValue.range(of: "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$", options: .regularExpression) != nil else {
+            throw ContractError.refused("CalendarDay")
+        }
+        self.rawValue = rawValue
+    }
+
+    public init(from decoder: Decoder) throws {
+        try self.init(try decoder.singleValueContainer().decode(String.self))
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var single = encoder.singleValueContainer()
+        try single.encode(rawValue)
+    }
+}
+
 /// What a device can do. The server filters attempts and sections by this card.
 public struct CapabilityCard: Codable, Equatable, Sendable {
     /// True when the player switches variants during play.
@@ -2850,6 +2871,57 @@ public struct FoundSource: Codable, Equatable, Sendable {
     }
 }
 
+/// The facts of the line under a title's logo on the profile chooser. Never words: the app writes them in the viewer's language, with the date in its own month names and digits.
+public struct GateLine: Codable, Equatable, Sendable {
+    /// The day, for `coming` and `seasons_coming`.
+    public var date: CalendarDay?
+    public var kind: GateLineKind
+    /// Films or series, for `ranked`.
+    public var media: TitleKind?
+    /// The place from 1, for `ranked`.
+    public var rank: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case date = "date"
+        case kind = "kind"
+        case media = "media"
+        case rank = "rank"
+    }
+
+    public init(date: CalendarDay? = nil, kind: GateLineKind, media: TitleKind? = nil, rank: Int? = nil) {
+        self.date = date
+        self.kind = kind
+        self.media = media
+        self.rank = rank
+    }
+}
+
+/// What the line under a title's logo on the profile chooser tells. The app writes the words.
+public struct GateLineKind: RawRepresentable, Codable, Hashable, Sendable {
+    public var rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+    public static let coming = GateLineKind(rawValue: "coming")
+    public static let seasonsComing = GateLineKind(rawValue: "seasons_coming")
+    public static let ranked = GateLineKind(rawValue: "ranked")
+    public static let none = GateLineKind(rawValue: "none")
+}
+
+/// One title shown over the profile chooser: its tile, with art, logo and poster, and its line.
+public struct GateTitle: Codable, Equatable, Sendable {
+    public var line: GateLine
+    public var tile: Tile
+
+    enum CodingKeys: String, CodingKey {
+        case line = "line"
+        case tile = "tile"
+    }
+
+    public init(line: GateLine, tile: Tile) {
+        self.line = line
+        self.tile = tile
+    }
+}
+
 /// True while the who is watching prompt should show.
 public struct GateView: Codable, Equatable, Sendable {
     public var ask: Bool
@@ -3203,6 +3275,7 @@ public struct ImageRole: RawRepresentable, Codable, Hashable, Sendable {
     public static let logo = ImageRole(rawValue: "logo")
     public static let still = ImageRole(rawValue: "still")
     public static let avatar = ImageRole(rawValue: "avatar")
+    public static let art = ImageRole(rawValue: "art")
 }
 
 /// Input a device has.
@@ -3820,6 +3893,23 @@ public struct ProfileEntered: Codable, Equatable, Sendable {
     public init(home: ScreenName, profile: Profile) {
         self.home = home
         self.profile = profile
+    }
+}
+
+/// Titles shown over the profile chooser before anyone has chosen a profile, at most three, in order. Chosen for the whole account: never above the most open tier among its profiles.
+public struct ProfileGate: Codable, Equatable, Sendable {
+    public var titles: [GateTitle]
+    /// Seconds this answer stays good.
+    public var ttlS: Int
+
+    enum CodingKeys: String, CodingKey {
+        case titles = "titles"
+        case ttlS = "ttl_s"
+    }
+
+    public init(titles: [GateTitle], ttlS: Int) {
+        self.titles = titles
+        self.ttlS = ttlS
     }
 }
 

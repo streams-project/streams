@@ -25,8 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -41,35 +45,44 @@ private const val OUTLINE_HIGH = 43
 
 /**
  * The top of a main page, pinned: the brand's mark and the page's name on the left, the bell on the
- * right (reference: mark box 48 x 44 at 3.9 dp, name from 51.9 dp, 44 dp buttons). On a page reached
- * from a chip (Series, Films) the mark gives way to a back arrow, as the reference's does.
+ * right (reference: mark box 48 x 44 at 3.9 dp, name from 51.9 dp, 44 dp buttons; 48 dp Android touch targets).
+ * On a page reached from a chip (Series, Films) the mark gives way to a back arrow, as the reference's does.
  */
 @Composable
 fun TopBar(server: String, name: String, back: (() -> Unit)?, bell: (() -> Unit)?) {
+    val layoutDirection = LocalLayoutDirection.current
     Row(
         Modifier.fillMaxWidth().height(TOP_BAR.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            Modifier.padding(start = 4.dp).size(48.dp, 44.dp).let { if (back != null) it.clickable(onClick = back) else it },
+            Modifier.padding(start = 4.dp).size(48.dp, 48.dp).let { if (back != null) it.clickable(onClick = back) else it },
             contentAlignment = Alignment.Center,
         ) {
             if (back != null) {
-                Icon(painterResource(R.drawable.icon_back), null, Modifier.size(24.dp), tint = Color.White)
+                Icon(
+                    painterResource(R.drawable.icon_back),
+                    null,
+                    Modifier.size(24.dp).graphicsLayer {
+                        if (layoutDirection == LayoutDirection.Rtl) scaleX = -1f
+                    },
+                    tint = Color.White,
+                )
             } else {
                 AsyncImage("$server/mark.svg", null, Modifier.size(30.dp))
             }
         }
         Text(
             name,
-            Modifier.weight(1f),
+            Modifier.weight(1f).then(if (bell == null) Modifier.padding(end = 8.dp) else Modifier),
             color = Color.White,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
         if (bell != null) {
-            Box(Modifier.size(44.dp).clickable(onClick = bell), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(48.dp).clickable(onClick = bell), contentAlignment = Alignment.Center) {
                 Icon(painterResource(R.drawable.icon_bell), null, Modifier.size(24.dp), tint = Color.White)
             }
             Spacer(Modifier.width(4.dp))
@@ -137,7 +150,14 @@ fun ChipRow(chips: List<Chip>, shown: Float) {
                     .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(chip.word, color = ink, fontSize = 15.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+                Text(
+                    chip.word,
+                    color = ink,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    softWrap = false,
+                )
                 if (chip.drops) {
                     Spacer(Modifier.width(4.dp))
                     Icon(painterResource(R.drawable.icon_caret_down), null, Modifier.size(18.dp), tint = ink)

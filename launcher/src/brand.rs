@@ -25,6 +25,10 @@ pub struct Colors {
 pub struct Fonts {
     pub body: String,
     pub display: String,
+    #[serde(default)]
+    pub arabic: Option<String>,
+    #[serde(default)]
+    pub hebrew: Option<String>,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize)]
@@ -125,6 +129,16 @@ impl Brand {
                 bail!("font {name} must be a plain name, found {value}");
             }
         }
+        if let Some(arabic) = &self.fonts.arabic
+            && !font_ok(arabic)
+        {
+            bail!("font arabic must be a plain name, found {arabic}");
+        }
+        if let Some(hebrew) = &self.fonts.hebrew
+            && !font_ok(hebrew)
+        {
+            bail!("font hebrew must be a plain name, found {hebrew}");
+        }
         Ok(())
     }
 
@@ -133,10 +147,20 @@ impl Brand {
     #[must_use]
     pub fn css(&self) -> String {
         let (c, f, s, g) = (&self.colors, &self.fonts, &self.shape, &self.spacing);
+        let arabic = f
+            .arabic
+            .as_deref()
+            .map(|a| format!("  --font-arabic: \"{a}\";\n"))
+            .unwrap_or_default();
+        let hebrew = f
+            .hebrew
+            .as_deref()
+            .map(|h| format!("  --font-hebrew: \"{h}\";\n"))
+            .unwrap_or_default();
         format!(
             ":root {{\n  --background: {};\n  --surface: {};\n  --raised: {};\n  --text: {};\n  \
              --muted: {};\n  --accent: {};\n  --accent-text: {};\n  --join: {};\n  \
-             --join-text: {};\n  --font-body: \"{}\";\n  --font-display: \"{}\";\n  \
+             --join-text: {};\n  --font-body: \"{}\";\n  --font-display: \"{}\";\n{arabic}{hebrew}  \
              --radius-button: {}px;\n  --radius-card: {}px;\n  --radius-field: {}px;\n  \
              --radius-panel: {}px;\n  --unit: {}px;\n  --gutter: {}px;\n}}\n",
             c.background,

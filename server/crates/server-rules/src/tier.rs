@@ -1,6 +1,6 @@
 //! The age tier of a profile.
 
-use server_accounts::{ProfileKind, ProfileScope};
+use server_accounts::{Profile, ProfileKind, ProfileScope};
 use thiserror::Error;
 
 /// A tier, narrowest first.
@@ -51,16 +51,43 @@ impl Tier {
     /// # Errors
     /// Neither value can be read.
     pub fn of_scope(scope: &ProfileScope) -> Result<Self, RuleError> {
-        let saved = Self::from_rating(scope.age_limit());
-        let tier = saved
-            .or_else(|| Self::from_maturity(scope.maturity()))
+        Self::of_parts(scope.age_limit(), scope.maturity(), scope.kind())
+    }
+
+    /// The tier of a profile row, by the same rule as [`Tier::of_scope`], for answers given before
+    /// anyone has entered a profile.
+    ///
+    /// # Errors
+    /// Neither value can be read.
+    pub fn of_profile(row: &Profile) -> Result<Self, RuleError> {
+        Self::of_parts(&row.age_limit, &row.maturity, row.kind)
+    }
+
+    fn of_parts(age_limit: &str, maturity: &str, kind: ProfileKind) -> Result<Self, RuleError> {
+        let tier = Self::from_rating(age_limit)
+            .or_else(|| Self::from_maturity(maturity))
             .ok_or(RuleError)?;
-        let kids = scope.kind() == ProfileKind::Kids;
-        Ok(if kids && tier > Self::OlderKids {
+        Ok(if kind == ProfileKind::Kids && tier > Self::OlderKids {
             Self::OlderKids
         } else {
             tier
         })
+    }
+
+    /// The tier a screen shown to a whole account keeps to: the most open tier among its grown up
+    /// profiles, or among its Kids profiles when it has no other. Profiles whose limit cannot be
+    /// read are left out, and an account with no readable profile gets none.
+    #[must_use]
+    pub fn of_account(rows: &[Profile]) -> Option<Self> {
+        let readable = || {
+            rows.iter()
+                .filter_map(|row| Self::of_profile(row).ok().map(|tier| (row.kind, tier)))
+        };
+        readable()
+            .filter(|(kind, _)| *kind != ProfileKind::Kids)
+            .map(|(_, tier)| tier)
+            .max()
+            .or_else(|| readable().map(|(_, tier)| tier).max())
     }
 
     /// The highest certificate rank this tier may see (1 U, 2 PG, 3 12, 4 15, 5 18).
@@ -91,5 +118,54 @@ impl Tier {
             Self::Fifteen => "fifteen",
             Self::Adult => "adult",
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use server_accounts::{AccountId, Profile, ProfileId, ProfileKind};
+
+    use super::Tier;
+
+    fn row(kind: ProfileKind, limit: &str) -> Profile {
+        Profile {
+            id: ProfileId::new(),
+            account: AccountId::new(),
+            name: String::from("P"),
+            avatar: String::from("default"),
+            kind,
+            is_main: false,
+            auto_kids: false,
+            has_pin: false,
+            sort_order: 0,
+            age_limit: limit.to_owned(),
+            maturity: String::new(),
+            blocked_names: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn an_account_keeps_to_its_most_open_grown_up_profile() {
+        let rows = [
+            row(ProfileKind::Adult, "12"),
+            row(ProfileKind::Adult, "15"),
+            row(ProfileKind::Kids, "PG"),
+        ];
+        assert_eq!(Tier::of_account(&rows), Some(Tier::Fifteen));
+    }
+
+    #[test]
+    fn an_account_of_kids_profiles_keeps_to_the_kids_tier() {
+        let rows = [row(ProfileKind::Kids, "U"), row(ProfileKind::Kids, "18")];
+        assert_eq!(Tier::of_account(&rows), Some(Tier::OlderKids));
+        let little = [row(ProfileKind::Kids, "U")];
+        assert_eq!(Tier::of_account(&little), Some(Tier::LittleKids));
+    }
+
+    #[test]
+    fn an_unreadable_limit_is_left_out_and_never_reads_as_adult() {
+        let rows = [row(ProfileKind::Adult, "??"), row(ProfileKind::Kids, "PG")];
+        assert_eq!(Tier::of_account(&rows), Some(Tier::OlderKids));
+        assert_eq!(Tier::of_account(&[row(ProfileKind::Adult, "??")]), None);
     }
 }

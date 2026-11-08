@@ -105,7 +105,7 @@
       "title": "Come usare Clip"
     },
     "continue-watching": {
-      "body": "I titoli che hai iniziato compaiono nella riga <b>Continua a guardare</b>, con una barra che mostra a che punto sei arrivato. La trovi anche in <b>Il mio {brand}</b>.\n\n## Riprendere\nSeleziona il titolo. La riproduzione riparte da dove ti eri fermato, su qualsiasi dispositivo in cui accedi.\n\n## Togliere un titolo dalla riga\n1. Apri il menu delle opzioni sulla scheda del titolo.\n2. Scegli <b>Rimuovi da Continua a guardare</b>.\n\nPer togliere un titolo anche dall'attività di visione, vedi <a=/help/article/viewing-history>Come gestire la cronologia di visione</a>.",
+      "body": "I titoli che hai iniziato compaiono nella riga <b>Continua a guardare</b>, con una barra che mostra a che punto sei arrivato. La trovi anche in <b>Il mio spazio</b>.\n\n## Riprendere\nSeleziona il titolo. La riproduzione riparte da dove ti eri fermato, su qualsiasi dispositivo in cui accedi.\n\n## Togliere un titolo dalla riga\n1. Apri il menu delle opzioni sulla scheda del titolo.\n2. Scegli <b>Rimuovi da Continua a guardare</b>.\n\nPer togliere un titolo anche dall'attività di visione, vedi <a=/help/article/viewing-history>Come gestire la cronologia di visione</a>.",
       "keywords": "continua a guardare riprendere progressi rimuovere riga interrotto visto a metà",
       "related": [
         "viewing-history",
@@ -375,7 +375,7 @@
       "title": "La mia lista o i progressi sono spariti"
     },
     "my-list": {
-      "body": "## Aggiungere un titolo\nSeleziona il pulsante <b>+</b> sulla scheda di un titolo, nella finestra dei dettagli o sul titolo grande in cima alla pagina.\n\n## Rimuovere un titolo\nSeleziona il segno di spunta sul titolo. Torna a essere un <b>+</b>.\n\n## Vedere la tua lista\nApri <b>Il mio {brand}</b> nella barra in alto, o nella barra in basso sul telefono. Lì trovi la tua lista, accanto a <b>Continua a guardare</b>, ai titoli che ti sono piaciuti e ai trailer che hai guardato.\n\nLa mia lista appartiene al profilo ed è salvata nel tuo account, quindi è la stessa su tutti i dispositivi.",
+      "body": "## Aggiungere un titolo\nSeleziona il pulsante <b>+</b> sulla scheda di un titolo, nella finestra dei dettagli o sul titolo grande in cima alla pagina.\n\n## Rimuovere un titolo\nSeleziona il segno di spunta sul titolo. Torna a essere un <b>+</b>.\n\n## Vedere la tua lista\nApri <b>Il mio spazio</b> nella barra in alto, o nella barra in basso sul telefono. Lì trovi la tua lista, accanto a <b>Continua a guardare</b>, ai titoli che ti sono piaciuti e ai trailer che hai guardato.\n\nLa mia lista appartiene al profilo ed è salvata nel tuo account, quindi è la stessa su tutti i dispositivi.",
       "keywords": "la mia lista aggiungere rimuovere salvare per dopo preferiti più",
       "related": [
         "list-missing",
@@ -453,7 +453,7 @@
       "title": "Controlli parentali: classificazioni per età e titoli bloccati"
     },
     "phone-tablet": {
-      "body": "Apri il sito nel browser del telefono. La pagina passa a un layout pensato per il touch, con una barra in basso per <b>Home</b>, <b>Clip</b>, <b>Cerca</b> e <b>Il mio {brand}</b>.\n\n- Tocca una scheda per i dettagli, poi il pulsante di riproduzione per iniziare.\n- Gira il telefono in orizzontale per un'immagine migliore.\n- Per usarla come un'app, vedi <a=/help/article/install-app>Come installare {brand} come app</a>.",
+      "body": "Apri il sito nel browser del telefono. La pagina passa a un layout pensato per il touch, con una barra in basso per <b>Home</b>, <b>Clip</b>, <b>Cerca</b> e <b>Il mio spazio</b>.\n\n- Tocca una scheda per i dettagli, poi il pulsante di riproduzione per iniziare.\n- Gira il telefono in orizzontale per un'immagine migliore.\n- Per usarla come un'app, vedi <a=/help/article/install-app>Come installare {brand} come app</a>.",
       "keywords": "telefono tablet mobile android iphone ipad touch barra inferiore layout app",
       "related": [
         "install-app",

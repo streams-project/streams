@@ -3,6 +3,7 @@ package streams.tv
 import streams.shared.Art
 import streams.shared.wide
 import streams.shared.fill
+import streams.shared.counted
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -62,7 +63,7 @@ private const val NEAR = 4
 private val CardFoot = Brush.verticalGradient(0.5f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.7f))
 
 @Composable
-private fun EpisodeCard(episode: Episode, label: String, on: Boolean, modifier: Modifier) {
+private fun EpisodeCard(words: Map<String, String>, episode: Episode, label: String, on: Boolean, modifier: Modifier) {
     val shape = shapeOf(Round.card)
     Box(modifier.fillMaxWidth().height(256.ref)) {
         Box(Modifier.offset(CARD_X.ref, 0.ref).size(456.ref, 256.ref).clip(shape).background(Raised)) {
@@ -88,8 +89,8 @@ private fun EpisodeCard(episode: Episode, label: String, on: Boolean, modifier: 
                 overflow = TextOverflow.Ellipsis,
                 style = storyStyle(),
             )
-            episode.runtimeMin?.let {
-                Text("(${it}m)", Modifier.padding(top = 8.ref), fontSize = 24.refType, color = Muted)
+            episode.runtimeMin?.takeIf { it > 0 }?.let {
+                Text("(${words.counted("title.length.minutes", it.toInt())})", Modifier.padding(top = 8.ref), fontSize = 24.refType, color = Muted)
             }
         }
     }
@@ -195,6 +196,7 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
                 if (index in card - 1..card + NEAR) {
                     key(episode.number) {
                         EpisodeCard(
+                            words,
                             episode,
                             words["title.episode"].orEmpty().fill("n", episode.number),
                             !inList && index == card,

@@ -1,0 +1,240 @@
+{
+  "$defs": {
+    "Badge": {
+      "description": "A mark on a tile.",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/BadgeKind"
+        },
+        "rank": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "BadgeKind": {
+      "description": "Marks on a tile.",
+      "enum": [
+        "ranked",
+        "new"
+      ],
+      "type": "string"
+    },
+    "CalendarDay": {
+      "description": "A day of the calendar, YYYY-MM-DD. The app writes it out in the viewer's own words.",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "type": "string"
+    },
+    "EpisodeRef": {
+      "description": "One episode of a series. A film has none.",
+      "properties": {
+        "episode": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "season": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "season",
+        "episode"
+      ],
+      "type": "object"
+    },
+    "GateLine": {
+      "description": "The facts of the line under a title's logo on the profile chooser. Never words: the app\nwrites them in the viewer's language, with the date in its own month names and digits.",
+      "properties": {
+        "date": {
+          "$ref": "#/$defs/CalendarDay",
+          "description": "The day, for `coming` and `seasons_coming`."
+        },
+        "kind": {
+          "$ref": "#/$defs/GateLineKind"
+        },
+        "media": {
+          "$ref": "#/$defs/TitleKind",
+          "description": "Films or series, for `ranked`."
+        },
+        "rank": {
+          "description": "The place from 1, for `ranked`.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "GateLineKind": {
+      "description": "What the line under a title's logo on the profile chooser tells. The app writes the words.",
+      "oneOf": [
+        {
+          "const": "coming",
+          "description": "The title comes out on `date`.",
+          "type": "string"
+        },
+        {
+          "const": "seasons_coming",
+          "description": "A new season of the series starts on `date`.",
+          "type": "string"
+        },
+        {
+          "const": "ranked",
+          "description": "The title is number `rank` among today's most watched of its `media`.",
+          "type": "string"
+        },
+        {
+          "const": "none",
+          "description": "No line.",
+          "type": "string"
+        }
+      ]
+    },
+    "GateTitle": {
+      "description": "One title shown over the profile chooser: its tile, with art, logo and poster, and its line.",
+      "properties": {
+        "line": {
+          "$ref": "#/$defs/GateLine"
+        },
+        "tile": {
+          "$ref": "#/$defs/Tile"
+        }
+      },
+      "required": [
+        "tile",
+        "line"
+      ],
+      "type": "object"
+    },
+    "Image": {
+      "description": "One image address. Images go straight from the host to the viewer.",
+      "properties": {
+        "role": {
+          "$ref": "#/$defs/ImageRole"
+        },
+        "url": {
+          "type": "string"
+        },
+        "width": {
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "role",
+        "url"
+      ],
+      "type": "object"
+    },
+    "ImageRole": {
+      "description": "What an image is for.",
+      "oneOf": [
+        {
+          "enum": [
+            "poster",
+            "backdrop",
+            "logo",
+            "still",
+            "avatar"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "art",
+          "description": "A tall picture of the title with no words on it, to fill a portrait screen.",
+          "type": "string"
+        }
+      ]
+    },
+    "Tile": {
+      "description": "One title in a section.",
+      "properties": {
+        "badges": {
+          "items": {
+            "$ref": "#/$defs/Badge"
+          },
+          "type": "array"
+        },
+        "episode": {
+          "$ref": "#/$defs/EpisodeRef"
+        },
+        "images": {
+          "items": {
+            "$ref": "#/$defs/Image"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "percent": {
+          "description": "Whole percent watched.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "title": {
+          "$ref": "#/$defs/TitleKey"
+        }
+      },
+      "required": [
+        "title",
+        "name"
+      ],
+      "type": "object"
+    },
+    "TitleKey": {
+      "description": "movie:<id> or tv:<id>. A bare id does not parse.",
+      "pattern": "^(movie|tv):[1-9][0-9]{0,9}$",
+      "type": "string"
+    },
+    "TitleKind": {
+      "description": "The two kinds of title. Closed on purpose: a new kind reaches old clients only through a\ndated transform, so a key always names a kind this build can open.",
+      "enum": [
+        "movie",
+        "tv"
+      ],
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Titles shown over the profile chooser before anyone has chosen a profile, at most three, in\norder. Chosen for the whole account: never above the most open tier among its profiles.",
+  "properties": {
+    "titles": {
+      "items": {
+        "$ref": "#/$defs/GateTitle"
+      },
+      "type": "array"
+    },
+    "ttl_s": {
+      "description": "Seconds this answer stays good.",
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "titles",
+    "ttl_s"
+  ],
+  "title": "ProfileGate",
+  "type": "object"
+}

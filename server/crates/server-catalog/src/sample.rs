@@ -210,6 +210,23 @@ fn unit_vector(title: &SampleTitle) -> Vec<f32> {
     row
 }
 
+/// Every second regular title has a logo, from the second on, so a test sees titles with and
+/// without one.
+#[must_use]
+pub fn sample_logo(title: &SampleTitle) -> Option<String> {
+    let regular = (100..100 + REGULAR_TITLES).contains(&title.id);
+    (regular && (title.id - 100) % 2 == 1).then(|| format!("/logo/{}.png", title.id))
+}
+
+/// Titles with a logo also have art (a poster without words) so tests can verify ImageRole::Art.
+#[must_use]
+pub fn sample_art(title: &SampleTitle) -> Option<String> {
+    sample_logo(title).map(|_| format!("/art/{}.jpg", title.id))
+}
+
+/// A series with a logo whose second season starts on 2023-11-30, after the sample's own time.
+pub const SEASON_COMING_BACK: u32 = 117;
+
 fn write_catalog(path: &Path, titles: &[SampleTitle]) -> rusqlite::Result<()> {
     let conn = Connection::open(path)?;
     conn.execute_batch(
@@ -218,7 +235,7 @@ fn write_catalog(path: &Path, titles: &[SampleTitle]) -> rusqlite::Result<()> {
            vote_average REAL, popularity REAL, is_anime INTEGER, tagline TEXT, director TEXT,
            vote_count INTEGER, adult INTEGER, original_language TEXT, tv_type TEXT,
            origin_country TEXT, keywords TEXT, runtime INTEGER, certs TEXT, networks TEXT,
-           other_names TEXT);
+           other_names TEXT, logo_path TEXT, art_path TEXT);
          CREATE VIRTUAL TABLE catalog_fts USING fts5(id UNINDEXED, overview, genres, director);
          CREATE TABLE seasons (media_type TEXT, title_id INTEGER, season_number INTEGER, name TEXT,
            overview TEXT, air_date TEXT, poster_path TEXT, episode_count INTEGER);
@@ -228,7 +245,7 @@ fn write_catalog(path: &Path, titles: &[SampleTitle]) -> rusqlite::Result<()> {
     )?;
     let mut insert = conn.prepare(
         "INSERT INTO catalog VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,0,'',?12,?13,?14,'en',?15,
-         '[\"GB\"]',?16,?17,?18,'[]',?19)",
+         '[\"GB\"]',?16,?17,?18,'[]',?19,?20,?21)",
     )?;
     for title in titles {
         let genres = title.genres.join(", ");
@@ -257,6 +274,8 @@ fn write_catalog(path: &Path, titles: &[SampleTitle]) -> rusqlite::Result<()> {
             if title.kind == "tv" { 45 } else { 100 },
             title.certs,
             serde_json::to_string(&title.other_names).unwrap_or_default(),
+            sample_logo(title),
+            sample_art(title),
         ])?;
     }
     conn.execute_batch(
@@ -266,10 +285,12 @@ fn write_catalog(path: &Path, titles: &[SampleTitle]) -> rusqlite::Result<()> {
     conn.execute_batch(&format!(
         "INSERT INTO seasons VALUES ('tv',{id},0,'Specials','','','',1),
            ('tv',{id},1,'Season 1','','','',2);
+         INSERT INTO seasons VALUES ('tv',{back},2,'Season 2','','2023-11-30','',8);
          INSERT INTO episodes VALUES ('tv',{id},0,1,'A Special','','','',20,0),
            ('tv',{id},1,1,'First Episode','It begins.','','/still-1.jpg',45,0),
            ('tv',{id},1,2,'Second Episode','It goes on.','','/still-2.jpg',44,0);",
         id = special::SHARED_ID,
+        back = SEASON_COMING_BACK,
     ))?;
     Ok(())
 }

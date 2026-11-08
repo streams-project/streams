@@ -27,7 +27,7 @@ CREATE TABLE titles (
   runtime INTEGER, adult INTEGER, status TEXT, imdb_id TEXT, networks TEXT, network_logos TEXT,
   production_companies TEXT, company_logos TEXT, creators TEXT, crew TEXT, videos TEXT,
   translations TEXT, other_names TEXT, collection TEXT, seasons INTEGER, episodes INTEGER,
-  source TEXT, fetched_at INTEGER);
+  source TEXT, fetched_at INTEGER, art_path TEXT);
 CREATE UNIQUE INDEX idx_titles_key ON titles(media_type, tmdb_id);
 CREATE INDEX idx_titles_popularity ON titles(popularity DESC);
 CREATE TABLE seasons (
@@ -44,7 +44,7 @@ TITLE_COLUMNS = (
     "overview poster_path backdrop_path logo_path vote_average vote_count popularity is_anime "
     "original_language origin_country certs keywords tv_type runtime adult status imdb_id "
     "networks network_logos production_companies company_logos creators crew videos translations "
-    "other_names collection seasons episodes source fetched_at"
+    "other_names collection seasons episodes source fetched_at art_path"
 ).split()
 
 
@@ -104,6 +104,7 @@ def title_row(pulled: sqlite3.Row) -> dict[str, Any]:
         "poster_path": pulled["poster_path"],
         "backdrop_path": pulled["backdrop_path"],
         "logo_path": pulled["logo_path"],
+        "art_path": pulled["art_path"] if "art_path" in pulled.keys() else None,  # noqa: SIM118
         "vote_average": pulled["vote_average"],
         "vote_count": pulled["vote_count"],
         "popularity": pulled["popularity"],

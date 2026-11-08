@@ -104,6 +104,21 @@ pub async fn feature(
     send_cleared(&headers, &tile, Keep::Never)
 }
 
+/// `GET /v1/profiles/gate`: up to three titles over the chooser, each with its line. The chooser
+/// shows to the whole account, so the titles keep to the most open tier among its grown up
+/// profiles, or among its Kids profiles when it has no other.
+pub async fn gate(
+    State(state): State<Shared>,
+    Caller(member): Caller,
+    headers: HeaderMap,
+) -> ApiResult<Response> {
+    let rows = door(&state)?.profiles(&member).await?;
+    let tier = Tier::of_account(&rows).ok_or_else(|| ApiError::off("gate"))?;
+    let set = data(&state)?;
+    let answer = state.pages.gate(&set, tier, state.clock.now_ms());
+    send_cleared(&headers, &answer, Keep::Never)
+}
+
 /// `GET /v1/profiles/{id}/avatars`: the published sets, and only the kids sets for a Kids profile.
 pub async fn avatars(
     State(state): State<Shared>,

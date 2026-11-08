@@ -6,8 +6,12 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use contract::EpisodeRef;
+use contract::TitleKind;
 use contract::client::DeviceClass;
-use contract::screen::{Cursor, Nav, NavItem, RefreshTrigger, ScreenName, SectionKind};
+use contract::screen::{
+    CalendarDay, Cursor, GateLine, GateLineKind, Nav, NavItem, RefreshTrigger, ScreenName,
+    SectionKind,
+};
 use moka::sync::Cache;
 use server_catalog::DataSet;
 use server_catalog::catalog::CatalogItem;
@@ -15,8 +19,8 @@ use server_catalog::det::HashSet;
 use server_catalog::manifest::role;
 use server_rules::age::{RatingSystem, age_mark};
 use server_rules::answer::{
-    DetailExtras, Images, SafeMore, SafeScreen, SafeSection, SafeSuggestions, SafeTile,
-    SafeTitleDetail, TileExtras,
+    DetailExtras, Images, SafeMore, SafeProfileGate, SafeScreen, SafeSection, SafeSuggestions,
+    SafeTile, SafeTitleDetail, TileExtras,
 };
 use server_rules::{Tier, Viewer, Visible};
 use thiserror::Error;
@@ -116,6 +120,7 @@ pub struct Pages {
     words: Words,
     rows: Cache<String, KeptRows>,
     caps: Cache<String, usize>,
+    gates: Cache<String, Arc<Vec<crate::gate::GatePick>>>,
     set: Mutex<Option<Arc<SetFacts>>>,
 }
 
@@ -132,6 +137,40 @@ struct Shape {
     language: Option<String>,
     collection: Option<String>,
     tier: Tier,
+}
+
+/// Seconds a chooser's titles stay good.
+const GATE_TTL_S: u32 = 3600;
+
+/// The wire facts of a chosen line. A day the contract cannot read drops the title.
+fn gate_line(line: &crate::gate::Line) -> Option<GateLine> {
+    use crate::gate::Line;
+    let plain = |kind| GateLine {
+        kind,
+        date: None,
+        rank: None,
+        media: None,
+    };
+    Some(match line {
+        Line::Coming(day) => GateLine {
+            date: Some(CalendarDay::parse(day).ok()?),
+            ..plain(GateLineKind::Coming)
+        },
+        Line::SeasonsComing(day) => GateLine {
+            date: Some(CalendarDay::parse(day).ok()?),
+            ..plain(GateLineKind::SeasonsComing)
+        },
+        Line::Ranked { rank, kind } => GateLine {
+            rank: Some(*rank),
+            media: Some(if *kind == "tv" {
+                TitleKind::Tv
+            } else {
+                TitleKind::Movie
+            }),
+            ..plain(GateLineKind::Ranked)
+        },
+        Line::None => plain(GateLineKind::None),
+    })
 }
 
 fn slot_of(now_ms: u64) -> u64 {
@@ -176,6 +215,10 @@ impl Pages {
             caps: Cache::builder()
                 .max_capacity(4096)
                 .time_to_live(Duration::from_secs(ROWS_KEPT_S))
+                .build(),
+            gates: Cache::builder()
+                .max_capacity(64)
+                .time_to_live(Duration::from_secs(u64::from(GATE_TTL_S)))
                 .build(),
             set: Mutex::new(None),
         }
@@ -445,7 +488,8 @@ impl Pages {
             episode: progress.and_then(|(_, episode)| episode.clone()),
             percent: progress.map(|(percent, _)| *percent),
         };
-        SafeTile::new(title, &self.images, extras).map(|tile| self.named_tile(data, key, &ask.language, tile))
+        SafeTile::new(title, &self.images, extras)
+            .map(|tile| self.named_tile(data, key, &ask.language, tile))
     }
 
     /// A tile named as the language names its title, when the catalog has a translation.
@@ -461,21 +505,37 @@ impl Pages {
     /// genres by their names in the strings files, More Like This named the same way. English, or
     /// a title with no translation, keeps the catalog's own words.
     #[must_use]
-    pub fn speak_title(&self, data: &DataSet, page: SafeTitleDetail, key: u32, lang: &str) -> SafeTitleDetail {
+    pub fn speak_title(
+        &self,
+        data: &DataSet,
+        page: SafeTitleDetail,
+        key: u32,
+        lang: &str,
+    ) -> SafeTitleDetail {
         let words = self.words.speaking(lang);
         if words.lang() == crate::words::ENGLISH_CODE {
             return page;
         }
         let code = words.lang().to_owned();
         let text = data.title_text(key, &code);
-        let name = text.as_ref().map(|text| text.title.clone()).unwrap_or_default();
-        let overview = text.as_ref().map(|text| text.overview.clone()).unwrap_or_default();
+        let name = text
+            .as_ref()
+            .map(|text| text.title.clone())
+            .unwrap_or_default();
+        let overview = text
+            .as_ref()
+            .map(|text| text.overview.clone())
+            .unwrap_or_default();
         page.speaking(
             &name,
             &overview,
             |genre| words.genre(genre),
             |title| {
-                let kind = if title.kind() == contract::TitleKind::Tv { "tv" } else { "movie" };
+                let kind = if title.kind() == contract::TitleKind::Tv {
+                    "tv"
+                } else {
+                    "movie"
+                };
                 let key = server_catalog::catalog::item_key(kind, title.id());
                 data.title_name(key, &code)
             },
@@ -992,6 +1052,40 @@ impl Pages {
             ..TileExtras::default()
         };
         SafeTile::new(other, &self.images, extras)
+    }
+
+    /// The titles over the profile chooser for an account whose most open tier is `tier`, each with
+    /// its line. One choice per set, tier and day, kept for an hour.
+    #[must_use]
+    pub fn gate(&self, data: &DataSet, tier: Tier, now_ms: u64) -> SafeProfileGate {
+        let today = server_catalog::fresh::days_of_ms(now_ms);
+        let kept = format!("{}|{}|{today}", data.data_hash, tier.as_str());
+        let picks = self.gates.get_with(kept, || {
+            let starts = data.files.get(role::CATALOG).map_or_else(Vec::new, |db| {
+                server_catalog::seasons::seasons_starting(
+                    db,
+                    &server_catalog::fresh::ymd(today),
+                    &server_catalog::fresh::ymd(today + crate::gate::COMING_DAYS),
+                )
+            });
+            Arc::new(crate::gate::gate_picks(data, tier, today, &starts))
+        });
+        let viewer = Viewer::visitor(tier);
+        let titles = picks
+            .iter()
+            .filter_map(|pick| {
+                let line = gate_line(&pick.line)?;
+                let title = viewer.see(data, pick.key)?;
+                let extras = TileExtras {
+                    tags: item_tags(data.profiles.get(pick.key), &title.item().genres, 3),
+                    ..TileExtras::default()
+                };
+                let tile =
+                    SafeTile::new(title, &self.images, extras)?.with_art(title, &self.images);
+                Some((tile, line))
+            })
+            .collect();
+        SafeProfileGate::new(titles, GATE_TTL_S)
     }
 
     /// A title page: its facts and More Like This, hidden when empty.

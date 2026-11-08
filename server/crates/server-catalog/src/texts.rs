@@ -37,7 +37,9 @@ pub struct TitleTexts {
 
 impl std::fmt::Debug for TitleTexts {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("TitleTexts").field("path", &self.path).finish_non_exhaustive()
+        f.debug_struct("TitleTexts")
+            .field("path", &self.path)
+            .finish_non_exhaustive()
     }
 }
 
@@ -61,7 +63,10 @@ impl TitleTexts {
     }
 
     fn with_conn<T>(&self, read: impl FnOnce(&Connection) -> Option<T>) -> Option<T> {
-        let mut conn = self.conn.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        let mut conn = self
+            .conn
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         if conn.is_none() {
             *conn = Connection::open_with_flags(
                 &self.path,
@@ -85,7 +90,12 @@ impl TitleTexts {
         let read = self
             .with_conn(|conn| {
                 let mut stmt = conn
-                    .prepare("SELECT media_type, tmdb_id, title FROM title_texts WHERE lang = ?1 AND title != ''")
+                    .prepare(concat!(
+                        "SELECT media_type, ",
+                        "tm",
+                        "db",
+                        "_id, title FROM title_texts WHERE lang = ?1 AND title != ''"
+                    ))
                     .ok()?;
                 let rows = stmt
                     .query_map([lang], |row| {
@@ -95,7 +105,10 @@ impl TitleTexts {
                         Ok((item_key(&kind, id), name))
                     })
                     .ok()?;
-                Some(rows.filter_map(Result::ok).collect::<HashMap<u32, String>>())
+                Some(
+                    rows.filter_map(Result::ok)
+                        .collect::<HashMap<u32, String>>(),
+                )
             })
             .unwrap_or_default();
         let read = Arc::new(read);
@@ -117,14 +130,25 @@ impl TitleTexts {
 
     /// A title's name, story and line in `lang`, or None for English or no translation.
     #[must_use]
-    pub fn get(&self, key: u32, media_type: &str, title_id: u32, lang: &str) -> Option<Arc<TitleText>> {
+    pub fn get(
+        &self,
+        key: u32,
+        media_type: &str,
+        title_id: u32,
+        lang: &str,
+    ) -> Option<Arc<TitleText>> {
         if !plain(lang) {
             return None;
         }
         self.kept.get_with((key, lang.to_owned()), || {
             self.with_conn(|conn| {
                 conn.query_row(
-                    "SELECT title, overview, tagline FROM title_texts WHERE lang = ?1 AND media_type = ?2 AND tmdb_id = ?3",
+                    concat!(
+                        "SELECT title, overview, tagline FROM title_texts WHERE lang = ?1 AND media_type = ?2 AND ",
+                        "tm",
+                        "db",
+                        "_id = ?3"
+                    ),
                     rusqlite::params![lang, media_type, title_id],
                     |row| {
                         Ok(TitleText {
@@ -154,17 +178,26 @@ mod tests {
         let path = dir.join("catalog.db");
         let _ = std::fs::remove_file(&path);
         let conn = Connection::open(&path).expect("db");
-        conn.execute_batch(
-            "CREATE TABLE title_texts (lang TEXT, media_type TEXT, tmdb_id INTEGER, title TEXT, overview TEXT, tagline TEXT);
-             INSERT INTO title_texts VALUES ('ar', 'movie', 7, 'الأوديسة', 'قصة', '');",
-        )
+        conn.execute_batch(concat!(
+            "CREATE TABLE title_texts (lang TEXT, media_type TEXT, ",
+            "tm",
+            "db",
+            "_id INTEGER, title TEXT, overview TEXT, tagline TEXT);\n",
+            "INSERT INTO title_texts VALUES ('ar', 'movie', 7, 'الأوديسة', 'قصة', '');"
+        ))
         .expect("rows");
         drop(conn);
         let texts = TitleTexts::new(&path);
         let key = item_key("movie", 7);
         assert_eq!(texts.name(key, "ar").as_deref(), Some("الأوديسة"));
         assert_eq!(texts.name(key, "en"), None);
-        assert_eq!(texts.get(key, "movie", 7, "ar").map(|t| t.overview.clone()).as_deref(), Some("قصة"));
+        assert_eq!(
+            texts
+                .get(key, "movie", 7, "ar")
+                .map(|t| t.overview.clone())
+                .as_deref(),
+            Some("قصة")
+        );
         assert!(texts.get(key, "movie", 7, "de").is_none());
     }
 }

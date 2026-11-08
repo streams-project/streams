@@ -1,0 +1,68 @@
+{
+  "$defs": {
+    "CalendarDay": {
+      "description": "A day of the calendar, YYYY-MM-DD. The app writes it out in the viewer's own words.",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "type": "string"
+    },
+    "GateLineKind": {
+      "description": "What the line under a title's logo on the profile chooser tells. The app writes the words.",
+      "oneOf": [
+        {
+          "const": "coming",
+          "description": "The title comes out on `date`.",
+          "type": "string"
+        },
+        {
+          "const": "seasons_coming",
+          "description": "A new season of the series starts on `date`.",
+          "type": "string"
+        },
+        {
+          "const": "ranked",
+          "description": "The title is number `rank` among today's most watched of its `media`.",
+          "type": "string"
+        },
+        {
+          "const": "none",
+          "description": "No line.",
+          "type": "string"
+        }
+      ]
+    },
+    "TitleKind": {
+      "description": "The two kinds of title. Closed on purpose: a new kind reaches old clients only through a\ndated transform, so a key always names a kind this build can open.",
+      "enum": [
+        "movie",
+        "tv"
+      ],
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "The facts of the line under a title's logo on the profile chooser. Never words: the app\nwrites them in the viewer's language, with the date in its own month names and digits.",
+  "properties": {
+    "date": {
+      "$ref": "#/$defs/CalendarDay",
+      "description": "The day, for `coming` and `seasons_coming`."
+    },
+    "kind": {
+      "$ref": "#/$defs/GateLineKind"
+    },
+    "media": {
+      "$ref": "#/$defs/TitleKind",
+      "description": "Films or series, for `ranked`."
+    },
+    "rank": {
+      "description": "The place from 1, for `ranked`.",
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "kind"
+  ],
+  "title": "GateLine",
+  "type": "object"
+}

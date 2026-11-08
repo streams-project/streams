@@ -3,6 +3,7 @@
 
 mod build;
 pub mod cursor;
+pub mod gate;
 pub mod genre_pages;
 pub mod genre_spec;
 pub mod hero;

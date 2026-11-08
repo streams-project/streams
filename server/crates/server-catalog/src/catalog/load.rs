@@ -66,6 +66,10 @@ pub fn row_to_item(row: &rusqlite::Row) -> rusqlite::Result<CatalogItem> {
         poster_path,
         backdrop_path,
         logo_path: row.get::<_, Option<String>>(23).unwrap_or(None),
+        art_path: row
+            .get::<_, Option<String>>(24)
+            .unwrap_or(None)
+            .filter(|path| !path.is_empty()),
         vote_average: row.get::<_, f64>(8).unwrap_or(0.0) as f32,
         popularity: row.get::<_, f64>(9).unwrap_or(0.0) as f32,
         is_anime,
@@ -118,7 +122,7 @@ pub fn catalog_sql(conn: &Connection) -> Result<(String, &'static str)> {
         "SELECT {id_col}, media_type, title, release_year, genres,
                 overview, poster_path, backdrop_path,
                 vote_average, popularity, is_anime, tagline, director,
-                {vc}, {ad}, {ol}, {tt}, {oc}, {kw}, {rt}, {ce}, {nw}, {on}, {lg}
+                {vc}, {ad}, {ol}, {tt}, {oc}, {kw}, {rt}, {ce}, {nw}, {on}, {lg}, {ar}
          FROM catalog",
         vc = opt("vote_count", "0"),
         ad = opt("adult", "0"),
@@ -131,6 +135,7 @@ pub fn catalog_sql(conn: &Connection) -> Result<(String, &'static str)> {
         nw = opt("networks", "NULL"),
         on = opt("other_names", "NULL"),
         lg = opt("logo_path", "NULL"),
+        ar = opt("art_path", "NULL"),
     );
     Ok((sql, id_col))
 }

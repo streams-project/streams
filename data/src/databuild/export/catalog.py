@@ -46,14 +46,34 @@ CREATE TABLE title_texts (
 """
 # The region read first when TMDB has several for a language: the one most of its viewers read.
 PREFERRED = (
-    "ar-SA", "ar-AE", "de-DE", "he-IL", "es-ES", "es-MX", "fr-FR", "fr-CA", "hi-IN", "it-IT", "ja-JP",
-    "ko-KR", "nl-NL", "pl-PL", "pt-BR", "pt-PT", "ru-RU", "sv-SE", "tr-TR", "zh-CN", "zh-TW",
+    "ar-SA",
+    "ar-AE",
+    "de-DE",
+    "he-IL",
+    "es-ES",
+    "es-MX",
+    "fr-FR",
+    "fr-CA",
+    "hi-IN",
+    "it-IT",
+    "ja-JP",
+    "ko-KR",
+    "nl-NL",
+    "pl-PL",
+    "pt-BR",
+    "pt-PT",
+    "ru-RU",
+    "sv-SE",
+    "tr-TR",
+    "zh-CN",
+    "zh-TW",
 )
 
 
 def pick_texts(held: dict[str, dict[str, str]]) -> dict[str, tuple[str, str, str]]:
     """One title, story and tagline per language: the preferred region first, each field filled
     from the next region when the first lacks it."""
+
     def rank(tag: str) -> tuple[int, str]:
         return (PREFERRED.index(tag) if tag in PREFERRED else len(PREFERRED), tag)
 
@@ -62,8 +82,17 @@ def pick_texts(held: dict[str, dict[str, str]]) -> dict[str, tuple[str, str, str
         by_lang.setdefault(tag.split("-")[0].lower(), []).append(tag)
     out = {}
     for lang, tags in by_lang.items():
-        def first(field: str) -> str:
-            return next((str(held[t].get(field) or "").strip() for t in tags if str(held[t].get(field) or "").strip()), "")
+
+        def first(field: str, tags: list[str] = tags) -> str:
+            return next(
+                (
+                    str(held[t].get(field) or "").strip()
+                    for t in tags
+                    if str(held[t].get(field) or "").strip()
+                ),
+                "",
+            )
+
         text = (first("title"), first("overview"), first("tagline"))
         if any(text) and lang != "en":
             out[lang] = text
@@ -71,10 +100,14 @@ def pick_texts(held: dict[str, dict[str, str]]) -> dict[str, tuple[str, str, str
 
 
 def write_texts(db: sqlite3.Connection) -> int:
-    """Titles in other languages, one row per title and language, read by the server per language."""
+    """Titles in other languages, one row per title and language,
+    read by the server per language.
+    """
     db.executescript(TEXTS)
     rows = []
-    query = "SELECT media_type, tmdb_id, translations FROM titles WHERE translations NOT IN ('', '{}')"
+    query = (
+        "SELECT media_type, tmdb_id, translations FROM titles WHERE translations NOT IN ('', '{}')"
+    )
     for media_type, tmdb_id, raw in db.execute(query):
         try:
             held = json.loads(raw or "{}")

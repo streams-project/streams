@@ -1,7 +1,7 @@
 //! What is new, upcoming and trending right now. The catalogue knows only a release year; this
 //! file carries real release dates and titles too new for the catalogue.
-use crate::det::HashMap;
 use serde::Deserialize;
+use std::collections::{BTreeMap, HashMap};
 
 #[derive(Deserialize, Clone, Debug, Default)]
 pub struct FreshItem {
@@ -34,7 +34,18 @@ pub struct FreshItem {
     pub lists: Vec<String>,
     /// place of the title in each source list it came from (0 first)
     #[serde(default)]
-    pub ranks: HashMap<String, usize>,
+    pub ranks: BTreeMap<String, usize>,
+    /// The next season of a series that has already aired, when its first episode has a date.
+    #[serde(default)]
+    pub next_season: Option<NextSeason>,
+}
+
+/// A season that starts after the list was made.
+#[derive(Deserialize, Clone, Debug, Default, PartialEq, Eq)]
+pub struct NextSeason {
+    pub number: u32,
+    /// YYYY-MM-DD
+    pub air_date: String,
 }
 
 #[derive(Deserialize, Default)]
@@ -145,6 +156,19 @@ mod tests {
         assert_eq!(ymd(parse_days("2026-10-13").unwrap() + 20), "2026-11-02");
         assert_eq!(ymd(parse_days("2028-02-28").unwrap() + 1), "2028-02-29");
         assert!(parse_days("2026-13-01").is_none());
+    }
+
+    #[test]
+    fn a_series_carries_its_next_season() {
+        let s = FreshStore::from_json(r#"{"items":[{"media_type":"tv","id":5,"release_date":"2020-01-01","next_season":{"number":3,"air_date":"2026-11-21"}},{"media_type":"tv","id":6}]}"#).unwrap();
+        let next = s.get("tv", 5).and_then(|item| item.next_season.clone());
+        let wanted = NextSeason {
+            number: 3,
+            air_date: String::from("2026-11-21"),
+        };
+        assert_eq!(next, Some(wanted));
+        let weekly = s.get("tv", 6);
+        assert!(weekly.is_some_and(|item| item.next_season.is_none()));
     }
 
     #[test]
