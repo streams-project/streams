@@ -18,6 +18,15 @@ pub const HERO_MAX: usize = 20;
 /// Titles in a hero by default.
 pub const HERO_DEFAULT: usize = 8;
 
+/// True when the title's format makes a banner: no news, talk, soap, reality or documentary.
+#[must_use]
+pub fn is_banner_format(item: &CatalogItem) -> bool {
+    !item
+        .genres
+        .iter()
+        .any(|g| EXCLUDED_GENRES.iter().any(|x| g.eq_ignore_ascii_case(x)))
+}
+
 fn quality_score(item: &CatalogItem) -> f32 {
     item.vote_average * item.popularity.ln_1p()
 }
@@ -115,11 +124,7 @@ pub fn hero_keys(data: &DataSet, ask: &HeroAsk<'_>) -> Vec<u32> {
                 && item.has_poster()
                 && item.has_overview()
                 && !ask.seen.contains(&item.id)
-                && (nonscripted_ok
-                    || !item
-                        .genres
-                        .iter()
-                        .any(|g| EXCLUDED_GENRES.iter().any(|x| g.eq_ignore_ascii_case(x))))
+                && (nonscripted_ok || is_banner_format(item))
                 && media.is_none_or(|kind| item.media_type == kind)
                 && item.flags & FLAG_SUGGESTIVE == 0
                 && ask.genre.is_none_or(|spec| spec.matches(item, &facts))

@@ -12,7 +12,7 @@ from databuild.pull.details import pull_details, pull_refresh
 from databuild.pull.exports import read_export
 from databuild.pull.fresh import pull_fresh
 from databuild.pull.popularity import pull_popularity
-from databuild.pull.tmdb import Limiter, parse_season, parse_title, pick_logo
+from databuild.pull.tmdb import Limiter, open_pull, parse_season, parse_title, pick_art, pick_logo
 
 from .conftest import API, EXPORTS, KEY, NOW, FakeTransport, gz_lines
 
@@ -175,6 +175,29 @@ def test_logo_rule_is_english_then_no_text_then_any():
     )
     assert pick_logo([{"iso_639_1": "fr", "file_path": "/f"}]) == "/f"
     assert pick_logo([]) is None
+
+
+def test_art_is_the_best_poster_with_no_words():
+    posters = [
+        {"iso_639_1": "en", "file_path": "/words.jpg", "vote_average": 9.0},
+        {"iso_639_1": None, "file_path": "/plain-low.jpg", "vote_average": 3.0, "width": 2000},
+        {"iso_639_1": None, "file_path": "/plain-high.jpg", "vote_average": 5.2, "width": 1000},
+    ]
+    assert pick_art(posters) == "/plain-high.jpg"
+    assert pick_art([{"iso_639_1": "en", "file_path": "/words.jpg"}]) is None
+    assert pick_art([]) is None
+    doc = movie_doc()
+    doc["images"]["posters"] = posters
+    assert parse_title("movie", doc, ("en-US",), 0)["art_path"] == "/plain-high.jpg"
+
+
+def test_an_old_pull_file_gains_the_art_column(tmp_path):
+    old = sqlite3.connect(tmp_path / "pull.db")
+    old.execute("CREATE TABLE titles (media_type TEXT, id INTEGER, PRIMARY KEY (media_type, id))")
+    old.commit()
+    old.close()
+    db = open_pull(tmp_path / "pull.db")
+    assert "art_path" in {row[1] for row in db.execute("PRAGMA table_info(titles)")}
 
 
 def test_film_row_holds_the_old_facts_and_the_new_pulls():
@@ -408,6 +431,34 @@ def test_s150_lists_dates_and_ranks(context, key_file):
     assert dates[1]["primary_release_date.gte"] == "2026-11-06"
     assert dates[1]["primary_release_date.lte"] == "2027-05-04"
     assert all(c.params.get("language", "en-US") == "en-US" for c in transport.calls)
+
+
+def test_s150_a_series_that_has_aired_carries_its_next_season(context, key_file):
+    routes = fresh_routes()
+    aired = [
+        {"id": 5, "name": "Back Again", "first_air_date": "2020-01-01"},
+        {"id": 6, "name": "Weekly", "first_air_date": "2019-01-01"},
+    ]
+    routes["/tv/on_the_air"] = {"total_pages": 1, "results": aired}
+    routes["/tv/5"] = {
+        "next_episode_to_air": {"season_number": 3, "episode_number": 1, "air_date": "2026-11-21"}
+    }
+    routes["/tv/6"] = {
+        "next_episode_to_air": {"season_number": 4, "episode_number": 6, "air_date": "2026-11-07"}
+    }
+    transport = FakeTransport(routes)
+    ctx = context(transport, api_base=API, key_file=key_file)
+    pull_fresh(ctx, sleep=lambda _: None)
+    doc = json.loads((ctx.out / "fresh.json").read_text())
+    by_id = {(e["media_type"], e["id"]): e for e in doc["items"]}
+    assert by_id[("tv", 5)]["next_season"] == {"number": 3, "air_date": "2026-11-21"}
+    assert "next_season" not in by_id[("tv", 6)]
+    assert "next_season" not in by_id[("tv", 3)]
+    asked = {c.path for c in transport.calls}
+    assert "/tv/3" not in asked, "a series that has not aired has no next season to look up"
+    airing = [c.params for c in transport.calls if c.path == "/discover/tv" and "air_date.gte" in c.params]
+    assert airing[0]["air_date.gte"] == "2026-11-06"
+    assert airing[0]["air_date.lte"] == "2027-01-04"
 
 
 def test_s150_pages_follow_the_table(context, key_file):

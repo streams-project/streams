@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A day of the calendar, YYYY-MM-DD. The app writes it out in the viewer's own words.",
+  "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+  "title": "CalendarDay",
+  "type": "string"
+}

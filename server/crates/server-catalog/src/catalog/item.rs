@@ -18,6 +18,8 @@ pub struct CatalogItem {
     pub poster_path: Option<String>,
     pub backdrop_path: Option<String>,
     pub logo_path: Option<String>,
+    /// A poster with no words on it, for a tall screen. Absent when every poster carries text.
+    pub art_path: Option<String>,
     pub vote_average: f32,
     pub popularity: f32,
     pub is_anime: bool,

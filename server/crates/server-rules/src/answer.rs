@@ -6,8 +6,9 @@ use contract::command::Changes;
 use contract::error::Notice;
 use contract::play::{AgeCard, Attempt, PlayAnswer};
 use contract::screen::{
-    AgeMark, Badge, Cursor, Episode, Image, ImageRole, More, PublicTitles, RefreshTrigger, Screen,
-    ScreenName, Season, SeasonSummary, Section, SectionKind, Suggestions, Tile, TitleDetail,
+    AgeMark, Badge, Cursor, Episode, GateLine, GateTitle, Image, ImageRole, More, ProfileGate,
+    PublicTitles, RefreshTrigger, Screen, ScreenName, Season, SeasonSummary, Section, SectionKind,
+    Suggestions, Tile, TitleDetail,
 };
 use contract::{EpisodeRef, TitleKey, TitleKind};
 use serde::Serialize;
@@ -63,6 +64,8 @@ cleared! {
     SafeSuggestions(Suggestions);
     /// Titles a visitor may look at, each a visible title page.
     SafePublicTitles(PublicTitles);
+    /// Titles over the profile chooser, each a visible tile with its line.
+    SafeProfileGate(ProfileGate);
     /// `Changes` naming only visible titles.
     SafeChanges(Changes);
 }
@@ -95,6 +98,11 @@ impl Images {
     #[must_use]
     pub fn still(&self, path: Option<&str>) -> Vec<Image> {
         self.image(ImageRole::Still, path).into_iter().collect()
+    }
+
+    /// The title's poster with no words on it, if it has one.
+    fn art(&self, item: &CatalogItem) -> Option<Image> {
+        self.image(ImageRole::Art, item.art_path.as_deref())
     }
 
     fn of_title(&self, item: &CatalogItem) -> Vec<Image> {
@@ -149,6 +157,14 @@ impl SafeTile {
             episode: extras.episode,
             percent: extras.percent,
         }))
+    }
+
+    /// The tile with the title's poster with no words on it, for a screen that fills a tall
+    /// display. A title with none keeps the pictures it has.
+    #[must_use]
+    pub fn with_art(mut self, title: Visible<'_>, images: &Images) -> Self {
+        self.0.images.extend(images.art(title.item()));
+        self
     }
 
     /// The tile named as the viewer's language names the title. An empty name keeps the catalog's.
@@ -331,6 +347,20 @@ impl SafePublicTitles {
     pub fn new(titles: Vec<SafeTitleDetail>) -> Self {
         Self(PublicTitles {
             titles: titles.into_iter().map(|title| title.0).collect(),
+        })
+    }
+}
+
+impl SafeProfileGate {
+    /// Visible tiles with their lines, in their order.
+    #[must_use]
+    pub fn new(titles: Vec<(SafeTile, GateLine)>, ttl_s: u32) -> Self {
+        Self(ProfileGate {
+            titles: titles
+                .into_iter()
+                .map(|(tile, line)| GateTitle { tile: tile.0, line })
+                .collect(),
+            ttl_s,
         })
     }
 }

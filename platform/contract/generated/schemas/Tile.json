@@ -68,14 +68,23 @@
     },
     "ImageRole": {
       "description": "What an image is for.",
-      "enum": [
-        "poster",
-        "backdrop",
-        "logo",
-        "still",
-        "avatar"
-      ],
-      "type": "string"
+      "oneOf": [
+        {
+          "enum": [
+            "poster",
+            "backdrop",
+            "logo",
+            "still",
+            "avatar"
+          ],
+          "type": "string"
+        },
+        {
+          "const": "art",
+          "description": "A tall picture of the title with no words on it, to fill a portrait screen.",
+          "type": "string"
+        }
+      ]
     },
     "TitleKey": {
       "description": "movie:<id> or tv:<id>. A bare id does not parse.",

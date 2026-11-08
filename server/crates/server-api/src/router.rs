@@ -107,6 +107,7 @@ pub fn router(state: Shared) -> Router {
             patch(profiles::update).delete(profiles::delete),
         )
         .route("/v1/profiles/{id}/enter", post(profiles::enter))
+        .route("/v1/profiles/gate", get(profiles::gate))
         .route("/v1/profiles/{id}/feature", get(profiles::feature))
         .route("/v1/profiles/{id}/avatars", get(profiles::avatars))
         .route("/v1/profiles/{id}/pin", put(profiles::set_pin))

@@ -616,6 +616,11 @@
         ],
         "type": "object"
       },
+      "CalendarDay": {
+        "description": "A day of the calendar, YYYY-MM-DD. The app writes it out in the viewer's own words.",
+        "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+        "type": "string"
+      },
       "CapabilityCard": {
         "description": "What a device can do. The server filters attempts and sections by this card.",
         "properties": {
@@ -2868,6 +2873,73 @@
         ],
         "type": "object"
       },
+      "GateLine": {
+        "description": "The facts of the line under a title's logo on the profile chooser. Never words: the app\nwrites them in the viewer's language, with the date in its own month names and digits.",
+        "properties": {
+          "date": {
+            "$ref": "#/components/schemas/CalendarDay",
+            "description": "The day, for `coming` and `seasons_coming`."
+          },
+          "kind": {
+            "$ref": "#/components/schemas/GateLineKind"
+          },
+          "media": {
+            "$ref": "#/components/schemas/TitleKind",
+            "description": "Films or series, for `ranked`."
+          },
+          "rank": {
+            "description": "The place from 1, for `ranked`.",
+            "maximum": 4294967295,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "type": "object"
+      },
+      "GateLineKind": {
+        "description": "What the line under a title's logo on the profile chooser tells. The app writes the words.",
+        "oneOf": [
+          {
+            "const": "coming",
+            "description": "The title comes out on `date`.",
+            "type": "string"
+          },
+          {
+            "const": "seasons_coming",
+            "description": "A new season of the series starts on `date`.",
+            "type": "string"
+          },
+          {
+            "const": "ranked",
+            "description": "The title is number `rank` among today's most watched of its `media`.",
+            "type": "string"
+          },
+          {
+            "const": "none",
+            "description": "No line.",
+            "type": "string"
+          }
+        ]
+      },
+      "GateTitle": {
+        "description": "One title shown over the profile chooser: its tile, with art, logo and poster, and its line.",
+        "properties": {
+          "line": {
+            "$ref": "#/components/schemas/GateLine"
+          },
+          "tile": {
+            "$ref": "#/components/schemas/Tile"
+          }
+        },
+        "required": [
+          "tile",
+          "line"
+        ],
+        "type": "object"
+      },
       "GateView": {
         "description": "True while the who is watching prompt should show.",
         "properties": {
@@ -3292,14 +3364,23 @@
       },
       "ImageRole": {
         "description": "What an image is for.",
-        "enum": [
-          "poster",
-          "backdrop",
-          "logo",
-          "still",
-          "avatar"
-        ],
-        "type": "string"
+        "oneOf": [
+          {
+            "enum": [
+              "poster",
+              "backdrop",
+              "logo",
+              "still",
+              "avatar"
+            ],
+            "type": "string"
+          },
+          {
+            "const": "art",
+            "description": "A tall picture of the title with no words on it, to fill a portrait screen.",
+            "type": "string"
+          }
+        ]
       },
       "InputKind": {
         "description": "Input a device has.",
@@ -3998,6 +4079,28 @@
         "required": [
           "profile",
           "home"
+        ],
+        "type": "object"
+      },
+      "ProfileGate": {
+        "description": "Titles shown over the profile chooser before anyone has chosen a profile, at most three, in\norder. Chosen for the whole account: never above the most open tier among its profiles.",
+        "properties": {
+          "titles": {
+            "items": {
+              "$ref": "#/components/schemas/GateTitle"
+            },
+            "type": "array"
+          },
+          "ttl_s": {
+            "description": "Seconds this answer stays good.",
+            "maximum": 4294967295,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "titles",
+          "ttl_s"
         ],
         "type": "object"
       },
@@ -9023,6 +9126,90 @@
           }
         ],
         "summary": "Add a profile.",
+        "tags": [
+          "profiles"
+        ]
+      }
+    },
+    "/v1/profiles/gate": {
+      "get": {
+        "operationId": "profileGate",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApiVersion"
+          },
+          {
+            "$ref": "#/components/parameters/Client0"
+          },
+          {
+            "$ref": "#/components/parameters/Client1"
+          },
+          {
+            "$ref": "#/components/parameters/Client2"
+          },
+          {
+            "$ref": "#/components/parameters/Client3"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "empty": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ProfileGate.empty.json"
+                  },
+                  "no_line": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ProfileGate.no_line.json"
+                  },
+                  "three": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ProfileGate.three.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileGate"
+                }
+              }
+            },
+            "description": "Up to three titles over the profile chooser, each with a line of facts under its logo."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "clock_wrong": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.clock_wrong.json"
+                  },
+                  "no_longer_available": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.no_longer_available.json"
+                  },
+                  "not_found": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.not_found.json"
+                  },
+                  "profile_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.profile_required.json"
+                  },
+                  "rate_limited": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.rate_limited.json"
+                  },
+                  "upgrade_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.upgrade_required.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "An error with a stable code."
+          }
+        },
+        "security": [
+          {
+            "member": []
+          }
+        ],
+        "summary": "Up to three titles over the profile chooser, each with a line of facts under its logo.",
         "tags": [
           "profiles"
         ]

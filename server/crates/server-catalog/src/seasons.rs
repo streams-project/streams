@@ -22,6 +22,15 @@ pub struct EpisodeFact {
     pub runtime: Option<u32>,
 }
 
+/// A season of a series that has not started yet.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SeasonStart {
+    pub series: u32,
+    pub season: u32,
+    /// YYYY-MM-DD
+    pub air_date: String,
+}
+
 fn open(db: &Path) -> Option<Connection> {
     Connection::open_with_flags(db, OpenFlags::SQLITE_OPEN_READ_ONLY).ok()
 }
@@ -47,6 +56,31 @@ pub fn seasons_of(db: &Path, series: u32) -> Vec<SeasonFact> {
             Ok(SeasonFact {
                 number: row.get(0)?,
                 episodes: row.get(1)?,
+            })
+        })?;
+        rows.collect()
+    };
+    read().unwrap_or_default()
+}
+
+/// Seasons after the first that start after `after` and on or before `until` (both YYYY-MM-DD),
+/// earliest first: a series coming back. A set built without seasons answers none.
+#[must_use]
+pub fn seasons_starting(db: &Path, after: &str, until: &str) -> Vec<SeasonStart> {
+    let read = || -> rusqlite::Result<Vec<SeasonStart>> {
+        let Some(conn) = open(db) else {
+            return Ok(Vec::new());
+        };
+        let mut statement = conn.prepare(
+            "SELECT title_id, season_number, air_date FROM seasons
+             WHERE media_type = 'tv' AND season_number > 1 AND air_date > ?1 AND air_date <= ?2
+             ORDER BY air_date, title_id",
+        )?;
+        let rows = statement.query_map(params![after, until], |row| {
+            Ok(SeasonStart {
+                series: row.get(0)?,
+                season: row.get(1)?,
+                air_date: row.get(2)?,
             })
         })?;
         rows.collect()

@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS titles (
   certs TEXT, origin_country TEXT, production_companies TEXT, company_logos TEXT, networks TEXT,
   network_logos TEXT, spoken_languages TEXT, collection TEXT, tv_type TEXT, seasons INTEGER,
   episodes INTEGER, status TEXT, adult INTEGER, imdb_id TEXT, videos TEXT, translations TEXT,
-  source TEXT, fetched_at INTEGER, PRIMARY KEY (media_type, id));
+  source TEXT, fetched_at INTEGER, art_path TEXT, PRIMARY KEY (media_type, id));
 CREATE TABLE IF NOT EXISTS seasons (
   id INTEGER, season_number INTEGER, name TEXT, overview TEXT, air_date TEXT, poster_path TEXT,
   episode_count INTEGER, PRIMARY KEY (id, season_number));
@@ -62,8 +62,10 @@ COLUMNS = (
     "genres vote_average vote_count popularity poster_path backdrop_path logo_path directors "
     "creators cast_members crew keywords certs origin_country production_companies company_logos "
     "networks network_logos spoken_languages collection tv_type seasons episodes status adult "
-    "imdb_id videos translations source fetched_at"
+    "imdb_id videos translations source fetched_at art_path"
 ).split()
+# Columns added after the first pull files were made, with their type. Opening a file adds them.
+ADDED_COLUMNS = (("art_path", "TEXT"),)
 
 
 def _j(value: Any) -> str:
@@ -76,6 +78,19 @@ def pick_logo(logos: list[dict[str, Any]]) -> str | None:
     no_text = (x for x in logos if x.get("iso_639_1") is None)
     pick = next(english, None) or next(no_text, None) or (logos[0] if logos else None)
     return pick.get("file_path") if pick else None
+
+
+def pick_art(posters: list[dict[str, Any]]) -> str | None:
+    """A poster with no words on it, for a tall screen: the best rated, then the most voted, then
+    the largest. None when every poster carries text."""
+    plain = [x for x in posters if x.get("iso_639_1") is None and x.get("file_path")]
+    if not plain:
+        return None
+    best = max(
+        plain,
+        key=lambda x: (x.get("vote_average") or 0, x.get("vote_count") or 0, x.get("width") or 0),
+    )
+    return best["file_path"]
 
 
 def _companies(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -181,6 +196,7 @@ def parse_title(
         poster_path=doc.get("poster_path"),
         backdrop_path=doc.get("backdrop_path"),
         logo_path=pick_logo((doc.get("images") or {}).get("logos", [])),
+        art_path=pick_art((doc.get("images") or {}).get("posters", [])),
         cast_members=_j(cast),
         crew=_j(
             [
@@ -357,6 +373,10 @@ def open_pull(path: Path) -> sqlite3.Connection:
     path.parent.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(path, check_same_thread=False)
     db.executescript(SCHEMA)
+    have = {row[1] for row in db.execute("PRAGMA table_info(titles)")}
+    for name, kind in ADDED_COLUMNS:
+        if name not in have:
+            db.execute(f"ALTER TABLE titles ADD COLUMN {name} {kind}")
     db.execute("PRAGMA journal_mode=WAL")
     return db
 

@@ -486,6 +486,13 @@ pub const ROUTES: &[Route] = &[
         PROFILES,
     ),
     read(
+        "/v1/profiles/gate",
+        "profileGate",
+        "Up to three titles over the profile chooser, each with a line of facts under its logo.",
+        "ProfileGate",
+        PROFILES,
+    ),
+    read(
         "/v1/profiles/{id}/feature",
         "profileFeature",
         "One title to show beside a profile on the picker.",

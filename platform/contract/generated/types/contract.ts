@@ -197,6 +197,9 @@ export interface BrandValues {
   support_email: string;
 }
 
+/** A day of the calendar, YYYY-MM-DD. The app writes it out in the viewer's own words. */
+export type CalendarDay = `${number}-${number}-${number}`;
+
 /** What a device can do. The server filters attempts and sections by this card. */
 export interface CapabilityCard {
   /** True when the player switches variants during play. */
@@ -896,6 +899,26 @@ export interface FoundSource {
   verified: boolean;
 }
 
+/** The facts of the line under a title's logo on the profile chooser. Never words: the app writes them in the viewer's language, with the date in its own month names and digits. */
+export interface GateLine {
+  /** The day, for `coming` and `seasons_coming`. */
+  date?: CalendarDay;
+  kind: GateLineKind;
+  /** Films or series, for `ranked`. */
+  media?: TitleKind;
+  /** The place from 1, for `ranked`. */
+  rank?: number;
+}
+
+/** What the line under a title's logo on the profile chooser tells. The app writes the words. */
+export type GateLineKind = "coming" | "seasons_coming" | "ranked" | "none" | (string & {});
+
+/** One title shown over the profile chooser: its tile, with art, logo and poster, and its line. */
+export interface GateTitle {
+  line: GateLine;
+  tile: Tile;
+}
+
 /** True while the who is watching prompt should show. */
 export interface GateView {
   ask: boolean;
@@ -1022,7 +1045,7 @@ export interface Image {
 }
 
 /** What an image is for. */
-export type ImageRole = "poster" | "backdrop" | "logo" | "still" | "avatar" | (string & {});
+export type ImageRole = "poster" | "backdrop" | "logo" | "still" | "avatar" | "art" | (string & {});
 
 /** Input a device has. */
 export type InputKind = "touch" | "pointer" | "keyboard" | "remote" | "gamepad" | "rotary" | (string & {});
@@ -1246,6 +1269,13 @@ export interface ProfileEnter {
 export interface ProfileEntered {
   home: ScreenName;
   profile: Profile;
+}
+
+/** Titles shown over the profile chooser before anyone has chosen a profile, at most three, in order. Chosen for the whole account: never above the most open tier among its profiles. */
+export interface ProfileGate {
+  titles: GateTitle[];
+  /** Seconds this answer stays good. */
+  ttl_s: number;
 }
 
 /** Needs a step up. Never reachable through a queued command. */

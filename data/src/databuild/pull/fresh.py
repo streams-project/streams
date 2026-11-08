@@ -19,6 +19,8 @@ BACKOFF = 1.5
 TIMEOUT = 30.0
 PAST_DAYS = 90
 SOON_DAYS = 180
+# Series with an episode in this many days are looked up for a new season.
+SEASON_DAYS = 60
 FRESH_FILE = "fresh.json"
 
 
@@ -45,6 +47,8 @@ def lists(ctx: Context) -> list[tuple[str, str | None, str, dict[str, str], int]
         "primary_release_date.lte": soon,
     }
     soon_tv = {**by_popularity, "first_air_date.gte": next_day, "first_air_date.lte": soon}
+    season_end = (today + timedelta(days=SEASON_DAYS)).isoformat()
+    airing_tv = {**by_popularity, "air_date.gte": next_day, "air_date.lte": season_end}
     return [
         ("now_playing", "movie", "/movie/now_playing", {}, 5),
         ("upcoming", "movie", "/movie/upcoming", {}, 5),
@@ -56,7 +60,17 @@ def lists(ctx: Context) -> list[tuple[str, str | None, str, dict[str, str], int]
         ("new_tv", "tv", "/discover/tv", new_tv, 5),
         ("soon_movie", "movie", "/discover/movie", soon_movie, 5),
         ("soon_tv", "tv", "/discover/tv", soon_tv, 3),
+        ("airing_tv", "tv", "/discover/tv", airing_tv, 5),
     ]
+
+
+def next_season(doc: dict[str, Any] | None) -> dict[str, Any] | None:
+    """The next season of a series that has already aired, when its first episode has a date."""
+    upcoming = (doc or {}).get("next_episode_to_air") or {}
+    number = upcoming.get("season_number") or 0
+    if upcoming.get("episode_number") == 1 and number >= 2 and upcoming.get("air_date"):
+        return {"number": number, "air_date": upcoming["air_date"]}
+    return None
 
 
 def build_fresh(ctx: Context, sleep: Callable[[float], None] = time.sleep) -> dict[str, Any]:
@@ -64,17 +78,26 @@ def build_fresh(ctx: Context, sleep: Callable[[float], None] = time.sleep) -> di
     base = need(tmdb.api_base, "tmdb.api_base")
     key = read_secret(tmdb.key_file, "tmdb.key_file")
 
-    def get(path: str, **params: Any) -> dict[str, Any]:
+    def ask(path: str, **params: Any) -> dict[str, Any] | None:
+        """The answer, None for a title TMDB does not have, and a failure after every attempt."""
         query = {"api_key": key.reveal(), "language": "en-US", **params}
         for attempt in range(1, ATTEMPTS + 1):
             try:
                 reply = ctx.transport.fetch(Request(base, path, query, timeout=TIMEOUT))
                 if reply.status == 200:
                     return reply.json()
+                if reply.status == 404:
+                    return None
             except NetError:
                 pass
             sleep(BACKOFF * attempt)
         raise StageFailed(f"fresh: {path} failed after {ATTEMPTS} attempts")
+
+    def get(path: str, **params: Any) -> dict[str, Any]:
+        answer = ask(path, **params)
+        if answer is None:
+            raise StageFailed(f"fresh: {path} answered not found")
+        return answer
 
     genres: dict[int, str] = {}
     for kind in ("movie", "tv"):
@@ -118,6 +141,13 @@ def build_fresh(ctx: Context, sleep: Callable[[float], None] = time.sleep) -> di
                 position += 1
             if page >= data.get("total_pages", 1):
                 break
+    today = ctx.as_of.isoformat()
+    for entry in items.values():
+        aired = entry["release_date"] and entry["release_date"] <= today
+        if entry["media_type"] == "tv" and aired:
+            season = next_season(ask(f"/tv/{entry['id']}"))
+            if season and season["air_date"] > today:
+                entry["next_season"] = season
     rows = sorted(items.values(), key=lambda e: (e["media_type"], e["id"]))
     return {"generated": ctx.now().isoformat(timespec="seconds"), "items": rows}
 
@@ -132,4 +162,8 @@ def pull_fresh(ctx: Context, sleep: Callable[[float], None] = time.sleep) -> Non
     tmp.write_text(json.dumps(document, ensure_ascii=True, separators=(",", ":")), encoding="utf-8")
     os.replace(tmp, target)
     dated = sum(1 for e in document["items"] if e["release_date"])
-    ctx.say(f"fresh: {len(document['items'])} items, {dated} with a release date")
+    seasons = sum(1 for e in document["items"] if e.get("next_season"))
+    ctx.say(
+        f"fresh: {len(document['items'])} items, {dated} with a release date, "
+        f"{seasons} with a new season coming"
+    )
