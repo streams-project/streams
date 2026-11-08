@@ -240,5 +240,6 @@
   "genre.music": "음악",
   "genre.tv_movie": "TV 영화",
   "title.length.hours": "{h}시간 {m}분",
-  "title.length.minutes": "{m}분"
+  "title.length.minutes": "{m}분",
+  "search.letters": "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ'-"
 }

@@ -240,5 +240,6 @@
   "genre.music": "संगीत",
   "genre.tv_movie": "टीवी फ़िल्म",
   "title.length.hours": "{h} घं {m} मि",
-  "title.length.minutes": "{m} मि"
+  "title.length.minutes": "{m} मि",
+  "search.letters": "कखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसहािीुूृेैोौूंः्ँ़-"
 }

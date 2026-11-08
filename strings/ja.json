@@ -240,5 +240,6 @@
   "genre.music": "音楽",
   "genre.tv_movie": "テレビ映画",
   "title.length.hours": "{h}時間{m}分",
-  "title.length.minutes": "{m}分"
+  "title.length.minutes": "{m}分",
+  "search.letters": "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん゛゜ー"
 }
