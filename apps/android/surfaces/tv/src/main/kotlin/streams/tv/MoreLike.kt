@@ -1,7 +1,9 @@
 package streams.tv
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
@@ -39,16 +41,18 @@ fun MoreLike(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
         },
     ) {
         PosterGrid(tiles, at, 566, 232)
-        Text(
-            data.name,
-            Modifier.offset(PAGE_EDGE.ref, 70.ref).width(440.ref),
-            fontSize = 56.refType,
-            lineHeight = 62.refType,
-            fontWeight = FontWeight.ExtraBold,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Facts(data, seen.words, Modifier.offset(PAGE_EDGE.ref, 270.ref))
+        // The facts follow the name, however many lines it takes.
+        Column(Modifier.offset(PAGE_EDGE.ref, 70.ref).width(440.ref), verticalArrangement = Arrangement.spacedBy(20.ref)) {
+            Text(
+                data.name,
+                fontSize = 56.refType,
+                lineHeight = 62.refType,
+                fontWeight = FontWeight.ExtraBold,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Facts(data, seen.words)
+        }
         Text(seen.words["title.more_like"].orEmpty(), Modifier.offset(566.ref, 150.ref), fontSize = 40.refType)
     }
 }
