@@ -1,5 +1,6 @@
 package streams.tv
 
+import streams.shared.Numerals
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.ui.unit.Density
@@ -49,6 +50,7 @@ fun Television(shell: Shell) {
                 Box(Modifier.fillMaxSize().graphicsLayer { alpha = if (opening.shown || opening.opened) 1f else 0f }) {
                 // A right to left language mirrors every screen; the player keeps its own way (Watch).
                 val way = if (seen.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
+                Numerals.arabic = seen.words["language.digits"] == "arab"
                 // A language may ask for larger text (Arabic letters read small beside Latin at one size).
                 val scale = seen.words["language.text_scale"]?.toFloatOrNull()?.coerceIn(0.8f, 1.4f) ?: 1f
                 val density = LocalDensity.current

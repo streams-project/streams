@@ -201,6 +201,13 @@ impl DataSet {
         self.texts.get(key, &item.media_type, item.title_id, lang)
     }
 
+    /// A title's name in a language, from the names read once for that language; None for
+    /// English or no translation.
+    #[must_use]
+    pub fn title_name(&self, key: u32, lang: &str) -> Option<String> {
+        self.texts.name(key, lang)
+    }
+
     /// True when the index holds and has not failed.
     #[must_use]
     pub fn index_healthy(&self) -> bool {

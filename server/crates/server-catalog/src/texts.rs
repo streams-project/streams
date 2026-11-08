@@ -1,6 +1,10 @@
-//! A title's name, story and line in another language, from the catalog's `translations` column.
+//! A title's name, story and line in another language, from the catalog's `title_texts` table: one
+//! row per title and language, the region already chosen when the set was built. Names of a whole
+//! language are read in one pass the first time a page in that language asks, then kept, so a page
+//! names its tiles from memory; a title's story is read by its key and kept a while. English is the
+//! catalog's own text and never comes from here. A set without the table answers no translation.
 
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -8,16 +12,12 @@ use std::time::Duration;
 use moka::sync::Cache;
 use rusqlite::{Connection, OpenFlags, OptionalExtension};
 
+use crate::catalog::item_key;
+
 /// How many title texts stay in memory, across languages.
-const KEPT: u64 = 50_000;
+const KEPT: u64 = 20_000;
 /// How long a read text stays.
 const KEPT_S: u64 = 6 * 60 * 60;
-
-/// The region read first for a language when TMDB has several: the one most viewers of it read.
-const PREFERRED: &[&str] = &[
-    "ar-SA", "ar-AE", "de-DE", "es-ES", "es-MX", "fr-FR", "fr-CA", "hi-IN", "it-IT", "ja-JP",
-    "ko-KR", "nl-NL", "pl-PL", "pt-BR", "pt-PT", "ru-RU", "sv-SE", "tr-TR", "zh-CN", "zh-TW",
-];
 
 /// A title's words in one language. An empty field has no translation and shows English.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -27,21 +27,12 @@ pub struct TitleText {
     pub tagline: String,
 }
 
-#[derive(serde::Deserialize, Default)]
-struct Held {
-    #[serde(default)]
-    title: String,
-    #[serde(default)]
-    overview: String,
-    #[serde(default)]
-    tagline: String,
-}
-
 /// Reads translations from the catalog file.
 pub struct TitleTexts {
     path: PathBuf,
     conn: Mutex<Option<Connection>>,
     kept: Cache<(u32, String), Option<Arc<TitleText>>>,
+    names: Mutex<HashMap<String, Arc<HashMap<u32, String>>>>,
 }
 
 impl std::fmt::Debug for TitleTexts {
@@ -50,27 +41,8 @@ impl std::fmt::Debug for TitleTexts {
     }
 }
 
-/// The best text for a language among TMDB's regions: the preferred region first, then any region,
-/// field by field, so a missing story in one region is taken from another.
-#[must_use]
-pub fn pick(held: &BTreeMap<String, TitleText>, lang: &str) -> Option<TitleText> {
-    let base = |tag: &str| tag.split(['-', '_']).next().unwrap_or(tag).to_lowercase();
-    let mut tags: Vec<&String> = held.keys().filter(|tag| base(tag) == lang).collect();
-    let rank = |tag: &str| PREFERRED.iter().position(|p| *p == tag).unwrap_or(PREFERRED.len());
-    tags.sort_by_key(|tag| (rank(tag), (*tag).clone()));
-    let first = |field: fn(&TitleText) -> &String| {
-        tags.iter()
-            .map(|tag| field(&held[*tag]).trim())
-            .find(|text| !text.is_empty())
-            .map(str::to_owned)
-            .unwrap_or_default()
-    };
-    let text = TitleText {
-        title: first(|t| &t.title),
-        overview: first(|t| &t.overview),
-        tagline: first(|t| &t.tagline),
-    };
-    (text != TitleText::default()).then_some(text)
+fn plain(lang: &str) -> bool {
+    !lang.is_empty() && lang != "en"
 }
 
 impl TitleTexts {
@@ -84,10 +56,11 @@ impl TitleTexts {
                 .max_capacity(KEPT)
                 .time_to_live(Duration::from_secs(KEPT_S))
                 .build(),
+            names: Mutex::new(HashMap::new()),
         }
     }
 
-    fn read(&self, media_type: &str, title_id: u32) -> Option<BTreeMap<String, TitleText>> {
+    fn with_conn<T>(&self, read: impl FnOnce(&Connection) -> Option<T>) -> Option<T> {
         let mut conn = self.conn.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if conn.is_none() {
             *conn = Connection::open_with_flags(
@@ -96,43 +69,77 @@ impl TitleTexts {
             )
             .ok();
         }
-        let raw: Option<String> = conn
-            .as_ref()?
-            .query_row(
-                "SELECT translations FROM titles WHERE tmdb_id = ?1 AND media_type = ?2",
-                rusqlite::params![title_id, media_type],
-                |row| row.get(0),
-            )
-            .optional()
-            .ok()
-            .flatten();
-        let held: BTreeMap<String, Held> = serde_json::from_str(raw.as_deref()?).ok()?;
-        Some(
-            held.into_iter()
-                .map(|(tag, h)| {
-                    let text = TitleText {
-                        title: h.title,
-                        overview: h.overview,
-                        tagline: h.tagline,
-                    };
-                    (tag, text)
-                })
-                .collect(),
-        )
+        read(conn.as_ref()?)
     }
 
-    /// A title's text in `lang` (a code such as `ar`), or None for English or no translation.
+    /// Every title's name in `lang`, read once per language.
+    fn names_in(&self, lang: &str) -> Arc<HashMap<u32, String>> {
+        if let Some(held) = self
+            .names
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .get(lang)
+        {
+            return held.clone();
+        }
+        let read = self
+            .with_conn(|conn| {
+                let mut stmt = conn
+                    .prepare("SELECT media_type, tmdb_id, title FROM title_texts WHERE lang = ?1 AND title != ''")
+                    .ok()?;
+                let rows = stmt
+                    .query_map([lang], |row| {
+                        let kind: String = row.get(0)?;
+                        let id: u32 = row.get(1)?;
+                        let name: String = row.get(2)?;
+                        Ok((item_key(&kind, id), name))
+                    })
+                    .ok()?;
+                Some(rows.filter_map(Result::ok).collect::<HashMap<u32, String>>())
+            })
+            .unwrap_or_default();
+        let read = Arc::new(read);
+        self.names
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .insert(lang.to_owned(), read.clone());
+        read
+    }
+
+    /// A title's name in `lang` (a code such as `ar`), or None for English or no translation.
     #[must_use]
-    pub fn get(&self, key: u32, media_type: &str, title_id: u32, lang: &str) -> Option<Arc<TitleText>> {
-        if lang.is_empty() || lang == "en" {
+    pub fn name(&self, key: u32, lang: &str) -> Option<String> {
+        if !plain(lang) {
             return None;
         }
-        self.kept
-            .get_with((key, lang.to_owned()), || {
-                self.read(media_type, title_id)
-                    .and_then(|held| pick(&held, lang))
-                    .map(Arc::new)
+        self.names_in(lang).get(&key).cloned()
+    }
+
+    /// A title's name, story and line in `lang`, or None for English or no translation.
+    #[must_use]
+    pub fn get(&self, key: u32, media_type: &str, title_id: u32, lang: &str) -> Option<Arc<TitleText>> {
+        if !plain(lang) {
+            return None;
+        }
+        self.kept.get_with((key, lang.to_owned()), || {
+            self.with_conn(|conn| {
+                conn.query_row(
+                    "SELECT title, overview, tagline FROM title_texts WHERE lang = ?1 AND media_type = ?2 AND tmdb_id = ?3",
+                    rusqlite::params![lang, media_type, title_id],
+                    |row| {
+                        Ok(TitleText {
+                            title: row.get(0)?,
+                            overview: row.get(1)?,
+                            tagline: row.get(2)?,
+                        })
+                    },
+                )
+                .optional()
+                .ok()
+                .flatten()
             })
+            .map(Arc::new)
+        })
     }
 }
 
@@ -140,24 +147,24 @@ impl TitleTexts {
 mod tests {
     use super::*;
 
-    fn text(title: &str, overview: &str) -> TitleText {
-        TitleText {
-            title: title.to_owned(),
-            overview: overview.to_owned(),
-            tagline: String::new(),
-        }
-    }
-
     #[test]
-    fn the_preferred_region_wins_and_others_fill_its_gaps() {
-        let held = BTreeMap::from([
-            (String::from("ar-AE"), text("الأوديسة", "قصة من الإمارات")),
-            (String::from("ar-SA"), text("الأوديسة", "")),
-            (String::from("de-DE"), text("Die Odyssee", "Geschichte")),
-        ]);
-        let ar = pick(&held, "ar").expect("arabic");
-        assert_eq!(ar.title, "الأوديسة");
-        assert_eq!(ar.overview, "قصة من الإمارات");
-        assert!(pick(&held, "ja").is_none());
+    fn a_language_reads_names_in_one_pass_and_stories_by_key() {
+        let dir = std::env::temp_dir().join(format!("texts_{}", std::process::id()));
+        std::fs::create_dir_all(&dir).expect("dir");
+        let path = dir.join("catalog.db");
+        let _ = std::fs::remove_file(&path);
+        let conn = Connection::open(&path).expect("db");
+        conn.execute_batch(
+            "CREATE TABLE title_texts (lang TEXT, media_type TEXT, tmdb_id INTEGER, title TEXT, overview TEXT, tagline TEXT);
+             INSERT INTO title_texts VALUES ('ar', 'movie', 7, 'الأوديسة', 'قصة', '');",
+        )
+        .expect("rows");
+        drop(conn);
+        let texts = TitleTexts::new(&path);
+        let key = item_key("movie", 7);
+        assert_eq!(texts.name(key, "ar").as_deref(), Some("الأوديسة"));
+        assert_eq!(texts.name(key, "en"), None);
+        assert_eq!(texts.get(key, "movie", 7, "ar").map(|t| t.overview.clone()).as_deref(), Some("قصة"));
+        assert!(texts.get(key, "movie", 7, "de").is_none());
     }
 }

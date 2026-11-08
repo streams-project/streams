@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import sqlite3
@@ -35,6 +36,54 @@ CREATE VIRTUAL TABLE catalog_fts USING fts5(
 INSERT INTO catalog_fts (id, title, overview, genres, director)
   SELECT id, title, overview, genres, director FROM catalog;
 """
+
+
+TEXTS = """
+CREATE TABLE title_texts (
+  lang TEXT NOT NULL, media_type TEXT NOT NULL, tmdb_id INTEGER NOT NULL,
+  title TEXT NOT NULL, overview TEXT NOT NULL, tagline TEXT NOT NULL,
+  PRIMARY KEY (lang, media_type, tmdb_id)) WITHOUT ROWID;
+"""
+# The region read first when TMDB has several for a language: the one most of its viewers read.
+PREFERRED = (
+    "ar-SA", "ar-AE", "de-DE", "es-ES", "es-MX", "fr-FR", "fr-CA", "hi-IN", "it-IT", "ja-JP",
+    "ko-KR", "nl-NL", "pl-PL", "pt-BR", "pt-PT", "ru-RU", "sv-SE", "tr-TR", "zh-CN", "zh-TW",
+)
+
+
+def pick_texts(held: dict[str, dict[str, str]]) -> dict[str, tuple[str, str, str]]:
+    """One title, story and tagline per language: the preferred region first, each field filled
+    from the next region when the first lacks it."""
+    def rank(tag: str) -> tuple[int, str]:
+        return (PREFERRED.index(tag) if tag in PREFERRED else len(PREFERRED), tag)
+
+    by_lang: dict[str, list[str]] = {}
+    for tag in sorted(held, key=rank):
+        by_lang.setdefault(tag.split("-")[0].lower(), []).append(tag)
+    out = {}
+    for lang, tags in by_lang.items():
+        def first(field: str) -> str:
+            return next((str(held[t].get(field) or "").strip() for t in tags if str(held[t].get(field) or "").strip()), "")
+        text = (first("title"), first("overview"), first("tagline"))
+        if any(text) and lang != "en":
+            out[lang] = text
+    return out
+
+
+def write_texts(db: sqlite3.Connection) -> int:
+    """Titles in other languages, one row per title and language, read by the server per language."""
+    db.executescript(TEXTS)
+    rows = []
+    query = "SELECT media_type, tmdb_id, translations FROM titles WHERE translations NOT IN ('', '{}')"
+    for media_type, tmdb_id, raw in db.execute(query):
+        try:
+            held = json.loads(raw or "{}")
+        except ValueError:
+            continue
+        for lang, (title, overview, tagline) in pick_texts(held).items():
+            rows.append((lang, media_type, tmdb_id, title, overview, tagline))
+    db.executemany("INSERT OR REPLACE INTO title_texts VALUES (?, ?, ?, ?, ?, ?)", rows)
+    return len(rows)
 
 
 @dataclass(frozen=True)
@@ -110,6 +159,7 @@ def write_catalog(
     gone = copy_groups(db, ctx.work / "groups.db", removed)
     make_catalog_view(db, ctx.as_of, ctx.votes)
     db.executescript(SEARCH)
+    write_texts(db)
     db.execute("CREATE TABLE meta (k TEXT PRIMARY KEY, v TEXT)")
     db.executemany(
         "INSERT INTO meta VALUES (?, ?)",

@@ -1,5 +1,6 @@
 package streams.tv
 
+import streams.shared.number
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.runtime.CompositionLocalProvider
@@ -102,7 +103,7 @@ private val Rates = listOf(
 private fun clock(ms: Long): String {
     val seconds = ms / 1000
     val body = "%d:%02d".format(seconds / 60 % 60, seconds % 60)
-    return if (seconds >= 3600) "${seconds / 3600}:" + "%02d:%02d".format(seconds / 60 % 60, seconds % 60) else body
+    return number(if (seconds >= 3600) "${seconds / 3600}:" + "%02d:%02d".format(seconds / 60 % 60, seconds % 60) else body)
 }
 
 @Composable
