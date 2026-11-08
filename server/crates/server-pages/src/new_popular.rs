@@ -70,6 +70,23 @@ fn row(title: String, archetype: &str, kind: &str, items: &[&CatalogItem]) -> Ro
     }
 }
 
+/// Today's most watched titles for a visitor, a series and a film in turn, at most `count`. The
+/// landing of a television shows them as cards after its showreel.
+#[must_use]
+pub fn public_trending(data: &DataSet, tier: Tier, today_days: i64, count: usize) -> Vec<&CatalogItem> {
+    let today = server_catalog::fresh::ymd(today_days);
+    let year: i32 = today[..4].parse().unwrap_or(0);
+    let series = chart(data, tier, "tv", year, &today);
+    let films = chart(data, tier, "movie", year, &today);
+    let mut out = Vec::with_capacity(count);
+    for at in 0..series.len().max(films.len()) {
+        out.extend(series.get(at).copied());
+        out.extend(films.get(at).copied());
+    }
+    out.truncate(count);
+    out
+}
+
 /// The rows of the screen. Kids get their own order, and an adult's rows hold no children's titles.
 #[must_use]
 pub fn new_popular_rows(data: &DataSet, tier: Tier, today_days: i64) -> Vec<Row> {

@@ -13,12 +13,12 @@ help: the trait `answer::sealed::Sealed` is not implemented for `Fake`
             SafeChanges
             SafeMore
             SafePlayAnswer
+            SafePublicTitles
             SafeScreen
             SafeSeason
             SafeSection
             SafeSuggestions
-            SafeTile
-            SafeTitleDetail
+          and $N others
 note: required by a bound in `Cleared`
  --> src/answer.rs
   |
@@ -34,4 +34,4 @@ note: required by a bound in `Cleared`
             server_rules::answer::SafeSeason
             server_rules::answer::SafePlayAnswer
             server_rules::answer::SafeSuggestions
-            server_rules::answer::SafeChanges
+          and $N others

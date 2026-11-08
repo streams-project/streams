@@ -4141,6 +4141,21 @@
         ],
         "type": "object"
       },
+      "PublicTitles": {
+        "description": "Titles a visitor may look at before signing in, most watched first. A series also carries\npictures of its first episodes, so a television can show the title as a slideshow.",
+        "properties": {
+          "titles": {
+            "items": {
+              "$ref": "#/components/schemas/TitleDetail"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "titles"
+        ],
+        "type": "object"
+      },
       "Rating": {
         "description": "Rating words on the wire. Screens use the words like, love and dislike.",
         "enum": [
@@ -10112,6 +10127,83 @@
         },
         "security": [],
         "summary": "A title for a visitor, with no profile.",
+        "tags": [
+          "start"
+        ]
+      }
+    },
+    "/v1/public/trending": {
+      "get": {
+        "operationId": "listPublicTrending",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApiVersion"
+          },
+          {
+            "$ref": "#/components/parameters/Client0"
+          },
+          {
+            "$ref": "#/components/parameters/Client1"
+          },
+          {
+            "$ref": "#/components/parameters/Client2"
+          },
+          {
+            "$ref": "#/components/parameters/Client3"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "basic": {
+                    "externalValue": "../fixtures/2026-11-05/valid/PublicTitles.basic.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTitles"
+                }
+              }
+            },
+            "description": "Today's most watched titles for a visitor, with no profile: films and series in turn."
+          },
+          "304": {
+            "description": "Not changed since the ETag in If-None-Match."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "clock_wrong": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.clock_wrong.json"
+                  },
+                  "no_longer_available": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.no_longer_available.json"
+                  },
+                  "not_found": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.not_found.json"
+                  },
+                  "profile_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.profile_required.json"
+                  },
+                  "rate_limited": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.rate_limited.json"
+                  },
+                  "upgrade_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.upgrade_required.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "An error with a stable code."
+          }
+        },
+        "security": [],
+        "summary": "Today's most watched titles for a visitor, with no profile: films and series in turn.",
         "tags": [
           "start"
         ]

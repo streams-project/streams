@@ -28,7 +28,7 @@ use contract::play::{
     SubtitleBody, SubtitleList,
 };
 use contract::screen::{
-    More, Nav, Resume, Screen, Season, Section, Suggestions, Tile, TitleDetail,
+    More, Nav, PublicTitles, Resume, Screen, Season, Section, Suggestions, Tile, TitleDetail,
 };
 use contract::version::{VersionRange, WIRE_VERSION};
 use contract::{EpisodeRef, Rating, TitleKey, TitleKind};
@@ -166,6 +166,7 @@ fn read_as(type_name: &str, value: &Value) -> Result<Value, String> {
         Suggestions,
         Tile,
         TitleDetail,
+        PublicTitles,
         TitleKey,
         TitleKind,
         VersionRange,

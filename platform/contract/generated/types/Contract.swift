@@ -3948,6 +3948,19 @@ public struct ProgressState: Codable, Equatable, Sendable {
     }
 }
 
+/// Titles a visitor may look at before signing in, most watched first. A series also carries pictures of its first episodes, so a television can show the title as a slideshow.
+public struct PublicTitles: Codable, Equatable, Sendable {
+    public var titles: [TitleDetail]
+
+    enum CodingKeys: String, CodingKey {
+        case titles = "titles"
+    }
+
+    public init(titles: [TitleDetail]) {
+        self.titles = titles
+    }
+}
+
 /// Rating words on the wire. Screens use the words like, love and dislike.
 public struct Rating: RawRepresentable, Codable, Hashable, Sendable {
     public var rawValue: String

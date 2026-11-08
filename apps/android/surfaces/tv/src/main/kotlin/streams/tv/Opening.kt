@@ -346,6 +346,13 @@ class OpeningState {
     /** The landing's showreel can play. */
     var landingReady by mutableStateOf(false)
     var soundsOver by mutableStateOf(false)
+
+    /** Ends the opening, however it ends: the screens show, take keys, and the showreel may play. */
+    fun over() {
+        shown = true
+        roll = true
+        opened = true
+    }
 }
 
 /** True while the opening covers the screens: they keep their state but take no keys. */
@@ -373,11 +380,7 @@ fun OpeningLayer(shell: Shell, seen: Seen, state: OpeningState) {
             Moment.WARM -> state.shown = true
             Moment.SECOND -> state.swell = true
             Moment.ROLL -> state.roll = true
-            Moment.DONE -> {
-                state.shown = true
-                state.roll = true
-                state.opened = true
-            }
+            Moment.DONE -> state.over()
         }
     }
 }

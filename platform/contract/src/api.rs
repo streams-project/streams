@@ -245,6 +245,13 @@ pub const ROUTES: &[Route] = &[
         START,
     )),
     cached(read(
+        "/v1/public/trending",
+        "listPublicTrending",
+        "Today's most watched titles for a visitor, with no profile: films and series in turn.",
+        "PublicTitles",
+        START,
+    )),
+    cached(read(
         "/v1/public/titles/{kind}/{id}",
         "getPublicTitle",
         "A title for a visitor, with no profile.",

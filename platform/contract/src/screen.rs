@@ -271,4 +271,10 @@ wire! {
     pub struct Suggestions {
         pub items: Vec<String>,
     }
+
+    /// Titles a visitor may look at before signing in, most watched first. A series also carries
+    /// pictures of its first episodes, so a television can show the title as a slideshow.
+    pub struct PublicTitles {
+        pub titles: Vec<TitleDetail>,
+    }
 }

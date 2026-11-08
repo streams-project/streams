@@ -73,6 +73,7 @@ pub fn router(state: Shared) -> Router {
         .route("/v1/help/articles/{slug}", get(help::article))
         .route("/v1/help/policies/{id}", get(help::policy))
         .route("/v1/help/search", get(help::search))
+        .route("/v1/public/trending", get(titles::public_trending))
         .route("/v1/public/titles/{kind}/{id}", get(titles::public_title))
         .route("/v1/auth/password", post(auth::password))
         .route("/v1/auth/code", post(auth::send_code))
