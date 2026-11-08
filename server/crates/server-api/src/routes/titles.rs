@@ -167,8 +167,10 @@ pub async fn title(
 ) -> ApiResult<Response> {
     let key = key_of(&kind, &id)?;
     let set = data(&state)?;
-    let mut page = detail(&state, &set, &reader.viewer, key, rating_system(&headers))?
+    let language = crate::routes::pages::language_of(&state, &reader).await;
+    let page = detail(&state, &set, &reader.viewer, key, rating_system(&headers))?
         .with_seasons(season_list(&set, key));
+    let mut page = state.pages.speak_title(&set, page, packed(key), &language);
     if let (Some(watching), Some(library)) = (&reader.watching, &state.library) {
         let saved = library
             .store()

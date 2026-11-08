@@ -62,6 +62,7 @@ fn ask(screen: ScreenName, genre: Option<&str>, seed: &str) -> ScreenAsk {
         seed: seed.to_owned(),
         personal: Personal::default(),
         blocked_rows: Vec::new(),
+        language: String::new(),
     }
 }
 

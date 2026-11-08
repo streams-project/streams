@@ -1,5 +1,6 @@
 package streams.tv
 
+import streams.shared.fill
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -89,7 +90,7 @@ private fun UsePhone(seen: Seen) {
     val device = seen.device
     Step(1, 170)
     Text(
-        words.say("signin.step1").replace("{address}", device?.verificationUri.orEmpty()),
+        words.say("signin.step1").fill("address", device?.verificationUri.orEmpty()),
         Modifier.offset(240.ref, 214.ref).width(680.ref),
         fontSize = 32.refType,
         lineHeight = 42.refType,

@@ -1,12 +1,19 @@
 {
   "languages": [
     {
+      "code": "ar",
+      "name": "العربية",
+      "dir": "rtl"
+    },
+    {
       "code": "de",
-      "name": "Deutsch"
+      "name": "Deutsch",
+      "dir": "ltr"
     },
     {
       "code": "en",
-      "name": "English"
+      "name": "English",
+      "dir": "ltr"
     }
   ]
 }

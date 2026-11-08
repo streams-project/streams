@@ -1030,6 +1030,7 @@ export type InputKind = "touch" | "pointer" | "keyboard" | "remote" | "gamepad" 
 /** A language this server has text for, named in itself. */
 export interface Language {
   code: string;
+  dir?: TextDirection;
   name: string;
 }
 
@@ -1467,6 +1468,8 @@ export type StoreOp = "get" | "put" | "delete" | "list" | (string & {});
 
 /** `/v1/strings/{lang}`. Text holds the placeholders below. */
 export interface Strings {
+  /** Which way this language runs. Absent from older servers, which only spoke left to right. */
+  dir?: TextDirection;
   lang: string;
   texts: Record<string, string>;
 }
@@ -1502,6 +1505,9 @@ export interface Suggestions {
 
 /** A semantic target. Each device maps it to one of its own screens. */
 export type Target = "start" | "sign_in" | "profiles" | "home" | "kids_home" | "screen" | "title" | "watch" | "not_found" | "wait" | "upgrade" | "activate" | (string & {});
+
+/** Which way a language's lines run. The apps lay out, mirror and move focus by it; the player's timeline and the brand's art never turn. */
+export type TextDirection = "ltr" | "rtl" | (string & {});
 
 /** One title in a section. */
 export interface Tile {

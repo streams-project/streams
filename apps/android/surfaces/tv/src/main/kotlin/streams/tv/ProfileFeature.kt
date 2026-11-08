@@ -37,7 +37,7 @@ import streams.shared.refType
 private const val SETTLE_MS = 300L
 private const val FADE_MS = 500
 
-private val FromLeft = Brush.horizontalGradient(0f to Color.Black, 0.45f to Color.Transparent)
+private val FromLeft = arrayOf(0f to Color.Black, 0.45f to Color.Transparent)
 private val FromFoot = Brush.verticalGradient(0.6f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.7f))
 
 @Composable
@@ -74,7 +74,7 @@ fun ProfileFeature(shell: Shell, id: String) {
             Box(Modifier.fillMaxSize()) {
                 Box(Modifier.offset(480.ref, 0.ref).size(1440.ref, 1080.ref)) {
                     Art(wide(shown.images), Modifier.fillMaxSize())
-                    Box(Modifier.fillMaxSize().background(FromLeft))
+                    Box(Modifier.fillMaxSize().background(fromStart(*FromLeft)))
                     Box(Modifier.fillMaxSize().background(FromFoot))
                 }
                 Column(

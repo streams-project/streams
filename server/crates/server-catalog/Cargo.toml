@@ -19,6 +19,7 @@ base64.workspace = true
 ed25519-dalek.workspace = true
 half.workspace = true
 rayon.workspace = true
+moka.workspace = true
 rusqlite.workspace = true
 pathfinding.workspace = true
 rustc-hash.workspace = true

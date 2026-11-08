@@ -1,5 +1,6 @@
 package streams.tv
 
+import streams.shared.fill
 import contract.Track
 import java.util.Locale
 import streams.ports.Seen
@@ -40,7 +41,7 @@ fun choicesOf(seen: Seen, files: List<Track>): List<Choice> {
     return buildList {
         add(Choice(name, sound, null, reading == null))
         same?.let {
-            val word = seen.words["player.with_subtitles"].orEmpty().replace("{audio}", name)
+            val word = seen.words["player.with_subtitles"].orEmpty().fill("audio", name)
             add(Choice(word, sound, it, reading?.id == it.id))
         }
         val elsewhere = reading != null && reading.id != same?.id

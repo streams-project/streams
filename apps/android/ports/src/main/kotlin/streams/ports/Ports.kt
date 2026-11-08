@@ -95,6 +95,8 @@ data class Seen(
     val words: Map<String, String> = emptyMap(),
     /** The language those words are in. */
     val language: String = "",
+    /** True when that language runs right to left: the interface mirrors, the player never does. */
+    val rtl: Boolean = false,
     val detail: TitleDetail? = null,
     val notice: String? = null,
     val brand: String = "",

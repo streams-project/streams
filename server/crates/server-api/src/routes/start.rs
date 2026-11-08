@@ -7,6 +7,7 @@ use axum::http::HeaderMap;
 use axum::response::Response;
 use contract::hello::{
     BrandValues, Features, Hello, Language, LanguageList, Limits, Ready, ServiceState, Strings,
+    TextDirection,
 };
 
 use crate::answer::{Keep, send};
@@ -19,6 +20,9 @@ const HELLO_TTL_S: u32 = 300;
 
 /// The key that makes a strings file a language, and names it in itself.
 const LANGUAGE_NAME: &str = "language.name";
+
+/// The key in a language's own file that says which way it runs: `rtl` or `ltr`.
+const LANGUAGE_DIR: &str = "language.dir";
 
 /// The file every other language falls back to.
 const FALLBACK_LANGUAGE: &str = "en";
@@ -132,6 +136,15 @@ fn read_texts(dir: &std::path::Path, lang: &str) -> Option<BTreeMap<String, Stri
     serde_json::from_slice(&bytes).ok()
 }
 
+/// Which way a language runs, from its own file (never from English): left to right unless it says `rtl`.
+fn direction_in(texts: &BTreeMap<String, String>) -> TextDirection {
+    if texts.get(LANGUAGE_DIR).is_some_and(|dir| dir == "rtl") {
+        TextDirection::Rtl
+    } else {
+        TextDirection::Ltr
+    }
+}
+
 /// True when this server has text for the language.
 pub fn has_language(state: &Shared, code: &str) -> bool {
     plain_lang(code)
@@ -160,11 +173,15 @@ pub async fn languages(State(state): State<Shared>, headers: HeaderMap) -> ApiRe
         if !plain_lang(code) || path.extension().is_none_or(|end| end != "json") {
             continue;
         }
-        let name = read_texts(dir, code).and_then(|mut texts| texts.remove(LANGUAGE_NAME));
-        if let Some(name) = name {
+        let Some(mut texts) = read_texts(dir, code) else {
+            continue;
+        };
+        let dir = direction_in(&texts);
+        if let Some(name) = texts.remove(LANGUAGE_NAME) {
             languages.push(Language {
                 code: code.to_owned(),
                 name,
+                dir,
             });
         }
     }
@@ -192,11 +209,16 @@ pub async fn strings(
         return Err(ApiError::not_found());
     }
     let asked = read_texts(dir, &lang).ok_or_else(ApiError::not_found)?;
+    let way = direction_in(&asked);
     let mut texts = read_texts(dir, FALLBACK_LANGUAGE).unwrap_or_default();
     texts.extend(asked);
     send(
         &headers,
-        &Strings { lang, texts },
+        &Strings {
+            lang,
+            dir: way,
+            texts,
+        },
         Keep::Public(HELLO_TTL_S),
     )
 }

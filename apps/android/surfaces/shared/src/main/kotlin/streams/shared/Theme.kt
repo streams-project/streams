@@ -53,3 +53,9 @@ object Corner {
     const val PANEL = BuildConfig.PANEL_RADIUS
     const val FIELD = BuildConfig.FIELD_RADIUS
 }
+
+/**
+ * A word's `{name}` place filled with a value, isolated (U+2068, U+2069) so a number, a title or an
+ * address keeps its own order inside a line of either direction.
+ */
+fun String.fill(name: String, value: Any): String = replace("{$name}", "\u2068$value\u2069")

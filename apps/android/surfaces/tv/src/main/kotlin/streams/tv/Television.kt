@@ -1,5 +1,7 @@
 package streams.tv
 
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -41,7 +43,13 @@ fun Television(shell: Shell) {
                 if (seen.server.isEmpty() && !opening.opened) opening.over()
                 // Under the opening the first screen is built and loading, and drawn once the first stage is over.
                 Box(Modifier.fillMaxSize().graphicsLayer { alpha = if (opening.shown || opening.opened) 1f else 0f }) {
-                CompositionLocalProvider(LocalCovered provides !opening.opened, LocalPages provides pages) {
+                // A right to left language mirrors every screen; the player keeps its own way (Watch).
+                val way = if (seen.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
+                CompositionLocalProvider(
+                    LocalCovered provides !opening.opened,
+                    LocalPages provides pages,
+                    LocalLayoutDirection provides way,
+                ) {
                 if (target != null && target != Target.WAIT && target != Target.PROFILES && target != Target.START &&
                     target != Target.SIGN_IN
                 ) {

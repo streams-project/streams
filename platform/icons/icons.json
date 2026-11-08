@@ -1,7 +1,8 @@
 {
  "back": {
   "source": "ri:arrow-left-line",
-  "body": "<path fill=\"currentColor\" d=\"M7.828 11H20v2H7.828l5.364 5.364l-1.414 1.414L4 12l7.778-7.778l1.414 1.414z\"/>"
+  "body": "<path fill=\"currentColor\" d=\"M7.828 11H20v2H7.828l5.364 5.364l-1.414 1.414L4 12l7.778-7.778l1.414 1.414z\"/>",
+  "mirror": true
  },
  "back-10": {
   "source": "hugeicons:go-backward-10-sec",
@@ -85,7 +86,8 @@
  },
  "leave": {
   "source": "ri:external-link-line",
-  "body": "<path fill=\"currentColor\" d=\"M10 6v2H5v11h11v-5h2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm11-3v8h-2V6.413l-7.793 7.794l-1.414-1.414L17.585 5H13V3z\"/>"
+  "body": "<path fill=\"currentColor\" d=\"M10 6v2H5v11h11v-5h2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm11-3v8h-2V6.413l-7.793 7.794l-1.414-1.414L17.585 5H13V3z\"/>",
+  "mirror": true
  },
  "lock-open": {
   "source": "ri:lock-unlock-line",

@@ -1,5 +1,6 @@
 {
   "lang": "en",
+  "dir": "ltr",
   "texts": {
     "help.contact": "Write to {support_email}",
     "home.welcome": "Welcome to {brand}"

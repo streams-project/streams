@@ -1,0 +1,8 @@
+{
+  "lang": "ar",
+  "dir": "rtl",
+  "texts": {
+    "common.play": "تشغيل",
+    "title.season.one": "موسم {n}"
+  }
+}

@@ -36,7 +36,7 @@ import streams.shared.R
 import streams.shared.ref
 import streams.shared.refType
 
-private val Side = Brush.horizontalGradient(0f to Color.Black.copy(alpha = 0.8f), 0.62f to Color.Transparent)
+private val Side = arrayOf(0f to Color.Black.copy(alpha = 0.8f), 0.62f to Color.Transparent)
 private val Foot = Brush.verticalGradient(0.55f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.55f))
 
 /** The rounded card at the top of a page. */
@@ -53,7 +53,7 @@ fun HeroCard(shell: Shell, seen: Seen, store: DetailStore, lead: Tile, button: I
             .border(2.ref, Color.White.copy(alpha = 0.28f), shape),
     ) {
         Art(wide(lead.images), Modifier.fillMaxSize())
-        Box(Modifier.fillMaxSize().background(Side))
+        Box(Modifier.fillMaxSize().background(fromStart(*Side)))
         Box(Modifier.fillMaxSize().background(Foot))
         Column(Modifier.align(Alignment.BottomStart).padding(start = 30.ref, bottom = 34.ref).width(760.ref)) {
             val logo = (lead.images.orEmpty() + detail?.images.orEmpty())

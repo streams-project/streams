@@ -150,6 +150,15 @@ impl SafeTile {
             percent: extras.percent,
         }))
     }
+
+    /// The tile named as the viewer's language names the title. An empty name keeps the catalog's.
+    #[must_use]
+    pub fn named(mut self, name: &str) -> Self {
+        if !name.trim().is_empty() {
+            self.0.name = name.trim().to_owned();
+        }
+        self
+    }
 }
 
 fn wires(tiles: Vec<SafeTile>) -> Vec<Tile> {
@@ -250,6 +259,32 @@ impl SafeTitleDetail {
             rating: None,
             resume: None,
         }))
+    }
+
+    /// The title page in the viewer's language: its name and story where a translation has them
+    /// (empty keeps the catalog's English), its genres as the language names them, and the titles
+    /// of More Like This named by `name_of`.
+    #[must_use]
+    pub fn speaking(
+        mut self,
+        name: &str,
+        overview: &str,
+        genre: impl Fn(&str) -> String,
+        name_of: impl Fn(&TitleKey) -> Option<String>,
+    ) -> Self {
+        if !name.trim().is_empty() {
+            self.0.name = name.trim().to_owned();
+        }
+        if !overview.trim().is_empty() {
+            self.0.overview = Some(overview.trim().to_owned());
+        }
+        self.0.genres = self.0.genres.iter().map(|g| genre(g)).collect();
+        for tile in &mut self.0.more_like_this {
+            if let Some(name) = name_of(&tile.title).filter(|name| !name.trim().is_empty()) {
+                tile.name = name;
+            }
+        }
+        self
     }
 
     /// Names the seasons a series has.

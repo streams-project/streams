@@ -1,5 +1,6 @@
 package streams.tv
 
+import streams.shared.fill
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,7 +24,7 @@ private fun badgeLabel(badge: Badge, words: Map<String, String>): String = when 
     BadgeKind.NEW -> words["badge.new"].orEmpty()
     BadgeKind.RANKED -> {
         val rank = badge.rank ?: return ""
-        words["badge.ranked"].orEmpty().replace("{rank}", rank.toString())
+        words["badge.ranked"].orEmpty().fill("rank", rank.toString())
     }
     else -> ""
 }

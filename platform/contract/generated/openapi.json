@@ -3319,6 +3319,10 @@
           "code": {
             "type": "string"
           },
+          "dir": {
+            "$ref": "#/components/schemas/TextDirection",
+            "default": "ltr"
+          },
           "name": {
             "type": "string"
           }
@@ -4695,6 +4699,11 @@
       "Strings": {
         "description": "`/v1/strings/{lang}`. Text holds the placeholders below.",
         "properties": {
+          "dir": {
+            "$ref": "#/components/schemas/TextDirection",
+            "default": "ltr",
+            "description": "Which way this language runs. Absent from older servers, which only spoke left to right."
+          },
           "lang": {
             "type": "string"
           },
@@ -4826,6 +4835,14 @@
             "type": "string"
           }
         ]
+      },
+      "TextDirection": {
+        "description": "Which way a language's lines run. The apps lay out, mirror and move focus by it; the player's\ntimeline and the brand's art never turn.",
+        "enum": [
+          "ltr",
+          "rtl"
+        ],
+        "type": "string"
       },
       "Tile": {
         "description": "One title in a section.",
@@ -10687,6 +10704,9 @@
             "content": {
               "application/json": {
                 "examples": {
+                  "ar": {
+                    "externalValue": "../fixtures/2026-11-05/valid/Strings.ar.json"
+                  },
                   "en": {
                     "externalValue": "../fixtures/2026-11-05/valid/Strings.en.json"
                   }

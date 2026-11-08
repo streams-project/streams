@@ -1,5 +1,6 @@
 package streams.tv
 
+import streams.shared.fill
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,7 +43,7 @@ import streams.shared.R
 import streams.shared.ref
 import streams.shared.refType
 
-private val Side = Brush.horizontalGradient(0f to Color.Black.copy(alpha = 0.82f), 0.62f to Color.Black.copy(alpha = 0.12f))
+private val Side = arrayOf(0f to Color.Black.copy(alpha = 0.82f), 0.62f to Color.Black.copy(alpha = 0.12f))
 private val Foot = Brush.verticalGradient(0.42f to Color.Transparent, 0.92f to Back)
 
 private enum class Part { REACTIONS, MENU }
@@ -57,7 +58,7 @@ private fun TitleDetail.path() = title.value.replace(':', '/')
 @Composable
 fun TitleBackdrop(data: TitleDetail) {
     Art(wide(data.images), Modifier.fillMaxSize())
-    Box(Modifier.fillMaxSize().background(Side))
+    Box(Modifier.fillMaxSize().background(fromStart(*Side)))
     Box(Modifier.fillMaxSize().background(Foot))
 }
 
@@ -72,7 +73,7 @@ private fun playWord(data: TitleDetail, words: Map<String, String>): String {
         episode != null && resume.positionS > 0 -> words["title.continue_episode"]
         else -> words["title.play_episode"]
     }
-    return word.orEmpty().replace("{n}", "${episode?.episode ?: 1}")
+    return word.orEmpty().fill("n", "${episode?.episode ?: 1}")
 }
 
 @Composable

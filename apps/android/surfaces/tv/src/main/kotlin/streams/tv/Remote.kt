@@ -1,5 +1,7 @@
 package streams.tv
 
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.foundation.focusable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,6 +31,13 @@ private fun wordOf(event: KeyEvent): Word? = when (event.key) {
     else -> null
 }
 
+/** Left and right swapped, for a right to left page. */
+private fun turn(word: Word): Word = when (word) {
+    Word.LEFT -> Word.RIGHT
+    Word.RIGHT -> Word.LEFT
+    else -> word
+}
+
 /** Gives a whole screen the remote. The screen keeps its own focus as plain state. */
 @Composable
 fun Modifier.remote(press: (Word) -> Boolean): Modifier = remote(true, press)
@@ -41,13 +50,17 @@ fun Modifier.remote(on: Boolean, press: (Word) -> Boolean): Modifier {
     val latest by rememberUpdatedState(press)
     // Under the opening a screen keeps its place but takes no keys, and takes them back after.
     val live = on && !LocalCovered.current
+    // Pages say Left for towards the start of a line. In a right to left language the start is on
+    // the right, so the remote's arrows swap here, once, for every page. The player keeps its own
+    // left to right way, so its arrows stay as they are.
+    val turned = LocalLayoutDirection.current == LayoutDirection.Rtl
     LaunchedEffect(live) {
         if (live) focus.requestFocus()
     }
     return focusRequester(focus)
         .focusable()
         .onPreviewKeyEvent { event ->
-            val word = wordOf(event)
+            val word = wordOf(event)?.let { if (turned) turn(it) else it }
             live && word != null && event.type == KeyEventType.KeyDown && latest(word)
         }
 }
