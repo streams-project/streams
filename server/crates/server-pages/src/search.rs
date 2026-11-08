@@ -38,15 +38,24 @@ impl TitleIndex {
     /// Read every title of a set.
     #[must_use]
     pub fn build(data: &DataSet) -> Self {
+        // A title is found by its name and by its other names: the original title and its names
+        // in other languages, so a viewer can search in their own language.
         let mut rows: Vec<(u32, f32, String)> = data
             .catalog
             .values()
-            .map(|item| {
-                (
-                    item.id,
-                    search_weight(item),
-                    format!(" {} ", normalise(&item.title)),
-                )
+            .flat_map(|item| {
+                let weight = search_weight(item);
+                let main = normalise(&item.title);
+                let mut names = vec![main.clone()];
+                for other in &item.other_names {
+                    let other = normalise(other);
+                    if !other.is_empty() && !names.contains(&other) {
+                        names.push(other);
+                    }
+                }
+                names
+                    .into_iter()
+                    .map(move |name| (item.id, weight, format!(" {name} ")))
             })
             .collect();
         rows.sort_unstable_by_key(|row| row.0);

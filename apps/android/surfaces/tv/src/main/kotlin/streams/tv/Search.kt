@@ -43,6 +43,8 @@ class SearchState {
     var tab by mutableIntStateOf(SEARCH_TAB)
     var genre by mutableIntStateOf(0)
     var result by mutableIntStateOf(0)
+    /** True while the keyboard shows English letters in place of the profile language's own. */
+    var english by mutableStateOf(false)
 }
 
 private fun tilesOf(text: String, limit: Int): List<Tile> =
@@ -57,6 +59,10 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
     val tabs = tabsOf(seen.nav)
     val genres = seen.nav.filter { it.screen.value == "genre" }.take(GENRES)
     val person = seen.profiles.firstOrNull { it.id == seen.active } ?: seen.profiles.firstOrNull()
+    // The profile language's letters (search.letters), when it has its own; the globe switches to English.
+    val own = seen.words["search.letters"]?.filter { !it.isWhitespace() && it != '\u200F' }.orEmpty()
+    val hasOwn = own.isNotEmpty() && own != ENGLISH_LETTERS
+    val keys = LetterKeys(if (hasOwn && !state.english) own else ENGLISH_LETTERS, globe = hasOwn)
 
     LaunchedEffect(Unit) {
         if (state.offered.isEmpty()) {
@@ -90,10 +96,14 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
                 Word.UP -> Unit
             }
             Zone.LETTERS -> when (word) {
-                Word.OK -> state.text = state.place.press(state.text)
+                Word.OK -> if (state.place.top(keys) == TopKey.GLOBE) {
+                    state.english = !state.english
+                } else {
+                    state.text = state.place.press(state.text, keys)
+                }
                 Word.BACK -> shell.back()
                 else -> {
-                    val next = state.place.move(word)
+                    val next = state.place.move(word, keys)
                     when {
                         next != null -> state.place = next
                         word == Word.UP -> state.zone = Zone.TOP
@@ -123,11 +133,12 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
     Box(Modifier.fillMaxSize().remote(@DontMemoize { press(it) })) {
         PosterGrid(shown, if (state.zone == Zone.RESULTS) state.result else -1, 566, 232)
         TopBar(tabs, SEARCH_TAB, if (state.zone == Zone.TOP) state.tab else -1, person, seen.server)
-        LetterGrid(if (state.zone == Zone.LETTERS) state.place else null, Modifier.offset(PAGE_EDGE.ref, 160.ref))
+        LetterGrid(if (state.zone == Zone.LETTERS) state.place else null, keys, Modifier.offset(PAGE_EDGE.ref, 160.ref))
         Menu(
             genres.map { MenuLine(it.label) },
             if (state.zone == Zone.GENRES) state.genre else -1,
-            Modifier.offset((PAGE_EDGE - MENU_WORDS).ref, 636.ref),
+            // The genres sit under the grid, however many lines its letters take.
+            Modifier.offset((PAGE_EDGE - MENU_WORDS).ref, (160 + keys.high + 14).ref),
             width = 440,
         )
         Text(

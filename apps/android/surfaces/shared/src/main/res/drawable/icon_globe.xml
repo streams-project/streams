@@ -1,0 +1,6 @@
+<!-- Written by platform/tools/make_icons.py. Change platform/icons/icons.json instead. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <path android:pathData="M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0z" android:strokeColor="#FFFFFFFF" android:strokeWidth="1.6" android:strokeLineCap="round" android:strokeLineJoin="round" />
+    <path android:pathData="M2.6 9h18.8M2.6 15h18.8" android:strokeColor="#FFFFFFFF" android:strokeWidth="1.6" android:strokeLineCap="round" android:strokeLineJoin="round" />
+    <path android:pathData="M12 2c2.6 2.8 4 6.3 4 10s-1.4 7.2-4 10c-2.6-2.8-4-6.3-4-10s1.4-7.2 4-10z" android:strokeColor="#FFFFFFFF" android:strokeWidth="1.6" android:strokeLineCap="round" android:strokeLineJoin="round" />
+</vector>

@@ -1,5 +1,6 @@
 package streams.tv
 
+import streams.shared.number
 import streams.shared.fill
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -19,7 +20,7 @@ import streams.shared.refType
 
 private fun facts(detail: TitleDetail, words: Map<String, String>): List<String> = buildList {
     detail.genres?.firstOrNull()?.let(::add)
-    detail.year?.let { add(it.toString()) }
+    detail.year?.let { add(number(it)) }
     val seasons = detail.seasons?.size ?: 0
     val minutes = detail.runtimeMin
     when {

@@ -212,9 +212,8 @@ impl Pages {
             .and_then(|reason| {
                 let id = u32::try_from(reason.get("id")?.as_u64()?).ok()?;
                 let kind = reason.get("media_type")?.as_str()?;
-                data.title_text(server_catalog::catalog::item_key(kind, id), words.lang())
+                data.title_name(server_catalog::catalog::item_key(kind, id), words.lang())
             })
-            .map(|text| text.title.clone())
             .filter(|name| !name.is_empty());
         let args = named.and_then(|name| {
             let mut args = meta?.get("title_args")?.as_object()?.clone();
@@ -452,8 +451,8 @@ impl Pages {
     /// A tile named as the language names its title, when the catalog has a translation.
     fn named_tile(&self, data: &DataSet, key: u32, lang: &str, tile: SafeTile) -> SafeTile {
         let words = self.words.speaking(lang);
-        match data.title_text(key, words.lang()) {
-            Some(text) => tile.named(&text.title),
+        match data.title_name(key, words.lang()) {
+            Some(name) => tile.named(&name),
             None => tile,
         }
     }
@@ -478,7 +477,7 @@ impl Pages {
             |title| {
                 let kind = if title.kind() == contract::TitleKind::Tv { "tv" } else { "movie" };
                 let key = server_catalog::catalog::item_key(kind, title.id());
-                data.title_text(key, &code).map(|text| text.title.clone())
+                data.title_name(key, &code)
             },
         )
     }

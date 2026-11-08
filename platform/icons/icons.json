@@ -64,6 +64,10 @@
   "source": "ri:fullscreen-line",
   "body": "<path fill=\"currentColor\" d=\"M8 3v2H4v4H2V3zM2 21v-6h2v4h4v2zm20 0h-6v-2h4v-4h2zm0-12h-2V5h-4V3h6z\"/>"
  },
+ "globe": {
+  "source": "streams:globe",
+  "body": "<g fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0z\"/><path d=\"M2.6 9h18.8M2.6 15h18.8\"/><path d=\"M12 2c2.6 2.8 4 6.3 4 10s-1.4 7.2-4 10c-2.6-2.8-4-6.3-4-10s1.4-7.2 4-10z\"/></g>"
+ },
  "grid": {
   "source": "ri:layout-grid-line",
   "body": "<path fill=\"currentColor\" d=\"M21 3a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM11 13H4v6h7zm9 0h-7v6h7zm-9-8H4v6h7zm9 0h-7v6h7z\"/>"

@@ -40,9 +40,11 @@ def main() -> int:
                 print(f"missing {lang} {key}")
                 failed = True
                 continue
+            # {brand} may be left out: a language names a thing its own way, and "My {brand}" is not
+            # always "my" plus the name. Every other place must match English.
             expected_ph = placeholders(en_data[key])
             actual_ph = placeholders(data[key])
-            if expected_ph != actual_ph:
+            if actual_ph - expected_ph or (expected_ph - {"{brand}"}) - actual_ph:
                 print(
                     f"placeholder {lang} {key}: expected {sorted(expected_ph)}, got {sorted(actual_ph)}"
                 )

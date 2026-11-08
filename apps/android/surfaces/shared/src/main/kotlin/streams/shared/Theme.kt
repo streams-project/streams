@@ -58,4 +58,20 @@ object Corner {
  * A word's `{name}` place filled with a value, isolated (U+2068, U+2069) so a number, a title or an
  * address keeps its own order inside a line of either direction.
  */
-fun String.fill(name: String, value: Any): String = replace("{$name}", "\u2068$value\u2069")
+fun String.fill(name: String, value: Any): String =
+    replace("{$name}", "\u2068${if (value is Number) number(value) else value}\u2069")
+
+/**
+ * The digits numbers are written in. A language says which in its strings (`language.digits`:
+ * `arab` for Arabic-Indic); the app sets this as the words arrive.
+ */
+object Numerals {
+    @Volatile
+    var arabic: Boolean = false
+}
+
+/** A number as the interface's language writes it. */
+fun number(value: Any): String {
+    val plain = value.toString()
+    return if (Numerals.arabic) plain.map { if (it in '0'..'9') '\u0660' + (it - '0') else it }.joinToString("") else plain
+}

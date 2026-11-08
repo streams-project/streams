@@ -19,8 +19,14 @@ pub fn normalise(text: &str) -> String {
     let mut out = String::with_capacity(text.len());
     let mut space = true;
     for c in text.chars() {
+        // Arabic short vowels and the stretching line carry no letter: drop them, do not split.
+        if ('\u{064B}'..='\u{0652}').contains(&c) || c == '\u{0640}' || c == '\u{0670}' {
+            continue;
+        }
         if c.is_alphanumeric() {
-            out.extend(c.to_lowercase());
+            for lower in c.to_lowercase() {
+                fold(lower, &mut out);
+            }
             space = false;
         } else if !space {
             out.push(' ');
@@ -28,6 +34,39 @@ pub fn normalise(text: &str) -> String {
         }
     }
     out.trim_end().to_string()
+}
+
+/// One letter as search compares it: accents off, Arabic letter forms joined, every digit Western.
+fn fold(c: char, out: &mut String) {
+    let plain = match c {
+        'à' | 'á' | 'â' | 'ã' | 'ä' | 'å' | 'ā' | 'ą' => 'a',
+        'ç' | 'ć' | 'č' => 'c',
+        'è' | 'é' | 'ê' | 'ë' | 'ē' | 'ę' | 'ě' => 'e',
+        'ì' | 'í' | 'î' | 'ï' | 'ī' | 'ı' => 'i',
+        'ñ' | 'ń' | 'ň' => 'n',
+        'ò' | 'ó' | 'ô' | 'õ' | 'ö' | 'ø' | 'ō' | 'ő' => 'o',
+        'ù' | 'ú' | 'û' | 'ü' | 'ū' | 'ű' | 'ů' => 'u',
+        'ý' | 'ÿ' => 'y',
+        'ł' => 'l',
+        'ś' | 'š' | 'ş' => 's',
+        'ź' | 'ż' | 'ž' => 'z',
+        'ğ' => 'g',
+        'ř' => 'r',
+        'đ' | 'ď' => 'd',
+        'ť' => 't',
+        'ß' => {
+            out.push_str("ss");
+            return;
+        }
+        'أ' | 'إ' | 'آ' | 'ٱ' => 'ا',
+        'ة' => 'ه',
+        'ى' | 'ئ' => 'ي',
+        'ؤ' => 'و',
+        '\u{0660}'..='\u{0669}' => char::from_u32(c as u32 - 0x0660 + u32::from(b'0')).unwrap_or(c),
+        '\u{06F0}'..='\u{06F9}' => char::from_u32(c as u32 - 0x06F0 + u32::from(b'0')).unwrap_or(c),
+        other => other,
+    };
+    out.push(plain);
 }
 
 impl PeopleIndex {
@@ -176,7 +215,15 @@ mod tests {
     #[test]
     fn names_are_normalised() {
         assert_eq!(normalise("Joseph Gordon-Levitt"), "joseph gordon levitt");
-        assert_eq!(normalise("  Zoë  Saldaña "), "zoë saldaña");
+        // Accents fold, so a remote keyboard without them still finds the name.
+        assert_eq!(normalise("  Zoë  Saldaña "), "zoe saldana");
+    }
+
+    #[test]
+    fn arabic_letter_forms_and_digits_fold() {
+        assert_eq!(normalise("الأوديسة"), normalise("الاوديسه"));
+        assert_eq!(normalise("مُسَلْسَل"), "مسلسل");
+        assert_eq!(normalise("عام ٢٠٢٤"), "عام 2024");
     }
 
     #[test]
