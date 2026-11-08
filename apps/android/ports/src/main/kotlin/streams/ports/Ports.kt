@@ -69,8 +69,13 @@ interface Player {
 
 /** Brand films on the way in. The title player belongs to the core, so these stay apart from it. */
 interface Reel {
-    /** A picture that plays this address. `ended` runs when it finishes or cannot play. */
-    fun picture(context: Any, url: String, loop: Boolean, ended: () -> Unit): Any
+    /**
+     * A picture of this address. It starts still until `play` says so. `ready` runs once, when it can
+     * show and play; `ended` runs when it finishes or cannot play.
+     */
+    fun picture(context: Any, url: String, loop: Boolean, ready: () -> Unit, ended: () -> Unit): Any
+    /** Starts or stops one film. */
+    fun play(picture: Any, on: Boolean)
     /** Hands back the decoder, because a television has few and the title player needs one. */
     fun release(picture: Any)
     /** Holds every film still while the app is off screen, and lets them go on after. */
