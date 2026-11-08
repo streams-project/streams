@@ -33,7 +33,7 @@ fun Television(shell: Shell) {
             Box(Modifier.fillMaxSize().background(Color.Black)) {
                 val target = seen.route?.target
                 // A run of the app with no server yet starts at the address screen, with no opening.
-                if (seen.server.isEmpty()) opening.opened = true
+                if (seen.server.isEmpty() && !opening.opened) opening.over()
                 // Under the opening the first screen is built and loading, and drawn once the first stage is over.
                 Box(Modifier.fillMaxSize().graphicsLayer { alpha = if (opening.shown || opening.opened) 1f else 0f }) {
                 CompositionLocalProvider(LocalCovered provides !opening.opened) {
