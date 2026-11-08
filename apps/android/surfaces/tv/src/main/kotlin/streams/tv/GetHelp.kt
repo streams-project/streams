@@ -122,7 +122,7 @@ fun GetHelp(shell: Shell, seen: Seen) {
             Line.CENTRE -> centre = true
             Line.SETTINGS -> shell.go(Address.SETTINGS)
             Line.CHECK -> check()
-            Line.RELOAD -> shell.go("/")
+            Line.RELOAD -> shell.go(Address.START)
             Line.EXIT -> (context as? Activity)?.finish()
             Line.SIGN_OUT -> {
                 asking = true
@@ -147,18 +147,19 @@ fun GetHelp(shell: Shell, seen: Seen) {
             Word.UP -> if (at > 0) at -= 1
             Word.DOWN -> if (at < lines.lastIndex) at += 1
             Word.OK -> choose()
-            Word.BACK -> shell.back()
+            // The menu is the left edge of the page: Left goes back, as Back does.
+            Word.BACK, Word.LEFT -> shell.back()
             else -> Unit
         }
         return true
     }
 
     Box(Modifier.fillMaxSize().background(Color.Black).remote(@DontMemoize { press(it) })) {
-        Text(words["menu.help"].orEmpty(), Modifier.offset(130.ref, 60.ref), fontSize = 44.refType, fontWeight = FontWeight.Bold)
+        Text(words["menu.help"].orEmpty(), Modifier.offset(SUB_EDGE.ref, 60.ref), fontSize = 44.refType, fontWeight = FontWeight.Bold)
         Menu(
             lines.map { MenuLine(words[it.word].orEmpty()) },
             if (asking) -1 else at,
-            Modifier.offset(40.ref, 136.ref),
+            Modifier.offset((SUB_EDGE - MENU_WORDS).ref, 136.ref),
             width = 560,
             kept = if (asking) at else -1,
         )

@@ -81,8 +81,12 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
                 Word.LEFT -> if (state.tab == 0) state.tab = SEARCH_TAB else if (state.tab > 0) state.tab -= 1
                 Word.RIGHT -> if (state.tab == SEARCH_TAB) state.tab = 0 else if (state.tab < tabs.lastIndex) state.tab += 1
                 Word.DOWN -> state.zone = Zone.LETTERS
-                Word.OK -> tabs.getOrNull(state.tab)?.let { shell.go(if (it.screen.value == "home") Address.HOME else "/" + it.screen.value) }
-                Word.BACK -> shell.back()
+                Word.OK -> tabs.getOrNull(state.tab)?.let { shell.go(Address.of(it.screen.value)) }
+                // From the bar Back returns to the letters first; from the letters it leaves.
+                Word.BACK -> {
+                    state.tab = SEARCH_TAB
+                    state.zone = Zone.LETTERS
+                }
                 Word.UP -> Unit
             }
             Zone.LETTERS -> when (word) {
@@ -102,7 +106,7 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
                 Word.UP -> if (state.genre > 0) state.genre -= 1 else state.zone = Zone.LETTERS
                 Word.DOWN -> if (state.genre < genres.lastIndex) state.genre += 1
                 Word.RIGHT -> if (shown.isNotEmpty()) state.zone = Zone.RESULTS
-                Word.OK -> genres.getOrNull(state.genre)?.genre?.let { shell.go("/genre/$it") }
+                Word.OK -> genres.getOrNull(state.genre)?.genre?.let { shell.go(Address.GENRE + it) }
                 Word.BACK -> shell.back()
                 Word.LEFT -> Unit
             }
@@ -119,16 +123,16 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
     Box(Modifier.fillMaxSize().remote(@DontMemoize { press(it) })) {
         PosterGrid(shown, if (state.zone == Zone.RESULTS) state.result else -1, 566, 232)
         TopBar(tabs, SEARCH_TAB, if (state.zone == Zone.TOP) state.tab else -1, person, seen.server)
-        LetterGrid(if (state.zone == Zone.LETTERS) state.place else null, Modifier.offset(68.ref, 160.ref))
+        LetterGrid(if (state.zone == Zone.LETTERS) state.place else null, Modifier.offset(PAGE_EDGE.ref, 160.ref))
         Menu(
             genres.map { MenuLine(it.label) },
             if (state.zone == Zone.GENRES) state.genre else -1,
-            Modifier.offset(40.ref, 636.ref),
+            Modifier.offset((PAGE_EDGE - MENU_WORDS).ref, 636.ref),
             width = 440,
         )
         Text(
             state.text.ifBlank { seen.words["search.recommended"].orEmpty() },
-            Modifier.offset(564.ref, 150.ref).width(1280.ref),
+            Modifier.offset(566.ref, 150.ref).width(1280.ref),
             fontSize = 40.refType,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

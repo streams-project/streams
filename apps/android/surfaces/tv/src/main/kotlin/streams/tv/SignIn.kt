@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DontMemoize
@@ -122,7 +121,7 @@ private fun Field(label: String, value: String, hidden: Boolean) {
         Modifier
             .offset(960.ref, 280.ref)
             .size(800.ref, 76.ref)
-            .border(2.ref, Color.White.copy(alpha = 0.5f), RoundedCornerShape(12.ref))
+            .border(2.ref, Color.White.copy(alpha = 0.5f), shapeOf(Round.field))
             .padding(horizontal = 26.ref),
         contentAlignment = Alignment.CenterStart,
     ) {
@@ -173,10 +172,11 @@ fun SignIn(shell: Shell, seen: Seen) {
             return true
         }
         when (word) {
-            Word.LEFT -> way = Way.PHONE
+            // Left past Use Phone, and Back, return to the page the viewer came from.
+            Word.LEFT -> if (way == Way.PHONE) shell.back() else way = Way.PHONE
             Word.RIGHT -> way = Way.REMOTE
             Word.DOWN, Word.OK -> if (way == Way.REMOTE) onPills = false
-            Word.BACK -> return false
+            Word.BACK -> shell.back()
             Word.UP -> Unit
         }
         return true

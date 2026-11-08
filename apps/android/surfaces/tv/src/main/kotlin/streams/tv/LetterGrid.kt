@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,7 +56,7 @@ private fun Cell(left: Int, top: Int, wide: Int, on: Boolean, content: @Composab
         Modifier
             .offset(left.ref, top.ref)
             .size(wide.ref, CELL.ref)
-            .background(if (on) Color.White else Color.White.copy(alpha = 0.1f), RoundedCornerShape(8.ref)),
+            .background(if (on) Color.White else Color.White.copy(alpha = 0.1f), shapeOf(Round.key)),
         contentAlignment = Alignment.Center,
     ) { content(if (on) Back else Color.White.copy(alpha = 0.75f)) }
 }

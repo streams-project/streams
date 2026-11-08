@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DontMemoize
@@ -46,7 +45,7 @@ fun PinBoxes(digits: List<Int>, at: Int) {
         digits.forEachIndexed { index, digit ->
             val on = index == at
             Box(
-                Modifier.size(96.ref).background(if (on) Color.White else Raised, RoundedCornerShape(16.ref)),
+                Modifier.size(96.ref).background(if (on) Color.White else Raised, shapeOf(Round.field)),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -96,7 +95,8 @@ fun PinPanel(
     Column(
         Modifier.fillMaxSize().padding(top = 200.ref).remote(@DontMemoize { word ->
             when (word) {
-                Word.LEFT -> if (at > 0) at -= 1
+                // Left past the first digit goes back, as Back does.
+                Word.LEFT -> if (at > 0) at -= 1 else leave()
                 Word.RIGHT -> if (at < count - 1) at += 1
                 Word.UP -> {
                     digits[at] = (digits[at] + 1) % 10
@@ -113,7 +113,7 @@ fun PinPanel(
         }),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Face(person, FACE_LARGE, 18, seen.server, Modifier.size(FACE_LARGE.ref))
+        Face(person, FACE_LARGE, seen.server, Modifier.size(FACE_LARGE.ref))
         Spacer(Modifier.height(24.ref))
         Text(person.name, fontSize = 56.refType, fontWeight = FontWeight.ExtraBold)
         Spacer(Modifier.height(40.ref))

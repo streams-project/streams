@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +33,11 @@ const val SEARCH_TAB = -2
 /** The place of the profile, to the left of search. */
 const val WHO_TAB = -3
 
+/** The bar's centre line and the height of its round parts: face, search, tabs and mark share them. */
+private const val BAR_MID = 68
+private const val BAR_HIGH = 64
+private const val FACE = 48
+
 /** The tabs that fit the bar. Genres live on their own pages. */
 fun tabsOf(nav: List<NavItem>): List<NavItem> = nav.filter { it.screen.value != "genre" }.take(6)
 
@@ -45,7 +49,7 @@ private fun Tab(item: NavItem, active: Boolean, on: Boolean) {
         else -> Color.Transparent
     }
     Box(
-        Modifier.height(62.ref).background(back, CircleShape).padding(horizontal = 32.ref),
+        Modifier.height(BAR_HIGH.ref).background(back, CircleShape).padding(horizontal = 32.ref),
         contentAlignment = Alignment.Center,
     ) {
         Text(item.label, color = if (on) Back else Color.White, fontSize = 26.refType, fontWeight = FontWeight.Medium)
@@ -58,16 +62,16 @@ fun TopBar(tabs: List<NavItem>, active: Int, focus: Int, person: Profile?, serve
     val searchOn = focus == SEARCH_TAB
     val whoOn = focus == WHO_TAB
     val searchHere = active == SEARCH_TAB
-    Box(Modifier.offset(68.ref, 46.ref)) {
+    Box(Modifier.offset(PAGE_EDGE.ref, (BAR_MID - FACE / 2).ref)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Face(person, 48, 8, server, if (whoOn) Modifier.size(48.ref).border(3.ref, Color.White, RoundedCornerShape(8.ref)) else Modifier.size(48.ref))
+            Face(person, FACE, server, if (whoOn) Modifier.size(FACE.ref).border(3.ref, Color.White, Round.face) else Modifier.size(FACE.ref))
             Icon(painterResource(R.drawable.icon_caret_down), null, Modifier.size(22.ref), tint = Color.White)
         }
     }
     Box(
         Modifier
-            .offset(539.ref, 35.ref)
-            .size(64.ref)
+            .offset(539.ref, (BAR_MID - BAR_HIGH / 2).ref)
+            .size(BAR_HIGH.ref)
             .background(
                 when {
                     searchOn -> Color.White
@@ -85,11 +89,11 @@ fun TopBar(tabs: List<NavItem>, active: Int, focus: Int, person: Profile?, serve
             tint = if (searchOn) Back else Color.White,
         )
     }
-    Row(Modifier.offset(609.ref, 36.ref)) {
+    Row(Modifier.offset(609.ref, (BAR_MID - BAR_HIGH / 2).ref)) {
         tabs.forEachIndexed { index, item ->
             Tab(item, index == active, index == focus)
             Spacer(Modifier.width(8.ref))
         }
     }
-    AsyncImage("$server/mark.svg", null, Modifier.offset(1796.ref, 40.ref).size(64.ref))
+    AsyncImage("$server/mark.svg", null, Modifier.offset((1920 - PAGE_EDGE - BAR_HIGH).ref, (BAR_MID - BAR_HIGH / 2).ref).size(BAR_HIGH.ref))
 }

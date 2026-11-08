@@ -122,7 +122,7 @@ fun EditLock(
                 }),
             ) {
                 PageHead(words[titleKey].orEmpty(), words["profile.lock.password.help"].orEmpty())
-                Keyboard(keys, cancel, next, Modifier.offset(126.ref, 302.ref))
+                Keyboard(keys, cancel, next, Modifier.offset(SUB_EDGE.ref, 302.ref))
                 ProfileCard(
                     person,
                     seen.server,
@@ -178,7 +178,7 @@ fun EditLock(
                     Modifier.fillMaxSize().padding(top = 240.ref),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Face(person, FACE_LARGE, 18, seen.server, Modifier.size(FACE_LARGE.ref))
+                    Face(person, FACE_LARGE, seen.server, Modifier.size(FACE_LARGE.ref))
                     Spacer(Modifier.height(24.ref))
                     Text(person.name, fontSize = 56.refType, fontWeight = FontWeight.ExtraBold)
                     Spacer(Modifier.height(40.ref))

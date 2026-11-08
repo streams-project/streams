@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -20,7 +19,7 @@ import streams.shared.ref
 @Composable
 fun QrCode(text: String, modifier: Modifier = Modifier) {
     val grid = remember(text) { QRCodeWriter().encode(text, BarcodeFormat.QR_CODE, 0, 0) }
-    Box(modifier.background(Color.White, RoundedCornerShape(12.ref)).padding(24.ref)) {
+    Box(modifier.background(Color.White, shapeOf(Round.field)).padding(24.ref)) {
         Canvas(Modifier.fillMaxSize()) {
             val cell = size.width / grid.width
             for (y in 0 until grid.height) {

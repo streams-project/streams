@@ -136,7 +136,7 @@ fun BrowseOrProblem(shell: Shell, seen: Seen) {
             buttonWord = seen.words["problem.retry"].orEmpty(),
             onPress = {
                 attempts += 1
-                shell.go("/")
+                shell.go(Address.START)
             },
             onBack = { shell.back() },
         )

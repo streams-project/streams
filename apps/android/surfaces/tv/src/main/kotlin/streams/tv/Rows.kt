@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,7 +49,7 @@ private val CardFoot = Brush.verticalGradient(0f to Color.Transparent, 1f to Col
 
 @Composable
 private fun Poster(tile: Tile, modifier: Modifier) {
-    Box(modifier.size(311.ref, 504.ref).clip(RoundedCornerShape(12.ref)).background(Raised)) {
+    Box(modifier.size(311.ref, 504.ref).clip(shapeOf(Round.card)).background(Raised)) {
         val url = tall(tile.images)
         if (url != null) Art(url, Modifier.fillMaxSize())
         TileBadges(tile, Modifier.align(Alignment.BottomStart).padding(12.ref))
@@ -60,8 +59,8 @@ private fun Poster(tile: Tile, modifier: Modifier) {
 /** The card stays still and its art crossfades. */
 @Composable
 private fun OpenCard(tile: Tile) {
-    val shape = RoundedCornerShape(16.ref)
-    Box(Modifier.offset(66.ref, 200.ref).size(904.ref, 508.ref).clip(shape).background(Raised)) {
+    val shape = shapeOf(Round.card)
+    Box(Modifier.offset(PAGE_EDGE.ref, 200.ref).size(904.ref, 508.ref).clip(shape).background(Raised)) {
         Crossfade(wide(tile.images), animationSpec = tween(SLIDE_MS, easing = LinearEasing), label = "art") { url ->
             Art(url, Modifier.fillMaxSize())
         }
@@ -92,7 +91,7 @@ fun OpenRow(shell: Shell, words: Map<String, String>, store: DetailStore, sectio
     Box(Modifier.fillMaxSize()) {
         Text(
             section.title.orEmpty(),
-            Modifier.offset(72.ref, 146.ref),
+            Modifier.offset(PAGE_EDGE.ref, 146.ref),
             fontSize = 32.refType,
             fontWeight = FontWeight.Bold,
         )
@@ -101,16 +100,16 @@ fun OpenRow(shell: Shell, words: Map<String, String>, store: DetailStore, sectio
             key(tiles[index].title) {
                 Poster(
                     tiles[index],
-                    Modifier.offset(989.ref, 202.ref).graphicsLayer { translationX = (index - 1 - moved) * step },
+                    Modifier.offset((PAGE_EDGE + 904 + 19).ref, 202.ref).graphicsLayer { translationX = (index - 1 - moved) * step },
                 )
             }
         }
         OpenCard(tile)
         Box(Modifier.alpha(shown)) {
-            detail?.let { Facts(it, words, Modifier.offset(70.ref, 728.ref)) }
+            detail?.let { Facts(it, words, Modifier.offset(PAGE_EDGE.ref, 728.ref)) }
             Text(
                 detail?.overview.orEmpty(),
-                Modifier.offset(70.ref, 768.ref).width(1000.ref),
+                Modifier.offset(PAGE_EDGE.ref, 768.ref).width(1000.ref),
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 30.refType,
                 lineHeight = 39.refType,
@@ -127,12 +126,12 @@ fun NextRow(section: Section, high: Boolean) {
     Box(Modifier.fillMaxSize().alpha(0.5f)) {
         Text(
             section.title.orEmpty(),
-            Modifier.offset(72.ref, (if (high) 946 else 944).ref),
+            Modifier.offset(PAGE_EDGE.ref, (if (high) 946 else 944).ref),
             fontSize = 32.refType,
             fontWeight = FontWeight.Bold,
         )
         section.tiles.orEmpty().take(NEXT_POSTERS).forEachIndexed { index, tile ->
-            Poster(tile, Modifier.offset((68 + index * STEP).ref, (if (high) 1001 else 998).ref))
+            Poster(tile, Modifier.offset((PAGE_EDGE + index * STEP).ref, (if (high) 1001 else 998).ref))
         }
     }
 }

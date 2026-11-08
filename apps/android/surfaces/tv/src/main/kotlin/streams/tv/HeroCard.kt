@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,11 +43,11 @@ private val Foot = Brush.verticalGradient(0.55f to Color.Transparent, 1f to Colo
 @Composable
 fun HeroCard(shell: Shell, seen: Seen, store: DetailStore, lead: Tile, button: Int) {
     val detail by detailOf(shell, store, lead.title)
-    val shape = RoundedCornerShape(24.ref)
+    val shape = shapeOf(Round.panel)
     Box(
         Modifier
-            .offset(75.ref, 143.ref)
-            .size(1789.ref, 767.ref)
+            .offset(PAGE_EDGE.ref, 143.ref)
+            .size((1920 - 2 * PAGE_EDGE).ref, 767.ref)
             .clip(shape)
             .background(Plate)
             .border(2.ref, Color.White.copy(alpha = 0.28f), shape),

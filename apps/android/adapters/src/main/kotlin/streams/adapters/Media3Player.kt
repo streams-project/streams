@@ -79,6 +79,13 @@ class Media3Player(context: Context) : Player {
                 report(generation, DriverEventTracks(audio = listed(tracks, C.TRACK_TYPE_AUDIO), text = listed(tracks, C.TRACK_TYPE_TEXT)))
             }
 
+            // A paused picture reports no time, so a finished seek says where it landed.
+            override fun onPositionDiscontinuity(old: Media.PositionInfo, new: Media.PositionInfo, reason: Int) {
+                if (reason == Media.DISCONTINUITY_REASON_SEEK) {
+                    report(generation, DriverEventPosition(timeMs = engine.currentPosition, durationMs = engine.duration.takeIf { it > 0 }))
+                }
+            }
+
             override fun onPlaybackStateChanged(state: Int) {
                 when (state) {
                     Media.STATE_BUFFERING -> report(generation, DriverEventStalled)

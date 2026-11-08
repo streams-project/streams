@@ -31,6 +31,8 @@ fun MoreLike(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
             when (word) {
                 Word.OK -> shell.go(titleAddress(tiles[at].title))
                 Word.BACK -> leave()
+                // The first column sits at the title's name: Left there returns to the title.
+                Word.LEFT -> if (at % POSTERS_ACROSS == 0) leave() else at = gridMove(at, word, tiles.lastIndex)
                 else -> at = gridMove(at, word, tiles.lastIndex)
             }
             true
@@ -39,14 +41,14 @@ fun MoreLike(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
         PosterGrid(tiles, at, 566, 232)
         Text(
             data.name,
-            Modifier.offset(66.ref, 70.ref).width(440.ref),
+            Modifier.offset(PAGE_EDGE.ref, 70.ref).width(440.ref),
             fontSize = 56.refType,
             lineHeight = 62.refType,
             fontWeight = FontWeight.ExtraBold,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
-        Facts(data, seen.words, Modifier.offset(70.ref, 270.ref))
-        Text(seen.words["title.more_like"].orEmpty(), Modifier.offset(564.ref, 150.ref), fontSize = 40.refType)
+        Facts(data, seen.words, Modifier.offset(PAGE_EDGE.ref, 270.ref))
+        Text(seen.words["title.more_like"].orEmpty(), Modifier.offset(566.ref, 150.ref), fontSize = 40.refType)
     }
 }

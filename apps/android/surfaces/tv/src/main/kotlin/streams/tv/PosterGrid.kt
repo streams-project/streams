@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -46,7 +45,7 @@ fun PosterGrid(tiles: List<Tile>, focus: Int, left: Int, top: Int) {
     val line = maxOf(focus, 0) / POSTERS_ACROSS
     val step = with(LocalDensity.current) { (HIGH + GAP_Y).ref.toPx() }
     val moved by animateFloatAsState(line.toFloat(), tween(MOVE_MS, easing = Glide), label = "grid")
-    val shape = RoundedCornerShape(12.ref)
+    val shape = shapeOf(Round.card)
     Box(Modifier.offset(0.ref, top.ref).graphicsLayer { translationY = -moved * step }) {
         tiles.forEachIndexed { index, tile ->
             val row = index / POSTERS_ACROSS

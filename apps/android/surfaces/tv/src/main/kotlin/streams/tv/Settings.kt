@@ -253,6 +253,8 @@ fun Settings(shell: Shell, seen: Seen) {
             word == Word.BACK && right -> right = false
             word == Word.BACK -> shell.back()
             right && word == Word.LEFT -> right = false
+            // On the sections, the left edge of the page, Left goes back.
+            word == Word.LEFT -> shell.back()
             right && word == Word.UP -> if (line > 0) line -= 1
             right && word == Word.DOWN -> if (line < rows.lastIndex) line += 1
             right && word == Word.OK -> activateRow(rows.getOrNull(line)?.action)
@@ -277,7 +279,7 @@ fun Settings(shell: Shell, seen: Seen) {
         Menu(
             menuLines,
             if (right) -1 else sectionIndex,
-            Modifier.offset(127.ref, FIRST_LINE.ref),
+            Modifier.offset((SUB_EDGE - MENU_WORDS).ref, FIRST_LINE.ref),
             width = 480,
             kept = sectionIndex,
         )
@@ -292,7 +294,7 @@ fun Settings(shell: Shell, seen: Seen) {
                     else -> "" to ""
                 }
                 Column(Modifier.padding(start = 16.ref, top = 8.ref)) {
-                    Text(askPrompt, fontSize = 32.refType, color = Color.White)
+                    Text(askPrompt, Modifier.padding(start = MENU_WORDS.ref), fontSize = 32.refType, color = Color.White)
                     Spacer(Modifier.height(24.ref))
                     Menu(
                         listOf(MenuLine(yesWord), MenuLine(words["common.cancel"].orEmpty())),

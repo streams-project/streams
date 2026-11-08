@@ -1,4 +1,6 @@
 // What every Android surface shares: the brand, its font, and the icon set.
+import groovy.json.JsonSlurper
+
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.plugin.compose")
@@ -7,8 +9,18 @@ plugins {
 android {
     namespace = "streams.shared"
     compileSdk = 37
-    defaultConfig { minSdk = 26 }
-    buildFeatures { compose = true }
+    defaultConfig {
+        minSdk = 26
+        // The brand's corners, read from brand.json so a renamed copy carries its own shape.
+        val shape = (JsonSlurper().parse(rootDir.resolve("../../brand.json")) as Map<*, *>)["shape"] as Map<*, *>
+        for (role in listOf("card", "panel", "field", "button")) {
+            buildConfigField("int", "${role.uppercase()}_RADIUS", "${shape["${role}_radius"]}")
+        }
+    }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

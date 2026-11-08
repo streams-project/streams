@@ -24,11 +24,19 @@ import streams.shared.refType
 data class MenuLine(val word: String, val icon: Int? = null)
 
 /**
+ * Where a menu's words start inside its pill. A menu with icons puts its pill's edge on the page's
+ * column; a menu without puts its words there, so it is placed this far to the left.
+ */
+const val MENU_WORDS = 36
+
+/**
  * Plain rows of words. The one in focus is a white pill, and `kept` marks the line another part of
  * the page belongs to while the focus is there. Pages share this as it stands.
  */
 @Composable
 fun Menu(lines: List<MenuLine>, focus: Int, modifier: Modifier = Modifier, width: Int = 395, kept: Int = -1) {
+    // Words follow the icons when the menu has any; without icons they start near the pill's round end.
+    val wordsAt = if (lines.any { it.icon != null }) 90 else MENU_WORDS
     Column(modifier, verticalArrangement = Arrangement.spacedBy(6.ref)) {
         lines.forEachIndexed { index, line ->
             val on = index == focus
@@ -56,7 +64,7 @@ fun Menu(lines: List<MenuLine>, focus: Int, modifier: Modifier = Modifier, width
                 }
                 Text(
                     line.word,
-                    Modifier.align(Alignment.CenterStart).offset(90.ref),
+                    Modifier.align(Alignment.CenterStart).offset(wordsAt.ref),
                     color = ink,
                     fontSize = 30.refType,
                 )

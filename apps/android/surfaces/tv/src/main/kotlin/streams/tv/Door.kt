@@ -15,8 +15,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -115,8 +115,19 @@ private fun DrawScope.glow() {
 /** Where the focus can be on the landing: the top row, the showreel card's buttons, a title card's button. */
 private enum class Stop { HOME, TAB, TOP_SIGN_IN, HELP, SIGN_IN, JOIN, WATCH }
 
-/** Cards sit this far apart: 1542 wide and 39 between, so the next one shows at 1636. */
+/** Cards sit this far apart: 1542 wide and 39 between, so the next one shows at 1653. */
 private const val CARD_STEP = 1581
+
+/** The page margin: the lockup, the top row and the card all start here, and Sign In ends this far from the right. */
+private const val EDGE = 72
+private const val CARD_TOP = 169
+
+/** The top row's centre line and height: the lockup, the home circle, the tab and Sign In share both. */
+private const val ROW_MID = 104
+private const val ROW_HIGH = 72
+
+/** Inside a card, words and buttons keep this far from its left and right edges. */
+private const val INSET = 74
 private const val CARD_MOVE_MS = 320
 private const val SLIDE_EVERY_MS = 4_500L
 private const val SLIDE_FADE_MS = 700
@@ -146,13 +157,13 @@ private fun Slideshow(slides: List<String>, running: Boolean) {
 /** A trending title as a card: its pictures, logo, facts, story and a way in. */
 @Composable
 private fun TitleCard(title: TitleDetail, words: Map<String, String>, current: Boolean, on: Boolean) {
-    val shape = RoundedCornerShape(24.ref)
+    val shape = shapeOf(Round.panel)
     Box(Modifier.size(1542.ref, 864.ref).border(3.ref, CardEdge, shape).clip(shape).background(Raised)) {
         Slideshow(slidesOf(title), current)
         Box(Modifier.fillMaxSize().background(TitleSide))
         Box(Modifier.fillMaxSize().background(TitleFoot))
         val logo = title.images?.firstOrNull { it.role == ImageRole.LOGO }?.url
-        Box(Modifier.offset(74.ref, 424.ref).size(520.ref, 180.ref), contentAlignment = Alignment.BottomStart) {
+        Box(Modifier.offset(INSET.ref, 424.ref).size(520.ref, 180.ref), contentAlignment = Alignment.BottomStart) {
             if (logo != null) {
                 AsyncImage(
                     logo,
@@ -165,17 +176,17 @@ private fun TitleCard(title: TitleDetail, words: Map<String, String>, current: B
                 Text(title.name, fontSize = 64.refType, lineHeight = 70.refType, fontWeight = FontWeight.ExtraBold, maxLines = 2)
             }
         }
-        Facts(title, words, Modifier.offset(74.ref, 628.ref))
+        Facts(title, words, Modifier.offset(INSET.ref, 628.ref))
         Text(
             title.overview.orEmpty(),
-            Modifier.offset(74.ref, 676.ref).width(720.ref),
+            Modifier.offset(INSET.ref, 676.ref).width(720.ref),
             color = Color.White.copy(alpha = 0.85f),
             fontSize = 30.refType,
             lineHeight = 39.refType,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
-        Box(Modifier.offset(1215.ref, 720.ref)) { Ask(words["door.watch"].orEmpty(), on, Join, Color.White) }
+        Box(Modifier.align(Alignment.TopEnd).offset((-INSET).ref, 720.ref)) { Ask(words["door.watch"].orEmpty(), on, Join, Color.White) }
     }
 }
 
@@ -336,30 +347,30 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
         return true
     }
 
-    val shape = RoundedCornerShape(24.ref)
+    val shape = shapeOf(Round.panel)
     Box(Modifier.fillMaxSize().background(Back).drawBehind { glow() }.remote(@DontMemoize { press(it) })) {
-        if (row < 1f) BrandLockup(LOCKUP_HIGH, Modifier.offset(73.ref, 56.ref).alpha(1 - row))
+        if (row < 1f) BrandLockup(LOCKUP_HIGH, Modifier.offset(EDGE.ref, (ROW_MID - LOCKUP_HIGH.toInt() / 2).ref).alpha(1 - row))
         if (row > 0f) {
-            Row(Modifier.offset(96.ref, 78.ref).alpha(row), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.offset(EDGE.ref, (ROW_MID - ROW_HIGH / 2).ref).alpha(row), verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     Modifier
-                        .size(82.ref)
+                        .size(ROW_HIGH.ref)
                         .background(if (at == Stop.HOME) Color.White else Color.White.copy(alpha = 0.12f), CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         painterResource(R.drawable.icon_home),
                         null,
-                        Modifier.size(38.ref),
+                        Modifier.size(34.ref),
                         tint = if (at == Stop.HOME) Back else Color.White,
                     )
                 }
-                Spacer(Modifier.width(20.ref))
+                Spacer(Modifier.width(16.ref))
                 if (titles.isNotEmpty()) {
                     // The tab of the titles: grey while a title card is in view, white in focus.
                     Box(
                         Modifier
-                            .height(72.ref)
+                            .height(ROW_HIGH.ref)
                             .background(
                                 when {
                                     at == Stop.TAB -> Color.White
@@ -374,7 +385,7 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
                         Text(
                             words["door.trending"].orEmpty(),
                             color = if (at == Stop.TAB) Back else Color.White,
-                            fontSize = 30.refType,
+                            fontSize = 28.refType,
                             fontWeight = FontWeight.SemiBold,
                         )
                     }
@@ -385,20 +396,23 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
                 val on = at == Stop.TOP_SIGN_IN
                 Box(
                     Modifier
-                        .offset(1564.ref, 47.ref)
-                        .size(272.ref, 80.ref)
+                        .align(Alignment.TopEnd)
+                        .offset((-EDGE).ref, (ROW_MID - ROW_HIGH / 2).ref)
+                        .height(ROW_HIGH.ref)
+                        .widthIn(min = 200.ref)
                         .alpha(row)
                         .border(3.ref, if (on) Color.Transparent else Color.White.copy(alpha = 0.5f), CircleShape)
-                        .background(if (on) Color.White else Color.Transparent, CircleShape),
+                        .background(if (on) Color.White else Color.Transparent, CircleShape)
+                        .padding(horizontal = 40.ref),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(words["door.sign_in"].orEmpty(), color = if (on) Back else Color.White, fontSize = 28.refType, fontWeight = FontWeight.Bold)
+                    Text(words["door.sign_in"].orEmpty(), color = if (on) Back else Color.White, fontSize = 28.refType, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
         Box(
             Modifier
-                .offset(55.ref, 169.ref)
+                .offset(EDGE.ref, CARD_TOP.ref)
                 .graphicsLayer { translationX = slide.value * width - moved * step }
                 .size(1542.ref, 864.ref)
                 .border(3.ref, CardEdge, shape)
@@ -411,16 +425,23 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
                     filmReady = true
                 }
             }
-            Text(
-                words["door.help"].orEmpty(),
+            // Get Help sits on the buttons' centre line; its words keep the card's inset, the pill grows around them.
+            Box(
                 Modifier
-                    .offset(96.ref, 770.ref)
-                    .background(if (at == Stop.HELP) Color.White else Color.Transparent, RoundedCornerShape(12.ref)),
-                color = if (at == Stop.HELP) Back else Color.White.copy(alpha = 0.85f),
-                fontSize = 24.refType,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Row(Modifier.offset(915.ref, 720.ref)) {
+                    .offset((INSET - 24).ref, 732.ref)
+                    .height(56.ref)
+                    .background(if (at == Stop.HELP) Color.White else Color.Transparent, CircleShape)
+                    .padding(horizontal = 24.ref),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    words["door.help"].orEmpty(),
+                    color = if (at == Stop.HELP) Back else Color.White.copy(alpha = 0.85f),
+                    fontSize = 24.refType,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+            Row(Modifier.align(Alignment.TopEnd).offset((-INSET).ref, 720.ref)) {
                 Ask(words["door.sign_in"].orEmpty(), at == Stop.SIGN_IN, Color.White, Back)
                 Spacer(Modifier.width(32.ref))
                 Ask(words["door.join"].orEmpty(), at == Stop.JOIN, Join, Color.White)
@@ -431,7 +452,7 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
             val card = index + 1
             if (card in page - 1..page + 1) {
                 key(title.title) {
-                    Box(Modifier.offset(55.ref, 169.ref).graphicsLayer { translationX = (card - moved) * step }) {
+                    Box(Modifier.offset(EDGE.ref, CARD_TOP.ref).graphicsLayer { translationX = (card - moved) * step }) {
                         TitleCard(title, words, current = card == page, on = card == page && at == Stop.WATCH)
                     }
                 }
