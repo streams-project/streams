@@ -101,6 +101,8 @@ public func pluralOf(_ n: Int, _ lang: String) -> String {
         if n == 1 { return "one" }
         if (2...4).contains(n % 10) && !(12...14).contains(n % 100) { return "few" }
         return "many"
+    case "he", "iw":
+        return n == 1 ? "one" : n == 2 ? "two" : "other"
     case "ja", "ko", "zh":
         return "other"
     case "fr", "pt", "hi":

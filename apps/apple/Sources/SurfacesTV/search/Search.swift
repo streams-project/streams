@@ -23,6 +23,8 @@ public final class SearchState {
     var result = 0
     /// True while the keyboard shows English letters in place of the profile language's own.
     var english = false
+    /// True while the keyboard shows digits in place of letters.
+    var digits = false
 
     public init() {}
 }
@@ -52,8 +54,14 @@ public struct Search: View {
         let own = String((seen.words["search.letters"] ?? "").filter { !$0.isWhitespace && $0 != "\u{200F}" })
         let hasOwn = !own.isEmpty && own != englishLetters
         let english = !hasOwn || state.english
-        // English letters in a right to left screen fill their lines from the left, so they read a to z.
-        let keys = LetterKeys(english ? englishLetters : own, globe: hasOwn, mirrored: english && seen.rtl)
+        let alphabet = english ? englishLetters : own
+        // English letters and digits in a right to left screen fill their lines from the left.
+        let keys = LetterKeys(
+            state.digits ? digitKeys : alphabet,
+            globe: hasOwn,
+            mirrored: (english || state.digits) && seen.rtl,
+            switchWord: state.digits ? String(alphabet.prefix(3)) : number("123")
+        )
         let person = seen.profiles.first { $0.id == seen.active } ?? seen.profiles.first
         let shown = state.text.trimmingCharacters(in: .whitespaces).isEmpty ? state.offered : state.results
 
@@ -74,9 +82,13 @@ public struct Search: View {
             case .letters:
                 switch word {
                 case .ok:
-                    if state.place.top(keys) == .globe {
+                    switch state.place.top(keys) {
+                    case .globe:
                         state.english.toggle()
-                    } else {
+                        state.digits = false
+                    case .digits:
+                        state.digits.toggle()
+                    default:
                         state.text = state.place.press(state.text, keys)
                     }
                 case .back: shell.back()
