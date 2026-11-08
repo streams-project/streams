@@ -96,7 +96,11 @@ def apple() -> None:
         (folder / "Contents.json").write_text(
             json.dumps(
                 {
-                    "images": [{"filename": f"{stem}.svg", "idiom": "universal"}],
+                    # A left to right picture that turns in a right to left interface.
+                    "images": [
+                        {"filename": f"{stem}.svg", "idiom": "universal"}
+                        | ({"language-direction": "left-to-right"} if icon.get("mirror") else {})
+                    ],
                     "info": {"author": "xcode", "version": 1},
                     "properties": {
                         "preserves-vector-representation": True,

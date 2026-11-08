@@ -19,6 +19,8 @@ public struct Television: View {
         let seen = shell.seen
         // A language may ask for larger text (Arabic letters read small beside Latin at one size).
         BrandFont.scale = min(max(CGFloat(Double(seen.words["language.text_scale"] ?? "") ?? 1), 0.8), 1.4)
+        Speaking.arabicDigits = seen.words["language.digits"] == "arab"
+        Speaking.code = seen.language.isEmpty ? "en" : seen.language
         return ZStack {
             Color.black
             // Under the opening the first screen is built and loading, and drawn once the first stage is over.

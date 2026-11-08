@@ -6,7 +6,7 @@ private func badgeLabel(_ badge: Contract.Badge, _ words: [String: String]) -> S
     case .new: return words["badge.new"] ?? ""
     case .ranked:
         guard let rank = badge.rank else { return "" }
-        return (words["badge.ranked"] ?? "").fill("rank", String(rank))
+        return (words["badge.ranked"] ?? "").fill("rank", rank)
     default: return ""
     }
 }

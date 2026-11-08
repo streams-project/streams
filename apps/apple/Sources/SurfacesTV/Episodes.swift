@@ -53,10 +53,10 @@ private struct SeasonLine: View {
     var body: some View {
         let ink = on ? Back : Color.white
         HStack {
-            Text(seen.say("title.season.number").fill("n", String(season.number)))
+            Text(seen.say("title.season.number").fill("n", season.number))
                 .brand(30).foregroundStyle(ink)
             Spacer()
-            Text(seen.say("title.episodes.count").fill("n", String(season.episodeCount)))
+            Text(seen.say("title.episodes.count").fill("n", season.episodeCount))
                 .brand(24).foregroundStyle(ink)
         }
         .padding(.horizontal, 32.ref)
@@ -128,7 +128,7 @@ struct Episodes: View {
                     if index >= card - 1 && index <= card + near {
                         EpisodeCard(
                             episode: episode,
-                            label: seen.say("title.episode").fill("n", String(episode.number)),
+                            label: seen.say("title.episode").fill("n", episode.number),
                             on: !inList && index == card
                         )
                         .offset(y: (CGFloat(index) * cardStep).ref)

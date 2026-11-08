@@ -21,6 +21,8 @@ public final class SearchState {
     var tab = searchTab
     var genre = 0
     var result = 0
+    /// True while the keyboard shows English letters in place of the profile language's own.
+    var english = false
 
     public init() {}
 }
@@ -46,6 +48,10 @@ public struct Search: View {
     public var body: some View {
         let tabs = tabsOf(seen.nav)
         let genres = Array(seen.nav.filter { $0.screen == .genre }.prefix(genreCount))
+        // The profile language's letters (search.letters), when it has its own; the globe switches to English.
+        let own = String((seen.words["search.letters"] ?? "").filter { !$0.isWhitespace && $0 != "\u{200F}" })
+        let hasOwn = !own.isEmpty && own != englishLetters
+        let keys = LetterKeys(hasOwn && !state.english ? own : englishLetters, globe: hasOwn)
         let person = seen.profiles.first { $0.id == seen.active } ?? seen.profiles.first
         let shown = state.text.trimmingCharacters(in: .whitespaces).isEmpty ? state.offered : state.results
 
@@ -65,10 +71,15 @@ public struct Search: View {
                 }
             case .letters:
                 switch word {
-                case .ok: state.text = state.place.press(state.text)
+                case .ok:
+                    if state.place.top(keys) == .globe {
+                        state.english.toggle()
+                    } else {
+                        state.text = state.place.press(state.text, keys)
+                    }
                 case .back: shell.back()
                 default:
-                    if let next = state.place.move(word) {
+                    if let next = state.place.move(word, keys) {
                         state.place = next
                     } else if word == .up {
                         state.zone = .top
@@ -104,9 +115,10 @@ public struct Search: View {
         return ZStack(alignment: .topLeading) {
             PosterGrid(tiles: shown, focus: state.zone == .results ? state.result : -1, left: 566, top: 232, words: seen.words)
             TopBar(tabs: tabs, active: searchTab, focus: state.zone == .top ? state.tab : -1, person: person, server: seen.server)
-            LetterGrid(focus: state.zone == .letters ? state.place : nil).offset(x: pageEdge.ref, y: 160.ref)
+            LetterGrid(focus: state.zone == .letters ? state.place : nil, keys: keys).offset(x: pageEdge.ref, y: 160.ref)
             Menu(lines: genres.map { MenuLine(word: $0.label) }, focus: state.zone == .genres ? state.genre : -1, width: 440)
-                .offset(x: (pageEdge - menuWords).ref, y: 636.ref)
+                // The genres sit under the grid, however many lines its letters take.
+                .offset(x: (pageEdge - menuWords).ref, y: CGFloat(160 + keys.high + 14).ref)
             Text(state.text.trimmingCharacters(in: .whitespaces).isEmpty ? seen.say("search.recommended") : state.text)
                 .brand(40).foregroundStyle(.white).lineLimit(1)
                 .frame(width: 1280.ref, alignment: .leading)

@@ -4,11 +4,10 @@ import SwiftUI
 private func facts(_ detail: TitleDetail, _ words: [String: String]) -> [String] {
     var out: [String] = []
     if let genre = detail.genres?.first { out.append(genre) }
-    if let year = detail.year { out.append(String(year)) }
+    if let year = detail.year { out.append(number(year)) }
     let seasons = detail.seasons?.count ?? 0
     if seasons > 0 {
-        let word = words[seasons == 1 ? "title.season.one" : "title.season.many"] ?? ""
-        out.append(word.fill("n", String(seasons)))
+        out.append(words.counted("title.season", seasons))
     } else if let minutes = detail.runtimeMin, minutes >= 60 {
         out.append((words["title.length.hours"] ?? "").fill("h", minutes / 60).fill("m", minutes % 60))
     } else if let minutes = detail.runtimeMin {

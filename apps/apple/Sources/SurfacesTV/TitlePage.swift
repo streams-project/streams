@@ -46,7 +46,7 @@ private func playWord(_ data: TitleDetail, _ seen: Seen) -> String {
     } else {
         key = "title.play_episode"
     }
-    return seen.say(key).fill("n", String(episode?.episode ?? 1))
+    return seen.say(key).fill("n", episode?.episode ?? 1)
 }
 
 /// One title: its facts, three ratings, and a menu of what to do next.

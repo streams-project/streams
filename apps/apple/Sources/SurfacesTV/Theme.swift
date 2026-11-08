@@ -60,6 +60,61 @@ extension String {
     /// A word's `{name}` place filled with a value, isolated (U+2068, U+2069) so a number, a title
     /// or an address keeps its own order inside a line of either direction.
     public func fill(_ name: String, _ value: Any) -> String {
-        replacingOccurrences(of: "{\(name)}", with: "\u{2068}\(value)\u{2069}")
+        let text = value is any BinaryInteger ? number(value) : "\(value)"
+        return replacingOccurrences(of: "{\(name)}", with: "\u{2068}\(text)\u{2069}")
+    }
+}
+
+/// How the interface's language writes numbers and counts: its code (for plural forms) and its
+/// digits (`language.digits` in its strings, `arab` for Arabic-Indic). The app sets both as the
+/// words arrive.
+public enum Speaking {
+    nonisolated(unsafe) public static var code = "en"
+    nonisolated(unsafe) public static var arabicDigits = false
+}
+
+/// A number as the interface's language writes it.
+public func number(_ value: Any) -> String {
+    let plain = "\(value)"
+    guard Speaking.arabicDigits else { return plain }
+    return String(plain.map { c -> Character in
+        guard let digit = c.wholeNumberValue, c.isASCII else { return c }
+        return Character(UnicodeScalar(0x0660 + digit)!)
+    })
+}
+
+/// The plural form a count takes in a language, as CLDR names them: zero, one, two, few, many, other.
+public func pluralOf(_ n: Int, _ lang: String) -> String {
+    switch lang.split(separator: "-").first.map(String.init) ?? lang {
+    case "ar":
+        if n == 0 { return "zero" }
+        if n == 1 { return "one" }
+        if n == 2 { return "two" }
+        if (3...10).contains(n % 100) { return "few" }
+        if (11...99).contains(n % 100) { return "many" }
+        return "other"
+    case "ru", "uk":
+        if n % 10 == 1 && n % 100 != 11 { return "one" }
+        if (2...4).contains(n % 10) && !(12...14).contains(n % 100) { return "few" }
+        return "many"
+    case "pl":
+        if n == 1 { return "one" }
+        if (2...4).contains(n % 10) && !(12...14).contains(n % 100) { return "few" }
+        return "many"
+    case "ja", "ko", "zh":
+        return "other"
+    case "fr", "pt", "hi":
+        return n <= 1 ? "one" : "other"
+    default:
+        return n == 1 ? "one" : "other"
+    }
+}
+
+extension Dictionary where Key == String, Value == String {
+    /// A counted word: `{base}.{form}` for the count's plural form, else `other`, `many`, then `one`.
+    public func counted(_ base: String, _ n: Int) -> String {
+        let form = pluralOf(n, Speaking.code)
+        let word = [form, "other", "many", "one"].lazy.compactMap { self["\(base).\($0)"] }.first ?? ""
+        return word.fill("n", n)
     }
 }

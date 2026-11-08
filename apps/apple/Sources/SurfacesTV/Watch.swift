@@ -41,8 +41,8 @@ private let rateChoices = [
 
 private func clock(_ ms: Int64) -> String {
     let seconds = max(0, ms / 1000)
-    if seconds >= 3600 { return String(format: "%d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60) }
-    return String(format: "%d:%02d", seconds / 60 % 60, seconds % 60)
+    if seconds >= 3600 { return number(String(format: "%d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60)) }
+    return number(String(format: "%d:%02d", seconds / 60 % 60, seconds % 60))
 }
 
 /// The picture of what plays, from the player port.
