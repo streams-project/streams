@@ -27,7 +27,17 @@ const val ENGLISH_LETTERS = "abcdefghijklmnopqrstuvwxyz1234567890"
  * The keys of the grid: letters six across under a top line of space, delete and, when the
  * profile's language has letters of its own, the globe that switches between them and English.
  */
-data class LetterKeys(val letters: String, val globe: Boolean) {
+data class LetterKeys(val letters: String, val globe: Boolean, val mirrored: Boolean = false) {
+    /**
+     * The letter at a place, or null. A left to right alphabet inside a right to left screen fills
+     * each line from the left (`mirrored`), so English still reads a to z.
+     */
+    fun at(line: Int, column: Int): Char? {
+        if (line < 1) return null
+        val index = (line - 1) * ACROSS + if (mirrored) ACROSS - 1 - column else column
+        return letters.getOrNull(index)
+    }
+
     /** Lines of the grid, the top line included. */
     val lines: Int get() = 1 + (letters.length + ACROSS - 1) / ACROSS
 
@@ -56,21 +66,24 @@ data class LetterPlace(val line: Int = 1, val column: Int = 0) {
     }
 
     fun move(word: Word, keys: LetterKeys): LetterPlace? {
-        val last = keys.letters.length - 1
-        fun fits(place: LetterPlace) = place.line == 0 || (place.line - 1) * ACROSS + place.column <= last
+        fun fits(place: LetterPlace) = place.line == 0 || keys.at(place.line, place.column) != null
+        val lastLine = keys.lines - 1
+        // On a short last line, Down lands on its nearest letter.
+        fun nearest(line: Int): LetterPlace? =
+            (0 until ACROSS).map { LetterPlace(line, it) }.filter(::fits).minByOrNull { kotlin.math.abs(it.column - column) }
         return when (word) {
             Word.UP -> if (line > 0) copy(line = line - 1) else null
             Word.DOWN -> copy(line = line + 1).let { below ->
                 when {
                     fits(below) -> below
-                    line + 1 < keys.lines -> LetterPlace(line + 1, last % ACROSS)
+                    line + 1 <= lastLine -> nearest(line + 1)
                     else -> null
                 }
             }
             Word.LEFT -> if (line == 0) {
                 val part = keys.parts.indexOfFirst { column in it }
                 if (part > 0) copy(column = keys.parts[part - 1].first) else null
-            } else if (column > 0) copy(column = column - 1) else null
+            } else copy(column = column - 1).takeIf { column > 0 && fits(it) }
             Word.RIGHT -> if (line == 0) {
                 val part = keys.parts.indexOfFirst { column in it }
                 if (part < keys.parts.lastIndex) copy(column = keys.parts[part + 1].first) else null
@@ -84,7 +97,7 @@ data class LetterPlace(val line: Int = 1, val column: Int = 0) {
         TopKey.SPACE -> "$text "
         TopKey.DELETE -> text.dropLast(1)
         TopKey.GLOBE -> text
-        null -> keys.letters.getOrNull((line - 1) * ACROSS + column)?.let { text + it } ?: text
+        null -> keys.at(line, column)?.let { text + it } ?: text
     }
 }
 
@@ -111,11 +124,12 @@ fun LetterGrid(focus: LetterPlace?, keys: LetterKeys, modifier: Modifier = Modif
                 Icon(painterResource(icon), null, Modifier.size(34.ref), tint = it)
             }
         }
-        keys.letters.forEachIndexed { index, letter ->
-            val line = index / ACROSS + 1
-            val column = index % ACROSS
-            Cell(column * STEP, line * STEP, CELL, focus == LetterPlace(line, column)) {
-                Text(letter.toString(), color = it, fontSize = 30.refType)
+        for (line in 1 until keys.lines) {
+            for (column in 0 until ACROSS) {
+                val letter = keys.at(line, column) ?: continue
+                Cell(column * STEP, line * STEP, CELL, focus == LetterPlace(line, column)) {
+                    Text(letter.toString(), color = it, fontSize = 30.refType)
+                }
             }
         }
     }
