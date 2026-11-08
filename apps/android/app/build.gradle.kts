@@ -22,6 +22,9 @@ android {
         versionName = "0.1.0"
         applicationIdSuffix = suffix
         resValue("string", "app_name", "${brand["name"]}${suffix.orEmpty()}")
+        // The window and the system splash before the first frame take the brand's background, so
+        // the opening starts on the same colour with no flash (res/values*/themes.xml).
+        resValue("color", "brand_background", (brand["colors"] as Map<*, *>)["background"] as String)
     }
     buildTypes {
         release {

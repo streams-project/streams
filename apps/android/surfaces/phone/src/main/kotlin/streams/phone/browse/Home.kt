@@ -189,7 +189,7 @@ private fun chips(seen: Seen, onHome: Boolean, go: (String) -> Unit, openCategor
     return pages + Chip(seen.words["nav.categories"].orEmpty(), chosen = false, drops = true, go = openCategories)
 }
 
-/** The bar: Home, Clips when the server offers it, Search and My Streams with the profile's face. */
+/** The bar: Home, Clips when the server offers it, Search and the personal tab with the profile's face. */
 private fun bar(shell: Shell, seen: Seen, onHome: Boolean): List<BarItem> = buildList {
     add(BarItem(R.drawable.icon_home, seen.nav.firstOrNull { it.screen.value == "home" }?.label.orEmpty(), onHome) { shell.go(Address.HOME) })
     seen.nav.firstOrNull { it.screen.value == "clips" }?.let { add(BarItem(R.drawable.icon_clips, it.label, false) { shell.go(Address.CLIPS) }) }
