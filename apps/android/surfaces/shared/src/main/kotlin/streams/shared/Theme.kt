@@ -100,6 +100,11 @@ fun pluralOf(n: Int, lang: String): String = when (lang.substringBefore('-')) {
         n % 10 in 2..4 && n % 100 !in 12..14 -> "few"
         else -> "many"
     }
+    "he", "iw" -> when (n) {
+        1 -> "one"
+        2 -> "two"
+        else -> "other"
+    }
     "ja", "ko", "zh" -> "other"
     "fr", "pt", "hi" -> if (n <= 1) "one" else "other"
     else -> if (n == 1) "one" else "other"

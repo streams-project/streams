@@ -46,7 +46,7 @@ CREATE TABLE title_texts (
 """
 # The region read first when TMDB has several for a language: the one most of its viewers read.
 PREFERRED = (
-    "ar-SA", "ar-AE", "de-DE", "es-ES", "es-MX", "fr-FR", "fr-CA", "hi-IN", "it-IT", "ja-JP",
+    "ar-SA", "ar-AE", "de-DE", "he-IL", "es-ES", "es-MX", "fr-FR", "fr-CA", "hi-IN", "it-IT", "ja-JP",
     "ko-KR", "nl-NL", "pl-PL", "pt-BR", "pt-PT", "ru-RU", "sv-SE", "tr-TR", "zh-CN", "zh-TW",
 )
 

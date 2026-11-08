@@ -241,6 +241,6 @@
   "genre.tv_movie": "Телефильм",
   "title.length.hours": "{h} ч {m} мин",
   "title.length.minutes": "{m} мин",
-  "search.letters": "абвгдеёжзийклмнопрстуфхцчшщъыьэюя1234567890",
+  "search.letters": "абвгдеёжзийклмнопрстуфхцчшщъыьэюя'-",
   "title.season.few": "{n} сезона"
 }
