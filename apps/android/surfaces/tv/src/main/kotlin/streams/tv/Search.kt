@@ -82,7 +82,11 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
                 Word.RIGHT -> if (state.tab == SEARCH_TAB) state.tab = 0 else if (state.tab < tabs.lastIndex) state.tab += 1
                 Word.DOWN -> state.zone = Zone.LETTERS
                 Word.OK -> tabs.getOrNull(state.tab)?.let { shell.go(Address.of(it.screen.value)) }
-                Word.BACK -> shell.back()
+                // From the bar Back returns to the letters first; from the letters it leaves.
+                Word.BACK -> {
+                    state.tab = SEARCH_TAB
+                    state.zone = Zone.LETTERS
+                }
                 Word.UP -> Unit
             }
             Zone.LETTERS -> when (word) {
