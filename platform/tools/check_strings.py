@@ -44,7 +44,9 @@ def main() -> int:
             # always "my" plus the name. Every other place must match English.
             expected_ph = placeholders(en_data[key])
             actual_ph = placeholders(data[key])
-            if actual_ph - expected_ph or (expected_ph - {"{brand}"}) - actual_ph:
+            # The one and two forms of a plural may spell the number out ("موسم واحد", "موسمان").
+            optional = {"{brand}"} | ({"{n}"} if key.endswith((".one", ".two")) else set())
+            if actual_ph - expected_ph or (expected_ph - optional) - actual_ph:
                 print(
                     f"placeholder {lang} {key}: expected {sorted(expected_ph)}, got {sorted(actual_ph)}"
                 )

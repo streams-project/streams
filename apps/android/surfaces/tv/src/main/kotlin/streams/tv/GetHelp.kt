@@ -110,7 +110,7 @@ fun GetHelp(shell: Shell, seen: Seen) {
             val answered = shell.read("/v1/ready") != null
             val took = SystemClock.elapsedRealtime() - start
             checked = if (answered) {
-                words["help.check.ok"].orEmpty().fill("ms", took.toString())
+                words["help.check.ok"].orEmpty().fill("ms", took)
             } else {
                 words["help.check.fail"].orEmpty()
             }

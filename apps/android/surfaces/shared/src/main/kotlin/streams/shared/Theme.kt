@@ -62,16 +62,51 @@ fun String.fill(name: String, value: Any): String =
     replace("{$name}", "\u2068${if (value is Number) number(value) else value}\u2069")
 
 /**
- * The digits numbers are written in. A language says which in its strings (`language.digits`:
- * `arab` for Arabic-Indic); the app sets this as the words arrive.
+ * How the interface's language writes numbers and counts: its code (for plural forms) and its
+ * digits (`language.digits` in its strings, `arab` for Arabic-Indic). The app sets both as the
+ * words arrive.
  */
-object Numerals {
+object Speaking {
     @Volatile
-    var arabic: Boolean = false
+    var code: String = "en"
+
+    @Volatile
+    var arabicDigits: Boolean = false
 }
 
 /** A number as the interface's language writes it. */
 fun number(value: Any): String {
     val plain = value.toString()
-    return if (Numerals.arabic) plain.map { if (it in '0'..'9') '\u0660' + (it - '0') else it }.joinToString("") else plain
+    return if (Speaking.arabicDigits) plain.map { if (it in '0'..'9') '\u0660' + (it - '0') else it }.joinToString("") else plain
+}
+
+/** The plural form a count takes in a language, as CLDR names them: zero, one, two, few, many, other. */
+fun pluralOf(n: Int, lang: String): String = when (lang.substringBefore('-')) {
+    "ar" -> when {
+        n == 0 -> "zero"
+        n == 1 -> "one"
+        n == 2 -> "two"
+        n % 100 in 3..10 -> "few"
+        n % 100 in 11..99 -> "many"
+        else -> "other"
+    }
+    "ru", "uk" -> when {
+        n % 10 == 1 && n % 100 != 11 -> "one"
+        n % 10 in 2..4 && n % 100 !in 12..14 -> "few"
+        else -> "many"
+    }
+    "pl" -> when {
+        n == 1 -> "one"
+        n % 10 in 2..4 && n % 100 !in 12..14 -> "few"
+        else -> "many"
+    }
+    "ja", "ko", "zh" -> "other"
+    "fr", "pt", "hi" -> if (n <= 1) "one" else "other"
+    else -> if (n == 1) "one" else "other"
+}
+
+/** A counted word: `{base}.{form}` for the count's plural form, else `other`, `many`, then `one`. */
+fun Map<String, String>.counted(base: String, n: Int): String {
+    val form = pluralOf(n, Speaking.code)
+    return listOf(form, "other", "many", "one").firstNotNullOfOrNull { this["$base.$it"] }.orEmpty().fill("n", n)
 }

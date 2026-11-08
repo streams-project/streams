@@ -167,7 +167,7 @@
   "title.episodes_more": "Серии и не только",
   "title.more_like": "Похожее",
   "title.play_episode": "Смотреть серию {n}",
-  "title.season.many": "Сезонов: {n}",
+  "title.season.many": "{n} сезонов",
   "title.season.number": "Сезон {n}",
   "title.season.one": "{n} сезон",
   "title.resume": "Продолжить",
@@ -241,5 +241,6 @@
   "genre.tv_movie": "Телефильм",
   "title.length.hours": "{h} ч {m} мин",
   "title.length.minutes": "{m} мин",
-  "search.letters": "абвгдеёжзийклмнопрстуфхцчшщъыьэюя1234567890"
+  "search.letters": "абвгдеёжзийклмнопрстуфхцчшщъыьэюя1234567890",
+  "title.season.few": "{n} сезона"
 }

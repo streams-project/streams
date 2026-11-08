@@ -73,7 +73,7 @@ private fun playWord(data: TitleDetail, words: Map<String, String>): String {
         episode != null && resume.positionS > 0 -> words["title.continue_episode"]
         else -> words["title.play_episode"]
     }
-    return word.orEmpty().fill("n", "${episode?.episode ?: 1}")
+    return word.orEmpty().fill("n", episode?.episode ?: 1)
 }
 
 @Composable
