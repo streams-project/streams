@@ -268,6 +268,11 @@ public final class Host: Shell, @unchecked Sendable {
     private func readWords(_ language: String, _ brand: String) {
         ask("/v1/strings/\(language)") { [weak self] status, text in
             guard let self = self else { return }
+            // A language this server does not have falls back to English, so a screen always has words.
+            if !(200...299).contains(status) && language != Self.defaultLanguage {
+                Task { @MainActor in self.readWords(Self.defaultLanguage, brand) }
+                return
+            }
             if (200...299).contains(status),
                let read = try? self.decoder.decode(Strings.self, from: Data(text.utf8)) {
                 // A right to left language's words start with a right to left mark, so a line that
@@ -301,8 +306,10 @@ public final class Host: Shell, @unchecked Sendable {
     private func apply(_ out: CoreOut) {
         if let hello = out.view?.hello {
             Task { @MainActor in
+                // Before any profile, the screens speak the device's language when the server has it.
                 if self.seen.words.isEmpty {
-                    self.readWords(Self.defaultLanguage, hello.brand.name)
+                    let device = Locale.current.language.languageCode?.identifier ?? Self.defaultLanguage
+                    self.readWords(device, hello.brand.name)
                 }
             }
         }
