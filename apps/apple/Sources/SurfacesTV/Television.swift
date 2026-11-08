@@ -7,6 +7,7 @@ public struct Television: View {
 
     @State private var opening = OpeningState()
     @State private var memory = PageMemory()
+    @State private var search = SearchState()
     // Whether this run has been past the profile chooser, so Back there returns rather than leaves.
     @State private var inside = false
 
@@ -49,6 +50,8 @@ public struct Television: View {
                     Profiles(shell: shell, seen: seen, fromInside: inside)
                 case .title:
                     TitlePage(shell: shell, seen: seen)
+                case .screen where seen.route?.screen == .search:
+                    Search(shell: shell, seen: seen, state: search)
                 case .screen where seen.route?.screen == .help:
                     GetHelp(shell: shell, seen: seen)
                 case .home, .kidsHome, .screen:
