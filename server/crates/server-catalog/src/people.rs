@@ -74,6 +74,10 @@ fn fold(c: char, out: &mut String) {
         'ץ' => 'צ',
         '\u{0660}'..='\u{0669}' => char::from_u32(c as u32 - 0x0660 + u32::from(b'0')).unwrap_or(c),
         '\u{06F0}'..='\u{06F9}' => char::from_u32(c as u32 - 0x06F0 + u32::from(b'0')).unwrap_or(c),
+        // Katakana folds to Hiragana so either script matches in search.
+        '\u{30A1}'..='\u{30F6}' => char::from_u32(c as u32 - 0x60).unwrap_or(c),
+        // Full-width ASCII folds to standard ASCII.
+        '\u{FF01}'..='\u{FF5E}' => char::from_u32(c as u32 - 0xFF01 + 0x21).unwrap_or(c),
         other => other,
     };
     out.push(plain);
@@ -239,6 +243,13 @@ mod tests {
     #[test]
     fn hebrew_points_and_final_forms_fold() {
         assert_eq!(normalise("שָׁלוֹם"), normalise("שלומ"));
+    }
+
+    #[test]
+    fn katakana_and_fullwidth_fold() {
+        assert_eq!(normalise("アニメ"), "あにめ");
+        assert_eq!(normalise("ガンダム"), "がんだむ");
+        assert_eq!(normalise("ＴＯＫＹＯ　２０２４"), "tokyo 2024");
     }
 
     #[test]

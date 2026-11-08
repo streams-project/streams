@@ -105,7 +105,7 @@
       "title": "Jak korzystać z Klipów"
     },
     "continue-watching": {
-      "body": "Tytuły, które zaczynasz oglądać, pojawiają się w rzędzie <b>Kontynuuj oglądanie</b> z paskiem pokazującym, ile obejrzano. Ten rząd jest też w <b>Moje {brand}</b>.\n\n## Wznawianie\nWybierz tytuł. Odtwarzanie zaczyna się tam, gdzie zostało przerwane, na każdym urządzeniu, na którym się logujesz.\n\n## Usuwanie tytułu z rzędu\n1. Otwórz menu opcji na karcie tytułu.\n2. Wybierz <b>Usuń z sekcji Kontynuuj oglądanie</b>.\n\nAby usunąć tytuł także z aktywności oglądania, zobacz <a=/help/article/viewing-history>Jak zarządzać historią oglądania</a>.",
+      "body": "Tytuły, które zaczynasz oglądać, pojawiają się w rzędzie <b>Oglądaj dalej</b> z paskiem pokazującym, ile obejrzano. Ten rząd jest też w <b>Moje</b>.\n\n## Wznawianie\nWybierz tytuł. Odtwarzanie zaczyna się tam, gdzie zostało przerwane, na każdym urządzeniu, na którym się logujesz.\n\n## Usuwanie tytułu z rzędu\n1. Otwórz menu opcji na karcie tytułu.\n2. Wybierz <b>Usuń z sekcji Oglądaj dalej</b>.\n\nAby usunąć tytuł także z aktywności oglądania, zobacz <a=/help/article/viewing-history>Jak zarządzać historią oglądania</a>.",
       "keywords": "kontynuuj oglądanie wznów postęp usuń rząd przerwane w połowie",
       "related": [
         "viewing-history",
@@ -115,7 +115,7 @@
         "skip-intro-next"
       ],
       "summary": "Wróć tam, gdzie skończyłeś, i usuwaj tytuły z rzędu.",
-      "title": "Jak korzystać z sekcji Kontynuuj oglądanie"
+      "title": "Jak korzystać z sekcji Oglądaj dalej"
     },
     "contribute": {
       "body": "{brand} powstaje otwarcie. Możesz pomóc na kilka sposobów:\n\n- <b>Tłumaczenia.</b> Teksty interfejsu są w zwykłych plikach tekstowych, po jednym na język, więc tłumaczenie to plik, który możesz edytować.\n- <b>Zgłoszenia błędów.</b> Zobacz <a=/help/article/report-bug>Zgłoś problem</a>.\n- <b>Poprawki i funkcje.</b> Wyślij opis albo poprawkę.\n- <b>Pomysły.</b> Napisz, co chcesz, żeby robiło Centrum pomocy albo aplikacja.\n\nNapisz na <a=mailto:{support_email}>{support_email}</a> kilka zdań o tym, co chcesz zrobić.",
@@ -361,7 +361,7 @@
       "title": "Jak zmienić język"
     },
     "list-missing": {
-      "body": "Moja lista i postęp oglądania należą do profilu i są zapisane na Twoim koncie. Jeśli wyglądają na puste:\n\n- Sprawdź, czy jesteś we właściwym profilu. Każdy profil ma własną listę. Przełącz go w menu profilu.\n- Sprawdź, czy logujesz się na to samo konto co wcześniej.\n- Daj nowemu urządzeniu kilka sekund na wczytanie konta po zalogowaniu albo odśwież stronę.\n- Tytuły ukryte w aktywności oglądania znikają też z sekcji Kontynuuj oglądanie.\n\nJeśli na jednym urządzeniu nadal czegoś brakuje, wyloguj się na nim i zaloguj ponownie. Zobacz <a=/help/article/saved-data>Gdzie zapisywane są profile, lista i postępy</a>.\n\n@@ profiles",
+      "body": "Moja lista i postęp oglądania należą do profilu i są zapisane na Twoim koncie. Jeśli wyglądają na puste:\n\n- Sprawdź, czy jesteś we właściwym profilu. Każdy profil ma własną listę. Przełącz go w menu profilu.\n- Sprawdź, czy logujesz się na to samo konto co wcześniej.\n- Daj nowemu urządzeniu kilka sekund na wczytanie konta po zalogowaniu albo odśwież stronę.\n- Tytuły ukryte w aktywności oglądania znikają też z sekcji Oglądaj dalej.\n\nJeśli na jednym urządzeniu nadal czegoś brakuje, wyloguj się na nim i zaloguj ponownie. Zobacz <a=/help/article/saved-data>Gdzie zapisywane są profile, lista i postępy</a>.\n\n@@ profiles",
       "keywords": "moja lista zniknęła pusta kontynuuj oglądanie postęp",
       "related": [
         "my-list",
@@ -370,11 +370,11 @@
         "continue-watching",
         "sign-in"
       ],
-      "summary": "Dlaczego Moja lista albo Kontynuuj oglądanie mogą wyglądać na puste i jak je odzyskać.",
+      "summary": "Dlaczego Moja lista albo Oglądaj dalej mogą wyglądać na puste i jak je odzyskać.",
       "title": "Zniknęła Moja lista lub postęp oglądania"
     },
     "my-list": {
-      "body": "## Dodawanie tytułu\nWybierz przycisk <b>+</b> na karcie tytułu, w oknie szczegółów albo przy dużym tytule u góry strony.\n\n## Usuwanie tytułu\nWybierz znacznik wyboru przy tytule. Zmieni się z powrotem w <b>+</b>.\n\n## Przeglądanie listy\nOtwórz <b>Moje {brand}</b> na górnym pasku albo na dolnym pasku na telefonie. Jest tam Twoja lista, obok sekcji <b>Kontynuuj oglądanie</b>, polubionych tytułów i obejrzanych zwiastunów.\n\nMoja lista należy do profilu i jest zapisana na koncie, więc na każdym urządzeniu jest taka sama.",
+      "body": "## Dodawanie tytułu\nWybierz przycisk <b>+</b> na karcie tytułu, w oknie szczegółów albo przy dużym tytule u góry strony.\n\n## Usuwanie tytułu\nWybierz znacznik wyboru przy tytule. Zmieni się z powrotem w <b>+</b>.\n\n## Przeglądanie listy\nOtwórz <b>Moje</b> na górnym pasku albo na dolnym pasku na telefonie. Jest tam Twoja lista, obok sekcji <b>Oglądaj dalej</b>, polubionych tytułów i obejrzanych zwiastunów.\n\nMoja lista należy do profilu i jest zapisana na koncie, więc na każdym urządzeniu jest taka sama.",
       "keywords": "moja lista dodaj usuń zapisz na później ulubione plus",
       "related": [
         "list-missing",
@@ -452,7 +452,7 @@
       "title": "Kontrola rodzicielska: klasyfikacja wiekowa i zablokowane tytuły"
     },
     "phone-tablet": {
-      "body": "Otwórz stronę w przeglądarce telefonu. Strona przełącza się na układ dostosowany do dotyku, z paskiem na dole: <b>Strona główna</b>, <b>Klipy</b>, <b>Szukaj</b> i <b>Moje {brand}</b>.\n\n- Dotknij karty, aby zobaczyć szczegóły, a potem przycisku odtwarzania, aby zacząć.\n- Obróć telefon poziomo, aby mieć najlepszy obraz.\n- Jeśli chcesz, żeby działało jak aplikacja, zobacz <a=/help/article/install-app>Jak zainstalować {brand} jako aplikację</a>.",
+      "body": "Otwórz stronę w przeglądarce telefonu. Strona przełącza się na układ dostosowany do dotyku, z paskiem na dole: <b>Strona główna</b>, <b>Klipy</b>, <b>Szukaj</b> i <b>Moje</b>.\n\n- Dotknij karty, aby zobaczyć szczegóły, a potem przycisku odtwarzania, aby zacząć.\n- Obróć telefon poziomo, aby mieć najlepszy obraz.\n- Jeśli chcesz, żeby działało jak aplikacja, zobacz <a=/help/article/install-app>Jak zainstalować {brand} jako aplikację</a>.",
       "keywords": "telefon tablet komórka dolny pasek",
       "related": [
         "install-app",
@@ -733,7 +733,7 @@
       "title": "Obsługiwane przeglądarki"
     },
     "switch-profile": {
-      "body": "1. Otwórz menu profilu w prawym górnym rogu strony. Na telefonie dotknij swojego obrazu profilu na pasku na dole.\n2. Wybierz profil, którego chcesz używać.\n3. Jeśli profil jest zablokowany, wpisz jego 4-cyfrowy kod PIN.\n\nRekomendacje, <b>Moja lista</b> i <b>Kontynuuj oglądanie</b> zmieniają się razem z wybranym profilem.\n\n!! Uwaga: Profil możesz zablokować kodem PIN. Zobacz <a=/help/article/profile-pin>Jak dodać, zmienić lub usunąć kod PIN profilu</a>.\n\n@@ profiles",
+      "body": "1. Otwórz menu profilu w prawym górnym rogu strony. Na telefonie dotknij swojego obrazu profilu na pasku na dole.\n2. Wybierz profil, którego chcesz używać.\n3. Jeśli profil jest zablokowany, wpisz jego 4-cyfrowy kod PIN.\n\nRekomendacje, <b>Moja lista</b> i <b>Oglądaj dalej</b> zmieniają się razem z wybranym profilem.\n\n!! Uwaga: Profil możesz zablokować kodem PIN. Zobacz <a=/help/article/profile-pin>Jak dodać, zmienić lub usunąć kod PIN profilu</a>.\n\n@@ profiles",
       "keywords": "przełącz profil zmień profil kto ogląda menu profilu",
       "related": [
         "profiles-manage",
@@ -823,7 +823,7 @@
       "title": "Pomóż tłumaczyć {brand}"
     },
     "viewing-history": {
-      "body": "Każdy profil ma stronę <b>Aktywność oglądania</b> z obejrzanymi tytułami, od najnowszych. {brand} korzysta z niej przy sekcji Kontynuuj oglądanie i przy rekomendacjach.\n\n1. Otwórz menu profilu, wybierz <b>Konto</b>, potem <b>Zarządzaj profilami</b>, i wybierz profil.\n2. Wybierz <b>Aktywność oglądania</b>.\n3. Wybierz <b>Ukryj ten tytuł</b> przy tytule albo <b>Ukryj wszystko</b>.\n\nUkryty tytuł znika z sekcji Kontynuuj oglądanie i przestaje wpływać na rekomendacje, na wszystkich urządzeniach. <b>Pobierz wszystko</b> zapisuje listę jako arkusz kalkulacyjny.\n\n@@ data",
+      "body": "Każdy profil ma stronę <b>Aktywność oglądania</b> z obejrzanymi tytułami, od najnowszych. {brand} korzysta z niej przy sekcji Oglądaj dalej i przy rekomendacjach.\n\n1. Otwórz menu profilu, wybierz <b>Konto</b>, potem <b>Zarządzaj profilami</b>, i wybierz profil.\n2. Wybierz <b>Aktywność oglądania</b>.\n3. Wybierz <b>Ukryj ten tytuł</b> przy tytule albo <b>Ukryj wszystko</b>.\n\nUkryty tytuł znika z sekcji Oglądaj dalej i przestaje wpływać na rekomendacje, na wszystkich urządzeniach. <b>Pobierz wszystko</b> zapisuje listę jako arkusz kalkulacyjny.\n\n@@ data",
       "keywords": "historia oglądania aktywność oglądania ukryj usuń pobierz",
       "related": [
         "continue-watching",
