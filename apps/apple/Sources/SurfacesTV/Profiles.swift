@@ -2,18 +2,21 @@ import Contract
 import Ports
 import SwiftUI
 
-private let profileColors: [Color] = [
-    Color(red: 229/255.0, green: 9/255.0, blue: 20/255.0),
-    Color(red: 33/255.0, green: 150/255.0, blue: 243/255.0),
-    Color(red: 76/255.0, green: 175/255.0, blue: 80/255.0),
-    Color(red: 255/255.0, green: 152/255.0, blue: 0/255.0),
-    Color(red: 156/255.0, green: 39/255.0, blue: 176/255.0),
-]
+private let defaultProfilesMax = 5
+private let defaultNameMax = 32
+private let defaultPinDigits = 4
 
+/// Who is watching: a column of profiles on the left, and a title chosen for the one in focus.
 public struct Profiles: View {
-    public let shell: Shell
-    public let seen: Seen
-    @State private var at: Int = 0
+    let shell: Shell
+    let seen: Seen
+    @State private var hello: Hello?
+    @State private var at = 0
+    @State private var pencil = false
+    @State private var locked: Profile?
+    @State private var editing: Profile?
+    @State private var adding = false
+    @State private var wanted: String?
 
     public init(shell: Shell, seen: Seen) {
         self.shell = shell
@@ -21,76 +24,102 @@ public struct Profiles: View {
     }
 
     public var body: some View {
-        ZStack {
-            Back.ignoresSafeArea()
+        let list = seen.profiles
+        let profilesMax = hello?.limits.profilesMax ?? defaultProfilesMax
+        let nameMax = hello?.limits.profileNameMax ?? defaultNameMax
+        let pinDigits = hello?.limits.pinDigits ?? defaultPinDigits
+        let canAdd = list.count < profilesMax
+        let maxIndex = canAdd ? list.count : list.count - 1
 
-            VStack(spacing: 48.ref) {
-                Spacer()
-
-                Text(seen.words["profiles.who"] ?? "Who is watching?")
-                    .font(.system(size: 64.refType, weight: .bold))
-                    .foregroundStyle(.white)
-
-                HStack(spacing: 40.ref) {
-                    ForEach(Array(seen.profiles.enumerated()), id: \.element.id) { index, profile in
-                        let on = index == at
-                        let color = profileColors[index % profileColors.count]
-
-                        VStack(spacing: 20.ref) {
-                            ZStack {
-                                color
-                                    .frame(width: 180.ref, height: 180.ref)
-                                    .clipShape(RoundedRectangle(cornerRadius: 16.ref))
-
-                                Text(String(profile.name.prefix(1)).uppercased())
-                                    .font(.system(size: 80.refType, weight: .heavy))
-                                    .foregroundStyle(.white)
-                            }
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16.ref)
-                                    .stroke(on ? Color.white : Color.clear, lineWidth: 6.ref)
-                            )
-                            .scaleEffect(on ? 1.08 : 1.0)
-                            .animation(.easeOut(duration: 0.15), value: on)
-
-                            Text(profile.name)
-                                .font(.system(size: 28.refType, weight: on ? .bold : .medium))
-                                .foregroundStyle(on ? .white : Muted)
-                        }
-                    }
+        Group {
+            if adding {
+                AddProfile(shell: shell, seen: seen, nameMax: nameMax) { created in
+                    adding = false
+                    pencil = false
+                    wanted = created
                 }
-                .padding(.horizontal, 80.ref)
-
-                Spacer()
+            } else if let person = editing {
+                EditProfile(shell: shell, seen: seen, person: person, pinDigits: pinDigits) {
+                    editing = nil
+                    pencil = false
+                }
+            } else if let person = locked {
+                PinPanel(shell: shell, seen: seen, person: person, digitsCount: pinDigits, unlocked: { pin in
+                    let toEdit = pencil
+                    locked = nil
+                    if toEdit {
+                        editing = person
+                    } else {
+                        shell.speak(person.language)
+                        shell.act(.enterProfile(ActionEnterProfile(pin: pin, profile: person.id)))
+                    }
+                }, leave: { locked = nil })
+            } else if let feature = list[safe: at] ?? list.last {
+                chooser(list, feature, canAdd, maxIndex)
             }
         }
-        .remote { word in
-            let count = seen.profiles.count
-            guard count > 0 else { return false }
-            switch word {
-            case .left:
-                if at > 0 { at -= 1 }
-                return true
-            case .right:
-                if at < count - 1 { at += 1 }
-                return true
-            case .ok:
-                if let chosen = seen.profiles[safe: at] {
-                    shell.act(.enterProfile(ActionEnterProfile(profile: chosen.id)))
-                }
-                return true
-            case .back:
-                shell.back()
-                return true
-            default:
-                return true
+        .task { hello = await shell.read("/v1/hello").flatMap { try? JSONDecoder().decode(Hello.self, from: Data($0.utf8)) } }
+        .onChange(of: list.map(\.id)) { _, ids in
+            // A profile just made takes the focus once it is in the list.
+            if let wanted, let found = ids.firstIndex(of: wanted) {
+                at = found
+                self.wanted = nil
             }
+            if maxIndex >= 0 && at > maxIndex { at = maxIndex }
         }
     }
-}
 
-extension Collection {
-    subscript(safe index: Index) -> Element? {
-        return indices.contains(index) ? self[index] : nil
+    private func chooser(_ list: [Profile], _ feature: Profile, _ canAdd: Bool, _ maxIndex: Int) -> some View {
+        let person = list[safe: at]
+
+        func press(_ word: Word) -> Bool {
+            switch word {
+            case .up:
+                guard at > 0 else { return false }
+                at -= 1
+                pencil = false
+            case .down:
+                guard at < maxIndex else { return false }
+                at += 1
+                pencil = false
+            case .left:
+                guard person != nil else { return false }
+                pencil = true
+            case .right: pencil = false
+            case .ok:
+                if let person {
+                    if person.hasPin { locked = person }
+                    else if pencil { editing = person }
+                    else {
+                        shell.speak(person.language)
+                        shell.act(.enterProfile(ActionEnterProfile(profile: person.id)))
+                    }
+                } else {
+                    adding = true
+                }
+            case .back: return false
+            }
+            return true
+        }
+
+        return ZStack(alignment: .topLeading) {
+            ProfileFeature(shell: shell, id: feature.id)
+            VStack(spacing: 8.ref) {
+                Mark(68)
+                Text(seen.say("profiles.choose")).brand(24, 500).foregroundStyle(.white).fixedSize()
+            }
+            .frame(width: 200.ref)
+            .offset(x: 190.ref, y: 44.ref)
+            VStack(alignment: .leading, spacing: 26.ref) {
+                ForEach(Array(list.enumerated()), id: \.element.id) { index, profile in
+                    ProfileRow(person: profile, on: index == at, pencil: pencil && index == at, server: seen.server)
+                }
+                if canAdd { AddProfileRow(word: seen.say("profile.add"), on: at == list.count) }
+            }
+            .frame(width: 720.ref, alignment: .topLeading)
+            .offset(y: 168.ref)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .remote { press($0) }
     }
 }

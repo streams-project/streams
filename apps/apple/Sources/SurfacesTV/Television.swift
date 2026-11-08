@@ -5,6 +5,8 @@ import SwiftUI
 public struct Television: View {
     public let shell: Shell
 
+    @State private var door = DoorState()
+
     public init(shell: Shell) {
         self.shell = shell
     }
@@ -12,18 +14,20 @@ public struct Television: View {
     public var body: some View {
         let seen = shell.seen
         ZStack {
-            Back.ignoresSafeArea()
+            Color.black
 
             if seen.server.isEmpty {
                 ServerAddress(shell: shell)
             } else if let target = seen.route?.target {
                 switch target {
                 case .start:
-                    Door(shell: shell, seen: seen)
+                    Door(shell: shell, seen: seen, state: door)
                 case .signIn:
                     SignIn(shell: shell, seen: seen)
                 case .profiles:
                     Profiles(shell: shell, seen: seen)
+                case .screen where seen.route?.screen == .help:
+                    GetHelp(shell: shell, seen: seen)
                 case .home, .kidsHome, .screen:
                     Browse(shell: shell, seen: seen)
                         .id("\(seen.route?.screen?.rawValue ?? "home") \(seen.route?.genre ?? "")")

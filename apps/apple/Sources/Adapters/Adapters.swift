@@ -5,6 +5,7 @@ import Foundation
 import Network
 import Ports
 import Security
+import UIKit
 
 /// The network port, using URLSession and NWPathMonitor.
 public final class UrlNetwork: Network, @unchecked Sendable {
@@ -229,27 +230,65 @@ public final class AvPlayer: Player {
     public func wordsLook(size: Int, color: String, background: String) {}
 }
 
-/// Brand films and trailer playback on AVPlayer.
+/// Brand films, each on its own engine so it can be handed back as soon as it is off screen.
 public final class AvReel: Reel {
+    private var playing: [ReelView] = []
+
     public init() {}
 
     public func picture(_ context: Any, url: String, loop: Bool, ended: @escaping () -> Void) -> Any {
-        guard let u = URL(string: url) else { return () }
-        let player = AVPlayer(url: u)
-        if !loop {
-            NotificationCenter.default.addObserver(
-                forName: .AVPlayerItemDidPlayToEndTime,
-                object: player.currentItem,
-                queue: .main
-            ) { _ in ended() }
+        let view = ReelView()
+        guard let address = URL(string: url) else {
+            DispatchQueue.main.async(execute: ended)
+            return view
         }
-        player.play()
-        return player
+        let item = AVPlayerItem(url: address)
+        let engine = AVQueuePlayer()
+        if loop {
+            view.looper = AVPlayerLooper(player: engine, templateItem: item)
+        } else {
+            engine.insert(item, after: nil)
+            view.watch.append(NotificationCenter.default.addObserver(
+                forName: .AVPlayerItemDidPlayToEndTime, object: item, queue: .main
+            ) { _ in ended() })
+        }
+        view.watch.append(NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemFailedToPlayToEndTime, object: nil, queue: .main
+        ) { _ in ended() })
+        view.failed = engine.observe(\.currentItem?.status) { player, _ in
+            if player.currentItem?.status == .failed { DispatchQueue.main.async(execute: ended) }
+        }
+        view.screen.player = engine
+        view.screen.videoGravity = .resizeAspectFill
+        engine.play()
+        playing.append(view)
+        return view
     }
 
     public func release(_ picture: Any) {
-        (picture as? AVPlayer)?.pause()
+        guard let view = picture as? ReelView else { return }
+        playing.removeAll { $0 === view }
+        view.screen.player?.pause()
+        view.looper?.disableLooping()
+        view.looper = nil
+        view.watch.forEach(NotificationCenter.default.removeObserver)
+        view.watch = []
+        view.failed = nil
+        view.screen.player = nil
     }
 
-    public func hold(_ still: Bool) {}
+    public func hold(_ still: Bool) {
+        for view in playing {
+            if still { view.screen.player?.pause() } else { view.screen.player?.play() }
+        }
+    }
+}
+
+/// A film's picture. Until the first frame, what is behind it shows through.
+public final class ReelView: UIView {
+    public override class var layerClass: AnyClass { AVPlayerLayer.self }
+    var screen: AVPlayerLayer { layer as! AVPlayerLayer }
+    var looper: AVPlayerLooper?
+    var watch: [NSObjectProtocol] = []
+    var failed: NSKeyValueObservation?
 }

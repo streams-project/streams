@@ -182,6 +182,9 @@ public struct Browse: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .remote(on: !menu) { press($0) }
+        .overlay {
+            if menu { ProfileMenu(shell: shell, seen: seen, person: person) { menu = false } }
+        }
         .onAppear {
             if self.focus == nil { self.focus = focus }
             shownRow = focus.row
