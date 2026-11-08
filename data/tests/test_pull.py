@@ -456,7 +456,9 @@ def test_s150_a_series_that_has_aired_carries_its_next_season(context, key_file)
     assert "next_season" not in by_id[("tv", 3)]
     asked = {c.path for c in transport.calls}
     assert "/tv/3" not in asked, "a series that has not aired has no next season to look up"
-    airing = [c.params for c in transport.calls if c.path == "/discover/tv" and "air_date.gte" in c.params]
+    airing = [
+        c.params for c in transport.calls if c.path == "/discover/tv" and "air_date.gte" in c.params
+    ]
     assert airing[0]["air_date.gte"] == "2026-11-06"
     assert airing[0]["air_date.lte"] == "2027-01-04"
 

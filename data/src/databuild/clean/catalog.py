@@ -104,7 +104,7 @@ def title_row(pulled: sqlite3.Row) -> dict[str, Any]:
         "poster_path": pulled["poster_path"],
         "backdrop_path": pulled["backdrop_path"],
         "logo_path": pulled["logo_path"],
-        "art_path": pulled["art_path"] if "art_path" in pulled.keys() else None,
+        "art_path": pulled["art_path"] if "art_path" in pulled.keys() else None,  # noqa: SIM118
         "vote_average": pulled["vote_average"],
         "vote_count": pulled["vote_count"],
         "popularity": pulled["popularity"],
