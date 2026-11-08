@@ -11,7 +11,7 @@ use serde_json::json;
 use server_accounts::{AccountId, StepUpMethod};
 use server_catalog::sample::{SEASON_COMING_BACK, sample_titles};
 
-const IMAGES: (&str, &str) = ("IMAGE_BASE", "https://images.host.example/t/");
+const IMAGES: (&str, &str) = ("IMAGE_BASE", "https://images.host.example/t/w780");
 const DAY_MS: u64 = 86_400_000;
 
 async fn gate(server: &Harness, token: &str) -> ProfileGate {
@@ -60,7 +60,7 @@ async fn n12_the_gate_needs_a_signed_in_member() {
 }
 
 #[tokio::test]
-async fn n12_three_titles_coming_within_thirty_days_each_with_logo_and_art() {
+async fn n12_three_titles_mix_line_kinds_each_with_logo_and_art() {
     let server = harness(&[IMAGES]);
     let (_, token) = member(&server.door).await;
     let answer = gate(&server, &token).await;
@@ -68,6 +68,7 @@ async fn n12_three_titles_coming_within_thirty_days_each_with_logo_and_art() {
     assert!(has(&answer, ImageRole::Logo));
     assert!(has(&answer, ImageRole::Poster));
     assert!(has(&answer, ImageRole::Backdrop));
+    assert!(has(&answer, ImageRole::Art));
     let mut keys: Vec<String> = answer
         .titles
         .iter()
@@ -75,19 +76,99 @@ async fn n12_three_titles_coming_within_thirty_days_each_with_logo_and_art() {
         .collect();
     keys.dedup();
     assert_eq!(keys.len(), 3);
+
+    let kinds: Vec<GateLineKind> = answer.titles.iter().map(|t| t.line.kind.clone()).collect();
+    assert_eq!(
+        kinds,
+        vec![
+            GateLineKind::Coming,
+            GateLineKind::SeasonsComing,
+            GateLineKind::Ranked,
+        ],
+        "{answer:?}"
+    );
+
+    let coming = &answer.titles[0];
+    let day = coming
+        .line
+        .date
+        .as_ref()
+        .expect("a coming line has a day")
+        .as_str();
+    // The sample's own time is 2023-11-14, and its releases run to 2023-11-26.
+    assert!(("2023-11-15".."2023-12-15").contains(&day), "{day}");
+    assert!(coming.line.rank.is_none() && coming.line.media.is_none());
+
+    let season = &answer.titles[1];
+    assert_eq!(
+        season.tile.title.to_string(),
+        format!("tv:{SEASON_COMING_BACK}")
+    );
+    assert_eq!(
+        season.line.date.as_ref().map(|d| d.as_str()),
+        Some("2023-11-30")
+    );
+    assert!(season.line.rank.is_none() && season.line.media.is_none());
+
+    let ranked = &answer.titles[2];
+    let rank = ranked.line.rank.expect("a place");
+    assert!((1..=10).contains(&rank));
+    let kind = ranked.tile.title.kind();
+    let media = ranked.line.media.expect("a kind");
+    assert_eq!(media, kind);
+    assert!(matches!(media, TitleKind::Movie | TitleKind::Tv));
+    assert!(ranked.line.date.is_none());
+
+    // Art image URL resolves with /w1280 when base URL contains /w780.
     for title in &answer.titles {
-        assert_eq!(title.line.kind, GateLineKind::Coming, "{title:?}");
-        let day = title
-            .line
-            .date
-            .as_ref()
-            .expect("a coming line has a day")
-            .as_str();
-        // The sample's own time is 2023-11-14, and its releases run to 2023-11-26.
-        assert!(("2023-11-15".."2023-12-15").contains(&day), "{day}");
-        assert!(title.line.rank.is_none() && title.line.media.is_none());
+        let art = title
+            .tile
+            .images
+            .iter()
+            .find(|i| i.role == ImageRole::Art)
+            .expect("art image");
+        assert!(
+            art.url.contains("/w1280/"),
+            "art URL must resolve to w1280: {}",
+            art.url
+        );
     }
     assert_eq!(answer.ttl_s, 3600);
+}
+
+#[tokio::test]
+async fn n12_art_resolves_to_explicit_image_base_art() {
+    let server = harness(&[
+        ("IMAGE_BASE", "https://images.host.example/t/w780"),
+        ("IMAGE_BASE_ART", "https://art.host.example/w1280"),
+    ]);
+    let (_, token) = member(&server.door).await;
+    let answer = gate(&server, &token).await;
+    assert_eq!(answer.titles.len(), 3);
+    for title in &answer.titles {
+        let art = title
+            .tile
+            .images
+            .iter()
+            .find(|i| i.role == ImageRole::Art)
+            .expect("art image");
+        assert!(
+            art.url.starts_with("https://art.host.example/w1280/"),
+            "art URL must use custom IMAGE_BASE_ART: {}",
+            art.url
+        );
+        let poster = title
+            .tile
+            .images
+            .iter()
+            .find(|i| i.role == ImageRole::Poster)
+            .expect("poster image");
+        assert!(
+            poster.url.starts_with("https://images.host.example/t/w780/"),
+            "poster URL must use IMAGE_BASE: {}",
+            poster.url
+        );
+    }
 }
 
 #[tokio::test]

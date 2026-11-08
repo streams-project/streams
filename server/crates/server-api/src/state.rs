@@ -65,7 +65,10 @@ impl AppState {
             .and_then(|(url, token)| HttpSubtitles::new(url, token).ok())
             .map(|source| Subtitles::new(Arc::new(source)));
         let live = LiveFile::new(config.live_settings.clone());
-        let images = Images::new(config.image_base.as_deref());
+        let images = Images::with_art_base(
+            config.image_base.as_deref(),
+            config.image_base_art.as_deref(),
+        );
         let brand = config.brand_name.clone();
         let help = config
             .help_dir
