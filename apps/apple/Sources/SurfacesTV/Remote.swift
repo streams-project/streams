@@ -6,22 +6,36 @@ public enum Word: Sendable {
     case up, down, left, right, ok, back
 }
 
+private struct CoveredKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    /// True while the opening covers the screens: they keep their state but take no keys.
+    public var covered: Bool {
+        get { self[CoveredKey.self] }
+        set { self[CoveredKey.self] = newValue }
+    }
+}
+
 /// Gives a whole screen the remote. The screen keeps its own focus as plain state.
 public struct RemoteReceiver: UIViewRepresentable {
     public let on: Bool
     public let press: (Word) -> Bool
+    @Environment(\.covered) private var covered
 
     public func makeUIView(context: Context) -> RemoteUIView {
         let view = RemoteUIView()
         view.handler = press
-        view.on = on
+        view.on = on && !covered
         return view
     }
 
     public func updateUIView(_ view: RemoteUIView, context: Context) {
         // A key always reaches the newest answer, with what the screen holds now.
         view.handler = press
-        view.on = on
+        // Under the opening a screen keeps its place but takes no keys, and takes them back after.
+        view.on = on && !covered
     }
 }
 

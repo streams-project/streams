@@ -2,6 +2,7 @@
 // renderer that made the old video (streams-studio/showreel/opening.py). Opening.kt is the same
 // file for Android.
 import Observation
+import Ports
 import SwiftUI
 import UIKit
 
@@ -22,7 +23,7 @@ private let ringFade = 0.35
 private let secondLong = 2.0
 private let notesAt = 2.05
 /// How long before the window opens the showreel starts, under the cover, past its fade from black.
-private let filmLead = 1.0
+let filmLead = 1.0
 
 private let night = Color(red: 0x06 / 255, green: 0x07 / 255, blue: 0x0F / 255)
 private let lineFrom = Color(red: 0x5A / 255, green: 0x78 / 255, blue: 0xFF / 255)
@@ -224,11 +225,103 @@ private final class BrandArt {
     }
 }
 
+/// Where the opening is, for the whole app. It plays once for each run of the app.
+@Observable
+@MainActor
+public final class OpeningState {
+    /// Over: the screens take keys again.
+    public var opened = false
+    /// The first stage is over, so the screen under the cover may draw.
+    public var shown = false
+    var notes = false
+    var swell = false
+    /// The landing's showreel may play.
+    var roll = false
+    /// The landing's showreel can play.
+    var landingReady = false
+    var soundsOver = false
+
+    public init() {}
+
+    /// Ends the opening, however it ends: the screens show, take keys, and the showreel may play.
+    public func over() {
+        shown = true
+        roll = true
+        opened = true
+    }
+}
+
+/// The opening, over whatever the first screen is: the landing for a visitor, profiles or home for a
+/// member. It waits until that screen has what it needs, and on the landing for the showreel too.
+public struct OpeningLayer: View {
+    let shell: Shell
+    let seen: Seen
+    let state: OpeningState
+
+    public init(shell: Shell, seen: Seen, state: OpeningState) {
+        self.shell = shell
+        self.seen = seen
+        self.state = state
+    }
+
+    public var body: some View {
+        let target = seen.route?.target
+        let landing = target == .start
+        let ready = !seen.words.isEmpty && target != nil && target != .wait && (!landing || state.landingReady)
+        ZStack {
+            if !state.soundsOver {
+                Film(shell: shell, url: "\(seen.server)/tv/opening-chime.m4a", loop: false, on: state.notes) {}
+                    .frame(width: 0, height: 0)
+                Film(shell: shell, url: "\(seen.server)/tv/opening-swell.m4a", loop: false, on: state.swell) {
+                    state.soundsOver = true
+                }
+                .frame(width: 0, height: 0)
+            }
+            if !state.opened {
+                Opening(ready: ready, lead: landing ? filmLead : 0) { moment in
+                    switch moment {
+                    case .notes: state.notes = true
+                    case .warm: state.shown = true
+                    case .second: state.swell = true
+                    case .roll: state.roll = true
+                    case .done: state.over()
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// The brand's mark and text, `high` reference pixels tall, as the opening leaves them at rest.
+public struct BrandLockup: View {
+    let high: CGFloat
+
+    public init(high: CGFloat) {
+        self.high = high
+    }
+
+    public var body: some View {
+        let k = high / markHigh
+        Canvas { context, size in
+            var c = context
+            let s = size.height / markHigh
+            c.scaleBy(x: s, y: s)
+            c.translateBy(x: -(wide - lockWide) / 2, y: -(middle - markHigh / 2))
+            let art = BrandArt.shared
+            text(&c, art, art.textX, art.markX, 1)
+            part(&c, art, art.ribbon, art.markX, 1, 1)
+            part(&c, art, art.arrow, art.markX, 1, 1)
+        }
+        .frame(width: (lockWide * k).ref, height: (markHigh * k).ref)
+    }
+}
+
 /// When things happen, decided as the frames go by. Not observed: the timeline redraws every frame.
 @MainActor
 private final class Clock {
     var start: Date?
     var ready = false
+    var lead = 0.0
     var readyAt = Double.nan
     var second = Double.nan
     var ringFrom = Double.nan
@@ -340,14 +433,16 @@ private func second(_ c: inout GraphicsContext, _ art: BrandArt, _ u: Double) {
     part(&c, art, art.arrow, x, grown, 1 - see)
 }
 
-/// The opening over the landing. `ready` turns true when the landing can show; the rest waits for it.
+/// The opening itself. `ready` turns true when the screen under it can show; the rest waits for it.
 public struct Opening: View {
     let ready: Bool
+    let lead: Double
     let moment: (Moment) -> Void
     @State private var clock = Clock()
 
-    public init(ready: Bool, moment: @escaping (Moment) -> Void) {
+    public init(ready: Bool, lead: Double, moment: @escaping (Moment) -> Void) {
         self.ready = ready
+        self.lead = lead
         self.moment = moment
     }
 
@@ -364,15 +459,15 @@ public struct Opening: View {
         if c.second.isNaN && t >= rest {
             if !c.readyAt.isNaN && c.ringFrom.isNaN {
                 // The showreel starts a little before the window, so the arrow opens onto the film.
-                c.second = max(rest + shortRest, c.readyAt + filmLead)
+                c.second = max(rest + shortRest, c.readyAt + c.lead)
             } else if !c.readyAt.isNaN {
-                c.second = max(c.ringFrom + 2 * ringFade, c.readyAt + filmLead)
+                c.second = max(c.ringFrom + 2 * ringFade, c.readyAt + c.lead)
             } else if c.ringFrom.isNaN && t >= rest + shortRest {
                 c.ringFrom = t
             }
         }
         let s = c.second
-        once(!s.isNaN && t >= s - filmLead, .roll)
+        once(!s.isNaN && t >= s - c.lead, .roll)
         once(!s.isNaN && t >= s, .second)
         if !s.isNaN && t >= s + secondLong {
             c.over = true
@@ -415,6 +510,7 @@ public struct Opening: View {
             return true
         }
         .onChange(of: ready, initial: true) { _, now in clock.ready = now }
+        .onChange(of: lead, initial: true) { _, now in clock.lead = now }
         .onAppear { _ = BrandArt.shared }
     }
 }

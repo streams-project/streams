@@ -114,8 +114,12 @@ public final class Host: Shell, @unchecked Sendable {
     }
 
     public func connect(_ server: String) {
+        // The screens see a kept server from the first frame, so a run with a server never looks
+        // like a first run without one.
+        let trimmed = server.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        if Thread.isMainThread { MainActor.assumeIsolated { seen.server = trimmed } }
         queue.async {
-            self.base = server.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+            self.base = trimmed
             self.secrets.put(Self.serverKey, self.base)
             Task { @MainActor in
                 self.seen.server = self.base

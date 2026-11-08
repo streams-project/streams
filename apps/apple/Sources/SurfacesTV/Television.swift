@@ -5,7 +5,7 @@ import SwiftUI
 public struct Television: View {
     public let shell: Shell
 
-    @State private var door = DoorState()
+    @State private var opening = OpeningState()
 
     public init(shell: Shell) {
         self.shell = shell
@@ -15,13 +15,27 @@ public struct Television: View {
         let seen = shell.seen
         ZStack {
             Color.black
+            // Under the opening the first screen is built and loading, and drawn once the first stage is over.
+            screens(seen)
+                .opacity(opening.shown || opening.opened ? 1 : 0)
+                .environment(\.covered, !opening.opened)
+            if !seen.server.isEmpty { OpeningLayer(shell: shell, seen: seen, state: opening) }
+        }
+        .frame(width: 1920.ref, height: 1080.ref, alignment: .topLeading)
+        .ignoresSafeArea()
+        // A run of the app with no server yet starts at the address screen, with no opening.
+        .onChange(of: seen.server.isEmpty, initial: true) { _, none in if none { opening.over() } }
+    }
 
+    @ViewBuilder
+    private func screens(_ seen: Seen) -> some View {
+        ZStack {
             if seen.server.isEmpty {
                 ServerAddress(shell: shell)
             } else if let target = seen.route?.target {
                 switch target {
                 case .start:
-                    Door(shell: shell, seen: seen, state: door)
+                    Door(shell: shell, seen: seen, state: opening)
                 case .signIn:
                     SignIn(shell: shell, seen: seen)
                 case .profiles:
@@ -40,7 +54,5 @@ public struct Television: View {
                 Color.clear
             }
         }
-        .frame(width: 1920.ref, height: 1080.ref, alignment: .topLeading)
-        .ignoresSafeArea()
     }
 }

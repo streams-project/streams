@@ -7,6 +7,9 @@ import UIKit
 private let emptyCard = 0.333
 private let peekAfter = 10.0
 private let peekFade = 0.583
+private let rowFade = 0.24
+/// The lockup's mark height at the top left of the landing, measured on the reference: 58 of 1080.
+private let lockupHigh: CGFloat = 58
 private let frameTime = 0.042
 private let stage: CGFloat = 1920
 
@@ -24,14 +27,6 @@ private let cardWash = LinearGradient(
 private let cardEdge = Color(red: 0xC4 / 255.0, green: 0xE4 / 255.0, blue: 0xFB / 255.0)
 
 private enum Stop: Int, CaseIterable { case home, tab, help, signIn, join }
-
-/// Whether the opening has played. It plays once for each run of the app.
-@Observable
-@MainActor
-public final class DoorState {
-    var opened = false
-    public init() {}
-}
 
 /// A brand film or sound. It plays while `on`, and is handed back when it leaves the screen.
 struct Film: UIViewRepresentable {
@@ -106,19 +101,20 @@ private struct Landing: View {
     let seen: Seen
     let opening: Bool
     let roll: Bool
-    let keys: Bool
     let ready: () -> Void
-    @State private var at = Stop.signIn
+    // As in the reference, Get started holds the focus when the landing first shows.
+    @State private var at = Stop.join
+    // The brand's lockup sits top left until the viewer first goes up to the row it gives way to.
+    @State private var raised = false
     @State private var film: Bool
     @State private var peek = false
     @State private var slide: CGFloat
 
-    init(shell: Shell, seen: Seen, opening: Bool, roll: Bool, keys: Bool, ready: @escaping () -> Void) {
+    init(shell: Shell, seen: Seen, opening: Bool, roll: Bool, ready: @escaping () -> Void) {
         self.shell = shell
         self.seen = seen
         self.opening = opening
         self.roll = roll
-        self.keys = keys
         self.ready = ready
         _film = State(initialValue: opening)
         _slide = State(initialValue: opening ? 0 : slideSteps[0])
@@ -147,6 +143,9 @@ private struct Landing: View {
         return ZStack(alignment: .topLeading) {
             Back
             glow
+            if !raised {
+                BrandLockup(high: lockupHigh).offset(x: 73.ref, y: 56.ref).transition(.opacity)
+            } else {
             HStack(spacing: 40.ref) {
                 Circle()
                     .fill(at == .home ? Color.white : Color.white.opacity(0.12))
@@ -158,6 +157,8 @@ private struct Landing: View {
                     .opacity(at == .tab ? 1 : 0.85)
             }
             .offset(x: 96.ref, y: 78.ref)
+            .transition(.opacity)
+            }
             if peek {
                 Art("\(seen.server)/tv/peek.jpg")
                     .frame(width: 284.ref, height: 866.ref)
@@ -185,7 +186,10 @@ private struct Landing: View {
             .offset(x: 55.ref + slide * stage.ref, y: 169.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote(on: keys) { press($0) }
+        .remote { press($0) }
+        .onChange(of: at) { _, now in
+            if now == .home || now == .tab { withAnimation(.linear(duration: rowFade)) { raised = true } }
+        }
         .task {
             guard !opening else { return }
             for value in slideSteps.dropFirst() {
@@ -203,55 +207,22 @@ private struct Landing: View {
     }
 }
 
-/// The way in: the opening, drawn live, once for each run of the app, over the landing it opens onto.
-/// The landing is built under it from the first frame so its showreel can load while the mark rests,
-/// and the opening's sounds live here so they play to their end.
+/// The way in: the landing. The first time, the opening is drawn over it (see `OpeningLayer`), and it
+/// loads its showreel underneath so the arrow opens onto the film.
 public struct Door: View {
     let shell: Shell
     let seen: Seen
-    let state: DoorState
+    let state: OpeningState
     @State private var opening: Bool
-    @State private var ready = false
-    @State private var roll: Bool
-    @State private var shown: Bool
-    @State private var notes = false
-    @State private var swell = false
 
-    public init(shell: Shell, seen: Seen, state: DoorState) {
+    public init(shell: Shell, seen: Seen, state: OpeningState) {
         self.shell = shell
         self.seen = seen
         self.state = state
-        let first = !state.opened
-        _opening = State(initialValue: first)
-        _roll = State(initialValue: !first)
-        _shown = State(initialValue: !first)
+        _opening = State(initialValue: !state.opened)
     }
 
     public var body: some View {
-        ZStack {
-            // Under the opening's cover the landing loads but is not drawn until the first stage is over.
-            Landing(shell: shell, seen: seen, opening: opening, roll: roll, keys: state.opened) { ready = true }
-                .opacity(shown ? 1 : 0)
-            if opening {
-                Film(shell: shell, url: "\(seen.server)/tv/opening-chime.m4a", loop: false, on: notes) {}
-                    .frame(width: 0, height: 0)
-                Film(shell: shell, url: "\(seen.server)/tv/opening-swell.m4a", loop: false, on: swell) {}
-                    .frame(width: 0, height: 0)
-            }
-            if !state.opened {
-                Opening(ready: ready && !seen.words.isEmpty) { moment in
-                    switch moment {
-                    case .notes: notes = true
-                    case .warm: shown = true
-                    case .second: swell = true
-                    case .roll: roll = true
-                    case .done:
-                        shown = true
-                        roll = true
-                        state.opened = true
-                    }
-                }
-            }
-        }
+        Landing(shell: shell, seen: seen, opening: opening, roll: state.roll) { state.landingReady = true }
     }
 }
