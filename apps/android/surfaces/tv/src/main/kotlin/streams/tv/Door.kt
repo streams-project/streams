@@ -48,6 +48,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.unit.dp
 import contract.Address
+import streams.shared.Raised
+import contract.contractJson
+import contract.TitleDetail
+import contract.PublicTitles
+import contract.ImageRole
+import coil3.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.SingletonImageLoader
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.key
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
+import androidx.compose.animation.Crossfade
+import android.content.Context
 import kotlinx.coroutines.delay
 import streams.ports.Seen
 import streams.ports.Shell
@@ -58,8 +76,6 @@ import streams.shared.ref
 import streams.shared.refType
 
 private const val EMPTY_CARD_MS = 333L
-private const val PEEK_AFTER_MS = 10_000L
-private const val PEEK_FADE_MS = 583
 private const val ROW_FADE_MS = 240
 /** The lockup's mark height at the top left of the landing, measured on the reference: 58 of 1080. */
 private const val LOCKUP_HIGH = 58f
@@ -96,7 +112,79 @@ private fun DrawScope.glow() {
     }
 }
 
-private enum class Stop { HOME, TAB, HELP, SIGN_IN, JOIN }
+/** Where the focus can be on the landing: the top row, the showreel card's buttons, a title card's button. */
+private enum class Stop { HOME, TAB, TOP_SIGN_IN, HELP, SIGN_IN, JOIN, WATCH }
+
+/** Cards sit this far apart: 1542 wide and 39 between, so the next one shows at 1636. */
+private const val CARD_STEP = 1581
+private const val CARD_MOVE_MS = 320
+private const val SLIDE_EVERY_MS = 4_500L
+private const val SLIDE_FADE_MS = 700
+
+private val TitleSide = Brush.horizontalGradient(0f to Color.Black.copy(alpha = 0.8f), 0.62f to Color.Transparent)
+private val TitleFoot = Brush.verticalGradient(0.45f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.75f))
+
+/** The pictures of a title card in turn: its backdrop, then its episodes. */
+private fun slidesOf(title: TitleDetail): List<String> =
+    listOfNotNull(wide(title.images)) + title.images.orEmpty().filter { it.role == ImageRole.STILL }.map { it.url }
+
+/** One title's pictures in turn while its card is the one in view, each fading into the next. */
+@Composable
+private fun Slideshow(slides: List<String>, running: Boolean) {
+    var at by remember { mutableIntStateOf(0) }
+    LaunchedEffect(running, slides) {
+        while (running && slides.size > 1) {
+            delay(SLIDE_EVERY_MS)
+            at = (at + 1) % slides.size
+        }
+    }
+    Crossfade(slides.getOrNull(at), Modifier.fillMaxSize(), tween(SLIDE_FADE_MS, easing = LinearEasing), label = "slides") { url ->
+        Art(url, Modifier.fillMaxSize())
+    }
+}
+
+/** A trending title as a card: its pictures, logo, facts, story and a way in. */
+@Composable
+private fun TitleCard(title: TitleDetail, words: Map<String, String>, current: Boolean, on: Boolean) {
+    val shape = RoundedCornerShape(24.ref)
+    Box(Modifier.size(1542.ref, 864.ref).border(3.ref, CardEdge, shape).clip(shape).background(Raised)) {
+        Slideshow(slidesOf(title), current)
+        Box(Modifier.fillMaxSize().background(TitleSide))
+        Box(Modifier.fillMaxSize().background(TitleFoot))
+        val logo = title.images?.firstOrNull { it.role == ImageRole.LOGO }?.url
+        Box(Modifier.offset(74.ref, 424.ref).size(520.ref, 180.ref), contentAlignment = Alignment.BottomStart) {
+            if (logo != null) {
+                AsyncImage(
+                    logo,
+                    title.name,
+                    Modifier.sizeIn(maxWidth = 520.ref, maxHeight = 180.ref),
+                    alignment = Alignment.BottomStart,
+                    contentScale = ContentScale.Fit,
+                )
+            } else {
+                Text(title.name, fontSize = 64.refType, lineHeight = 70.refType, fontWeight = FontWeight.ExtraBold, maxLines = 2)
+            }
+        }
+        Facts(title, words, Modifier.offset(74.ref, 628.ref))
+        Text(
+            title.overview.orEmpty(),
+            Modifier.offset(74.ref, 676.ref).width(720.ref),
+            color = Color.White.copy(alpha = 0.85f),
+            fontSize = 30.refType,
+            lineHeight = 39.refType,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Box(Modifier.offset(1215.ref, 720.ref)) { Ask(words["door.watch"].orEmpty(), on, Join, Color.White) }
+    }
+}
+
+/** Fetches a picture ahead, so a card already has it when it comes into view. */
+private fun fetchAhead(context: Context, url: String, done: () -> Unit = {}) {
+    SingletonImageLoader.get(context).enqueue(
+        ImageRequest.Builder(context).data(url).listener(onSuccess = { _, _ -> done() }, onError = { _, _ -> done() }).build(),
+    )
+}
 
 /** A brand film or sound. It plays while `on`, and is handed back when it leaves the screen. */
 @Composable
@@ -143,17 +231,42 @@ private fun Ask(word: String, on: Boolean, lit: Color, ink: Color) {
 @Composable
 private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, ready: () -> Unit) {
     val words = seen.words
+    val context = LocalContext.current
     // As in the reference, Get started holds the focus when the landing first shows.
     var at by remember { mutableStateOf(Stop.JOIN) }
-    // The brand's lockup sits top left until the viewer first goes up to the row it gives way to.
+    // Which card is in view: 0 is the showreel, then the trending titles.
+    var page by remember { mutableIntStateOf(0) }
+    var cards by remember { mutableStateOf<List<TitleDetail>?>(null) }
+    var filmReady by remember { mutableStateOf(false) }
+    var peekReady by remember { mutableStateOf(false) }
+    // The brand's lockup sits top left until the viewer first goes up, or along to the titles.
     var raised by remember { mutableStateOf(false) }
-    if (at == Stop.HOME || at == Stop.TAB) raised = true
+    if (at == Stop.HOME || at == Stop.TAB || at == Stop.TOP_SIGN_IN || page > 0) raised = true
     val row by animateFloatAsState(if (raised) 1f else 0f, tween(ROW_FADE_MS, easing = LinearEasing), label = "row")
     var film by remember { mutableStateOf(opening) }
-    var peek by remember { mutableStateOf(false) }
     val slide = remember { Animatable(if (opening) 0f else Slide.first()) }
     val width = with(LocalDensity.current) { STAGE.ref.toPx() }
-    val shown by animateFloatAsState(if (peek) 1f else 0f, tween(PEEK_FADE_MS, easing = LinearEasing), label = "peek")
+    val step = with(LocalDensity.current) { CARD_STEP.ref.toPx() }
+    val moved by animateFloatAsState(page.toFloat(), tween(CARD_MOVE_MS, easing = Glide), label = "cards")
+
+    // The titles and all their pictures load at once, under the opening when there is one, so every
+    // card is there as soon as the landing shows. The opening waits for the showreel and the next card.
+    LaunchedEffect(Unit) {
+        val list = shell.read("/v1/public/trending")
+            ?.let { runCatching { contractJson.decodeFromString(PublicTitles.serializer(), it).titles }.getOrNull() }
+            .orEmpty()
+        list.forEachIndexed { index, title ->
+            slidesOf(title).forEachIndexed { which, url ->
+                fetchAhead(context, url) { if (index == 0 && which == 0) peekReady = true }
+            }
+            title.images?.firstOrNull { it.role == ImageRole.LOGO }?.let { fetchAhead(context, it.url) }
+        }
+        if (list.firstOrNull()?.let(::slidesOf).isNullOrEmpty()) peekReady = true
+        cards = list
+    }
+    LaunchedEffect(filmReady, cards, peekReady) {
+        if (filmReady && cards != null && peekReady) ready()
+    }
     LaunchedEffect(Unit) {
         if (!opening) {
             slide.animateTo(
@@ -167,26 +280,58 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
             film = true
         }
     }
-    LaunchedEffect(roll) {
-        if (roll) {
-            delay(PEEK_AFTER_MS)
-            peek = true
-        }
+
+    val titles = cards.orEmpty()
+    fun cardStop() = if (page == 0) Stop.JOIN else Stop.WATCH
+    fun show(card: Int) {
+        page = card
+        at = cardStop()
     }
 
     fun press(word: Word): Boolean {
-        val stops = Stop.entries
-        when (word) {
-            Word.LEFT -> if (at.ordinal > 0) at = stops[at.ordinal - 1]
-            Word.RIGHT -> if (at.ordinal < stops.lastIndex) at = stops[at.ordinal + 1]
-            Word.UP -> if (at.ordinal >= Stop.HELP.ordinal) at = Stop.TAB
-            Word.DOWN -> if (at.ordinal < Stop.HELP.ordinal) at = Stop.SIGN_IN
-            Word.OK -> when (at) {
-                Stop.SIGN_IN, Stop.JOIN -> shell.go(Address.SIGN_IN)
-                Stop.HELP -> shell.go(Address.HELP)
+        val onTop = at == Stop.HOME || at == Stop.TAB || at == Stop.TOP_SIGN_IN
+        when {
+            // Back walks out the way the viewer came in: the row to its card, a title to the showreel,
+            // and only the showreel's buttons leave the app.
+            word == Word.BACK -> when {
+                onTop -> at = cardStop()
+                page > 0 -> show(0)
+                else -> return false
+            }
+            onTop -> when (word) {
+                Word.LEFT -> at = if (at == Stop.TOP_SIGN_IN) Stop.TAB else Stop.HOME
+                Word.RIGHT -> at = when {
+                    at == Stop.HOME && titles.isNotEmpty() -> Stop.TAB
+                    at == Stop.TAB && page > 0 -> Stop.TOP_SIGN_IN
+                    else -> at
+                }
+                Word.DOWN -> at = cardStop()
+                Word.OK -> when (at) {
+                    Stop.HOME -> show(0)
+                    Stop.TAB -> show(maxOf(page, 1))
+                    else -> shell.go(Address.SIGN_IN)
+                }
                 else -> Unit
             }
-            Word.BACK -> return false
+            page == 0 -> when (word) {
+                Word.LEFT -> at = if (at == Stop.JOIN) Stop.SIGN_IN else Stop.HELP
+                // Past Get Started the next card comes in, as on the reference.
+                Word.RIGHT -> when (at) {
+                    Stop.HELP -> at = Stop.SIGN_IN
+                    Stop.SIGN_IN -> at = Stop.JOIN
+                    else -> if (titles.isNotEmpty()) show(1)
+                }
+                Word.UP -> at = Stop.HOME
+                Word.OK -> shell.go(if (at == Stop.HELP) Address.HELP else Address.SIGN_IN)
+                else -> Unit
+            }
+            else -> when (word) {
+                Word.LEFT -> show(page - 1)
+                Word.RIGHT -> if (page < titles.size) show(page + 1)
+                Word.UP -> at = Stop.TAB
+                Word.OK -> shell.go(Address.SIGN_IN)
+                else -> Unit
+            }
         }
         return true
     }
@@ -194,47 +339,78 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
     val shape = RoundedCornerShape(24.ref)
     Box(Modifier.fillMaxSize().background(Back).drawBehind { glow() }.remote(@DontMemoize { press(it) })) {
         if (row < 1f) BrandLockup(LOCKUP_HIGH, Modifier.offset(73.ref, 56.ref).alpha(1 - row))
-        if (row > 0f) Row(Modifier.offset(96.ref, 78.ref).alpha(row), verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                Modifier
-                    .size(82.ref)
-                    .background(if (at == Stop.HOME) Color.White else Color.White.copy(alpha = 0.12f), CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painterResource(R.drawable.icon_home),
-                    null,
-                    Modifier.size(38.ref),
-                    tint = if (at == Stop.HOME) Back else Color.White,
-                )
+        if (row > 0f) {
+            Row(Modifier.offset(96.ref, 78.ref).alpha(row), verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier
+                        .size(82.ref)
+                        .background(if (at == Stop.HOME) Color.White else Color.White.copy(alpha = 0.12f), CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painterResource(R.drawable.icon_home),
+                        null,
+                        Modifier.size(38.ref),
+                        tint = if (at == Stop.HOME) Back else Color.White,
+                    )
+                }
+                Spacer(Modifier.width(20.ref))
+                if (titles.isNotEmpty()) {
+                    // The tab of the titles: grey while a title card is in view, white in focus.
+                    Box(
+                        Modifier
+                            .height(72.ref)
+                            .background(
+                                when {
+                                    at == Stop.TAB -> Color.White
+                                    page > 0 -> Color.White.copy(alpha = 0.16f)
+                                    else -> Color.Transparent
+                                },
+                                CircleShape,
+                            )
+                            .padding(horizontal = 32.ref),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            words["door.trending"].orEmpty(),
+                            color = if (at == Stop.TAB) Back else Color.White,
+                            fontSize = 30.refType,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
             }
-            Spacer(Modifier.width(40.ref))
-            Text(
-                words["door.trending"].orEmpty(),
-                Modifier.alpha(if (at == Stop.TAB) 1f else 0.85f),
-                fontSize = 30.refType,
-                fontWeight = FontWeight.SemiBold,
-            )
-        }
-        if (peek) {
-            Box(
-                Modifier
-                    .offset(1636.ref, 167.ref)
-                    .size(284.ref, 866.ref)
-                    .alpha(shown)
-                    .clip(RoundedCornerShape(topStart = 24.ref, bottomStart = 24.ref)),
-            ) { Art("${seen.server}/tv/peek.jpg", Modifier.fillMaxSize()) }
+            if (page > 0) {
+                // On a title card the way to sign in moves up to the top right, outlined until in focus.
+                val on = at == Stop.TOP_SIGN_IN
+                Box(
+                    Modifier
+                        .offset(1564.ref, 47.ref)
+                        .size(272.ref, 80.ref)
+                        .alpha(row)
+                        .border(3.ref, if (on) Color.Transparent else Color.White.copy(alpha = 0.5f), CircleShape)
+                        .background(if (on) Color.White else Color.Transparent, CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(words["door.sign_in"].orEmpty(), color = if (on) Back else Color.White, fontSize = 28.refType, fontWeight = FontWeight.Bold)
+                }
+            }
         }
         Box(
             Modifier
                 .offset(55.ref, 169.ref)
-                .graphicsLayer { translationX = slide.value * width }
+                .graphicsLayer { translationX = slide.value * width - moved * step }
                 .size(1542.ref, 864.ref)
                 .border(3.ref, CardEdge, shape)
                 .clip(shape)
                 .background(CardWash),
         ) {
-            if (film) Film(shell, "${seen.server}/tv/showreel.mp4", true, roll, Modifier.fillMaxSize(), ready) { ready() }
+            // The showreel rests while another card is in view.
+            if (film) {
+                Film(shell, "${seen.server}/tv/showreel.mp4", true, roll && page == 0, Modifier.fillMaxSize(), { filmReady = true }) {
+                    filmReady = true
+                }
+            }
             Text(
                 words["door.help"].orEmpty(),
                 Modifier
@@ -248,6 +424,17 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
                 Ask(words["door.sign_in"].orEmpty(), at == Stop.SIGN_IN, Color.White, Back)
                 Spacer(Modifier.width(32.ref))
                 Ask(words["door.join"].orEmpty(), at == Stop.JOIN, Join, Color.White)
+            }
+        }
+        // Each title card is built when it is near: the one in view and one each side.
+        titles.forEachIndexed { index, title ->
+            val card = index + 1
+            if (card in page - 1..page + 1) {
+                key(title.title) {
+                    Box(Modifier.offset(55.ref, 169.ref).graphicsLayer { translationX = (card - moved) * step }) {
+                        TitleCard(title, words, current = card == page, on = card == page && at == Stop.WATCH)
+                    }
+                }
             }
         }
     }
