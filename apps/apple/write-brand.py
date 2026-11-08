@@ -149,5 +149,8 @@ write(
     f"    public static let card: CGFloat = {shape['card_radius']}\n"
     f"    public static let panel: CGFloat = {shape['panel_radius']}\n"
     f"    public static let field: CGFloat = {shape['field_radius']}\n"
+    f"    public static let button: CGFloat = {shape['button_radius']}\n"
+    f"    public static let chip: CGFloat = {shape['chip_radius']}\n"
+    f"    public static let chipEnd: CGFloat = {shape['chip_end_radius']}\n"
     "}\n",
 )
