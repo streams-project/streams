@@ -60,7 +60,7 @@ fun Root(shell: Shell, tv: Boolean) {
                 target == Target.WATCH -> Watch(shell, seen, tv)
                 target == Target.HOME || target == Target.KIDS_HOME || target == Target.SCREEN ->
                     Home(shell, seen)
-                else -> Text("That page is not here.", Modifier.align(Alignment.Center))
+                else -> Text(seen.words["error.not_found"].orEmpty(), Modifier.align(Alignment.Center))
             }
             if (target == Target.TITLE) BackHandler { shell.back() }
             if (target == Target.WATCH) {

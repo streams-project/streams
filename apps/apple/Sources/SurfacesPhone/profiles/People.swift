@@ -9,7 +9,7 @@ struct People: View {
 
     var body: some View {
         VStack(spacing: 28) {
-            Text(seen.say("profiles.title")).brand(22, 700)
+            Text(seen.say("profiles.choose.phone")).brand(22, 700)
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 20)], spacing: 20) {
                 ForEach(seen.profiles, id: \.id) { person in
                     Button {

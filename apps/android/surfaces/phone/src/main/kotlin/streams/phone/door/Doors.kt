@@ -95,7 +95,7 @@ fun Door(shell: Shell, seen: Seen) {
         Text(seen.brand, fontSize = 56.sp, fontWeight = FontWeight.Black)
         Spacer(Modifier.height(32.dp))
         val first = remember { FocusRequester() }
-        Button({ shell.go(Address.SIGN_IN) }, Modifier.focusRequester(first)) { Text("Sign in") }
+        Button({ shell.go(Address.SIGN_IN) }, Modifier.focusRequester(first)) { Text(seen.words["door.sign_in"] ?: "Sign in") }
         LaunchedEffect(Unit) { first.requestFocus() }
     }
 }
@@ -108,16 +108,16 @@ fun SignIn(shell: Shell, seen: Seen) {
         Modifier.fillMaxSize().padding(32.dp),
         verticalArrangement = Arrangement.Center,
     ) {
-        Text("Sign in", fontSize = 32.sp, fontWeight = FontWeight.Bold)
+        Text(seen.words["door.sign_in"] ?: "Sign in", fontSize = 32.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(24.dp))
-        OutlinedTextField(email, { email = it }, Modifier.fillMaxWidth(), label = { Text("Email") })
+        OutlinedTextField(email, { email = it }, Modifier.fillMaxWidth(), label = { Text(seen.words["signin.email"] ?: "Email") })
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(
-            password, { password = it }, Modifier.fillMaxWidth(), label = { Text("Password") },
+            password, { password = it }, Modifier.fillMaxWidth(), label = { Text(seen.words["signin.password"] ?: "Password") },
             visualTransformation = PasswordVisualTransformation(),
         )
         Spacer(Modifier.height(24.dp))
-        Button({ shell.act(ActionSignIn(email = email, password = password)) }) { Text("Sign in") }
+        Button({ shell.act(ActionSignIn(email = email, password = password)) }) { Text(seen.words["door.sign_in"] ?: "Sign in") }
         seen.notice?.let {
             Spacer(Modifier.height(16.dp))
             Text(it, color = Muted)

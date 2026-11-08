@@ -40,7 +40,7 @@ struct Home: View {
             : nil
         let title = pickedGenre
             ?? seen.nav.first(where: { $0.screen.rawValue == here })?.label
-            ?? words["app.title"] ?? "Streams"
+            ?? words["app.title"] ?? seen.brand
 
         let screenKey = onHome ? "home" : "\(here):\(seen.route?.genre ?? "")"
         let scrollBinding = Binding<String?>(
