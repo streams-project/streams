@@ -119,6 +119,12 @@ struct Home: View {
                                 tallTiles: index == 0 && section.kind == .row,
                                 open: { tile in
                                     shell.go(titleAddress(tile.title))
+                                },
+                                openInfo: { tile in
+                                    shell.go(titleAddress(tile.title))
+                                },
+                                onRemove: { tile in
+                                    shell.act(.command(ActionCommand(command: .hide(CommandHide(title: tile.title)))))
                                 }
                             )
                             .id(section.id)

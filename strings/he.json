@@ -246,5 +246,9 @@
   "nav.search": "חיפוש",
   "nav.categories": "קטגוריות",
   "title.kind.series": "סדרה",
-  "title.kind.film": "סרט"
+  "title.kind.film": "סרט",
+  "badge.top_10": "10 המובילים",
+  "badge.new_episode": "פרק חדש",
+  "badge.watch_now": "צפה עכשיו",
+  "row.continue.remove": "הסרה מהשורה"
 }

@@ -244,5 +244,9 @@
   "nav.search": "खोजें",
   "nav.categories": "कैटेगरी",
   "title.kind.series": "सीरीज़",
-  "title.kind.film": "फ़िल्म"
+  "title.kind.film": "फ़िल्म",
+  "badge.top_10": "टॉप 10",
+  "badge.new_episode": "नया एपिसोड",
+  "badge.watch_now": "अभी देखें",
+  "row.continue.remove": "पंक्ति से हटाएँ"
 }

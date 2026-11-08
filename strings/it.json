@@ -244,5 +244,9 @@
   "nav.search": "Cerca",
   "nav.categories": "Categorie",
   "title.kind.series": "Serie",
-  "title.kind.film": "Film"
+  "title.kind.film": "Film",
+  "badge.top_10": "TOP 10",
+  "badge.new_episode": "Nuovo episodio",
+  "badge.watch_now": "Guarda ora",
+  "row.continue.remove": "Rimuovi dalla riga"
 }

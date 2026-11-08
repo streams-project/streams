@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import contract.ActionCommand
 import contract.Address
+import contract.CommandHide
 import contract.CommandList
 import contract.SectionKind
 import contract.Tile
@@ -174,7 +175,14 @@ fun Home(shell: Shell, seen: Seen) {
                 item(key = "billboard-gap") { Box(Modifier.height(16.dp)) }
             }
             itemsIndexed(rows, key = { _, section -> section.id }) { index, section ->
-                SectionRow(section, words, tallTiles = index == 0 && section.kind == SectionKind.ROW, open = ::open)
+                SectionRow(
+                    section = section,
+                    words = words,
+                    tallTiles = index == 0 && section.kind == SectionKind.ROW,
+                    open = ::open,
+                    openInfo = { shell.go(titleAddress(it.title)) },
+                    onRemove = { shell.act(ActionCommand(CommandHide(it.title))) },
+                )
             }
         }
         // The pinned header: clear over the colour at the top, black once the page moves.
