@@ -5,8 +5,6 @@ import SwiftUI
 import UIKit
 
 private let emptyCard = 0.333
-private let peekAfter = 10.0
-private let peekFade = 0.583
 private let rowFade = 0.24
 /// The lockup's mark height at the top left of the landing, measured on the reference: 58 of 1080.
 private let lockupHigh: CGFloat = 58
@@ -26,7 +24,92 @@ private let cardWash = LinearGradient(
 )
 private let cardEdge = Color(red: 0xC4 / 255.0, green: 0xE4 / 255.0, blue: 0xFB / 255.0)
 
-private enum Stop: Int, CaseIterable { case home, tab, help, signIn, join }
+/// Where the focus can be on the landing: the top row, the showreel card's buttons, a title card's button.
+private enum Stop { case home, tab, topSignIn, help, signIn, join, watch }
+
+/// Cards sit this far apart: 1542 wide and 39 between, so the next one shows at 1636.
+private let cardStep: CGFloat = 1581
+private let cardMove = 0.32
+private let slideEvery = 4.5
+private let slideFade = 0.7
+
+private let titleSide = LinearGradient(
+    stops: [.init(color: .black.opacity(0.8), location: 0), .init(color: .clear, location: 0.62)],
+    startPoint: .leading, endPoint: .trailing
+)
+private let titleFoot = LinearGradient(
+    stops: [.init(color: .clear, location: 0.45), .init(color: .black.opacity(0.75), location: 1)],
+    startPoint: .top, endPoint: .bottom
+)
+
+/// The pictures of a title card in turn: its backdrop, then its episodes.
+private func slidesOf(_ title: TitleDetail?) -> [String] {
+    guard let title else { return [] }
+    return [wide(title.images)].compactMap { $0 } + (title.images ?? []).filter { $0.role == .still }.map(\.url)
+}
+
+/// One title's pictures in turn while its card is the one in view, each fading into the next.
+private struct Slideshow: View {
+    let slides: [String]
+    let running: Bool
+    @State private var at = 0
+
+    var body: some View {
+        ZStack {
+            ForEach(Array(slides.enumerated()), id: \.offset) { index, url in
+                if index == at { Art(url).transition(.opacity) }
+            }
+        }
+        .animation(.linear(duration: slideFade), value: at)
+        .task(id: running) {
+            guard running, slides.count > 1 else { return }
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: UInt64(slideEvery * 1e9))
+                if Task.isCancelled { break }
+                at = (at + 1) % slides.count
+            }
+        }
+    }
+}
+
+/// A trending title as a card: its pictures, logo, facts, story and a way in.
+private struct TitleCard: View {
+    let title: TitleDetail
+    let seen: Seen
+    let current: Bool
+    let on: Bool
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: 24.ref)
+        let logoUrl = (title.images ?? []).first { $0.role == .logo }?.url
+        ZStack(alignment: .topLeading) {
+            Raised
+            Slideshow(slides: slidesOf(title), running: current)
+            titleSide
+            titleFoot
+            ZStack(alignment: .bottomLeading) {
+                if let logoUrl {
+                    Logo(url: logoUrl, width: 520, height: 180)
+                } else {
+                    Text(title.name).brand(64, 800).lines(64, 70).foregroundStyle(.white).lineLimit(2)
+                }
+            }
+            .frame(width: 520.ref, height: 180.ref, alignment: .bottomLeading)
+            .offset(x: 74.ref, y: 424.ref)
+            Facts(title, seen.words).offset(x: 74.ref, y: 628.ref)
+            Text(title.overview ?? "")
+                .brand(30).lines(30, 39)
+                .foregroundStyle(.white.opacity(0.85))
+                .lineLimit(3)
+                .frame(width: 720.ref, alignment: .leading)
+                .offset(x: 74.ref, y: 676.ref)
+            Ask(word: seen.say("door.watch"), on: on, lit: Join, ink: .white).offset(x: 1215.ref, y: 720.ref)
+        }
+        .frame(width: 1542.ref, height: 864.ref, alignment: .topLeading)
+        .clipShape(shape)
+        .overlay(shape.stroke(cardEdge, lineWidth: 3.ref))
+    }
+}
 
 /// A brand film or sound. It plays while `on`, and is handed back when it leaves the screen.
 struct Film: UIViewRepresentable {
@@ -104,10 +187,15 @@ private struct Landing: View {
     let ready: () -> Void
     // As in the reference, Get started holds the focus when the landing first shows.
     @State private var at = Stop.join
-    // The brand's lockup sits top left until the viewer first goes up to the row it gives way to.
+    // Which card is in view: 0 is the showreel, then the trending titles.
+    @State private var page = 0
+    @State private var cards: [TitleDetail]?
+    @State private var filmReady = false
+    @State private var peekReady = false
+    @State private var told = false
+    // The brand's lockup sits top left until the viewer first goes up, or along to the titles.
     @State private var raised = false
     @State private var film: Bool
-    @State private var peek = false
     @State private var slide: CGFloat
 
     init(shell: Shell, seen: Seen, opening: Bool, roll: Bool, ready: @escaping () -> Void) {
@@ -120,22 +208,66 @@ private struct Landing: View {
         _slide = State(initialValue: opening ? 0 : slideSteps[0])
     }
 
+    private func tell() {
+        if !told && filmReady && cards != nil && peekReady {
+            told = true
+            ready()
+        }
+    }
+
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: 24.ref)
+        let titles = cards ?? []
+        let onTop = at == .home || at == .tab || at == .topSignIn
+
+        func cardStop() -> Stop { page == 0 ? .join : .watch }
+        func show(_ card: Int) {
+            page = card
+            at = cardStop()
+        }
 
         func press(_ word: Word) -> Bool {
-            switch word {
-            case .left: if at.rawValue > 0 { at = Stop(rawValue: at.rawValue - 1)! }
-            case .right: if at.rawValue < Stop.allCases.count - 1 { at = Stop(rawValue: at.rawValue + 1)! }
-            case .up: if at.rawValue >= Stop.help.rawValue { at = .tab }
-            case .down: if at.rawValue < Stop.help.rawValue { at = .signIn }
-            case .ok:
-                switch at {
-                case .signIn, .join: shell.go(Address.sign_in)
-                case .help: shell.go(Address.help)
+            if word == .back {
+                // Back walks out the way the viewer came in: the row to its card, a title to the
+                // showreel, and only the showreel's buttons leave the app.
+                if onTop { at = cardStop() } else if page > 0 { show(0) } else { return false }
+                return true
+            }
+            if onTop {
+                switch word {
+                case .left: at = at == .topSignIn ? .tab : .home
+                case .right:
+                    if at == .home && !titles.isEmpty { at = .tab } else if at == .tab && page > 0 { at = .topSignIn }
+                case .down: at = cardStop()
+                case .ok:
+                    switch at {
+                    case .home: show(0)
+                    case .tab: show(max(page, 1))
+                    default: shell.go(Address.sign_in)
+                    }
                 default: break
                 }
-            case .back: return false
+            } else if page == 0 {
+                switch word {
+                case .left: at = at == .join ? .signIn : .help
+                // Past Get Started the next card comes in, as on the reference.
+                case .right:
+                    if at == .help { at = .signIn } else if at == .signIn { at = .join } else if !titles.isEmpty { show(1) }
+                case .up: at = .home
+                case .ok: shell.go(at == .help ? Address.help : Address.sign_in)
+                default: break
+                }
+            } else {
+                switch word {
+                case .left: show(page - 1)
+                case .right: if page < titles.count { show(page + 1) }
+                case .up: at = .tab
+                case .ok: shell.go(Address.sign_in)
+                default: break
+                }
+            }
+            if onTop || at == .home || at == .tab || page > 0 {
+                if !raised { withAnimation(.linear(duration: rowFade)) { raised = true } }
             }
             return true
         }
@@ -146,29 +278,48 @@ private struct Landing: View {
             if !raised {
                 BrandLockup(high: lockupHigh).offset(x: 73.ref, y: 56.ref).transition(.opacity)
             } else {
-            HStack(spacing: 40.ref) {
-                Circle()
-                    .fill(at == .home ? Color.white : Color.white.opacity(0.12))
-                    .frame(width: 82.ref, height: 82.ref)
-                    .overlay(Icon("icon_home", 38, tint: at == .home ? Back : .white))
-                Text(seen.say("door.trending"))
-                    .brand(30, 600)
-                    .foregroundStyle(.white)
-                    .opacity(at == .tab ? 1 : 0.85)
-            }
-            .offset(x: 96.ref, y: 78.ref)
-            .transition(.opacity)
-            }
-            if peek {
-                Art("\(seen.server)/tv/peek.jpg")
-                    .frame(width: 284.ref, height: 866.ref)
-                    .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24.ref, bottomLeadingRadius: 24.ref))
-                    .offset(x: 1636.ref, y: 167.ref)
-                    .transition(.opacity.animation(.linear(duration: peekFade)))
+                HStack(spacing: 20.ref) {
+                    Circle()
+                        .fill(at == .home ? Color.white : Color.white.opacity(0.12))
+                        .frame(width: 82.ref, height: 82.ref)
+                        .overlay(Icon("icon_home", 38, tint: at == .home ? Back : .white))
+                    if !titles.isEmpty {
+                        // The tab of the titles: grey while a title card is in view, white in focus.
+                        Text(seen.say("door.trending"))
+                            .brand(30, 600)
+                            .foregroundStyle(at == .tab ? Back : .white)
+                            .padding(.horizontal, 32.ref)
+                            .frame(height: 72.ref)
+                            .background(at == .tab ? Color.white : page > 0 ? Color.white.opacity(0.16) : .clear, in: Capsule())
+                    }
+                }
+                .offset(x: 96.ref, y: 78.ref)
+                .transition(.opacity)
+                if page > 0 {
+                    // On a title card the way to sign in moves up to the top right, outlined until in focus.
+                    let on = at == .topSignIn
+                    Text(seen.say("door.sign_in"))
+                        .brand(28, 700)
+                        .foregroundStyle(on ? Back : .white)
+                        .frame(width: 272.ref, height: 80.ref)
+                        .background(on ? Color.white : .clear, in: Capsule())
+                        .overlay(Capsule().stroke(on ? .clear : Color.white.opacity(0.5), lineWidth: 3.ref))
+                        .offset(x: 1564.ref, y: 47.ref)
+                        .transition(.opacity)
+                }
             }
             ZStack(alignment: .topLeading) {
                 cardWash
-                if film { Film(shell: shell, url: "\(seen.server)/tv/showreel.mp4", loop: true, on: roll, ready: ready) { ready() } }
+                // The showreel rests while another card is in view.
+                if film {
+                    Film(shell: shell, url: "\(seen.server)/tv/showreel.mp4", loop: true, on: roll && page == 0, ready: {
+                        filmReady = true
+                        tell()
+                    }) {
+                        filmReady = true
+                        tell()
+                    }
+                }
                 Text(seen.say("door.help"))
                     .brand(24, 600)
                     .foregroundStyle(at == .help ? Back : .white.opacity(0.85))
@@ -183,12 +334,42 @@ private struct Landing: View {
             .frame(width: 1542.ref, height: 864.ref, alignment: .topLeading)
             .clipShape(shape)
             .overlay(shape.stroke(cardEdge, lineWidth: 3.ref))
-            .offset(x: 55.ref + slide * stage.ref, y: 169.ref)
+            .offset(x: 55.ref + slide * stage.ref - CGFloat(page) * cardStep.ref, y: 169.ref)
+            // Each title card is built when it is near, one beyond each side so it slides in.
+            ForEach(Array(titles.enumerated()), id: \.element.title) { index, title in
+                let card = index + 1
+                if card >= page - 1 && card <= page + 2 {
+                    TitleCard(title: title, seen: seen, current: card == page, on: card == page && at == .watch)
+                        .offset(x: (55 + CGFloat(card - page) * cardStep).ref, y: 169.ref)
+                }
+            }
+            // Every title's pictures load at once, so each card has them when it comes into view.
+            ZStack {
+                ForEach(Array(titles.enumerated()), id: \.offset) { index, title in
+                    ForEach(Array(slidesOf(title).enumerated()), id: \.offset) { which, url in
+                        Art(url) {
+                            if index == 0 && which == 0 && !peekReady {
+                                peekReady = true
+                                tell()
+                            }
+                        }
+                    }
+                }
+            }
+            .frame(width: 4, height: 4)
+            .opacity(0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .animation(glide(cardMove), value: page)
         .remote { press($0) }
-        .onChange(of: at) { _, now in
-            if now == .home || now == .tab { withAnimation(.linear(duration: rowFade)) { raised = true } }
+        .task {
+            // The titles load under the opening when there is one, and the opening waits for the
+            // showreel and the next card, so nothing comes in late.
+            let list = await shell.read("/v1/public/trending")
+                .flatMap { try? JSONDecoder().decode(PublicTitles.self, from: Data($0.utf8)).titles } ?? []
+            cards = list
+            if slidesOf(list.first).isEmpty { peekReady = true }
+            tell()
         }
         .task {
             guard !opening else { return }
@@ -198,11 +379,6 @@ private struct Landing: View {
             }
             try? await Task.sleep(nanoseconds: UInt64(emptyCard * 1e9))
             film = true
-        }
-        .task(id: roll) {
-            guard roll else { return }
-            try? await Task.sleep(nanoseconds: UInt64(peekAfter * 1e9))
-            withAnimation(.linear(duration: peekFade)) { peek = true }
         }
     }
 }

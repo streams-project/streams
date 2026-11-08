@@ -42,10 +42,18 @@ enum Pictures {
 public struct Art: View {
     public let url: String?
     public var fit: Bool
+    /// Runs once the picture is there, from the network or from memory.
+    var loaded: (() -> Void)?
 
     public init(_ url: String?, fit: Bool = false) {
         self.url = url
         self.fit = fit
+    }
+
+    init(_ url: String?, loaded: @escaping () -> Void) {
+        self.url = url
+        self.fit = false
+        self.loaded = loaded
     }
 
     public var body: some View {
@@ -53,11 +61,20 @@ public struct Art: View {
             .overlay {
                 if let url, let kept = Pictures.now(url) {
                     kept.resizable().aspectRatio(contentMode: fit ? .fit : .fill)
+                        .onAppear { loaded?() }
                 } else if let url, let address = URL(string: url) {
                     AsyncImage(url: address) { phase in
-                        if case .success(let image) = phase {
+                        switch phase {
+                        case .success(let image):
                             image.resizable().aspectRatio(contentMode: fit ? .fit : .fill)
-                                .onAppear { Pictures.keep(url, image) }
+                                .onAppear {
+                                    Pictures.keep(url, image)
+                                    loaded?()
+                                }
+                        case .failure:
+                            Color.clear.onAppear { loaded?() }
+                        default:
+                            Color.clear
                         }
                     }
                 }
