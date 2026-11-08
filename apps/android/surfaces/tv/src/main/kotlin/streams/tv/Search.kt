@@ -81,7 +81,7 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
                 Word.LEFT -> if (state.tab == 0) state.tab = SEARCH_TAB else if (state.tab > 0) state.tab -= 1
                 Word.RIGHT -> if (state.tab == SEARCH_TAB) state.tab = 0 else if (state.tab < tabs.lastIndex) state.tab += 1
                 Word.DOWN -> state.zone = Zone.LETTERS
-                Word.OK -> tabs.getOrNull(state.tab)?.let { shell.go(if (it.screen.value == "home") Address.HOME else "/" + it.screen.value) }
+                Word.OK -> tabs.getOrNull(state.tab)?.let { shell.go(Address.of(it.screen.value)) }
                 Word.BACK -> shell.back()
                 Word.UP -> Unit
             }
@@ -102,7 +102,7 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
                 Word.UP -> if (state.genre > 0) state.genre -= 1 else state.zone = Zone.LETTERS
                 Word.DOWN -> if (state.genre < genres.lastIndex) state.genre += 1
                 Word.RIGHT -> if (shown.isNotEmpty()) state.zone = Zone.RESULTS
-                Word.OK -> genres.getOrNull(state.genre)?.genre?.let { shell.go("/genre/$it") }
+                Word.OK -> genres.getOrNull(state.genre)?.genre?.let { shell.go(Address.GENRE + it) }
                 Word.BACK -> shell.back()
                 Word.LEFT -> Unit
             }

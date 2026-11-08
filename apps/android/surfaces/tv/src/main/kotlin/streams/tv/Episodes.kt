@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.DontMemoize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -120,15 +121,24 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
     val words = seen.words
     val seasons = data.seasons.orEmpty()
     val path = data.title.value.replace(':', '/')
-    var chosen by remember { mutableIntStateOf(0) }
+    // The page opens on the season and episode the viewer is on, so Play next is one press away.
+    val onNow = data.resume?.episode
+    var chosen by remember { mutableIntStateOf(seasons.indexOfFirst { it.number == onNow?.season }.coerceAtLeast(0)) }
     var inList by remember { mutableStateOf(false) }
-    var line by remember { mutableIntStateOf(0) }
+    var line by remember { mutableIntStateOf(chosen) }
     var card by remember { mutableIntStateOf(0) }
+    var placed by remember { mutableStateOf(onNow == null) }
     val number = seasons.getOrNull(chosen)?.number ?: 1
     val episodes by produceState(emptyList<Episode>(), number) {
         value = shell.read("/v1/titles/$path/seasons/$number")
             ?.let { contractJson.decodeFromString(Season.serializer(), it).episodes }
             .orEmpty()
+    }
+    LaunchedEffect(episodes) {
+        if (!placed && episodes.isNotEmpty() && seasons.getOrNull(chosen)?.number == onNow?.season) {
+            card = episodes.indexOfFirst { it.number == onNow?.episode }.coerceAtLeast(0)
+            placed = true
+        }
     }
     val step = with(LocalDensity.current) { CARD_STEP.ref.toPx() }
     val moved by animateFloatAsState(card.toFloat(), tween(MOVE_MS, easing = Glide), label = "cards")
@@ -137,7 +147,13 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
         when (word) {
             Word.UP -> if (inList) line = maxOf(0, line - 1) else card = maxOf(0, card - 1)
             Word.DOWN -> if (inList) line = minOf(seasons.lastIndex, line + 1) else card = minOf(episodes.lastIndex, card + 1)
-            Word.LEFT -> inList = true
+            // From the cards Left opens the seasons at the one shown; from the seasons it goes back.
+            Word.LEFT -> if (inList) {
+                leave()
+            } else {
+                inList = true
+                line = chosen
+            }
             Word.RIGHT -> inList = false
             Word.OK -> if (inList) {
                 chosen = line

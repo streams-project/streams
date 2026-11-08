@@ -99,7 +99,7 @@ fun EditMenu(
                     Word.UP -> if (askAt > 0) askAt -= 1
                     Word.DOWN -> if (askAt < askLines.lastIndex) askAt += 1
                     Word.OK -> if (askAt == 0) open(EditStep.DELETE) else asking = false
-                    Word.BACK -> asking = false
+                    Word.BACK, Word.LEFT -> asking = false
                     else -> return@remote false
                 }
                 return@remote true
@@ -118,7 +118,8 @@ fun EditMenu(
                         else -> open(chosen)
                     }
                 }
-                Word.BACK -> leave()
+                // The menu is the left edge of the page: Left goes back, as Back does.
+                Word.BACK, Word.LEFT -> leave()
                 else -> return@remote false
             }
             true
@@ -206,7 +207,8 @@ fun EditLanguage(words: Map<String, String>, list: List<Language>, current: Stri
                     at % GRID_LINES == GRID_LINES - 1 || at == list.lastIndex -> at = cancelAt
                     else -> at += 1
                 }
-                Word.LEFT -> if (at != cancelAt && at >= GRID_LINES) at -= GRID_LINES
+                // Left from the first column, or from Cancel, leaves the languages unchanged.
+                Word.LEFT -> if (at != cancelAt && at >= GRID_LINES) at -= GRID_LINES else finish(null)
                 Word.RIGHT -> if (at != cancelAt && at + GRID_LINES <= list.lastIndex) at += GRID_LINES
                 Word.OK -> finish(list.getOrNull(at)?.code)
                 Word.BACK -> finish(null)

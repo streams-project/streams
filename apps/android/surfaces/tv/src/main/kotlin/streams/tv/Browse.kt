@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -37,10 +38,13 @@ private const val RISE_MS = 320
 
 private enum class Where { TOP, HERO, ROW }
 
+/** Where the viewer was on each page of rows, for the run of the app. */
+val LocalPages = staticCompositionLocalOf { HashMap<String, Any>() }
+
 private val RowKinds = setOf(SectionKind.ROW, SectionKind.RANKED, SectionKind.CONTINUE, SectionKind.GRID)
 
 /** Where the viewer is on a page of rows. It knows nothing about drawing. */
-private class PageFocus(var rows: List<Section>, var tabs: Int, active: Int, var hero: Boolean) {
+private class PageFocus(var rows: List<Section>, var tabs: Int, private val active: Int, var hero: Boolean) {
     private val above get() = if (hero) Where.HERO else Where.TOP
     var where by mutableStateOf(if (hero || rows.isEmpty()) above else Where.ROW)
     var row by mutableIntStateOf(0)
@@ -85,10 +89,13 @@ private class PageFocus(var rows: List<Section>, var tabs: Int, active: Int, var
                 where == Where.ROW && column < lastColumn() -> columns[row] = column + 1
                 else -> return false
             }
-            Word.BACK -> when (where) {
-                Where.ROW -> where = above
-                Where.HERO -> where = Where.TOP
-                Where.TOP -> return false
+            Word.BACK -> when {
+                where == Where.ROW -> where = above
+                where == Where.HERO -> where = Where.TOP
+                // Focus wandered along the bar without choosing: Back brings it home to this page's tab
+                // first, and only then leaves the page.
+                tab != active -> tab = active
+                else -> return false
             }
             Word.OK -> return false
         }
@@ -117,7 +124,12 @@ fun Browse(shell: Shell, seen: Seen) {
     val active = tabs.indexOfFirst { it.screen.value == current }.coerceAtLeast(0)
     val person = seen.profiles.firstOrNull { it.id == seen.active } ?: seen.profiles.firstOrNull()
     // A page is drawn from what was kept and then from the fresh answer. The focus belongs to the page.
-    val focus = remember(current, seen.route?.genre) { PageFocus(rows, tabs.size, active, lead != null) }
+    // Each page keeps where the viewer was for the run of the app, so coming back from a title lands
+    // on the tile that opened it.
+    val memory = LocalPages.current
+    val focus = remember(current, seen.route?.genre) {
+        memory.getOrPut("${seen.active} $current ${seen.route?.genre.orEmpty()}") { PageFocus(rows, tabs.size, active, lead != null) } as PageFocus
+    }
     focus.rows = rows
     focus.tabs = tabs.size
     focus.hero = lead != null

@@ -95,7 +95,8 @@ fun ProfileMenu(shell: Shell, seen: Seen, person: Profile?, leave: () -> Unit) {
             Word.UP -> if (at > 0) at -= 1
             Word.DOWN -> if (at < picks.lastIndex) at += 1
             Word.OK -> choose()
-            Word.BACK -> leave()
+            // The card hangs from the face at the left, so Left closes it as Back does.
+            Word.BACK, Word.LEFT -> leave()
             else -> Unit
         }
         return true

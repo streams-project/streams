@@ -96,7 +96,8 @@ fun PinPanel(
     Column(
         Modifier.fillMaxSize().padding(top = 200.ref).remote(@DontMemoize { word ->
             when (word) {
-                Word.LEFT -> if (at > 0) at -= 1
+                // Left past the first digit goes back, as Back does.
+                Word.LEFT -> if (at > 0) at -= 1 else leave()
                 Word.RIGHT -> if (at < count - 1) at += 1
                 Word.UP -> {
                     digits[at] = (digits[at] + 1) % 10

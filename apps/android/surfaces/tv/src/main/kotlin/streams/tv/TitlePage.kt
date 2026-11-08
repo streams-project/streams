@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.DontMemoize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -77,16 +78,18 @@ private fun playWord(data: TitleDetail, words: Map<String, String>): String {
 @Composable
 fun TitlePage(shell: Shell, seen: Seen) {
     val data = seen.detail?.takeIf { it.title == seen.route?.title } ?: return
-    var page by remember { mutableStateOf(Page.TITLE) }
+    // A new title starts at its summary, and the line opened there is kept for coming back to it.
+    var page by remember(data.title) { mutableStateOf(Page.TITLE) }
+    val line = remember(data.title) { mutableIntStateOf(0) }
     when (page) {
         Page.EPISODES -> Episodes(shell, seen, data) { page = Page.TITLE }
         Page.MORE -> MoreLike(shell, seen, data) { page = Page.TITLE }
-        Page.TITLE -> Summary(shell, seen, data) { page = it }
+        Page.TITLE -> Summary(shell, seen, data, line) { page = it }
     }
 }
 
 @Composable
-private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) -> Unit) {
+private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, line: MutableIntState, open: (Page) -> Unit) {
     val words = seen.words
     val rows = buildList {
         add(Row.PLAY)
@@ -95,7 +98,7 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) ->
         add(Row.LIST)
     }
     var part by remember { mutableStateOf(Part.MENU) }
-    var row by remember { mutableIntStateOf(0) }
+    var row by line
     var reaction by remember { mutableIntStateOf(1) }
     var rating by remember(data.title, data.rating) { mutableStateOf(data.rating) }
     var saved by remember(data.title, data.inList) { mutableStateOf(data.inList == true) }
@@ -141,7 +144,11 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) ->
                 part == Part.REACTIONS -> part = Part.MENU
                 row < rows.lastIndex -> row += 1
             }
-            Word.LEFT -> if (part == Part.REACTIONS && reaction > 0) reaction -= 1
+            // The menu sits at the left edge: Left from it goes back, as Back does.
+            Word.LEFT -> when {
+                part == Part.REACTIONS && reaction > 0 -> reaction -= 1
+                part == Part.MENU -> shell.back()
+            }
             Word.RIGHT -> if (part == Part.REACTIONS && reaction < ReactionCount - 1) reaction += 1
             Word.OK -> when {
                 part == Part.REACTIONS -> rate()
@@ -150,7 +157,8 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, open: (Page) ->
                 rows[row] == Row.LIST -> toggleList()
                 else -> open(Page.MORE)
             }
-            Word.BACK -> return false
+            // From the ratings Back returns to the menu first, then leaves the title.
+            Word.BACK -> if (part == Part.REACTIONS) part = Part.MENU else return false
         }
         return true
     }

@@ -31,6 +31,8 @@ fun MoreLike(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
             when (word) {
                 Word.OK -> shell.go(titleAddress(tiles[at].title))
                 Word.BACK -> leave()
+                // The first column sits at the title's name: Left there returns to the title.
+                Word.LEFT -> if (at % POSTERS_ACROSS == 0) leave() else at = gridMove(at, word, tiles.lastIndex)
                 else -> at = gridMove(at, word, tiles.lastIndex)
             }
             true

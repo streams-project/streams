@@ -173,10 +173,11 @@ fun SignIn(shell: Shell, seen: Seen) {
             return true
         }
         when (word) {
-            Word.LEFT -> way = Way.PHONE
+            // Left past Use Phone, and Back, return to the page the viewer came from.
+            Word.LEFT -> if (way == Way.PHONE) shell.back() else way = Way.PHONE
             Word.RIGHT -> way = Way.REMOTE
             Word.DOWN, Word.OK -> if (way == Way.REMOTE) onPills = false
-            Word.BACK -> return false
+            Word.BACK -> shell.back()
             Word.UP -> Unit
         }
         return true

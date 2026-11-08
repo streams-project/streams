@@ -37,7 +37,7 @@ private const val DEFAULT_PIN_DIGITS = 4
 
 /** Who is watching: a column of profiles on the left, and a title chosen for the one in focus. */
 @Composable
-fun Profiles(shell: Shell, seen: Seen) {
+fun Profiles(shell: Shell, seen: Seen, fromInside: Boolean = false) {
     val list = seen.profiles
     val hello by produceState<Hello?>(null) {
         value = shell.read("/v1/hello")?.let { contractJson.decodeFromString(Hello.serializer(), it) }
@@ -133,7 +133,8 @@ fun Profiles(shell: Shell, seen: Seen) {
                     shell.act(ActionEnterProfile(profile = person.id))
                 }
             }
-            Word.BACK -> return false
+            // Opened with Switch Profiles, Back returns to the page; at the start of the app it leaves.
+            Word.BACK -> if (fromInside) shell.back() else return false
         }
         return true
     }

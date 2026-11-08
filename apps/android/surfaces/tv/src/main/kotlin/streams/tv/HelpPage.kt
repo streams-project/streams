@@ -68,7 +68,8 @@ private fun Reading(title: String, sections: List<HelpSection>, leave: () -> Uni
         when (word) {
             Word.UP -> moved = (moved - step).coerceAtLeast(0)
             Word.DOWN -> moved = (moved + step).coerceAtMost(last.toInt())
-            Word.BACK -> leave()
+            // An article is read with Up and Down; Left and Back return to the list it came from.
+            Word.BACK, Word.LEFT -> leave()
             else -> Unit
         }
         return true
@@ -160,6 +161,8 @@ fun HelpCentre(shell: Shell, seen: Seen, leave: () -> Unit) {
             word == Word.BACK && right -> right = false
             word == Word.BACK -> leave()
             right && word == Word.LEFT -> right = false
+            // On the topics, the left edge of the page, Left goes back to Get Help.
+            word == Word.LEFT -> leave()
             right && word == Word.UP -> if (line > 0) line -= 1
             right && word == Word.DOWN -> if (line < focusable.lastIndex) line += 1
             right && word == Word.OK -> open = list[focusable[line]].open
