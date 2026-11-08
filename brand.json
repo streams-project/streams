@@ -17,7 +17,9 @@
   },
   "fonts": {
     "body": "Inter",
-    "display": "Inter"
+    "display": "Inter",
+    "arabic": "Noto Sans Arabic",
+    "hebrew": "Noto Sans Hebrew"
   },
   "shape": {
     "button_radius": 999,
