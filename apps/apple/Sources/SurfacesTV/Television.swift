@@ -47,6 +47,8 @@ public struct Television: View {
                     SignIn(shell: shell, seen: seen)
                 case .profiles:
                     Profiles(shell: shell, seen: seen, fromInside: inside)
+                case .title:
+                    TitlePage(shell: shell, seen: seen)
                 case .screen where seen.route?.screen == .help:
                     GetHelp(shell: shell, seen: seen)
                 case .home, .kidsHome, .screen:
