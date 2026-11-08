@@ -1,16 +1,16 @@
 import Contract
 import SwiftUI
 
-private struct Choice {
+private struct Reaction {
     let rating: Rating
     let plain: String
     let filled: String
 }
 
 private let choices = [
-    Choice(rating: .down, plain: "icon_thumb_down", filled: "icon_thumb_down_filled"),
-    Choice(rating: .up, plain: "icon_thumb_up", filled: "icon_thumb_up_filled"),
-    Choice(rating: .love, plain: "icon_love", filled: "icon_love_filled"),
+    Reaction(rating: .down, plain: "icon_thumb_down", filled: "icon_thumb_down_filled"),
+    Reaction(rating: .up, plain: "icon_thumb_up", filled: "icon_thumb_up_filled"),
+    Reaction(rating: .love, plain: "icon_love", filled: "icon_love_filled"),
 ]
 
 /// How many ratings the row offers.

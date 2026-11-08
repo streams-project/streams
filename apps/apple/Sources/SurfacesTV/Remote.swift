@@ -57,10 +57,12 @@ public final class RemoteUIView: UIView {
         claim()
     }
 
-    /// Asks the focus engine to look again, so the screen that is on now gets the presses.
-    private func claim() {
+    /// Asks the focus engine to look again, so the screen that is on now gets the presses. A new
+    /// screen can appear while the old one still holds the focus and leave a moment later, so the
+    /// view keeps asking for a short while until it has the focus.
+    private func claim(_ tries: Int = 8) {
         guard window != nil else { return }
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + (tries == 8 ? 0 : 0.12)) { [weak self] in
             guard let self, let window = self.window else { return }
             let root: UIFocusEnvironment = window.rootViewController ?? window
             root.setNeedsFocusUpdate()
@@ -69,6 +71,7 @@ public final class RemoteUIView: UIView {
                 self.setNeedsFocusUpdate()
                 self.updateFocusIfNeeded()
             }
+            if self.on && !self.isFocused && tries > 1 { self.claim(tries - 1) }
         }
     }
 
@@ -113,7 +116,9 @@ extension View {
     }
 
     /// `on` goes false while something drawn over the screen holds the remote, and takes it back after.
+    /// The receiver lies over the screen, where it draws nothing: a picture of a film is a view of its
+    /// own, and a receiver behind one that fills the screen can never take the focus.
     public func remote(on: Bool, _ press: @escaping (Word) -> Bool) -> some View {
-        background(RemoteReceiver(on: on, press: press))
+        overlay(RemoteReceiver(on: on, press: press))
     }
 }

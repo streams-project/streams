@@ -1,4 +1,5 @@
 import AVFoundation
+import CoreMedia
 import Contract
 import CryptoKit
 import Foundation
@@ -169,65 +170,251 @@ public final class FileStore: Store, @unchecked Sendable {
     }
 }
 
-/// The player port on AVPlayer.
-public final class AvPlayer: Player {
-    private var player: AVPlayer?
-    private var listener: ((Int64, DriverEvent) -> Void)?
+/// Subtitle sizes against the system's own, for size 0, 1 and 2.
+private let wordSizes: [Double] = [80, 100, 130]
+/// Where the subtitle line sits, as a share of the picture from the top, when nothing covers it.
+private let wordsHome: Double = 88
+
+/// The player port on AVFoundation. It reports facts, and the core picks every next step.
+public final class AvPlayer: Player, @unchecked Sendable {
+    private let engine = AVPlayer()
+    private var report: (Int64, DriverEvent) -> Void = { _, _ in }
     private var generation: Int64 = 0
-    private var timeObserver: Any?
+    private var firstFrame = false
+    private var screen: PlayerScreen?
+    private var watching: [NSKeyValueObservation] = []
+    private var itemWatching: [NSKeyValueObservation] = []
+    private var itemNotes: [NSObjectProtocol] = []
+    private var tick: Any?
+    private var audioGroup: AVMediaSelectionGroup?
+    private var textGroup: AVMediaSelectionGroup?
+    private var look = (size: 1, color: "#ffffff", background: "none")
+    private var lifted: Float = 0
 
-    public init() {}
-
-    public func command(_ given: DriverCommand) {
-        switch given {
-        case .open(let open):
-            generation = Int64(open.generation)
-            guard let url = URL(string: open.url) else { return }
-            let item = AVPlayerItem(url: url)
-            if player == nil {
-                player = AVPlayer(playerItem: item)
-            } else {
-                player?.replaceCurrentItem(with: item)
-            }
-            if open.startAtMs > 0 {
-                let time = CMTime(value: Int64(open.startAtMs), timescale: 1000)
-                player?.seek(to: time)
-            }
-            player?.play()
-            listener?(generation, .firstFrame(DriverEventFirstFrame()))
-        case .play:
-            player?.play()
-        case .pause:
-            player?.pause()
-        case .seek(let seek):
-            let time = CMTime(value: Int64(seek.toMs), timescale: 1000)
-            player?.seek(to: time)
-        case .close:
-            player?.pause()
-            player?.replaceCurrentItem(with: nil)
-            listener?(generation, .ended(DriverEventEnded()))
-        default:
-            break
+    public init() {
+        tick = engine.addPeriodicTimeObserver(forInterval: CMTime(value: 1, timescale: 1), queue: .main) { [weak self] time in
+            guard let self, self.engine.timeControlStatus == .playing else { return }
+            let length = self.engine.currentItem?.duration.seconds ?? .nan
+            self.report(self.generation, .position(DriverEventPosition(
+                durationMs: length.isFinite ? Int(length * 1000) : nil,
+                timeMs: Int(time.seconds * 1000)
+            )))
         }
+        watching.append(engine.observe(\.timeControlStatus) { [weak self] player, _ in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                switch player.timeControlStatus {
+                case .waitingToPlayAtSpecifiedRate where player.reasonForWaitingToPlay == .toMinimizeStalls:
+                    self.report(self.generation, .stalled(DriverEventStalled()))
+                case .playing where self.screen == nil:
+                    // With no picture on screen, playing is the first sign that it works.
+                    self.saw()
+                default: break
+                }
+            }
+        })
+    }
+
+    private func landed() {
+        let at = engine.currentTime().seconds
+        let length = engine.currentItem?.duration.seconds ?? .nan
+        guard at.isFinite else { return }
+        report(generation, .position(DriverEventPosition(durationMs: length.isFinite ? Int(length * 1000) : nil, timeMs: Int(at * 1000))))
+    }
+
+    private func saw() {
+        guard !firstFrame else { return }
+        firstFrame = true
+        report(generation, .firstFrame(DriverEventFirstFrame()))
     }
 
     public func listen(_ report: @escaping (Int64, DriverEvent) -> Void) {
-        self.listener = report
+        self.report = report
     }
 
     public func picture(_ context: Any) -> Any {
-        return player as Any
+        let view = PlayerScreen()
+        view.screen.player = engine
+        view.screen.videoGravity = .resizeAspect
+        view.ready = view.screen.observe(\.isReadyForDisplay) { [weak self] layer, _ in
+            if layer.isReadyForDisplay { DispatchQueue.main.async { self?.saw() } }
+        }
+        screen = view
+        return view
     }
 
     public func now() -> Int64 {
-        guard let p = player else { return 0 }
-        let s = p.currentTime().seconds
-        return s.isNaN || s.isInfinite ? 0 : Int64(s * 1000)
+        let seconds = engine.currentTime().seconds
+        return seconds.isFinite ? Int64(seconds * 1000) : 0
     }
 
-    public func lift(_ share: Float) {}
+    public func lift(_ share: Float) {
+        DispatchQueue.main.async {
+            self.lifted = share
+            self.dress()
+        }
+    }
 
-    public func wordsLook(size: Int, color: String, background: String) {}
+    public func wordsLook(size: Int, color: String, background: String) {
+        DispatchQueue.main.async {
+            self.look = (size, color, background)
+            self.dress()
+        }
+    }
+
+    /// The subtitles the system draws, in the look the viewer chose and above anything covering them.
+    private func dress() {
+        guard let item = engine.currentItem else { return }
+        var marks: [String: Any] = [
+            kCMTextMarkupAttribute_RelativeFontSize as String: wordSizes[min(max(look.size, 0), wordSizes.count - 1)],
+            kCMTextMarkupAttribute_OrthogonalLinePositionPercentageRelativeToWritingDirection as String:
+                max(10, wordsHome - Double(lifted) * 100),
+        ]
+        if let ink = argb(look.color) { marks[kCMTextMarkupAttribute_ForegroundColorARGB as String] = ink }
+        marks[kCMTextMarkupAttribute_CharacterBackgroundColorARGB as String] = argb(look.background) ?? [0, 0, 0, 0]
+        item.textStyleRules = AVTextStyleRule(textMarkupAttributes: marks).map { [$0] }
+    }
+
+    public func command(_ given: DriverCommand) {
+        DispatchQueue.main.async {
+            switch given {
+            case .open(let open): self.open(open)
+            case .play: self.engine.play()
+            case .pause: self.engine.pause()
+            case .seek(let seek):
+                let near = CMTime(value: 1, timescale: 4)
+                self.engine.seek(to: CMTime(value: Int64(seek.toMs), timescale: 1000), toleranceBefore: near, toleranceAfter: near) { _ in
+                    // A paused picture reports no time, so a finished seek says where it landed.
+                    DispatchQueue.main.async { self.landed() }
+                }
+            case .volume(let volume): self.engine.volume = Float(volume.percent) / 100
+            case .rate(let rate):
+                self.engine.defaultRate = Float(rate.percent) / 100
+                if self.engine.timeControlStatus == .playing { self.engine.rate = self.engine.defaultRate }
+            case .selectAudio(let audio): self.choose(self.audioGroup, audio.track)
+            case .selectText(let text): self.choose(self.textGroup, text.track)
+            case .close:
+                self.engine.pause()
+                self.forget()
+                self.engine.replaceCurrentItem(with: nil)
+            default: break
+            }
+        }
+    }
+
+    private func forget() {
+        itemWatching = []
+        itemNotes.forEach(NotificationCenter.default.removeObserver)
+        itemNotes = []
+        audioGroup = nil
+        textGroup = nil
+    }
+
+    private func open(_ given: DriverCommandOpen) {
+        forget()
+        generation = Int64(given.generation)
+        firstFrame = false
+        guard let address = URL(string: given.url) else {
+            report(generation, .error(DriverEventError(class: .network)))
+            return
+        }
+        let options: [String: Any] = given.headers.isEmpty ? [:] : ["AVURLAssetHTTPHeaderFieldsKey": given.headers]
+        let item = AVPlayerItem(asset: AVURLAsset(url: address, options: options))
+        if let bits = given.maxBitrate { item.preferredPeakBitRate = Double(bits) }
+        if let tall = given.maxHeight { item.preferredMaximumResolution = CGSize(width: Double(tall) * 16 / 9, height: Double(tall)) }
+        let run = generation
+        itemWatching.append(item.observe(\.status) { [weak self] item, _ in
+            DispatchQueue.main.async {
+                guard let self, run == self.generation else { return }
+                switch item.status {
+                case .readyToPlay: Task { await self.readTracks(item, run) }
+                case .failed: self.report(run, .error(DriverEventError(class: Self.kind(of: item.error))))
+                default: break
+                }
+            }
+        })
+        itemNotes.append(NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime, object: item, queue: .main
+        ) { [weak self] _ in self?.report(run, .ended(DriverEventEnded())) })
+        itemNotes.append(NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemFailedToPlayToEndTime, object: item, queue: .main
+        ) { [weak self] note in
+            let error = note.userInfo?[AVPlayerItemFailedToPlayToEndTimeErrorKey] as? Error
+            self?.report(run, .error(DriverEventError(class: Self.kind(of: error))))
+        })
+        engine.replaceCurrentItem(with: item)
+        dress()
+        if given.startAtMs > 0 {
+            engine.seek(to: CMTime(value: Int64(given.startAtMs), timescale: 1000), toleranceBefore: .zero, toleranceAfter: .zero)
+        }
+        engine.play()
+    }
+
+    private static func kind(of error: Error?) -> ErrorClass {
+        guard let error = error as NSError? else { return .network }
+        if error.domain == NSURLErrorDomain { return .network }
+        switch AVError.Code(rawValue: error.code) {
+        case .decodeFailed, .decoderNotFound, .decoderTemporarilyUnavailable: return .decode
+        case .fileFormatNotRecognized, .failedToParse: return .format
+        default: return .network
+        }
+    }
+
+    /// Sound and subtitle tracks from the title's own choices. A track's id is its place in its
+    /// group, so it holds only for this title.
+    private func readTracks(_ item: AVPlayerItem, _ run: Int64) async {
+        let asset = item.asset
+        let audible = try? await asset.loadMediaSelectionGroup(for: .audible)
+        let legible = try? await asset.loadMediaSelectionGroup(for: .legible)
+        await MainActor.run {
+            guard run == self.generation else { return }
+            self.audioGroup = audible
+            self.textGroup = legible
+            self.tell(item)
+        }
+    }
+
+    private func tell(_ item: AVPlayerItem) {
+        func listed(_ group: AVMediaSelectionGroup?, _ name: String) -> [Track] {
+            guard let group else { return [] }
+            let chosen = item.currentMediaSelection.selectedMediaOption(in: group)
+            return group.options.enumerated().map { index, option in
+                Track(
+                    id: "\(name):\(index)",
+                    label: option.displayName,
+                    lang: option.extendedLanguageTag ?? option.locale?.identifier,
+                    selected: option == chosen
+                )
+            }
+        }
+        report(generation, .tracks(DriverEventTracks(audio: listed(audioGroup, "audio"), text: listed(textGroup, "text"))))
+    }
+
+    private func choose(_ group: AVMediaSelectionGroup?, _ id: String?) {
+        guard let group, let item = engine.currentItem else { return }
+        let option = id.flatMap { $0.split(separator: ":").last.flatMap { Int($0) } }.flatMap { group.options[safe: $0] }
+        item.select(option, in: group)
+        tell(item)
+    }
+}
+
+/// The picture of what plays.
+public final class PlayerScreen: UIView {
+    public override class var layerClass: AnyClass { AVPlayerLayer.self }
+    var screen: AVPlayerLayer { layer as! AVPlayerLayer }
+    var ready: NSKeyValueObservation?
+}
+
+private extension Array {
+    subscript(safe index: Int) -> Element? { indices.contains(index) ? self[index] : nil }
+}
+
+/// A colour as the text markup wants it: alpha, red, green and blue from 0 to 1. Nothing for none.
+private func argb(_ text: String) -> [Double]? {
+    let words: [String: [Double]] = ["white": [1, 1, 1, 1], "black": [1, 0, 0, 0], "yellow": [1, 1, 1, 0]]
+    if let named = words[text.lowercased()] { return named }
+    guard text.hasPrefix("#"), text.count == 7, let value = Int(text.dropFirst(), radix: 16) else { return nil }
+    return [1, Double((value >> 16) & 0xFF) / 255, Double((value >> 8) & 0xFF) / 255, Double(value & 0xFF) / 255]
 }
 
 /// Brand films and sounds, each on its own engine so it can be handed back as soon as it is off screen.

@@ -50,6 +50,8 @@ public struct Television: View {
                     Profiles(shell: shell, seen: seen, fromInside: inside)
                 case .title:
                     TitlePage(shell: shell, seen: seen)
+                case .watch:
+                    Watch(shell: shell, seen: seen)
                 case .screen where seen.route?.screen == .search:
                     Search(shell: shell, seen: seen, state: search)
                 case .screen where seen.route?.screen == .help:
