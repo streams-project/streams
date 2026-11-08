@@ -1,0 +1,330 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000010000000000000001 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000020000000000000001 /* Main.swift */; };
+		A10000030000000000000001 /* CoreBridge in Frameworks */ = {isa = PBXBuildFile; productRef = A10000100000000000000001 /* CoreBridge */; };
+		A10000040000000000000001 /* Contract in Frameworks */ = {isa = PBXBuildFile; productRef = A10000110000000000000001 /* Contract */; };
+		A10000050000000000000001 /* Ports in Frameworks */ = {isa = PBXBuildFile; productRef = A10000120000000000000001 /* Ports */; };
+		A10000060000000000000001 /* CoreHost in Frameworks */ = {isa = PBXBuildFile; productRef = A10000130000000000000001 /* CoreHost */; };
+		A10000070000000000000001 /* Adapters in Frameworks */ = {isa = PBXBuildFile; productRef = A10000140000000000000001 /* Adapters */; };
+		A10000080000000000000001 /* SurfacesTV in Frameworks */ = {isa = PBXBuildFile; productRef = A10000150000000000000001 /* SurfacesTV */; };
+		A10000090000000000000001 /* Icons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000160000000000000001 /* Icons.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A10000020000000000000001 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
+		A10000160000000000000001 /* Icons.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Icons.xcassets; path = ../Sources/SurfacesShared/Resources/Icons.xcassets; sourceTree = "<group>"; };
+		A10000170000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A10000180000000000000001 /* Brand.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Brand.xcconfig; path = ../Brand.xcconfig; sourceTree = "<group>"; };
+		A10000190000000000000001 /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A10000200000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000030000000000000001 /* CoreBridge in Frameworks */,
+				A10000040000000000000001 /* Contract in Frameworks */,
+				A10000050000000000000001 /* Ports in Frameworks */,
+				A10000060000000000000001 /* CoreHost in Frameworks */,
+				A10000070000000000000001 /* Adapters in Frameworks */,
+				A10000080000000000000001 /* SurfacesTV in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A10000210000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A10000020000000000000001 /* Main.swift */,
+				A10000170000000000000001 /* Info.plist */,
+				A10000180000000000000001 /* Brand.xcconfig */,
+				A10000160000000000000001 /* Icons.xcassets */,
+				A10000220000000000000001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A10000220000000000000001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A10000190000000000000001 /* App.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A10000230000000000000001 /* App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000270000000000000001 /* Build configuration list for PBXNativeTarget "App" */;
+			buildPhases = (
+				A10000240000000000000001 /* Prepare Core and Brand */,
+				A10000250000000000000001 /* Sources */,
+				A10000200000000000000001 /* Frameworks */,
+				A10000260000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = App;
+			packageProductDependencies = (
+				A10000100000000000000001 /* CoreBridge */,
+				A10000110000000000000001 /* Contract */,
+				A10000120000000000000001 /* Ports */,
+				A10000130000000000000001 /* CoreHost */,
+				A10000140000000000000001 /* Adapters */,
+				A10000150000000000000001 /* SurfacesTV */,
+			);
+			productName = App;
+			productReference = A10000190000000000000001 /* App.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A10000280000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = A10000290000000000000001 /* Build configuration list for PBXProject "App" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A10000210000000000000001;
+			packageReferences = (
+				A10000300000000000000001 /* XCLocalSwiftPackageReference ".." */,
+			);
+			productRefGroup = A10000220000000000000001 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A10000230000000000000001 /* App */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A10000260000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000090000000000000001 /* Icons.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A10000240000000000000001 /* Prepare Core and Brand */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Prepare Core and Brand";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$PROJECT_DIR/../build-core.sh\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A10000250000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000010000000000000001 /* Main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A10000310000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A10000180000000000000001 /* Brand.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "-";
+				"CODE_SIGNING_ALLOWED[sdk=appletvsimulator*]" = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = appletvos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Debug;
+		};
+		A10000320000000000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A10000180000000000000001 /* Brand.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvsimulator*]" = "-";
+				"CODE_SIGNING_ALLOWED[sdk=appletvsimulator*]" = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = appletvos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Release;
+		};
+		A10000330000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A10000180000000000000001 /* Brand.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L$(PROJECT_DIR)/../target/tvos",
+					"-lbridge_c",
+				);
+				SDKROOT = appletvos;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Debug;
+		};
+		A10000340000000000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A10000180000000000000001 /* Brand.xcconfig */;
+			buildSettings = {
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-L$(PROJECT_DIR)/../target/tvos",
+					"-lbridge_c",
+				);
+				SDKROOT = appletvos;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A10000270000000000000001 /* Build configuration list for PBXNativeTarget "App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000330000000000000001 /* Debug */,
+				A10000340000000000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000290000000000000001 /* Build configuration list for PBXProject "App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000310000000000000001 /* Debug */,
+				A10000320000000000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		A10000300000000000000001 /* XCLocalSwiftPackageReference ".." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A10000100000000000000001 /* CoreBridge */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A10000300000000000000001 /* XCLocalSwiftPackageReference ".." */;
+			productName = CoreBridge;
+		};
+		A10000110000000000000001 /* Contract */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A10000300000000000000001 /* XCLocalSwiftPackageReference ".." */;
+			productName = Contract;
+		};
+		A10000120000000000000001 /* Ports */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A10000300000000000000001 /* XCLocalSwiftPackageReference ".." */;
+			productName = Ports;
+		};
+		A10000130000000000000001 /* CoreHost */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A10000300000000000000001 /* XCLocalSwiftPackageReference ".." */;
+			productName = CoreHost;
+		};
+		A10000140000000000000001 /* Adapters */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A10000300000000000000001 /* XCLocalSwiftPackageReference ".." */;
+			productName = Adapters;
+		};
+		A10000150000000000000001 /* SurfacesTV */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A10000300000000000000001 /* XCLocalSwiftPackageReference ".." */;
+			productName = SurfacesTV;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A10000280000000000000001 /* Project object */;
+}

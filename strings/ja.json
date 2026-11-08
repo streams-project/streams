@@ -253,5 +253,9 @@
   "nav.search": "検索",
   "nav.categories": "カテゴリー",
   "title.kind.series": "シリーズ",
-  "title.kind.film": "映画"
+  "title.kind.film": "映画",
+  "badge.top_10": "TOP 10",
+  "badge.new_episode": "新着エピソード",
+  "badge.watch_now": "今すぐ観る",
+  "row.continue.remove": "列から削除"
 }

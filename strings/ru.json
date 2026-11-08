@@ -255,5 +255,9 @@
   "nav.search": "Поиск",
   "nav.categories": "Категории",
   "title.kind.series": "Сериал",
-  "title.kind.film": "Фильм"
+  "title.kind.film": "Фильм",
+  "badge.top_10": "ТОП-10",
+  "badge.new_episode": "Новая серия",
+  "badge.watch_now": "Смотреть",
+  "row.continue.remove": "Удалить из ряда"
 }

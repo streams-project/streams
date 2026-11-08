@@ -253,5 +253,9 @@
   "nav.search": "Ara",
   "nav.categories": "Kategoriler",
   "title.kind.series": "Dizi",
-  "title.kind.film": "Film"
+  "title.kind.film": "Film",
+  "badge.top_10": "TOP 10",
+  "badge.new_episode": "Yeni Bölüm",
+  "badge.watch_now": "Şimdi İzle",
+  "row.continue.remove": "Satırdan kaldır"
 }

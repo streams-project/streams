@@ -56,7 +56,7 @@ fun Root(shell: Shell, tv: Boolean) {
                 target == Target.START -> Door(shell, seen)
                 target == Target.SIGN_IN -> if (tv) Code(shell, seen) else SignIn(shell, seen)
                 target == Target.PROFILES -> People(shell, seen, tv)
-                target == Target.TITLE -> Title(shell, seen, tv)
+                target == Target.TITLE -> Title(shell, seen, tv = false)
                 target == Target.WATCH -> Watch(shell, seen, tv)
                 target == Target.HOME || target == Target.KIDS_HOME || target == Target.SCREEN ->
                     Home(shell, seen)

@@ -253,5 +253,9 @@
   "nav.search": "Zoeken",
   "nav.categories": "Categorieën",
   "title.kind.series": "Serie",
-  "title.kind.film": "Film"
+  "title.kind.film": "Film",
+  "badge.top_10": "TOP 10",
+  "badge.new_episode": "Nieuwe aflevering",
+  "badge.watch_now": "Nu kijken",
+  "row.continue.remove": "Verwijderen uit rij"
 }

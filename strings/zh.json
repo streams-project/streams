@@ -253,5 +253,9 @@
   "nav.search": "搜索",
   "nav.categories": "分类",
   "title.kind.series": "剧集",
-  "title.kind.film": "电影"
+  "title.kind.film": "电影",
+  "badge.top_10": "TOP 10",
+  "badge.new_episode": "新集上线",
+  "badge.watch_now": "立即观看",
+  "row.continue.remove": "从行中移除"
 }

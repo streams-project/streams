@@ -259,5 +259,9 @@
   "nav.search": "بحث",
   "nav.categories": "الفئات",
   "title.kind.series": "مسلسل",
-  "title.kind.film": "فيلم"
+  "title.kind.film": "فيلم",
+  "badge.top_10": "أفضل ١٠",
+  "badge.new_episode": "حلقة جديدة",
+  "badge.watch_now": "شاهد الآن",
+  "row.continue.remove": "إزالة من الصف"
 }

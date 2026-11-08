@@ -32,6 +32,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -152,9 +153,11 @@ private fun Tags(tile: Tile, words: Map<String, String>) {
             withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = Color.White)) { append(kind) }
             tile.tags.orEmpty().take(4).forEach { append("  •  "); append(it) }
         },
+        modifier = Modifier.padding(horizontal = 8.dp),
         color = TagInk,
         fontSize = 14.sp,
         maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         textAlign = TextAlign.Center,
     )
 }
@@ -163,12 +166,24 @@ private fun Tags(tile: Tile, words: Map<String, String>) {
 @Composable
 private fun Wide(word: String, icon: Int, fill: Color, ink: Color, go: () -> Unit, modifier: Modifier) {
     Row(
-        modifier.height(48.dp).clip(RoundedCornerShape(minOf(Corner.BUTTON, 24).dp)).background(fill).clickable(onClick = go),
+        modifier
+            .height(48.dp)
+            .clip(RoundedCornerShape(minOf(Corner.BUTTON, 24).dp))
+            .background(fill)
+            .clickable(onClick = go)
+            .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(painterResource(icon), null, Modifier.size(26.dp), tint = ink)
-        Spacer(Modifier.width(8.dp))
-        Text(word, color = ink, fontSize = 17.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+        Icon(painterResource(icon), null, Modifier.size(22.dp), tint = ink)
+        Spacer(Modifier.width(6.dp))
+        Text(
+            word,
+            color = ink,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }

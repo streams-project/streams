@@ -253,5 +253,9 @@
   "nav.search": "Sök",
   "nav.categories": "Kategorier",
   "title.kind.series": "Serie",
-  "title.kind.film": "Film"
+  "title.kind.film": "Film",
+  "badge.top_10": "TOPP 10",
+  "badge.new_episode": "Nytt avsnitt",
+  "badge.watch_now": "Titta nu",
+  "row.continue.remove": "Ta bort från raden"
 }
