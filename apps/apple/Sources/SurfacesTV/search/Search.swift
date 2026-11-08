@@ -51,7 +51,9 @@ public struct Search: View {
         // The profile language's letters (search.letters), when it has its own; the globe switches to English.
         let own = String((seen.words["search.letters"] ?? "").filter { !$0.isWhitespace && $0 != "\u{200F}" })
         let hasOwn = !own.isEmpty && own != englishLetters
-        let keys = LetterKeys(hasOwn && !state.english ? own : englishLetters, globe: hasOwn)
+        let english = !hasOwn || state.english
+        // English letters in a right to left screen fill their lines from the left, so they read a to z.
+        let keys = LetterKeys(english ? englishLetters : own, globe: hasOwn, mirrored: english && seen.rtl)
         let person = seen.profiles.first { $0.id == seen.active } ?? seen.profiles.first
         let shown = state.text.trimmingCharacters(in: .whitespaces).isEmpty ? state.offered : state.results
 

@@ -13,10 +13,20 @@ let englishLetters = "abcdefghijklmnopqrstuvwxyz1234567890"
 struct LetterKeys: Equatable {
     let letters: [Character]
     let globe: Bool
+    let mirrored: Bool
 
-    init(_ letters: String, globe: Bool) {
+    init(_ letters: String, globe: Bool, mirrored: Bool = false) {
         self.letters = Array(letters)
         self.globe = globe
+        self.mirrored = mirrored
+    }
+
+    /// The letter at a place, or nil. A left to right alphabet inside a right to left screen fills
+    /// each line from the left (`mirrored`), so English still reads a to z.
+    func at(_ line: Int, _ column: Int) -> Character? {
+        guard line >= 1 else { return nil }
+        let index = (line - 1) * across + (mirrored ? across - 1 - column : column)
+        return letters.indices.contains(index) ? letters[index] : nil
     }
 
     /// Lines of the grid, the top line included.
@@ -46,8 +56,7 @@ struct LetterPlace: Equatable {
     }
 
     func move(_ word: Word, _ keys: LetterKeys) -> LetterPlace? {
-        let last = keys.letters.count - 1
-        func fits(_ place: LetterPlace) -> Bool { place.line == 0 || (place.line - 1) * across + place.column <= last }
+        func fits(_ place: LetterPlace) -> Bool { place.line == 0 || keys.at(place.line, place.column) != nil }
         var next = self
         switch word {
         case .up:
@@ -57,7 +66,11 @@ struct LetterPlace: Equatable {
             next.line += 1
             if !fits(next) {
                 guard line + 1 < keys.lines else { return nil }
-                next.column = last % across
+                // On a short last line, Down lands on its nearest letter.
+                let near = (0..<across).filter { fits(LetterPlace(line: line + 1, column: $0)) }
+                    .min { abs($0 - column) < abs($1 - column) }
+                guard let near else { return nil }
+                next.column = near
             }
         case .left:
             if line == 0 {
@@ -65,8 +78,8 @@ struct LetterPlace: Equatable {
                 guard part > 0 else { return nil }
                 next.column = keys.parts[part - 1].lowerBound
             } else {
-                guard column > 0 else { return nil }
                 next.column -= 1
+                guard column > 0, fits(next) else { return nil }
             }
         case .right:
             if line == 0 {
@@ -90,8 +103,7 @@ struct LetterPlace: Equatable {
         case .delete: return String(text.dropLast())
         case .globe: return text
         case nil:
-            let index = (line - 1) * across + column
-            return keys.letters.indices.contains(index) ? text + String(keys.letters[index]) : text
+            return keys.at(line, column).map { text + String($0) } ?? text
         }
     }
 }
@@ -125,11 +137,13 @@ struct LetterGrid: View {
                     Icon(icon, 34, tint: $0)
                 }
             }
-            ForEach(Array(keys.letters.enumerated()), id: \.offset) { index, letter in
-                let line = index / across + 1
-                let column = index % across
-                Cell(left: column * step, top: line * step, wide: cell, on: focus == LetterPlace(line: line, column: column)) {
-                    Text(String(letter)).brand(30).foregroundStyle($0)
+            ForEach(1..<keys.lines, id: \.self) { line in
+                ForEach(0..<across, id: \.self) { column in
+                    if let letter = keys.at(line, column) {
+                        Cell(left: column * step, top: line * step, wide: cell, on: focus == LetterPlace(line: line, column: column)) {
+                            Text(String(letter)).brand(30).foregroundStyle($0)
+                        }
+                    }
                 }
             }
         }
