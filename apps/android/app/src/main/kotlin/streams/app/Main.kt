@@ -15,7 +15,7 @@ import streams.adapters.Media3Player
 import streams.adapters.Media3Reel
 import streams.adapters.PrefsSecrets
 import streams.core.Host
-import streams.surfaces.Root
+import streams.phone.Root
 import streams.tv.Television
 
 /** Plugs adapters into ports and hands the surfaces the result. Nothing else knows both sides. */

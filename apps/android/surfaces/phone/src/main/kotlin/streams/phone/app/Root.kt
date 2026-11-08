@@ -1,4 +1,4 @@
-package streams.surfaces
+package streams.phone
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -12,15 +12,31 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import contract.ActionStop
 import contract.Target
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import streams.shared.Back
 import streams.shared.Brand
+import streams.shared.Speaking
 import streams.ports.Shell
 
 /** The one place that picks a surface. `tv` chooses the remote's layouts over the phone's. */
 @Composable
 fun Root(shell: Shell, tv: Boolean) {
     val seen by shell.seen.collectAsStateWithLifecycle()
+    // The language decides direction, digits, plural forms and text size, as on the TV; the
+    // system's own text size is kept and multiplied, never replaced.
+    Speaking.arabicDigits = seen.words["language.digits"] == "arab"
+    Speaking.code = seen.language.ifEmpty { "en" }
+    val scale = seen.words["language.text_scale"]?.toFloatOrNull()?.coerceIn(0.8f, 1.4f) ?: 1f
+    val density = LocalDensity.current
     Brand {
+        CompositionLocalProvider(
+            LocalLayoutDirection provides if (seen.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
+            LocalDensity provides Density(density.density, density.fontScale * scale),
+        ) {
         Box(Modifier.fillMaxSize().background(Back)) {
             val target = seen.route?.target
             when {
@@ -42,6 +58,7 @@ fun Root(shell: Shell, tv: Boolean) {
                     shell.back()
                 }
             }
+        }
         }
     }
 }

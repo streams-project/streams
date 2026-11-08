@@ -1,4 +1,4 @@
-package streams.surfaces
+package streams.phone
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
