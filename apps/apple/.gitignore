@@ -15,5 +15,5 @@ Sources/CoreBridge/include/core.h
 DerivedData/
 xcuserdata/
 *.xcworkspace/xcuserdata/
-Sources/SurfacesTV/Resources/Brand.xcassets/
-Sources/SurfacesTV/app/BrandShape.swift
+Sources/SurfacesShared/Resources/Brand.xcassets/
+Sources/SurfacesShared/BrandShape.swift

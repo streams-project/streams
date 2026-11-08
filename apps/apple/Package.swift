@@ -14,18 +14,19 @@ let package = Package(
         .library(name: "Ports", targets: ["Ports"]),
         .library(name: "CoreHost", targets: ["CoreHost"]),
         .library(name: "Adapters", targets: ["Adapters"]),
+        .library(name: "SurfacesShared", targets: ["SurfacesShared"]),
         .library(name: "SurfacesTV", targets: ["SurfacesTV"]),
+        .library(name: "SurfacesPhone", targets: ["SurfacesPhone"]),
     ],
     targets: [
         .target(
             name: "CoreBridge",
             path: "Sources/CoreBridge",
             publicHeadersPath: "include",
+            // Each platform links its own copy of the core (build-core.sh writes target/tvos and target/ios).
             linkerSettings: [
-                .unsafeFlags([
-                    "-L\(Context.packageDirectory)/target",
-                    "-lbridge_c",
-                ])
+                .unsafeFlags(["-L\(Context.packageDirectory)/target/tvos", "-lbridge_c"], .when(platforms: [.tvOS])),
+                .unsafeFlags(["-L\(Context.packageDirectory)/target/ios", "-lbridge_c"], .when(platforms: [.iOS])),
             ]
         ),
         .target(
@@ -48,8 +49,21 @@ let package = Package(
             path: "Sources/Adapters"
         ),
         .target(
-            name: "SurfacesTV",
+            name: "SurfacesShared",
             dependencies: ["Contract", "Ports"],
+            path: "Sources/SurfacesShared",
+            exclude: ["README.md"],
+            resources: [.process("Resources")]
+        ),
+        .target(
+            name: "SurfacesPhone",
+            dependencies: ["Contract", "Ports", "SurfacesShared"],
+            path: "Sources/SurfacesPhone",
+            exclude: ["README.md"]
+        ),
+        .target(
+            name: "SurfacesTV",
+            dependencies: ["Contract", "Ports", "SurfacesShared"],
             path: "Sources/SurfacesTV",
             exclude: ["README.md"],
             resources: [.process("Resources")]

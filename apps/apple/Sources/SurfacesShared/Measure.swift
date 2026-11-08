@@ -2,7 +2,6 @@ import CoreGraphics
 import Foundation
 import SwiftUI
 
-public typealias View = SwiftUI.View
 
 extension Int {
     public var ref: CGFloat { CGFloat(self) }

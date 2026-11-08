@@ -78,7 +78,7 @@ def android() -> None:
 
 
 def apple() -> None:
-    catalog = ROOT / "apps/apple/Sources/SurfacesTV/Resources/Icons.xcassets"
+    catalog = ROOT / "apps/apple/Sources/SurfacesShared/Resources/Icons.xcassets"
     catalog.mkdir(parents=True, exist_ok=True)
     (catalog / "Contents.json").write_text(
         json.dumps({"info": {"author": "xcode", "version": 1}}, indent=2) + "\n",

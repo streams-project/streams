@@ -24,7 +24,7 @@ write(
     f"PRODUCT_BUNDLE_IDENTIFIER = {brand['command']}.app\n",
 )
 
-catalog = HERE / "Sources/SurfacesTV/Resources/Brand.xcassets"
+catalog = HERE / "Sources/SurfacesShared/Resources/Brand.xcassets"
 write(catalog / "Contents.json", json.dumps({"info": {"author": "xcode", "version": 1}}, indent=2) + "\n")
 mark = catalog / "mark.imageset"
 write(mark / "mark.svg", (ROOT / brand["assets"] / "mark.svg").read_text("utf-8"))
@@ -43,7 +43,7 @@ write(
 
 shape = brand["shape"]
 write(
-    HERE / "Sources/SurfacesTV/app/BrandShape.swift",
+    HERE / "Sources/SurfacesShared/BrandShape.swift",
     "// Generated from brand.json by write-brand.py. Do not commit.\n"
     "import CoreGraphics\n\n"
     "/// The brand's corners from brand.json `shape`, in points on a phone. Each family scales them.\n"

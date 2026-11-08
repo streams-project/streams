@@ -22,14 +22,15 @@ public func logo(_ images: [Contract.Image]?) -> String? {
 
 /// Pictures already drawn once, kept so a row scrolled back draws at once.
 @MainActor
-enum Pictures {
+/// Pictures already shown, kept so a page that comes back draws them at once.
+public enum Pictures {
     private static var kept: [String: SwiftUI.Image] = [:]
     private static var order: [String] = []
     private static let most = 400
 
-    static func now(_ url: String) -> SwiftUI.Image? { kept[url] }
+    public static func now(_ url: String) -> SwiftUI.Image? { kept[url] }
 
-    static func keep(_ url: String, _ image: SwiftUI.Image) {
+    public static func keep(_ url: String, _ image: SwiftUI.Image) {
         if kept[url] == nil {
             order.append(url)
             if order.count > most { kept.removeValue(forKey: order.removeFirst()) }
@@ -39,24 +40,24 @@ enum Pictures {
 }
 
 /// A picture filling its box, or fitting it.
-public struct Art: View {
+public struct Art: SwiftUI.View {
     public let url: String?
     public var fit: Bool
     /// Runs once the picture is there, from the network or from memory.
-    var loaded: (() -> Void)?
+    public var loaded: (() -> Void)?
 
     public init(_ url: String?, fit: Bool = false) {
         self.url = url
         self.fit = fit
     }
 
-    init(_ url: String?, loaded: @escaping () -> Void) {
+    public init(_ url: String?, loaded: @escaping () -> Void) {
         self.url = url
         self.fit = false
         self.loaded = loaded
     }
 
-    public var body: some View {
+    public var body: some SwiftUI.View {
         Color.clear
             .overlay {
                 if let url, let kept = Pictures.now(url) {
@@ -84,7 +85,7 @@ public struct Art: View {
 }
 
 /// One of the brand's icons, tinted.
-public struct Icon: View {
+public struct Icon: SwiftUI.View {
     public let name: String
     public let size: CGFloat
     public var tint: Color
@@ -95,7 +96,7 @@ public struct Icon: View {
         self.tint = tint
     }
 
-    public var body: some View {
+    public var body: some SwiftUI.View {
         SwiftUI.Image(name, bundle: .module)
             .renderingMode(.template)
             .resizable()
@@ -106,14 +107,14 @@ public struct Icon: View {
 }
 
 /// The brand's mark, from brand.json at build time.
-public struct Mark: View {
+public struct Mark: SwiftUI.View {
     public let size: CGFloat
 
     public init(_ size: CGFloat) {
         self.size = size
     }
 
-    public var body: some View {
+    public var body: some SwiftUI.View {
         SwiftUI.Image("mark", bundle: .module)
             .resizable()
             .aspectRatio(contentMode: .fit)
