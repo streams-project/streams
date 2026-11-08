@@ -1,5 +1,10 @@
 package streams.tv
 
+import streams.shared.rememberDetails
+import streams.shared.titleAddress
+import streams.shared.watchAddress
+import streams.shared.tabAddress
+import streams.shared.isSeries
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -121,14 +126,6 @@ private class PageFocus(var rows: List<Section>, var tabs: Int, private val acti
         return true
     }
 }
-
-fun titleAddress(key: TitleKey) = Address.TITLE + key.value.replace(':', '-')
-
-private fun watchAddress(key: TitleKey) = Address.WATCH + key.value.replace(':', '/')
-
-private fun Tile.isSeries() = title.value.startsWith("tv:")
-
-private fun tabAddress(screen: String) = Address.of(screen)
 
 /** A page of rows. The parts draw, and this file only knows where the focus is. */
 @Composable

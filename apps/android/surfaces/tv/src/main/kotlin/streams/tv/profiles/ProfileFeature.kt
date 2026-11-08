@@ -1,5 +1,7 @@
 package streams.tv
 
+import streams.shared.Art
+import streams.shared.wide
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween

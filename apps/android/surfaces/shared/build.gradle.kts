@@ -13,7 +13,7 @@ android {
         minSdk = 26
         // The brand's corners, read from brand.json so a renamed copy carries its own shape.
         val shape = (JsonSlurper().parse(rootDir.resolve("../../brand.json")) as Map<*, *>)["shape"] as Map<*, *>
-        for (role in listOf("card", "panel", "field", "button")) {
+        for (role in listOf("card", "panel", "field", "button", "chip", "chip_end")) {
             buildConfigField("int", "${role.uppercase()}_RADIUS", "${shape["${role}_radius"]}")
         }
     }

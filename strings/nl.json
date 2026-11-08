@@ -240,5 +240,9 @@
   "genre.music": "Muziek",
   "genre.tv_movie": "Tv-film",
   "title.length.hours": "{h} u {m} min",
-  "title.length.minutes": "{m} min"
+  "title.length.minutes": "{m} min",
+  "nav.search": "Zoeken",
+  "nav.categories": "Categorieën",
+  "title.kind.series": "Serie",
+  "title.kind.film": "Film"
 }

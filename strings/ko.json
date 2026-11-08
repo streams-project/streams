@@ -240,5 +240,9 @@
   "genre.music": "음악",
   "genre.tv_movie": "TV 영화",
   "title.length.hours": "{h}시간 {m}분",
-  "title.length.minutes": "{m}분"
+  "title.length.minutes": "{m}분",
+  "nav.search": "검색",
+  "nav.categories": "카테고리",
+  "title.kind.series": "시리즈",
+  "title.kind.film": "영화"
 }

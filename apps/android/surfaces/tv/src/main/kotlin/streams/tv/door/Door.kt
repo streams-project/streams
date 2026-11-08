@@ -1,5 +1,7 @@
 package streams.tv
 
+import streams.shared.Art
+import streams.shared.wide
 import android.view.View
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing

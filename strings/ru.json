@@ -242,5 +242,9 @@
   "title.length.hours": "{h} ч {m} мин",
   "title.length.minutes": "{m} мин",
   "search.letters": "абвгдеёжзийклмнопрстуфхцчшщъыьэюя'-",
-  "title.season.few": "{n} сезона"
+  "title.season.few": "{n} сезона",
+  "nav.search": "Поиск",
+  "nav.categories": "Категории",
+  "title.kind.series": "Сериал",
+  "title.kind.film": "Фильм"
 }

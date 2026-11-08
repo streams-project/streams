@@ -1,5 +1,7 @@
 package streams.tv
 
+import streams.shared.Art
+import streams.shared.tall
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background

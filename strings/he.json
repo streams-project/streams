@@ -242,5 +242,9 @@
   "genre.music": "מוזיקה",
   "genre.tv_movie": "סרטי טלוויזיה",
   "title.length.hours": "{h} שע' {m} דק'",
-  "title.length.minutes": "{m} דק'"
+  "title.length.minutes": "{m} דק'",
+  "nav.search": "חיפוש",
+  "nav.categories": "קטגוריות",
+  "title.kind.series": "סדרה",
+  "title.kind.film": "סרט"
 }

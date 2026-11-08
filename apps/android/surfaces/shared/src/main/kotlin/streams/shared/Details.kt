@@ -1,4 +1,4 @@
-package streams.tv
+package streams.shared
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
