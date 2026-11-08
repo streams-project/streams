@@ -105,7 +105,7 @@
       "title": "Clips verwenden"
     },
     "continue-watching": {
-      "body": "Titel, die Sie begonnen haben, erscheinen in der Reihe <b>Weiterschauen</b>, mit einem Balken, der zeigt, wie weit Sie gekommen sind. Die Reihe finden Sie auch unter <b>Mein {brand}</b>.\n\n## Fortsetzen\nWählen Sie den Titel. Die Wiedergabe beginnt dort, wo Sie aufgehört haben, auf jedem Gerät, auf dem Sie angemeldet sind.\n\n## Einen Titel aus der Reihe entfernen\n1. Öffnen Sie das Optionsmenü auf der Titelkachel.\n2. Wählen Sie <b>Aus „Weiterschauen“ entfernen</b>.\n\nUm einen Titel auch aus Ihrer Wiedergabeaktivität zu entfernen, siehe <a=/help/article/viewing-history>Ihren Wiedergabeverlauf verwalten</a>.",
+      "body": "Titel, die Sie begonnen haben, erscheinen in der Reihe <b>Weiterschauen</b>, mit einem Balken, der zeigt, wie weit Sie gekommen sind. Die Reihe finden Sie auch unter <b>Mein Bereich</b>.\n\n## Fortsetzen\nWählen Sie den Titel. Die Wiedergabe beginnt dort, wo Sie aufgehört haben, auf jedem Gerät, auf dem Sie angemeldet sind.\n\n## Einen Titel aus der Reihe entfernen\n1. Öffnen Sie das Optionsmenü auf der Titelkachel.\n2. Wählen Sie <b>Aus „Weiterschauen“ entfernen</b>.\n\nUm einen Titel auch aus Ihrer Wiedergabeaktivität zu entfernen, siehe <a=/help/article/viewing-history>Ihren Wiedergabeverlauf verwalten</a>.",
       "keywords": "weiterschauen fortsetzen fortschritt entfernen reihe angehalten halb angesehen",
       "related": [
         "viewing-history",
@@ -374,7 +374,7 @@
       "title": "Meine Liste oder der Fortschritt ist verschwunden"
     },
     "my-list": {
-      "body": "## Einen Titel hinzufügen\nWählen Sie die Schaltfläche <b>+</b> auf einer Titelkachel, im Detailfenster oder beim großen Titel oben auf der Seite.\n\n## Einen Titel entfernen\nWählen Sie das Häkchen beim Titel. Es wird wieder zu <b>+</b>.\n\n## Ihre Liste ansehen\nÖffnen Sie <b>Mein {brand}</b> in der oberen Leiste oder auf dem Smartphone in der unteren Leiste. Dort finden Sie Ihre Liste, neben <b>Weiterschauen</b>, den Titeln, die Ihnen gefallen haben, und den Trailern, die Sie gesehen haben.\n\nMeine Liste gehört zum Profil und wird in Ihrem Konto gespeichert. Sie ist also auf jedem Gerät gleich.",
+      "body": "## Einen Titel hinzufügen\nWählen Sie die Schaltfläche <b>+</b> auf einer Titelkachel, im Detailfenster oder beim großen Titel oben auf der Seite.\n\n## Einen Titel entfernen\nWählen Sie das Häkchen beim Titel. Es wird wieder zu <b>+</b>.\n\n## Ihre Liste ansehen\nÖffnen Sie <b>Mein Bereich</b> in der oberen Leiste oder auf dem Smartphone in der unteren Leiste. Dort finden Sie Ihre Liste, neben <b>Weiterschauen</b>, den Titeln, die Ihnen gefallen haben, und den Trailern, die Sie gesehen haben.\n\nMeine Liste gehört zum Profil und wird in Ihrem Konto gespeichert. Sie ist also auf jedem Gerät gleich.",
       "keywords": "meine liste hinzufügen entfernen watchlist speichern später favoriten plus",
       "related": [
         "list-missing",
@@ -452,7 +452,7 @@
       "title": "Kindersicherung: Altersfreigaben und gesperrte Titel"
     },
     "phone-tablet": {
-      "body": "Öffnen Sie die Website im Browser Ihres Smartphones. Die Seite wechselt zu einem Layout für Touch-Bedienung, mit einer Leiste unten für <b>Start</b>, <b>Clips</b>, <b>Suche</b> und <b>Mein {brand}</b>.\n\n- Tippen Sie auf eine Kachel für die Details und dann auf die Wiedergabetaste, um zu starten.\n- Drehen Sie das Smartphone ins Querformat, um das beste Bild zu bekommen.\n- Damit es sich wie eine App anfühlt, siehe <a=/help/article/install-app>Wie man {brand} als App installiert</a>.",
+      "body": "Öffnen Sie die Website im Browser Ihres Smartphones. Die Seite wechselt zu einem Layout für Touch-Bedienung, mit einer Leiste unten für <b>Start</b>, <b>Clips</b>, <b>Suche</b> und <b>Mein Bereich</b>.\n\n- Tippen Sie auf eine Kachel für die Details und dann auf die Wiedergabetaste, um zu starten.\n- Drehen Sie das Smartphone ins Querformat, um das beste Bild zu bekommen.\n- Damit es sich wie eine App anfühlt, siehe <a=/help/article/install-app>Wie man {brand} als App installiert</a>.",
       "keywords": "handy tablet mobil android iphone ipad touch untere leiste app layout",
       "related": [
         "install-app",

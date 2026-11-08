@@ -105,7 +105,7 @@
       "title": "Como usar os Clips"
     },
     "continue-watching": {
-      "body": "Os títulos que você começou aparecem na fileira <b>Continuar assistindo</b>, com uma barra que mostra até onde você chegou. Ela também fica no <b>Meu {brand}</b>.\n\n## Continuar\nSelecione o título. A reprodução começa de onde você parou, em qualquer dispositivo em que você entrar.\n\n## Tirar um título da fileira\n1. Abra o menu de opções no card do título.\n2. Escolha <b>Remover de Continuar assistindo</b>.\n\nPara tirar um título também da sua atividade de visualização, veja <a=/help/article/viewing-history>Como gerenciar seu histórico de visualização</a>.",
+      "body": "Os títulos que você começou aparecem na fileira <b>Continuar assistindo</b>, com uma barra que mostra até onde você chegou. Ela também fica no <b>Meu espaço</b>.\n\n## Continuar\nSelecione o título. A reprodução começa de onde você parou, em qualquer dispositivo em que você entrar.\n\n## Tirar um título da fileira\n1. Abra o menu de opções no card do título.\n2. Escolha <b>Remover de Continuar assistindo</b>.\n\nPara tirar um título também da sua atividade de visualização, veja <a=/help/article/viewing-history>Como gerenciar seu histórico de visualização</a>.",
       "keywords": "continue assistindo continuar progresso remover linha parado assistido a metade",
       "related": [
         "viewing-history",
@@ -375,7 +375,7 @@
       "title": "Minha Lista ou progresso desapareceu"
     },
     "my-list": {
-      "body": "## Adicionar um título\nSelecione o botão <b>+</b> no card de um título, na janela de detalhes ou no título em destaque no topo da página.\n\n## Remover um título\nSelecione a marca de seleção do título. Ela volta a ser <b>+</b>.\n\n## Ver sua lista\nAbra <b>Meu {brand}</b> na barra de cima, ou na barra de baixo no celular. Sua lista fica lá, ao lado de <b>Continuar assistindo</b>, dos títulos que você curtiu e dos trailers que assistiu.\n\nA Minha Lista pertence ao perfil e fica salva na sua conta, então é a mesma em todos os dispositivos.",
+      "body": "## Adicionar um título\nSelecione o botão <b>+</b> no card de um título, na janela de detalhes ou no título em destaque no topo da página.\n\n## Remover um título\nSelecione a marca de seleção do título. Ela volta a ser <b>+</b>.\n\n## Ver sua lista\nAbra <b>Meu espaço</b> na barra de cima, ou na barra de baixo no celular. Sua lista fica lá, ao lado de <b>Continuar assistindo</b>, dos títulos que você curtiu e dos trailers que assistiu.\n\nA Minha Lista pertence ao perfil e fica salva na sua conta, então é a mesma em todos os dispositivos.",
       "keywords": "minha lista adicionar remover lista de assistir salvar depois favoritos mais",
       "related": [
         "list-missing",
@@ -453,7 +453,7 @@
       "title": "Controles parentais: classificações etárias e títulos bloqueados"
     },
     "phone-tablet": {
-      "body": "Abra o site no navegador do celular. A página muda para um layout feito para toque, com uma barra embaixo para <b>Início</b>, <b>Clips</b>, <b>Buscar</b> e <b>Meu {brand}</b>.\n\n- Toque em um card para ver os detalhes e depois no botão de play para começar.\n- Vire o celular na horizontal para ter a melhor imagem.\n- Para ele parecer um app, veja <a=/help/article/install-app>Como instalar {brand} como um aplicativo</a>.",
+      "body": "Abra o site no navegador do celular. A página muda para um layout feito para toque, com uma barra embaixo para <b>Início</b>, <b>Clips</b>, <b>Buscar</b> e <b>Meu espaço</b>.\n\n- Toque em um card para ver os detalhes e depois no botão de play para começar.\n- Vire o celular na horizontal para ter a melhor imagem.\n- Para ele parecer um app, veja <a=/help/article/install-app>Como instalar {brand} como um aplicativo</a>.",
       "keywords": "celular tablet móvel android iphone ipad toque barra inferior layout de aplicativo",
       "related": [
         "install-app",
