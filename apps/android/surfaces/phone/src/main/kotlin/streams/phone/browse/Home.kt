@@ -1,9 +1,15 @@
 package streams.phone
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,15 +20,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,14 +38,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import contract.ActionCommand
@@ -45,9 +57,12 @@ import contract.Address
 import contract.CommandList
 import contract.SectionKind
 import contract.Tile
+import java.text.Collator
+import java.util.Locale
 import streams.ports.Seen
 import streams.ports.Shell
 import streams.shared.Back
+import streams.shared.Corner
 import streams.shared.R
 import streams.shared.detailOf
 import streams.shared.isSeries
@@ -76,15 +91,24 @@ fun Home(shell: Shell, seen: Seen) {
     val rows = sections.filter { it.kind in RowKinds }
     val here = seen.route?.screen?.value ?: "home"
     val onHome = here == "home" || here == "kids"
-    val title = seen.nav.firstOrNull { it.screen.value == here && it.genre == seen.route?.genre }?.label
-        ?: seen.nav.firstOrNull { it.screen.value == here }?.label.orEmpty()
+    val pickedGenre = if (here == "genre") {
+        seen.nav.firstOrNull { it.screen.value == "genre" && it.genre == seen.route?.genre }
+    } else null
+    val title = pickedGenre?.label
+        ?: seen.nav.firstOrNull { it.screen.value == here }?.label
+        ?: words["app.title"].orEmpty()
+
+    val screenKey = if (onHome) "home" else "$here:${seen.route?.genre.orEmpty()}"
+    val scrollStates = remember { mutableMapOf<String, LazyListState>() }
+    val list = scrollStates.getOrPut(screenKey) { LazyListState() }
 
     var tint by remember { mutableStateOf(FirstTint) }
     val shownTint by animateColorAsState(tint, tween(600), label = "tint")
     var chipsHidden by remember { mutableStateOf(false) }
     val chipShift by animateFloatAsState(if (chipsHidden) 1f else 0f, tween(220), label = "chips")
-    val list = rememberLazyListState()
-    val atTop by remember { derivedStateOf { list.firstVisibleItemIndex == 0 && list.firstVisibleItemScrollOffset < 24 } }
+    LaunchedEffect(screenKey) { chipsHidden = false }
+
+    val atTop by remember(list) { derivedStateOf { list.firstVisibleItemIndex == 0 && list.firstVisibleItemScrollOffset < 24 } }
     val scroll = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -102,7 +126,23 @@ fun Home(shell: Shell, seen: Seen) {
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val chipHigh = with(LocalDensity.current) { CHIP_ROW.dp.toPx() }
 
+    BackHandler(enabled = categories || !onHome) {
+        if (categories) {
+            categories = false
+        } else {
+            shell.back()
+        }
+    }
+
     fun open(tile: Tile) = shell.go(titleAddress(tile.title))
+
+    val collator = remember(seen.language) {
+        Collator.getInstance(Locale.forLanguageTag(seen.language.ifEmpty { "en" }))
+    }
+    val genres = remember(seen.nav, collator) {
+        seen.nav.filter { it.screen.value == "genre" }
+            .sortedWith { a, b -> collator.compare(a.label, b.label) }
+    }
 
     Box(Modifier.fillMaxSize().background(Back).nestedScroll(scroll)) {
         // The billboard's colour behind the top of the page, fading to black.
@@ -155,38 +195,106 @@ fun Home(shell: Shell, seen: Seen) {
                     .height(CHIP_ROW.dp * (1f - chipShift))
                     .graphicsLayer { translationY = -chipShift * chipHigh },
             ) {
-                ChipRow(chips(seen, onHome, { shell.go(tabAddress(it)) }) { categories = true }, 1f - chipShift)
-                DropdownMenu(categories, { categories = false }) {
-                    seen.nav.filter { it.screen.value == "genre" }.sortedBy { it.label }.forEach { item ->
-                        DropdownMenuItem(
-                            text = { Text(item.label, fontSize = 16.sp) },
-                            onClick = {
-                                categories = false
-                                shell.go(Address.GENRE + item.genre.orEmpty())
-                            },
-                            modifier = Modifier.height(56.dp),
-                        )
-                    }
-                }
+                ChipRow(chips(seen, onHome, here, pickedGenre?.label, { shell.go(tabAddress(it)) }) { categories = true }, 1f - chipShift)
             }
         }
         BottomBar(
             bar(shell, seen, onHome),
             Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 9.dp),
         )
+
+        // Categories full-screen overlay (replacing DropdownMenu):
+        AnimatedVisibility(
+            visible = categories,
+            enter = fadeIn(tween(250)),
+            exit = fadeOut(tween(200)),
+        ) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Back.copy(alpha = 0.90f)),
+            ) {
+                LazyColumn(
+                    Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(top = top + 40.dp, bottom = 120.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    items(genres, key = { it.id }) { item ->
+                        val isChosen = here == "genre" && item.genre == seen.route?.genre
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    categories = false
+                                    shell.go(Address.GENRE + item.genre.orEmpty())
+                                }
+                                .padding(vertical = 12.dp, horizontal = 24.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = item.label,
+                                color = if (isChosen) Color.White else Color(0xFFC0C0C0),
+                                fontSize = 21.sp,
+                                fontWeight = if (isChosen) FontWeight.Bold else FontWeight.Medium,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                }
+                // Round white/grey close button (X) at bottom center (56 dp round circle)
+                Box(
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(bottom = 24.dp)
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(minOf(Corner.BUTTON, 28).dp))
+                        .background(Color.White)
+                        .clickable { categories = false },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Canvas(Modifier.size(20.dp)) {
+                        val strokeWidth = 2.5f.dp.toPx()
+                        drawLine(
+                            color = Back,
+                            start = Offset(0f, 0f),
+                            end = Offset(size.width, size.height),
+                            strokeWidth = strokeWidth,
+                            cap = StrokeCap.Round,
+                        )
+                        drawLine(
+                            color = Back,
+                            start = Offset(0f, size.height),
+                            end = Offset(size.width, 0f),
+                            strokeWidth = strokeWidth,
+                            cap = StrokeCap.Round,
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
 /** The chips: on Home the pages the reference lists, on a page the Categories menu alone. */
-private fun chips(seen: Seen, onHome: Boolean, go: (String) -> Unit, openCategories: () -> Unit): List<Chip> {
-    val pages = if (onHome) {
-        ChipScreens.mapNotNull { screen ->
-            seen.nav.firstOrNull { it.screen.value == screen }?.let { item -> Chip(item.label, chosen = false) { go(screen) } }
+private fun chips(
+    seen: Seen,
+    onHome: Boolean,
+    here: String,
+    pickedGenreLabel: String?,
+    go: (String) -> Unit,
+    openCategories: () -> Unit,
+): List<Chip> {
+    if (onHome) {
+        val pages = ChipScreens.mapNotNull { screen ->
+            seen.nav.firstOrNull { it.screen.value == screen }?.let { item ->
+                Chip(item.label, chosen = false) { go(screen) }
+            }
         }
-    } else {
-        emptyList()
+        return pages + Chip(seen.words["nav.categories"].orEmpty(), chosen = false, drops = true, go = openCategories)
     }
-    return pages + Chip(seen.words["nav.categories"].orEmpty(), chosen = false, drops = true, go = openCategories)
+    val label = pickedGenreLabel ?: seen.words["nav.categories"].orEmpty()
+    return listOf(Chip(label, chosen = false, drops = true, go = openCategories))
 }
 
 /** The bar: Home, Clips when the server offers it, Search and My Streams with the profile's face. */
