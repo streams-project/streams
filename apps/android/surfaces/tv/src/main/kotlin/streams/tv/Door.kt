@@ -60,6 +60,9 @@ import streams.shared.refType
 private const val EMPTY_CARD_MS = 333L
 private const val PEEK_AFTER_MS = 10_000L
 private const val PEEK_FADE_MS = 583
+private const val ROW_FADE_MS = 240
+/** The lockup's mark height at the top left of the landing, measured on the reference: 58 of 1080. */
+private const val LOCKUP_HIGH = 58f
 private const val FRAME_MS = 42
 private const val STAGE = 1920
 
@@ -94,12 +97,6 @@ private fun DrawScope.glow() {
 }
 
 private enum class Stop { HOME, TAB, HELP, SIGN_IN, JOIN }
-
-/** Whether the opening has played. It plays once for each run of the app. */
-@Stable
-class DoorState {
-    var opened by mutableStateOf(false)
-}
 
 /** A brand film or sound. It plays while `on`, and is handed back when it leaves the screen. */
 @Composable
@@ -144,9 +141,14 @@ private fun Ask(word: String, on: Boolean, lit: Color, ink: Color) {
  * Coming back to it later, the card slides in and the showreel starts after it.
  */
 @Composable
-private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, keys: Boolean, ready: () -> Unit) {
+private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, ready: () -> Unit) {
     val words = seen.words
-    var at by remember { mutableStateOf(Stop.SIGN_IN) }
+    // As in the reference, Get started holds the focus when the landing first shows.
+    var at by remember { mutableStateOf(Stop.JOIN) }
+    // The brand's lockup sits top left until the viewer first goes up to the row it gives way to.
+    var raised by remember { mutableStateOf(false) }
+    if (at == Stop.HOME || at == Stop.TAB) raised = true
+    val row by animateFloatAsState(if (raised) 1f else 0f, tween(ROW_FADE_MS, easing = LinearEasing), label = "row")
     var film by remember { mutableStateOf(opening) }
     var peek by remember { mutableStateOf(false) }
     val slide = remember { Animatable(if (opening) 0f else Slide.first()) }
@@ -190,8 +192,9 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, k
     }
 
     val shape = RoundedCornerShape(24.ref)
-    Box(Modifier.fillMaxSize().background(Back).drawBehind { glow() }.remote(keys, @DontMemoize { press(it) })) {
-        Row(Modifier.offset(96.ref, 78.ref), verticalAlignment = Alignment.CenterVertically) {
+    Box(Modifier.fillMaxSize().background(Back).drawBehind { glow() }.remote(@DontMemoize { press(it) })) {
+        if (row < 1f) BrandLockup(LOCKUP_HIGH, Modifier.offset(73.ref, 56.ref).alpha(1 - row))
+        if (row > 0f) Row(Modifier.offset(96.ref, 78.ref).alpha(row), verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier
                     .size(82.ref)
@@ -251,41 +254,11 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, k
 }
 
 /**
- * The way in: the opening, drawn live, once for each run of the app, over the landing it opens onto.
- * The landing is built under it from the first frame so its showreel can load while the mark rests,
- * and the opening's sounds live here so they play to their end.
+ * The way in: the landing. The first time, the opening is drawn over it (see `OpeningLayer`), and it
+ * loads its showreel underneath so the arrow opens onto the film.
  */
 @Composable
-fun Door(shell: Shell, seen: Seen, state: DoorState) {
+fun Door(shell: Shell, seen: Seen, state: OpeningState) {
     val opening = remember { !state.opened }
-    var ready by remember { mutableStateOf(false) }
-    var roll by remember { mutableStateOf(!opening) }
-    // Under the opening's cover the landing loads but is not drawn until the first stage is over.
-    var shown by remember { mutableStateOf(!opening) }
-    var notes by remember { mutableStateOf(false) }
-    var swell by remember { mutableStateOf(false) }
-    Box(Modifier.fillMaxSize()) {
-        Box(Modifier.fillMaxSize().graphicsLayer { alpha = if (shown) 1f else 0f }) {
-            Landing(shell, seen, opening, roll, state.opened) { ready = true }
-        }
-        if (opening) {
-            Film(shell, "${seen.server}/tv/opening-chime.m4a", false, notes, Modifier.size(0.dp)) {}
-            Film(shell, "${seen.server}/tv/opening-swell.m4a", false, swell, Modifier.size(0.dp)) {}
-        }
-        if (!state.opened) {
-            Opening(ready && seen.words.isNotEmpty()) { moment ->
-                when (moment) {
-                    Moment.NOTES -> notes = true
-                    Moment.WARM -> shown = true
-                    Moment.SECOND -> swell = true
-                    Moment.ROLL -> roll = true
-                    Moment.DONE -> {
-                        shown = true
-                        roll = true
-                        state.opened = true
-                    }
-                }
-            }
-        }
-    }
+    Landing(shell, seen, opening, state.roll) { state.landingReady = true }
 }

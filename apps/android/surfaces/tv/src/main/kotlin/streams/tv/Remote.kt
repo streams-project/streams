@@ -39,13 +39,15 @@ fun Modifier.remote(on: Boolean, press: (Word) -> Boolean): Modifier {
     val focus = remember { FocusRequester() }
     // A key always reaches the newest answer, with what the screen holds now.
     val latest by rememberUpdatedState(press)
-    LaunchedEffect(on) {
-        if (on) focus.requestFocus()
+    // Under the opening a screen keeps its place but takes no keys, and takes them back after.
+    val live = on && !LocalCovered.current
+    LaunchedEffect(live) {
+        if (live) focus.requestFocus()
     }
     return focusRequester(focus)
         .focusable()
         .onPreviewKeyEvent { event ->
             val word = wordOf(event)
-            word != null && event.type == KeyEventType.KeyDown && latest(word)
+            live && word != null && event.type == KeyEventType.KeyDown && latest(word)
         }
 }

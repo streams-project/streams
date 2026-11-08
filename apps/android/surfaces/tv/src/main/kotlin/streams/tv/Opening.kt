@@ -2,6 +2,17 @@ package streams.tv
 
 import android.content.res.Resources
 import androidx.compose.foundation.Canvas
+import kotlin.math.roundToInt
+import streams.shared.ref
+import streams.ports.Shell
+import streams.ports.Seen
+import contract.Target
+import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.Stable
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -66,7 +77,7 @@ private const val RING_FADE = 0.35f
 private const val SECOND = 2.0f
 private const val NOTES_AT = 2.05f
 /** How long before the window opens the showreel starts, under the cover, past its fade from black. */
-private const val FILM_LEAD = 1.0f
+const val FILM_LEAD = 1.0f
 
 private val Night = Color(0xFF06070F)
 private val LineFrom = Color(0xFF5A78FF)
@@ -321,11 +332,85 @@ enum class Moment {
     DONE,
 }
 
-/** The opening over the landing. `ready` turns true when the landing can show; the rest waits for it. */
+/** Where the opening is, for the whole app. It plays once for each run of the app. */
+@Stable
+class OpeningState {
+    /** Over: the screens take keys again. */
+    var opened by mutableStateOf(false)
+    /** The first stage is over, so the screen under the cover may draw. */
+    var shown by mutableStateOf(false)
+    var notes by mutableStateOf(false)
+    var swell by mutableStateOf(false)
+    /** The landing's showreel may play. */
+    var roll by mutableStateOf(false)
+    /** The landing's showreel can play. */
+    var landingReady by mutableStateOf(false)
+    var soundsOver by mutableStateOf(false)
+}
+
+/** True while the opening covers the screens: they keep their state but take no keys. */
+val LocalCovered = compositionLocalOf { false }
+
+/**
+ * The opening, over whatever the first screen is: the landing for a visitor, profiles or home for a
+ * member. It waits until that screen has what it needs, and on the landing for the showreel too.
+ */
 @Composable
-fun Opening(ready: Boolean, moment: (Moment) -> Unit) {
+fun OpeningLayer(shell: Shell, seen: Seen, state: OpeningState) {
+    if (!state.soundsOver) {
+        Film(shell, "${seen.server}/tv/opening-chime.m4a", false, state.notes, Modifier.size(0.dp)) {}
+        Film(shell, "${seen.server}/tv/opening-swell.m4a", false, state.swell, Modifier.size(0.dp)) {
+            state.soundsOver = true
+        }
+    }
+    if (state.opened) return
+    val target = seen.route?.target
+    val landing = target == Target.START
+    val ready = seen.words.isNotEmpty() && target != null && target != Target.WAIT && (!landing || state.landingReady)
+    Opening(ready, if (landing) FILM_LEAD else 0f) { moment ->
+        when (moment) {
+            Moment.NOTES -> state.notes = true
+            Moment.WARM -> state.shown = true
+            Moment.SECOND -> state.swell = true
+            Moment.ROLL -> state.roll = true
+            Moment.DONE -> {
+                state.shown = true
+                state.roll = true
+                state.opened = true
+            }
+        }
+    }
+}
+
+/** The brand's mark and text, `markHigh` reference pixels tall, as the opening leaves them at rest. */
+@Composable
+fun BrandLockup(markHigh: Float, modifier: Modifier = Modifier) {
+    val art = artOf(LocalContext.current.resources)
+    val k = markHigh / MARK_H
+    Canvas(modifier.size((LOCK_W * k).roundToInt().ref, (MARK_H * k).roundToInt().ref)) {
+        val s = size.height / MARK_H
+        withTransform({
+            scale(s, s, Offset.Zero)
+            translate(-(WIDE - LOCK_W) / 2, -(MIDDLE - MARK_H / 2))
+        }) {
+            text(art, art.textX, art.markX, 1f)
+            ribbon(art, art.markX, 1f, 1f)
+            arrow(art, art.markX, 1f, 1f)
+        }
+    }
+}
+
+private var keptArt: Art? = null
+
+/** The pictures are made once for the run of the app and shared by the opening and the lockup. */
+private fun artOf(resources: Resources): Art = keptArt ?: Art(resources).also { keptArt = it }
+
+/** The opening itself. `ready` turns true when the screen under it can show; the rest waits for it. */
+@Composable
+fun Opening(ready: Boolean, lead: Float, moment: (Moment) -> Unit) {
     val resources = LocalContext.current.resources
-    val art = remember { Art(resources) }
+    val art = remember { artOf(resources) }
+    val leadNow by rememberUpdatedState(lead)
     val clock = remember { mutableFloatStateOf(0f) }
     val readyNow by rememberUpdatedState(ready)
     val tell by rememberUpdatedState(moment)
@@ -350,13 +435,13 @@ fun Opening(ready: Boolean, moment: (Moment) -> Unit) {
                 val ring = ringFrom.floatValue
                 when {
                     // The showreel starts a little before the window, so the arrow opens onto the film.
-                    !readyAt.isNaN() && ring.isNaN() -> second.floatValue = max(REST + SHORT_REST, readyAt + FILM_LEAD)
-                    !readyAt.isNaN() -> second.floatValue = max(ring + 2 * RING_FADE, readyAt + FILM_LEAD)
+                    !readyAt.isNaN() && ring.isNaN() -> second.floatValue = max(REST + SHORT_REST, readyAt + leadNow)
+                    !readyAt.isNaN() -> second.floatValue = max(ring + 2 * RING_FADE, readyAt + leadNow)
                     ring.isNaN() && t >= REST + SHORT_REST -> ringFrom.floatValue = t
                 }
             }
             val s = second.floatValue
-            once(!s.isNaN() && t >= s - FILM_LEAD, Moment.ROLL)
+            once(!s.isNaN() && t >= s - leadNow, Moment.ROLL)
             once(!s.isNaN() && t >= s, Moment.SECOND)
             if (!s.isNaN() && t >= s + SECOND) {
                 tell(Moment.DONE)

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -25,15 +27,20 @@ import streams.shared.BrandFont
 fun Television(shell: Shell) {
     val seen by shell.seen.collectAsStateWithLifecycle()
     val search = remember { SearchState() }
-    val door = remember { DoorState() }
+    val opening = remember { OpeningState() }
     Brand {
         ProvideTextStyle(TextStyle(fontFamily = BrandFont)) {
             Box(Modifier.fillMaxSize().background(Color.Black)) {
                 val target = seen.route?.target
+                // A run of the app with no server yet starts at the address screen, with no opening.
+                if (seen.server.isEmpty()) opening.opened = true
+                // Under the opening the first screen is built and loading, and drawn once the first stage is over.
+                Box(Modifier.fillMaxSize().graphicsLayer { alpha = if (opening.shown || opening.opened) 1f else 0f }) {
+                CompositionLocalProvider(LocalCovered provides !opening.opened) {
                 when {
                     seen.server.isEmpty() -> Server(shell)
                     target == null || target == Target.WAIT -> Unit
-                    target == Target.START -> Door(shell, seen, door)
+                    target == Target.START -> Door(shell, seen, opening)
                     target == Target.SIGN_IN -> SignIn(shell, seen)
                     target == Target.PROFILES -> Profiles(shell, seen)
                     target == Target.TITLE -> TitlePage(shell, seen)
@@ -54,6 +61,9 @@ fun Television(shell: Shell) {
                         shell.back()
                     }
                 }
+                }
+                }
+                if (seen.server.isNotEmpty()) OpeningLayer(shell, seen, opening)
             }
         }
     }
