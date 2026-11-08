@@ -35,6 +35,10 @@ pub const SETTINGS: &[(&str, &str)] = &[
         "Base address of images. Without it tiles carry no images.",
     ),
     (
+        "IMAGE_BASE_ART",
+        "Base address for gate art. Without it art defaults to w1280 of IMAGE_BASE.",
+    ),
+    (
         "FINDER_URLS",
         "Comma separated finder addresses. Without them playback is off.",
     ),
@@ -130,6 +134,7 @@ pub struct Config {
     pub index_path: Option<PathBuf>,
     pub database_url: Option<String>,
     pub image_base: Option<String>,
+    pub image_base_art: Option<String>,
     pub finder_urls: Vec<String>,
     pub finder_token: Option<String>,
     /// A subtitle program. Off without it.
@@ -208,6 +213,7 @@ impl Config {
         if image_base.is_none() {
             note("images", "IMAGE_BASE is not set");
         }
+        let image_base_art = value("IMAGE_BASE_ART");
         let finder_urls: Vec<String> = value("FINDER_URLS")
             .map(|list| {
                 list.split(',')
@@ -283,6 +289,7 @@ impl Config {
             index_path,
             database_url,
             image_base,
+            image_base_art,
             finder_urls,
             finder_token,
             site_address,

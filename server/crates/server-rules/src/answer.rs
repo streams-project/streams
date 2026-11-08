@@ -74,19 +74,44 @@ cleared! {
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Images {
     base: Option<String>,
+    art_base: Option<String>,
 }
 
 impl Images {
-    /// Images under a base address, or none.
+    /// Images under a base address, or none. When the base address contains `/w780`, art URLs
+    /// resolve to `/w1280` so the textless portrait poster fills a tall display without upscaling.
     #[must_use]
     pub fn new(base: Option<&str>) -> Self {
-        Self {
-            base: base.map(|text| text.trim_end_matches('/').to_owned()),
-        }
+        Self::with_art_base(base, None)
+    }
+
+    /// Images under a base address, with an optional separate address for art (`ImageRole::Art`).
+    /// If no separate art address is given and the base address contains `/w780`, art URLs
+    /// resolve with `/w1280` substituted for `/w780`.
+    #[must_use]
+    pub fn with_art_base(base: Option<&str>, art_base: Option<&str>) -> Self {
+        let base = base.map(|text| text.trim_end_matches('/').to_owned());
+        let art_base = art_base
+            .map(|text| text.trim_end_matches('/').to_owned())
+            .or_else(|| {
+                base.as_ref().map(|b| {
+                    if b.contains("/w780") {
+                        b.replace("/w780", "/w1280")
+                    } else {
+                        b.clone()
+                    }
+                })
+            });
+        Self { base, art_base }
     }
 
     fn image(&self, role: ImageRole, path: Option<&str>) -> Option<Image> {
-        let (base, path) = (self.base.as_deref()?, path.filter(|p| !p.is_empty())?);
+        let base = if role == ImageRole::Art {
+            self.art_base.as_deref().or(self.base.as_deref())?
+        } else {
+            self.base.as_deref()?
+        };
+        let path = path.filter(|p| !p.is_empty())?;
         Some(Image {
             role,
             url: format!("{base}{path}"),
@@ -440,5 +465,38 @@ impl SafeChanges {
             _ => true,
         });
         Self(changes)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn art_resolves_w1280_from_w780_base() {
+        let images = Images::new(Some("https://image.tmdb.org/t/p/w780"));
+        let poster = images.image(ImageRole::Poster, Some("/p.jpg")).unwrap();
+        assert_eq!(poster.url, "https://image.tmdb.org/t/p/w780/p.jpg");
+        let art = images.image(ImageRole::Art, Some("/art.jpg")).unwrap();
+        assert_eq!(art.url, "https://image.tmdb.org/t/p/w1280/art.jpg");
+    }
+
+    #[test]
+    fn art_resolves_explicit_art_base() {
+        let images = Images::with_art_base(
+            Some("https://images.example/t/w780"),
+            Some("https://custom.example/w1280"),
+        );
+        let poster = images.image(ImageRole::Poster, Some("/p.jpg")).unwrap();
+        assert_eq!(poster.url, "https://images.example/t/w780/p.jpg");
+        let art = images.image(ImageRole::Art, Some("/art.jpg")).unwrap();
+        assert_eq!(art.url, "https://custom.example/w1280/art.jpg");
+    }
+
+    #[test]
+    fn art_falls_back_to_base_without_w780() {
+        let images = Images::new(Some("https://images.example/t"));
+        let art = images.image(ImageRole::Art, Some("/art.jpg")).unwrap();
+        assert_eq!(art.url, "https://images.example/t/art.jpg");
     }
 }

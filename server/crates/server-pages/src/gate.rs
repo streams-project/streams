@@ -1,6 +1,6 @@
 //! The titles over the profile chooser. At most three for the whole account, each with the facts
-//! of the line under its logo: titles coming within 30 days first, then series whose new season
-//! starts within 30 days, then today's Top 10, then the most watched with no line. Each needs a
+//! of the line under its logo: mixed across titles coming within 30 days, series whose new season
+//! starts within 30 days, and today's Top 10, then the most watched with no line. Each needs a
 //! logo, a poster and a backdrop, and the banner formats of the hero. The draw turns each day, so
 //! the chooser shows other titles tomorrow.
 
@@ -95,16 +95,6 @@ pub fn gate_picks(
     let fit = |key: u32| data.catalog.get(&key).filter(|item| fits(data, tier, item));
     let mut out: Vec<GatePick> = Vec::with_capacity(GATE_TITLES);
     let mut used: HashSet<u32> = HashSet::default();
-    let mut take = |pool: Vec<(&CatalogItem, Line)>, out: &mut Vec<GatePick>| {
-        for (item, line) in pool {
-            if out.len() >= GATE_TITLES {
-                return;
-            }
-            if used.insert(item.id) {
-                out.push(GatePick { key: item.id, line });
-            }
-        }
-    };
 
     let coming: Vec<(&CatalogItem, Line)> = data
         .fresh
@@ -116,7 +106,6 @@ pub fn gate_picks(
             Some((item, Line::Coming(fresh.release_date.clone())))
         })
         .collect();
-    take(draw(coming, &format!("{seed}|coming")), &mut out);
 
     let mut season_days: HashMap<u32, String> = HashMap::default();
     let dated = data.fresh.items.iter().filter_map(|fresh| {
@@ -137,15 +126,14 @@ pub fn gate_picks(
         .into_iter()
         .filter_map(|(key, day)| Some((fit(key)?, Line::SeasonsComing(day))))
         .collect();
-    take(draw(seasons, &format!("{seed}|seasons")), &mut out);
 
     let charts: Vec<(&'static str, Vec<&CatalogItem>)> = ["tv", "movie"]
         .into_iter()
         .map(|kind| (kind, top_today(data, tier, kind, today_days)))
         .collect();
     // A child's chart is a list of titles for children, so its place is not a place in "Today".
-    if !tier.is_kids() {
-        let ranked: Vec<(&CatalogItem, Line)> = charts
+    let ranked: Vec<(&CatalogItem, Line)> = if !tier.is_kids() {
+        charts
             .iter()
             .flat_map(|(kind, items)| {
                 let kind: &'static str = kind;
@@ -153,23 +141,65 @@ pub fn gate_picks(
                     fits(data, tier, item).then_some((*item, Line::Ranked { rank, kind }))
                 })
             })
-            .collect();
-        take(draw(ranked, &format!("{seed}|ranked")), &mut out);
+            .collect()
+    } else {
+        Vec::new()
+    };
+
+    let coming_drawn = draw(coming, &format!("{seed}|coming"));
+    let seasons_drawn = draw(seasons, &format!("{seed}|seasons"));
+    let ranked_drawn = if !tier.is_kids() {
+        draw(ranked, &format!("{seed}|ranked"))
+    } else {
+        Vec::new()
+    };
+
+    let mut iters = [
+        coming_drawn.into_iter(),
+        seasons_drawn.into_iter(),
+        ranked_drawn.into_iter(),
+    ];
+    loop {
+        let mut added = false;
+        for iter in &mut iters {
+            if out.len() >= GATE_TITLES {
+                break;
+            }
+            for (item, line) in iter.by_ref() {
+                if used.insert(item.id) {
+                    out.push(GatePick { key: item.id, line });
+                    added = true;
+                    break;
+                }
+            }
+        }
+        if out.len() >= GATE_TITLES || !added {
+            break;
+        }
     }
 
-    let mut most_watched: Vec<(&CatalogItem, Line)> = Vec::new();
-    let longest = charts
-        .iter()
-        .map(|(_, items)| items.len())
-        .max()
-        .unwrap_or(0);
-    for at in 0..longest {
-        for (_, items) in &charts {
-            if let Some(item) = items.get(at).filter(|item| fits(data, tier, item)) {
-                most_watched.push((*item, Line::None));
+    if out.len() < GATE_TITLES {
+        let mut most_watched: Vec<(&CatalogItem, Line)> = Vec::new();
+        let longest = charts
+            .iter()
+            .map(|(_, items)| items.len())
+            .max()
+            .unwrap_or(0);
+        for at in 0..longest {
+            for (_, items) in &charts {
+                if let Some(item) = items.get(at).filter(|item| fits(data, tier, item)) {
+                    most_watched.push((*item, Line::None));
+                }
+            }
+        }
+        for (item, line) in most_watched {
+            if out.len() >= GATE_TITLES {
+                break;
+            }
+            if used.insert(item.id) {
+                out.push(GatePick { key: item.id, line });
             }
         }
     }
-    take(most_watched, &mut out);
     out
 }
