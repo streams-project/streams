@@ -50,9 +50,28 @@ private class PageFocus(var rows: List<Section>, var tabs: Int, private val acti
     var row by mutableIntStateOf(0)
     var tab by mutableIntStateOf(active)
     var button by mutableIntStateOf(0)
-    private val columns = mutableStateMapOf<Int, Int>()
+    /**
+     * Where each row was left, by the row's id: the place and the title on it. A row the viewer comes
+     * back to, or sees below, opens there; a fresh answer that moved the title keeps the title.
+     */
+    private val columns = mutableStateMapOf<String, Pair<Int, TitleKey?>>()
 
-    val column: Int get() = columns[row] ?: 0
+    /** The tile a row was left on, or its first. */
+    fun columnOf(index: Int): Int {
+        val section = rows.getOrNull(index) ?: return 0
+        val tiles = section.tiles.orEmpty()
+        val (at, title) = columns[section.id] ?: return 0
+        if (tiles.getOrNull(at)?.title == title) return at
+        val moved = tiles.indexOfFirst { it.title == title }
+        return if (moved >= 0) moved else at.coerceIn(0, maxOf(tiles.lastIndex, 0))
+    }
+
+    val column: Int get() = columnOf(row)
+
+    private fun keep(at: Int) {
+        val section = rows.getOrNull(row) ?: return
+        columns[section.id] = at to section.tiles.orEmpty().getOrNull(at)?.title
+    }
 
     private fun lastColumn() = rows.getOrNull(row)?.tiles.orEmpty().lastIndex
 
@@ -78,7 +97,7 @@ private class PageFocus(var rows: List<Section>, var tabs: Int, private val acti
                 where == Where.TOP && tab == 0 -> tab = SEARCH_TAB
                 where == Where.TOP && tab == SEARCH_TAB -> tab = WHO_TAB
                 where == Where.HERO -> button = 0
-                where == Where.ROW && column > 0 -> columns[row] = column - 1
+                where == Where.ROW && column > 0 -> keep(column - 1)
                 else -> return false
             }
             Word.RIGHT -> when {
@@ -86,7 +105,7 @@ private class PageFocus(var rows: List<Section>, var tabs: Int, private val acti
                 where == Where.TOP && tab == SEARCH_TAB -> tab = 0
                 where == Where.TOP && tab < tabs - 1 -> tab += 1
                 where == Where.HERO -> button = 1
-                where == Where.ROW && column < lastColumn() -> columns[row] = column + 1
+                where == Where.ROW && column < lastColumn() -> keep(column + 1)
                 else -> return false
             }
             Word.BACK -> when {
@@ -181,7 +200,8 @@ fun Browse(shell: Shell, seen: Seen) {
                 label = "row",
             ) { row ->
                 rows.getOrNull(row)?.let {
-                    OpenRow(shell, seen.words, store, it, if (row == focus.row) focus.column else 0)
+                    // A row sliding away keeps the tile it was left on.
+                    OpenRow(shell, seen.words, store, it, focus.columnOf(row))
                 }
             }
         } else if (lead != null) {
@@ -194,7 +214,8 @@ fun Browse(shell: Shell, seen: Seen) {
                 color = Muted,
             )
         }
-        (if (inRow) rows.getOrNull(focus.row + 1) else rows.firstOrNull())?.let { NextRow(it, !inRow) }
+        val below = if (inRow) focus.row + 1 else 0
+        rows.getOrNull(below)?.let { NextRow(it, !inRow, focus.columnOf(below)) }
     }
     if (menu) ProfileMenu(shell, seen, person) { menu = false }
 }
