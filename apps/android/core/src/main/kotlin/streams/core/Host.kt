@@ -244,6 +244,11 @@ class Host(
     /** The words of the interface, with the brand's name in them. */
     private fun readWords(language: String, brand: String) {
         ask("/v1/strings/$language") { status, text ->
+            // A language this server does not have falls back to English, so a screen always has words.
+            if (status !in 200..299 && language != DEFAULT_LANGUAGE) {
+                readWords(DEFAULT_LANGUAGE, brand)
+                return@ask
+            }
             if (status in 200..299) {
                 val read = contractJson.decodeFromString(Strings.serializer(), text)
                 state.update { now ->
@@ -269,7 +274,10 @@ class Host(
 
     private fun apply(out: CoreOut) {
         out.view?.hello?.let { hello ->
-            if (state.value.words.isEmpty()) readWords(DEFAULT_LANGUAGE, hello.brand.name)
+            // Before any profile, the screens speak the device's language when the server has it.
+            if (state.value.words.isEmpty()) {
+                readWords(java.util.Locale.getDefault().language.ifEmpty { DEFAULT_LANGUAGE }, hello.brand.name)
+            }
         }
         out.view?.let { view ->
             state.update { now ->
