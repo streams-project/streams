@@ -238,5 +238,7 @@
   "genre.news": "Nachrichten",
   "genre.war": "Kriegsfilm",
   "genre.music": "Musik",
-  "genre.tv_movie": "TV-Film"
+  "genre.tv_movie": "TV-Film",
+  "title.length.hours": "{h} Std. {m} Min.",
+  "title.length.minutes": "{m} Min."
 }

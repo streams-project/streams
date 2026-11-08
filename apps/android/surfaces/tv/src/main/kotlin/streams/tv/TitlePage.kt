@@ -210,6 +210,7 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, line: MutableIn
             color = Color.White.copy(alpha = 0.85f),
             maxLines = 4,
             overflow = TextOverflow.Ellipsis,
+            style = storyStyle(),
         )
         // The reactions sit over the menu icons: both centre on 122.
         Reactions(rating, if (part == Part.REACTIONS) reaction else -1, PAGE_EDGE + 18, 504)

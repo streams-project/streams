@@ -238,5 +238,7 @@
   "genre.news": "Noticias",
   "genre.war": "Bélica",
   "genre.music": "Música",
-  "genre.tv_movie": "Película de TV"
+  "genre.tv_movie": "Película de TV",
+  "title.length.hours": "{h} h {m} min",
+  "title.length.minutes": "{m} min"
 }

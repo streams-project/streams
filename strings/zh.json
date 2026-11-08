@@ -238,5 +238,7 @@
   "genre.news": "新闻",
   "genre.war": "战争",
   "genre.music": "音乐",
-  "genre.tv_movie": "电视电影"
+  "genre.tv_movie": "电视电影",
+  "title.length.hours": "{h}小时{m}分钟",
+  "title.length.minutes": "{m}分钟"
 }

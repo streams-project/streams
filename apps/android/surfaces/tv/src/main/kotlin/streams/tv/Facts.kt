@@ -27,7 +27,9 @@ private fun facts(detail: TitleDetail, words: Map<String, String>): List<String>
             val word = words[if (seasons == 1) "title.season.one" else "title.season.many"].orEmpty()
             add(word.fill("n", seasons.toString()))
         }
-        minutes != null -> add("${minutes / 60}h ${minutes % 60}m")
+        minutes != null && minutes >= 60 ->
+            add(words["title.length.hours"].orEmpty().fill("h", minutes / 60).fill("m", minutes % 60))
+        minutes != null -> add(words["title.length.minutes"].orEmpty().fill("m", minutes))
     }
     detail.age?.let { add(it.label) }
 }

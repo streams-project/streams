@@ -238,5 +238,7 @@
   "genre.news": "Nieuws",
   "genre.war": "Oorlog",
   "genre.music": "Muziek",
-  "genre.tv_movie": "Tv-film"
+  "genre.tv_movie": "Tv-film",
+  "title.length.hours": "{h} u {m} min",
+  "title.length.minutes": "{m} min"
 }

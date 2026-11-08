@@ -238,5 +238,8 @@
   "genre.news": "أخبار",
   "genre.war": "حرب",
   "genre.music": "موسيقى",
-  "genre.tv_movie": "فيلم تلفزيوني"
+  "genre.tv_movie": "فيلم تلفزيوني",
+  "title.length.hours": "{h} س {m} د",
+  "title.length.minutes": "{m} د",
+  "language.text_scale": "1.12"
 }

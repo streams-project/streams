@@ -238,5 +238,7 @@
   "genre.news": "Attualità",
   "genre.war": "Guerra",
   "genre.music": "Musica",
-  "genre.tv_movie": "Film TV"
+  "genre.tv_movie": "Film TV",
+  "title.length.hours": "{h} h {m} min",
+  "title.length.minutes": "{m} min"
 }

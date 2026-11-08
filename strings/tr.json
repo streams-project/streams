@@ -238,5 +238,7 @@
   "genre.news": "Haber",
   "genre.war": "Savaş",
   "genre.music": "Müzik",
-  "genre.tv_movie": "TV Filmi"
+  "genre.tv_movie": "TV Filmi",
+  "title.length.hours": "{h} sa {m} dk",
+  "title.length.minutes": "{m} dk"
 }

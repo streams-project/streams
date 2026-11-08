@@ -73,6 +73,7 @@ private fun OpenCard(tile: Tile) {
             fontWeight = FontWeight.ExtraBold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
+            style = storyStyle(),
         )
         Box(Modifier.fillMaxSize().border(3.ref, Color.White, shape))
     }
@@ -116,6 +117,7 @@ fun OpenRow(shell: Shell, words: Map<String, String>, store: DetailStore, sectio
                 lineHeight = 39.refType,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
+                style = storyStyle(),
             )
         }
     }
