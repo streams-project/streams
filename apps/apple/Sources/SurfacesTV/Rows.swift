@@ -105,18 +105,25 @@ struct OpenRow: View {
 }
 
 /// The next row, dim, cut by the screen's edge.
+/// It shows where the viewer left it: the kept tile first, the one before it at the edge, as the open row does.
 struct NextRow: View {
     let section: Contract.Section
     let high: Bool
     let words: [String: String]
+    var at: Int = 0
 
     var body: some View {
+        let tiles = section.tiles ?? []
+        let top: CGFloat = high ? 1001 : 998
         ZStack(alignment: .topLeading) {
             Text(section.title ?? "").brand(32, 700).foregroundStyle(.white)
                 .offset(x: pageEdge.ref, y: (high ? 946 : 944).ref)
-            ForEach(Array((section.tiles ?? []).prefix(nextPosters).enumerated()), id: \.offset) { index, tile in
+            if at > 0, let before = tiles[safe: at - 1] {
+                Poster(tile: before, words: words).offset(x: (pageEdge - step).ref, y: top.ref)
+            }
+            ForEach(Array(tiles.dropFirst(at).prefix(nextPosters).enumerated()), id: \.offset) { index, tile in
                 Poster(tile: tile, words: words)
-                    .offset(x: (pageEdge + CGFloat(index) * step).ref, y: (high ? 1001 : 998).ref)
+                    .offset(x: (pageEdge + CGFloat(index) * step).ref, y: top.ref)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

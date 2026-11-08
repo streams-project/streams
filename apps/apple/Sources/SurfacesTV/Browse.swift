@@ -25,7 +25,9 @@ private final class PageFocus {
     var button = 0
     /// Which way the last row change went, so the rows slide the right way.
     var way: CGFloat = 1
-    private var columns: [Int: Int] = [:]
+    /// Where each row was left, by the row's id: the place and the title on it. A row the viewer comes
+    /// back to, or sees below, opens there; a fresh answer that moved the title keeps the title.
+    private var columns: [String: (at: Int, title: TitleKey?)] = [:]
 
     init(rows: [Contract.Section], tabs: Int, active: Int, hero: Bool) {
         self.rows = rows
@@ -38,7 +40,21 @@ private final class PageFocus {
 
     private var above: Where { hero ? .hero : .top }
 
-    var column: Int { columns[row] ?? 0 }
+    /// The tile a row was left on, or its first.
+    func columnOf(_ index: Int) -> Int {
+        guard let section = rows[safe: index], let kept = columns[section.id] else { return 0 }
+        let tiles = section.tiles ?? []
+        if tiles[safe: kept.at]?.title == kept.title { return kept.at }
+        if let moved = tiles.firstIndex(where: { $0.title == kept.title }) { return moved }
+        return min(kept.at, max(tiles.count - 1, 0))
+    }
+
+    var column: Int { columnOf(row) }
+
+    private func keep(_ at: Int) {
+        guard let section = rows[safe: row] else { return }
+        columns[section.id] = (at, section.tiles?[safe: at]?.title)
+    }
 
     private var lastColumn: Int { (rows.indices.contains(row) ? rows[row].tiles?.count ?? 0 : 0) - 1 }
 
@@ -59,14 +75,14 @@ private final class PageFocus {
             else if place == .top && tab == 0 { tab = searchTab }
             else if place == .top && tab == searchTab { tab = whoTab }
             else if place == .hero { button = 0 }
-            else if place == .row && column > 0 { columns[row] = column - 1 }
+            else if place == .row && column > 0 { keep(column - 1) }
             else { return false }
         case .right:
             if place == .top && tab == whoTab { tab = searchTab }
             else if place == .top && tab == searchTab { tab = 0 }
             else if place == .top && tab < tabs - 1 { tab += 1 }
             else if place == .hero { button = 1 }
-            else if place == .row && column < lastColumn { columns[row] = column + 1 }
+            else if place == .row && column < lastColumn { keep(column + 1) }
             else { return false }
         case .back:
             switch place {
@@ -173,7 +189,8 @@ public struct Browse: View {
                     if rows.indices.contains(shownRow) {
                         OpenRow(
                             shell: shell, words: seen.words, store: store, section: rows[shownRow],
-                            at: shownRow == focus.row ? focus.column : 0
+                            // A row sliding away keeps the tile it was left on.
+                            at: focus.columnOf(shownRow)
                         )
                         .id(shownRow)
                         .transition(.asymmetric(
@@ -190,8 +207,9 @@ public struct Browse: View {
                     .foregroundStyle(Muted)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            if let next = inRow ? rows[safe: focus.row + 1] : rows.first {
-                NextRow(section: next, high: !inRow, words: seen.words)
+            let below = inRow ? focus.row + 1 : 0
+            if let next = rows[safe: below] {
+                NextRow(section: next, high: !inRow, words: seen.words, at: focus.columnOf(below))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
