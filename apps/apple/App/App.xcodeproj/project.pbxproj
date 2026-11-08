@@ -19,7 +19,7 @@
 
 /* Begin PBXFileReference section */
 		A10000020000000000000001 /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
-		A10000160000000000000001 /* Icons.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Icons.xcassets; path = ../Sources/SurfacesTV/Resources/Icons.xcassets; sourceTree = "<group>"; };
+		A10000160000000000000001 /* Icons.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Icons.xcassets; path = ../Sources/SurfacesShared/Resources/Icons.xcassets; sourceTree = "<group>"; };
 		A10000170000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A10000180000000000000001 /* Brand.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Brand.xcconfig; path = ../Brand.xcconfig; sourceTree = "<group>"; };
 		A10000190000000000000001 /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -230,7 +230,7 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-L$(PROJECT_DIR)/../target",
+					"-L$(PROJECT_DIR)/../target/tvos",
 					"-lbridge_c",
 				);
 				SDKROOT = appletvos;
@@ -252,7 +252,7 @@
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-L$(PROJECT_DIR)/../target",
+					"-L$(PROJECT_DIR)/../target/tvos",
 					"-lbridge_c",
 				);
 				SDKROOT = appletvos;
