@@ -27,10 +27,16 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
@@ -40,6 +46,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.unit.dp
 import contract.Address
 import kotlinx.coroutines.delay
 import streams.ports.Seen
@@ -66,6 +73,26 @@ private val CardWash = Brush.verticalGradient(
 )
 private val CardEdge = Color(0xFFC4E4FB)
 
+/**
+ * The violet light in the top left corner behind the card, as the approved opening renders it:
+ * strength (1 - (x / 1500 + y / 620)) ^ 1.5 of 5F28EB, on a 1920 by 1080 page.
+ */
+private val Glow = Brush.linearGradient(
+    0f to Color(0xFF5F28EB),
+    0.25f to Color(0xFF5F28EB).copy(alpha = 0.65f),
+    0.5f to Color(0xFF5F28EB).copy(alpha = 0.354f),
+    0.75f to Color(0xFF5F28EB).copy(alpha = 0.125f),
+    1f to Color.Transparent,
+    start = Offset.Zero,
+    end = Offset(219f, 530f),
+)
+
+private fun DrawScope.glow() {
+    scale(size.width / STAGE, size.height / (STAGE * 9f / 16f), Offset.Zero) {
+        drawRect(Glow, Offset.Zero, Size(STAGE.toFloat(), STAGE * 9f / 16f))
+    }
+}
+
 private enum class Stop { HOME, TAB, HELP, SIGN_IN, JOIN }
 
 /** Whether the opening has played. It plays once for each run of the app. */
@@ -74,13 +101,26 @@ class DoorState {
     var opened by mutableStateOf(false)
 }
 
-/** A brand film, handed back when it leaves the screen. */
+/** A brand film or sound. It plays while `on`, and is handed back when it leaves the screen. */
 @Composable
-private fun Film(shell: Shell, url: String, loop: Boolean, modifier: Modifier, ended: () -> Unit) {
+fun Film(
+    shell: Shell,
+    url: String,
+    loop: Boolean,
+    on: Boolean,
+    modifier: Modifier,
+    ready: () -> Unit = {},
+    ended: () -> Unit,
+) {
     val picture = remember { arrayOfNulls<Any>(1) }
+    val readyNow by rememberUpdatedState(ready)
+    val endedNow by rememberUpdatedState(ended)
     AndroidView(
-        { context -> (shell.reel.picture(context, url, loop, ended) as View).also { picture[0] = it } },
+        { context ->
+            (shell.reel.picture(context, url, loop, { readyNow() }, { endedNow() }) as View).also { picture[0] = it }
+        },
         modifier,
+        update = { view -> shell.reel.play(view, on) },
     )
     DisposableEffect(Unit) { onDispose { picture[0]?.let(shell.reel::release) } }
 }
@@ -98,27 +138,38 @@ private fun Ask(word: String, on: Boolean, lit: Color, ink: Color) {
     }
 }
 
+/**
+ * The landing. After the opening it is already in place under it: the card does not slide, the
+ * showreel is there from the first frame, says when it is `ready`, and plays once `roll` is true.
+ * Coming back to it later, the card slides in and the showreel starts after it.
+ */
 @Composable
-private fun Landing(shell: Shell, seen: Seen) {
+private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, keys: Boolean, ready: () -> Unit) {
     val words = seen.words
     var at by remember { mutableStateOf(Stop.SIGN_IN) }
-    var film by remember { mutableStateOf(false) }
+    var film by remember { mutableStateOf(opening) }
     var peek by remember { mutableStateOf(false) }
-    val slide = remember { Animatable(Slide.first()) }
+    val slide = remember { Animatable(if (opening) 0f else Slide.first()) }
     val width = with(LocalDensity.current) { STAGE.ref.toPx() }
     val shown by animateFloatAsState(if (peek) 1f else 0f, tween(PEEK_FADE_MS, easing = LinearEasing), label = "peek")
     LaunchedEffect(Unit) {
-        slide.animateTo(
-            0f,
-            keyframes {
-                durationMillis = (Slide.size - 1) * FRAME_MS
-                Slide.forEachIndexed { index, left -> left at index * FRAME_MS }
-            },
-        )
-        delay(EMPTY_CARD_MS)
-        film = true
-        delay(PEEK_AFTER_MS)
-        peek = true
+        if (!opening) {
+            slide.animateTo(
+                0f,
+                keyframes {
+                    durationMillis = (Slide.size - 1) * FRAME_MS
+                    Slide.forEachIndexed { index, left -> left at index * FRAME_MS }
+                },
+            )
+            delay(EMPTY_CARD_MS)
+            film = true
+        }
+    }
+    LaunchedEffect(roll) {
+        if (roll) {
+            delay(PEEK_AFTER_MS)
+            peek = true
+        }
     }
 
     fun press(word: Word): Boolean {
@@ -139,7 +190,7 @@ private fun Landing(shell: Shell, seen: Seen) {
     }
 
     val shape = RoundedCornerShape(24.ref)
-    Box(Modifier.fillMaxSize().background(Back).remote(@DontMemoize { press(it) })) {
+    Box(Modifier.fillMaxSize().background(Back).drawBehind { glow() }.remote(keys, @DontMemoize { press(it) })) {
         Row(Modifier.offset(96.ref, 78.ref), verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier
@@ -180,7 +231,7 @@ private fun Landing(shell: Shell, seen: Seen) {
                 .clip(shape)
                 .background(CardWash),
         ) {
-            if (film) Film(shell, "${seen.server}/tv/showreel.mp4", true, Modifier.fillMaxSize()) {}
+            if (film) Film(shell, "${seen.server}/tv/showreel.mp4", true, roll, Modifier.fillMaxSize(), ready) { ready() }
             Text(
                 words["door.help"].orEmpty(),
                 Modifier
@@ -199,14 +250,42 @@ private fun Landing(shell: Shell, seen: Seen) {
     }
 }
 
-/** The way in: the opening film once, then the card that slides in with the two ways through. */
+/**
+ * The way in: the opening, drawn live, once for each run of the app, over the landing it opens onto.
+ * The landing is built under it from the first frame so its showreel can load while the mark rests,
+ * and the opening's sounds live here so they play to their end.
+ */
 @Composable
 fun Door(shell: Shell, seen: Seen, state: DoorState) {
-    if (state.opened) {
-        Landing(shell, seen)
-    } else {
-        Box(Modifier.fillMaxSize().background(Color.Black).remote(@DontMemoize { state.opened = true; true })) {
-            Film(shell, "${seen.server}/tv/opening.mp4", false, Modifier.fillMaxSize()) { state.opened = true }
+    val opening = remember { !state.opened }
+    var ready by remember { mutableStateOf(false) }
+    var roll by remember { mutableStateOf(!opening) }
+    // Under the opening's cover the landing loads but is not drawn until the first stage is over.
+    var shown by remember { mutableStateOf(!opening) }
+    var notes by remember { mutableStateOf(false) }
+    var swell by remember { mutableStateOf(false) }
+    Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().graphicsLayer { alpha = if (shown) 1f else 0f }) {
+            Landing(shell, seen, opening, roll, state.opened) { ready = true }
+        }
+        if (opening) {
+            Film(shell, "${seen.server}/tv/opening-chime.m4a", false, notes, Modifier.size(0.dp)) {}
+            Film(shell, "${seen.server}/tv/opening-swell.m4a", false, swell, Modifier.size(0.dp)) {}
+        }
+        if (!state.opened) {
+            Opening(ready && seen.words.isNotEmpty()) { moment ->
+                when (moment) {
+                    Moment.NOTES -> notes = true
+                    Moment.WARM -> shown = true
+                    Moment.SECOND -> swell = true
+                    Moment.ROLL -> roll = true
+                    Moment.DONE -> {
+                        shown = true
+                        roll = true
+                        state.opened = true
+                    }
+                }
+            }
         }
     }
 }
