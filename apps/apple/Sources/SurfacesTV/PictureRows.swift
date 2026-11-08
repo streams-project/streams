@@ -49,7 +49,7 @@ private struct OneRow: View {
 
     var body: some View {
         let at = focus.column(index)
-        let shape = RoundedRectangle(cornerRadius: 16.ref)
+        let shape = shapeOf(Round.card)
         let top = CGFloat(index) * down
         ZStack(alignment: .topLeading) {
             Text(row.label).brand(30).foregroundStyle(.white).multilineTextAlignment(.center).lineLimit(2)

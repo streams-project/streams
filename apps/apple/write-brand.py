@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Writes what the Apple apps take from brand.json: Brand.xcconfig, so the Xcode project carries
-no brand name, and the brand's mark as a vector image the screens draw by the name `mark`.
-Both are generated and ignored by git."""
+no brand name, the brand's mark as a vector image the screens draw by the name `mark`, and the
+brand's corners as Swift constants. All are generated and ignored by git."""
 import json
 from pathlib import Path
 
@@ -39,4 +39,17 @@ write(
         indent=2,
     )
     + "\n",
+)
+
+shape = brand["shape"]
+write(
+    HERE / "Sources/SurfacesTV/BrandShape.swift",
+    "// Generated from brand.json by write-brand.py. Do not commit.\n"
+    "import CoreGraphics\n\n"
+    "/// The brand's corners from brand.json `shape`, in points on a phone. Each family scales them.\n"
+    "public enum Corner {\n"
+    f"    public static let card: CGFloat = {shape['card_radius']}\n"
+    f"    public static let panel: CGFloat = {shape['panel_radius']}\n"
+    f"    public static let field: CGFloat = {shape['field_radius']}\n"
+    "}\n",
 )

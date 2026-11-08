@@ -32,7 +32,7 @@ public struct TileBadges: View {
                         .lineLimit(1)
                         .padding(.horizontal, 12.ref)
                         .padding(.vertical, 4.ref)
-                        .background(Color.black.opacity(0.72), in: RoundedRectangle(cornerRadius: 8.ref))
+                        .background(Color.black.opacity(0.72), in: shapeOf(Round.chip))
                 }
             }
         }

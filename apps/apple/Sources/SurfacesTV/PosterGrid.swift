@@ -31,7 +31,7 @@ struct PosterGrid: View {
 
     var body: some View {
         let line = max(focus, 0) / postersAcross
-        let shape = RoundedRectangle(cornerRadius: 12.ref)
+        let shape = shapeOf(Round.card)
         ZStack(alignment: .topLeading) {
             ForEach(Array(tiles.enumerated()), id: \.offset) { index, tile in
                 let row = index / postersAcross

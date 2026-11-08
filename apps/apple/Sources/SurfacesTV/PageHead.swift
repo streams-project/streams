@@ -7,8 +7,8 @@ struct PageHead: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            Text(title).brand(44, 700).foregroundStyle(.white).offset(x: 130.ref, y: 74.ref)
-            Text(help).brand(30).foregroundStyle(.white).offset(x: 128.ref, y: 148.ref)
+            Text(title).brand(44, 700).foregroundStyle(.white).offset(x: subEdge.ref, y: 74.ref)
+            Text(help).brand(30).foregroundStyle(.white).offset(x: subEdge.ref, y: 148.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }

@@ -15,10 +15,10 @@ struct AddProfileRow: View {
     var body: some View {
         let size = on ? faceLarge : addSmall
         ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 18.ref)
+            shapeOf(Round.face(size))
                 .fill(Raised)
                 .overlay(Icon("icon_plus", on ? 64 : 44))
-                .overlay(RoundedRectangle(cornerRadius: 18.ref).stroke(.white, lineWidth: on ? 4.ref : 0))
+                .overlay(shapeOf(Round.face(size)).stroke(.white, lineWidth: on ? 4.ref : 0))
                 .frame(width: size.ref, height: size.ref)
                 .offset(x: (on ? 193 : 225).ref)
             if on {
@@ -75,7 +75,7 @@ struct AddProfile: View {
                 let done = seen.say("common.next")
                 ZStack(alignment: .topLeading) {
                     PageHead(title: seen.say("profile.add"), help: seen.say("profile.add.help"))
-                    Keyboard(state: keys, cancel: cancel, done: done).offset(x: 126.ref, y: 302.ref)
+                    Keyboard(state: keys, cancel: cancel, done: done).offset(x: subEdge.ref, y: 302.ref)
                     ProfileCard(person: preview, server: seen.server, name: {
                         HStack(spacing: 3.ref) {
                             CardName(name: keys.text)
@@ -102,7 +102,7 @@ struct AddProfile: View {
                 let lines = [MenuLine(word: seen.say("profile.add.kids.no")), MenuLine(word: seen.say("profile.add.kids.yes"))]
                 ZStack(alignment: .topLeading) {
                     PageHead(title: seen.say("profile.add"), help: seen.say("profile.add.kids"))
-                    Menu(lines: lines, focus: kidsAt, width: 460).offset(x: 127.ref, y: 397.ref)
+                    Menu(lines: lines, focus: kidsAt, width: 460).offset(x: (subEdge - menuWords).ref, y: 397.ref)
                     ProfileCard(person: preview, server: seen.server, name: { CardName(name: keys.text) }, under: nil)
                 }
                 .remote { word in

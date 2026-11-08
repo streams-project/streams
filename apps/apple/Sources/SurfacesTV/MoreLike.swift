@@ -15,11 +15,14 @@ struct MoreLike: View {
         ZStack(alignment: .topLeading) {
             Color.black
             PosterGrid(tiles: tiles, focus: at, left: 566, top: 232, words: seen.words)
-            Text(data.name).brand(56, 800).lines(56, 62).foregroundStyle(.white).lineLimit(3)
-                .frame(width: 440.ref, alignment: .leading)
-                .offset(x: 66.ref, y: 70.ref)
-            Facts(data, seen.words).offset(x: 70.ref, y: 270.ref)
-            Text(seen.say("title.more_like")).brand(40).foregroundStyle(.white).offset(x: 564.ref, y: 150.ref)
+            // The facts follow the name, however many lines it takes.
+            VStack(alignment: .leading, spacing: 20.ref) {
+                Text(data.name).brand(56, 800).lines(56, 62).foregroundStyle(.white).lineLimit(3)
+                Facts(data, seen.words)
+            }
+            .frame(width: 440.ref, alignment: .leading)
+            .offset(x: pageEdge.ref, y: 70.ref)
+            Text(seen.say("title.more_like")).brand(40).foregroundStyle(.white).offset(x: 566.ref, y: 150.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .remote { word in

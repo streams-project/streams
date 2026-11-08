@@ -85,7 +85,7 @@ struct SideLine: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 16.ref)
                     .padding(.vertical, 6.ref)
-                    .background(Color.black.opacity(0.6), in: RoundedRectangle(cornerRadius: 6.ref))
+                    .background(Color.black.opacity(0.6), in: shapeOf(Round.chip))
                     .frame(maxWidth: 1500.ref)
             }
         }

@@ -24,6 +24,6 @@ struct QrCode: View {
             }
         }
         .padding(24.ref)
-        .background(Color.white, in: RoundedRectangle(cornerRadius: 12.ref))
+        .background(Color.white, in: shapeOf(Round.field))
     }
 }

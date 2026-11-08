@@ -1,6 +1,11 @@
 import Contract
 import SwiftUI
 
+/// The bar's centre line and the height of its round parts: face, search, tabs and mark share them.
+private let barMid: CGFloat = 68
+private let barHigh: CGFloat = 64
+private let barFace: CGFloat = 48
+
 /// The place of the search button, to the left of the first tab.
 let searchTab = -2
 
@@ -23,7 +28,7 @@ private struct Tab: View {
             .brand(26, 500)
             .foregroundStyle(on ? Back : .white)
             .padding(.horizontal, 32.ref)
-            .frame(height: 62.ref)
+            .frame(height: barHigh.ref)
             .background(back, in: Capsule())
     }
 }
@@ -42,23 +47,23 @@ struct TopBar: View {
         let searchHere = active == searchTab
         ZStack(alignment: .topLeading) {
             HStack(spacing: 0) {
-                Face(person, 48, 8, server)
-                    .overlay(RoundedRectangle(cornerRadius: 8.ref).stroke(.white, lineWidth: whoOn ? 3.ref : 0))
+                Face(person, barFace, server)
+                    .overlay(shapeOf(Round.face(barFace)).stroke(.white, lineWidth: whoOn ? 3.ref : 0))
                 Icon("icon_caret_down", 22)
             }
-            .offset(x: 68.ref, y: 46.ref)
+            .offset(x: pageEdge.ref, y: (barMid - barFace / 2).ref)
             Circle()
                 .fill(searchOn ? Color.white : searchHere ? Color.white.opacity(0.16) : .clear)
-                .frame(width: 64.ref, height: 64.ref)
+                .frame(width: barHigh.ref, height: barHigh.ref)
                 .overlay(Icon("icon_search", 34, tint: searchOn ? Back : .white))
-                .offset(x: 539.ref, y: 35.ref)
+                .offset(x: 539.ref, y: (barMid - barHigh / 2).ref)
             HStack(spacing: 8.ref) {
                 ForEach(Array(tabs.enumerated()), id: \.offset) { index, item in
                     Tab(item: item, active: index == active, on: index == focus)
                 }
             }
-            .offset(x: 609.ref, y: 36.ref)
-            Mark(64).offset(x: 1796.ref, y: 40.ref)
+            .offset(x: 609.ref, y: (barMid - barHigh / 2).ref)
+            Mark(barHigh).offset(x: (1920 - pageEdge - barHigh).ref, y: (barMid - barHigh / 2).ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }

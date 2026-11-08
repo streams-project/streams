@@ -26,7 +26,7 @@ struct Poster: View {
             TileBadges(tile, words).padding(12.ref)
         }
         .frame(width: 311.ref, height: 504.ref)
-        .clipShape(RoundedRectangle(cornerRadius: 12.ref))
+        .clipShape(shapeOf(Round.card))
     }
 }
 
@@ -36,7 +36,7 @@ private struct OpenCard: View {
     let words: [String: String]
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 16.ref)
+        let shape = shapeOf(Round.card)
         ZStack(alignment: .bottomLeading) {
             Raised
             Art(wide(tile.images))
@@ -55,7 +55,7 @@ private struct OpenCard: View {
         .frame(width: 904.ref, height: 508.ref)
         .clipShape(shape)
         .overlay(shape.stroke(.white, lineWidth: 3.ref))
-        .offset(x: 66.ref, y: 200.ref)
+        .offset(x: pageEdge.ref, y: 200.ref)
     }
 }
 
@@ -72,27 +72,27 @@ struct OpenRow: View {
         let tiles = section.tiles ?? []
         let tile = tiles[min(at, tiles.count - 1)]
         ZStack(alignment: .topLeading) {
-            Text(section.title ?? "").brand(32, 700).foregroundStyle(.white).offset(x: 72.ref, y: 146.ref)
+            Text(section.title ?? "").brand(32, 700).foregroundStyle(.white).offset(x: pageEdge.ref, y: 146.ref)
             if at > 0 {
                 Poster(tile: tiles[at - 1], words: words).opacity(0.55).offset(x: -264.ref, y: 202.ref)
             }
             // The poster under the card is drawn too, so a title leaving the card slides out from it.
             ForEach(at..<min(at + ahead + 1, tiles.count), id: \.self) { index in
                 Poster(tile: tiles[index], words: words)
-                    .offset(x: (989 + CGFloat(index - 1 - at) * step).ref, y: 202.ref)
+                    .offset(x: (pageEdge + 904 + 19 + CGFloat(index - 1 - at) * step).ref, y: 202.ref)
             }
             OpenCard(tile: tile, words: words)
             VStack(alignment: .leading, spacing: 0) {
                 if let detail { Facts(detail, words) }
             }
-            .offset(x: 70.ref, y: 728.ref)
+            .offset(x: pageEdge.ref, y: 728.ref)
             Text(detail?.overview ?? "")
                 .brand(30)
                 .lines(30, 39)
                 .foregroundStyle(.white.opacity(0.8))
                 .lineLimit(3)
                 .frame(width: 1000.ref, alignment: .leading)
-                .offset(x: 70.ref, y: 768.ref)
+                .offset(x: pageEdge.ref, y: 768.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .animation(glide(slide), value: at)
@@ -113,10 +113,10 @@ struct NextRow: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             Text(section.title ?? "").brand(32, 700).foregroundStyle(.white)
-                .offset(x: 72.ref, y: (high ? 946 : 944).ref)
+                .offset(x: pageEdge.ref, y: (high ? 946 : 944).ref)
             ForEach(Array((section.tiles ?? []).prefix(nextPosters).enumerated()), id: \.offset) { index, tile in
                 Poster(tile: tile, words: words)
-                    .offset(x: (68 + CGFloat(index) * step).ref, y: (high ? 1001 : 998).ref)
+                    .offset(x: (pageEdge + CGFloat(index) * step).ref, y: (high ? 1001 : 998).ref)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

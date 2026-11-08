@@ -58,7 +58,7 @@ private struct Tracks: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24.ref) {
-            Text(head).brand(40, 700).foregroundStyle(.white).padding(.leading, 90.ref)
+            Text(head).brand(40, 700).foregroundStyle(.white).padding(.leading, menuWords.ref)
             Menu(lines: lines.map { MenuLine(word: $0) }, focus: focus, width: 620, kept: kept)
         }
         .offset(x: x.ref, y: 180.ref)

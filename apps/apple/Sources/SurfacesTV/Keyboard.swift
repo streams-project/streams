@@ -102,7 +102,7 @@ private struct CapView: View {
         let ink = on ? Back : Color.white
         let back = on ? Color.white : Color.white.opacity(0.16)
         ZStack {
-            if pill { Capsule().fill(back) } else { RoundedRectangle(cornerRadius: 10.ref).fill(back) }
+            if pill { Capsule().fill(back) } else { shapeOf(Round.key).fill(back) }
             if let word = cap.word { Text(word).brand(26, pill ? 700 : 500).foregroundStyle(ink) }
             if let icon = cap.icon { Icon(icon, 34, tint: ink) }
         }
@@ -119,7 +119,7 @@ struct Keyboard: View {
 
     var body: some View {
         let rows = caps(state.page, state.upper, cancel, done)
-        let shape = RoundedRectangle(cornerRadius: 16.ref)
+        let shape = shapeOf(Round.panel)
         ZStack(alignment: .topLeading) {
             ForEach(Array(rows.enumerated()), id: \.offset) { row, line in
                 ForEach(Array(line.enumerated()), id: \.offset) { _, cap in

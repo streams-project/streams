@@ -16,3 +16,4 @@ DerivedData/
 xcuserdata/
 *.xcworkspace/xcuserdata/
 Sources/SurfacesTV/Resources/Brand.xcassets/
+Sources/SurfacesTV/BrandShape.swift

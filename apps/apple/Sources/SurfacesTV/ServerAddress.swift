@@ -24,7 +24,7 @@ public struct ServerAddress: View {
                     .padding(.horizontal, 32.ref)
                     .padding(.vertical, 16.ref)
                     .background(Color.white.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 12.ref))
+                    .clipShape(shapeOf(Round.field))
 
                 Button(action: {
                     shell.connect(address)

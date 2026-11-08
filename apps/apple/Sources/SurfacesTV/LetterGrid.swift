@@ -49,7 +49,7 @@ private struct Cell<Content: View>: View {
     var body: some View {
         content(on ? Back : Color.white.opacity(0.75))
             .frame(width: CGFloat(wide).ref, height: CGFloat(cell).ref)
-            .background(on ? Color.white : Color.white.opacity(0.1), in: RoundedRectangle(cornerRadius: 8.ref))
+            .background(on ? Color.white : Color.white.opacity(0.1), in: shapeOf(Round.key))
             .offset(x: CGFloat(left).ref, y: CGFloat(top).ref)
     }
 }

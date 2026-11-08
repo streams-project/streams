@@ -104,13 +104,13 @@ public struct Search: View {
         return ZStack(alignment: .topLeading) {
             PosterGrid(tiles: shown, focus: state.zone == .results ? state.result : -1, left: 566, top: 232, words: seen.words)
             TopBar(tabs: tabs, active: searchTab, focus: state.zone == .top ? state.tab : -1, person: person, server: seen.server)
-            LetterGrid(focus: state.zone == .letters ? state.place : nil).offset(x: 68.ref, y: 160.ref)
+            LetterGrid(focus: state.zone == .letters ? state.place : nil).offset(x: pageEdge.ref, y: 160.ref)
             Menu(lines: genres.map { MenuLine(word: $0.label) }, focus: state.zone == .genres ? state.genre : -1, width: 440)
-                .offset(x: 40.ref, y: 636.ref)
+                .offset(x: (pageEdge - menuWords).ref, y: 636.ref)
             Text(state.text.trimmingCharacters(in: .whitespaces).isEmpty ? seen.say("search.recommended") : state.text)
                 .brand(40).foregroundStyle(.white).lineLimit(1)
                 .frame(width: 1280.ref, alignment: .leading)
-                .offset(x: 564.ref, y: 150.ref)
+                .offset(x: 566.ref, y: 150.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .remote { press($0) }

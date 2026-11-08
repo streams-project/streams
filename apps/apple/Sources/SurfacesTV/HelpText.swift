@@ -49,7 +49,7 @@ private struct Block: View {
             if let first = lines.first {
                 Words(line: first)
                     .padding(24.ref)
-                    .background(Color.white.opacity(0.1), in: RoundedRectangle(cornerRadius: 12.ref))
+                    .background(Color.white.opacity(0.1), in: shapeOf(Round.field))
             }
         case .paragraph:
             if let first = lines.first { Words(line: first) }

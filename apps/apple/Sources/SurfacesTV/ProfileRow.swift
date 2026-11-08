@@ -22,8 +22,8 @@ struct ProfileRow: View {
                     .overlay(Icon("icon_pencil", 30, tint: pencil ? Back : Muted))
                     .offset(x: 111.ref, y: 67.ref)
             }
-            Face(person, size, 18, server)
-                .overlay(RoundedRectangle(cornerRadius: 18.ref).stroke(.white, lineWidth: on && !pencil ? 4.ref : 0))
+            Face(person, size, server)
+                .overlay(shapeOf(Round.face(size)).stroke(.white, lineWidth: on && !pencil ? 4.ref : 0))
                 .offset(x: (on ? 193 : 225).ref)
             if on {
                 HStack(spacing: 16.ref) {

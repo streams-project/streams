@@ -14,7 +14,7 @@ struct LowPill: View {
             .foregroundStyle(on ? Back : .white)
             .frame(width: 224.ref, height: 61.ref)
             .background(on ? Color.white : Color.white.opacity(0.16), in: Capsule())
-            .offset(x: 127.ref, y: top.ref)
+            .offset(x: subEdge.ref, y: top.ref)
     }
 }
 
@@ -32,7 +32,7 @@ struct AgeNote: View {
         ZStack(alignment: .topLeading) {
             Text(chip).brand(24, 700).foregroundStyle(.white)
                 .padding(.horizontal, 10.ref)
-                .background(Color.white.opacity(0.2), in: RoundedRectangle(cornerRadius: 6.ref))
+                .background(Color.white.opacity(0.2), in: shapeOf(Round.chip))
                 .offset(x: 157.ref, y: top.ref)
             Text(line).brand(30).foregroundStyle(.white)
                 .frame(width: 900.ref, alignment: .leading)
@@ -70,9 +70,9 @@ struct EditMenu: View {
         return ZStack(alignment: .topLeading) {
             PageHead(title: seen.say("profile.edit"), help: seen.say(asking ? "profile.delete.ask" : "profile.edit.help"))
             if asking {
-                Menu(lines: askLines, focus: askAt).offset(x: 127.ref, y: 397.ref)
+                Menu(lines: askLines, focus: askAt).offset(x: (subEdge - menuWords).ref, y: 397.ref)
             } else {
-                Menu(lines: lines.map(\.1), focus: at).offset(x: 127.ref, y: 397.ref)
+                Menu(lines: lines.map(\.1), focus: at).offset(x: subEdge.ref, y: 397.ref)
                 AgeNote(seen: seen, person: person, limit: limit, top: lines.count > 4 ? 750 : 690)
                 LowPill(word: seen.say("common.done"), on: at == lines.count, top: 897)
             }
@@ -129,7 +129,7 @@ struct EditName: View {
         let done = seen.say("common.done")
         ZStack(alignment: .topLeading) {
             PageHead(title: seen.say("profile.edit"), help: seen.say("profile.name.help"))
-            Keyboard(state: keys, cancel: cancel, done: done).offset(x: 126.ref, y: 302.ref)
+            Keyboard(state: keys, cancel: cancel, done: done).offset(x: subEdge.ref, y: 302.ref)
             ProfileCard(person: person, server: seen.server, name: {
                 HStack(spacing: 3.ref) {
                     CardName(name: keys.text)

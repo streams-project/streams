@@ -83,7 +83,7 @@ struct EditLock: View {
                     title: seen.say(person.hasPin ? "profile.lock.remove" : "profile.lock"),
                     help: seen.say("profile.lock.password.help")
                 )
-                Keyboard(state: keys, cancel: cancel, done: next).offset(x: 126.ref, y: 302.ref)
+                Keyboard(state: keys, cancel: cancel, done: next).offset(x: subEdge.ref, y: 302.ref)
                 ProfileCard(person: person, server: seen.server, name: {
                     HStack(spacing: 3.ref) {
                         CardName(name: String(repeating: "•", count: keys.text.count))
@@ -114,7 +114,7 @@ struct EditLock: View {
                     help: seen.say(step == .first ? "profile.lock.pin.help" : "profile.lock.confirm.help")
                 )
                 VStack(spacing: 0) {
-                    Face(person, faceLarge, 18, seen.server)
+                    Face(person, faceLarge, seen.server)
                     Spacer().frame(height: 24.ref)
                     Text(person.name).brand(56, 800).foregroundStyle(.white)
                     Spacer().frame(height: 40.ref)

@@ -138,9 +138,9 @@ public struct GetHelp: View {
 
         return ZStack(alignment: .topLeading) {
             Color.black
-            Text(seen.say("menu.help")).brand(44, 700).foregroundStyle(.white).offset(x: 130.ref, y: 60.ref)
+            Text(seen.say("menu.help")).brand(44, 700).foregroundStyle(.white).offset(x: subEdge.ref, y: 60.ref)
             Menu(lines: lines.map { MenuLine(word: seen.say($0.rawValue)) }, focus: asking ? -1 : at, width: 560, kept: asking ? at : -1)
-                .offset(x: 40.ref, y: 136.ref)
+                .offset(x: (subEdge - menuWords).ref, y: 136.ref)
             VStack(alignment: .leading, spacing: 0) {
                 switch line {
                 case .member:

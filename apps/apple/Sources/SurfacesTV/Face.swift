@@ -5,13 +5,11 @@ import SwiftUI
 public struct Face: View {
     public let person: Profile?
     public let size: CGFloat
-    public let corner: CGFloat
     public let server: String
 
-    public init(_ person: Profile?, _ size: CGFloat, _ corner: CGFloat, _ server: String) {
+    public init(_ person: Profile?, _ size: CGFloat, _ server: String) {
         self.person = person
         self.size = size
-        self.corner = corner
         self.server = server
     }
 
@@ -30,6 +28,6 @@ public struct Face: View {
             }
         }
         .frame(width: size.ref, height: size.ref)
-        .clipShape(RoundedRectangle(cornerRadius: corner.ref))
+        .clipShape(shapeOf(Round.face(size)))
     }
 }

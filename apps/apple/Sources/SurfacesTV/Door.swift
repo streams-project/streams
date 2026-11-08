@@ -29,6 +29,16 @@ private enum Stop { case home, tab, topSignIn, help, signIn, join, watch }
 
 /// Cards sit this far apart: 1542 wide and 39 between, so the next one shows at 1636.
 private let cardStep: CGFloat = 1581
+
+/// The cards hang this far from the top, under the top row.
+private let cardTop: CGFloat = 169
+
+/// The top row's centre line and height: the lockup, the home circle, the tab and Sign In share both.
+private let rowMid: CGFloat = 104
+private let rowHigh: CGFloat = 72
+
+/// Inside a card, words and buttons keep this far from its left and right edges.
+private let inset: CGFloat = 74
 private let cardMove = 0.32
 private let slideEvery = 4.5
 private let slideFade = 0.7
@@ -80,7 +90,7 @@ private struct TitleCard: View {
     let on: Bool
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 24.ref)
+        let shape = shapeOf(Round.panel)
         let logoUrl = (title.images ?? []).first { $0.role == .logo }?.url
         ZStack(alignment: .topLeading) {
             Raised
@@ -95,15 +105,20 @@ private struct TitleCard: View {
                 }
             }
             .frame(width: 520.ref, height: 180.ref, alignment: .bottomLeading)
-            .offset(x: 74.ref, y: 424.ref)
-            Facts(title, seen.words).offset(x: 74.ref, y: 628.ref)
+            .offset(x: inset.ref, y: 424.ref)
+            Facts(title, seen.words).offset(x: inset.ref, y: 628.ref)
             Text(title.overview ?? "")
                 .brand(30).lines(30, 39)
                 .foregroundStyle(.white.opacity(0.85))
                 .lineLimit(3)
                 .frame(width: 720.ref, alignment: .leading)
-                .offset(x: 74.ref, y: 676.ref)
-            Ask(word: seen.say("door.watch"), on: on, lit: Join, ink: .white).offset(x: 1215.ref, y: 720.ref)
+                .offset(x: inset.ref, y: 676.ref)
+            HStack {
+                Spacer(minLength: 0)
+                Ask(word: seen.say("door.watch"), on: on, lit: Join, ink: .white)
+            }
+            .frame(width: (1542 - inset).ref)
+            .offset(y: 720.ref)
         }
         .frame(width: 1542.ref, height: 864.ref, alignment: .topLeading)
         .clipShape(shape)
@@ -216,7 +231,7 @@ private struct Landing: View {
     }
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 24.ref)
+        let shape = shapeOf(Round.panel)
         let titles = cards ?? []
         let onTop = at == .home || at == .tab || at == .topSignIn
 
@@ -276,36 +291,42 @@ private struct Landing: View {
             Back
             glow
             if !raised {
-                BrandLockup(high: lockupHigh).offset(x: 73.ref, y: 56.ref).transition(.opacity)
+                BrandLockup(high: lockupHigh).offset(x: pageEdge.ref, y: (rowMid - lockupHigh / 2).ref).transition(.opacity)
             } else {
-                HStack(spacing: 20.ref) {
+                HStack(spacing: 16.ref) {
                     Circle()
                         .fill(at == .home ? Color.white : Color.white.opacity(0.12))
-                        .frame(width: 82.ref, height: 82.ref)
-                        .overlay(Icon("icon_home", 38, tint: at == .home ? Back : .white))
+                        .frame(width: rowHigh.ref, height: rowHigh.ref)
+                        .overlay(Icon("icon_home", 34, tint: at == .home ? Back : .white))
                     if !titles.isEmpty {
                         // The tab of the titles: grey while a title card is in view, white in focus.
                         Text(seen.say("door.trending"))
-                            .brand(30, 600)
+                            .brand(28, 600)
                             .foregroundStyle(at == .tab ? Back : .white)
                             .padding(.horizontal, 32.ref)
-                            .frame(height: 72.ref)
+                            .frame(height: rowHigh.ref)
                             .background(at == .tab ? Color.white : page > 0 ? Color.white.opacity(0.16) : .clear, in: Capsule())
                     }
                 }
-                .offset(x: 96.ref, y: 78.ref)
+                .offset(x: pageEdge.ref, y: (rowMid - rowHigh / 2).ref)
                 .transition(.opacity)
                 if page > 0 {
                     // On a title card the way to sign in moves up to the top right, outlined until in focus.
                     let on = at == .topSignIn
-                    Text(seen.say("door.sign_in"))
-                        .brand(28, 700)
-                        .foregroundStyle(on ? Back : .white)
-                        .frame(width: 272.ref, height: 80.ref)
-                        .background(on ? Color.white : .clear, in: Capsule())
-                        .overlay(Capsule().stroke(on ? .clear : Color.white.opacity(0.5), lineWidth: 3.ref))
-                        .offset(x: 1564.ref, y: 47.ref)
-                        .transition(.opacity)
+                    HStack {
+                        Spacer(minLength: 0)
+                        Text(seen.say("door.sign_in"))
+                            .brand(28, 600)
+                            .foregroundStyle(on ? Back : .white)
+                            .padding(.horizontal, 40.ref)
+                            .frame(minWidth: 200.ref)
+                            .frame(height: rowHigh.ref)
+                            .background(on ? Color.white : .clear, in: Capsule())
+                            .overlay(Capsule().stroke(on ? .clear : Color.white.opacity(0.5), lineWidth: 3.ref))
+                    }
+                    .frame(width: (1920 - pageEdge).ref)
+                    .offset(y: (rowMid - rowHigh / 2).ref)
+                    .transition(.opacity)
                 }
             }
             ZStack(alignment: .topLeading) {
@@ -320,27 +341,35 @@ private struct Landing: View {
                         tell()
                     }
                 }
+                // Get Help sits on the buttons' centre line; its words keep the card's inset, the pill grows around them.
                 Text(seen.say("door.help"))
                     .brand(24, 600)
                     .foregroundStyle(at == .help ? Back : .white.opacity(0.85))
-                    .background(at == .help ? Color.white : .clear, in: RoundedRectangle(cornerRadius: 12.ref))
-                    .offset(x: 96.ref, y: 770.ref)
+                    .padding(.horizontal, 24.ref)
+                    .frame(height: 56.ref)
+                    .background(at == .help ? Color.white : .clear, in: Capsule())
+                    .offset(x: (inset - 24).ref, y: 732.ref)
                 HStack(spacing: 32.ref) {
+                    Spacer(minLength: 0)
                     Ask(word: seen.say("door.sign_in"), on: at == .signIn, lit: .white, ink: Back)
                     Ask(word: seen.say("door.join"), on: at == .join, lit: Join, ink: .white)
                 }
-                .offset(x: 915.ref, y: 720.ref)
+                .frame(width: (1542 - inset).ref)
+                .offset(y: 720.ref)
             }
             .frame(width: 1542.ref, height: 864.ref, alignment: .topLeading)
             .clipShape(shape)
             .overlay(shape.stroke(cardEdge, lineWidth: 3.ref))
-            .offset(x: 55.ref + slide * stage.ref - CGFloat(page) * cardStep.ref, y: 169.ref)
+            .offset(x: pageEdge.ref + slide * stage.ref - CGFloat(page) * cardStep.ref, y: cardTop.ref)
+            // A card that leaves to the left fades as it goes, so no sliver of it waits at the edge.
+            .opacity(page > 0 ? 0 : 1)
             // Each title card is built when it is near, one beyond each side so it slides in.
             ForEach(Array(titles.enumerated()), id: \.element.title) { index, title in
                 let card = index + 1
                 if card >= page - 1 && card <= page + 2 {
                     TitleCard(title: title, seen: seen, current: card == page, on: card == page && at == .watch)
-                        .offset(x: (55 + CGFloat(card - page) * cardStep).ref, y: 169.ref)
+                        .offset(x: (pageEdge + CGFloat(card - page) * cardStep).ref, y: cardTop.ref)
+                        .opacity(card < page ? 0 : 1)
                 }
             }
             // Every title's pictures load at once, so each card has them when it comes into view.

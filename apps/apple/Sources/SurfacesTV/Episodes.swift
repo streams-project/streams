@@ -20,7 +20,7 @@ private struct EpisodeCard: View {
     let on: Bool
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 16.ref)
+        let shape = shapeOf(Round.card)
         ZStack(alignment: .topLeading) {
             ZStack(alignment: .bottomLeading) {
                 Raised
@@ -110,16 +110,19 @@ struct Episodes: View {
 
         return ZStack(alignment: .topLeading) {
             Color.black
-            Text(data.name).brand(56, 800).lines(56, 62).foregroundStyle(.white).lineLimit(2)
-                .frame(width: 640.ref, alignment: .leading)
-                .offset(x: 66.ref, y: 70.ref)
-            Facts(data, seen.words).offset(x: 70.ref, y: 214.ref)
+            // The facts follow the name, however many lines it takes; the seasons keep their place.
+            VStack(alignment: .leading, spacing: 20.ref) {
+                Text(data.name).brand(56, 800).lines(56, 62).foregroundStyle(.white).lineLimit(2)
+                Facts(data, seen.words)
+            }
+            .frame(width: 640.ref, alignment: .leading)
+            .offset(x: pageEdge.ref, y: 70.ref)
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(seasons.enumerated()), id: \.offset) { index, season in
                     SeasonLine(seen: seen, season: season, chosen: index == chosen, on: inList && index == line)
                 }
             }
-            .offset(x: 68.ref, y: 346.ref)
+            .offset(x: pageEdge.ref, y: 346.ref)
             ZStack(alignment: .topLeading) {
                 ForEach(Array(episodes.enumerated()), id: \.element.number) { index, episode in
                     if index >= card - 1 && index <= card + near {

@@ -46,7 +46,7 @@ struct HeroCard: View {
     @State private var detail: TitleDetail?
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 24.ref)
+        let shape = shapeOf(Round.panel)
         let logoUrl = logo((lead.images ?? []) + (detail?.images ?? []))
         ZStack(alignment: .bottomLeading) {
             Plate
@@ -78,10 +78,10 @@ struct HeroCard: View {
             .padding(.leading, 30.ref)
             .padding(.bottom, 34.ref)
         }
-        .frame(width: 1789.ref, height: 767.ref)
+        .frame(width: (1920 - 2 * pageEdge).ref, height: 767.ref)
         .clipShape(shape)
         .overlay(shape.stroke(.white.opacity(0.28), lineWidth: 2.ref))
-        .offset(x: 75.ref, y: 143.ref)
+        .offset(x: pageEdge.ref, y: 143.ref)
         .task(id: lead.title) { detail = await detailOf(shell, store, lead.title) }
     }
 }

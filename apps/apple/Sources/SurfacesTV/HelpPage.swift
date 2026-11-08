@@ -45,7 +45,7 @@ private struct Reading: View {
             .frame(width: 1500.ref, alignment: .leading)
             .fixedSize(horizontal: false, vertical: true)
             .background(GeometryReader { Color.clear.preference(key: Tall.self, value: $0.size.height) })
-            .offset(x: 130.ref, y: 80.ref - moved)
+            .offset(x: subEdge.ref, y: 80.ref - moved)
             .animation(glide(moveTime), value: moved)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -177,7 +177,7 @@ struct HelpCentre: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             } else {
-                Menu(lines: topics, focus: right ? -1 : topic, width: 480, kept: topic).offset(x: 127.ref, y: firstLine.ref)
+                Menu(lines: topics, focus: right ? -1 : topic, width: 480, kept: topic).offset(x: (subEdge - menuWords).ref, y: firstLine.ref)
                 VStack(alignment: .leading, spacing: 6.ref) {
                     ForEach(Array(list.enumerated()), id: \.offset) { index, entry in
                         let on = right && index == at

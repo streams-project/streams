@@ -13,7 +13,7 @@ struct ProfileCard<Name: View>: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            Face(person, large, 18, server).offset(x: 1237.ref, y: 336.ref)
+            Face(person, large, server).offset(x: 1237.ref, y: 336.ref)
             name().frame(width: 600.ref).offset(x: 1085.ref, y: 676.ref)
             if let under {
                 Text(under).brand(30).foregroundStyle(.white).multilineTextAlignment(.center)
@@ -42,7 +42,7 @@ struct ProfileCorner: View {
         HStack(spacing: 30.ref) {
             Text(person.name).brand(34, 500).foregroundStyle(.white).lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .trailing)
-            Face(person, small, 16, server)
+            Face(person, small, server)
         }
         .frame(width: 702.ref)
         .offset(x: 1085.ref, y: 70.ref)

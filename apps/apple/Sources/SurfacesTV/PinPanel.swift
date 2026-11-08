@@ -17,7 +17,7 @@ struct PinBoxes: View {
                     .brand(48, 700)
                     .foregroundStyle(on ? Back : .white)
                     .frame(width: 96.ref, height: 96.ref)
-                    .background(on ? Color.white : Raised, in: RoundedRectangle(cornerRadius: 16.ref))
+                    .background(on ? Color.white : Raised, in: shapeOf(Round.field))
             }
         }
     }
@@ -52,7 +52,7 @@ struct PinPanel: View {
         }
 
         return VStack(spacing: 0) {
-            Face(person, faceLarge, 18, seen.server)
+            Face(person, faceLarge, seen.server)
             Spacer().frame(height: 24.ref)
             Text(person.name).brand(56, 800).foregroundStyle(.white)
             Spacer().frame(height: 40.ref)

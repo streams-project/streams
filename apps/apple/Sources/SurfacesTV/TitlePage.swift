@@ -177,16 +177,17 @@ private struct Summary: View {
                 }
             }
             .frame(width: 900.ref, height: 200.ref, alignment: .bottomLeading)
-            .offset(x: 60.ref, y: 26.ref)
-            Facts(data, seen.words).offset(x: 60.ref, y: 244.ref)
+            .offset(x: pageEdge.ref, y: 26.ref)
+            Facts(data, seen.words).offset(x: pageEdge.ref, y: 244.ref)
             Text(data.overview ?? "")
                 .brand(28).lines(28, 38)
                 .foregroundStyle(.white.opacity(0.85))
                 .lineLimit(4)
                 .frame(width: 820.ref, alignment: .leading)
-                .offset(x: 60.ref, y: 300.ref)
-            Reactions(chosen: rating, focus: part == .reactions ? reaction : -1, left: 88, top: 504)
-            Menu(lines: menuLines, focus: part == .menu ? row : -1, width: 570).offset(x: 68.ref, y: 581.ref)
+                .offset(x: pageEdge.ref, y: 300.ref)
+            // The reactions sit over the menu icons: both centre on 122.
+            Reactions(chosen: rating, focus: part == .reactions ? reaction : -1, left: pageEdge + 18, top: 504)
+            Menu(lines: menuLines, focus: part == .menu ? row : -1, width: 570).offset(x: pageEdge.ref, y: 581.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .remote { press($0) }
