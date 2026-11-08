@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,12 +54,12 @@ fun AddProfileRow(word: String, on: Boolean) {
     val iconSize = if (on) 64 else 44
     Box(Modifier.fillMaxWidth().height(size)) {
         Box(
-            Modifier.offset(left, 0.ref).size(size).background(Raised, RoundedCornerShape(18.ref)),
+            Modifier.offset(left, 0.ref).size(size).background(Raised, Round.face),
             contentAlignment = Alignment.Center,
         ) {
             Icon(painterResource(R.drawable.icon_plus), null, Modifier.size(iconSize.ref), tint = Color.White)
             if (on) {
-                Box(Modifier.size(size).border(4.ref, Color.White, RoundedCornerShape(18.ref)))
+                Box(Modifier.size(size).border(4.ref, Color.White, Round.face))
             }
         }
         if (on) {
@@ -147,7 +146,7 @@ fun AddProfile(shell: Shell, seen: Seen, nameMax: Int, finish: (String?) -> Unit
                 }),
             ) {
                 PageHead(words["profile.add"].orEmpty(), words["profile.add.help"].orEmpty())
-                Keyboard(keys, cancel, done, Modifier.offset(126.ref, 302.ref))
+                Keyboard(keys, cancel, done, Modifier.offset(SUB_EDGE.ref, 302.ref))
                 ProfileCard(
                     preview,
                     seen.server,
@@ -179,7 +178,7 @@ fun AddProfile(shell: Shell, seen: Seen, nameMax: Int, finish: (String?) -> Unit
                 }),
             ) {
                 PageHead(words["profile.add"].orEmpty(), words["profile.add.kids"].orEmpty())
-                Menu(lines, kidsAt, Modifier.offset(127.ref, 397.ref), width = 460)
+                Menu(lines, kidsAt, Modifier.offset((SUB_EDGE - MENU_WORDS).ref, 397.ref), width = 460)
                 ProfileCard(preview, seen.server, { CardName(keys.text) }, null)
             }
         }

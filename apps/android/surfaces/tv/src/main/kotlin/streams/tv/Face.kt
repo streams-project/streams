@@ -3,7 +3,6 @@ package streams.tv
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,8 +18,8 @@ import streams.shared.refType
 
 /** A profile's picture, or its first letter when it has none. Every screen draws this one part. */
 @Composable
-fun Face(person: Profile?, size: Int, corner: Int, server: String, modifier: Modifier = Modifier) {
-    val shape = RoundedCornerShape(corner.ref)
+fun Face(person: Profile?, size: Int, server: String, modifier: Modifier = Modifier) {
+    val shape = Round.face
     val avatar = person?.avatar?.takeIf { it.startsWith("/") || it.startsWith("http") }
     val plate = if (person?.kids == true) Join else Accent
     Box(modifier.clip(shape).background(plate), contentAlignment = Alignment.Center) {

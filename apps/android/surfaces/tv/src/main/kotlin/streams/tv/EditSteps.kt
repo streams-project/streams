@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DontMemoize
@@ -37,7 +36,7 @@ private fun Map<String, String>.say(key: String) = this[key].orEmpty()
 private fun LowPill(word: String, on: Boolean, top: Int) {
     Box(
         Modifier
-            .offset(127.ref, top.ref)
+            .offset(SUB_EDGE.ref, top.ref)
             .size(224.ref, 61.ref)
             .background(if (on) Color.White else Color.White.copy(alpha = 0.16f), CircleShape),
         contentAlignment = Alignment.Center,
@@ -55,7 +54,7 @@ private fun AgeNote(words: Map<String, String>, person: Profile, limit: String, 
     Box(Modifier.offset(157.ref, top.ref)) {
         Text(
             chip,
-            Modifier.background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(6.ref)).padding(horizontal = 10.ref),
+            Modifier.background(Color.White.copy(alpha = 0.2f), shapeOf(Round.chip)).padding(horizontal = 10.ref),
             fontSize = 24.refType,
             fontWeight = FontWeight.Bold,
         )
@@ -130,9 +129,9 @@ fun EditMenu(
             if (asking) words.say("profile.delete.ask") else words.say("profile.edit.help"),
         )
         if (asking) {
-            Menu(askLines, askAt, Modifier.offset(127.ref, 397.ref))
+            Menu(askLines, askAt, Modifier.offset((SUB_EDGE - MENU_WORDS).ref, 397.ref))
         } else {
-            Menu(lines.map { it.second }, at, Modifier.offset(127.ref, 397.ref))
+            Menu(lines.map { it.second }, at, Modifier.offset(SUB_EDGE.ref, 397.ref))
             AgeNote(words, person, limit, if (lines.size > 4) 750 else 690)
             LowPill(words.say("common.done"), at == lines.size, 897)
         }
@@ -148,7 +147,7 @@ fun EditName(words: Map<String, String>, person: Profile, server: String, refuse
     val done = words.say("common.done")
     Box(Modifier.fillMaxSize().remote { word -> keys.press(word, cancel, done, finish) }) {
         PageHead(words.say("profile.edit"), words.say("profile.name.help"))
-        Keyboard(keys, cancel, done, Modifier.offset(126.ref, 302.ref))
+        Keyboard(keys, cancel, done, Modifier.offset(SUB_EDGE.ref, 302.ref))
         ProfileCard(
             person,
             server,

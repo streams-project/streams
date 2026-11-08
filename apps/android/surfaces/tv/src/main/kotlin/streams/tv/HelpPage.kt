@@ -79,7 +79,7 @@ private fun Reading(title: String, sections: List<HelpSection>, leave: () -> Uni
         Column(
             Modifier
                 .wrapContentHeight(Alignment.Top, unbounded = true)
-                .offset(130.ref, 80.ref)
+                .offset(SUB_EDGE.ref, 80.ref)
                 .width(1500.ref)
                 .graphicsLayer { translationY = -shown }
                 .onSizeChanged { high = it.height },
@@ -189,7 +189,7 @@ fun HelpCentre(shell: Shell, seen: Seen, leave: () -> Unit) {
                 color = Muted,
             )
         } else {
-            Menu(topics, if (right) -1 else topic, Modifier.offset(127.ref, FIRST_LINE.ref), width = 480, kept = topic)
+            Menu(topics, if (right) -1 else topic, Modifier.offset((SUB_EDGE - MENU_WORDS).ref, FIRST_LINE.ref), width = 480, kept = topic)
             Box(Modifier.offset(700.ref, FIRST_LINE.ref).size(1100.ref, (SCREEN - FIRST_LINE - 60).ref).clipToBounds()) {
                 Column(
                     Modifier

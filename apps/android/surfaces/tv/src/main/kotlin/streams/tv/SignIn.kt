@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DontMemoize
@@ -122,7 +121,7 @@ private fun Field(label: String, value: String, hidden: Boolean) {
         Modifier
             .offset(960.ref, 280.ref)
             .size(800.ref, 76.ref)
-            .border(2.ref, Color.White.copy(alpha = 0.5f), RoundedCornerShape(12.ref))
+            .border(2.ref, Color.White.copy(alpha = 0.5f), shapeOf(Round.field))
             .padding(horizontal = 26.ref),
         contentAlignment = Alignment.CenterStart,
     ) {

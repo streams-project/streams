@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,7 +59,7 @@ private val CardFoot = Brush.verticalGradient(0.5f to Color.Transparent, 1f to C
 
 @Composable
 private fun EpisodeCard(episode: Episode, label: String, on: Boolean, modifier: Modifier) {
-    val shape = RoundedCornerShape(16.ref)
+    val shape = shapeOf(Round.card)
     Box(modifier.fillMaxWidth().height(256.ref)) {
         Box(Modifier.offset(CARD_X.ref, 0.ref).size(456.ref, 256.ref).clip(shape).background(Raised)) {
             Art(wide(episode.images), Modifier.fillMaxSize())
@@ -170,15 +169,15 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
     Box(Modifier.fillMaxSize().background(Color.Black).remote(@DontMemoize { press(it) })) {
         Text(
             data.name,
-            Modifier.offset(66.ref, 70.ref).width(640.ref),
+            Modifier.offset(PAGE_EDGE.ref, 70.ref).width(640.ref),
             fontSize = 56.refType,
             lineHeight = 62.refType,
             fontWeight = FontWeight.ExtraBold,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
-        Facts(data, words, Modifier.offset(70.ref, 214.ref))
-        Column(Modifier.offset(68.ref, 346.ref)) {
+        Facts(data, words, Modifier.offset(PAGE_EDGE.ref, 214.ref))
+        Column(Modifier.offset(PAGE_EDGE.ref, 346.ref)) {
             seasons.forEachIndexed { index, season ->
                 SeasonLine(words, season, index == chosen, inList && index == line)
             }

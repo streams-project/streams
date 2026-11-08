@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +39,19 @@ import streams.shared.R
 import streams.shared.ref
 import streams.shared.refType
 
+/** The card's padding, and a line's padding before its face. */
+private const val MENU_INSET = 12
+private const val LINE_PAD = 16
+private const val LINE_HIGH = 84
+private const val MENU_FACE = 60
+
+/**
+ * The card opens from the face in the top bar: its first face is centred where that face is
+ * (the bar's face is 48 at the page edge, centre 68), so the menu seems to grow out of it.
+ */
+private const val MENU_X = PAGE_EDGE + 24 - MENU_FACE / 2 - LINE_PAD - MENU_INSET
+private const val MENU_Y = 68 - LINE_HIGH / 2 - MENU_INSET
+
 private sealed interface Pick
 private data object Switch : Pick
 private data class Other(val person: Profile) : Pick
@@ -53,16 +65,16 @@ private fun Line(on: Boolean, word: String, under: String? = null, lead: @Compos
     Row(
         Modifier
             .fillMaxWidth()
-            .height(84.ref)
-            .background(if (on) Color.White else Color.Transparent, RoundedCornerShape(16.ref))
-            .padding(horizontal = 16.ref),
+            .height(LINE_HIGH.ref)
+            .background(if (on) Color.White else Color.Transparent, shapeOf(Round.inside(Round.panel, MENU_INSET)))
+            .padding(horizontal = LINE_PAD.ref),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.size(60.ref), contentAlignment = Alignment.Center) { lead(ink) }
+        Box(Modifier.size(MENU_FACE.ref), contentAlignment = Alignment.Center) { lead(ink) }
         Spacer(Modifier.width(20.ref))
         Column {
-            Text(word, color = ink, fontSize = 28.refType, fontWeight = if (under != null) FontWeight.Bold else null, maxLines = 1)
-            under?.let { Text(it, color = if (on) Back else Muted, fontSize = 24.refType, maxLines = 1) }
+            Text(word, color = ink, fontSize = 28.refType, lineHeight = 34.refType, fontWeight = if (under != null) FontWeight.Bold else null, maxLines = 1)
+            under?.let { Text(it, color = if (on) Back else Muted, fontSize = 22.refType, lineHeight = 28.refType, maxLines = 1) }
         }
     }
 }
@@ -105,19 +117,19 @@ fun ProfileMenu(shell: Shell, seen: Seen, person: Profile?, leave: () -> Unit) {
     Box(Modifier.fillMaxSize().remote(@DontMemoize { press(it) })) {
         Column(
             Modifier
-                .offset(78.ref, 36.ref)
+                .offset(MENU_X.ref, MENU_Y.ref)
                 .width(470.ref)
-                .background(Plate, RoundedCornerShape(24.ref))
-                .padding(12.ref),
+                .background(Plate, shapeOf(Round.panel))
+                .padding(MENU_INSET.ref),
         ) {
             picks.forEachIndexed { index, pick ->
                 val on = index == at
                 when (pick) {
                     Switch -> Line(on, person?.name.orEmpty(), words["menu.switch"].orEmpty()) {
-                        Face(person, 60, 10, seen.server, Modifier.size(60.ref))
+                        Face(person, MENU_FACE, seen.server, Modifier.size(MENU_FACE.ref))
                     }
                     is Other -> Line(on, pick.person.name) {
-                        Face(pick.person, 60, 10, seen.server, Modifier.size(60.ref))
+                        Face(pick.person, MENU_FACE, seen.server, Modifier.size(MENU_FACE.ref))
                     }
                     Help -> Line(on, words["menu.help"].orEmpty()) { ink ->
                         Icon(painterResource(R.drawable.icon_question), null, Modifier.size(38.ref), tint = ink)

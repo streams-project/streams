@@ -123,16 +123,16 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
     Box(Modifier.fillMaxSize().remote(@DontMemoize { press(it) })) {
         PosterGrid(shown, if (state.zone == Zone.RESULTS) state.result else -1, 566, 232)
         TopBar(tabs, SEARCH_TAB, if (state.zone == Zone.TOP) state.tab else -1, person, seen.server)
-        LetterGrid(if (state.zone == Zone.LETTERS) state.place else null, Modifier.offset(68.ref, 160.ref))
+        LetterGrid(if (state.zone == Zone.LETTERS) state.place else null, Modifier.offset(PAGE_EDGE.ref, 160.ref))
         Menu(
             genres.map { MenuLine(it.label) },
             if (state.zone == Zone.GENRES) state.genre else -1,
-            Modifier.offset(40.ref, 636.ref),
+            Modifier.offset((PAGE_EDGE - MENU_WORDS).ref, 636.ref),
             width = 440,
         )
         Text(
             state.text.ifBlank { seen.words["search.recommended"].orEmpty() },
-            Modifier.offset(564.ref, 150.ref).width(1280.ref),
+            Modifier.offset(566.ref, 150.ref).width(1280.ref),
             fontSize = 40.refType,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

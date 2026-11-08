@@ -63,7 +63,7 @@ class TrackPanelState {
 @Composable
 private fun Tracks(head: String, lines: List<String>, focus: Int, kept: Int, x: Int) {
     Column(Modifier.offset(x.ref, 180.ref)) {
-        Text(head, Modifier.padding(start = 90.ref, bottom = 24.ref), fontSize = 40.refType, fontWeight = FontWeight.Bold)
+        Text(head, Modifier.padding(start = MENU_WORDS.ref, bottom = 24.ref), fontSize = 40.refType, fontWeight = FontWeight.Bold)
         Menu(lines.map { MenuLine(it) }, focus, width = 620, kept = kept)
     }
 }

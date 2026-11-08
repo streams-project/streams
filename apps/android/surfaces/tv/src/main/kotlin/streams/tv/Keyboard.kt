@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -80,7 +79,7 @@ class KeyboardState(start: String) {
 @Composable
 private fun CapView(cap: Cap, row: Int, on: Boolean) {
     val pill = cap.press == Cancel || cap.press == Done
-    val shape = if (pill) CircleShape else RoundedCornerShape(10.ref)
+    val shape = if (pill) CircleShape else shapeOf(Round.key)
     val top = if (pill) 356 else row * STEP
     val high = if (pill) 62 else KEY
     val left = if (pill) (if (cap.press == Cancel) 0 else 331) else cap.column * STEP
@@ -112,8 +111,8 @@ fun Keyboard(
     Box(
         modifier
             .size(722.ref, 476.ref)
-            .background(Color.White.copy(alpha = 0.08f), RoundedCornerShape(16.ref))
-            .border(1.ref, Color.White.copy(alpha = 0.25f), RoundedCornerShape(16.ref)),
+            .background(Color.White.copy(alpha = 0.08f), shapeOf(Round.panel))
+            .border(1.ref, Color.White.copy(alpha = 0.25f), shapeOf(Round.panel)),
     ) {
         Box(Modifier.offset(30.ref, 29.ref)) {
             rows.forEachIndexed { row, caps ->

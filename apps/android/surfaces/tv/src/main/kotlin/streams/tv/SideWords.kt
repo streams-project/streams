@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -112,7 +111,7 @@ fun BoxScope.SideLine(words: SideWords, shell: Shell, raised: Boolean) {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = (if (raised) RAISED else RESTING).ref)
                 .widthIn(max = 1500.ref)
-                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(6.ref))
+                .background(Color.Black.copy(alpha = 0.6f), shapeOf(Round.chip))
                 .padding(horizontal = 16.ref, vertical = 6.ref),
         ) {
             Text(it, color = Color.White, fontSize = 40.refType, lineHeight = 50.refType, textAlign = TextAlign.Center)

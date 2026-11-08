@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -71,7 +70,7 @@ private fun OneRow(row: PictureRow, index: Int, focus: PictureFocus, server: Str
         textAlign = TextAlign.Center,
         maxLines = 2,
     )
-    val shape = RoundedCornerShape(16.ref)
+    val shape = shapeOf(Round.card)
     for (picture in maxOf(0, at - 1)..minOf(at + AHEAD, row.pictures.lastIndex)) {
         key(row.pictures[picture]) {
             Box(

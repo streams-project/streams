@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -224,12 +223,12 @@ fun SubtitlePreview(words: Map<String, String>, size: String, color: String, bac
             Modifier
                 .width(1040.ref)
                 .height(140.ref)
-                .background(Raised, RoundedCornerShape(18.ref)),
+                .background(Raised, shapeOf(Round.field)),
             contentAlignment = Alignment.Center,
         ) {
             Box(
                 Modifier
-                    .background(boxBg, RoundedCornerShape(8.ref))
+                    .background(boxBg, shapeOf(Round.chip))
                     .padding(horizontal = 20.ref, vertical = 8.ref),
             ) {
                 Text(

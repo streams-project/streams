@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,9 +54,9 @@ fun ProfileRow(person: Profile, on: Boolean, pencil: Boolean, server: String) {
             }
         }
         Box(Modifier.offset(left, 0.ref).size(size)) {
-            Face(person, if (on) FACE_LARGE else FACE_SMALL, 18, server, Modifier.size(size))
+            Face(person, if (on) FACE_LARGE else FACE_SMALL, server, Modifier.size(size))
             if (on && !pencil) {
-                Box(Modifier.size(size).border(4.ref, Color.White, RoundedCornerShape(18.ref)))
+                Box(Modifier.size(size).border(4.ref, Color.White, Round.face))
             }
         }
         if (on) {

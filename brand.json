@@ -21,9 +21,9 @@
   },
   "shape": {
     "button_radius": 999,
-    "card_radius": 12,
+    "card_radius": 14,
     "field_radius": 12,
-    "panel_radius": 20
+    "panel_radius": 24
   },
   "spacing": {
     "unit": 4,

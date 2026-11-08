@@ -155,11 +155,11 @@ fun GetHelp(shell: Shell, seen: Seen) {
     }
 
     Box(Modifier.fillMaxSize().background(Color.Black).remote(@DontMemoize { press(it) })) {
-        Text(words["menu.help"].orEmpty(), Modifier.offset(130.ref, 60.ref), fontSize = 44.refType, fontWeight = FontWeight.Bold)
+        Text(words["menu.help"].orEmpty(), Modifier.offset(SUB_EDGE.ref, 60.ref), fontSize = 44.refType, fontWeight = FontWeight.Bold)
         Menu(
             lines.map { MenuLine(words[it.word].orEmpty()) },
             if (asking) -1 else at,
-            Modifier.offset(40.ref, 136.ref),
+            Modifier.offset((SUB_EDGE - MENU_WORDS).ref, 136.ref),
             width = 560,
             kept = if (asking) at else -1,
         )

@@ -180,7 +180,7 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, line: MutableIn
     Box(Modifier.fillMaxSize().remote(@DontMemoize { press(it) })) {
         TitleBackdrop(data)
         val logo = data.images?.firstOrNull { it.role == ImageRole.LOGO }?.url
-        Box(Modifier.offset(60.ref, 26.ref).size(900.ref, 200.ref), contentAlignment = Alignment.BottomStart) {
+        Box(Modifier.offset(PAGE_EDGE.ref, 26.ref).size(900.ref, 200.ref), contentAlignment = Alignment.BottomStart) {
             if (logo != null) {
                 AsyncImage(
                     logo,
@@ -200,17 +200,18 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, line: MutableIn
                 )
             }
         }
-        Facts(data, words, Modifier.offset(60.ref, 244.ref))
+        Facts(data, words, Modifier.offset(PAGE_EDGE.ref, 244.ref))
         Text(
             data.overview.orEmpty(),
-            Modifier.offset(60.ref, 300.ref).width(820.ref),
+            Modifier.offset(PAGE_EDGE.ref, 300.ref).width(820.ref),
             fontSize = 28.refType,
             lineHeight = 38.refType,
             color = Color.White.copy(alpha = 0.85f),
             maxLines = 4,
             overflow = TextOverflow.Ellipsis,
         )
-        Reactions(rating, if (part == Part.REACTIONS) reaction else -1, 88, 504)
-        Menu(lines, if (part == Part.MENU) row else -1, Modifier.offset(68.ref, 581.ref), width = 570)
+        // The reactions sit over the menu icons: both centre on 122.
+        Reactions(rating, if (part == Part.REACTIONS) reaction else -1, PAGE_EDGE + 18, 504)
+        Menu(lines, if (part == Part.MENU) row else -1, Modifier.offset(PAGE_EDGE.ref, 581.ref), width = 570)
     }
 }

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -64,7 +63,7 @@ private fun Block(block: HelpBlock) {
         HelpBlockKind.LIST -> Marked(lines) { "•" }
         HelpBlockKind.NOTE -> Box(
             Modifier
-                .background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(12.ref))
+                .background(Color.White.copy(alpha = 0.1f), shapeOf(Round.field))
                 .padding(24.ref),
         ) { lines.firstOrNull()?.let { Words(it) } }
         HelpBlockKind.PARAGRAPH -> lines.firstOrNull()?.let { Words(it) }

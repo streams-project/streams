@@ -23,7 +23,7 @@ private const val SMALL = 122
 @Composable
 fun ProfileCard(person: Profile, server: String, name: @Composable () -> Unit, under: String?) {
     Box {
-        Face(person, LARGE, 18, server, Modifier.offset(1237.ref, 336.ref).size(LARGE.ref))
+        Face(person, LARGE, server, Modifier.offset(1237.ref, 336.ref).size(LARGE.ref))
         Box(Modifier.offset(1085.ref, 676.ref).width(600.ref), contentAlignment = Alignment.Center) { name() }
         if (under != null) {
             Text(
@@ -58,6 +58,6 @@ fun ProfileCorner(person: Profile, server: String) {
             maxLines = 1,
         )
         Spacer(Modifier.width(30.ref))
-        Face(person, SMALL, 16, server, Modifier.size(SMALL.ref))
+        Face(person, SMALL, server, Modifier.size(SMALL.ref))
     }
 }

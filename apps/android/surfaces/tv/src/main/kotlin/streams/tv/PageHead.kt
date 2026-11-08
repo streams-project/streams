@@ -13,7 +13,7 @@ import streams.shared.refType
 @Composable
 fun PageHead(title: String, help: String) {
     Box {
-        Text(title, Modifier.offset(130.ref, 74.ref), fontSize = 44.refType, fontWeight = FontWeight.Bold)
-        Text(help, Modifier.offset(128.ref, 148.ref), fontSize = 30.refType)
+        Text(title, Modifier.offset(SUB_EDGE.ref, 74.ref), fontSize = 44.refType, fontWeight = FontWeight.Bold)
+        Text(help, Modifier.offset(SUB_EDGE.ref, 148.ref), fontSize = 30.refType)
     }
 }

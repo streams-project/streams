@@ -46,3 +46,10 @@ private fun inter(weight: Int) = Font(
 )
 
 val BrandFont = FontFamily(inter(400), inter(500), inter(600), inter(700), inter(800))
+
+/** The brand's corners from brand.json `shape`, in dp on a phone. Each family scales them for its screen. */
+object Corner {
+    const val CARD = BuildConfig.CARD_RADIUS
+    const val PANEL = BuildConfig.PANEL_RADIUS
+    const val FIELD = BuildConfig.FIELD_RADIUS
+}
