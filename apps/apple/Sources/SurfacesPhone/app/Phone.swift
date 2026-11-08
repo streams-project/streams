@@ -35,7 +35,9 @@ public struct Phone: View {
             SignIn(shell: shell, seen: seen)
         } else if target == .profiles {
             People(shell: shell, seen: seen)
-        } else if target == .home || target == .kidsHome || target == .screen || target == .title || target == .watch {
+        } else if target == .title {
+            Title(shell: shell, seen: seen)
+        } else if target == .home || target == .kidsHome || target == .screen || target == .watch {
             Pages(shell: shell, seen: seen)
         } else {
             ProgressView().tint(.white)
