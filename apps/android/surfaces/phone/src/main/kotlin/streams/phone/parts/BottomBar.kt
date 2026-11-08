@@ -3,14 +3,12 @@ package streams.phone
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -21,43 +19,73 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import streams.shared.Plate
-import streams.shared.R
-
-/** One place on the bar: its icon, its word, and whether it is the page in view. */
-data class BarItem(val icon: Int, val word: String, val here: Boolean, val go: () -> Unit)
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import contract.Profile
+import streams.shared.Accent
+import streams.shared.Art
+import streams.shared.Join
 
 /**
- * The bar at the foot of every main page, floating as the reference's does: a rounded plate over the
- * page, icons above short words, the page in view in white and the others dimmed. It sits in the
- * reading direction, so it turns with a right to left language.
+ * One place on the bar: its icon, its word, whether it is the page in view, and where it goes. My
+ * The bar shows the profile's face in place of an icon, as the reference shows the viewer's.
+ */
+data class BarItem(val icon: Int, val word: String, val here: Boolean, val face: Profile? = null, val server: String = "", val go: () -> Unit)
+
+/** The bar's plate, the chosen item's plate and the idle words, as the reference's. */
+private val BarFill = Color(0xFF2D2D2D)
+private val ChosenFill = Color(0xFF383838)
+private val IdleInk = Color(0xFFC0C0C0)
+
+/**
+ * The bar at the foot of every main page, floating as the reference's does. It sits in the reading
+ * direction, so it turns with a right to left language.
  */
 @Composable
 fun BottomBar(items: List<BarItem>, modifier: Modifier = Modifier) {
     Row(
         modifier
-            .widthIn(max = 420.dp)
-            .height(64.dp)
-            .background(Plate.copy(alpha = 0.92f), CircleShape)
-            .border(1.dp, Color.White.copy(alpha = 0.12f), CircleShape)
-            .padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+            .height(63.dp)
+            .background(BarFill, CircleShape)
+            .border(1.dp, Color.White.copy(alpha = 0.1f), CircleShape)
+            .padding(horizontal = 7.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         items.forEach { item ->
-            val ink = if (item.here) Color.White else Color.White.copy(alpha = 0.6f)
             Box(
                 Modifier
-                    .size(width = 84.dp, height = 56.dp)
-                    .background(if (item.here) Color.White.copy(alpha = 0.12f) else Color.Transparent, CircleShape)
+                    .size(width = 76.dp, height = 48.dp)
+                    .background(if (item.here) ChosenFill else Color.Transparent, CircleShape)
                     .clickable(onClick = item.go),
                 contentAlignment = Alignment.Center,
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(painterResource(item.icon), item.word, Modifier.size(24.dp), tint = ink)
-                    Text(item.word, color = ink, fontSize = 11.sp, maxLines = 1)
+                    if (item.face != null) {
+                        BarFace(item.face, item.server)
+                    } else {
+                        Icon(painterResource(item.icon), item.word, Modifier.size(24.dp), tint = if (item.here) Color.White else IdleInk)
+                    }
+                    Text(item.word, color = if (item.here) Color.White else IdleInk, fontSize = 11.sp, maxLines = 1)
                 }
             }
+        }
+    }
+}
+
+/** The profile's face at the bar's icon size: its picture, or its first letter on its colour. */
+@Composable
+private fun BarFace(person: Profile, server: String) {
+    val avatar = person.avatar?.takeIf { it.startsWith("/") || it.startsWith("http") }
+    Box(
+        Modifier.size(24.dp).clip(RoundedCornerShape(6.dp)).background(if (person.kids) Join else Accent),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (avatar != null) {
+            Art(if (avatar.startsWith("/")) server + avatar else avatar, Modifier.fillMaxSize())
+        } else {
+            Text(person.name.take(1).uppercase(), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold)
         }
     }
 }

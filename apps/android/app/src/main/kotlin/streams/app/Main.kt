@@ -3,6 +3,7 @@ package streams.app
 import android.app.UiModeManager
 import android.content.res.Configuration
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import android.view.KeyEvent
 import android.view.MotionEvent
 import androidx.activity.ComponentActivity
@@ -36,6 +37,8 @@ class Main : ComponentActivity() {
             form = if (tv) Form.TV else Form.PHONE,
             version = "0.1.0",
         )
+        // A phone draws under its status and gesture bars, as the reference does; the pages pad for them.
+        if (!tv) enableEdgeToEdge()
         setContent { if (tv) Television(host) else Root(host, false) }
     }
 

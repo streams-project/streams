@@ -240,5 +240,9 @@
   "genre.music": "Müzik",
   "genre.tv_movie": "TV Filmi",
   "title.length.hours": "{h} sa {m} dk",
-  "title.length.minutes": "{m} dk"
+  "title.length.minutes": "{m} dk",
+  "nav.search": "Ara",
+  "nav.categories": "Kategoriler",
+  "title.kind.series": "Dizi",
+  "title.kind.film": "Film"
 }

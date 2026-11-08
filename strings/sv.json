@@ -240,5 +240,9 @@
   "genre.music": "Musik",
   "genre.tv_movie": "Tv-film",
   "title.length.hours": "{h} tim {m} min",
-  "title.length.minutes": "{m} min"
+  "title.length.minutes": "{m} min",
+  "nav.search": "Sök",
+  "nav.categories": "Kategorier",
+  "title.kind.series": "Serie",
+  "title.kind.film": "Film"
 }

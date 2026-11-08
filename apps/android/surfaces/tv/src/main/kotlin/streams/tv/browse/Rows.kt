@@ -1,5 +1,10 @@
 package streams.tv
 
+import streams.shared.Art
+import streams.shared.wide
+import streams.shared.tall
+import streams.shared.DetailStore
+import streams.shared.detailOf
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing

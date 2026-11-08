@@ -32,6 +32,9 @@ pub struct Fonts {
 pub struct Shape {
     pub button_radius: u32,
     pub card_radius: u32,
+    /// A chip's corners inside a chip row; the row's two outer ends take `chip_end_radius`.
+    pub chip_radius: u32,
+    pub chip_end_radius: u32,
     pub field_radius: u32,
     pub panel_radius: u32,
 }
@@ -125,7 +128,8 @@ impl Brand {
         Ok(())
     }
 
-    /// The look as a style sheet, loaded before the site's own.
+    /// The look as a style sheet, loaded before the site's own. The chip corners stay with the apps
+    /// until the site has a chip row (the site test refuses a value it never uses).
     #[must_use]
     pub fn css(&self) -> String {
         let (c, f, s, g) = (&self.colors, &self.fonts, &self.shape, &self.spacing);

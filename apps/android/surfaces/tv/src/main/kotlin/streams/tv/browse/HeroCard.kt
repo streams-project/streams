@@ -1,5 +1,9 @@
 package streams.tv
 
+import streams.shared.Art
+import streams.shared.wide
+import streams.shared.DetailStore
+import streams.shared.detailOf
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement

@@ -1,5 +1,6 @@
 package streams.tv
 
+import streams.shared.Art
 import android.content.res.Resources
 import androidx.compose.foundation.Canvas
 import kotlin.math.roundToInt

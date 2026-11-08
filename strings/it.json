@@ -240,5 +240,9 @@
   "genre.music": "Musica",
   "genre.tv_movie": "Film TV",
   "title.length.hours": "{h} h {m} min",
-  "title.length.minutes": "{m} min"
+  "title.length.minutes": "{m} min",
+  "nav.search": "Cerca",
+  "nav.categories": "Categorie",
+  "title.kind.series": "Serie",
+  "title.kind.film": "Film"
 }

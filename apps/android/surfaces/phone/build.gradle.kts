@@ -28,4 +28,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
+    // The brand's mark is an SVG the server serves; the page tint is read from the billboard's colours.
+    implementation("io.coil-kt.coil3:coil-svg:3.3.0")
+    implementation("androidx.palette:palette-ktx:1.0.0")
 }

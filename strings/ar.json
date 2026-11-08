@@ -246,5 +246,9 @@
   "search.letters": "ابتثجحخدذرزسشصضطظعغفقكلمنهويةىءأإآؤ",
   "title.season.two": "موسمان",
   "title.season.few": "{n} مواسم",
-  "title.season.other": "{n} موسم"
+  "title.season.other": "{n} موسم",
+  "nav.search": "بحث",
+  "nav.categories": "الفئات",
+  "title.kind.series": "مسلسل",
+  "title.kind.film": "فيلم"
 }

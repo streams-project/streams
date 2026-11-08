@@ -1,5 +1,8 @@
 package streams.tv
 
+import streams.shared.Art
+import streams.shared.wide
+import streams.shared.isSeries
 import streams.shared.fill
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

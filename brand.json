@@ -22,6 +22,8 @@
   "shape": {
     "button_radius": 999,
     "card_radius": 14,
+    "chip_radius": 12,
+    "chip_end_radius": 999,
     "field_radius": 12,
     "panel_radius": 24
   },

@@ -52,6 +52,11 @@ object Corner {
     const val CARD = BuildConfig.CARD_RADIUS
     const val PANEL = BuildConfig.PANEL_RADIUS
     const val FIELD = BuildConfig.FIELD_RADIUS
+    const val BUTTON = BuildConfig.BUTTON_RADIUS
+
+    /** A chip inside a chip row, and the row's two outer ends (a value past half the height reads as round). */
+    const val CHIP = BuildConfig.CHIP_RADIUS
+    const val CHIP_END = BuildConfig.CHIP_END_RADIUS
 }
 
 /**

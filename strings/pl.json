@@ -241,5 +241,9 @@
   "genre.tv_movie": "Filmy telewizyjne",
   "title.length.hours": "{h} godz. {m} min",
   "title.length.minutes": "{m} min",
-  "title.season.few": "{n} sezony"
+  "title.season.few": "{n} sezony",
+  "nav.search": "Szukaj",
+  "nav.categories": "Kategorie",
+  "title.kind.series": "Serial",
+  "title.kind.film": "Film"
 }
