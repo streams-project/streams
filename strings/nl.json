@@ -239,6 +239,9 @@
   "genre.war": "Oorlog",
   "genre.music": "Muziek",
   "genre.tv_movie": "Tv-film",
-  "title.length.hours": "{h} u {m} min",
-  "title.length.minutes": "{m} min"
+  "title.length.hours.one": "{n} u",
+  "title.length.hours.many": "{n} u",
+  "title.length.minutes.one": "{n} min",
+  "title.length.minutes.many": "{n} min",
+  "title.length.both": "{hours} {minutes}"
 }

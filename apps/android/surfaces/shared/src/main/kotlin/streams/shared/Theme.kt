@@ -63,21 +63,32 @@ fun String.fill(name: String, value: Any): String =
 
 /**
  * How the interface's language writes numbers and counts: its code (for plural forms) and its
- * digits (`language.digits` in its strings, `arab` for Arabic-Indic). The app sets both as the
- * words arrive.
+ * digits (`language.digits` in its strings: `arab` for Arabic-Indic ٠-٩, `arabext` for Eastern
+ * Arabic-Indic / Persian ۰-۹, `latn` for Western 0-9). The app sets both as the words arrive.
  */
 object Speaking {
     @Volatile
     var code: String = "en"
 
     @Volatile
-    var arabicDigits: Boolean = false
+    var digits: String = "latn"
+
+    var arabicDigits: Boolean
+        get() = digits == "arab"
+        set(value) {
+            digits = if (value) "arab" else "latn"
+        }
 }
 
 /** A number as the interface's language writes it. */
 fun number(value: Any): String {
     val plain = value.toString()
-    return if (Speaking.arabicDigits) plain.map { if (it in '0'..'9') '\u0660' + (it - '0') else it }.joinToString("") else plain
+    val base = when (Speaking.digits) {
+        "arab" -> '\u0660'
+        "arabext" -> '\u06F0'
+        else -> return plain
+    }
+    return plain.map { if (it in '0'..'9') base + (it - '0') else it }.joinToString("")
 }
 
 /** The plural form a count takes in a language, as CLDR names them: zero, one, two, few, many, other. */
@@ -106,6 +117,7 @@ fun pluralOf(n: Int, lang: String): String = when (lang.substringBefore('-')) {
         else -> "other"
     }
     "ja", "ko", "zh" -> "other"
+    "fa" -> if (n == 1) "one" else "other"
     "fr", "pt", "hi" -> if (n <= 1) "one" else "other"
     else -> if (n == 1) "one" else "other"
 }

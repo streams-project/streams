@@ -239,6 +239,9 @@
   "genre.war": "युद्ध",
   "genre.music": "संगीत",
   "genre.tv_movie": "टीवी फ़िल्म",
-  "title.length.hours": "{h} घं {m} मि",
-  "title.length.minutes": "{m} मि"
+  "title.length.hours.one": "{n} घंटा",
+  "title.length.hours.many": "{n} घंटे",
+  "title.length.minutes.one": "{n} मिनट",
+  "title.length.minutes.many": "{n} मिनट",
+  "title.length.both": "{hours} {minutes}"
 }

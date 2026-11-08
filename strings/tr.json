@@ -239,6 +239,9 @@
   "genre.war": "Savaş",
   "genre.music": "Müzik",
   "genre.tv_movie": "TV Filmi",
-  "title.length.hours": "{h} sa {m} dk",
-  "title.length.minutes": "{m} dk"
+  "title.length.hours.one": "{n} sa",
+  "title.length.hours.many": "{n} sa",
+  "title.length.minutes.one": "{n} dk",
+  "title.length.minutes.many": "{n} dk",
+  "title.length.both": "{hours} {minutes}"
 }

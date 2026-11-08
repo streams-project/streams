@@ -239,7 +239,12 @@
   "genre.war": "Wojenne",
   "genre.music": "Muzyczne",
   "genre.tv_movie": "Filmy telewizyjne",
-  "title.length.hours": "{h} godz. {m} min",
-  "title.length.minutes": "{m} min",
-  "title.season.few": "{n} sezony"
+  "title.season.few": "{n} sezony",
+  "title.length.hours.one": "{n} godzina",
+  "title.length.hours.few": "{n} godziny",
+  "title.length.hours.many": "{n} godzin",
+  "title.length.minutes.one": "{n} minuta",
+  "title.length.minutes.few": "{n} minuty",
+  "title.length.minutes.many": "{n} minut",
+  "title.length.both": "{hours} {minutes}"
 }

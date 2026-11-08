@@ -239,6 +239,9 @@
   "genre.war": "Kriegsfilm",
   "genre.music": "Musik",
   "genre.tv_movie": "TV-Film",
-  "title.length.hours": "{h} Std. {m} Min.",
-  "title.length.minutes": "{m} Min."
+  "title.length.hours.one": "{n} Std.",
+  "title.length.hours.many": "{n} Std.",
+  "title.length.minutes.one": "{n} Min.",
+  "title.length.minutes.many": "{n} Min.",
+  "title.length.both": "{hours} {minutes}"
 }

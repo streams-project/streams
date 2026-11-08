@@ -1,6 +1,6 @@
 {
   "badge.new": "جديد",
-  "badge.ranked": "#{rank}",
+  "badge.ranked": "المرتبة {rank}",
   "common.back": "رجوع",
   "common.cancel": "إلغاء",
   "common.done": "تم",
@@ -239,12 +239,21 @@
   "genre.war": "حرب",
   "genre.music": "موسيقى",
   "genre.tv_movie": "فيلم تلفزيوني",
-  "title.length.hours": "{h} س {m} د",
-  "title.length.minutes": "{m} د",
   "language.text_scale": "1.12",
   "language.digits": "arab",
   "search.letters": "ابتثجحخدذرزسشصضطظعغفقكلمنهويةىءأإآؤ",
   "title.season.two": "موسمان",
   "title.season.few": "{n} مواسم",
-  "title.season.other": "{n} موسم"
+  "title.season.other": "{n} موسم",
+  "title.length.hours.one": "ساعة واحدة",
+  "title.length.hours.two": "ساعتان",
+  "title.length.hours.few": "{n} ساعات",
+  "title.length.hours.many": "{n} ساعة",
+  "title.length.hours.other": "{n} ساعة",
+  "title.length.minutes.one": "دقيقة واحدة",
+  "title.length.minutes.two": "دقيقتان",
+  "title.length.minutes.few": "{n} دقائق",
+  "title.length.minutes.many": "{n} دقيقة",
+  "title.length.minutes.other": "{n} دقيقة",
+  "title.length.both": "{hours} و{minutes}"
 }

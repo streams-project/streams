@@ -239,6 +239,9 @@
   "genre.war": "戦争",
   "genre.music": "音楽",
   "genre.tv_movie": "テレビ映画",
-  "title.length.hours": "{h}時間{m}分",
-  "title.length.minutes": "{m}分"
+  "title.length.hours.one": "{n}時間",
+  "title.length.hours.many": "{n}時間",
+  "title.length.minutes.one": "{n}分",
+  "title.length.minutes.many": "{n}分",
+  "title.length.both": "{hours}{minutes}"
 }

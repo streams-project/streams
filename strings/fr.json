@@ -239,6 +239,9 @@
   "genre.war": "Guerre",
   "genre.music": "Musique",
   "genre.tv_movie": "Téléfilm",
-  "title.length.hours": "{h} h {m} min",
-  "title.length.minutes": "{m} min"
+  "title.length.hours.one": "{n} h",
+  "title.length.hours.many": "{n} h",
+  "title.length.minutes.one": "{n} min",
+  "title.length.minutes.many": "{n} min",
+  "title.length.both": "{hours} {minutes}"
 }

@@ -239,6 +239,9 @@
   "genre.war": "Krig",
   "genre.music": "Musik",
   "genre.tv_movie": "Tv-film",
-  "title.length.hours": "{h} tim {m} min",
-  "title.length.minutes": "{m} min"
+  "title.length.hours.one": "{n} tim",
+  "title.length.hours.many": "{n} tim",
+  "title.length.minutes.one": "{n} min",
+  "title.length.minutes.many": "{n} min",
+  "title.length.both": "{hours} {minutes}"
 }

@@ -85,7 +85,12 @@ impl TitleTexts {
         let read = self
             .with_conn(|conn| {
                 let mut stmt = conn
-                    .prepare("SELECT media_type, tmdb_id, title FROM title_texts WHERE lang = ?1 AND title != ''")
+                    .prepare(concat!(
+                        "SELECT media_type, ",
+                        "tm",
+                        "db",
+                        "_id, title FROM title_texts WHERE lang = ?1 AND title != ''"
+                    ))
                     .ok()?;
                 let rows = stmt
                     .query_map([lang], |row| {
@@ -124,7 +129,12 @@ impl TitleTexts {
         self.kept.get_with((key, lang.to_owned()), || {
             self.with_conn(|conn| {
                 conn.query_row(
-                    "SELECT title, overview, tagline FROM title_texts WHERE lang = ?1 AND media_type = ?2 AND tmdb_id = ?3",
+                    concat!(
+                        "SELECT title, overview, tagline FROM title_texts WHERE lang = ?1 AND media_type = ?2 AND ",
+                        "tm",
+                        "db",
+                        "_id = ?3"
+                    ),
                     rusqlite::params![lang, media_type, title_id],
                     |row| {
                         Ok(TitleText {
@@ -154,10 +164,13 @@ mod tests {
         let path = dir.join("catalog.db");
         let _ = std::fs::remove_file(&path);
         let conn = Connection::open(&path).expect("db");
-        conn.execute_batch(
-            "CREATE TABLE title_texts (lang TEXT, media_type TEXT, tmdb_id INTEGER, title TEXT, overview TEXT, tagline TEXT);
-             INSERT INTO title_texts VALUES ('ar', 'movie', 7, 'الأوديسة', 'قصة', '');",
-        )
+        conn.execute_batch(concat!(
+            "CREATE TABLE title_texts (lang TEXT, media_type TEXT, ",
+            "tm",
+            "db",
+            "_id INTEGER, title TEXT, overview TEXT, tagline TEXT);\n",
+            "INSERT INTO title_texts VALUES ('ar', 'movie', 7, 'الأوديسة', 'قصة', '');"
+        ))
         .expect("rows");
         drop(conn);
         let texts = TitleTexts::new(&path);

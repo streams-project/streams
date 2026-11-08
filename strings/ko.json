@@ -239,6 +239,9 @@
   "genre.war": "전쟁",
   "genre.music": "음악",
   "genre.tv_movie": "TV 영화",
-  "title.length.hours": "{h}시간 {m}분",
-  "title.length.minutes": "{m}분"
+  "title.length.hours.one": "{n}시간",
+  "title.length.hours.many": "{n}시간",
+  "title.length.minutes.one": "{n}분",
+  "title.length.minutes.many": "{n}분",
+  "title.length.both": "{hours} {minutes}"
 }

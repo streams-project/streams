@@ -239,6 +239,9 @@
   "genre.war": "战争",
   "genre.music": "音乐",
   "genre.tv_movie": "电视电影",
-  "title.length.hours": "{h}小时{m}分钟",
-  "title.length.minutes": "{m}分钟"
+  "title.length.hours.one": "{n} 小时",
+  "title.length.hours.many": "{n} 小时",
+  "title.length.minutes.one": "{n} 分钟",
+  "title.length.minutes.many": "{n} 分钟",
+  "title.length.both": "{hours} {minutes}"
 }

@@ -19,6 +19,21 @@ import streams.shared.Muted
 import streams.shared.ref
 import streams.shared.refType
 
+private fun formatLength(words: Map<String, String>, minutes: Long): String {
+    val h = (minutes / 60).toInt()
+    val m = (minutes % 60).toInt()
+    return when {
+        h > 0 && m > 0 -> {
+            val hText = words.counted("title.length.hours", h)
+            val mText = words.counted("title.length.minutes", m)
+            val pattern = words["title.length.both"] ?: "{hours} {minutes}"
+            pattern.replace("{hours}", hText).replace("{minutes}", mText)
+        }
+        h > 0 -> words.counted("title.length.hours", h)
+        else -> words.counted("title.length.minutes", m)
+    }
+}
+
 private fun facts(detail: TitleDetail, words: Map<String, String>): List<String> = buildList {
     detail.genres?.firstOrNull()?.let(::add)
     detail.year?.let { add(number(it)) }
@@ -26,11 +41,12 @@ private fun facts(detail: TitleDetail, words: Map<String, String>): List<String>
     val minutes = detail.runtimeMin
     when {
         seasons > 0 -> add(words.counted("title.season", seasons))
-        minutes != null && minutes >= 60 ->
-            add(words["title.length.hours"].orEmpty().fill("h", minutes / 60).fill("m", minutes % 60))
-        minutes != null -> add(words["title.length.minutes"].orEmpty().fill("m", minutes))
+        minutes != null && minutes > 0 -> add(formatLength(words, minutes))
     }
-    detail.age?.let { add(it.label) }
+    detail.age?.let {
+        val translated = words["age.${it.label}"] ?: number(it.label)
+        add(translated)
+    }
 }
 
 /** The line of facts about a title, in one order on every screen: genre, year, length, age. */

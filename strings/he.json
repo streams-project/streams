@@ -174,7 +174,7 @@
   "problem.offline.help": "בדקו את החיבור ונסו שוב.",
   "problem.retry": "נסו שוב",
   "badge.new": "חדש",
-  "badge.ranked": "#{rank}",
+  "badge.ranked": "מקום {rank}",
   "menu.exit": "יציאה מ-{brand}",
   "help.back": "חזרה",
   "help.member": "מנוי",
@@ -241,6 +241,13 @@
   "genre.war": "סרטי מלחמה",
   "genre.music": "מוזיקה",
   "genre.tv_movie": "סרטי טלוויזיה",
-  "title.length.hours": "{h} שע' {m} דק'",
-  "title.length.minutes": "{m} דק'"
+  "title.length.hours.one": "שעה אחת",
+  "title.length.hours.two": "שעתיים",
+  "title.length.hours.many": "{n} שעות",
+  "title.length.hours.other": "{n} שעות",
+  "title.length.minutes.one": "דקה אחת",
+  "title.length.minutes.two": "שתי דקות",
+  "title.length.minutes.many": "{n} דקות",
+  "title.length.minutes.other": "{n} דקות",
+  "title.length.both": "{hours} ו-{minutes}"
 }

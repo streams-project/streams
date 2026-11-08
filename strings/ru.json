@@ -239,8 +239,13 @@
   "genre.war": "Военный",
   "genre.music": "Музыка",
   "genre.tv_movie": "Телефильм",
-  "title.length.hours": "{h} ч {m} мин",
-  "title.length.minutes": "{m} мин",
   "search.letters": "абвгдеёжзийклмнопрстуфхцчшщъыьэюя'-",
-  "title.season.few": "{n} сезона"
+  "title.season.few": "{n} сезона",
+  "title.length.hours.one": "{n} час",
+  "title.length.hours.few": "{n} часа",
+  "title.length.hours.many": "{n} часов",
+  "title.length.minutes.one": "{n} минута",
+  "title.length.minutes.few": "{n} минуты",
+  "title.length.minutes.many": "{n} минут",
+  "title.length.both": "{hours} {minutes}"
 }
