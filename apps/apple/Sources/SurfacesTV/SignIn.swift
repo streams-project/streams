@@ -13,7 +13,7 @@ public struct SignIn: View {
 
     public var body: some View {
         ZStack {
-            BrandTheme.back.ignoresSafeArea()
+            Back.ignoresSafeArea()
 
             VStack(spacing: 48.ref) {
                 Text(seen.words["signin.choose"] ?? "Sign In")

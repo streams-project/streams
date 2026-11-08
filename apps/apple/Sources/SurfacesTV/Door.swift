@@ -19,7 +19,7 @@ public struct Door: View {
 
     public var body: some View {
         ZStack {
-            BrandTheme.back.ignoresSafeArea()
+            Back.ignoresSafeArea()
 
             VStack(spacing: 40.ref) {
                 Spacer()
@@ -31,7 +31,7 @@ public struct Door: View {
 
                     Text(seen.words["door.title"] ?? "Unlimited films, TV programmes and more")
                         .font(.system(size: 36.refType, weight: .medium))
-                        .foregroundStyle(BrandTheme.muted)
+                        .foregroundStyle(Muted)
                 }
 
                 Spacer()

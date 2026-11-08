@@ -12,7 +12,7 @@ public struct ServerAddress: View {
 
     public var body: some View {
         ZStack {
-            BrandTheme.back.ignoresSafeArea()
+            Back.ignoresSafeArea()
             VStack(spacing: 32.ref) {
                 Text("Your server")
                     .font(.system(size: 48.refType, weight: .bold))
@@ -20,7 +20,7 @@ public struct ServerAddress: View {
 
                 Text(address)
                     .font(.system(size: 32.refType, weight: .medium))
-                    .foregroundStyle(BrandTheme.muted)
+                    .foregroundStyle(Muted)
                     .padding(.horizontal, 32.ref)
                     .padding(.vertical, 16.ref)
                     .background(Color.white.opacity(0.1))

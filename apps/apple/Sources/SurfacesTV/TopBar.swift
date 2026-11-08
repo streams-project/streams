@@ -1,92 +1,65 @@
 import Contract
-import Ports
 import SwiftUI
 
-public let whoTab = -3
-public let searchTab = -2
+/// The place of the search button, to the left of the first tab.
+let searchTab = -2
 
-public func tabsOfNav(_ nav: [NavItem]) -> [NavItem] {
-    return Array(nav.filter { $0.screen.rawValue != "genre" }.prefix(6))
+/// The place of the profile, to the left of search.
+let whoTab = -3
+
+/// The tabs that fit the bar. Genres live on their own pages.
+func tabsOf(_ nav: [NavItem]) -> [NavItem] {
+    Array(nav.filter { $0.screen != .genre }.prefix(6))
 }
 
-public struct TopBar: View {
-    public let tabs: [NavItem]
-    public let active: Int
-    public let focus: Int
-    public let profile: Profile?
-    public let brand: String
+private struct Tab: View {
+    let item: NavItem
+    let active: Bool
+    let on: Bool
 
-    public init(tabs: [NavItem], active: Int, focus: Int, profile: Profile?, brand: String) {
-        self.tabs = tabs
-        self.active = active
-        self.focus = focus
-        self.profile = profile
-        self.brand = brand
+    var body: some View {
+        let back: Color = on ? .white : active ? .white.opacity(0.16) : .clear
+        Text(item.label)
+            .brand(26, 500)
+            .foregroundStyle(on ? Back : .white)
+            .padding(.horizontal, 32.ref)
+            .frame(height: 62.ref)
+            .background(back, in: Capsule())
     }
+}
 
-    public var body: some View {
-        HStack(alignment: .center, spacing: 16.ref) {
-            // Profile icon
+/// Who is watching, search, the tabs and the mark, at the top of every signed in page.
+struct TopBar: View {
+    let tabs: [NavItem]
+    let active: Int
+    let focus: Int
+    let person: Profile?
+    let server: String
+
+    var body: some View {
+        let searchOn = focus == searchTab
+        let whoOn = focus == whoTab
+        let searchHere = active == searchTab
+        ZStack(alignment: .topLeading) {
+            HStack(spacing: 0) {
+                Face(person, 48, 8, server)
+                    .overlay(RoundedRectangle(cornerRadius: 8.ref).stroke(.white, lineWidth: whoOn ? 3.ref : 0))
+                Icon("icon_caret_down", 22)
+            }
+            .offset(x: 68.ref, y: 46.ref)
+            Circle()
+                .fill(searchOn ? Color.white : searchHere ? Color.white.opacity(0.16) : .clear)
+                .frame(width: 64.ref, height: 64.ref)
+                .overlay(Icon("icon_search", 34, tint: searchOn ? Back : .white))
+                .offset(x: 539.ref, y: 35.ref)
             HStack(spacing: 8.ref) {
-                let on = focus == whoTab
-                ZStack {
-                    Color.blue
-                        .frame(width: 48.ref, height: 48.ref)
-                        .clipShape(RoundedRectangle(cornerRadius: 8.ref))
-
-                    Text(String(profile?.name.prefix(1) ?? "J").uppercased())
-                        .font(.system(size: 24.refType, weight: .bold))
-                        .foregroundStyle(.white)
+                ForEach(Array(tabs.enumerated()), id: \.offset) { index, item in
+                    Tab(item: item, active: index == active, on: index == focus)
                 }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8.ref)
-                        .stroke(on ? Color.white : Color.clear, lineWidth: 3.ref)
-                )
-
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 14.refType, weight: .bold))
-                    .foregroundStyle(on ? .white : BrandTheme.muted)
             }
-            .padding(.trailing, 24.ref)
-
-            // Search icon
-            let searchOn = focus == searchTab
-            ZStack {
-                Circle()
-                    .fill(searchOn ? Color.white : Color.clear)
-                    .frame(width: 48.ref, height: 48.ref)
-
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 22.refType, weight: .bold))
-                    .foregroundStyle(searchOn ? .black : .white)
-            }
-            .padding(.trailing, 16.ref)
-
-            // Nav Tabs
-            ForEach(Array(tabs.enumerated()), id: \.element.screen.rawValue) { index, tab in
-                let on = focus == index
-                let isActive = active == index
-
-                Text(tab.label)
-                    .font(.system(size: 26.refType, weight: .semibold))
-                    .foregroundStyle(on ? .black : .white)
-                    .padding(.horizontal, 28.ref)
-                    .padding(.vertical, 14.ref)
-                    .background(
-                        on ? Color.white : (isActive ? Color.white.opacity(0.18) : Color.clear)
-                    )
-                    .clipShape(Capsule())
-            }
-
-            Spacer()
-
-            // Brand mark top right
-            Text(brand.isEmpty ? "Streams" : brand)
-                .font(.system(size: 32.refType, weight: .heavy))
-                .foregroundStyle(BrandTheme.accent)
+            .offset(x: 609.ref, y: 36.ref)
+            Mark(64).offset(x: 1796.ref, y: 40.ref)
         }
-        .padding(.horizontal, 64.ref)
-        .padding(.top, 40.ref)
-        .frame(height: 100.ref)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }

@@ -338,9 +338,9 @@ public final class Host: Shell, @unchecked Sendable {
                     self.seen.notice = n.text.isEmpty ? self.seen.words[n.label] : n.text
                 }
             }
-        case .open, .log, .timer:
+        case .open, .log:
             break
-        case .unknown:
+        case .timer, .unknown:
             eventQueue.append(Event(id: effect.id, body: .unsupported(EventUnsupported())))
         }
     }

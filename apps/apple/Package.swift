@@ -49,7 +49,7 @@ let package = Package(
         ),
         .target(
             name: "SurfacesTV",
-            dependencies: ["Contract", "Ports", "CoreHost"],
+            dependencies: ["Contract", "Ports"],
             path: "Sources/SurfacesTV",
             resources: [.process("Resources")]
         ),

@@ -2,89 +2,124 @@ import Contract
 import Ports
 import SwiftUI
 
-public struct TileCard: View {
-    public let tile: Tile
-    public let focused: Bool
-    public let rank: Int?
+private let step: CGFloat = 328
+private let ahead = 5
+private let nextPosters = 6
+private let slide = 0.24
+private let fade = 0.2
 
-    public init(tile: Tile, focused: Bool, rank: Int? = nil) {
-        self.tile = tile
-        self.focused = focused
-        self.rank = rank
-    }
+/// The curve every move on this page uses.
+public func glide(_ seconds: Double) -> Animation {
+    .timingCurve(0.22, 0.61, 0.2, 1, duration: seconds)
+}
 
-    public var body: some View {
-        ZStack(alignment: .topTrailing) {
-            Art(posterImage(tile.images), contentMode: .fill)
-                .frame(width: 250.ref, height: 360.ref)
-                .clipped()
-                .background(BrandTheme.plate)
-                .clipShape(RoundedRectangle(cornerRadius: 12.ref))
+private let cardFoot = LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .top, endPoint: .bottom)
 
-            // Badges
-            if let r = rank {
-                RankedBadge(rank: r)
-                    .padding(8.ref)
-            } else if tile.badges?.contains(where: { $0.kind == .new }) == true {
-                NewBadge()
-                    .padding(8.ref)
-            }
+struct Poster: View {
+    let tile: Tile
+    let words: [String: String]
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            Raised
+            if let url = tall(tile.images) { Art(url) }
+            TileBadges(tile, words).padding(12.ref)
         }
-        .frame(width: 250.ref, height: 360.ref)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12.ref)
-                .stroke(focused ? Color.white : Color.clear, lineWidth: 5.ref)
-        )
-        .scaleEffect(focused ? 1.08 : 1.0)
-        .animation(.easeOut(duration: 0.15), value: focused)
+        .frame(width: 311.ref, height: 504.ref)
+        .clipShape(RoundedRectangle(cornerRadius: 12.ref))
     }
 }
 
-public struct SectionRow: View {
-    public let section: Contract.Section
-    public let rowIndex: Int
-    public let focusedRow: Int
-    public let focusedColumn: Int
+/// The card stays still and its art crossfades.
+private struct OpenCard: View {
+    let tile: Tile
+    let words: [String: String]
 
-    public init(section: Contract.Section, rowIndex: Int, focusedRow: Int, focusedColumn: Int) {
-        self.section = section
-        self.rowIndex = rowIndex
-        self.focusedRow = focusedRow
-        self.focusedColumn = focusedColumn
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: 16.ref)
+        ZStack(alignment: .bottomLeading) {
+            Raised
+            Art(wide(tile.images))
+                .id(tile.title)
+                .transition(.opacity.animation(.linear(duration: slide)))
+            cardFoot.frame(height: 200.ref)
+            TileBadges(tile, words).padding(.leading, 24.ref).padding(.bottom, 78.ref)
+            Text(tile.name)
+                .brand(44, 800)
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .frame(width: 856.ref, alignment: .leading)
+                .padding(.leading, 24.ref)
+                .padding(.bottom, 16.ref)
+        }
+        .frame(width: 904.ref, height: 508.ref)
+        .clipShape(shape)
+        .overlay(shape.stroke(.white, lineWidth: 3.ref))
+        .offset(x: 66.ref, y: 200.ref)
     }
+}
 
-    public var body: some View {
-        VStack(alignment: .leading, spacing: 18.ref) {
-            // Row Title
-            if let title = section.title, !title.isEmpty {
-                Text(title)
-                    .font(.system(size: 34.refType, weight: .bold))
-                    .foregroundStyle(.white)
-                    .padding(.leading, 75.ref)
+/// The row that owns the screen: its focused title opens wide with the next ones beside it.
+struct OpenRow: View {
+    let shell: Shell
+    let words: [String: String]
+    let store: DetailStore
+    let section: Contract.Section
+    let at: Int
+    @State private var detail: TitleDetail?
+
+    var body: some View {
+        let tiles = section.tiles ?? []
+        let tile = tiles[min(at, tiles.count - 1)]
+        ZStack(alignment: .topLeading) {
+            Text(section.title ?? "").brand(32, 700).foregroundStyle(.white).offset(x: 72.ref, y: 146.ref)
+            if at > 0 {
+                Poster(tile: tiles[at - 1], words: words).opacity(0.55).offset(x: -264.ref, y: 202.ref)
             }
+            // The poster under the card is drawn too, so a title leaving the card slides out from it.
+            ForEach(at..<min(at + ahead + 1, tiles.count), id: \.self) { index in
+                Poster(tile: tiles[index], words: words)
+                    .offset(x: (989 + CGFloat(index - 1 - at) * step).ref, y: 202.ref)
+            }
+            OpenCard(tile: tile, words: words)
+            VStack(alignment: .leading, spacing: 0) {
+                if let detail { Facts(detail, words) }
+            }
+            .offset(x: 70.ref, y: 728.ref)
+            Text(detail?.overview ?? "")
+                .brand(30)
+                .lines(30, 39)
+                .foregroundStyle(.white.opacity(0.8))
+                .lineLimit(3)
+                .frame(width: 1000.ref, alignment: .leading)
+                .offset(x: 70.ref, y: 768.ref)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .animation(glide(slide), value: at)
+        .task(id: tile.title) {
+            if store.kept[tile.title] == nil { withAnimation(.linear(duration: fade)) { detail = nil } }
+            let got = await detailOf(shell, store, tile.title)
+            if !Task.isCancelled { withAnimation(.linear(duration: fade)) { detail = got } }
+        }
+    }
+}
 
-            // Tiles row
-            ScrollViewReader { proxy in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 24.ref) {
-                        ForEach(Array((section.tiles ?? []).enumerated()), id: \.element.title.rawValue) { colIndex, tile in
-                            let on = rowIndex == focusedRow && colIndex == focusedColumn
-                            let rank = section.kind == .ranked ? colIndex + 1 : nil
-                            TileCard(tile: tile, focused: on, rank: rank)
-                                .id(colIndex)
-                        }
-                    }
-                    .padding(.horizontal, 75.ref)
-                    .padding(.vertical, 16.ref)
-                }
-                .onChange(of: focusedColumn) { _, newCol in
-                    if rowIndex == focusedRow {
-                        withAnimation {
-                            proxy.scrollTo(newCol, anchor: .center)
-                        }
-                    }
-                }
+/// The next row, dim, cut by the screen's edge.
+struct NextRow: View {
+    let section: Contract.Section
+    let high: Bool
+    let words: [String: String]
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            Text(section.title ?? "").brand(32, 700).foregroundStyle(.white)
+                .offset(x: 72.ref, y: (high ? 946 : 944).ref)
+            ForEach(Array((section.tiles ?? []).prefix(nextPosters).enumerated()), id: \.offset) { index, tile in
+                Poster(tile: tile, words: words)
+                    .offset(x: (68 + CGFloat(index) * step).ref, y: (high ? 1001 : 998).ref)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .opacity(0.5)
     }
 }

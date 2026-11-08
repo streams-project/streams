@@ -22,7 +22,7 @@ public struct Profiles: View {
 
     public var body: some View {
         ZStack {
-            BrandTheme.back.ignoresSafeArea()
+            Back.ignoresSafeArea()
 
             VStack(spacing: 48.ref) {
                 Spacer()
@@ -55,7 +55,7 @@ public struct Profiles: View {
 
                             Text(profile.name)
                                 .font(.system(size: 28.refType, weight: on ? .bold : .medium))
-                                .foregroundStyle(on ? .white : BrandTheme.muted)
+                                .foregroundStyle(on ? .white : Muted)
                         }
                     }
                 }

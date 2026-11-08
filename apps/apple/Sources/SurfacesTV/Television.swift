@@ -12,7 +12,7 @@ public struct Television: View {
     public var body: some View {
         let seen = shell.seen
         ZStack {
-            BrandTheme.back.ignoresSafeArea()
+            Back.ignoresSafeArea()
 
             if seen.server.isEmpty {
                 ServerAddress(shell: shell)
@@ -26,6 +26,7 @@ public struct Television: View {
                     Profiles(shell: shell, seen: seen)
                 case .home, .kidsHome, .screen:
                     Browse(shell: shell, seen: seen)
+                        .id("\(seen.route?.screen?.rawValue ?? "home") \(seen.route?.genre ?? "")")
                 case .wait:
                     Color.clear
                 default:
@@ -35,5 +36,7 @@ public struct Television: View {
                 Color.clear
             }
         }
+        .frame(width: 1920.ref, height: 1080.ref, alignment: .topLeading)
+        .ignoresSafeArea()
     }
 }

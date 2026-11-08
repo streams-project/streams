@@ -1,37 +1,40 @@
+import Contract
 import SwiftUI
 
-public struct NewBadge: View {
-    public init() {}
-
-    public var body: some View {
-        Text("NEW")
-            .font(.system(size: 20.refType, weight: .heavy))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 12.ref)
-            .padding(.vertical, 4.ref)
-            .background(Color(red: 229/255.0, green: 9/255.0, blue: 20/255.0))
-            .clipShape(RoundedRectangle(cornerRadius: 4.ref))
+private func badgeLabel(_ badge: Contract.Badge, _ words: [String: String]) -> String {
+    switch badge.kind {
+    case .new: return words["badge.new"] ?? ""
+    case .ranked:
+        guard let rank = badge.rank else { return "" }
+        return (words["badge.ranked"] ?? "").replacingOccurrences(of: "{rank}", with: String(rank))
+    default: return ""
     }
 }
 
-public struct RankedBadge: View {
-    public let rank: Int
+/// Draws `Tile.badges` (new, ranked) as small dark pills inside the tile at bottom left.
+public struct TileBadges: View {
+    public let tile: Tile
+    public let words: [String: String]
 
-    public init(rank: Int) {
-        self.rank = rank
+    public init(_ tile: Tile, _ words: [String: String]) {
+        self.tile = tile
+        self.words = words
     }
 
     public var body: some View {
-        HStack(spacing: 4.ref) {
-            Text("TOP")
-                .font(.system(size: 14.refType, weight: .heavy))
-            Text("\(rank)")
-                .font(.system(size: 20.refType, weight: .heavy))
+        let badges = tile.badges ?? []
+        if !badges.isEmpty {
+            HStack(spacing: 8.ref) {
+                ForEach(Array(badges.enumerated()), id: \.offset) { _, badge in
+                    Text(badgeLabel(badge, words))
+                        .brand(22, 700)
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .padding(.horizontal, 12.ref)
+                        .padding(.vertical, 4.ref)
+                        .background(Color.black.opacity(0.72), in: RoundedRectangle(cornerRadius: 8.ref))
+                }
+            }
         }
-        .foregroundStyle(.white)
-        .padding(.horizontal, 10.ref)
-        .padding(.vertical, 4.ref)
-        .background(Color(red: 229/255.0, green: 9/255.0, blue: 20/255.0))
-        .clipShape(RoundedRectangle(cornerRadius: 4.ref))
     }
 }
