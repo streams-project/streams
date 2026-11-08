@@ -62,7 +62,9 @@ fun Search(shell: Shell, seen: Seen, state: SearchState) {
     // The profile language's letters (search.letters), when it has its own; the globe switches to English.
     val own = seen.words["search.letters"]?.filter { !it.isWhitespace() && it != '\u200F' }.orEmpty()
     val hasOwn = own.isNotEmpty() && own != ENGLISH_LETTERS
-    val keys = LetterKeys(if (hasOwn && !state.english) own else ENGLISH_LETTERS, globe = hasOwn)
+    val english = !hasOwn || state.english
+    // English letters in a right to left screen fill their lines from the left, so they read a to z.
+    val keys = LetterKeys(if (english) ENGLISH_LETTERS else own, globe = hasOwn, mirrored = english && seen.rtl)
 
     LaunchedEffect(Unit) {
         if (state.offered.isEmpty()) {
