@@ -18,7 +18,11 @@ public struct Profiles: View {
     @State private var adding = false
     @State private var wanted: String?
 
-    public init(shell: Shell, seen: Seen) {
+    /// True once this run has been past the chooser, so Back returns rather than leaves the app.
+    var fromInside = false
+
+    public init(shell: Shell, seen: Seen, fromInside: Bool = false) {
+        self.fromInside = fromInside
         self.shell = shell
         self.seen = seen
     }
@@ -97,7 +101,9 @@ public struct Profiles: View {
                 } else {
                     adding = true
                 }
-            case .back: return false
+            // Opened with Switch Profiles, Back returns to the page; at the start of the app it leaves.
+            case .back:
+                if fromInside { shell.back() } else { return false }
             }
             return true
         }

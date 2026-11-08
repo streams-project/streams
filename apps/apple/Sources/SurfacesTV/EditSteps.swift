@@ -85,7 +85,7 @@ struct EditMenu: View {
                 case .up: if askAt > 0 { askAt -= 1 }
                 case .down: if askAt < askLines.count - 1 { askAt += 1 }
                 case .ok: if askAt == 0 { open(.delete) } else { asking = false }
-                case .back: asking = false
+                case .back, .left: asking = false
                 default: return false
                 }
                 return true
@@ -99,7 +99,8 @@ struct EditMenu: View {
                 case .delete?: asking = true; askAt = 1
                 case let chosen?: open(chosen)
                 }
-            case .back: leave()
+            // The menu is the left edge of the page: Left goes back, as Back does.
+            case .back, .left: leave()
             default: return false
             }
             return true
@@ -194,7 +195,9 @@ struct EditLanguage: View {
             case .down:
                 if at == cancelAt { break }
                 if at % gridLines == gridLines - 1 || at == list.count - 1 { next = cancelAt } else { next += 1 }
-            case .left: if at != cancelAt && at >= gridLines { next -= gridLines }
+            // Left from the first column, or from Cancel, leaves the languages unchanged.
+            case .left:
+                if at != cancelAt && at >= gridLines { next -= gridLines } else { finish(nil); return true }
             case .right: if at != cancelAt && at + gridLines <= list.count - 1 { next += gridLines }
             case .ok: finish(list[safe: at]?.code)
             case .back: finish(nil)

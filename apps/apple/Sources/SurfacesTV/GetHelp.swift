@@ -126,7 +126,8 @@ public struct GetHelp: View {
             case .up: if at > 0 { at -= 1 }
             case .down: if at < lines.count - 1 { at += 1 }
             case .ok: choose()
-            case .back: shell.back()
+            // The menu is the left edge of the page: Left goes back, as Back does.
+            case .back, .left: shell.back()
             default: break
             }
             return true

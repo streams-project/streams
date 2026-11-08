@@ -138,10 +138,11 @@ public struct SignIn: View {
                 return true
             }
             switch word {
-            case .left: way = .phone
+            // Left past Use Phone, and Back, return to the page the viewer came from.
+            case .left: if way == .phone { shell.back() } else { way = .phone }
             case .right: way = .remote
             case .down, .ok: if way == .remote { onPills = false }
-            case .back: return false
+            case .back: shell.back()
             case .up: break
             }
             return true

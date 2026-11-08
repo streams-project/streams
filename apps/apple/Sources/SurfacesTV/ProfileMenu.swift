@@ -85,7 +85,8 @@ struct ProfileMenu: View {
             case .up: if at > 0 { at -= 1 }
             case .down: if at < picks.count - 1 { at += 1 }
             case .ok: choose()
-            case .back: leave()
+            // The card hangs from the face at the left, so Left closes it as Back does.
+            case .back, .left: leave()
             default: break
             }
             return true

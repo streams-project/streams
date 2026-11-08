@@ -67,7 +67,8 @@ struct PinPanel: View {
         .remote { word in
             if digits.count != count { digits = Array(repeating: 0, count: count) }
             switch word {
-            case .left: if at > 0 { at -= 1 }
+            // Left past the first digit goes back, as Back does.
+            case .left: if at > 0 { at -= 1 } else { leave() }
             case .right: if at < count - 1 { at += 1 }
             case .up: digits[at] = (digits[at] + 1) % 10; refused = false
             case .down: digits[at] = (digits[at] + 9) % 10; refused = false

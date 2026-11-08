@@ -55,7 +55,8 @@ private struct Reading: View {
             switch word {
             case .up: moved = max(0, moved - page.ref)
             case .down: moved = min(last, moved + page.ref)
-            case .back: leave()
+            // An article is read with Up and Down; Left and Back return to the list it came from.
+            case .back, .left: leave()
             default: break
             }
             return true
@@ -156,6 +157,8 @@ struct HelpCentre: View {
             if word == .back && right { right = false }
             else if word == .back { leave() }
             else if right && word == .left { right = false }
+            // On the topics, the left edge of the page, Left goes back to Get Help.
+            else if word == .left { leave() }
             else if right && word == .up { if line > 0 { line -= 1 } }
             else if right && word == .down { if line < focusable.count - 1 { line += 1 } }
             else if right && word == .ok { open = list[focusable[line]].open }

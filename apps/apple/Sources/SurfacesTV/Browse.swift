@@ -20,6 +20,8 @@ private final class PageFocus {
     var place: Where
     var row = 0
     var tab: Int
+    /// This page's own tab.
+    let active: Int
     var button = 0
     /// Which way the last row change went, so the rows slide the right way.
     var way: CGFloat = 1
@@ -30,6 +32,7 @@ private final class PageFocus {
         self.tabs = tabs
         self.hero = hero
         self.tab = active
+        self.active = active
         self.place = hero || rows.isEmpty ? (hero ? .hero : .top) : .row
     }
 
@@ -69,7 +72,10 @@ private final class PageFocus {
             switch place {
             case .row: place = above
             case .hero: place = .top
-            case .top: return false
+            // Focus wandered along the bar without choosing: Back brings it home to this page's tab
+            // first, and only then leaves the page.
+            case .top:
+                if tab != active { tab = active } else { return false }
             }
         case .ok:
             return false
@@ -95,6 +101,7 @@ public struct Browse: View {
     let shell: Shell
     let seen: Seen
     @State private var focus: PageFocus?
+    @Environment(\.pages) private var memory
     @State private var store = DetailStore()
     @State private var shownRow = 0
     @State private var menu = false
@@ -120,7 +127,14 @@ public struct Browse: View {
         let active = max(0, tabs.firstIndex(where: { $0.screen.rawValue == current }) ?? 0)
         let person = seen.profiles.first(where: { $0.id == seen.active }) ?? seen.profiles.first
         // A page is drawn from what was kept and then from the fresh answer. The focus belongs to the page.
-        let focus = self.focus ?? PageFocus(rows: rows, tabs: tabs.count, active: active, hero: lead != nil)
+        // Each page keeps where the viewer was for the run of the app, so coming back from a title lands
+        // on the tile that opened it.
+        let key = "\(seen.active ?? "") \(current) \(seen.route?.genre ?? "")"
+        let focus = self.focus ?? (memory.pages[key] as? PageFocus) ?? {
+            let made = PageFocus(rows: rows, tabs: tabs.count, active: active, hero: lead != nil)
+            memory.pages[key] = made
+            return made
+        }()
         focus.rows = rows
         focus.tabs = tabs.count
         focus.hero = lead != nil
@@ -193,6 +207,24 @@ public struct Browse: View {
             // The new direction is drawn first, then the rows move.
             DispatchQueue.main.async { withAnimation(glide(riseTime)) { shownRow = now } }
         }
+    }
+}
+
+/// Where the viewer was on each page of rows, for the run of the app.
+@MainActor
+public final class PageMemory {
+    var pages: [String: AnyObject] = [:]
+    public init() {}
+}
+
+private struct PagesKey: EnvironmentKey {
+    @MainActor static let defaultValue = PageMemory()
+}
+
+extension EnvironmentValues {
+    public var pages: PageMemory {
+        get { self[PagesKey.self] }
+        set { self[PagesKey.self] = newValue }
     }
 }
 
