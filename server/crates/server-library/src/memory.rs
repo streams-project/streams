@@ -11,7 +11,9 @@ use server_accounts::ProfileId;
 use tokio::sync::{Mutex as AsyncMutex, OwnedMutexGuard};
 
 use crate::apply::{progress_change, title_change};
-use crate::model::{EpisodeProgress, FeedRow, HiddenTitle, TitleState};
+use crate::model::{
+    EpisodeProgress, FeedRow, HiddenTitle, NotificationReadState, TitleReminder, TitleState,
+};
 use crate::reads::SettingsView;
 use crate::store::{LibraryRead, LibraryStore, LibraryTx, Row};
 use crate::taste::Taste;
@@ -31,6 +33,8 @@ struct Profile {
     titles: BTreeMap<TitleKey, TitleState>,
     progress: BTreeMap<ProgressKey, EpisodeProgress>,
     hidden: BTreeMap<TitleKey, HiddenTitle>,
+    reminders: BTreeMap<TitleKey, TitleReminder>,
+    notification_reads: NotificationReadState,
     cleared: Option<(u64, u64)>,
     taste: Taste,
     feed: Vec<FeedRow>,
@@ -173,6 +177,29 @@ impl LibraryTx for MemoryTx {
         self.work.refused_trailers.push((title, at_ms));
         Ok(())
     }
+    async fn reminder(&mut self, title: TitleKey) -> Row<Option<TitleReminder>> {
+        Ok(self.work.reminders.get(&title).copied())
+    }
+    async fn put_reminder(&mut self, row: &TitleReminder) -> Row<()> {
+        self.work.reminders.insert(row.title, *row);
+        Ok(())
+    }
+    async fn mark_notifications_read(&mut self, up_to: &str, now_ms: u64) -> Row<()> {
+        self.work.notification_reads.read_up_to_ms = now_ms;
+        if !up_to.is_empty()
+            && !self
+                .work
+                .notification_reads
+                .dismissed
+                .contains(&up_to.to_string())
+        {
+            self.work
+                .notification_reads
+                .dismissed
+                .push(up_to.to_string());
+        }
+        Ok(())
+    }
     async fn commit(self: Box<Self>) -> Row<()> {
         let this = *self;
         let mut all = this
@@ -256,6 +283,15 @@ impl LibraryRead for Arc<MemoryLibrary> {
             for row in p.hidden.values().filter(|r| r.seq > after) {
                 rows.push((row.seq, Change::Hidden { title: row.title }));
             }
+            for row in p.reminders.values().filter(|r| r.seq > after) {
+                rows.push((
+                    row.seq,
+                    Change::Remind {
+                        title: row.title,
+                        on: row.remind,
+                    },
+                ));
+            }
             if let Some((at, seq)) = p.cleared.filter(|(_, seq)| *seq > after) {
                 rows.push((seq, Change::HistoryCleared { changed_at_ms: at }));
             }
@@ -288,6 +324,21 @@ impl LibraryRead for Arc<MemoryLibrary> {
             gone += (before - p.feed.len()) as u64;
         }
         Ok(gone)
+    }
+    async fn reminders(&self, profile: ProfileId, limit: usize) -> Row<Vec<TitleKey>> {
+        Ok(self.with(profile, |p| {
+            let mut items: Vec<_> = p.reminders.values().filter(|r| r.remind).collect();
+            items.sort_by_key(|r| std::cmp::Reverse(r.changed_ms));
+            items.into_iter().take(limit).map(|r| r.title).collect()
+        }))
+    }
+    async fn is_reminded(&self, profile: ProfileId, title: TitleKey) -> Row<bool> {
+        Ok(self.with(profile, |p| {
+            p.reminders.get(&title).is_some_and(|r| r.remind)
+        }))
+    }
+    async fn notification_reads(&self, profile: ProfileId) -> Row<NotificationReadState> {
+        Ok(self.with(profile, |p| p.notification_reads.clone()))
     }
 }
 

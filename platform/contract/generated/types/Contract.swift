@@ -790,12 +790,29 @@ public struct ChangeSetting: Codable, Equatable, Sendable {
     }
 }
 
+/// Reminder set or cleared on a coming title.
+public struct ChangeRemind: Codable, Equatable, Sendable {
+    public var on: Bool
+    public var title: TitleKey
+
+    enum CodingKeys: String, CodingKey {
+        case on = "on"
+        case title = "title"
+    }
+
+    public init(on: Bool, title: TitleKey) {
+        self.on = on
+        self.title = title
+    }
+}
+
 public enum Change: Codable, Equatable, Sendable {
     case title(ChangeTitle)
     case progress(ChangeProgress)
     case hidden(ChangeHidden)
     case historyCleared(ChangeHistoryCleared)
     case setting(ChangeSetting)
+    case remind(ChangeRemind)
     /// A tag this build does not know.
     case unknown(String)
 
@@ -810,6 +827,7 @@ public enum Change: Codable, Equatable, Sendable {
         case "hidden": self = .hidden(try ChangeHidden(from: decoder))
         case "history_cleared": self = .historyCleared(try ChangeHistoryCleared(from: decoder))
         case "setting": self = .setting(try ChangeSetting(from: decoder))
+        case "remind": self = .remind(try ChangeRemind(from: decoder))
         default: self = .unknown(tag)
         }
     }
@@ -831,6 +849,9 @@ public enum Change: Codable, Equatable, Sendable {
             try value.encode(to: encoder)
         case .setting(let value):
             try tagged.encode("setting", forKey: .tag)
+            try value.encode(to: encoder)
+        case .remind(let value):
+            try tagged.encode("remind", forKey: .tag)
             try value.encode(to: encoder)
         case .unknown(let tag):
             try tagged.encode(tag, forKey: .tag)
@@ -1049,6 +1070,22 @@ public struct CommandTrailerRefused: Codable, Equatable, Sendable {
     }
 }
 
+/// Set or clear a reminder on a coming title.
+public struct CommandRemind: Codable, Equatable, Sendable {
+    public var on: Bool
+    public var title: TitleKey
+
+    enum CodingKeys: String, CodingKey {
+        case on = "on"
+        case title = "title"
+    }
+
+    public init(on: Bool, title: TitleKey) {
+        self.on = on
+        self.title = title
+    }
+}
+
 public enum Command: Codable, Equatable, Sendable {
     case list(CommandList)
     case rate(CommandRate)
@@ -1058,6 +1095,7 @@ public enum Command: Codable, Equatable, Sendable {
     case setting(CommandSetting)
     case feedback(CommandFeedback)
     case trailerRefused(CommandTrailerRefused)
+    case remind(CommandRemind)
     /// A tag this build does not know.
     case unknown(String)
 
@@ -1075,6 +1113,7 @@ public enum Command: Codable, Equatable, Sendable {
         case "setting": self = .setting(try CommandSetting(from: decoder))
         case "feedback": self = .feedback(try CommandFeedback(from: decoder))
         case "trailer_refused": self = .trailerRefused(try CommandTrailerRefused(from: decoder))
+        case "remind": self = .remind(try CommandRemind(from: decoder))
         default: self = .unknown(tag)
         }
     }
@@ -1105,6 +1144,9 @@ public enum Command: Codable, Equatable, Sendable {
             try value.encode(to: encoder)
         case .trailerRefused(let value):
             try tagged.encode("trailer_refused", forKey: .tag)
+            try value.encode(to: encoder)
+        case .remind(let value):
+            try tagged.encode("remind", forKey: .tag)
             try value.encode(to: encoder)
         case .unknown(let tag):
             try tagged.encode(tag, forKey: .tag)
@@ -1289,6 +1331,22 @@ public struct CommandOpTrailerRefused: Codable, Equatable, Sendable {
     }
 }
 
+/// Set or clear a reminder on a coming title.
+public struct CommandOpRemind: Codable, Equatable, Sendable {
+    public var on: Bool
+    public var title: TitleKey
+
+    enum CodingKeys: String, CodingKey {
+        case on = "on"
+        case title = "title"
+    }
+
+    public init(on: Bool, title: TitleKey) {
+        self.on = on
+        self.title = title
+    }
+}
+
 public enum CommandOpBody: Codable, Equatable, Sendable {
     case list(CommandOpList)
     case rate(CommandOpRate)
@@ -1298,6 +1356,7 @@ public enum CommandOpBody: Codable, Equatable, Sendable {
     case setting(CommandOpSetting)
     case feedback(CommandOpFeedback)
     case trailerRefused(CommandOpTrailerRefused)
+    case remind(CommandOpRemind)
     /// A tag this build does not know.
     case unknown(String)
 
@@ -1315,6 +1374,7 @@ public enum CommandOpBody: Codable, Equatable, Sendable {
         case "setting": self = .setting(try CommandOpSetting(from: decoder))
         case "feedback": self = .feedback(try CommandOpFeedback(from: decoder))
         case "trailer_refused": self = .trailerRefused(try CommandOpTrailerRefused(from: decoder))
+        case "remind": self = .remind(try CommandOpRemind(from: decoder))
         default: self = .unknown(tag)
         }
     }
@@ -1345,6 +1405,9 @@ public enum CommandOpBody: Codable, Equatable, Sendable {
             try value.encode(to: encoder)
         case .trailerRefused(let value):
             try tagged.encode("trailer_refused", forKey: .tag)
+            try value.encode(to: encoder)
+        case .remind(let value):
+            try tagged.encode("remind", forKey: .tag)
             try value.encode(to: encoder)
         case .unknown(let tag):
             try tagged.encode(tag, forKey: .tag)
@@ -3582,6 +3645,87 @@ public struct Notice: Codable, Equatable, Sendable {
     }
 }
 
+/// One item in the notification feed.
+public struct NoticeItem: Codable, Equatable, Sendable {
+    public var date: CalendarDay
+    public var id: String
+    public var kind: NoticeKind
+    public var tile: Tile
+    public var unread: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case date = "date"
+        case id = "id"
+        case kind = "kind"
+        case tile = "tile"
+        case unread = "unread"
+    }
+
+    public init(date: CalendarDay, id: String, kind: NoticeKind, tile: Tile, unread: Bool) {
+        self.date = date
+        self.id = id
+        self.kind = kind
+        self.tile = tile
+        self.unread = unread
+    }
+}
+
+/// What kind of notice this is.
+public struct NoticeKind: RawRepresentable, Codable, Hashable, Sendable {
+    public var rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+    public static let newArrival = NoticeKind(rawValue: "new_arrival")
+    public static let coming = NoticeKind(rawValue: "coming")
+    public static let reminderLive = NoticeKind(rawValue: "reminder_live")
+    public static let newSeason = NoticeKind(rawValue: "new_season")
+    public static let newEpisode = NoticeKind(rawValue: "new_episode")
+}
+
+/// `GET /v1/notifications/count`.
+public struct NotificationCount: Codable, Equatable, Sendable {
+    public var unread: Int
+
+    enum CodingKeys: String, CodingKey {
+        case unread = "unread"
+    }
+
+    public init(unread: Int) {
+        self.unread = unread
+    }
+}
+
+/// `POST /v1/notifications/read`.
+public struct NotificationRead: Codable, Equatable, Sendable {
+    public var upTo: String
+
+    enum CodingKeys: String, CodingKey {
+        case upTo = "up_to"
+    }
+
+    public init(upTo: String) {
+        self.upTo = upTo
+    }
+}
+
+/// `GET /v1/notifications`.
+public struct Notifications: Codable, Equatable, Sendable {
+    public var cursor: String?
+    public var hasMore: Bool
+    public var items: [NoticeItem]
+
+    enum CodingKeys: String, CodingKey {
+        case cursor = "cursor"
+        case hasMore = "has_more"
+        case items = "items"
+    }
+
+    public init(cursor: String? = nil, hasMore: Bool, items: [NoticeItem]) {
+        self.cursor = cursor
+        self.hasMore = hasMore
+        self.items = items
+    }
+}
+
 /// Answer for one op.
 public struct OpAnswer: Codable, Equatable, Sendable {
     public var opId: String
@@ -4728,6 +4872,8 @@ public struct TimerOp: RawRepresentable, Codable, Hashable, Sendable {
 public struct TitleDetail: Codable, Equatable, Sendable {
     /// Absent when the title has no rating in either system.
     public var age: AgeMark?
+    /// When this title becomes available to watch. Absent when already available.
+    public var availableFrom: CalendarDay?
     public var genres: [String]?
     public var images: [Image]?
     /// True when this profile has saved the title.
@@ -4738,6 +4884,8 @@ public struct TitleDetail: Codable, Equatable, Sendable {
     public var overview: String?
     /// What this profile said about the title.
     public var rating: Rating?
+    /// True when this profile set a reminder for when this title arrives.
+    public var reminderSet: Bool?
     /// Where this profile left off. Absent when there is nothing to go back to.
     public var resume: Resume?
     public var runtimeMin: Int?
@@ -4747,6 +4895,7 @@ public struct TitleDetail: Codable, Equatable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case age = "age"
+        case availableFrom = "available_from"
         case genres = "genres"
         case images = "images"
         case inList = "in_list"
@@ -4754,6 +4903,7 @@ public struct TitleDetail: Codable, Equatable, Sendable {
         case name = "name"
         case overview = "overview"
         case rating = "rating"
+        case reminderSet = "reminder_set"
         case resume = "resume"
         case runtimeMin = "runtime_min"
         case seasons = "seasons"
@@ -4761,8 +4911,9 @@ public struct TitleDetail: Codable, Equatable, Sendable {
         case year = "year"
     }
 
-    public init(age: AgeMark? = nil, genres: [String]? = nil, images: [Image]? = nil, inList: Bool? = nil, moreLikeThis: [Tile]? = nil, name: String, overview: String? = nil, rating: Rating? = nil, resume: Resume? = nil, runtimeMin: Int? = nil, seasons: [SeasonSummary]? = nil, title: TitleKey, year: Int? = nil) {
+    public init(age: AgeMark? = nil, availableFrom: CalendarDay? = nil, genres: [String]? = nil, images: [Image]? = nil, inList: Bool? = nil, moreLikeThis: [Tile]? = nil, name: String, overview: String? = nil, rating: Rating? = nil, reminderSet: Bool? = nil, resume: Resume? = nil, runtimeMin: Int? = nil, seasons: [SeasonSummary]? = nil, title: TitleKey, year: Int? = nil) {
         self.age = age
+        self.availableFrom = availableFrom
         self.genres = genres
         self.images = images
         self.inList = inList
@@ -4770,6 +4921,7 @@ public struct TitleDetail: Codable, Equatable, Sendable {
         self.name = name
         self.overview = overview
         self.rating = rating
+        self.reminderSet = reminderSet
         self.resume = resume
         self.runtimeMin = runtimeMin
         self.seasons = seasons

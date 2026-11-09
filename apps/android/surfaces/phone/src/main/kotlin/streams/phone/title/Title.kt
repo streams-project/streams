@@ -37,6 +37,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -49,11 +50,13 @@ import contract.ActionCommand
 import contract.Address
 import contract.CommandList
 import contract.CommandRate
+import contract.CommandRemind
 import contract.ImageRole
 import contract.Rating
 import contract.Season
 import contract.TitleDetail
 import contract.contractJson
+import streams.phone.reminder.ReminderScheduler
 import streams.ports.Seen
 import streams.ports.Shell
 import streams.shared.Accent
@@ -108,10 +111,12 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
     val words = seen.words
     val isSeries = data.title.value.startsWith("tv:")
 
+    val context = LocalContext.current
     var selectedTab by remember(data.title) {
         mutableStateOf(if (isSeries) TitleTab.EPISODES else TitleTab.MORE_LIKE_THIS)
     }
     var saved by remember(data.title, data.inList) { mutableStateOf(data.inList == true) }
+    var reminded by remember(data.title, data.reminderSet) { mutableStateOf(data.reminderSet == true) }
     var rating by remember(data.title, data.rating) { mutableStateOf(data.rating) }
     var rateMenuOpen by remember { mutableStateOf(false) }
     var synopsisExpanded by remember { mutableStateOf(false) }
@@ -283,33 +288,84 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
                     }
                 }
 
-                // Play button: white, full width (10 dp margins), 48 dp high, Corner.BUTTON radius
-                Button(
-                    onClick = { playTitle(shell, data) },
-                    modifier = Modifier
-                        .padding(top = 10.dp)
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(Corner.BUTTON.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black,
-                    ),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.icon_play),
-                        contentDescription = null,
-                        modifier = Modifier.size(22.dp),
-                        tint = Color.Black,
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
+                val availableFrom = data.availableFrom
+                if (availableFrom != null) {
+                    val availableDate = availableFrom.value
+                    val comingLabel = words["gate.coming"]?.replace("{date}", availableDate)
+                        ?: "Coming on $availableDate"
                     Text(
-                        text = words["common.play"] ?: "Play",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
+                        text = comingLabel,
+                        color = Color.White,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(top = 10.dp),
                     )
+                    Button(
+                        onClick = {
+                            val next = !reminded
+                            reminded = next
+                            shell.act(ActionCommand(CommandRemind(on = next, title = data.title)))
+                            if (next) {
+                                ReminderScheduler.schedule(context, data.title, data.name, availableDate)
+                            } else {
+                                ReminderScheduler.cancel(context, data.title)
+                            }
+                        },
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(Corner.BUTTON.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (reminded) Raised else Accent,
+                            contentColor = Color.White,
+                        ),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                    ) {
+                        Icon(
+                            painter = painterResource(if (reminded) R.drawable.icon_check else R.drawable.icon_bell),
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp),
+                            tint = Color.White,
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = words[if (reminded) "remind.set" else "remind.me"]
+                                ?: (if (reminded) "Reminder Set" else "Remind Me"),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                    }
+                } else {
+                    // Play button: white, full width (10 dp margins), 48 dp high, Corner.BUTTON radius
+                    Button(
+                        onClick = { playTitle(shell, data) },
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(Corner.BUTTON.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White,
+                            contentColor = Color.Black,
+                        ),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.icon_play),
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp),
+                            tint = Color.Black,
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = words["common.play"] ?: "Play",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                        )
+                    }
                 }
 
                 // Synopsis: 16 sp, expandable (3 lines with "more")

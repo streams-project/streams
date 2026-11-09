@@ -40,6 +40,12 @@ macro_rules! cleared {
                 pub const fn wire(&self) -> &$inner {
                     &self.0
                 }
+
+                /// Take the wire value.
+                #[must_use]
+                pub fn into_inner(self) -> $inner {
+                    self.0
+                }
             }
         )*
     };
@@ -278,6 +284,8 @@ pub struct DetailExtras {
     pub age: Option<AgeMark>,
     pub seasons: Vec<SeasonSummary>,
     pub more_like_this: Vec<SafeTile>,
+    pub available_from: Option<contract::screen::CalendarDay>,
+    pub reminder_set: bool,
 }
 
 impl SafeTitleDetail {
@@ -299,6 +307,8 @@ impl SafeTitleDetail {
             in_list: false,
             rating: None,
             resume: None,
+            available_from: extras.available_from,
+            reminder_set: extras.reminder_set,
         }))
     }
 
@@ -353,6 +363,20 @@ impl SafeTitleDetail {
     #[must_use]
     pub fn rated(mut self, rating: Option<contract::Rating>) -> Self {
         self.0.rating = rating;
+        self
+    }
+
+    /// Says when this title becomes available.
+    #[must_use]
+    pub fn coming(mut self, day: Option<contract::screen::CalendarDay>) -> Self {
+        self.0.available_from = day;
+        self
+    }
+
+    /// Says whether this profile set a reminder.
+    #[must_use]
+    pub fn reminded(mut self, reminded: bool) -> Self {
+        self.0.reminder_set = reminded;
         self
     }
 

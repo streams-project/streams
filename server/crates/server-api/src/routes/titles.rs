@@ -6,8 +6,7 @@ use axum::http::header::ACCEPT_LANGUAGE;
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::Response;
 use contract::error::ErrorCode;
-use contract::screen::Resume;
-use contract::screen::{Episode, SeasonSummary};
+use contract::screen::{CalendarDay, Episode, Resume, SeasonSummary};
 use contract::{EpisodeRef, MAX_KEYS_PER_LIST, TitleKey, TitleKind};
 use server_catalog::manifest::role;
 use server_catalog::seasons::{episodes_of, next_episode, seasons_of};
@@ -171,6 +170,17 @@ pub async fn title(
     let page = detail(&state, &set, &reader.viewer, key, rating_system(&headers))?
         .with_seasons(season_list(&set, key));
     let mut page = state.pages.speak_title(&set, page, packed(key), &language);
+    let today = server_catalog::fresh::ymd((state.clock.now_ms() / 86_400_000) as i64);
+    if let Some(day) = set
+        .fresh
+        .items
+        .iter()
+        .find(|f| f.media_type == key.kind().word() && f.id == key.id())
+        .filter(|f| f.release_date > today)
+        .and_then(|f| CalendarDay::parse(&f.release_date).ok())
+    {
+        page = page.coming(Some(day));
+    }
     if let (Some(watching), Some(library)) = (&reader.watching, &state.library) {
         let saved = library
             .store()
@@ -182,10 +192,15 @@ pub async fn title(
             .await?;
         let said = rated.iter().find(|(title, _)| *title == key);
         let reached = library.last_watched(watching.scope.profile(), key).await?;
+        let reminded = library
+            .store()
+            .is_reminded(watching.scope.profile(), key)
+            .await?;
         page = page
             .saved(saved.contains(&key))
             .rated(said.map(|(_, rating)| *rating))
-            .resuming(reached.and_then(|place| resume_from(&set, key, place)));
+            .resuming(reached.and_then(|place| resume_from(&set, key, place)))
+            .reminded(reminded);
     }
     send_cleared(&headers, &page, Keep::Private)
 }

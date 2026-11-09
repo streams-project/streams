@@ -55,6 +55,11 @@
       ],
       "type": "string"
     },
+    "CalendarDay": {
+      "description": "A day of the calendar, YYYY-MM-DD. The app writes it out in the viewer's own words.",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "type": "string"
+    },
     "EpisodeRef": {
       "description": "One episode of a series. A film has none.",
       "properties": {
@@ -212,6 +217,10 @@
           "$ref": "#/$defs/AgeMark",
           "description": "Absent when the title has no rating in either system."
         },
+        "available_from": {
+          "$ref": "#/$defs/CalendarDay",
+          "description": "When this title becomes available to watch. Absent when already available."
+        },
         "genres": {
           "items": {
             "type": "string"
@@ -244,6 +253,10 @@
         "rating": {
           "$ref": "#/$defs/Rating",
           "description": "What this profile said about the title."
+        },
+        "reminder_set": {
+          "description": "True when this profile set a reminder for when this title arrives.",
+          "type": "boolean"
         },
         "resume": {
           "$ref": "#/$defs/Resume",

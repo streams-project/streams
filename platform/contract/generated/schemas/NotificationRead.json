@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`POST /v1/notifications/read`.",
+  "properties": {
+    "up_to": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "up_to"
+  ],
+  "title": "NotificationRead",
+  "type": "object"
+}

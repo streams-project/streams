@@ -72,6 +72,8 @@ wire! {
         Feedback { title: TitleKey, event: FeedbackEvent },
         /// A trailer failed to play for this title.
         TrailerRefused { title: TitleKey },
+        /// Set or clear a reminder on a coming title.
+        Remind { title: TitleKey, on: bool },
         #[serde(other)]
         #[cfg_attr(feature = "schema", schemars(skip))]
         Unknown,
@@ -145,6 +147,8 @@ wire! {
         Hidden { title: TitleKey },
         HistoryCleared { changed_at_ms: u64 },
         Setting { key: SettingKey, value: String },
+        /// Reminder set or cleared on a coming title.
+        Remind { title: TitleKey, on: bool },
         #[serde(other)]
         #[cfg_attr(feature = "schema", schemars(skip))]
         Unknown,

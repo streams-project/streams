@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "`GET /v1/notifications/count`.",
+  "properties": {
+    "unread": {
+      "maximum": 4294967295,
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "unread"
+  ],
+  "title": "NotificationCount",
+  "type": "object"
+}

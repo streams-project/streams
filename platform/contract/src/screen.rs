@@ -346,6 +346,12 @@ wire! {
         /// Where this profile left off. Absent when there is nothing to go back to.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub resume: Option<Resume>,
+        /// When this title becomes available to watch. Absent when already available.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub available_from: Option<CalendarDay>,
+        /// True when this profile set a reminder for when this title arrives.
+        #[serde(default, skip_serializing_if = "core::ops::Not::not")]
+        pub reminder_set: bool,
     }
 
     /// Where play picks up: the episode of a series, and 0 for one not started yet.

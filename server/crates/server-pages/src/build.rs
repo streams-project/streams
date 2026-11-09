@@ -8,6 +8,7 @@ use std::time::Duration;
 use contract::EpisodeRef;
 use contract::TitleKind;
 use contract::client::DeviceClass;
+use contract::notification::{NotificationCount, Notifications};
 use contract::screen::{
     CalendarDay, Cursor, GateLine, GateLineKind, Nav, NavItem, RefreshTrigger, ScreenName,
     SectionKind,
@@ -1088,6 +1089,81 @@ impl Pages {
         SafeProfileGate::new(titles, GATE_TTL_S)
     }
 
+    /// The notification feed for one profile.
+    #[must_use]
+    #[allow(clippy::too_many_arguments)]
+    pub fn notifications(
+        &self,
+        data: &DataSet,
+        viewer: &Viewer,
+        now_ms: u64,
+        reminded: &[contract::TitleKey],
+        in_list: &[contract::TitleKey],
+        in_progress: &[contract::TitleKey],
+        read_state: &server_library::NotificationReadState,
+        cursor: Option<&str>,
+    ) -> Notifications {
+        let today = server_catalog::fresh::days_of_ms(now_ms);
+        let starts = data.files.get(role::CATALOG).map_or_else(Vec::new, |db| {
+            server_catalog::seasons::seasons_starting(
+                db,
+                &server_catalog::fresh::ymd(today - 30),
+                &server_catalog::fresh::ymd(today + 30),
+            )
+        });
+        crate::notifications::build_notifications(&crate::notifications::NotificationFeedAsk {
+            data,
+            viewer,
+            today_days: today,
+            now_ms,
+            starts: &starts,
+            reminded,
+            in_list,
+            in_progress,
+            read_state,
+            images: &self.images,
+            cursor,
+        })
+    }
+
+    /// The count of unread notifications for one profile.
+    #[must_use]
+    #[allow(clippy::too_many_arguments)]
+    pub fn notification_count(
+        &self,
+        data: &DataSet,
+        viewer: &Viewer,
+        now_ms: u64,
+        reminded: &[contract::TitleKey],
+        in_list: &[contract::TitleKey],
+        in_progress: &[contract::TitleKey],
+        read_state: &server_library::NotificationReadState,
+    ) -> NotificationCount {
+        let today = server_catalog::fresh::days_of_ms(now_ms);
+        let starts = data.files.get(role::CATALOG).map_or_else(Vec::new, |db| {
+            server_catalog::seasons::seasons_starting(
+                db,
+                &server_catalog::fresh::ymd(today - 30),
+                &server_catalog::fresh::ymd(today + 30),
+            )
+        });
+        crate::notifications::unread_notification_count(
+            &crate::notifications::NotificationFeedAsk {
+                data,
+                viewer,
+                today_days: today,
+                now_ms,
+                starts: &starts,
+                reminded,
+                in_list,
+                in_progress,
+                read_state,
+                images: &self.images,
+                cursor: None,
+            },
+        )
+    }
+
     /// A title page: its facts and More Like This, hidden when empty.
     #[must_use]
     pub fn title_page(
@@ -1123,6 +1199,7 @@ impl Pages {
                 age,
                 seasons: Vec::new(),
                 more_like_this,
+                ..Default::default()
             },
         )
     }

@@ -241,6 +241,27 @@
         "value"
       ],
       "type": "object"
+    },
+    {
+      "description": "Reminder set or cleared on a coming title.",
+      "properties": {
+        "change": {
+          "const": "remind",
+          "type": "string"
+        },
+        "on": {
+          "type": "boolean"
+        },
+        "title": {
+          "$ref": "#/$defs/TitleKey"
+        }
+      },
+      "required": [
+        "change",
+        "title",
+        "on"
+      ],
+      "type": "object"
     }
   ],
   "title": "Change"

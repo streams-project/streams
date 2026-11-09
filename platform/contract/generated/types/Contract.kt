@@ -409,6 +409,14 @@ data class ChangeSetting(
     @SerialName("value") val value: String,
 ) : Change
 
+/** Reminder set or cleared on a coming title. */
+@Serializable
+@SerialName("remind")
+data class ChangeRemind(
+    @SerialName("on") val on: Boolean,
+    @SerialName("title") val title: TitleKey,
+) : Change
+
 /** A tag this build does not know. */
 @Serializable
 data object ChangeUnknown : Change
@@ -518,6 +526,14 @@ data class CommandTrailerRefused(
     @SerialName("title") val title: TitleKey,
 ) : Command
 
+/** Set or clear a reminder on a coming title. */
+@Serializable
+@SerialName("remind")
+data class CommandRemind(
+    @SerialName("on") val on: Boolean,
+    @SerialName("title") val title: TitleKey,
+) : Command
+
 /** A tag this build does not know. */
 @Serializable
 data object CommandUnknown : Command
@@ -617,6 +633,16 @@ data class CommandOpFeedback(
 data class CommandOpTrailerRefused(
     @SerialName("age_ms") override val ageMs: Long? = null,
     @SerialName("op_id") override val opId: String,
+    @SerialName("title") val title: TitleKey,
+) : CommandOp
+
+/** Set or clear a reminder on a coming title. */
+@Serializable
+@SerialName("remind")
+data class CommandOpRemind(
+    @SerialName("age_ms") override val ageMs: Long? = null,
+    @SerialName("op_id") override val opId: String,
+    @SerialName("on") val on: Boolean,
     @SerialName("title") val title: TitleKey,
 ) : CommandOp
 
@@ -1728,6 +1754,49 @@ data class Notice(
     @SerialName("text") val text: String,
 )
 
+/** One item in the notification feed. */
+@Serializable
+data class NoticeItem(
+    @SerialName("date") val date: CalendarDay,
+    @SerialName("id") val id: String,
+    @SerialName("kind") val kind: NoticeKind,
+    @SerialName("tile") val tile: Tile,
+    @SerialName("unread") val unread: Boolean,
+)
+
+/** What kind of notice this is. */
+@Serializable
+@JvmInline
+value class NoticeKind(val value: String) {
+    companion object {
+        val NEW_ARRIVAL = NoticeKind("new_arrival")
+        val COMING = NoticeKind("coming")
+        val REMINDER_LIVE = NoticeKind("reminder_live")
+        val NEW_SEASON = NoticeKind("new_season")
+        val NEW_EPISODE = NoticeKind("new_episode")
+    }
+}
+
+/** `GET /v1/notifications/count`. */
+@Serializable
+data class NotificationCount(
+    @SerialName("unread") val unread: Long,
+)
+
+/** `POST /v1/notifications/read`. */
+@Serializable
+data class NotificationRead(
+    @SerialName("up_to") val upTo: String,
+)
+
+/** `GET /v1/notifications`. */
+@Serializable
+data class Notifications(
+    @SerialName("cursor") val cursor: String? = null,
+    @SerialName("has_more") val hasMore: Boolean,
+    @SerialName("items") val items: List<NoticeItem>,
+)
+
 /** Answer for one op. */
 @Serializable
 data class OpAnswer(
@@ -2345,6 +2414,8 @@ value class TimerOp(val value: String) {
 data class TitleDetail(
     /** Absent when the title has no rating in either system. */
     @SerialName("age") val age: AgeMark? = null,
+    /** When this title becomes available to watch. Absent when already available. */
+    @SerialName("available_from") val availableFrom: CalendarDay? = null,
     @SerialName("genres") val genres: List<String>? = null,
     @SerialName("images") val images: List<Image>? = null,
     /** True when this profile has saved the title. */
@@ -2355,6 +2426,8 @@ data class TitleDetail(
     @SerialName("overview") val overview: String? = null,
     /** What this profile said about the title. */
     @SerialName("rating") val rating: Rating? = null,
+    /** True when this profile set a reminder for when this title arrives. */
+    @SerialName("reminder_set") val reminderSet: Boolean? = null,
     /** Where this profile left off. Absent when there is nothing to go back to. */
     @SerialName("resume") val resume: Resume? = null,
     @SerialName("runtime_min") val runtimeMin: Long? = null,

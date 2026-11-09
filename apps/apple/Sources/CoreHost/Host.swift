@@ -237,6 +237,19 @@ public final class Host: Shell, @unchecked Sendable {
         }
     }
 
+    public func refreshNotifications() {
+        Task { @MainActor in
+            guard self.seen.active != nil else { return }
+            self.ask("/v1/notifications/count") { [weak self] status, text in
+                guard let self = self, (200...299).contains(status),
+                      let count = try? self.decoder.decode(NotificationCount.self, from: Data(text.utf8)) else { return }
+                Task { @MainActor in
+                    self.seen.unreadNotifications = count.unread
+                }
+            }
+        }
+    }
+
     private func sendEvents(_ events: [Event]) {
         queue.async {
             guard let h = self.handle else { return }
@@ -320,7 +333,13 @@ public final class Host: Shell, @unchecked Sendable {
                 if let p = view.profiles?.profiles { self.seen.profiles = p }
                 if let pl = view.play { self.seen.play = pl }
                 if let b = view.hello?.brand.name { self.seen.brand = b }
-                if let s = view.session?.profile { self.seen.active = s }
+                if let s = view.session?.profile {
+                    let prev = self.seen.active
+                    self.seen.active = s
+                    if s != prev {
+                        self.refreshNotifications()
+                    }
+                }
                 self.matchLanguage()
             }
         }
@@ -441,6 +460,9 @@ public final class Host: Shell, @unchecked Sendable {
             } else if path.hasPrefix("/v1/screens/"),
                       let screen = try? self.decoder.decode(Screen.self, from: data) {
                 self.seen.screen = screen
+            } else if path.hasPrefix("/v1/notifications/count"),
+                      let count = try? self.decoder.decode(NotificationCount.self, from: data) {
+                self.seen.unreadNotifications = count.unread
             } else if path.contains("/titles/") && !path.contains("/seasons/"),
                       let detail = try? self.decoder.decode(TitleDetail.self, from: data) {
                 self.seen.detail = detail

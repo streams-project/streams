@@ -12,6 +12,7 @@ pub mod mmr;
 pub mod more_like;
 pub mod new_popular;
 pub mod noise;
+pub mod notifications;
 pub mod page;
 pub mod personal;
 pub mod plan;

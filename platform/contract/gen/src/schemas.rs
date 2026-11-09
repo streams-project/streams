@@ -20,6 +20,9 @@ use contract::error::{ErrorBody, ErrorCode, Notice};
 use contract::finder::{FindAnswer, FindRequest, FinderHealth};
 use contract::hello::{Hello, LanguageList, Ready, Strings};
 use contract::help::{HelpArticle, HelpHome, HelpPolicy, HelpResults};
+use contract::notification::{
+    NoticeItem, NoticeKind, NotificationCount, NotificationRead, Notifications,
+};
 use contract::play::{
     Attempt, Marks, MarksRequest, MoreAttempts, PlayAnswer, PlayEvents, PlayRequest, Report,
     SubtitleBody, SubtitleList,
@@ -154,6 +157,11 @@ pub fn definitions() -> (BTreeMap<String, Value>, Vec<String>) {
         TitleKind,
         VersionRange,
         View,
+        NoticeItem,
+        NoticeKind,
+        NotificationCount,
+        NotificationRead,
+        Notifications,
     );
     let defs: Map<String, Value> = generator.take_definitions(true);
     let defs = defs

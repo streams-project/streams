@@ -23,6 +23,9 @@ use contract::error::{ErrorBody, ErrorCode, Notice};
 use contract::finder::{FindAnswer, FindRequest, FinderHealth};
 use contract::hello::{Hello, LanguageList, Ready, Strings};
 use contract::help::{HelpArticle, HelpHome, HelpPolicy, HelpResults};
+use contract::notification::{
+    NoticeItem, NoticeKind, NotificationCount, NotificationRead, Notifications,
+};
 use contract::play::{
     Attempt, Marks, MarksRequest, MoreAttempts, PlayAnswer, PlayEvents, PlayRequest, Report,
     SubtitleBody, SubtitleList,
@@ -176,6 +179,11 @@ fn read_as(type_name: &str, value: &Value) -> Result<Value, String> {
         TitleKind,
         VersionRange,
         View,
+        NoticeItem,
+        NoticeKind,
+        NotificationCount,
+        NotificationRead,
+        Notifications,
     )
 }
 
@@ -358,6 +366,7 @@ fn command_fixtures_show_every_command() {
         "list",
         "position",
         "rate",
+        "remind",
         "setting",
         "trailer_refused",
     ];

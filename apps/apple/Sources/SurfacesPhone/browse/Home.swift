@@ -157,7 +157,8 @@ struct Home: View {
                         server: seen.server,
                         name: title,
                         back: onHome ? nil : { shell.back() },
-                        bell: { shell.go(Address.notifications) }
+                        bell: { shell.go(Address.notifications) },
+                        unreadCount: seen.unreadNotifications
                     )
                     .padding(.top, topInset)
 

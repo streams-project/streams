@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import streams.shared.Back
 import streams.shared.Brand
 import streams.shared.Speaking
+import streams.phone.notifications.NotificationsScreen
 import streams.phone.profiles.Gate
 import streams.ports.Shell
 
@@ -59,6 +60,8 @@ fun Root(shell: Shell, tv: Boolean) {
                 target == Target.PROFILES -> Gate(shell, seen)
                 target == Target.TITLE -> Title(shell, seen, tv = false)
                 target == Target.WATCH -> Watch(shell, seen, tv)
+                target == Target.SCREEN && seen.route?.screen?.value == "notifications" ->
+                    NotificationsScreen(shell, seen)
                 target == Target.HOME || target == Target.KIDS_HOME || target == Target.SCREEN ->
                     Home(shell, seen)
                 else -> Text(seen.words["error.not_found"].orEmpty(), Modifier.align(Alignment.Center))

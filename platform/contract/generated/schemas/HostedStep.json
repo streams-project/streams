@@ -585,6 +585,27 @@
             "title"
           ],
           "type": "object"
+        },
+        {
+          "description": "Set or clear a reminder on a coming title.",
+          "properties": {
+            "command": {
+              "const": "remind",
+              "type": "string"
+            },
+            "on": {
+              "type": "boolean"
+            },
+            "title": {
+              "$ref": "#/$defs/TitleKey"
+            }
+          },
+          "required": [
+            "command",
+            "title",
+            "on"
+          ],
+          "type": "object"
         }
       ]
     },

@@ -6,6 +6,7 @@ pub mod commands;
 pub mod devices;
 pub mod help;
 pub mod mail;
+pub mod notifications;
 pub mod pages;
 pub mod play;
 pub mod profiles;
