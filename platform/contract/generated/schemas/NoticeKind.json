@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "What kind of notice this is.",
+  "enum": [
+    "new_arrival",
+    "coming",
+    "reminder_live",
+    "new_season",
+    "new_episode"
+  ],
+  "title": "NoticeKind",
+  "type": "string"
+}

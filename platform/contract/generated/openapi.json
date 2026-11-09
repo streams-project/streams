@@ -849,6 +849,27 @@
               "value"
             ],
             "type": "object"
+          },
+          {
+            "description": "Reminder set or cleared on a coming title.",
+            "properties": {
+              "change": {
+                "const": "remind",
+                "type": "string"
+              },
+              "on": {
+                "type": "boolean"
+              },
+              "title": {
+                "$ref": "#/components/schemas/TitleKey"
+              }
+            },
+            "required": [
+              "change",
+              "title",
+              "on"
+            ],
+            "type": "object"
           }
         ]
       },
@@ -1113,6 +1134,27 @@
               "title"
             ],
             "type": "object"
+          },
+          {
+            "description": "Set or clear a reminder on a coming title.",
+            "properties": {
+              "command": {
+                "const": "remind",
+                "type": "string"
+              },
+              "on": {
+                "type": "boolean"
+              },
+              "title": {
+                "$ref": "#/components/schemas/TitleKey"
+              }
+            },
+            "required": [
+              "command",
+              "title",
+              "on"
+            ],
+            "type": "object"
           }
         ]
       },
@@ -1308,6 +1350,27 @@
             "required": [
               "command",
               "title"
+            ],
+            "type": "object"
+          },
+          {
+            "description": "Set or clear a reminder on a coming title.",
+            "properties": {
+              "command": {
+                "const": "remind",
+                "type": "string"
+              },
+              "on": {
+                "type": "boolean"
+              },
+              "title": {
+                "$ref": "#/components/schemas/TitleKey"
+              }
+            },
+            "required": [
+              "command",
+              "title",
+              "on"
             ],
             "type": "object"
           }
@@ -3757,6 +3820,93 @@
         ],
         "type": "object"
       },
+      "NoticeItem": {
+        "description": "One item in the notification feed.",
+        "properties": {
+          "date": {
+            "$ref": "#/components/schemas/CalendarDay"
+          },
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/NoticeKind"
+          },
+          "tile": {
+            "$ref": "#/components/schemas/Tile"
+          },
+          "unread": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "tile",
+          "date",
+          "unread"
+        ],
+        "type": "object"
+      },
+      "NoticeKind": {
+        "description": "What kind of notice this is.",
+        "enum": [
+          "new_arrival",
+          "coming",
+          "reminder_live",
+          "new_season",
+          "new_episode"
+        ],
+        "type": "string"
+      },
+      "NotificationCount": {
+        "description": "`GET /v1/notifications/count`.",
+        "properties": {
+          "unread": {
+            "maximum": 4294967295,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "unread"
+        ],
+        "type": "object"
+      },
+      "NotificationRead": {
+        "description": "`POST /v1/notifications/read`.",
+        "properties": {
+          "up_to": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "up_to"
+        ],
+        "type": "object"
+      },
+      "Notifications": {
+        "description": "`GET /v1/notifications`.",
+        "properties": {
+          "cursor": {
+            "type": "string"
+          },
+          "has_more": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/NoticeItem"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "items",
+          "has_more"
+        ],
+        "type": "object"
+      },
       "OpAnswer": {
         "description": "Answer for one op.",
         "properties": {
@@ -5038,6 +5188,10 @@
             "$ref": "#/components/schemas/AgeMark",
             "description": "Absent when the title has no rating in either system."
           },
+          "available_from": {
+            "$ref": "#/components/schemas/CalendarDay",
+            "description": "When this title becomes available to watch. Absent when already available."
+          },
           "genres": {
             "items": {
               "type": "string"
@@ -5070,6 +5224,10 @@
           "rating": {
             "$ref": "#/components/schemas/Rating",
             "description": "What this profile said about the title."
+          },
+          "reminder_set": {
+            "description": "True when this profile set a reminder for when this title arrives.",
+            "type": "boolean"
           },
           "resume": {
             "$ref": "#/components/schemas/Resume",
@@ -8572,6 +8730,264 @@
         ]
       }
     },
+    "/v1/notifications": {
+      "get": {
+        "operationId": "getNotifications",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApiVersion"
+          },
+          {
+            "$ref": "#/components/parameters/Client0"
+          },
+          {
+            "$ref": "#/components/parameters/Client1"
+          },
+          {
+            "$ref": "#/components/parameters/Client2"
+          },
+          {
+            "$ref": "#/components/parameters/Client3"
+          },
+          {
+            "description": "The cursor from a previous answer.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "basic": {
+                    "externalValue": "../fixtures/2026-11-05/valid/Notifications.basic.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Notifications"
+                }
+              }
+            },
+            "description": "The notification feed for this profile."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "clock_wrong": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.clock_wrong.json"
+                  },
+                  "no_longer_available": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.no_longer_available.json"
+                  },
+                  "not_found": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.not_found.json"
+                  },
+                  "profile_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.profile_required.json"
+                  },
+                  "rate_limited": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.rate_limited.json"
+                  },
+                  "upgrade_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.upgrade_required.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "An error with a stable code."
+          }
+        },
+        "security": [
+          {
+            "profile": []
+          }
+        ],
+        "summary": "The notification feed for this profile.",
+        "tags": [
+          "pages"
+        ]
+      }
+    },
+    "/v1/notifications/count": {
+      "get": {
+        "operationId": "getNotificationCount",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApiVersion"
+          },
+          {
+            "$ref": "#/components/parameters/Client0"
+          },
+          {
+            "$ref": "#/components/parameters/Client1"
+          },
+          {
+            "$ref": "#/components/parameters/Client2"
+          },
+          {
+            "$ref": "#/components/parameters/Client3"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "basic": {
+                    "externalValue": "../fixtures/2026-11-05/valid/NotificationCount.basic.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationCount"
+                }
+              }
+            },
+            "description": "Unread notification count for this profile."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "clock_wrong": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.clock_wrong.json"
+                  },
+                  "no_longer_available": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.no_longer_available.json"
+                  },
+                  "not_found": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.not_found.json"
+                  },
+                  "profile_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.profile_required.json"
+                  },
+                  "rate_limited": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.rate_limited.json"
+                  },
+                  "upgrade_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.upgrade_required.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "An error with a stable code."
+          }
+        },
+        "security": [
+          {
+            "profile": []
+          }
+        ],
+        "summary": "Unread notification count for this profile.",
+        "tags": [
+          "pages"
+        ]
+      }
+    },
+    "/v1/notifications/read": {
+      "post": {
+        "operationId": "readNotifications",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApiVersion"
+          },
+          {
+            "$ref": "#/components/parameters/Client0"
+          },
+          {
+            "$ref": "#/components/parameters/Client1"
+          },
+          {
+            "$ref": "#/components/parameters/Client2"
+          },
+          {
+            "$ref": "#/components/parameters/Client3"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "basic": {
+                  "externalValue": "../fixtures/2026-11-05/valid/NotificationRead.basic.json"
+                }
+              },
+              "schema": {
+                "$ref": "#/components/schemas/NotificationRead"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "basic": {
+                    "externalValue": "../fixtures/2026-11-05/valid/Done.basic.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Done"
+                }
+              }
+            },
+            "description": "Mark notifications as read up to an item id."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "clock_wrong": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.clock_wrong.json"
+                  },
+                  "no_longer_available": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.no_longer_available.json"
+                  },
+                  "not_found": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.not_found.json"
+                  },
+                  "profile_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.profile_required.json"
+                  },
+                  "rate_limited": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.rate_limited.json"
+                  },
+                  "upgrade_required": {
+                    "externalValue": "../fixtures/2026-11-05/valid/ErrorBody.upgrade_required.json"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            },
+            "description": "An error with a stable code."
+          }
+        },
+        "security": [
+          {
+            "profile": []
+          }
+        ],
+        "summary": "Mark notifications as read up to an item id.",
+        "tags": [
+          "pages"
+        ]
+      }
+    },
     "/v1/play": {
       "post": {
         "operationId": "play",
@@ -10281,6 +10697,9 @@
             "content": {
               "application/json": {
                 "examples": {
+                  "coming": {
+                    "externalValue": "../fixtures/2026-11-05/valid/TitleDetail.coming.json"
+                  },
                   "film": {
                     "externalValue": "../fixtures/2026-11-05/valid/TitleDetail.film.json"
                   },
@@ -11175,6 +11594,9 @@
             "content": {
               "application/json": {
                 "examples": {
+                  "coming": {
+                    "externalValue": "../fixtures/2026-11-05/valid/TitleDetail.coming.json"
+                  },
                   "film": {
                     "externalValue": "../fixtures/2026-11-05/valid/TitleDetail.film.json"
                   },

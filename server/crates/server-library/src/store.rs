@@ -7,7 +7,9 @@ use contract::{EpisodeRef, TitleKey};
 use server_accounts::ProfileId;
 use thiserror::Error;
 
-use crate::model::{EpisodeProgress, FeedRow, HiddenTitle, TitleState};
+use crate::model::{
+    EpisodeProgress, FeedRow, HiddenTitle, NotificationReadState, TitleReminder, TitleState,
+};
 use crate::reads::SettingsView;
 use crate::taste::Taste;
 
@@ -73,6 +75,12 @@ pub trait LibraryTx: Send {
     async fn add_feed(&mut self, row: FeedRow) -> Row<()>;
     /// Keep a refused trailer.
     async fn add_refused_trailer(&mut self, title: TitleKey, at_ms: u64) -> Row<()>;
+    /// Read reminder on a title.
+    async fn reminder(&mut self, title: TitleKey) -> Row<Option<TitleReminder>>;
+    /// Write reminder on a title.
+    async fn put_reminder(&mut self, row: &TitleReminder) -> Row<()>;
+    /// Mark notifications read up to an item id or date.
+    async fn mark_notifications_read(&mut self, up_to: &str, now_ms: u64) -> Row<()>;
     /// End the transaction.
     async fn commit(self: Box<Self>) -> Row<()>;
 }
@@ -114,6 +122,12 @@ pub trait LibraryRead: Send + Sync {
     async fn forget_taste(&self, profile: ProfileId) -> Row<()>;
     /// Delete old viewing signals.
     async fn prune_feed(&self, before_ms: u64) -> Row<u64>;
+    /// Reminders of a profile, newest first.
+    async fn reminders(&self, profile: ProfileId, limit: usize) -> Row<Vec<TitleKey>>;
+    /// Check if a title has a reminder set.
+    async fn is_reminded(&self, profile: ProfileId, title: TitleKey) -> Row<bool>;
+    /// Read marks for notifications of a profile.
+    async fn notification_reads(&self, profile: ProfileId) -> Row<NotificationReadState>;
 }
 
 /// A whole library store.

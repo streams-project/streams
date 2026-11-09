@@ -11,7 +11,8 @@ mod taste;
 pub use apply::{Library, TitleFacts};
 pub use memory::MemoryLibrary;
 pub use model::{
-    Continue, EpisodeProgress, FeedRow, HiddenTitle, Limits, Reached, TitleState, age_to_time,
+    Continue, EpisodeProgress, FeedRow, HiddenTitle, Limits, NotificationReadState, Reached,
+    TitleReminder, TitleState, age_to_time,
 };
 pub use postgres::PgLibrary;
 pub use reads::SettingsView;

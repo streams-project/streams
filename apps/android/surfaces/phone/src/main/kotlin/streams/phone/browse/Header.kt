@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import streams.shared.Accent
 import streams.shared.Corner
 import streams.shared.R
 
@@ -49,7 +50,7 @@ private const val OUTLINE_HIGH = 43
  * On a page reached from a chip (Series, Films) the mark gives way to a back arrow, as the reference's does.
  */
 @Composable
-fun TopBar(server: String, name: String, back: (() -> Unit)?, bell: (() -> Unit)?) {
+fun TopBar(server: String, name: String, back: (() -> Unit)?, bell: (() -> Unit)?, unreadCount: Int = 0) {
     val layoutDirection = LocalLayoutDirection.current
     Row(
         Modifier.fillMaxWidth().height(TOP_BAR.dp),
@@ -84,6 +85,25 @@ fun TopBar(server: String, name: String, back: (() -> Unit)?, bell: (() -> Unit)
         if (bell != null) {
             Box(Modifier.size(48.dp).clickable(onClick = bell), contentAlignment = Alignment.Center) {
                 Icon(painterResource(R.drawable.icon_bell), null, Modifier.size(24.dp), tint = Color.White)
+                if (unreadCount > 0) {
+                    val countText = if (unreadCount > 9) "9+" else unreadCount.toString()
+                    Box(
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 8.dp, end = 6.dp)
+                            .background(Accent, RoundedCornerShape(Corner.BUTTON.dp))
+                            .padding(horizontal = 4.dp, vertical = 1.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = countText,
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                        )
+                    }
+                }
             }
             Spacer(Modifier.width(4.dp))
         }

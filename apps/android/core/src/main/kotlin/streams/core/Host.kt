@@ -42,6 +42,7 @@ import contract.Form
 import contract.HttpMethod
 import contract.Nav
 import contract.NoAnswerReason
+import contract.NotificationCount
 import contract.Profile
 import contract.Screen
 import contract.SecretOp
@@ -218,6 +219,16 @@ class Host(
 
     override fun speak(language: String?) = readWords(language ?: DEFAULT_LANGUAGE, state.value.brand)
 
+    override fun refreshNotifications() {
+        if (state.value.active == null) return
+        ask("/v1/notifications/count") { status, text ->
+            if (status in 200..299) {
+                val count = contractJson.decodeFromString(NotificationCount.serializer(), text)
+                state.update { it.copy(unreadNotifications = count.unread.toInt()) }
+            }
+        }
+    }
+
     private fun send(events: List<Event>) {
         loop.post {
             if (handle == 0L) return@post
@@ -280,6 +291,7 @@ class Host(
             }
         }
         out.view?.let { view ->
+            val prevActive = state.value.active
             state.update { now ->
                 now.copy(
                     route = view.route ?: now.route,
@@ -291,6 +303,9 @@ class Host(
                 )
             }
             matchLanguage()
+            if (state.value.active != null && state.value.active != prevActive) {
+                refreshNotifications()
+            }
         }
         loop.removeCallbacks(wake)
         out.nextWakeMs?.let { at ->
@@ -377,6 +392,8 @@ class Host(
                 state.update { it.copy(nav = contractJson.decodeFromString(Nav.serializer(), text).items) }
             path.startsWith("/v1/screens/") ->
                 state.update { it.copy(screen = contractJson.decodeFromString(Screen.serializer(), text)) }
+            path.startsWith("/v1/notifications/count") ->
+                state.update { it.copy(unreadNotifications = contractJson.decodeFromString(NotificationCount.serializer(), text).unread.toInt()) }
             path.contains("/titles/") && !path.contains("/seasons/") ->
                 state.update { it.copy(detail = contractJson.decodeFromString(TitleDetail.serializer(), text)) }
         }

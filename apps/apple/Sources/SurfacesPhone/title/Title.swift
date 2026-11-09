@@ -2,6 +2,35 @@ import Contract
 import Ports
 import SurfacesShared
 import SwiftUI
+import UserNotifications
+
+private func scheduleNotification(titleKey: TitleKey, titleName: String, dateYmd: String) {
+    let center = UNUserNotificationCenter.current()
+    center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+        guard granted else { return }
+        let parts = dateYmd.split(separator: "-").compactMap { Int($0) }
+        guard parts.count == 3 else { return }
+        var dateComponents = DateComponents()
+        dateComponents.year = parts[0]
+        dateComponents.month = parts[1]
+        dateComponents.day = parts[2]
+        dateComponents.hour = 9
+        dateComponents.minute = 0
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        let content = UNMutableNotificationContent()
+        content.title = titleName
+        content.body = "Now available to watch"
+        content.sound = .default
+
+        let request = UNNotificationRequest(identifier: titleKey.rawValue, content: content, trigger: trigger)
+        center.add(request)
+    }
+}
+
+private func cancelNotification(titleKey: TitleKey) {
+    UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [titleKey.rawValue])
+}
 
 private enum TitleTab {
     case episodes
@@ -40,6 +69,7 @@ public struct Title: View {
 
     @State private var selectedTab: TitleTab = .episodes
     @State private var saved: Bool = false
+    @State private var reminded: Bool = false
     @State private var rating: Rating? = nil
     @State private var rateMenuOpen: Bool = false
     @State private var synopsisExpanded: Bool = false
@@ -154,21 +184,53 @@ public struct Title: View {
                                         .overlay(RoundedRectangle(cornerRadius: 3).stroke(Color.white.opacity(0.4), lineWidth: 1))
                                 }
 
-                                // Play button: white, full width (10 pt margins), 48 pt high, Corner.button radius
-                                Button {
-                                    playTitle(shell, data)
-                                } label: {
-                                    HStack(spacing: 8) {
-                                        Icon("icon_play", 20, tint: .black)
-                                        Text(seen.say("common.play").isEmpty ? "Play" : seen.say("common.play"))
-                                            .brand(16, 700)
-                                            .foregroundStyle(.black)
+                                if let availableFrom = data.availableFrom {
+                                    let dateText = availableFrom.rawValue
+                                    let comingLabel = words["gate.coming"]?.replacingOccurrences(of: "{date}", with: dateText) ?? "Coming on \(dateText)"
+                                    Text(comingLabel)
+                                        .brand(15, 600)
+                                        .foregroundStyle(.white)
+                                        .padding(.top, 10)
+
+                                    Button {
+                                        let next = !reminded
+                                        reminded = next
+                                        shell.act(.command(ActionCommand(command: .remind(CommandRemind(on: next, title: data.title)))))
+                                        if next {
+                                            scheduleNotification(titleKey: data.title, titleName: data.name, dateYmd: dateText)
+                                        } else {
+                                            cancelNotification(titleKey: data.title)
+                                        }
+                                    } label: {
+                                        HStack(spacing: 8) {
+                                            Icon(reminded ? "icon_check" : "icon_bell", 20, tint: .white)
+                                            Text(words[reminded ? "remind.set" : "remind.me"] ?? (reminded ? "Reminder Set" : "Remind Me"))
+                                                .brand(16, 700)
+                                                .foregroundStyle(.white)
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 48)
+                                        .background(reminded ? Raised : Accent, in: RoundedRectangle(cornerRadius: min(Corner.button, 24)))
                                     }
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 48)
-                                    .background(Color.white, in: RoundedRectangle(cornerRadius: min(Corner.button, 24)))
+                                    .buttonStyle(.plain)
+                                    .padding(.top, 8)
+                                } else {
+                                    // Play button: white, full width (10 pt margins), 48 pt high, Corner.button radius
+                                    Button {
+                                        playTitle(shell, data)
+                                    } label: {
+                                        HStack(spacing: 8) {
+                                            Icon("icon_play", 20, tint: .black)
+                                            Text(seen.say("common.play").isEmpty ? "Play" : seen.say("common.play"))
+                                                .brand(16, 700)
+                                                .foregroundStyle(.black)
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 48)
+                                        .background(Color.white, in: RoundedRectangle(cornerRadius: min(Corner.button, 24)))
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
 
                                 // Synopsis: 16 sp, expandable (3 lines with "more")
                                 if let overview = data.overview, !overview.isEmpty {
@@ -377,6 +439,7 @@ public struct Title: View {
             }
             .onAppear {
                 saved = data.inList == true
+                reminded = data.reminderSet == true
                 rating = data.rating
                 selectedTab = isSeries ? .episodes : .moreLikeThis
             }

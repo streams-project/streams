@@ -261,6 +261,12 @@ export type Change =
       key: SettingKey;
       value: string;
     }
+  | {
+      /** Reminder set or cleared on a coming title. */
+      change: "remind";
+      on: boolean;
+      title: TitleKey;
+    }
   ;
 
 /** `GET /v1/changes`. */
@@ -344,6 +350,12 @@ export type Command =
       command: "trailer_refused";
       title: TitleKey;
     }
+  | {
+      /** Set or clear a reminder on a coming title. */
+      command: "remind";
+      on: boolean;
+      title: TitleKey;
+    }
   ;
 
 /** Answer for a batch, one entry per op. */
@@ -418,6 +430,14 @@ export type CommandOp =
       command: "trailer_refused";
       age_ms?: number;
       op_id: string;
+      title: TitleKey;
+    }
+  | {
+      /** Set or clear a reminder on a coming title. */
+      command: "remind";
+      age_ms?: number;
+      op_id: string;
+      on: boolean;
       title: TitleKey;
     }
   ;
@@ -1157,6 +1177,35 @@ export interface Notice {
   text: string;
 }
 
+/** One item in the notification feed. */
+export interface NoticeItem {
+  date: CalendarDay;
+  id: string;
+  kind: NoticeKind;
+  tile: Tile;
+  unread: boolean;
+}
+
+/** What kind of notice this is. */
+export type NoticeKind = "new_arrival" | "coming" | "reminder_live" | "new_season" | "new_episode" | (string & {});
+
+/** `GET /v1/notifications/count`. */
+export interface NotificationCount {
+  unread: number;
+}
+
+/** `POST /v1/notifications/read`. */
+export interface NotificationRead {
+  up_to: string;
+}
+
+/** `GET /v1/notifications`. */
+export interface Notifications {
+  cursor?: string;
+  has_more: boolean;
+  items: NoticeItem[];
+}
+
 /** Answer for one op. */
 export interface OpAnswer {
   op_id: string;
@@ -1568,6 +1617,8 @@ export type TimerOp = "set" | "clear" | (string & {});
 export interface TitleDetail {
   /** Absent when the title has no rating in either system. */
   age?: AgeMark;
+  /** When this title becomes available to watch. Absent when already available. */
+  available_from?: CalendarDay;
   genres?: string[];
   images?: Image[];
   /** True when this profile has saved the title. */
@@ -1578,6 +1629,8 @@ export interface TitleDetail {
   overview?: string;
   /** What this profile said about the title. */
   rating?: Rating;
+  /** True when this profile set a reminder for when this title arrives. */
+  reminder_set?: boolean;
   /** Where this profile left off. Absent when there is nothing to go back to. */
   resume?: Resume;
   runtime_min?: number;

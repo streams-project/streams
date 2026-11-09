@@ -197,6 +197,7 @@ fun Home(shell: Shell, seen: Seen) {
                 title,
                 back = if (onHome) null else ({ shell.back() }),
                 bell = { shell.go(Address.NOTIFICATIONS) },
+                unreadCount = seen.unreadNotifications,
             )
             Box(
                 Modifier

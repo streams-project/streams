@@ -106,6 +106,23 @@ pub struct FeedRow {
     pub at_ms: u64,
 }
 
+/// One reminder on a coming title.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct TitleReminder {
+    pub title: TitleKey,
+    pub remind: bool,
+    pub version: u64,
+    pub changed_ms: u64,
+    pub seq: u64,
+}
+
+/// Notification read state of a profile.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct NotificationReadState {
+    pub read_up_to_ms: u64,
+    pub dismissed: Vec<String>,
+}
+
 /// When an op happened by the server's clock: age replaces any device clock, and an op of unknown
 /// age counts as arriving now.
 #[must_use]

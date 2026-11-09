@@ -106,6 +106,7 @@ data class Seen(
     /** The sound and subtitle tracks of what is playing. */
     val audio: List<Track> = emptyList(),
     val text: List<Track> = emptyList(),
+    val unreadNotifications: Int = 0,
 )
 
 interface Shell {
@@ -127,4 +128,6 @@ interface Shell {
     fun keepAll(profiles: List<Profile>)
     /** Read the words of this language, or the default when there is none. */
     fun speak(language: String?)
+    /** Refresh the unread notification count. */
+    fun refreshNotifications()
 }

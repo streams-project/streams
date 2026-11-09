@@ -90,6 +90,7 @@ public final class Seen {
     public var lengthMs: Int64 = 0
     public var audio: [Track] = []
     public var text: [Track] = []
+    public var unreadNotifications: Int = 0
 
     public init() {}
 }
@@ -108,6 +109,7 @@ public protocol Shell: AnyObject {
     func keep(_ profile: Profile)
     func keepAll(_ profiles: [Profile])
     func speak(_ language: String?)
+    func refreshNotifications()
 }
 
 extension Shell {

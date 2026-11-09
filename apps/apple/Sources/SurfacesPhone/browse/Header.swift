@@ -17,6 +17,7 @@ struct TopBar: View {
     let name: String
     let back: (() -> Void)?
     let bell: (() -> Void)?
+    var unreadCount: Int = 0
 
     var body: some View {
         HStack(spacing: 0) {
@@ -46,8 +47,20 @@ struct TopBar: View {
 
             if let bell {
                 Button(action: bell) {
-                    Icon("icon_bell", 24, tint: .white)
-                        .frame(width: 44, height: 44)
+                    ZStack(alignment: .topTrailing) {
+                        Icon("icon_bell", 24, tint: .white)
+                            .frame(width: 44, height: 44)
+                        if unreadCount > 0 {
+                            let countText = unreadCount > 9 ? "9+" : "\(unreadCount)"
+                            Text(countText)
+                                .brand(10, 700)
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 1)
+                                .background(Accent, in: Capsule())
+                                .offset(x: -4, y: 4)
+                        }
+                    }
                 }
                 .buttonStyle(.plain)
                 .padding(.trailing, 4)
@@ -135,12 +148,13 @@ struct Header: View {
     let name: String
     let back: (() -> Void)?
     let bell: (() -> Void)?
+    var unreadCount: Int = 0
     let chips: [Chip]
     let chipShift: CGFloat
 
     var body: some View {
         VStack(spacing: 0) {
-            TopBar(server: server, name: name, back: back, bell: bell)
+            TopBar(server: server, name: name, back: back, bell: bell, unreadCount: unreadCount)
             ChipRow(chips: chips, shown: 1.0 - chipShift)
                 .frame(height: chipRowHeight * max(0, 1.0 - chipShift))
                 .clipped()

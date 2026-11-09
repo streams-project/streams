@@ -15,7 +15,8 @@ use tower_http::cors::{Any, CorsLayer};
 use crate::error::ApiError;
 use crate::guard::guard;
 use crate::routes::{
-    account, auth, commands, devices, help, mail, pages, play, profiles, start, titles,
+    account, auth, commands, devices, help, mail, notifications, pages, play, profiles, start,
+    titles,
 };
 use crate::state::Shared;
 
@@ -125,6 +126,9 @@ pub fn router(state: Shared) -> Router {
         .route("/v1/more/{cursor}", get(pages::more))
         .route("/v1/search", get(pages::search))
         .route("/v1/search/suggest", get(pages::suggest))
+        .route("/v1/notifications", get(notifications::list))
+        .route("/v1/notifications/count", get(notifications::count))
+        .route("/v1/notifications/read", post(notifications::mark_read))
         .route("/v1/commands", post(commands::commands))
         .route("/v1/changes", get(commands::changes))
         .route("/v1/play", post(play::play))

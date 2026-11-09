@@ -1,0 +1,19 @@
+{
+  "available_from": "2026-11-15",
+  "genres": [
+    "Drama"
+  ],
+  "images": [
+    {
+      "role": "poster",
+      "url": "https://images.example/p/1001.jpg",
+      "width": 342
+    }
+  ],
+  "name": "Coming Film",
+  "overview": "A coming film.",
+  "reminder_set": true,
+  "runtime_min": 105,
+  "title": "movie:1001",
+  "year": 2026
+}

@@ -663,6 +663,36 @@ pub const ROUTES: &[Route] = &[
             about: "The search text.",
         }],
     ),
+    with_query(
+        read(
+            "/v1/notifications",
+            "getNotifications",
+            "The notification feed for this profile.",
+            "Notifications",
+            PAGES,
+        ),
+        &[Query {
+            name: "cursor",
+            required: false,
+            about: "The cursor from a previous answer.",
+        }],
+    ),
+    read(
+        "/v1/notifications/count",
+        "getNotificationCount",
+        "Unread notification count for this profile.",
+        "NotificationCount",
+        PAGES,
+    ),
+    write(
+        "POST",
+        "/v1/notifications/read",
+        "readNotifications",
+        "Mark notifications as read up to an item id.",
+        Some("NotificationRead"),
+        "Done",
+        PAGES,
+    ),
     // Commands
     write(
         "POST",

@@ -11,7 +11,9 @@ use sqlx::{Postgres, Row as _, Transaction};
 use time::OffsetDateTime;
 
 use crate::apply::{progress_change, title_change};
-use crate::model::{EpisodeProgress, FeedRow, HiddenTitle, TitleState};
+use crate::model::{
+    EpisodeProgress, FeedRow, HiddenTitle, NotificationReadState, TitleReminder, TitleState,
+};
 use crate::reads::SettingsView;
 use crate::store::{LibraryError, LibraryRead, LibraryStore, LibraryTx, Row};
 use crate::taste::Taste;
@@ -538,6 +540,73 @@ impl LibraryTx for PgTx {
         Ok(())
     }
 
+    async fn reminder(&mut self, title: TitleKey) -> Row<Option<TitleReminder>> {
+        let row = sqlx::query(
+            "select remind, remind_version, remind_changed_at, seq from profile_reminders where profile_id = $1 and kind = $2 and title_id = $3",
+        )
+        .bind(self.profile.0)
+        .bind(kind_word(title))
+        .bind(id_of(title))
+        .fetch_optional(&mut *self.tx)
+        .await
+        .map_err(fail)?;
+        row.map(|r| {
+            let remind: bool = r.try_get("remind").map_err(fail)?;
+            let version: i64 = r.try_get("remind_version").map_err(fail)?;
+            let changed_at: Option<OffsetDateTime> =
+                r.try_get("remind_changed_at").map_err(fail)?;
+            let seq: i64 = r.try_get("seq").map_err(fail)?;
+            Ok(TitleReminder {
+                title,
+                remind,
+                version: wide(version),
+                changed_ms: opt_ms(changed_at),
+                seq: wide(seq),
+            })
+        })
+        .transpose()
+    }
+
+    async fn put_reminder(&mut self, row: &TitleReminder) -> Row<()> {
+        sqlx::query(
+            "insert into profile_reminders (profile_id, kind, title_id, remind, remind_version, remind_changed_at, seq)
+             values ($1, $2, $3, $4, $5, $6, $7)
+             on conflict (profile_id, kind, title_id) do update set
+               remind = excluded.remind, remind_version = excluded.remind_version,
+               remind_changed_at = excluded.remind_changed_at, seq = excluded.seq",
+        )
+        .bind(self.profile.0)
+        .bind(kind_word(row.title))
+        .bind(id_of(row.title))
+        .bind(row.remind)
+        .bind(big(row.version))
+        .bind((row.changed_ms > 0).then(|| to_time(row.changed_ms)))
+        .bind(big(row.seq))
+        .execute(&mut *self.tx)
+        .await
+        .map_err(fail)?;
+        Ok(())
+    }
+
+    async fn mark_notifications_read(&mut self, up_to: &str, now_ms: u64) -> Row<()> {
+        sqlx::query(
+            "insert into notification_reads (profile_id, read_up_to, dismissed)
+             values ($1, $2, jsonb_build_array($3::text))
+             on conflict (profile_id) do update set
+               read_up_to = excluded.read_up_to,
+               dismissed = case when notification_reads.dismissed @> jsonb_build_array($3::text)
+                 then notification_reads.dismissed
+                 else notification_reads.dismissed || jsonb_build_array($3::text) end",
+        )
+        .bind(self.profile.0)
+        .bind(to_time(now_ms))
+        .bind(up_to)
+        .execute(&mut *self.tx)
+        .await
+        .map_err(fail)?;
+        Ok(())
+    }
+
     async fn commit(self: Box<Self>) -> Row<()> {
         self.tx.commit().await.map_err(fail)
     }
@@ -701,6 +770,15 @@ impl LibraryRead for PgLibrary {
             .fetch_all(&self.pool)
             .await
             .map_err(fail)?;
+        let reminders = sqlx::query(
+            "select kind, title_id, remind, seq from profile_reminders where profile_id = $1 and seq > $2 order by seq limit $3",
+        )
+        .bind(id)
+        .bind(after_big)
+        .bind(cap)
+        .fetch_all(&self.pool)
+        .await
+        .map_err(fail)?;
         let cleared = sqlx::query(
             "select history_cleared_at, history_cleared_seq from profile_library
              where profile_id = $1 and history_cleared_seq > $2",
@@ -726,6 +804,15 @@ impl LibraryRead for PgLibrary {
             rows.push((
                 wide(row.try_get("seq").map_err(fail)?),
                 Change::Hidden { title },
+            ));
+        }
+        for row in &reminders {
+            let kind: String = row.try_get("kind").map_err(fail)?;
+            let title = key_of(&kind, row.try_get("title_id").map_err(fail)?)?;
+            let on: bool = row.try_get("remind").map_err(fail)?;
+            rows.push((
+                wide(row.try_get("seq").map_err(fail)?),
+                Change::Remind { title, on },
             ));
         }
         if let Some(row) = cleared {
@@ -765,6 +852,57 @@ impl LibraryRead for PgLibrary {
             .await
             .map_err(fail)?;
         Ok(done.rows_affected())
+    }
+
+    async fn reminders(&self, profile: ProfileId, limit: usize) -> Row<Vec<TitleKey>> {
+        let rows = sqlx::query(
+            "select kind, title_id from profile_reminders where profile_id = $1 and remind order by remind_changed_at desc limit $2",
+        )
+        .bind(profile.0)
+        .bind(big(u64::try_from(limit).unwrap_or(u64::MAX)))
+        .fetch_all(&self.pool)
+        .await
+        .map_err(fail)?;
+        let mut titles = Vec::with_capacity(rows.len());
+        for row in rows {
+            let kind: String = row.try_get("kind").map_err(fail)?;
+            let id: i32 = row.try_get("title_id").map_err(fail)?;
+            titles.push(key_of(&kind, id)?);
+        }
+        Ok(titles)
+    }
+
+    async fn is_reminded(&self, profile: ProfileId, title: TitleKey) -> Row<bool> {
+        let row = sqlx::query(
+            "select remind from profile_reminders where profile_id = $1 and kind = $2 and title_id = $3",
+        )
+        .bind(profile.0)
+        .bind(kind_word(title))
+        .bind(id_of(title))
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(fail)?;
+        row.map_or(Ok(false), |r| r.try_get("remind").map_err(fail))
+    }
+
+    async fn notification_reads(&self, profile: ProfileId) -> Row<NotificationReadState> {
+        let row = sqlx::query(
+            "select read_up_to, dismissed from notification_reads where profile_id = $1",
+        )
+        .bind(profile.0)
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(fail)?;
+        let Some(row) = row else {
+            return Ok(NotificationReadState::default());
+        };
+        let at: OffsetDateTime = row.try_get("read_up_to").map_err(fail)?;
+        let dismissed_val: serde_json::Value = row.try_get("dismissed").map_err(fail)?;
+        let dismissed: Vec<String> = serde_json::from_value(dismissed_val).unwrap_or_default();
+        Ok(NotificationReadState {
+            read_up_to_ms: to_ms(at),
+            dismissed,
+        })
     }
 }
 

@@ -37,6 +37,8 @@ public struct Phone: View {
             GateView(shell: shell, seen: seen)
         } else if target == .title {
             Title(shell: shell, seen: seen)
+        } else if target == .screen && seen.route?.screen == .notifications {
+            NotificationsView(shell: shell, seen: seen)
         } else if target == .home || target == .kidsHome || target == .screen || target == .watch {
             Pages(shell: shell, seen: seen)
         } else {

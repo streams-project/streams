@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <application
@@ -9,6 +10,11 @@
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
         android:theme="@style/Launch">
+        <receiver android:name="streams.phone.reminder.ReminderReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="streams.action.REMINDER" />
+            </intent-filter>
+        </receiver>
         <activity android:name=".Main" android:exported="true" android:configChanges="orientation|screenSize|keyboardHidden|screenLayout">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

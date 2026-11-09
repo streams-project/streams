@@ -11,7 +11,8 @@ use contract::{EpisodeRef, Rating, TitleKey, TitleKind, is_completed, watch_perc
 use server_accounts::{Clock, ProfileId, ProfileScope};
 
 use crate::model::{
-    Continue, EpisodeProgress, FeedRow, HiddenTitle, Limits, Reached, TitleState, age_to_time,
+    Continue, EpisodeProgress, FeedRow, HiddenTitle, Limits, Reached, TitleReminder, TitleState,
+    age_to_time,
 };
 use crate::store::{LibraryError, LibraryStore, LibraryTx, Row};
 use crate::taste::{DISLIKE_WEIGHT, event_weight, learn};
@@ -241,8 +242,28 @@ async fn run(
             tx.add_refused_trailer(*title, at).await?;
             Ok(Outcome::Applied)
         }
+        Command::Remind { title, on } => set_remind(tx, *title, *on, at).await,
         _ => Ok(Outcome::Rejected),
     }
+}
+
+async fn set_remind(tx: &mut dyn LibraryTx, title: TitleKey, on: bool, at: u64) -> Row<Outcome> {
+    let mut row = tx.reminder(title).await?.unwrap_or(TitleReminder {
+        title,
+        remind: false,
+        version: 0,
+        changed_ms: 0,
+        seq: 0,
+    });
+    if at < row.changed_ms {
+        return Ok(Outcome::Superseded);
+    }
+    row.remind = on;
+    row.version += 1;
+    row.changed_ms = at;
+    row.seq = tx.next_seq().await?;
+    tx.put_reminder(&row).await?;
+    Ok(Outcome::Applied)
 }
 
 /// List and rating keep apart: a write here never reads or touches the rating. A time equal
