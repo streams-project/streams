@@ -53,6 +53,7 @@ fun GateGrid(
     onPickPin: (Profile) -> Unit,
     onEnterProfile: (Profile) -> Unit,
     modifier: Modifier = Modifier,
+    editTileColor: Color = TileGrey,
 ) {
     val words = seen.words
     val avatarShape = RoundedCornerShape(10.8.dp)
@@ -116,6 +117,7 @@ fun GateGrid(
                                         iconRes = R.drawable.icon_check,
                                         label = words["common.done"].orEmpty(),
                                         iconSize = 24,
+                                        tileColor = editTileColor,
                                         onClick = onExitManage,
                                     )
                                 } else {
@@ -124,6 +126,7 @@ fun GateGrid(
                                         iconRes = R.drawable.icon_pencil,
                                         label = words["profiles.edit"].orEmpty(),
                                         iconSize = 23,
+                                        tileColor = editTileColor,
                                         onClick = onEnterManage,
                                     )
                                 }
@@ -237,6 +240,7 @@ private fun ActionTile(
     iconRes: Int,
     label: String,
     iconSize: Int,
+    tileColor: Color = TileGrey,
     onClick: () -> Unit,
 ) {
     Column(
@@ -249,7 +253,7 @@ private fun ActionTile(
             Modifier
                 .size(72.dp)
                 .clip(avatarShape)
-                .background(TileGrey),
+                .background(tileColor),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
