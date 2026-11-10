@@ -84,7 +84,7 @@ async fn s81_home_has_a_hero_a_chart_and_rows_and_reads_as_the_contract_type() {
 }
 
 #[tokio::test]
-async fn r3_images_served_with_size_per_role() {
+async fn tmr3_images_served_with_size_per_role() {
     let server = harness(&[("IMAGE_BASE", "https://images.host.example/t/p")]);
     let (token, _) = enter(&server, false).await;
     let page = screen(

@@ -158,7 +158,9 @@ def test_params_ramp_smoothly_between_15000_and_25000():
     # Check that midpoint smoothly sits strictly between scaled and full
     assert p_scaled_15k.min_text < p_20k.min_text < full.min_text
     assert p_20k.min_text == round(0.5 * p_scaled_15k.min_text + 0.5 * full.min_text)
-    assert p_20k.target_l1 == round(0.5 * Params._scaled_params(20000).target_l1 + 0.5 * full.target_l1)
+    assert p_20k.target_l1 == round(
+        0.5 * Params._scaled_params(20000).target_l1 + 0.5 * full.target_l1
+    )
 
 
 def test_stats_measure_shares_and_lifts():
