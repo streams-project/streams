@@ -21,7 +21,7 @@ fun widthClass(): WidthClass {
     }
 }
 
-/** The side margin of a page: 12 dp on a phone (note 116: tiles 12 dp in), wider on tablets. */
+/** The side margin of a page: 12 dp on a phone, wider on tablets. */
 @Composable
 fun pageEdge(): Int = when (widthClass()) {
     WidthClass.COMPACT -> 12

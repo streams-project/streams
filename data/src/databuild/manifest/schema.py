@@ -1,7 +1,7 @@
 """The manifest's schema.
 
-The shape belongs to the contract (`DatasetManifest` in `platform-contract`, note 152 correction
-12). `contract.schema_dir` names that contract's `generated/schemas` folder. Until the contract
+The shape belongs to the contract (`DatasetManifest` in `platform-contract`).
+`contract.schema_dir` names that contract's `generated/schemas` folder. Until the contract
 holds the type, this repository ships the same shape beside this file, and
 `docs/contract-request.md` asks for it.
 """

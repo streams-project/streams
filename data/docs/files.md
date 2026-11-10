@@ -55,7 +55,7 @@ it with that set's manifest hash.
 |---|---|
 | the store database | catalog.db |
 | the vector, key, seed, seed name and seed id files | vectors.bin and the files after it |
-| the nearest neighbour index and its stamp | Left out. The server builds it (note 152). |
+| the nearest neighbour index and its stamp | Left out. The server builds it. |
 | calendar vocabulary, two files | taxonomy.bin, taxonomy.json |
 | Kids vocabulary, two files | taxonomy_kids.bin, taxonomy_kids.json |
 | vocabulary support cache | Left out. The server works it out when it starts. |

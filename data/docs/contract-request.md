@@ -1,6 +1,6 @@
 # What this repository needs from the contract
 
-The manifest shape belongs in `platform-contract` (note 152, correction 12). The contract does not
+The manifest shape belongs in `platform-contract`. The contract does not
 hold it yet, so this repository ships the shape in `src/databuild/manifest/`. The server has its own
 interim type in `server-catalog`. Both agree today, and a test here reads the server's type to keep
 it that way.
