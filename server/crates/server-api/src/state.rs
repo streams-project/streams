@@ -65,9 +65,26 @@ impl AppState {
             .and_then(|(url, token)| HttpSubtitles::new(url, token).ok())
             .map(|source| Subtitles::new(Arc::new(source)));
         let live = LiveFile::new(config.live_settings.clone());
-        let images = Images::with_art_base(
+        let mut sizes = server_rules::answer::ImageSizes::default();
+        if let Some(s) = &config.image_size_poster {
+            sizes.poster = s.clone();
+        }
+        if let Some(s) = &config.image_size_backdrop {
+            sizes.backdrop = s.clone();
+        }
+        if let Some(s) = &config.image_size_still {
+            sizes.still = s.clone();
+        }
+        if let Some(s) = &config.image_size_logo {
+            sizes.logo = s.clone();
+        }
+        if let Some(s) = &config.image_size_avatar {
+            sizes.avatar = s.clone();
+        }
+        let images = Images::with_options(
             config.image_base.as_deref(),
             config.image_base_art.as_deref(),
+            sizes,
         );
         let brand = config.brand_name.clone();
         let help = config

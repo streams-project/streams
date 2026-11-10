@@ -166,8 +166,8 @@ async fn n12_art_resolves_to_explicit_image_base_art() {
         assert!(
             poster
                 .url
-                .starts_with("https://images.host.example/t/w780/"),
-            "poster URL must use IMAGE_BASE: {}",
+                .starts_with("https://images.host.example/t/w342/"),
+            "poster URL must use w342 size: {}",
             poster.url
         );
     }

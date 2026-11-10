@@ -76,51 +76,122 @@ cleared! {
     SafeChanges(Changes);
 }
 
+/// Sized image configuration per role (N198 R3.4).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ImageSizes {
+    pub poster: String,
+    pub art: String,
+    pub backdrop: String,
+    pub still: String,
+    pub logo: String,
+    pub avatar: String,
+}
+
+impl Default for ImageSizes {
+    fn default() -> Self {
+        Self {
+            poster: "w342".to_owned(),
+            art: "w1280".to_owned(),
+            backdrop: "w1280".to_owned(),
+            still: "w300".to_owned(),
+            logo: "w500".to_owned(),
+            avatar: "w185".to_owned(),
+        }
+    }
+}
+
 /// Where images come from. Each deployment sets its own host; with none, images are left out.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Images {
     base: Option<String>,
     art_base: Option<String>,
+    sizes: ImageSizes,
 }
 
 impl Images {
-    /// Images under a base address, or none. When the base address contains `/w780`, art URLs
-    /// resolve to `/w1280` so the textless portrait poster fills a tall display without upscaling.
+    /// Images under a base address, or none. Each role is served at its configured size:
+    /// tile poster w342, art w1280, backdrop w1280, still w300, logo w500, avatar w185 (R3.4).
     #[must_use]
     pub fn new(base: Option<&str>) -> Self {
-        Self::with_art_base(base, None)
+        Self::with_options(base, None, ImageSizes::default())
     }
 
     /// Images under a base address, with an optional separate address for art (`ImageRole::Art`).
-    /// If no separate art address is given and the base address contains `/w780`, art URLs
-    /// resolve with `/w1280` substituted for `/w780`.
     #[must_use]
     pub fn with_art_base(base: Option<&str>, art_base: Option<&str>) -> Self {
+        Self::with_options(base, art_base, ImageSizes::default())
+    }
+
+    /// Images under a base address, with optional separate art address and custom role sizes.
+    #[must_use]
+    pub fn with_options(base: Option<&str>, art_base: Option<&str>, sizes: ImageSizes) -> Self {
         let base = base.map(|text| text.trim_end_matches('/').to_owned());
         let art_base = art_base
             .map(|text| text.trim_end_matches('/').to_owned())
             .or_else(|| {
                 base.as_ref().map(|b| {
-                    if b.contains("/w780") {
-                        b.replace("/w780", "/w1280")
+                    if let Some(idx) = b.rfind("/w") {
+                        let after_w = &b[idx + 2..];
+                        if after_w.chars().all(|c| c.is_ascii_digit()) && !after_w.is_empty() {
+                            format!("{}{}", &b[..idx + 1], sizes.art)
+                        } else {
+                            format!("{b}/{}", sizes.art)
+                        }
                     } else {
-                        b.clone()
+                        format!("{b}/{}", sizes.art)
                     }
                 })
             });
-        Self { base, art_base }
+        Self {
+            base,
+            art_base,
+            sizes,
+        }
+    }
+
+    /// Look up the configured size for an image role.
+    #[must_use]
+    pub fn size_for(&self, role: ImageRole) -> &str {
+        match role {
+            ImageRole::Poster => &self.sizes.poster,
+            ImageRole::Art => &self.sizes.art,
+            ImageRole::Backdrop => &self.sizes.backdrop,
+            ImageRole::Still => &self.sizes.still,
+            ImageRole::Logo => &self.sizes.logo,
+            ImageRole::Avatar => &self.sizes.avatar,
+            _ => "w780",
+        }
     }
 
     fn image(&self, role: ImageRole, path: Option<&str>) -> Option<Image> {
-        let base = if role == ImageRole::Art {
-            self.art_base.as_deref().or(self.base.as_deref())?
-        } else {
-            self.base.as_deref()?
-        };
         let path = path.filter(|p| !p.is_empty())?;
+        let slash = if path.starts_with('/') { "" } else { "/" };
+
+        if role == ImageRole::Art && self.art_base.is_some() {
+            let base = self.art_base.as_deref().unwrap();
+            return Some(Image {
+                role,
+                url: format!("{base}{slash}{path}"),
+                width: None,
+            });
+        }
+
+        let base = self.base.as_deref()?;
+        let size = self.size_for(role);
+        let url = if let Some(idx) = base.rfind("/w") {
+            let after_w = &base[idx + 2..];
+            if after_w.chars().all(|c| c.is_ascii_digit()) && !after_w.is_empty() {
+                format!("{}{size}{slash}{path}", &base[..idx + 1])
+            } else {
+                format!("{base}/{size}{slash}{path}")
+            }
+        } else {
+            format!("{base}/{size}{slash}{path}")
+        };
+
         Some(Image {
             role,
-            url: format!("{base}{path}"),
+            url,
             width: None,
         })
     }
@@ -502,7 +573,7 @@ mod tests {
     fn art_resolves_art_size_from_poster_base() {
         let images = Images::new(Some("https://images.example/t/p/w780"));
         let poster = images.image(ImageRole::Poster, Some("/p.jpg")).unwrap();
-        assert_eq!(poster.url, "https://images.example/t/p/w780/p.jpg");
+        assert_eq!(poster.url, "https://images.example/t/p/w342/p.jpg");
         let art = images.image(ImageRole::Art, Some("/art.jpg")).unwrap();
         assert_eq!(art.url, "https://images.example/t/p/w1280/art.jpg");
     }
@@ -514,7 +585,7 @@ mod tests {
             Some("https://custom.example/w1280"),
         );
         let poster = images.image(ImageRole::Poster, Some("/p.jpg")).unwrap();
-        assert_eq!(poster.url, "https://images.example/t/w780/p.jpg");
+        assert_eq!(poster.url, "https://images.example/t/w342/p.jpg");
         let art = images.image(ImageRole::Art, Some("/art.jpg")).unwrap();
         assert_eq!(art.url, "https://custom.example/w1280/art.jpg");
     }
@@ -523,6 +594,23 @@ mod tests {
     fn art_falls_back_to_base_without_replacement() {
         let images = Images::new(Some("https://images.example/t"));
         let art = images.image(ImageRole::Art, Some("/art.jpg")).unwrap();
-        assert_eq!(art.url, "https://images.example/t/art.jpg");
+        assert_eq!(art.url, "https://images.example/t/w1280/art.jpg");
+    }
+
+    #[test]
+    fn images_per_role_resolve_correct_sizes() {
+        let images = Images::new(Some("https://images.example/t/p"));
+        let poster = images.image(ImageRole::Poster, Some("/p.jpg")).unwrap();
+        assert_eq!(poster.url, "https://images.example/t/p/w342/p.jpg");
+        let backdrop = images.image(ImageRole::Backdrop, Some("/b.jpg")).unwrap();
+        assert_eq!(backdrop.url, "https://images.example/t/p/w1280/b.jpg");
+        let still = images.image(ImageRole::Still, Some("/s.jpg")).unwrap();
+        assert_eq!(still.url, "https://images.example/t/p/w300/s.jpg");
+        let logo = images.image(ImageRole::Logo, Some("/l.png")).unwrap();
+        assert_eq!(logo.url, "https://images.example/t/p/w500/l.png");
+        let avatar = images.image(ImageRole::Avatar, Some("/a.jpg")).unwrap();
+        assert_eq!(avatar.url, "https://images.example/t/p/w185/a.jpg");
+        let art = images.image(ImageRole::Art, Some("/art.jpg")).unwrap();
+        assert_eq!(art.url, "https://images.example/t/p/w1280/art.jpg");
     }
 }

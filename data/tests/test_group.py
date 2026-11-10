@@ -145,6 +145,22 @@ def test_full_size_numbers_are_the_measured_ones():
     assert p.theme_targets == (150, 400, 1000)
 
 
+def test_params_ramp_smoothly_between_15000_and_25000():
+    p_15k = Params.for_titles(15000)
+    p_scaled_15k = Params._scaled_params(15000)
+    assert p_15k == p_scaled_15k
+
+    p_25k = Params.for_titles(25000)
+    full = Params()
+    assert p_25k == full
+
+    p_20k = Params.for_titles(20000)
+    # Check that midpoint smoothly sits strictly between scaled and full
+    assert p_scaled_15k.min_text < p_20k.min_text < full.min_text
+    assert p_20k.min_text == round(0.5 * p_scaled_15k.min_text + 0.5 * full.min_text)
+    assert p_20k.target_l1 == round(0.5 * Params._scaled_params(20000).target_l1 + 0.5 * full.target_l1)
+
+
 def test_stats_measure_shares_and_lifts():
     facts = [
         make_fact(f"T{i}", "1994", "tv" if i < 5 else "movie", "en", "Drama", '["US"]', i)
