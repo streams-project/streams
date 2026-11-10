@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scorecard for the Streams server.
+"""Scorecard for the platform server.
 
 Measures catalog freshness, row quality, duplication, genre purity, language rendering,
 tier filtering, hero/gate art & logo coverage, and endpoint latencies across fixed profile
@@ -196,7 +196,7 @@ def score_page(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Streams Page Quality Scorecard")
+    parser = argparse.ArgumentParser(description="Platform Page Quality Scorecard")
     parser.add_argument("--server", default=DEFAULT_SERVER, help="Server base URL")
     parser.add_argument("--label", default="current", help="Scorecard label")
     parser.add_argument(
