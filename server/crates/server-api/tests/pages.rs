@@ -5,7 +5,7 @@ mod common;
 
 use axum::http::{Method, StatusCode};
 use common::{Answer, Harness, call, get, harness, harness_composed, member};
-use contract::screen::{More, Screen, Section, SectionKind};
+use contract::screen::{ImageRole, More, Screen, Section, SectionKind};
 use serde_json::json;
 use server_catalog::sample::special;
 
@@ -81,6 +81,57 @@ async fn s81_home_has_a_hero_a_chart_and_rows_and_reads_as_the_contract_type() {
             .iter()
             .any(|image| image.url.starts_with("https://images.host.example"))
     );
+}
+
+#[tokio::test]
+async fn r3_images_served_with_size_per_role() {
+    let server = harness(&[("IMAGE_BASE", "https://images.host.example/t/p")]);
+    let (token, _) = enter(&server, false).await;
+    let page = screen(
+        get("/v1/screens/home")
+            .token(&token)
+            .on(&server.state)
+            .await,
+    );
+    let mut roles_seen = std::collections::HashSet::new();
+    for section in &page.sections {
+        for tile in &section.tiles {
+            for image in &tile.images {
+                roles_seen.insert(image.role);
+                match image.role {
+                    ImageRole::Poster => {
+                        assert!(
+                            image
+                                .url
+                                .starts_with("https://images.host.example/t/p/w342/"),
+                            "poster URL: {}",
+                            image.url
+                        );
+                    }
+                    ImageRole::Backdrop => {
+                        assert!(
+                            image
+                                .url
+                                .starts_with("https://images.host.example/t/p/w1280/"),
+                            "backdrop URL: {}",
+                            image.url
+                        );
+                    }
+                    ImageRole::Logo => {
+                        assert!(
+                            image
+                                .url
+                                .starts_with("https://images.host.example/t/p/w500/"),
+                            "logo URL: {}",
+                            image.url
+                        );
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+    assert!(roles_seen.contains(&ImageRole::Poster));
 }
 
 #[tokio::test]

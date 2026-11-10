@@ -369,11 +369,23 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
             ("WEB_ROOT", site.to_string_lossy().into_owned()),
             (
                 "STRINGS_DIR",
-                stack.root.join("strings").to_string_lossy().into_owned(),
+                if stack.root.join("strings").exists() {
+                    stack.root.join("strings")
+                } else {
+                    std::path::PathBuf::from("strings")
+                }
+                .to_string_lossy()
+                .into_owned(),
             ),
             (
                 "HELP_DIR",
-                stack.root.join("help").to_string_lossy().into_owned(),
+                if stack.root.join("help").exists() {
+                    stack.root.join("help")
+                } else {
+                    std::path::PathBuf::from("help")
+                }
+                .to_string_lossy()
+                .into_owned(),
             ),
             ("SITE_ADDRESS", site_address.clone()),
             ("BRAND_NAME", stack.brand.name.clone()),

@@ -39,6 +39,26 @@ pub const SETTINGS: &[(&str, &str)] = &[
         "Base address for gate art. Without it art defaults to w1280 of IMAGE_BASE.",
     ),
     (
+        "IMAGE_SIZE_POSTER",
+        "Size of posters. Without it posters use w342.",
+    ),
+    (
+        "IMAGE_SIZE_BACKDROP",
+        "Size of backdrops. Without it backdrops use w1280.",
+    ),
+    (
+        "IMAGE_SIZE_STILL",
+        "Size of stills. Without it stills use w300.",
+    ),
+    (
+        "IMAGE_SIZE_LOGO",
+        "Size of logos. Without it logos use w500.",
+    ),
+    (
+        "IMAGE_SIZE_AVATAR",
+        "Size of avatars. Without it avatars use w185.",
+    ),
+    (
         "FINDER_URLS",
         "Comma separated finder addresses. Without them playback is off.",
     ),
@@ -135,6 +155,11 @@ pub struct Config {
     pub database_url: Option<String>,
     pub image_base: Option<String>,
     pub image_base_art: Option<String>,
+    pub image_size_poster: Option<String>,
+    pub image_size_backdrop: Option<String>,
+    pub image_size_still: Option<String>,
+    pub image_size_logo: Option<String>,
+    pub image_size_avatar: Option<String>,
     pub finder_urls: Vec<String>,
     pub finder_token: Option<String>,
     /// A subtitle program. Off without it.
@@ -214,6 +239,11 @@ impl Config {
             note("images", "IMAGE_BASE is not set");
         }
         let image_base_art = value("IMAGE_BASE_ART");
+        let image_size_poster = value("IMAGE_SIZE_POSTER");
+        let image_size_backdrop = value("IMAGE_SIZE_BACKDROP");
+        let image_size_still = value("IMAGE_SIZE_STILL");
+        let image_size_logo = value("IMAGE_SIZE_LOGO");
+        let image_size_avatar = value("IMAGE_SIZE_AVATAR");
         let finder_urls: Vec<String> = value("FINDER_URLS")
             .map(|list| {
                 list.split(',')
@@ -290,6 +320,11 @@ impl Config {
             database_url,
             image_base,
             image_base_art,
+            image_size_poster,
+            image_size_backdrop,
+            image_size_still,
+            image_size_logo,
+            image_size_avatar,
             finder_urls,
             finder_token,
             site_address,
