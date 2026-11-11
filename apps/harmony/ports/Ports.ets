@@ -91,11 +91,20 @@ export interface Player {
 
 /** Brand films on the way in. The title player belongs to the core, so these stay apart from it. */
 export interface Reel {
-  // `picture(...)` is missing here for the same reason as in [Player]: OPEN QUESTION Q5.
+  /**
+   * A picture of this address. It starts still until `play` says so. `ready` runs once, when it can
+   * show and play; `ended` runs when it finishes or cannot play.
+   *
+   * The same five arguments and the same handle back as the other two families, because this is how a
+   * film reaches the port at all. What the returned object is on ArkUI is OPEN QUESTION Q5: an
+   * `XComponent`'s surface id, or a `Video` component's controller. So it is typed as `Object` here,
+   * and the surface that writes the adapter names it.
+   */
+  picture(context: Object, url: string, loop: boolean, ready: () => void, ended: () => void): Object;
   /** Starts or stops one film. */
-  play(on: boolean): void;
+  play(picture: Object, on: boolean): void;
   /** Hands back the decoder, because the title player needs one. */
-  release(): void;
+  release(picture: Object): void;
   /** Holds every film still while the app is off screen, and lets them go on after. */
   hold(still: boolean): void;
 }

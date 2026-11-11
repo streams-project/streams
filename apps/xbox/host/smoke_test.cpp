@@ -32,9 +32,11 @@ std::string tick(long long ms) {
            R"(,"type":"core_in"})";
 }
 
+int checks = 0;
 int failures = 0;
 
 void ok(bool held, const char *what) {
+    checks += 1;
     std::printf("%s %s\n", held ? "ok  " : "FAIL", what);
     if (!held) {
         failures += 1;
@@ -68,10 +70,11 @@ int main() {
     core.close();
     ok(!core.isOpen(), "a closed core holds no handle");
 
+    // Counted rather than written out, so adding a check cannot leave a wrong total behind.
     if (failures > 0) {
-        std::printf("%d of 11 failed\n", failures);
+        std::printf("%d of %d failed\n", failures, checks);
         return 1;
     }
-    std::printf("11 of 11 held\n");
+    std::printf("%d of %d held\n", checks, checks);
     return 0;
 }

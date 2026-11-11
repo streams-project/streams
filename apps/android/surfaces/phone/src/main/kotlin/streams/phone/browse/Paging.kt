@@ -18,26 +18,31 @@ import contract.contractJson
 import streams.ports.Shell
 
 /**
- * How a page grows. The answer a screen arrives with carries the first part only: twelve rows of
- * fifteen titles, while the server has built up to fifty rows and holds a row a hundred and twenty
- * deep. Both parts are read back through the one field the contract already has for it -- a screen's
- * `cursor` for more rows, a section's `cursor` for more titles of that row -- and `/v1/more/{cursor}`,
- * the route `apps/web` had been the only caller of.
+ * How a page grows. The answer a screen arrives with carries the first part only -- twelve rows of
+ * fifteen titles -- and the rest is read back through the one field the contract already has for it:
+ * a screen's `cursor` for more rows, a section's `cursor` for more titles of that row, and
+ * `/v1/more/{cursor}`, the route `apps/web` had been the only caller of. Nothing here caps the
+ * reading: a page grows until the server stops handing out a cursor, so how many rows a phone ends
+ * up with is the server's answer and not a shape measured off the reference.
  *
  * Nothing here is new shape: no route, no field, no control on the screen. A page grows as the
- * viewer travels, the way the reference's does.
+ * viewer travels, the way the reference's does (`netflix-reference/00-gaps.md:23`).
  */
 
 /**
  * Rows read ahead of the viewer, vertically. The phone is 936.6 dp tall and a row is 217.0 dp from
- * its name to the next, so a screen holds 4.3 rows; the reference asks for its next block with
- * about two screens of scroll left, which is 8.6 rows, so nine.
+ * its name to the next, so a screen holds 4.3 rows; two screens of scroll left is 8.6 rows, so nine.
+ *
+ * The two-screen trigger is measured on the reference's *web* page, not its phone
+ * (`netflix-reference/00-gaps.md:29`: "trigger about 2 viewports of remaining scroll (web)"). The
+ * phone column of that same line records only that 23 rows arrive progressively; when the next
+ * block is asked for there has not been measured. This number is therefore a borrowed one.
  */
 private const val ROWS_AHEAD = 9
 
 /**
  * Titles read ahead of the viewer, sideways. A row shows 3.29 tiles, so two rows' worth of travel
- * is 6.6 tiles, so seven.
+ * is 6.6 tiles, so seven. Netflix's own sideways trigger has not been measured.
  */
 private const val TILES_AHEAD = 7
 
@@ -51,12 +56,22 @@ private const val TILES_AHEAD = 7
  */
 private data class Reading(val cursor: String?, val asking: Boolean = false)
 
+/**
+ * Which answer a page's read parts belong to: the route, the cursor that answer carried and how many
+ * sections it carried. A page built again gets a new stamp and starts its paging again.
+ *
+ * Both halves of the reading are keyed on it -- the page's own parts and each row's depth -- because
+ * they have to be thrown away together. Keyed apart, a refreshed Home kept every row's old cursor
+ * while the rows themselves went back to the fifteen tiles the answer carries, so a row either
+ * stopped growing or asked again for a cursor whose tiles it was already showing.
+ */
+fun pageStamp(key: String, screen: Screen?): String =
+    "$key|${screen?.cursor}|${screen?.sections?.size ?: 0}"
+
 /** The sections of this page as the viewer can reach them: the answer's, plus every part read since. */
 @Composable
-fun rememberPage(shell: Shell, screen: Screen?, key: String, list: LazyListState): List<Section> {
+fun rememberPage(shell: Shell, screen: Screen?, stamp: String, list: LazyListState): List<Section> {
     val base = screen?.sections.orEmpty()
-    // Which answer these parts belong to. A page built again starts its paging again.
-    val stamp = "$key|${screen?.cursor}|${base.size}"
     var parts by remember(stamp) { mutableStateOf(emptyList<Section>()) }
     var reading by remember(stamp) { mutableStateOf(Reading(screen?.cursor)) }
 
@@ -126,9 +141,12 @@ class Depth internal constructor(private val shell: Shell) {
     }
 }
 
-/** One depth per page, so leaving a page and coming back reads it again. */
+/**
+ * One depth per answer. Leaving a page and coming back reads it again, and a page rebuilt under the
+ * viewer drops the depths with the parts, since the stamp names the answer both were read from.
+ */
 @Composable
-fun rememberDepth(shell: Shell, key: String): Depth = remember(shell, key) { Depth(shell) }
+fun rememberDepth(shell: Shell, stamp: String): Depth = remember(shell, stamp) { Depth(shell) }
 
 /** A part, or nothing at all: a refusal and a body that does not parse are the same answer here. */
 private fun read(status: Int, text: String): More? {

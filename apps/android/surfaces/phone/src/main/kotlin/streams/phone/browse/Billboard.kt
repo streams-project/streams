@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -51,6 +52,23 @@ import streams.shared.tall
 /** The card's shape on the reference: 0.712 wide for every 1 high, 19.9 dp in from each side. */
 private const val CARD_RATIO = 0.712f
 const val CARD_SIDE = 20
+
+/**
+ * How much of the screen's height the card takes. On the reference phone the card is
+ * 381.7 x 536.2 dp on a 936.6 dp screen, which is 536.2 / 936.6 = 0.572, and that is what leaves
+ * the billboard and exactly one row on the first screen
+ * (`netflix-reference/phone/00-netflix-phone-measurements.md:111`).
+ *
+ * A phone reaches this share by filling its width; a wide screen does not. Measured on a
+ * 1280 x 800 dp tablet on 2026-11-11, filling the width makes the card 1240 x 1742 dp -- 218
+ * percent of the screen, with the first row's name two and a fifth screens down
+ * (`netflix-reference/tablet/00-tablet-surface-measurements.md`, section 3). So above the
+ * expanded breakpoint the height is held to this share and the width follows the ratio.
+ *
+ * The share is the phone's. No Netflix tablet has been measured by this project, and this is the
+ * one number here that is carried across rather than read off the reference.
+ */
+private const val CARD_SHARE = 0.572f
 
 /** The tag line's grey, as the reference's. */
 private val TagInk = Color(0xFFD4D4D1)
@@ -79,11 +97,21 @@ fun Billboard(
     val context = LocalContext.current
     val shape = RoundedCornerShape(Corner.PANEL.dp)
     BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = CARD_SIDE.dp)) {
-        val wide = maxWidth
+        // On a phone the card fills the width and lands on the reference's share of the screen.
+        // On a screen this wide, filling the width would be two screens of billboard, so the
+        // height is capped at that share and the width follows the measured ratio.
+        val filled = maxWidth
+        val high = if (widthClass() == WidthClass.EXPANDED) {
+            minOf(filled / CARD_RATIO, LocalConfiguration.current.screenHeightDp.dp * CARD_SHARE)
+        } else {
+            filled / CARD_RATIO
+        }
+        val wide = minOf(filled, high * CARD_RATIO)
         Box(
             Modifier
-                .fillMaxWidth()
-                .height(wide / CARD_RATIO)
+                .align(Alignment.TopCenter)
+                .width(wide)
+                .height(high)
                 .clip(shape)
                 .border(1.dp, Color.White.copy(alpha = 0.28f), shape)
                 .background(Color(0xFF16161D))

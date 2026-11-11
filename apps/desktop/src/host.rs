@@ -20,8 +20,8 @@ use rand::Rng as _;
 use tokio::runtime::{Builder, Runtime};
 use tokio::task::JoinHandle;
 
-use crate::adapters::{FileSecrets, FileStore, HttpNetwork, NoPlayer, NoReel};
-use crate::ports::{Answer, Call, ETAG, Network, Player, Reel, Secrets, Store};
+use crate::adapters::{FileSecrets, FileStore, HttpNetwork, NoPlayer};
+use crate::ports::{Answer, Call, ETAG, Network, Player, Secrets, Store};
 
 /// The app word every request carries. It names this family, not a product: the brand is not in
 /// this code and the shell passes everything the brand decides.
@@ -46,14 +46,13 @@ pub struct Settings {
     pub storage_bytes: u64,
 }
 
-/// The five ports, filled. `Host::open` fills them with what a desktop has; a test fills them with
-/// what it wants to watch.
+/// The ports this crate names, filled. `Host::open` fills them with what a desktop has; a test
+/// fills them with what it wants to watch. `ports.rs` says why `reel` is not among them.
 pub struct Ports {
     pub network: Box<dyn Network>,
     pub secrets: Box<dyn Secrets>,
     pub store: Box<dyn Store>,
     pub player: Box<dyn Player>,
-    pub reel: Box<dyn Reel>,
 }
 
 /// Why a host did not open.
@@ -104,8 +103,10 @@ pub struct Turn {
     pub notices: Vec<Notice>,
     /// Addresses the core opened by itself.
     pub opens: Vec<RouteTarget>,
-    /// Monotonic time at which the host steps the core again. Absent means no wake.
-    pub next_wake_ms: Option<u64>,
+    /// How long until the host steps the core again. Absent means no wake. The core names a
+    /// monotonic instant on a clock only this host holds, so the wait is handed over instead of
+    /// the instant: a surface has no way to read that clock.
+    pub wake_in: Option<Duration>,
 }
 
 /// What an adapter hands back from another thread.
@@ -122,7 +123,6 @@ pub struct Host {
     secrets: Box<dyn Secrets>,
     store: Box<dyn Store>,
     player: Box<dyn Player>,
-    reel: Box<dyn Reel>,
     runtime: Runtime,
     timers: HashMap<String, JoinHandle<()>>,
     started: Instant,
@@ -143,7 +143,6 @@ impl Host {
             secrets: Box::new(FileSecrets::new(settings.data_dir.join(SECRETS))),
             store: Box::new(FileStore::new(settings.data_dir.join(STORE))),
             player: Box::new(NoPlayer),
-            reel: Box::new(NoReel),
         };
         Self::new(settings, runtime, ports)
     }
@@ -164,7 +163,6 @@ impl Host {
             secrets,
             store,
             player,
-            reel,
         } = ports;
         Ok(Self {
             machine,
@@ -173,20 +171,12 @@ impl Host {
             secrets,
             store,
             player,
-            reel,
             runtime,
             timers: HashMap::new(),
             started: Instant::now(),
             back,
             inbox,
         })
-    }
-
-    /// True while a brand film could be shown. Nothing here can, and a surface asks before it
-    /// holds room for one.
-    #[must_use]
-    pub fn reel_plays(&self) -> bool {
-        self.reel.plays()
     }
 
     /// Hand the core these events and run it until nothing more can be answered at once. An empty
@@ -205,7 +195,7 @@ impl Host {
 
     /// Wait up to `within` for the first thing an adapter hands back, then take the rest of what
     /// is there and step on all of it. A wake that nothing answers still steps the core, which is
-    /// what `Turn::next_wake_ms` asked for.
+    /// what `Turn::wake_in` asked for.
     pub fn wait(&mut self, within: Duration) -> Turn {
         let mut back = Vec::new();
         if let Ok(first) = self.inbox.recv_timeout(within) {
@@ -253,9 +243,15 @@ impl Host {
                     .as_millis(),
             )
             .unwrap_or(u64::MAX),
-            mono_ms: u64::try_from(self.started.elapsed().as_millis()).unwrap_or(u64::MAX),
+            mono_ms: self.mono_ms(),
             events,
         }
+    }
+
+    /// This host's monotonic clock, the one the core's times are named on. Nothing public reads
+    /// it: a wake leaves as a `Duration` instead, so no caller needs it.
+    fn mono_ms(&self) -> u64 {
+        u64::try_from(self.started.elapsed().as_millis()).unwrap_or(u64::MAX)
     }
 
     fn apply(&mut self, out: CoreOut, turn: &mut Turn) -> Vec<Event> {
@@ -268,7 +264,10 @@ impl Host {
         if let Some(view) = view {
             turn.views.push(view);
         }
-        turn.next_wake_ms = next_wake_ms;
+        turn.wake_in = next_wake_ms.map(|at| {
+            let now = self.mono_ms();
+            Duration::from_millis(at.saturating_sub(now))
+        });
         let mut results = Vec::new();
         for effect in effects {
             self.perform(effect, turn, &mut results);
@@ -313,13 +312,12 @@ impl Host {
                 results.push(answered(id, self.stored(op, key, value)));
             }
             EffectBody::Timer { op, after_ms } => self.timer(id, op, after_ms),
-            // A command nothing can perform is said to be unperformed, so the core moves on at its
-            // start deadline instead of waiting for a driver that will never report.
-            EffectBody::Player { command } => {
-                if !self.player.command(command) {
-                    results.push(answered(id, EventBody::Unsupported));
-                }
-            }
+            // Nothing is answered, because nothing can be: the core allocates a player effect's
+            // id and registers it in no waiting map, so `fn unsupported`
+            // (`platform/core/src/lib.rs:824`) would look it up in `secrets` and `net`, match
+            // neither and drop the event. What rescues a play on a host with no driver is the
+            // start deadline the core arms by itself.
+            EffectBody::Player { command } => self.player.command(command),
             EffectBody::View { notice, body } => {
                 if let Some(notice) = notice {
                     turn.notices.push(notice);

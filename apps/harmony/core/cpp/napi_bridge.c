@@ -20,7 +20,11 @@
  * tags the top bits of a pointer this has to become a table of handles instead. */
 static napi_value handle_of(napi_env env, CoreHandle *handle) {
     napi_value answer;
-    napi_create_int64(env, (int64_t)(intptr_t)handle, &answer);
+    /* NULL is what Node-API reads as "no value, the pending exception says why". Returning `answer`
+     * unchecked would hand the runtime an uninitialised slot on the one path that fails. */
+    if (napi_create_int64(env, (int64_t)(intptr_t)handle, &answer) != napi_ok) {
+        return NULL;
+    }
     return answer;
 }
 
@@ -55,18 +59,25 @@ static char *text_in(napi_env env, napi_value given, size_t *len, size_t *room) 
 
 static napi_value nothing(napi_env env) {
     napi_value answer;
-    napi_get_undefined(env, &answer);
+    if (napi_get_undefined(env, &answer) != napi_ok) {
+        return NULL;
+    }
     return answer;
 }
 
 static napi_value abi(napi_env env, napi_callback_info info) {
     (void)info;
     napi_value answer;
-    napi_create_int32(env, (int32_t)core_abi(), &answer);
+    if (napi_create_int32(env, (int32_t)core_abi(), &answer) != napi_ok) {
+        return NULL;
+    }
     return answer;
 }
 
-static napi_value open(napi_env env, napi_callback_info info) {
+/* Named open_core and close_core, not open and close: if napi/native_api.h pulls in unistd.h or
+ * fcntl.h on the real SDK, a static `open` after POSIX's `int open(const char *, int, ...)` is a hard
+ * error. The stub header used for the syntax check here cannot catch that. */
+static napi_value open_core(napi_env env, napi_callback_info info) {
     size_t count = 1;
     napi_value args[1];
     if (napi_get_cb_info(env, info, &count, args, NULL, NULL) != napi_ok || count < 1) {
@@ -120,7 +131,7 @@ static napi_value step(napi_env env, napi_callback_info info) {
     return answer;
 }
 
-static napi_value close(napi_env env, napi_callback_info info) {
+static napi_value close_core(napi_env env, napi_callback_info info) {
     size_t count = 1;
     napi_value args[1];
     if (napi_get_cb_info(env, info, &count, args, NULL, NULL) != napi_ok || count < 1) {
@@ -134,9 +145,9 @@ static napi_value close(napi_env env, napi_callback_info info) {
 static napi_value start(napi_env env, napi_value exports) {
     napi_property_descriptor four[] = {
         {"abi", NULL, abi, NULL, NULL, NULL, napi_default, NULL},
-        {"open", NULL, open, NULL, NULL, NULL, napi_default, NULL},
+        {"open", NULL, open_core, NULL, NULL, NULL, napi_default, NULL},
         {"step", NULL, step, NULL, NULL, NULL, napi_default, NULL},
-        {"close", NULL, close, NULL, NULL, NULL, napi_default, NULL},
+        {"close", NULL, close_core, NULL, NULL, NULL, napi_default, NULL},
     };
     napi_define_properties(env, exports, sizeof(four) / sizeof(four[0]), four);
     return exports;

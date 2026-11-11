@@ -54,7 +54,8 @@ public final class RemoteUIView: UIView {
     /// is offered to the screen; the parts after it must be held back too. A Back the screen used and
     /// whose end still reached the system would leave the app on the way up. The set belongs to the
     /// app, not to one receiver, because the press that changes the screen is answered by the
-    /// receiver going away and may end on the one that takes its place.
+    /// receiver going away and may end on the one that takes its place. It holds only the presses
+    /// that are down now: a press beginning under a name already in it clears that name first.
     nonisolated(unsafe) private static var used: Set<String> = []
 
     public override var canBecomeFocused: Bool { on }
@@ -110,6 +111,13 @@ public final class RemoteUIView: UIView {
 
     public override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
         Self.heard?()
+        // A press beginning under a name already in the set means the press before it ended where no
+        // receiver was listening - a screen with no receiver of its own can be what the last press
+        // put on the screen - so its record was never taken out. Dropping it here bounds the set to
+        // the presses now down: a name left behind would hold back the end of this press and leave
+        // the system with a Back going down and never coming up, which is how a top level Back stops
+        // leaving the app.
+        for press in presses { Self.used.remove(Self.tag(press)) }
         guard on, let press = presses.first, let word = Self.word(press) else {
             super.pressesBegan(presses, with: event)
             return

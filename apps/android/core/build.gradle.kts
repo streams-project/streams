@@ -9,6 +9,14 @@ plugins {
 val repoRoot: File = rootDir.resolve("../..").canonicalFile
 val coreFolder: File = repoRoot.resolve("target")
 
+// The one declaration of the NDK this app is built with, read by this module and by `:app`.
+// It is a file and not a literal in two build scripts on purpose: `:app` packages the library this
+// module links, and the version is what lets `:app` find `llvm-strip`. When the two disagreed,
+// `:app` had no NDK at all, its strip task copied the library through untouched, and a 9.4 MB
+// library with its DWARF still in it shipped inside the APK. platform/tools/check_android_native.py
+// refuses a literal in either file.
+val declaredNdk: String = rootDir.resolve("core/ndk-version.txt").readText().trim()
+
 // Each Android CPU type and the Rust target that builds for it. A Google TV Streamer runs 32 bit
 // apps only, and phones run 64 bit.
 val cores = mapOf(
@@ -19,7 +27,7 @@ val cores = mapOf(
 android {
     namespace = "streams.core"
     compileSdk = 37
-    ndkVersion = "27.2.12479018"
+    ndkVersion = declaredNdk
     defaultConfig {
         minSdk = 26
         ndk { abiFilters += cores.keys }

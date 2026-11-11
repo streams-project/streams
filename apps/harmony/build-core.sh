@@ -10,8 +10,10 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
 OUT="${CARGO_TARGET_DIR:-$ROOT/target}"
 
-# Each HarmonyOS CPU and the Rust target that builds for it. Phones and tablets are 64 bit arm;
-# armv7 is here for older HarmonyOS hardware and x86_64 for the emulator.
+# Each HarmonyOS CPU and the Rust target that builds for it. Phones and tablets are 64 bit arm, and
+# aarch64 is the one target note 151 (line 275) names for CI. armv7 and x86_64 are not from any note:
+# they are here on the guess that older HarmonyOS hardware and the emulator want them, and either can
+# be dropped by passing the targets as arguments. Only aarch64 is required by anything written down.
 TARGETS="aarch64-unknown-linux-ohos armv7-unknown-linux-ohos x86_64-unknown-linux-ohos"
 if [ "$#" -gt 0 ]; then
     TARGETS="$*"

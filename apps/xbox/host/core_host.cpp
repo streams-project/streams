@@ -1,7 +1,6 @@
 #include "core_host.h"
 
 #include <cstddef>
-#include <utility>
 
 namespace streams {
 

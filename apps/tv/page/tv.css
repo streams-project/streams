@@ -1,5 +1,9 @@
-/* One 1920 by 1080 stage, scaled to the screen. Every place is a measurement of the real page:
-   card u 0.0287 to 0.8315, v 0.1565 to 0.9567, corner 24 px, peek from u 0.852. */
+/* One 1920 by 1080 stage, scaled to the screen. The landing card's place is a measurement of the real
+   page: card u 0.0287 to 0.8315, v 0.1565 to 0.9567, peek from u 0.852. Its corner was measured at
+   24 px; it is now note 188's panel role, 36. The two are treated differently on purpose - the corner
+   is this project's brand, which note 188 decided for every television screen, while the card's place
+   stays the measurement, because a moved composition has nothing to check it against. Both are named
+   as open items in the README so nobody reads this file as all-measurement. */
 
 /* A corner on a television is the brand's value times 1.5, by role (note 188, the same rule the
    two native television apps hold in Round.kt and Round.swift). One number changes all of them.
@@ -98,16 +102,22 @@ button {
 
 #film { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
 
+/* Get Help: a pill on the buttons' centre line, 760. Note 188 recorded it sitting below that line and
+   its fix as "a pill on their line", and the two native television apps draw it as a 56 tall circle
+   shape there (Door.kt: offset y 732, height 56, CircleShape). 732 + 28 = 760, the same centre as the
+   80 tall pills at 720. Nothing measures its height or corner as anything else. */
 #help {
   position: absolute;
   left: 96px;
-  top: 720px;
-  height: 80px;
-  line-height: 80px;
+  top: 732px;
+  height: 56px;
+  line-height: 56px;
   font-size: 24px;
   font-weight: 600;
   padding: 0 14px;
-  border-radius: var(--tv-field);
+  /* The button role is 999 and is not scaled (note 188 keeps it). The fallback stands in when
+     brand.css is not beside this page, as in a packaged app, where a pill would otherwise square off. */
+  border-radius: var(--radius-button, 999px);
   opacity: 0.85;
 }
 #help.on { opacity: 1; background: var(--text); color: var(--background); }
@@ -178,7 +188,10 @@ button {
 .code p { margin: 0 0 14px; font-size: 34px; color: var(--muted); }
 .code .code-address { font-size: 40px; font-weight: 700; color: var(--text); margin-bottom: 30px; }
 .code .code-value { font-size: 104px; font-weight: 800; letter-spacing: 6px; color: var(--text); margin: 8px 0 0; }
-.code-qr { position: absolute; left: 1140px; top: 60px; width: 460px; height: 460px; border-radius: var(--tv-field); }
+/* The QR picture keeps the corner it had. Note 188's roles name posters, stills, episode pictures and
+   the picture grid under card, and inputs, the code plate, PIN boxes and help boxes under field; a
+   460 px code picture is none of those, so the note decides nothing here and this is left alone. */
+.code-qr { position: absolute; left: 1140px; top: 60px; width: 460px; height: 460px; border-radius: 24px; }
 
 /* Who is watching: a column on the left, a title beside it. */
 .who { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; background: #000; overflow: hidden; }
@@ -211,7 +224,6 @@ button {
   position: absolute;
   left: 225px;
   top: 0;
-  border-radius: 18px;
   transition: width 200ms cubic-bezier(0.22, 0.61, 0.2, 1), height 200ms cubic-bezier(0.22, 0.61, 0.2, 1), left 200ms cubic-bezier(0.22, 0.61, 0.2, 1);
 }
 .who-row.on .avatar { left: 193px; box-shadow: 0 0 0 4px var(--text); }
@@ -265,10 +277,12 @@ button {
   vertical-align: middle;
   text-align: center;
   font-weight: 800;
-  border-radius: 28px;
+  /* A face, its focus ring and the add tile take 16 percent of their size, so a growing face keeps
+     its shape (note 188). A share, not a number, so it follows the size as the size animates: the
+     one moment the rule exists for. 48 -> 7.7, 130 -> 20.8, 194 -> 31. */
+  border-radius: 16%;
   background: var(--accent) center / cover no-repeat;
 }
-.avatar.square { border-radius: 8px; }
 .avatar.kids { background-color: var(--join); }
 .top-who { position: absolute; left: 72px; top: 44px; }
 .top-search { position: absolute; left: 554px; top: 51px; }

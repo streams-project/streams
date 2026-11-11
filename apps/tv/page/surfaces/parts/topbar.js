@@ -12,7 +12,8 @@
   tv.parts.topbar = function (navItems, active, person) {
     var bar = kit.make("div", "top");
     var who = kit.make("span", "top-who");
-    who.appendChild(tv.parts.avatar(person, 48, "square"));
+    // 48 is the bar's face (note 188); its corner is the same 16% share as every other face.
+    who.appendChild(tv.parts.avatar(person, 48));
     who.appendChild(tv.parts.icon("caret-down", 22));
     bar.appendChild(who);
     var search = kit.make("span", "top-search");

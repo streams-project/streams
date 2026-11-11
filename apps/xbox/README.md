@@ -65,10 +65,13 @@ Two platform facts decide how that surface is built, rather than how it looks:
 
 ### The numbers this surface holds
 
-Not restated here, because they are measured elsewhere and one of our surfaces already matches them.
-A remote surface for Xbox is held to the same figures as
-`apps/android/surfaces/tv`, which gap 9 of `netflix-reference/00-gaps.md` scores against Netflix
-line by line. The five that govern the grammar rather than the decoration:
+Not restated here, because they are measured elsewhere and one of our surfaces is already scored
+against them. A remote surface for Xbox is held to the same figures as `apps/android/surfaces/tv`,
+which gap 9 of `netflix-reference/00-gaps.md` scores against Netflix line by line. That scoring is
+not a match: its own heading reads "TV geometry: five small misses, all under 1.2% except the bar",
+and the misses are gutter 17 against our 19, the top bar 53 px against 64, a 2 line synopsis against
+3, and the first tab label at x 642 against 609. The four figures that govern the grammar rather
+than the decoration:
 
 * The focused row is pinned to a fixed band, y 199-708 of 1080, in 24 of 24 sampled frames. The
   content scrolls under it and focus never walks down the screen.
@@ -76,17 +79,29 @@ line by line. The five that govern the grammar rather than the decoration:
   2.91x the width at the same height. Two assets per title per row, not one image scaled.
 * Tile pitch 328, gutter 17, so 5.85 closed tiles cross the screen. A Top 10 row keeps the 311 tile
   and widens the gutter to 146.
-* Cards carry no text: titles and badges are composited into the artwork server side.
 * While a tab loads the body is pure black for 1.1 to 4.7 s, with the top bar standing and the
   destination tab already lit. No skeleton, no held content.
 
-Source for all five: `netflix-reference/tv/00-netflix-on-the-tv-measured.md`, sections 6b, 5 and 10,
+Source for all four: `netflix-reference/tv/00-netflix-on-the-tv-measured.md`, sections 6b, 5 and 10,
 measured 2026-11-11.
 
-Xbox adds one piece of arithmetic to them. The console renders at 1920 x 1080 whatever the television
-is, and scales a XAML app 200% by default, so a XAML layout is designed at 960 x 540 effective pixels
-and every measured figure above is halved. Source: [Designing for Xbox and
-TV](https://learn.microsoft.com/en-us/windows/apps/design/devices/designing-for-tv), read 2026-11-11.
+One figure that is **not** measured on a television, and an earlier draft of this file put it in the
+list above as though it were. Netflix's **web** card carries no text at all - `<img alt=""
+height="192" width="342" class="standard-card tracked-card">` - with titles and badges composited
+into the artwork server side. That is gap 4 of `netflix-reference/00-gaps.md` (line 84), whose own
+evidence is the web section, "What surprised me" item 2 (`netflix-reference/web/README.md:234`). The
+TV note records the opposite for the one Home row it measured: "Each tile is a word or a show logo
+on a dark rounded rectangle - no artwork at all" (section 6). So whether a remote surface's cards
+carry text is open, and nothing here settles it from a TV measurement.
+
+Xbox would add one piece of arithmetic to those four, **if** it goes the XAML route. The console
+renders at 1920 x 1080 whatever the television is, and scales a XAML app 200% by default, so a XAML
+layout is designed at 960 x 540 effective pixels and every measured figure above halves. Source:
+[Designing for Xbox and
+TV](https://learn.microsoft.com/en-us/windows/apps/design/devices/designing-for-tv), read
+2026-11-11. The halving is a property of XAML's scale, not of the console: on Win32 with the Game
+Development Kit there is no XAML scale and the figures stand as measured. Open item 1 below is the
+one that decides which, so until it is answered neither form of the arithmetic is settled.
 
 ## What an Xbox application is, for a developer in this position
 
@@ -128,7 +143,7 @@ functions carrying UTF-8 JSON, described in `platform/bridges/README.md` - writt
 |---|---|
 | `host/core_host.h` | `streams::Core`: open, step, close, and the four statuses by name |
 | `host/core_host.cpp` | the boundary. Out bytes are copied once and handed straight back to `core_free` |
-| `host/smoke_test.cpp` | 11 checks that drive a real core through that class |
+| `host/smoke_test.cpp` | 11 checks that drive a real core through that class. Not run by CI |
 
 It holds no rules, exactly as `apps/android/core/src/main/cpp/bridge.c` holds none for Java.
 
@@ -140,8 +155,16 @@ Ran on this machine, 2026-11-11, x86_64 macOS, rustc 1.98.1:
     ./smoke
 
 11 of 11 held, no compiler warnings. That proves the C++ side of the boundary and the config shape a
-console sends (`"class":"box"`, `"form":"tv"`), and it proves nothing about Xbox: the equivalent on a
-console would be
+console sends (`"class":"box"`, `"form":"tv"`), and it proves nothing about Xbox.
+
+**CI never runs it.** The root `./check` is the whole of CI and it carries no C++ compiler and no C++
+test runner, and `platform/tools/check_rings.py` has no `xbox` family, so this test runs only when
+someone types the two commands above by hand. It will go stale silently the first time the C ABI or
+the core's config shape moves. Registering a compile-and-run in `./check`, behind a "no C++
+toolchain, not run" line like `check_types.py` already prints for a missing compiler, belongs to
+whoever owns that file; it is not done here.
+
+The equivalent of the build above on a console would be
 
     cargo build --locked --profile native -p bridge-c --target x86_64-pc-windows-msvc
 
@@ -178,11 +201,13 @@ this folder to its ports; adding one belongs to `platform/tools`.
 3. **Which `DeviceClass` an Xbox reports**, `box` or `tv`. It changes the per class floors the core
    picks (`platform/core/src/config.rs:81`). `host/smoke_test.cpp` uses `box` so the test has a
    value; it is not a decision.
-4. **The safe margin.** Netflix keeps 68 px of 1920, which is 3.5% and 34 effective pixels.
-   Microsoft says keep essential UI 48 effective pixels from the left and right and 27 from the top
-   and bottom, which is 96 px and 54 px at 1920. Following the measurement puts our row titles
-   inside the area Microsoft calls unsafe. Unblocked by the owner choosing, or by one look at a real
-   television.
+4. **The safe margin.** Netflix keeps 68 px of 1920, which is 3.5%. Microsoft says keep essential
+   UI 48 effective pixels from the left and right and 27 from the top and bottom. Those two are in
+   different units, and converting between them needs item 1 answered: at XAML's 200% scale
+   Microsoft's 48 and 27 are 96 px and 54 px at 1920, and Netflix's 68 px is 34 effective pixels, so
+   following the measurement would put our row titles inside the area Microsoft calls unsafe. On
+   Win32 with the GDK there is no such scale and the comparison has to be made again. Unblocked by
+   item 1, then by the owner choosing, or by one look at a real television.
 5. **Gamepad against remote in the contract.** `InputKind` names both
    (`platform/contract/src/client.rs:42`) and the owner's rule sends both to the remote surface.
    Whether the contract should also carry which surface was chosen is for the contract's owner.

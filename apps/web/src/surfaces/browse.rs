@@ -23,10 +23,22 @@ fn address_of(item: &NavItem) -> String {
 /// The nav item the viewer is on. Netflix draws that one at weight 500 and the rest at 400.
 /// Home and the kids' home are a target of their own and carry no screen name, so they are read
 /// back here; every other page names its screen.
-fn here(target: Target, screen: Option<ScreenName>, genre: Option<&str>, item: &NavItem) -> bool {
+///
+/// A title is the browse page with a modal over it (web README section 2) and its address carries
+/// no screen, so the marking comes from `behind`: the page still loaded underneath. That page's
+/// name carries no genre, so a genre item stays unmarked while its modal is open rather than
+/// marking a different genre's item.
+fn here(
+    target: Target,
+    screen: Option<ScreenName>,
+    genre: Option<&str>,
+    behind: Option<ScreenName>,
+    item: &NavItem,
+) -> bool {
     let screen = match target {
         Target::Home => Some(ScreenName::Home),
         Target::KidsHome => Some(ScreenName::Kids),
+        Target::Title => screen.or(behind),
         _ => screen,
     };
     screen == Some(item.screen) && genre == item.genre.as_deref()
@@ -37,12 +49,13 @@ fn near_end(y: f64, seen: f64, total: f64) -> bool {
     total - (y + seen) <= seen * AHEAD_VIEWPORTS
 }
 
-/// True when a page answered with no titles at all.
+/// True when a page answered with no titles at all. A notice section carries the server's words and
+/// never any tiles (`server-rules/src/answer.rs`), so it is not an empty answer: `draw` shows it
+/// instead of these words. Unreachable from a search today, which answers with one grid.
 fn nothing_found(screen: &Screen) -> bool {
-    screen
-        .sections
-        .iter()
-        .all(|section| section.tiles.is_empty())
+    screen.sections.iter().all(|section| {
+        section.tiles.is_empty() && !matches!(section.kind.drawn_as(), SectionKind::Notice)
+    })
 }
 
 /// A line of the words a search with no matches shows: a paragraph, or an item of its one list.
@@ -84,15 +97,18 @@ fn Top() -> impl IntoView {
                 .is_some_and(|s| s.state == SessionState::SignedIn)
         })
     };
+    // The page still under a title's modal: the one the nav marks while the modal is open.
+    let behind = Memo::new(move |_| shared.screen.with(|screen| screen.as_ref().map(|s| s.name)));
     view! {
         <header class="top" class:solid-top=scrolled>
             <Logo/>
             <nav>
                 {move || shared.nav.get().into_iter().map(|item| {
                     let address = address_of(&item);
+                    let behind = behind.get();
                     let on_it = shared.route.with(|route| {
                         route.as_ref().is_some_and(|route| {
-                            here(route.target, route.screen, route.genre.as_deref(), &item)
+                            here(route.target, route.screen, route.genre.as_deref(), behind, &item)
                         })
                     });
                     view! {
@@ -264,7 +280,11 @@ fn SearchBox(asked: RwSignal<String>) -> impl IntoView {
 
 /// What a search with no matches shows: six lines of plain text, measured on Netflix web
 /// 2026-11-11 - no illustration, no icon, no heading, no button. The words are the server's, so
-/// nothing is drawn until the strings carry `search.empty`.
+/// nothing is drawn until the strings carry `search.empty`, and `strings/en.json` does not: it has
+/// only `search.recommended`. So gap 13 of `00-gaps.md` is **not** closed by this - what a viewer
+/// gets today is still a blank result area, and the shape is here waiting for the words. The words
+/// belong to whoever owns `strings/`; the linter accepts the `{query}` placeholder already
+/// (`PLACEHOLDER_RE` in `platform/tools/check_strings.py` is `\{[a-z_]+\}`).
 #[component]
 fn NothingFound(asked: RwSignal<String>) -> impl IntoView {
     let shared = expect_context::<Shared>();
@@ -350,19 +370,27 @@ mod tests {
         let drama = item(ScreenName::Genre, Some("drama"));
         let series = item(ScreenName::Series, None);
         // Home is a target of its own and names no screen.
-        assert!(here(Target::Home, None, None, &home));
-        assert!(!here(Target::Home, None, None, &series));
+        assert!(here(Target::Home, None, None, None, &home));
+        assert!(!here(Target::Home, None, None, None, &series));
         assert!(here(
             Target::Screen,
             Some(ScreenName::Series),
             None,
+            None,
             &series
         ));
-        assert!(!here(Target::Screen, Some(ScreenName::Series), None, &home));
+        assert!(!here(
+            Target::Screen,
+            Some(ScreenName::Series),
+            None,
+            None,
+            &home
+        ));
         assert!(here(
             Target::Screen,
             Some(ScreenName::Genre),
             Some("drama"),
+            None,
             &drama
         ));
         // The same screen with another genre is another page.
@@ -370,10 +398,51 @@ mod tests {
             Target::Screen,
             Some(ScreenName::Genre),
             Some("comedy"),
+            None,
             &drama
         ));
         // A page with no nav item of its own marks nothing.
-        assert!(!here(Target::Watch, None, None, &home));
+        assert!(!here(Target::Watch, None, None, None, &home));
+    }
+
+    #[test]
+    fn a_title_keeps_the_marking_of_the_page_behind_its_modal() {
+        let home = item(ScreenName::Home, None);
+        let series = item(ScreenName::Series, None);
+        let drama = item(ScreenName::Genre, Some("drama"));
+        // A title's address carries no screen; the page under it does.
+        assert!(here(
+            Target::Title,
+            None,
+            None,
+            Some(ScreenName::Series),
+            &series
+        ));
+        assert!(!here(
+            Target::Title,
+            None,
+            None,
+            Some(ScreenName::Series),
+            &home
+        ));
+        // A genre page keeps no genre in a title's address, so no genre item is marked.
+        assert!(!here(
+            Target::Title,
+            None,
+            None,
+            Some(ScreenName::Genre),
+            &drama
+        ));
+        // Nothing loaded behind it marks nothing.
+        assert!(!here(Target::Title, None, None, None, &home));
+        // The marking still drops on a page that is not browse at all.
+        assert!(!here(
+            Target::Watch,
+            None,
+            None,
+            Some(ScreenName::Home),
+            &home
+        ));
     }
 
     #[test]
@@ -418,6 +487,14 @@ mod tests {
         assert!(nothing_found(&screen(Vec::new())));
         assert!(nothing_found(&screen(vec![section(0)])));
         assert!(!nothing_found(&screen(vec![section(0), section(1)])));
+    }
+
+    #[test]
+    fn a_notice_carries_words_without_tiles_and_is_not_an_empty_answer() {
+        let mut notice = section(0);
+        notice.kind = SectionKind::Notice;
+        assert!(!nothing_found(&screen(vec![notice.clone()])));
+        assert!(!nothing_found(&screen(vec![notice, section(0)])));
     }
 
     #[test]

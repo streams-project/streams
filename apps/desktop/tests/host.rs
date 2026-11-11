@@ -3,11 +3,10 @@
 //! against the core in `platform/kit/core`, not again here.
 
 use std::sync::{Arc, Mutex};
+use std::time::Duration;
 
 use contract::core_msg::{Action, Event, EventBody, HttpMethod, Target};
-use desktop::{
-    Answer, Call, Done, Host, Network, NoPlayer, NoReel, Ports, Secrets, Settings, Store,
-};
+use desktop::{Answer, Call, Done, Host, Network, NoPlayer, Ports, Secrets, Settings, Store};
 
 const SERVER: &str = "http://127.0.0.1:1";
 
@@ -128,7 +127,6 @@ fn host(network: Box<dyn Network>, seen: &Seen, writes: bool) -> Host {
         }),
         store: Box::new(Files { seen: seen.clone() }),
         player: Box::new(NoPlayer),
-        reel: Box::new(NoReel),
     };
     Host::with_ports(&settings(), ports).expect("a host opens")
 }
@@ -304,8 +302,13 @@ fn an_unanswerable_server_leaves_a_wake_for_the_surface_to_honour() {
     // The first turn sends hello; the 503 arrives on the next drain and the core backs off.
     host.step(Vec::new());
     let turn = host.drain();
+    // A `Duration`, not an instant: the clock the core names its wake on is this host's own and
+    // nothing public reads it, so a surface could not turn an instant into a wait.
+    let wake = turn
+        .wake_in
+        .expect("no wake came back, so nothing would ever ask again");
     assert!(
-        turn.next_wake_ms.is_some(),
-        "no wake came back, so nothing would ever ask again"
+        wake <= Duration::from_secs(60),
+        "a wake no surface would sit through: {wake:?}"
     );
 }

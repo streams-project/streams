@@ -7,7 +7,12 @@
   var make = kit.make;
   var STEP = 328;
   var AHEAD = 5;
-  var RISE = 797;
+  // How far this row travels to take the dim row's place, so it must be this page's own distance
+  // between the two, not Netflix's. Here that is 798: row title 146 to 944, open card 200 to next
+  // posters 998. The reference's 797 is Netflix's row-title-to-row-title pitch, and its own rhythm
+  // is not one translation (titles 151 to 948 is 797 while tiles 199 to 998 is 799), so it cannot
+  // be this number. Moving this page's rhythm onto the reference's is an open item in the README.
+  var RISE = 798;
   var RISE_MS = 340;
   var FADE_MS = 260;
 

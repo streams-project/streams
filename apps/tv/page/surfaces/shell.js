@@ -80,11 +80,14 @@
   function press(word) {
     if (tv.surfaces.door.isOpen()) return tv.surfaces.door.press(word);
     if (keys && keys(word)) return true;
-    if (word === "back" && route) {
-      // Back never leaves the app once the viewer is in: it walks out the way they came, and at
-      // the first screen it does nothing. Netflix on a television answers four Back presses
-      // without leaving, and the way out there is a line in the profile menu, not this key.
-      if (route.target !== "home" && route.target !== "kids_home") kit.back();
+    if (word === "back" && route && route.target !== "home" && route.target !== "kids_home") {
+      // Back walks out the way the viewer came, one level at a time, and the root pages leave the
+      // app: note 187, a recorded decision. Netflix does not do that - the reference measured four
+      // BACK presses on its profile gate with the app still in front every time (section 7, n=4),
+      // and the way out there is an Exit line in the profile menu (note 184). This page has no
+      // profile menu, so taking Back here as well would leave no way out of a packaged app at all.
+      // Note 187 holds until that menu exists; the README names the disagreement for the owner.
+      kit.back();
       return true;
     }
     return false;

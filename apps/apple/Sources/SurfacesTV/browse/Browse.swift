@@ -6,7 +6,20 @@ import SwiftUI
 private let rise: CGFloat = 810
 private let riseTime = 0.32
 
-/// How near the last row the focus has to come before the rest of the page is read.
+/// How near the last row the focus has to come before the rest of the page is read: two, meaning the
+/// row the focus is on and the one drawn below it.
+///
+/// Derived from the band this surface draws, not from a fetch Netflix was seen to make. A row screen
+/// always shows the next row's title and the top of its tiles under the focused row
+/// (`notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md` section 6b: "next row title
+/// 948-978, next row tiles from 998 with 82 px visible"), and this page draws that row from
+/// `focus.row + 1`. Reading on arrival at the very last row would therefore leave the viewer looking
+/// at an empty band below the focus while the answer is in flight, so the read starts one row
+/// earlier - the smallest window that keeps a row under the focus, and no prefetch beyond it.
+///
+/// Section 7 is not evidence for this number: it measures single steps on the profile gate, where
+/// every step costs a fetch and nothing is prefetched, which says nothing about how a page of rows
+/// is paged.
 private let near = 2
 
 private enum Where { case top, hero, row }
@@ -157,7 +170,12 @@ public struct Browse: View {
             TopBar(tabs: tabs, active: active, focus: active, person: person, server: seen.server)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        // A screen that is not here yet answers no key, and a key it let through would leave the app.
+        // A screen that is not here yet answers no key. This is a choice, and it is stated as one:
+        // the measurement covers what is drawn while a tab loads (section 5: the body is black for
+        // 1.08-4.67 s, top bar standing, no skeleton) and nothing was measured about what the keys
+        // do in that window. On tvOS a Back this app does not answer reaches the system and leaves
+        // the app, so holding every key here costs the viewer a dead Back for as long as the body is
+        // black, and letting Back through would drop them out of the app mid load.
         .remote { _ in true }
     }
 

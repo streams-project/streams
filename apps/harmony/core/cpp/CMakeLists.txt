@@ -26,6 +26,8 @@ set_target_properties(bridge_c PROPERTIES IMPORTED_LOCATION ${CORE_FOLDER}/${COR
 
 add_library(streamscore SHARED napi_bridge.c)
 target_include_directories(streamscore PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../../platform/bridges/c)
-# libace_napi.z.so carries Node-API on HarmonyOS. dl and m are what the Rust standard library
-# needs; the bridge writes no log line of its own, so hilog is not linked.
-target_link_libraries(streamscore libace_napi.z.so dl m)
+# bridge_c first, which is the core itself: without it this library links with undefined references
+# to core_abi, core_open, core_step, core_close, core_alloc and core_free, and the runtime would load
+# a library with no core in it. libace_napi.z.so carries Node-API on HarmonyOS. dl and m are what the
+# Rust standard library needs; the bridge writes no log line of its own, so hilog is not linked.
+target_link_libraries(streamscore bridge_c libace_napi.z.so dl m)

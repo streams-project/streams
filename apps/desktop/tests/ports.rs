@@ -3,14 +3,14 @@
 
 use std::collections::BTreeMap;
 use std::io::{Read as _, Write as _};
-use std::net::{TcpListener, TcpStream};
+use std::net::TcpListener;
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
 use std::time::Duration;
 
 use contract::core_msg::{HttpMethod, NoAnswerReason};
 use contract::driver::DriverCommand;
-use desktop::{Answer, Call, FileSecrets, FileStore, Network, NoPlayer, NoReel, Player, Reel};
+use desktop::{Answer, Call, FileSecrets, FileStore, Network, NoPlayer, Player};
 use desktop::{HttpNetwork, Secrets, Store};
 
 /// A folder of this test's own, under the target folder so a run leaves nothing behind elsewhere.
@@ -71,7 +71,7 @@ fn the_store_lists_the_layers_own_keys_in_order_and_nothing_else() {
         "q/0000000000000002",
         "q/0000000000000001",
         "index",
-        "b/0000000000000001",
+        "c/0000000000000001",
     ] {
         assert!(store.put(key, key), "{key} was refused");
     }
@@ -88,7 +88,7 @@ fn the_store_lists_the_layers_own_keys_in_order_and_nothing_else() {
     assert_eq!(store.get("index").as_deref(), Some("index"));
     store.delete("index");
     assert_eq!(store.get("index"), None);
-    assert!(store.keys("").contains(&String::from("b/0000000000000001")));
+    assert!(store.keys("").contains(&String::from("c/0000000000000001")));
     assert!(!store.keys("").contains(&String::from("notes.txt")));
 }
 
@@ -207,22 +207,19 @@ fn the_connection_watch_says_nothing_yet_and_says_so_by_doing_nothing() {
         let _ = back.send(online);
     }));
     assert!(heard.recv_timeout(Duration::from_millis(200)).is_err());
-    // Proves the socket that stands in for a watch is not confused with one: see DECISIONS.md.
-    let _ = TcpStream::connect("127.0.0.1:9");
 }
 
 #[test]
-fn no_film_plays_and_no_brand_film_plays_and_both_say_so() {
+fn no_film_plays_and_a_command_to_a_host_with_no_driver_goes_nowhere_quietly() {
+    // The port hands nothing back, so what is proved here is that every command is taken and none
+    // of them reaches anything: a dropped command is the whole behaviour, and the play is rescued
+    // by the core's own start deadline, which `platform/kit/core` proves and this crate does not.
     let mut player = NoPlayer;
     for command in [
         DriverCommand::Play,
         DriverCommand::Pause,
         DriverCommand::Seek { to_ms: 1_000 },
     ] {
-        assert!(
-            !player.command(command),
-            "a host with no driver claimed it played"
-        );
+        player.command(command);
     }
-    assert!(!NoReel.plays());
 }

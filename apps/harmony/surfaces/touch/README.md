@@ -29,8 +29,25 @@ sits outside this repository; paths like `netflix-reference/phone/...` are insid
 
 ArkUI measures in `vp`, which is the same unit as Android's `dp` (assumed, not checked here).
 
-One gap this surface must not repeat. `00-gaps.md` gap 1 and gap 2: the server builds up to 50 rows and
-the apps ask for 12, `GET /v1/more/{cursor}` has exactly one caller in the whole tree (`apps/web`), and
-neither native family reads `Screen.cursor` — so 38 built rows and 96 of 120 titles in a row are
-unreachable on a phone today. A first screen here reads the cursor from the start. Nothing new has to
-be built on the server for it.
+Every figure in that table is a **phone** measurement, and this surface also carries tablets. What a
+tablet does with them is a recorded decision, not a guess here, and not a second layout:
+`netflix-reference/08-account-settings-hierarchy-android.md:142` — Netflix's tablet app is the phone app
+drawn wider, with the same header, the same chips row, the same floating bottom pill and the same My
+Netflix and Profile screens, so tablet widths (768 to 1023 px) use the phone tree and the phone screens
+centred in a wider column, with no separate tablet tree. The note marks that **verified** for the home
+layout, from one App Store image, and **assumed** for everything behind the profile sheet. No figure
+above has been measured on a tablet. What would settle it: the same measurement pass, on a tablet.
+
+One gap this surface must not repeat, and it is narrower than it was. `00-gaps.md` gap 1 measures
+`ROWS_CAP = 60` and `INITIAL_ROWS = 12` in `server/crates/server-pages/src/plan.rs:14-16`; the 50 rows
+the note also quotes is what `platform/tools/score_pages.py:94` reached on Home by following the cursor,
+not a server cap, and the note's 38 unreachable rows is that 50 less the 12 the app is given. Gap 2
+measures a row at 15 titles plain and 24 at the head of a composed row against `MAX_ROW_DEPTH = 120` on
+the server.
+
+What has changed since that note: paging exists in both native families as of this commit, so there is
+nothing to invent here. `GET /v1/more/{cursor}` is called from
+`apps/android/surfaces/phone/src/main/kotlin/streams/phone/browse/Paging.kt:75,120` and
+`apps/apple/Sources/SurfacesPhone/browse/Home.swift:301`, and `Screen.cursor` is read at
+`Paging.kt:59-61,115` and `Home.swift:297-314`. A first screen here follows those two rather than
+writing a third answer, and nothing new has to be built on the server for it.

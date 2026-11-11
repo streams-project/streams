@@ -175,12 +175,9 @@ fun SectionRow(
             contentPadding = PaddingValues(horizontal = RowStart),
             horizontalArrangement = Arrangement.spacedBy(TileGap),
         ) {
-            // Every tile of one row is the same kind, so the toolkit can hand a tile that has left
-            // the screen to the next row of that kind instead of building another one mid fling.
             itemsIndexed(
                 tiles,
                 key = { _, tile -> tile.title.value },
-                contentType = { _, _ -> section.kind.value },
             ) { index, tile ->
                 when (section.kind) {
                     SectionKind.RANKED -> {
@@ -223,7 +220,6 @@ fun SectionRow(
         FullPageGrid(
             title = section.title.orEmpty(),
             tiles = tiles,
-            kind = section.kind.value,
             words = words,
             reach = { held, place -> depth.reach(section, held, place) },
             onClose = { gridOpen = false },
@@ -464,7 +460,6 @@ private fun TileCard(
 private fun FullPageGrid(
     title: String,
     tiles: List<Tile>,
-    kind: String,
     words: Map<String, String>,
     reach: (held: Int, place: Int) -> Unit,
     onClose: () -> Unit,
@@ -528,7 +523,7 @@ private fun FullPageGrid(
                 verticalArrangement = Arrangement.spacedBy(TileGap),
                 modifier = Modifier.fillMaxSize(),
             ) {
-                items(tiles, key = { it.title.value }, contentType = { kind }) { tile ->
+                items(tiles, key = { it.title.value }) { tile ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()

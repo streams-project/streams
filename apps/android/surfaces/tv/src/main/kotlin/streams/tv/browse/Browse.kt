@@ -45,9 +45,12 @@ private const val RISE = 810
 private const val RISE_MS = 320
 
 /**
- * How many rows past the focused one the page keeps in hand. A television screen holds one open row
- * and the title plus 82 px of the next (netflix-reference/tv geometry, `row_screen.vertical_layout_px`),
- * so the second row below focus is the first one the viewer cannot already see.
+ * How many rows past the focused one the page keeps in hand. One row below the focused one is already
+ * partly on screen - 82 px of its tiles (netflix-reference/tv/raw/tv-geometry-1920x1080.json,
+ * `row_screen.vertical_layout_px.next_row_tile_visible_height`) - so the second row down is the first
+ * the viewer cannot see at all. Holding that one as well is this surface's own prefetch margin and not
+ * a Netflix measurement: Netflix prefetches nothing on a television and fetches on arrival instead
+ * (netflix-reference/tv/00-netflix-on-the-tv-measured.md, section 7).
  */
 private const val REACH = 2
 
@@ -68,7 +71,7 @@ private class PageGrowth {
     var from: String? = null
 
     /** The next cursor to read, or nothing when the page has given everything it has. */
-    var next: String? = null
+    var next by mutableStateOf<String?>(null)
     var busy = false
     var extra by mutableStateOf<List<Section>>(emptyList())
 }
@@ -165,7 +168,15 @@ fun Browse(shell: Shell, seen: Seen) {
     val growth = remember(current, seen.route?.genre) { memory.getOrPut("more $page") { PageGrowth() } as PageGrowth }
     // Games has no rows yet, and the kept page behind it belongs to the tab before.
     val sections = if (current == "games") emptyList() else data.sections.filter { !it.tiles.isNullOrEmpty() }
-    val rows = (sections + growth.extra).filter { it.kind in RowKinds }
+    // Rows read past the first twelve belong to the answer their cursor came from. The core holds the
+    // previous screen's answer while a new tab loads, and for the games screen it never asks and never
+    // clears what it holds (platform/core/src/lib.rs:410-417), so the cursor standing on the Games tab
+    // is the cursor of the tab before it. A page therefore grows only from an answer that names the
+    // screen the route asked for; Home and the kids home name no screen on the route, so there the
+    // answer's own name stands for it.
+    val asked = seen.route?.screen?.value
+    val mine = current != "games" && (asked == null || asked == data.name.value)
+    val rows = (if (mine) sections + growth.extra else sections).filter { it.kind in RowKinds }
     val lead = sections.firstOrNull { it.kind == SectionKind.HERO }?.tiles?.first()
     val tabs = tabsOf(seen.nav)
     val active = tabs.indexOfFirst { it.screen.value == current }.coerceAtLeast(0)
@@ -181,7 +192,8 @@ fun Browse(shell: Shell, seen: Seen) {
     var menu by remember { mutableStateOf(false) }
 
     // A fresh answer is a fresh page: what was read past its first rows belongs to the answer it came from.
-    LaunchedEffect(data.cursor) {
+    LaunchedEffect(data.cursor, mine) {
+        if (!mine) return@LaunchedEffect
         if (growth.from != data.cursor) {
             growth.from = data.cursor
             growth.next = data.cursor
@@ -191,7 +203,8 @@ fun Browse(shell: Shell, seen: Seen) {
     }
     // The page reads its next rows as the focus comes within reach of the last one it holds. A remote
     // cannot flick past twelve rows, so the rows arrive before they are wanted rather than on a gesture.
-    LaunchedEffect(focus.row, focus.where, growth.extra.size, current) {
+    LaunchedEffect(focus.row, focus.where, growth.extra.size, growth.next, mine) {
+        if (!mine) return@LaunchedEffect
         val cursor = growth.next ?: return@LaunchedEffect
         // A page whose first answer carried no rows at all can only grow by asking; any other page
         // waits until the focus is within reach of the last row it already holds.
@@ -231,9 +244,15 @@ fun Browse(shell: Shell, seen: Seen) {
         }
         focus.press(word) -> true
         // Back from the top of any page but Home goes Home, and on Home it stops here: the app stays
-        // open. Netflix on a television answered four Back presses without leaving its activity
-        // (netflix-reference/tv/00-netflix-on-the-tv-measured.md, section 7, n=4); the way out is the
-        // Exit line at the foot of the profile menu behind the face.
+        // open. What is measured is the general fact - "Back never exits the app. Exit is a menu item"
+        // (netflix-reference/tv/00-netflix-on-the-tv-measured.md, section 10 item 8, with note 184's
+        // Exit Netflix line). The four BACK presses in raw/key-probes.csv were on the screen reached
+        // after profile selection, not on Home; section 8 of that note says Home was never reached, so
+        // nothing here is claimed about Back on Netflix's own Home. The way out is the Exit line at the
+        // foot of the profile menu behind the face.
+        // OWNER: 00-gaps.md gap 7 keeps "whether Back on Home should exit" as his decision, and this
+        // branch also swallows Back on the kids home (Target.KIDS_HOME leaves route.screen null, so
+        // `current` falls back to "home"), which no capture covers. Left as it stands for him.
         word == Word.BACK -> {
             if (current != "home") shell.go(Address.HOME)
             true

@@ -1,5 +1,15 @@
 //! The hexagon of the desktop family. The core sits in the middle, and everything it needs from a
-//! machine goes through one of these five. They name the same ports as every other family.
+//! machine goes through one of these four.
+//!
+//! The names are every other family's: network, secrets, store, player. Where a shape departs from
+//! `apps/android/ports/src/main/kotlin/streams/ports/Ports.kt` the departure is written here rather
+//! than left to be found. `Store::put` hands back `false` where Android's returns nothing, because the
+//! offline layer reads a refused write and marks itself not durable (`self.durable = false` on an
+//! `EventBody::Unsupported`, `platform/offline/src/lib.rs:239`), which Android's `Unit` cannot say. `Player` carries `command` alone where Android's also has `listen`,
+//! `picture`, `now`, `lift` and `wordsLook`; every one of those four others needs a picture a
+//! surface's toolkit owns, and this family has no surface. The fifth port every other family names,
+//! `reel`, is not named here at all for that same reason - its shape is a toolkit picture - and it
+//! arrives with the shell that owns one.
 
 use std::collections::BTreeMap;
 
@@ -69,16 +79,15 @@ pub trait Store: Send + Sync {
 
 /// Plays films, reports facts, and decides nothing.
 pub trait Player: Send {
-    /// Perform one command. `false` means this host cannot, and the core is answered
-    /// `EventBody::Unsupported` rather than left waiting for a driver that will never report.
-    fn command(&mut self, given: DriverCommand) -> bool;
+    /// Perform one command. Nothing is handed back, as on the other families: the core takes a
+    /// player effect's id from its counter and registers it in no waiting map
+    /// (`platform/core/src/lib.rs:496`), so there is no answer to a command for it to match.
+    fn command(&mut self, given: DriverCommand);
 }
 
-/// Brand films on the way in. The title player belongs to the core, so this stays apart from it.
-///
-/// A reel draws into a picture that belongs to a surface's own toolkit, and this family has no
-/// surface of its own, so the port is named here with the one question a host can ask without one.
-pub trait Reel: Send {
-    /// False while nothing here can show a brand film, so a surface never holds room for one.
-    fn plays(&self) -> bool;
-}
+// This port has no way back, and that is open rather than settled. A driver reports through
+// `EventBody::Driver { generation, event }` (`platform/contract/src/core_msg.rs:318`), which
+// Android's `Player.listen(report)` carries and this trait does not. Until something here plays a
+// film, a shell that attaches a driver hands those events to `Host::step` itself, the same escape
+// `Network::watch` describes for a connection change. Commands would then leave through the port
+// and reports arrive beside it, which wants a decision before a driver lands.

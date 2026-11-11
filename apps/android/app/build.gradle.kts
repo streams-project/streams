@@ -8,12 +8,18 @@ plugins {
 }
 
 val brand = JsonSlurper().parse(rootDir.resolve("../../brand.json")) as Map<*, *>
+// The NDK this app is built with, declared once in `core/ndk-version.txt`. This module is the one
+// that packages the native libraries, so without it Android Gradle has no `llvm-strip` to run and
+// its strip task passes the library through unchanged: the APK then carries the debug information
+// of the core, uncompressed, which measured 9,439,528 bytes for arm64 against 3,302,872 stripped.
+val declaredNdk: String = rootDir.resolve("core/ndk-version.txt").readText().trim()
 // A second copy on one device: -PappSuffix=.owner installs beside the normal app, with its own sign in.
 val suffix = providers.gradleProperty("appSuffix").orNull
 
 android {
     namespace = "streams.app"
     compileSdk = 37
+    ndkVersion = declaredNdk
     defaultConfig {
         applicationId = "${brand["command"]}.app"
         minSdk = 26
@@ -30,6 +36,10 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            // The debug information the strip above removes is kept per ABI, outside the app, so a
+            // crash address from a device still resolves to a function. A bundle writes it to
+            // build/outputs/native-debug-symbols/release/native-debug-symbols.zip.
+            ndk { debugSymbolLevel = "FULL" }
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "keep.pro")
             // Until the release key exists, so a release build can run on a test device.
             signingConfig = signingConfigs.getByName("debug")

@@ -134,9 +134,15 @@ fun Profiles(shell: Shell, seen: Seen, fromInside: Boolean = false) {
                 }
             }
             // Opened with Switch Profiles, Back returns to the page. At the start of the app it stops
-            // here and the app stays open: Netflix's own gate answered four Back presses without
-            // leaving (netflix-reference/tv/00-netflix-on-the-tv-measured.md, section 7, n=4), and it
-            // carries no way out of its own either - the way out is the television's own Home.
+            // here and the app stays open: "Back never exits the app. Exit is a menu item"
+            // (netflix-reference/tv/00-netflix-on-the-tv-measured.md, section 10 item 8, with note 184's
+            // Exit Netflix line). Netflix's own gate was never Back-tested - its probes were DOWN, UP,
+            // RIGHT x12 and CENTER (raw/key-probes.csv) - so nothing is claimed about the gate itself.
+            // This gate carries no way out of its own: the way out is the television's own Home.
+            // OWNER: 00-gaps.md keeps this one ("Back on the TV's Home - exits today, Netflix never
+            // exits. Unblocks: an owner decision and an Exit line in the profile menu") as his, and
+            // note 187's row "Profile chooser: at the start it leaves" now contradicts this code and
+            // wants a dated correction. Left as it stands for him.
             Word.BACK -> if (fromInside) shell.back()
         }
         return true

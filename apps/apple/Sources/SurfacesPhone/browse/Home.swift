@@ -17,18 +17,6 @@ private let mutedGrey = Color(red: 0xC0 / 255.0, green: 0xC0 / 255.0, blue: 0xC0
 /// about four rows of 217, so two viewports is about eight. Three is the careful end of that.
 private let aheadRows = 3
 
-/// How far down each page was left, for this run of the app. This is not view state: the page is
-/// torn down when a title opens over it, and a viewer coming back expects the row they were on.
-/// The number is the distance from the top of the page, so it does not move with the safe area.
-@MainActor
-private enum AtRow {
-    private static var kept: [String: CGFloat] = [:]
-
-    static func of(_ key: String) -> CGFloat? { kept[key] }
-
-    static func keep(_ key: String, _ down: CGFloat) { kept[key] = down }
-}
-
 /// The last offset seen, held outside view state: it changes on every scrolled frame, and a page
 /// that re-reads its own body that often draws nothing new for the cost.
 @MainActor
@@ -66,15 +54,16 @@ struct Home: View {
             ?? seen.nav.first(where: { $0.screen.rawValue == here })?.label
             ?? words["app.title"] ?? seen.brand
 
-        let screenKey = onHome ? "home" : "\(here):\(seen.route?.genre ?? "")"
-
         let inList = saved ?? false
 
         GeometryReader { proxy in
             let topInset = proxy.safeAreaInsets.top
             // The page rests with its first pixel under the chip row, as the reference's does
-            // (billboard y 453 = status bar 132 + header 321). The scroll view is already inside
-            // the safe area, so only the header's own height is held back.
+            // (phone/00-netflix-phone-measurements.md section 3: billboard y 453 = status bar 132 +
+            // header expanded 321, which is 125.3 dp and is this header's own 52 + 73). Only the
+            // header's own height is held back here, because the safe area is already in the scroll
+            // view's insets: the rig read the content resting at 62 before this margin and at 187
+            // after it, 62 + 125.
             let headerHigh = topBarHeight + chipRowHeight
 
             ZStack(alignment: .top) {
@@ -95,8 +84,12 @@ struct Home: View {
 
                 // Scroll content
                 ScrollView {
-                    LazyVStack(spacing: 0) {
-                        // Before iOS 18 the offset is read from the content's own geometry.
+                    VStack(spacing: 0) {
+                        // Before iOS 18 the offset is read from the content's own geometry. The reader
+                        // stands outside the lazy stack: as the lazy stack's first child it is thrown
+                        // away the moment it scrolls out of sight, and the reading falls back to the
+                        // key's nought mid scroll, which puts the chips back and takes the header's
+                        // colour away with nothing to report afterwards.
                         if #unavailable(iOS 18.0) {
                             GeometryReader { geo in
                                 Color.clear
@@ -108,64 +101,75 @@ struct Home: View {
                             .frame(height: 0)
                         }
 
-                        if let lead {
-                            Billboard(
-                                shell: shell,
-                                tile: lead,
-                                words: words,
-                                saved: inList,
-                                play: {
-                                    shell.go(lead.isSeries ? titleAddress(lead.title) : watchAddress(lead.title))
-                                },
-                                list: {
-                                    saved = !inList
-                                    shell.act(.command(ActionCommand(command: .list(CommandList(inList: !inList, title: lead.title)))))
-                                },
-                                open: {
-                                    shell.go(titleAddress(lead.title))
-                                },
-                                tint: { newTint in
-                                    withAnimation(.easeInOut(duration: 0.6)) {
-                                        tint = newTint
+                        LazyVStack(spacing: 0) {
+                            if let lead {
+                                Billboard(
+                                    shell: shell,
+                                    tile: lead,
+                                    words: words,
+                                    saved: inList,
+                                    play: {
+                                        shell.go(lead.isSeries ? titleAddress(lead.title) : watchAddress(lead.title))
+                                    },
+                                    list: {
+                                        saved = !inList
+                                        shell.act(.command(ActionCommand(command: .list(CommandList(inList: !inList, title: lead.title)))))
+                                    },
+                                    open: {
+                                        shell.go(titleAddress(lead.title))
+                                    },
+                                    tint: { newTint in
+                                        withAnimation(.easeInOut(duration: 0.6)) {
+                                            tint = newTint
+                                        }
                                     }
-                                }
-                            )
-                            .id("billboard")
+                                )
+                                .id("billboard")
 
-                            Color.clear.frame(height: 16)
-                        }
-
-                        ForEach(Array(rows.enumerated()), id: \.element.id) { index, section in
-                            SectionRow(
-                                section: section,
-                                words: words,
-                                open: { tile in
-                                    shell.go(titleAddress(tile.title))
-                                },
-                                openInfo: { tile in
-                                    shell.go(titleAddress(tile.title))
-                                },
-                                onRemove: { tile in
-                                    shell.act(.command(ActionCommand(command: .hide(CommandHide(title: tile.title)))))
-                                }
-                            )
-                            .id(section.id)
-                            .onAppear {
-                                if index >= rows.count - aheadRows { readMore() }
+                                Color.clear.frame(height: 16)
                             }
-                        }
 
-                        // Bottom spacing for bar
-                        Color.clear.frame(height: 120)
+                            ForEach(Array(rows.enumerated()), id: \.element.id) { index, section in
+                                SectionRow(
+                                    section: section,
+                                    words: words,
+                                    open: { tile in
+                                        shell.go(titleAddress(tile.title))
+                                    },
+                                    openInfo: { tile in
+                                        shell.go(titleAddress(tile.title))
+                                    },
+                                    onRemove: { tile in
+                                        shell.act(.command(ActionCommand(command: .hide(CommandHide(title: tile.title)))))
+                                    }
+                                )
+                                .id(section.id)
+                                .onAppear {
+                                    if index >= rows.count - aheadRows { readMore() }
+                                }
+                            }
+
+                            // Bottom spacing for bar
+                            Color.clear.frame(height: 120)
+                        }
                     }
                 }
                 .coordinateSpace(name: "homeScroll")
                 .contentMargins(.top, headerHigh, for: .scrollContent)
                 .modifier(Drifted { moved($0) })
                 .onPreferenceChange(ScrollOffsetKey.self) { value in
-                    moved(-value)
+                    // Only the reader above writes this, and it is installed only before iOS 18;
+                    // from 18 the scroll view's own geometry is read instead. Without this the one
+                    // delivery of the key's default on a version that has no reader would report the
+                    // page back at its top.
+                    guard #unavailable(iOS 18.0) else { return }
+                    // The content rests below the header, not at the reader's own nought: the safe
+                    // area inset the scroll view is given, plus the top margin held back for the
+                    // header. Both readings came off the rig - the reader rested at 62 before this
+                    // page held a margin back, and at 62 + 125 = 187 after it - so the distance
+                    // scrolled is measured from there and is nought at rest.
+                    moved(topInset + headerHigh - value)
                 }
-                .modifier(Place(key: screenKey))
 
                 // Pinned Header
                 VStack(spacing: 0) {
@@ -404,8 +408,10 @@ private struct CloseX: Shape {
 }
 
 /// How far the page has been pulled up, from the scroll view itself. Reading it from the content's
-/// own geometry stopped working in iOS 18: a scrolled page reports the same number it reports at
-/// rest, so the chips never left and the header never took its colour.
+/// own geometry does not work on 26.5, the one version this was tried on: a scrolled page reports
+/// the same number it reports at rest, so the chips never left and the header never took its colour.
+/// Which version it broke on was not measured, so the older reader below is kept for the floor the
+/// package still declares rather than on a claim about where the break began.
 private struct Drifted: ViewModifier {
     let moved: (CGFloat) -> Void
 
@@ -422,47 +428,6 @@ private struct Drifted: ViewModifier {
     }
 }
 
-/// Puts a page back where it was left. Nothing is written down until the page has been put back,
-/// so the first measurement of a fresh page cannot erase what the viewer left.
-private struct Place: ViewModifier {
-    let key: String
-
-    func body(content: Content) -> some View {
-        if #available(iOS 18.0, *) {
-            content.modifier(Placed(key: key))
-        } else {
-            content
-        }
-    }
-}
-
-@available(iOS 18.0, *)
-private struct Placed: ViewModifier {
-    let key: String
-
-    @State private var place = ScrollPosition()
-    @State private var settled = false
-
-    func body(content: Content) -> some View {
-        content
-            .scrollPosition($place)
-            .onScrollGeometryChange(for: CGFloat.self) { geometry in
-                geometry.contentOffset.y + geometry.contentInsets.top
-            } action: { _, now in
-                if settled { AtRow.keep(key, now) }
-            }
-            .task(id: key) {
-                settled = false
-                let down = AtRow.of(key)
-                // A scroll view ignores a place given before it has laid its rows out.
-                await Task.yield()
-                if let down, down > 0 {
-                    place.scrollTo(point: CGPoint(x: 0, y: down))
-                }
-                settled = true
-            }
-    }
-}
 
 private struct ScrollOffsetKey: PreferenceKey {
     static var defaultValue: CGFloat = 0

@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,12 +31,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import coil3.compose.AsyncImage
-import contract.ImageRole
 import contract.Section
 import contract.Tile
 import streams.ports.Shell
@@ -68,11 +64,14 @@ private fun Poster(tile: Tile, modifier: Modifier) {
 /**
  * The card stays still and its art crossfades.
  *
- * The title on a focused card is the title's own picture, not a line of the interface's own type.
- * Netflix composites it into the still: on `03-row-grid-focused-tile-1920x1080.jpg` the treatment
- * stands in a 240 x 83 box inset 17 from the card's start edge and 23 from its foot, and its mark
- * sits on the other side, its text ending 37 px before the card's far edge. The name is kept for a
- * title the catalog has no picture for.
+ * The name and the chips are drawn over the art. Netflix composites them into the artwork instead,
+ * which notes/netflix-reference/00-gaps.md records as gap 4 and as an open owner decision, so this
+ * stays as it is until he takes it. 505652c swapped the name for the title's LOGO asset in a
+ * 240 x 83 box inset 17 and 23, and moved the chips to the far corner at 20 and 30; none of those
+ * five numbers is measured anywhere in notes/netflix-reference - `row_screen` in
+ * raw/tv-geometry-1920x1080.json carries tile sizes, pitch, gutter and the vertical rhythm and says
+ * nothing about what is drawn inside a card, and "badge chips bottom right" in that file is the Home
+ * hero card - so they are removed rather than kept on an unfiled reading of a frame.
  */
 @Composable
 private fun OpenCard(tile: Tile) {
@@ -82,31 +81,19 @@ private fun OpenCard(tile: Tile) {
             Art(url, Modifier.fillMaxSize())
         }
         Box(Modifier.align(Alignment.BottomStart).fillMaxWidth().height(200.ref).background(CardFoot))
-        TileBadges(tile, Modifier.align(Alignment.BottomEnd).padding(end = 20.ref, bottom = 30.ref))
-        val logo = tile.images.orEmpty().firstOrNull { it.role == ImageRole.LOGO }?.url
-        if (logo != null) {
-            AsyncImage(
-                logo,
-                tile.name,
-                Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(start = 17.ref, bottom = 23.ref)
-                    .sizeIn(maxWidth = 240.ref, maxHeight = 83.ref),
-                alignment = Alignment.BottomStart,
-                contentScale = ContentScale.Fit,
-            )
-        } else {
-            Text(
-                tile.name,
-                // Stops short of the badge on the far side, which starts about 280 in from that edge.
-                Modifier.align(Alignment.BottomStart).padding(start = 24.ref, bottom = 16.ref).width(600.ref),
-                fontSize = 44.refType,
-                fontWeight = FontWeight.ExtraBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = storyStyle(),
-            )
-        }
+        TileBadges(tile, Modifier.align(Alignment.BottomStart).padding(start = 24.ref, bottom = 78.ref))
+        Text(
+            tile.name,
+            // The card is 904 wide (netflix-reference/tv/raw/tv-geometry-1920x1080.json,
+            // `row_screen.focused_tile` 906 x 510, matched to 904 x 508 in 00-gaps.md gap 9), less the
+            // 24 inset on each side.
+            Modifier.align(Alignment.BottomStart).padding(start = 24.ref, bottom = 16.ref).width(856.ref),
+            fontSize = 44.refType,
+            fontWeight = FontWeight.ExtraBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = storyStyle(),
+        )
         Box(Modifier.fillMaxSize().border(3.ref, Color.White, shape))
     }
 }

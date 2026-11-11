@@ -2,13 +2,11 @@
 
 mod network;
 mod player;
-mod reel;
 mod secrets;
 mod store;
 
 pub use network::HttpNetwork;
 pub use player::NoPlayer;
-pub use reel::NoReel;
 pub use secrets::FileSecrets;
 pub use store::FileStore;
 
@@ -55,9 +53,11 @@ fn write_whole(path: &std::path::Path, value: &str) -> bool {
     let mut temporary = path.as_os_str().to_owned();
     temporary.push(".writing");
     let temporary = std::path::PathBuf::from(temporary);
-    let written = std::fs::File::create(&temporary).and_then(|mut file| {
-        file.write_all(value.as_bytes())?;
+    let written = create_own_only(&temporary).and_then(|mut file| {
+        // A temporary left by a run that stopped halfway may carry another mode, so this says it
+        // again on a file it did not create.
         own_only(&file)?;
+        file.write_all(value.as_bytes())?;
         file.sync_all()
     });
     if written.is_err() || std::fs::rename(&temporary, path).is_err() {
@@ -65,6 +65,27 @@ fn write_whole(path: &std::path::Path, value: &str) -> bool {
         return false;
     }
     true
+}
+
+/// Make a file nobody else can read, from the moment it exists. The mode goes on at creation
+/// rather than after the write: a session token written into a `0644` file is readable by every
+/// account on the machine for as long as the write takes, and a test on the finished file cannot
+/// see that window.
+#[cfg(unix)]
+fn create_own_only(path: &std::path::Path) -> std::io::Result<std::fs::File> {
+    use std::os::unix::fs::OpenOptionsExt as _;
+
+    std::fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .mode(0o600)
+        .open(path)
+}
+
+#[cfg(not(unix))]
+fn create_own_only(path: &std::path::Path) -> std::io::Result<std::fs::File> {
+    std::fs::File::create(path)
 }
 
 /// Keep a file to its owner. Windows has no such mode, so there the file carries the folder's
@@ -85,12 +106,31 @@ fn own_only(_file: &std::fs::File) -> std::io::Result<()> {
 mod tests {
     use super::{file_name, key_of};
 
+    /// The mode has to be on the file from the moment it exists. `tests/ports.rs` reads the
+    /// finished secret and cannot see the moment between a `0644` creation and a later `chmod`,
+    /// which is the moment a session token would be readable by every account on the machine.
+    #[cfg(unix)]
+    #[test]
+    fn a_file_this_host_creates_is_the_owners_from_the_first_byte() {
+        use std::os::unix::fs::PermissionsExt as _;
+
+        let at = std::env::temp_dir().join(format!("desktop-create-mode-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&at);
+        std::fs::create_dir_all(&at).expect("a folder for this test");
+        let path = at.join("fresh");
+        let file = super::create_own_only(&path).expect("a file");
+        let mode = file.metadata().expect("its mode").permissions().mode() & 0o777;
+        assert_eq!(mode, 0o600, "a token file was readable by someone else");
+        drop(file);
+        let _ = std::fs::remove_dir_all(&at);
+    }
+
     #[test]
     fn a_key_with_a_slash_or_a_space_comes_back_as_it_went_in() {
         for key in [
             "q/0000000000000001",
             "index",
-            "b/0000000000000002",
+            "c/0000000000000002",
             "a b",
             "ليل",
         ] {

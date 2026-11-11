@@ -74,8 +74,14 @@ Answered by: the first screen. Until then `watch` is honest about what it is.
 
 `Player` in the other two families has `picture(context) -> Any`, which hands a surface the video as an
 object only that toolkit understands (a `SurfaceView` on Android, an `AVPlayerLayer` on Apple).
-`ports/Ports.ets` leaves it out, because the ArkUI equivalent is unknown here: an `XComponent` with a
-surface id handed to `AVPlayer`, or the `Video` component, which may not take per source headers.
+`Player` in `ports/Ports.ets` leaves it out, because the ArkUI equivalent is unknown here: an
+`XComponent` with a surface id handed to `AVPlayer`, or the `Video` component, which may not take per
+source headers.
+
+`Reel.picture` is **not** left out: its url and its `ready`/`ended` callbacks are the only way a film
+reaches that port, and without them the port has no input. What is unknown there is the type of the
+handle it gives back, so it is declared as `Object` and the first adapter names it. Only the type is
+open, not the shape of the call.
 
 Answered by: playing one HLS stream on a device. The same test answers whether `createMediaSourceWithUrl`
 really sets `Referer`, which is the whole reason this family is wanted (note 151, line 781: header

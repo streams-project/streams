@@ -79,8 +79,14 @@ function ownNetwork(host: string): boolean {
   }
   const numbers: number[] = [];
   for (const part of parts) {
+    // Digits only, then parse. Kotlin's `toIntOrNull` refuses "1abc" where JS `Number.parseInt`
+    // reads 1, and accepts a zero padded "010" where comparing the parsed value back to the text
+    // would refuse it. This accepts and refuses exactly what the Android gate does.
+    if (!/^[0-9]{1,3}$/.test(part)) {
+      return false;
+    }
     const value = Number.parseInt(part, 10);
-    if (Number.isNaN(value) || value < 0 || value > 255 || `${value}` !== part) {
+    if (value > 255) {
       return false;
     }
     numbers.push(value);
@@ -140,6 +146,22 @@ export class Host implements Shell {
   ) {
     this.network.watch((online: boolean) => this.step([{ type: 'network', online } as Event]));
     this.player.listen((generation: number, event: DriverEvent) => {
+      // The four driver sourced fields of [Seen], written where Host.kt's init block writes them: a
+      // position event carries the scrubber, a tracks event carries the sound and subtitle pickers.
+      // Nothing else in this host writes them, so without these two branches a player screen reads 0,
+      // 0, [] and [] for the life of the app.
+      if (event.kind === 'position') {
+        this.seen.positionMs = event.time_ms;
+        // Absent means not known, and Host.kt keeps the length it already had rather than clearing it.
+        if (event.duration_ms !== undefined) {
+          this.seen.lengthMs = event.duration_ms;
+        }
+        this.changed();
+      } else if (event.kind === 'tracks') {
+        this.seen.audio = event.audio;
+        this.seen.text = event.text;
+        this.changed();
+      }
       this.step([{ type: 'driver', event, generation } as Event]);
     });
     const kept = this.secrets.get(SERVER);
@@ -161,9 +183,9 @@ export class Host implements Shell {
   /** A notice is said once. Every write of words moves the count a screen reads itself by. */
   private say(notice: string | null): void {
     this.seen.notice = notice;
-    if (notice !== null) {
-      this.seen.notices += 1;
-    }
+    // Every write, including one that resolves to no words, the same as Host.kt's EffectView branch.
+    // A screen waits on this count moving, so skipping the null case leaves it waiting forever.
+    this.seen.notices += 1;
     this.changed();
   }
 

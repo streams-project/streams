@@ -109,11 +109,18 @@ button { cursor: pointer; border: 0; background: none; }
 
 .hero { position: relative; display: flex; align-items: flex-end; aspect-ratio: 1616 / 741; margin: 0 var(--edge); overflow: hidden;
   border-radius: var(--radius-panel); padding: 0 var(--edge) calc(var(--unit) * 16); background: var(--surface) center 20% / cover no-repeat; }
+/* The second gradient fades the billboard's foot into the page colour. It was drawn for a full-bleed
+   hero and now runs inside a 24 px rounded card, so the bottom 40% dissolves while the corners stay.
+   Nothing in the reference measures a billboard scrim, so it is left exactly as it was rather than
+   changed on taste: the owner's eye decides this one. */
 .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(77deg, rgb(0 0 0 / 70%), transparent 60%), linear-gradient(transparent 60%, var(--background)); }
 .hero-text { position: relative; max-width: 620px; }
 .hero h1 { font-family: var(--font-display), var(--font-body); font-size: clamp(40px, 6vw, 84px); font-weight: 800; line-height: 1; }
-.tags { color: var(--muted); margin-top: calc(var(--unit) * 3); font-size: 16px; }
-.hero .tags { font-weight: 500; }
+/* The type table (web README section 7) has a billboard metadata line and no modal metadata line, so
+   the size lives on the billboard's copy of this class; the two in the modal take the modal body role
+   they sit inside (16 / 400 / 26 px) from `.panel-body`. */
+.tags { color: var(--muted); margin-top: calc(var(--unit) * 3); }
+.hero .tags { font-size: 16px; font-weight: 500; }
 
 .row { padding: calc(var(--unit) * 4) 0; }
 .row h2 { padding: 0 var(--edge); margin-bottom: calc(var(--unit) * 1.5); font-size: 24px; font-weight: 500; }
@@ -130,9 +137,15 @@ button { cursor: pointer; border: 0; background: none; }
 .search { display: flex; gap: calc(var(--unit) * 3); padding: 96px var(--edge) calc(var(--unit) * 4); }
 .search input { flex: 1; padding: calc(var(--unit) * 3); border-radius: var(--radius-field); border: 1px solid var(--glass-strong); background: var(--surface); }
 
-.empty { display: grid; gap: 36px; width: min(437px, 100%); margin-inline: var(--edge); padding-top: calc(var(--unit) * 6); }
-.empty ul { display: grid; gap: 0; margin: 0; padding-left: calc(var(--unit) * 5); }
-.empty li { line-height: 20px; }
+/* Every number here is raw/empty-state.json. The 437 px column is centred in the content box, not on
+   the gutter: block left 650, width 437, content box 60 to 1676, so 650 + 218.5 = 868.5 = the box's
+   centre. 36 and 20 are top-to-top pitches, not CSS gaps - paragraph tops 312 and 348, item tops 384,
+   404, 424, 444. The capture's own item pitch of 20 at no gap is what "normal" resolves to at 16 px,
+   so the line box is 20 and the gap that makes the paragraph pitch 36 is 16. Items indent 40 (li left
+   690 against the block's 650). The capture records no top padding, so there is none. */
+.empty { display: grid; gap: 16px; width: min(437px, 100% - var(--edge) * 2); margin-inline: auto; }
+.empty p, .empty li { line-height: 20px; }
+.empty ul { display: grid; gap: 0; margin: 0; padding-left: calc(var(--unit) * 10); }
 
 .scrim { position: fixed; inset: 0; z-index: 30; overflow-y: auto; padding: calc(var(--unit) * 8) calc(var(--unit) * 4); background: rgb(0 0 0 / 70%); }
 .panel { position: relative; margin: 0 auto; width: min(860px, 100%); border-radius: var(--radius-panel); overflow: hidden; background: var(--surface); }
@@ -143,7 +156,9 @@ button { cursor: pointer; border: 0; background: none; }
 .panel-title h1 { font-family: var(--font-display), var(--font-body); font-size: clamp(32px, 5vw, 56px); font-weight: 800; line-height: 1; }
 .panel-body { display: grid; gap: calc(var(--unit) * 3); padding: 0 calc(var(--unit) * 8) calc(var(--unit) * 8); font-size: 16px; line-height: 26px; }
 .panel-body .grid { padding: 0; }
-.panel-body h2 { font-size: 24px; font-weight: 500; margin-top: calc(var(--unit) * 3); }
+/* 26 px is the modal body's line-height; the table records the section heading's as normal, so it
+   does not inherit the body's (web README section 7). */
+.panel-body h2 { font-size: 24px; font-weight: 500; line-height: normal; margin-top: calc(var(--unit) * 3); }
 .episodes { display: grid; gap: var(--unit); }
 .episodes select { justify-self: end; padding: var(--unit) calc(var(--unit) * 3); background: var(--raised); border: 0; border-radius: var(--radius-field); }
 .episode { display: flex; gap: calc(var(--unit) * 4); padding: calc(var(--unit) * 3); text-align: left; border-radius: var(--radius-field); }

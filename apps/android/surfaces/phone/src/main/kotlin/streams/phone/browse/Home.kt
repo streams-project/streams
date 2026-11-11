@@ -33,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -62,7 +61,6 @@ import contract.Target
 import contract.Tile
 import java.text.Collator
 import java.util.Locale
-import kotlinx.coroutines.delay
 import streams.ports.Seen
 import streams.ports.Shell
 import streams.shared.Back
@@ -106,27 +104,23 @@ fun Home(shell: Shell, seen: Seen) {
     // The rows this page has, which is more than the answer carried: twelve arrive and the server
     // has built up to fifty, so the page reads the rest through the screen's own cursor as the
     // viewer travels down it. The same for a row's depth, which is held per page so a row keeps it.
-    val sections = rememberPage(shell, seen.screen, screenKey, list)
-    val depth = rememberDepth(shell, screenKey)
+    // One stamp for both halves of the reading, so a rebuilt answer resets the page's extra rows
+    // and each row's depth together rather than leaving the depths pointing into the old answer.
+    val stamp = pageStamp(screenKey, seen.screen)
+    val sections = rememberPage(shell, seen.screen, stamp, list)
+    val depth = rememberDepth(shell, stamp)
     val lead = sections.firstOrNull { it.kind == SectionKind.HERO }?.tiles?.firstOrNull()
     val rows = sections.filter { it.kind in RowKinds }
 
-    // Whether what is on screen is this route's page. Until it is, the page is waiting, and after
-    // the wait it says so. This is the television surface's own condition, in the same family.
+    // Whether what is on screen is this route's page. Until it is, the page draws the placeholder
+    // rows the reference draws, and goes on drawing them: the reference puts nothing else in an
+    // empty body, however long it stays empty (`netflix-reference/00-gaps.md:128-132`).
     val wanted = when (seen.route?.target) {
         Target.HOME -> "home"
         Target.KIDS_HOME -> "kids"
         else -> seen.route?.screen?.value
     }
     val hasScreen = seen.screen != null && (wanted == null || seen.screen?.name?.value == wanted)
-    var tries by remember { mutableIntStateOf(0) }
-    var waitedOut by remember(seen.route, hasScreen, tries) { mutableStateOf(false) }
-    LaunchedEffect(seen.route, hasScreen, tries) {
-        if (!hasScreen) {
-            delay(OFFLINE_WAIT_MS)
-            waitedOut = true
-        }
-    }
 
     var tint by remember { mutableStateOf(FirstTint) }
     val shownTint by animateColorAsState(tint, tween(600), label = "tint")
@@ -179,13 +173,7 @@ fun Home(shell: Shell, seen: Seen) {
                 .background(Brush.verticalGradient(0f to shownTint.copy(alpha = 0.95f), 1f to Back)),
         )
         val headroom = PaddingValues(top = top + TOP_BAR.dp + CHIP_ROW.dp, bottom = 120.dp)
-        val empty = !hasScreen && rows.isEmpty()
-        if (empty && waitedOut) {
-            Unreachable(words, seen.notice) {
-                tries += 1
-                shell.go(Address.START)
-            }
-        } else if (empty) {
+        if (!hasScreen && rows.isEmpty()) {
             WaitingRows(Modifier.padding(headroom))
         }
         LazyColumn(

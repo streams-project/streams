@@ -16,17 +16,37 @@ private let gutter: CGFloat = 17
 
 /// A ranked row keeps the same tile and widens the gutter, so each rank numeral has its own room:
 /// pitch 457 instead of 328, and the row starts further in to leave the first numeral its place.
+/// (`notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md` section 6b: "Top 10 rows keep the
+/// same 311 px tile and widen the gutter to 146 px (pitch 457)". The lead 199 and the pitch were
+/// re-measured off `04-top10-row-1920x1080.jpg`: the focused card's outline runs x 194-1100, the
+/// next poster's left edge is 1249 and the one after it 1706.)
 private let rankedStep: CGFloat = 457
 private let rankedLead: CGFloat = 199
+/// The widened gutter, which is also the box each numeral is drawn in.
 private let rankedGutter: CGFloat = 146
 
-/// The numeral: the gutter it is drawn in, how tall its ink is, how far its right edge stands before
-/// the tile it counts, how thick its outline is, and where its top sits.
-private let rankWide: CGFloat = 146
+/// The numeral, off `04-top10-row-1920x1080.jpg`: the "3" ink is 111 x 219 with a 4-5 px stroke, its
+/// right edge stands 9 px before the tile it counts, and its ink starts at y 204 in a band whose
+/// tiles start at 199. The 8 is that 9 px gap, and it is used for the first numeral in the row as
+/// well, where the reference leaves 22 px before the focused card: one gap everywhere, so the
+/// numeral does not slide sideways as focus arrives. Deliberate, and not measured.
 private let rankHigh: CGFloat = 219
 private let rankGap: CGFloat = 8
 private let rankLine: CGFloat = 5
+private let rankBand: CGFloat = 199
 private let rankTop: CGFloat = 204
+
+/// All the room a numeral is given: from the screen's edge to the right edge of the first numeral in
+/// the row, which is the tightest place any numeral in that row can sit. Every numeral in every
+/// ranked row is held to this one figure, so a numeral does not change size, and its ink does not
+/// move, when focus walks onto the tile beside it.
+///
+/// Measured through this same Core Text path on `inter.ttf`: one figure is drawn 85 to 148 pt wide
+/// and the full 219 tall whatever room it is given, and "10" comes out 191 x 154 in this room. The
+/// brand's figures are wider than the gutter they stand in, so "10" leans 45 pt back behind the
+/// poster before it; given the whole screen instead it would be 272 x 219, which is why a numeral
+/// used to grow and shrink as focus walked along a Top 10 row.
+private let rankRoom: CGFloat = rankedLead - rankGap
 
 /// The curve every move on this page uses.
 public func glide(_ seconds: Double) -> Animation {
@@ -67,9 +87,16 @@ private struct OpenCard: View {
                 .transition(.opacity.animation(.linear(duration: slide)))
             cardFoot.frame(height: 200.ref)
             // The reference carries the title's own treatment on the still and never a line of text
-            // over it. The name is what is left when the catalogue has no treatment for this title.
+            // over it (frames 03 and 04: a composited treatment bottom left, no set text). The name
+            // is what is left when the catalogue has no treatment for this title.
+            //
+            // No measurement sets a size for the treatment on the focused still, so the box is this
+            // app's own hero box scaled down, in one ratio both ways: the hero is 1776 wide
+            // (1920 - 2 x pageEdge) and carries a 600 x 200 box (HeroCard.swift:58), the card is 904
+            // wide, and 904 / 1776 = 0.509 gives 305 x 102. An earlier 132 scaled the height by the
+            // height ratio instead, which stretched the box the treatment is fitted into.
             if let mark {
-                Logo(url: mark, width: 305, height: 132)
+                Logo(url: mark, width: 305, height: 102)
                     .padding(.leading, 24.ref)
                     .padding(.bottom, 24.ref)
             } else {
@@ -109,15 +136,14 @@ private func unranked(_ tile: Tile) -> Tile {
 /// It is drawn under the tiles, so a number too wide for the gutter tucks behind the one before.
 private struct RankMark: View {
     let rank: Int
-    /// All the room there is to the left of the numeral's right edge. The brand's figures are wider
-    /// than the reference's, so a wide one leans into the gutter behind the tile before it; one that
-    /// would leave the screen altogether is drawn smaller instead.
-    let room: CGFloat
 
     var body: some View {
-        RankShape(text: number(rank), room: room)
+        // Asking for the brand's text while the view is built, where every other caller asks, puts
+        // its letters in the hands of the process by name before the shape asks Core Text for them.
+        _ = BrandFont.of(10, 700)
+        return RankShape(text: number(rank))
             .stroke(.white.opacity(0.5), lineWidth: rankLine.ref)
-            .frame(width: rankWide.ref, height: rankHigh.ref)
+            .frame(width: rankedGutter.ref, height: rankHigh.ref)
     }
 }
 
@@ -125,11 +151,8 @@ private struct RankMark: View {
 /// right. A figure wider than the box hangs off its left.
 private struct RankShape: Shape {
     let text: String
-    let room: CGFloat
 
     func path(in rect: CGRect) -> Path {
-        // Asking for the brand's text puts its letters in the hands of the process, by name.
-        _ = BrandFont.of(10, 700)
         let font = CTFontCreateWithName("Inter-Regular" as CFString, 100, nil)
         var letters = Array(text.utf16)
         var glyphs = [CGGlyph](repeating: 0, count: letters.count)
@@ -149,7 +172,7 @@ private struct RankShape: Shape {
         guard ink.width > 0, ink.height > 0 else { return Path() }
         // Letters are built upwards, so the turn flips them as it sizes them; the outline is drawn
         // along the line, half of it outside, and the box holds all of it.
-        let grow = min((rect.height - rankLine) / ink.height, (room - rankLine) / ink.width)
+        let grow = min((rect.height - rankLine) / ink.height, (rankRoom - rankLine) / ink.width)
         var turn = CGAffineTransform(scaleX: grow, y: -grow)
         let sized = ink.applying(turn)
         turn = turn.concatenating(CGAffineTransform(
@@ -185,8 +208,8 @@ struct OpenRow: View {
             if ranked {
                 ForEach(at..<min(at + ahead + 1, tiles.count), id: \.self) { index in
                     let edge = index == at ? lead : placeOf(index)
-                    RankMark(rank: rankOf(tiles[index], index), room: edge - rankGap)
-                        .offset(x: (edge - rankGap - rankWide).ref, y: rankTop.ref)
+                    RankMark(rank: rankOf(tiles[index], index))
+                        .offset(x: (edge - rankGap - rankedGutter).ref, y: rankTop.ref)
                 }
             }
             if at > 0 {
@@ -238,15 +261,33 @@ struct NextRow: View {
     var body: some View {
         let tiles = section.tiles ?? []
         let top: CGFloat = high ? 1001 : 998
-        ZStack(alignment: .topLeading) {
+        // A ranked row is one row with one geometry, drawn in two places: here and open above. It
+        // keeps its wider pitch and its numerals here too, so the row does not re-space and swap its
+        // rank badges for numerals the moment focus walks into it.
+        let ranked = section.kind == .ranked
+        let lead = ranked ? rankedLead : pageEdge
+        let pitch = ranked ? rankedStep : step
+        return ZStack(alignment: .topLeading) {
             Text(section.title ?? "").brand(32, 700).foregroundStyle(.white)
                 .offset(x: pageEdge.ref, y: (high ? 946 : 944).ref)
+            if ranked {
+                ForEach(Array(tiles.dropFirst(at).prefix(nextPosters).enumerated()), id: \.offset) { index, tile in
+                    RankMark(rank: rankOf(tile, at + index))
+                        .offset(
+                            x: (lead + CGFloat(index) * pitch - rankGap - rankedGutter).ref,
+                            // The ink stands the same way off the top of the tiles as it does in the
+                            // open row, where the band is measured: tiles 199, ink 204.
+                            y: (top + rankTop - rankBand).ref
+                        )
+                }
+            }
             if at > 0, let before = tiles[safe: at - 1] {
-                Poster(tile: before, words: words).offset(x: (pageEdge - step).ref, y: top.ref)
+                Poster(tile: ranked ? unranked(before) : before, words: words)
+                    .offset(x: (lead - pitch).ref, y: top.ref)
             }
             ForEach(Array(tiles.dropFirst(at).prefix(nextPosters).enumerated()), id: \.offset) { index, tile in
-                Poster(tile: tile, words: words)
-                    .offset(x: (pageEdge + CGFloat(index) * step).ref, y: top.ref)
+                Poster(tile: ranked ? unranked(tile) : tile, words: words)
+                    .offset(x: (lead + CGFloat(index) * pitch).ref, y: top.ref)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

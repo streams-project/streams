@@ -58,7 +58,9 @@ Ran here on 2026-11-11, rustc 1.98.1:
 
 which is `cargo build --locked --profile native -p bridge-c --target <t>` for each of
 `aarch64-unknown-linux-ohos`, `armv7-unknown-linux-ohos` and `x86_64-unknown-linux-ohos`, all three
-listed by `rustup target list`. All three produced a `libbridge_c.a`. No SDK is involved, because a
+listed by `rustup target list`. All three produced a `libbridge_c.a`. Only `aarch64` traces to a note
+(151, line 275, the CI target list); the other two are this folder's own guess at older hardware and
+the emulator, and `build-core.sh` says so. No SDK is involved, because a
 static library is assembled by rustc and never linked; the SDK's clang is wanted at the next step,
 where CMake links `libstreamscore.so` against the archive, exactly as the Android NDK's clang is.
 

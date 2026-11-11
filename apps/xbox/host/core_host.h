@@ -1,6 +1,9 @@
-// The core's six functions, as C++ sees them. Bytes go in and bytes come out, and no rules live
-// here. This is the same boundary `apps/android/core/src/main/cpp/bridge.c` crosses for Java and
-// `apps/apple/Sources/CoreBridge` crosses for Swift: one static library, one opaque handle.
+// The core's C functions, as C++ sees them. Five of `core.h`'s six are used: `core_abi`,
+// `core_open`, `core_step`, `core_free` and `core_close`. `core_alloc` is not, and is not surfaced,
+// because every buffer handed in belongs to a `std::string` this host already owns. Bytes go in and
+// bytes come out, and no rules live here. This is the same boundary
+// `apps/android/core/src/main/cpp/bridge.c` crosses for Java and `apps/apple/Sources/CoreBridge`
+// crosses for Swift: one static library, one opaque handle.
 #ifndef STREAMS_XBOX_CORE_HOST_H
 #define STREAMS_XBOX_CORE_HOST_H
 
