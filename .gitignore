@@ -19,3 +19,6 @@ __pycache__/
 
 # Profile pictures stay private until the owner clears them for the public repository.
 /brand/streams/avatars/
+
+# Worktrees a helper opens inside the repository, so a wide add cannot swallow one as a submodule.
+.claude/worktrees/
