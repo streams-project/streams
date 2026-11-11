@@ -84,7 +84,8 @@ FAMILIES = {
         # all: a phone, a television and the parts they share are each a surface.
         "surfaces": ("surfaces", "Sources/Surfaces*"),
         "least": 64,
-        # The two app entry points, the package file, the core's host and the C bridge beside it.
+        # The two app entry points, the package file, the core's host and the C bridge beside it,
+        # and the tests, which are in no ring because they stand outside the app looking in.
         "rest": (
             "App",
             "PhoneApp",
@@ -92,6 +93,7 @@ FAMILIES = {
             "Sources/Contract",
             "Sources/CoreBridge",
             "Sources/CoreHost",
+            "Tests",
         ),
         "skip": set(),
         "banned": {
