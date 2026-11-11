@@ -297,10 +297,23 @@ impl<S: Step> Layer<S> {
                 scope,
             } => match serde_json::from_str::<CommandBatch>(&text) {
                 Ok(batch) => {
+                    let mut all = true;
                     for op in batch.ops {
-                        self.keep(op, scope.clone(), mono_ms, out);
+                        all &= self.keep(op, scope.clone(), mono_ms, out);
                     }
-                    answers.push(done(id, 202, None));
+                    if all {
+                        answers.push(done(id, 202, None));
+                    } else {
+                        // An op the store had no room for is not kept, so the batch cannot be
+                        // answered as taken. The core drops a failed command and the next
+                        // heartbeat carries the newer position.
+                        answers.push(Event {
+                            id: Some(id),
+                            body: EventBody::HttpFailed {
+                                reason: NoAnswerReason::Cancelled,
+                            },
+                        });
+                    }
                 }
                 Err(_) => out.effects.push(Effect {
                     id,
@@ -368,25 +381,30 @@ impl<S: Step> Layer<S> {
         }
     }
 
+    /// Keep one op, or refuse it. False when it was not kept, so the answer can say so.
     fn keep(
         &mut self,
         op: contract::command::CommandOp,
         scope: Option<String>,
         mono_ms: u64,
         out: &mut Merged,
-    ) {
-        let (kept, replaced) = self.queue.add(op, scope, &self.config.boot_id, mono_ms);
+    ) -> bool {
+        let Some(planned) = self.queue.plan(op, scope, &self.config.boot_id, mono_ms) else {
+            return false;
+        };
+        // The cap bounds what the store holds, so with no store the op is only kept in memory and
+        // goes out on the next batch. With a store, an op that cannot be written is not admitted
+        // at all: it would report as kept, count as nothing against the cap, which then bounds
+        // nothing, and be gone on the next start.
+        if self.durable && !self.make_room(planned.need(), out) {
+            return false;
+        }
+        let (kept, text, replaced) = self.queue.admit(planned);
         if let Some(key) = replaced {
             self.delete(key, out);
         }
-        let Ok(text) = serde_json::to_string(&kept) else {
-            return;
-        };
-        let bytes = u64::try_from(text.len()).unwrap_or(u64::MAX);
-        if self.make_room(bytes, out) {
-            self.queue.set_bytes(kept.seq, bytes);
-            self.write(kept.key(), text, out);
-        }
+        self.write(kept.key(), text, out);
+        true
     }
 
     /// Clear room under the byte cap by dropping kept pages. False when it cannot fit.

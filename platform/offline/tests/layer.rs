@@ -104,6 +104,58 @@ fn cacheable(id: &str, path: &str) -> Effect {
     }
 }
 
+/// One command batch the core hands down, as the text of its ops.
+fn command(id: &str, scope: &str, ops: &str) -> Effect {
+    Effect {
+        id: id.to_string(),
+        body: EffectBody::Http {
+            method: HttpMethod::Post,
+            path: "/v1/commands".to_string(),
+            headers: BTreeMap::new(),
+            body: Some(format!("{{\"ops\":[{ops}]}}")),
+            deadline_ms: 60_000,
+            class: HttpClass::Command,
+            to: BodyTarget::Core,
+            scope: Some(scope.to_string()),
+        },
+    }
+}
+
+/// One position op of this run, as the core would write it in a batch.
+fn position_op(n: u64) -> String {
+    json!({
+        "op_id": format!("op-{n}"),
+        "age_ms": 0,
+        "command": "position",
+        "title": format!("movie:{n}"),
+        "position_s": 30,
+        "duration_s": 600,
+    })
+    .to_string()
+}
+
+/// True when this step wrote a queue item to the store.
+fn wrote_queue_item(out: &CoreOut) -> bool {
+    out.effects.iter().any(|effect| {
+        matches!(
+            &effect.body,
+            EffectBody::Store { op: StoreOp::Put, key: Some(key), .. } if key.starts_with("q/")
+        )
+    })
+}
+
+/// The ids the layer handed back no answer for.
+fn no_answer(tape: &Rc<RefCell<Tape>>) -> Vec<String> {
+    tape.borrow()
+        .seen
+        .iter()
+        .filter_map(|event| match &event.body {
+            EventBody::HttpFailed { .. } => event.id.clone(),
+            _ => None,
+        })
+        .collect()
+}
+
 /// The id of the store effect for this key.
 fn store_effect(out: &CoreOut, key: &str) -> String {
     out.effects
@@ -291,4 +343,72 @@ fn c100_c122_a_kept_page_past_its_ttl_is_read_again_with_its_etag() {
         "the kept body answers the request: {:?}",
         answers(&tape)
     );
+}
+
+/// A layer whose store holds this many bytes, with the first store reads already answered.
+fn with_cap(bytes: u64) -> (Layer<Fake>, Rc<RefCell<Tape>>) {
+    let fake = Fake::default();
+    let tape = fake.tape.clone();
+    let mut layer = Layer::new(
+        fake,
+        Config {
+            boot_id: BOOT.to_string(),
+            storage_bytes: bytes,
+        },
+    );
+    let out = step(&mut layer, 1_000, Vec::new());
+    let list = store_effect(&out, "q/");
+    let index = store_effect(&out, "index");
+    step(
+        &mut layer,
+        1_100,
+        vec![store_done(&list, None, &[]), store_done(&index, None, &[])],
+    );
+    (layer, tape)
+}
+
+#[test]
+fn c2_h20_an_op_with_no_room_in_the_store_is_refused_and_does_not_wait_in_the_queue() {
+    let (mut layer, tape) = with_cap(600);
+    let mut persisted: Vec<u64> = Vec::new();
+    for n in 1..=8 {
+        let id = format!("e{n}");
+        tape.borrow_mut().effects = vec![command(&id, "u1/p1", &position_op(n))];
+        let out = step(&mut layer, 2_000 + n, Vec::new());
+        let written = wrote_queue_item(&out);
+        let taken = answers(&tape)
+            .iter()
+            .any(|(answered, status, _)| *answered == id && *status == 202);
+        assert_eq!(
+            written,
+            taken,
+            "op-{n} is written and taken, or neither: {:?}",
+            answers(&tape)
+        );
+        if written {
+            persisted.push(n);
+        } else {
+            assert!(no_answer(&tape).contains(&id), "the refusal is reported");
+        }
+    }
+    assert!(!persisted.is_empty(), "the cap fits some ops");
+    assert!(persisted.len() < 8, "a full store refuses the rest");
+
+    // What goes out is exactly what the store holds, so no unpersisted op sits in the queue
+    // counting as nothing against the cap.
+    tape.borrow_mut().view = Some(signed_in("u1/p1"));
+    step(&mut layer, 9_000, Vec::new());
+    let sent = requests(&tape);
+    let (_, _, body) = sent
+        .iter()
+        .find(|(method, path, _)| *method == HttpMethod::Post && path == "/v1/commands")
+        .expect("the kept ops go out");
+    let batch = body.clone().unwrap_or_default();
+    for n in 1..=8 {
+        assert_eq!(
+            batch.contains(&format!("\"op-{n}\"")),
+            persisted.contains(&n),
+            "op-{n} goes out only if it was kept: {batch}"
+        );
+    }
 }

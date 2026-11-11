@@ -439,6 +439,10 @@ def pull_titles(
                 results.put((task, *fetch_title(client, *task, languages, at)))
             except StageFailed as e:
                 results.put((task, e))
+            except Exception as e:
+                # An unexpected answer shape raises here. Every task must leave a result, or the
+                # collector waits for one that never comes and the job hangs instead of ending.
+                results.put((task, e))
 
     threads = [threading.Thread(target=worker, daemon=True) for _ in range(workers)]
     for t in threads:
@@ -452,16 +456,29 @@ def pull_titles(
 
     threading.Thread(target=feeder, daemon=True).start()
     counts = client.counts
+    unreadable = 0
     for done in range(1, len(todo) + 1):
         task, *rest = results.get()
         if isinstance(rest[0], StageFailed):
             db.commit()
             raise rest[0]
+        if isinstance(rest[0], Exception):
+            # An answer this build cannot read counts as a failed fetch, the way an answer that
+            # never came does: no fetch log row is written, so a later run asks again and one odd
+            # shape cannot stop a whole set. The first is named and the count is said at the end.
+            unreadable += 1
+            if unreadable == 1:
+                kind, title_id = task
+                reason = f"{type(rest[0]).__name__}: {rest[0]}"
+                ctx.say(f"pull: {kind} {title_id} answered what this build cannot read: {reason}")
+            rest = [-1, None, [], []]
         _store(db, *task, *rest, counts)
         if done % 500 == 0:
             db.commit()
             ctx.say(f"pull: {done} of {len(todo)}: {counts.text()}")
     db.commit()
+    if unreadable:
+        ctx.say(f"pull: {unreadable} answers could not be read and count as failed fetches")
     return counts
 
 

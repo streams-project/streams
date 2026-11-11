@@ -3,6 +3,7 @@
 import gzip
 import json
 import sqlite3
+import threading
 
 import pytest
 
@@ -295,6 +296,59 @@ def test_a_rate_limit_answer_is_retried_after_its_wait(context, key_file):
     pull_details(ctx)
     db = sqlite3.connect(ctx.work / "pull.db")
     assert db.execute("SELECT count(*) FROM titles").fetchone() == (2,)
+
+
+def ends_in_time(call, seconds=20.0):
+    """Runs the call on a thread. A stage that never ends shows as a failed test here instead of
+    stopping the whole run, which is what a worker that dies without a result used to cause."""
+    outcome: list[BaseException | None] = []
+
+    def go() -> None:
+        try:
+            call()
+        except BaseException as e:
+            outcome.append(e)
+        else:
+            outcome.append(None)
+
+    thread = threading.Thread(target=go, daemon=True)
+    thread.start()
+    thread.join(seconds)
+    assert not thread.is_alive(), "the stage never ended"
+    if outcome[0] is not None:
+        raise outcome[0]
+
+
+def unreadable_routes(answer):
+    return {**exports(), "/movie/1": answer, "/tv/2": tv_doc(), "/tv/2/season/1": SEASON}
+
+
+@pytest.mark.parametrize(
+    "answer",
+    [
+        pytest.param(Reply(200, b"<html>not json</html>"), id="not json"),
+        pytest.param(
+            {**movie_doc(), "credits": {"cast": [{"profile_path": "/x.jpg"}], "crew": []}},
+            id="a credits entry with no name",
+        ),
+    ],
+)
+def test_an_answer_this_build_cannot_read_fails_that_fetch_and_the_pull_ends(
+    context, key_file, answer
+):
+    ctx = context(
+        FakeTransport(unreadable_routes(answer)),
+        api_base=API,
+        exports_base=EXPORTS,
+        key_file=key_file,
+    )
+    ends_in_time(lambda: pull_details(ctx))
+    db = sqlite3.connect(ctx.work / "pull.db")
+    assert sorted(db.execute("SELECT media_type, id FROM titles")) == [("tv", 2)]
+    # no fetch log row for the film, so a later run asks for it again
+    assert sorted(db.execute("SELECT media_type, id FROM fetch_log")) == [("tv", 2)]
+    assert any("cannot read" in line for line in ctx.said), ctx.said
+    assert any("1 failed" in line for line in ctx.said), ctx.said
 
 
 def test_pull_is_off_with_no_address_or_key(context, key_file):

@@ -163,6 +163,30 @@ fn s151_a_refused_reload_keeps_the_last_good_set() {
 }
 
 #[test]
+fn s151_h62_a_set_built_before_the_one_in_service_is_refused() {
+    let dir = folder("older");
+    let manifest = write_sample(&dir);
+    let slot = DataSlot::open(&manifest, sample_trust()).unwrap();
+    let hash = slot.load().data_hash.clone();
+    let built = slot.load().manifest.built_at_ms;
+    // an earlier set, signed as a data builder would sign it, installed at the same path
+    rewrite(&manifest, |m| {
+        m.dataset_version = String::from("sample-0");
+        m.built_at_ms = built - 1;
+    });
+    assert!(matches!(slot.reload(), Err(SwapError::Older { .. })));
+    assert_eq!(slot.load().data_hash, hash);
+    assert_eq!(slot.load().manifest.dataset_version, "sample-1");
+    // The same build time is a new manifest around the same export, so that set still goes in.
+    rewrite(&manifest, |m| {
+        m.dataset_version = String::from("sample-2");
+        m.built_at_ms = built;
+    });
+    assert!(slot.reload().unwrap());
+    assert_eq!(slot.load().manifest.dataset_version, "sample-2");
+}
+
+#[test]
 fn s142_s138_the_index_opens_only_on_its_own_data_set() {
     let dir = folder("index");
     let manifest = write_sample(&dir);

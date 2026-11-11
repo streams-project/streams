@@ -410,11 +410,16 @@ def test_series_keep_their_seasons_and_episodes(context):
 
 def test_a_set_built_twice_holds_the_same_files(context, tmp_path):
     first = run_all(settle(context(), FakeOpen()))
-    manifest = json.loads((first.out / "manifest.json").read_text())
+    bytes_first = (first.out / "manifest.json").read_bytes()
+    manifest = json.loads(bytes_first)
     hashes = {role: entry["sha256"] for role, entry in manifest["files"].items()}
     run_all(first)
-    again = json.loads((first.out / "manifest.json").read_text())
+    bytes_again = (first.out / "manifest.json").read_bytes()
+    again = json.loads(bytes_again)
     assert {role: e["sha256"] for role, e in again["files"].items()} == hashes
+    # The manifest repeats byte for byte too, so the whole export is the same and not only the
+    # files it names: the names, order, sizes and row count are in these bytes as well.
+    assert bytes_again == bytes_first
 
 
 def test_h133_a_built_sample_holds_no_refused_word_or_field(context):

@@ -35,8 +35,17 @@ fn position(op: u32, id: u32, episode: Option<EpisodeRef>, seconds: u32) -> Comm
     }
 }
 
+/// Plan and admit in one step, the way the layer does when the store has room.
 fn add(queue: &mut Queue, op: CommandOp, mono_ms: u64) -> (Kept, Option<String>) {
-    queue.add(op, Some(SCOPE.to_string()), BOOT, mono_ms)
+    add_to(queue, op, SCOPE, mono_ms)
+}
+
+fn add_to(queue: &mut Queue, op: CommandOp, scope: &str, mono_ms: u64) -> (Kept, Option<String>) {
+    let planned = queue
+        .plan(op, Some(scope.to_string()), BOOT, mono_ms)
+        .expect("an op writes out");
+    let (kept, _, replaced) = queue.admit(planned);
+    (kept, replaced)
 }
 
 fn applied(ids: &[&str]) -> Vec<OpAnswer> {
@@ -171,8 +180,8 @@ fn h53_h54_one_batch_at_a_time_so_a_session_has_one_writer() {
 #[test]
 fn h53_a_batch_holds_only_the_ops_of_its_own_profile() {
     let mut queue = Queue::default();
-    queue.add(list(1), Some("u1/p1".to_string()), BOOT, 0);
-    queue.add(list(2), Some("u1/p2".to_string()), BOOT, 0);
+    add_to(&mut queue, list(1), "u1/p1", 0);
+    add_to(&mut queue, list(2), "u1/p2", 0);
     let batch = queue.batch("u1/p2", BOOT, 0).unwrap();
     assert_eq!(batch.ops.len(), 1);
     assert_eq!(batch.ops[0].op_id, "op-2");
@@ -237,10 +246,53 @@ fn p13_clearing_gives_every_key_and_leaves_nothing_due() {
 }
 
 #[test]
-fn a_kept_op_counts_its_store_bytes() {
+fn a_kept_op_counts_its_store_bytes_before_it_is_admitted() {
     let mut queue = Queue::default();
-    let (kept, _) = add(&mut queue, list(1), 0);
-    queue.set_bytes(kept.seq, 120);
-    add(&mut queue, position(2, 7, None, 30), 0);
-    assert_eq!(queue.bytes(), 120);
+    let planned = queue
+        .plan(list(1), Some(SCOPE.to_string()), BOOT, 0)
+        .unwrap();
+    // the bytes are known while the queue is still empty, so a full store can refuse the op
+    assert!(planned.need() > 0);
+    assert_eq!(queue.bytes(), 0);
+    let (kept, text, _) = queue.admit(planned);
+    assert_eq!(kept.bytes, text.len() as u64);
+    assert_eq!(queue.bytes(), kept.bytes);
+
+    // A position that replaces an unsent one asks only for what it takes beyond it.
+    let (first, _) = add(&mut queue, position(2, 7, None, 30), 0);
+    let planned = queue
+        .plan(position(3, 7, None, 60), Some(SCOPE.to_string()), BOOT, 0)
+        .unwrap();
+    assert!(
+        planned.need() < first.bytes,
+        "the older one gives its bytes back"
+    );
+    let (second, _, replaced) = queue.admit(planned);
+    assert_eq!(replaced, Some(first.key()));
+    assert_eq!(queue.bytes(), kept.bytes + second.bytes);
+}
+
+#[test]
+fn an_op_that_is_planned_and_not_admitted_leaves_the_queue_alone() {
+    let mut queue = Queue::default();
+    let (first, _) = add(&mut queue, position(1, 7, None, 30), 0);
+    let planned = queue
+        .plan(
+            position(2, 7, None, 60),
+            Some(SCOPE.to_string()),
+            BOOT,
+            5_000,
+        )
+        .unwrap();
+    drop(planned);
+    assert_eq!(queue.len(), 1, "the older position is still there");
+    assert_eq!(queue.bytes(), first.bytes);
+    assert_eq!(
+        queue.next_wake(),
+        Some(DEBOUNCE_MS),
+        "no new wait was started"
+    );
+    let batch = queue.batch(SCOPE, BOOT, 10).unwrap();
+    assert_eq!(batch.ops.len(), 1);
+    assert_eq!(batch.ops[0].op_id, "op-1");
 }

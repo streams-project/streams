@@ -99,6 +99,10 @@ pub enum SwapError {
     Manifest(#[from] ManifestError),
     #[error("the data set did not load: {0}")]
     Load(String),
+    /// A set built before the one in service. Nothing offers the newer set again, so taking this
+    /// one would serve older data for good.
+    #[error("the set offered was built at {offered_ms} and the set in service at {in_service_ms}")]
+    Older { offered_ms: u64, in_service_ms: u64 },
 }
 
 impl DataSet {
@@ -359,6 +363,19 @@ fn load_taxonomy(
     }
 }
 
+/// A set may only move forward in time. An equal build time passes, because a daily job writes a
+/// new manifest around a new daily file and keeps the build time of the export it came from. The
+/// build time decides and not `dataset_version`, which is a name with no order.
+fn refuse_older(offered: &DatasetManifest, in_service: &DatasetManifest) -> Result<(), SwapError> {
+    if offered.built_at_ms < in_service.built_at_ms {
+        return Err(SwapError::Older {
+            offered_ms: offered.built_at_ms,
+            in_service_ms: in_service.built_at_ms,
+        });
+    }
+    Ok(())
+}
+
 /// The one pointer every request reads. The swap is atomic and keeps the last good set.
 pub struct DataSlot {
     current: ArcSwap<DataSet>,
@@ -391,17 +408,27 @@ impl DataSlot {
     /// the current set in place. True when the set changed.
     ///
     /// # Errors
-    /// The new set was refused.
+    /// The new set was refused: a bad signature or file, or a set older than the one in service.
     pub fn reload(&self) -> Result<bool, SwapError> {
         let _swap = self
             .swap_lock
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
-        let (_, hash) = DatasetManifest::read(&self.manifest_path)?;
-        if hash == self.load().data_hash {
+        let (offered, hash) = DatasetManifest::read(&self.manifest_path)?;
+        let serving = self.load();
+        if hash == serving.data_hash {
             return Ok(false);
         }
-        let next = DataSet::load(&self.manifest_path, &self.trust)?;
+        // Refuse an older set before reading a whole one off disk. The manifest is unsigned at
+        // this point, which only ever refuses: `adopt` checks the signed one again.
+        refuse_older(&offered, &serving.manifest)?;
+        self.adopt(DataSet::load(&self.manifest_path, &self.trust)?)
+    }
+
+    /// Put a loaded set in service, or refuse it. Every swap goes through here, so the age rule
+    /// holds for any later caller and the last good set keeps serving when it does not.
+    fn adopt(&self, next: DataSet) -> Result<bool, SwapError> {
+        refuse_older(&next.manifest, &self.load().manifest)?;
         info!("Data set {} in use", next.manifest.dataset_version);
         self.current.store(Arc::new(next));
         Ok(true)

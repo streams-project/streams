@@ -45,6 +45,27 @@ impl Kept {
     }
 }
 
+/// One op ready to be kept: the entry with the bytes the store needs, the text the store must
+/// hold, and the unsent position it would replace. Nothing is in the queue until `admit` takes
+/// it, so an op the store has no room for leaves the queue, the byte count and the older position
+/// it would have replaced exactly as they were.
+pub struct Planned {
+    kept: Kept,
+    text: String,
+    /// Where the unsent position of the same title and episode sits, with its key and its bytes.
+    replaces: Option<(usize, String, u64)>,
+}
+
+impl Planned {
+    /// Bytes the store must find for this op. What a replaced position gives back is taken off,
+    /// so a position replacing one of its own size needs no new room.
+    #[must_use]
+    pub fn need(&self) -> u64 {
+        let given_back = self.replaces.as_ref().map_or(0, |(_, _, bytes)| *bytes);
+        self.kept.bytes.saturating_sub(given_back)
+    }
+}
+
 /// The queue. One batch is on its way at a time, so a session has one writer.
 #[derive(Default)]
 pub struct Queue {
@@ -63,20 +84,19 @@ impl Queue {
         self.ops = kept;
     }
 
-    /// Keep one op. A newer position replaces an unsent older one of the same title and episode,
-    /// so a long offline run cannot fill the queue. Returns the key that left, if any.
-    pub fn add(
-        &mut self,
+    /// Plan to keep one op. The entry is written out here, so what the store must hold is known
+    /// before the queue takes anything; `None` when the op does not write out at all. A newer
+    /// position replaces an unsent older one of the same title and episode, so a long offline run
+    /// cannot fill the queue.
+    #[must_use]
+    pub fn plan(
+        &self,
         op: CommandOp,
         scope: Option<String>,
         boot: &str,
         mono_ms: u64,
-    ) -> (Kept, Option<String>) {
-        let replaced = self.position_slot(&op, scope.as_deref()).map(|index| {
-            let old = self.ops.remove(index);
-            old.key()
-        });
-        let kept = Kept {
+    ) -> Option<Planned> {
+        let mut kept = Kept {
             seq: self.next_seq,
             scope,
             op,
@@ -84,10 +104,34 @@ impl Queue {
             boot: boot.into(),
             bytes: 0,
         };
-        self.next_seq += 1;
+        let text = serde_json::to_string(&kept).ok()?;
+        kept.bytes = u64::try_from(text.len()).unwrap_or(u64::MAX);
+        let replaces = self
+            .position_slot(&kept.op, kept.scope.as_deref())
+            .map(|index| (index, self.ops[index].key(), self.ops[index].bytes));
+        Some(Planned {
+            kept,
+            text,
+            replaces,
+        })
+    }
+
+    /// Take a planned op into the queue, with its store bytes already counted. Gives back the
+    /// entry, the text the store must hold, and the key of the position it replaced, if any.
+    pub fn admit(&mut self, planned: Planned) -> (Kept, String, Option<String>) {
+        let Planned {
+            kept,
+            text,
+            replaces,
+        } = planned;
+        let replaced = replaces.map(|(index, key, _)| {
+            self.ops.remove(index);
+            key
+        });
+        self.next_seq = kept.seq + 1;
         self.ops.push(kept.clone());
-        self.flush_at = Some(mono_ms + DEBOUNCE_MS);
-        (kept, replaced)
+        self.flush_at = Some(kept.mono_ms + DEBOUNCE_MS);
+        (kept, text, replaced)
     }
 
     fn position_slot(&self, op: &CommandOp, scope: Option<&str>) -> Option<usize> {
@@ -213,13 +257,6 @@ impl Queue {
         let keys = self.ops.iter().map(Kept::key).collect();
         self.ops.clear();
         keys
-    }
-
-    /// Note what a kept op takes in the store.
-    pub fn set_bytes(&mut self, seq: u64, bytes: u64) {
-        if let Some(kept) = self.ops.iter_mut().find(|kept| kept.seq == seq) {
-            kept.bytes = bytes;
-        }
     }
 
     /// Bytes the kept ops take in the store.
