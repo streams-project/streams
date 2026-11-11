@@ -48,6 +48,18 @@ pub struct AccountNames {
     pub last_name: String,
 }
 
+/// What a device says about itself when it starts: which session and account it belongs to, the key
+/// the device keeps for itself, and its capability card. The key names the device across sessions,
+/// so it is written where the card is written and nowhere else.
+#[derive(Clone, Copy, Debug)]
+pub struct DeviceCard<'a> {
+    pub session: SessionId,
+    pub account: AccountId,
+    pub device_key: &'a str,
+    pub card_hash: &'a str,
+    pub card: Option<&'a serde_json::Value>,
+}
+
 /// A store result.
 pub type StoreResult<T> = Result<T, StoreError>;
 
@@ -63,9 +75,16 @@ pub trait AccountStore: Send + Sync {
     async fn session_by_access(&self, hash: &TokenHash) -> StoreResult<Option<DeviceSession>>;
     /// One session by id.
     async fn session(&self, id: SessionId) -> StoreResult<Option<DeviceSession>>;
-    /// Write only the token fields and last seen of a session. Each field group has its own write,
-    /// so a refresh racing a profile change or a consent change loses neither.
-    async fn update_tokens(&self, session: &DeviceSession) -> StoreResult<()>;
+    /// Write only the token fields and last seen of a session, and only while the row still holds
+    /// the two refresh hashes that were read. Each field group has its own write, so a refresh
+    /// racing a profile change or a consent change loses neither. `false` means another refresh of
+    /// this session wrote first, so this caller's snapshot is stale and nothing was written.
+    async fn update_tokens(
+        &self,
+        session: &DeviceSession,
+        from_current: &TokenHash,
+        from_next: &TokenHash,
+    ) -> StoreResult<bool>;
     /// Write the active profile of a session. Nothing else writes it.
     async fn set_active_profile(
         &self,
@@ -75,11 +94,14 @@ pub trait AccountStore: Send + Sync {
     ) -> StoreResult<()>;
     /// Record a step up on a session.
     async fn set_step_up(&self, session: SessionId, at_ms: u64, method: &str) -> StoreResult<()>;
-    /// Remove a session of this account.
-    async fn delete_session(&self, account: AccountId, id: SessionId) -> StoreResult<()>;
+    /// Remove a session of this account. `false` when this account holds no such session.
+    async fn delete_session(&self, account: AccountId, id: SessionId) -> StoreResult<bool>;
     /// Remove every session of this account.
     async fn delete_sessions(&self, account: AccountId) -> StoreResult<()>;
-    /// Sessions of an account, newest use first.
+    /// Remove every session of this account but one, in a single statement. Signing out the other
+    /// devices must not go through `sessions_of`, which answers at most a screenful.
+    async fn delete_other_sessions(&self, account: AccountId, keep: SessionId) -> StoreResult<()>;
+    /// Sessions of an account, newest use first, at most a screenful.
     async fn sessions_of(&self, account: AccountId) -> StoreResult<Vec<DeviceSession>>;
     /// One profile of an account.
     async fn profile(&self, account: AccountId, id: ProfileId) -> StoreResult<Option<Profile>>;
@@ -127,7 +149,10 @@ pub trait AccountStore: Send + Sync {
     ) -> StoreResult<()>;
     /// Remove the account's rows. Deleting the auth row cascades in Postgres.
     async fn delete_account(&self, account: AccountId) -> StoreResult<()>;
-    /// Move a profile to another account, clearing it from sessions that held it.
+    /// Move a profile to another account, clearing it from sessions that held it. The PIN and the
+    /// automatic Kids flag are cleared in the same transaction as the move: the PIN belongs to the
+    /// account that set it, the flag is one per account, and a refused move must leave both as
+    /// they were.
     async fn move_profile(
         &self,
         from: AccountId,
@@ -149,8 +174,9 @@ pub trait AccountStore: Send + Sync {
     async fn approve_device_code(&self, hash: &TokenHash, account: AccountId) -> StoreResult<bool>;
     /// Refuse a waiting sign in, on the same terms as approving it.
     async fn deny_device_code(&self, hash: &TokenHash) -> StoreResult<bool>;
-    /// Remove a waiting sign in.
-    async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<()>;
+    /// Remove a waiting sign in. `true` only for the caller that removed it, so of two polls on
+    /// one approved code only one goes on to open a session.
+    async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<bool>;
     /// Delete what has lapsed: sessions unused since a time, audit rows older than a time, and
     /// device codes past their life.
     async fn prune(
@@ -161,11 +187,7 @@ pub trait AccountStore: Send + Sync {
     ) -> StoreResult<u64>;
     /// The device card of a session, as sent.
     async fn card(&self, session: SessionId) -> StoreResult<Option<serde_json::Value>>;
-    /// Save a device card as opaque JSON, returning true when the hash is new.
-    async fn save_card(
-        &self,
-        session: SessionId,
-        card_hash: &str,
-        card: Option<&serde_json::Value>,
-    ) -> StoreResult<bool>;
+    /// Save what a device said about itself, the card as opaque JSON, returning true when the hash
+    /// is new.
+    async fn save_card(&self, seen: &DeviceCard<'_>) -> StoreResult<bool>;
 }

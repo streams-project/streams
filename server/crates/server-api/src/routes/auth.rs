@@ -76,7 +76,8 @@ pub async fn verify_code(
     send(&headers, &wire(found), Keep::Never)
 }
 
-/// `POST /v1/auth/signup`.
+/// `POST /v1/auth/signup`. The answer is the same for an address that has an account and one that
+/// has none, so no tokens come back here: the device signs in with the password it just chose.
 pub async fn sign_up(
     State(state): State<Shared>,
     from: ClientOrigin,
@@ -89,8 +90,8 @@ pub async fn sign_up(
         first_name: &asked.first_name,
         last_name: &asked.last_name,
     };
-    let found = door(&state)?.sign_up(&new, from.as_origin()).await?;
-    send(&headers, &wire(found), Keep::Never)
+    door(&state)?.sign_up(&new, from.as_origin()).await?;
+    send(&headers, &Done { done: true }, Keep::Never)
 }
 
 /// `POST /v1/auth/refresh`. A failed store answers 503 and the device keeps its tokens.

@@ -247,6 +247,7 @@
   "signin.choose": "Choisissez comment vous identifier",
   "signin.email": "Adresse e-mail",
   "signin.getting": "Génération du code…",
+  "signin.join_done": "Identifiez-vous avec le mot de passe que vous avez choisi. Si cette adresse a déjà un compte, nous lui avons envoyé un e-mail.",
   "signin.off": "Ce serveur ne permet pas encore de s'identifier sur un téléviseur.",
   "signin.password": "Mot de passe",
   "signin.phone": "Avec mon téléphone",

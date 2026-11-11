@@ -16,7 +16,8 @@ use crate::caller::Caller;
 use crate::error::{ApiError, ApiResult};
 use crate::state::Shared;
 
-/// Most bytes of a device key, as the old row allowed.
+/// Letters of a device key, as the row allows. The column counts characters, so this counts
+/// characters too: a key the column refuses would reach the client as "busy, try again" for ever.
 const DEVICE_KEY_MIN: usize = 16;
 const DEVICE_KEY_MAX: usize = 64;
 
@@ -43,7 +44,7 @@ pub async fn register(
     headers: HeaderMap,
     Body(asked): Body<DeviceCardRequest>,
 ) -> ApiResult<Response> {
-    if !(DEVICE_KEY_MIN..=DEVICE_KEY_MAX).contains(&asked.device_key.len()) {
+    if !(DEVICE_KEY_MIN..=DEVICE_KEY_MAX).contains(&asked.device_key.chars().count()) {
         return Err(ApiError::bad("device_key"));
     }
     let card = asked
@@ -53,7 +54,7 @@ pub async fn register(
         .transpose()
         .map_err(|_| ApiError::bad("card"))?;
     let send_card = door(&state)?
-        .save_card(&member, &asked.card_hash, card.as_ref())
+        .save_card(&member, &asked.device_key, &asked.card_hash, card.as_ref())
         .await?;
     send(&headers, &DeviceCardAnswer { send_card }, Keep::Never)
 }

@@ -247,6 +247,7 @@
   "signin.choose": "Wybierz sposób logowania",
   "signin.email": "Adres e-mail",
   "signin.getting": "Pobieranie kodu...",
+  "signin.join_done": "Zaloguj się hasłem, które wybrałeś. Jeśli ten adres ma już konto, wysłaliśmy na niego e-mail.",
   "signin.off": "Ten serwer nie obsługuje jeszcze logowania na telewizorze.",
   "signin.password": "Hasło",
   "signin.phone": "Telefonem",

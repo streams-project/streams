@@ -3,10 +3,10 @@
 
 use rand::Rng;
 
-use crate::auth::{AuthError, Identity};
+use crate::auth::{AuthError, AuthService, Identity};
 use crate::door::{Door, Member, StepUpMethod};
 use crate::error::DoorError;
-use crate::profile::{NewAccount, ProfileId, SessionId, name_key};
+use crate::profile::{AccountId, NewAccount, ProfileId, SessionId, name_key};
 use crate::session::IssuedTokens;
 use crate::store::{AccountNames, DeviceCodeRow};
 use crate::token::{hash_token, new_token};
@@ -81,11 +81,13 @@ fn phone_digits(phone: &str) -> usize {
 }
 
 impl From<AuthError> for DoorError {
+    /// A taken address has no arm of its own on purpose. Both calls that can meet one answer the
+    /// caller the same either way, so nothing should reach here; if a later call forgets, it falls
+    /// in with every other refusal and still tells a stranger nothing.
     fn from(error: AuthError) -> Self {
         match error {
             AuthError::Unavailable => Self::Unavailable { retry_after_s: 5 },
             AuthError::WeakPassword => Self::BadValue("password"),
-            AuthError::Taken => Self::Refused("sign_up"),
             _ => Self::Refused("sign_in"),
         }
     }
@@ -154,15 +156,16 @@ impl Door {
             .await
     }
 
-    /// Make an account with its details, main profile and Kids profile.
+    /// Make an account with its details, main profile and Kids profile. The answer says only that
+    /// the ask was heard: free address or taken, whoever asks hears the same words, pays for the
+    /// same password hash and waits on the same one letter, so this is no way to learn who has an
+    /// account here. A free address gets its account and a sign in code; the person who holds a
+    /// taken one is told that someone tried to use it. No tokens leave here, so the device signs
+    /// in afterwards with the password it just chose.
     ///
     /// # Errors
-    /// `BadValue` for a bad address, password or name, `Refused` for a taken address.
-    pub async fn sign_up(
-        &self,
-        new: &SignUpAsk<'_>,
-        from: Origin<'_>,
-    ) -> Result<SignedIn, DoorError> {
+    /// `BadValue` for a bad address, password or name, `Unavailable` in an outage.
+    pub async fn sign_up(&self, new: &SignUpAsk<'_>, from: Origin<'_>) -> Result<(), DoorError> {
         self.meter_sign_in(new.email, from.address)?;
         if !email_shape_ok(new.email) {
             return Err(DoorError::BadValue("email"));
@@ -180,16 +183,41 @@ impl Door {
         {
             return Err(DoorError::BadValue("name"));
         }
-        let identity = self.auth()?.sign_up(new.email.trim(), new.password).await?;
-        let account = NewAccount {
-            id: identity.account,
-            email: identity.email.clone(),
-            first_name: first.to_owned(),
-            last_name: last.to_owned(),
+        let email = new.email.trim();
+        let auth = self.auth()?;
+        match auth.sign_up(email, new.password).await {
+            Ok(identity) => {
+                let account = NewAccount {
+                    id: identity.account,
+                    email: identity.email.clone(),
+                    first_name: first.to_owned(),
+                    last_name: last.to_owned(),
+                };
+                self.create_account(&account).await?;
+                self.post_once(auth, email, SignUpLetter::Code).await;
+            }
+            // The one answer this must never give away. The letter goes to the address itself, so
+            // the person who holds it learns of the attempt and nobody else learns anything.
+            Err(AuthError::Taken) => self.post_once(auth, email, SignUpLetter::Taken).await,
+            Err(error) => return Err(error.into()),
+        }
+        Ok(())
+    }
+
+    /// One letter per address per window, whatever the sign up found. Whether it went out never
+    /// reaches the caller: an answer that moved with the letter would be the same leak again, and
+    /// a letter an address did not ask for must not be repeatable at will.
+    async fn post_once(&self, auth: &dyn AuthService, email: &str, which: SignUpLetter) {
+        if self.meter_letter(email).is_err() {
+            return;
+        }
+        let sent = match which {
+            SignUpLetter::Code => auth.send_code(email).await,
+            SignUpLetter::Taken => auth.send_taken_notice(email).await,
         };
-        self.create_account(&account).await?;
-        self.sign_in(identity, from.device, StepUpMethod::Password)
-            .await
+        if let Err(error) = sent {
+            tracing::warn!("a sign up letter did not leave: {error}");
+        }
     }
 
     /// Prove a password or code on this session. A device session gains the power here.
@@ -248,12 +276,38 @@ impl Door {
         if (password.chars().count() as u32) < self.limits().password_min {
             return Err(DoorError::BadValue("password"));
         }
-        self.auth()?
-            .finish_recovery(email.trim(), code, password)
-            .await?;
-        if let Some(account) = self.auth()?.find_email(email.trim()).await? {
-            self.store().delete_sessions(account).await?;
+        // The code is taken first, so a stranger who knows an address cannot end its sessions by
+        // guessing, and the password is written after them, so the two cannot come apart.
+        let who = self.auth()?.take_recovery(email.trim(), code).await?;
+        self.credential_changed(who.account, None, password).await
+    }
+
+    /// The one way a password is set. The service is asked about the password before anything
+    /// else happens, because it refuses more than the door's minimum length and a refusal after
+    /// the sessions had gone would sign the other devices out for a change that never happened.
+    /// Then every session that must not outlive the change ends, so a failure in the middle
+    /// leaves the old password working and devices signed out, never a new password with the old
+    /// sessions still alive. `keep` is the session the person is standing at: a deliberate change
+    /// does not sign that one out.
+    ///
+    /// # Errors
+    /// `BadValue` for a password the service refuses, or the store's refusal.
+    async fn credential_changed(
+        &self,
+        account: AccountId,
+        keep: Option<SessionId>,
+        password: &str,
+    ) -> Result<(), DoorError> {
+        let auth = self.auth()?;
+        auth.password_ok(password)?;
+        match keep {
+            Some(session) => {
+                self.store().delete_other_sessions(account, session).await?;
+            }
+            None => self.store().delete_sessions(account).await?,
         }
+        auth.set_password(account, password).await?;
+        self.store().log_event(account, "password_changed").await?;
         Ok(())
     }
 
@@ -302,7 +356,11 @@ impl Door {
             .last_poll_ms
             .is_some_and(|last| now.saturating_sub(last) < u64::from(DEVICE_POLL_S) * 1000);
         if let Some(account) = row.account {
-            self.store().delete_device_code(&hash).await?;
+            // Only the poll that took the row signs a device in, so two polls on one approved
+            // code cannot both mint a session. The loser reads as a code that is no longer there.
+            if !self.store().delete_device_code(&hash).await? {
+                return Ok(DevicePollState::Expired);
+            }
             let (session, tokens) = self.open_device_session(account, &row.device_name).await?;
             let identity = self.auth()?.identity(account).await?;
             return Ok(DevicePollState::Approved(Box::new(SignedIn {
@@ -435,7 +493,9 @@ impl Door {
         self.account(member).await
     }
 
-    /// Change the password in one request with its proof.
+    /// Change the password in one request with its proof. Every other device is signed out: after
+    /// a password change the person expects to be the only one holding the account, and a refresh
+    /// chain a thief took would otherwise outlive the change. This session stays.
     ///
     /// # Errors
     /// `StepUpRequired`, or `BadValue` for a short password.
@@ -444,13 +504,13 @@ impl Door {
         if (password.chars().count() as u32) < self.limits().password_min {
             return Err(DoorError::BadValue("password"));
         }
-        Ok(self
-            .auth()?
-            .set_password(member.account(), password)
-            .await?)
+        self.credential_changed(member.account(), Some(member.session_id()), password)
+            .await
     }
 
-    /// Change the address.
+    /// Change the address. As with a sign up, the answer does not say whether another account
+    /// already holds the address; the person who holds it hears that someone tried to move an
+    /// account onto it.
     ///
     /// # Errors
     /// `StepUpRequired`, or `BadValue` for a bad shape.
@@ -459,10 +519,15 @@ impl Door {
         if !email_shape_ok(email) {
             return Err(DoorError::BadValue("email"));
         }
-        Ok(self
-            .auth()?
-            .set_email(member.account(), email.trim())
-            .await?)
+        let email = email.trim();
+        let auth = self.auth()?;
+        match auth.set_email(member.account(), email).await {
+            Err(AuthError::Taken) => {
+                self.post_once(auth, email, SignUpLetter::Taken).await;
+                Ok(())
+            }
+            other => Ok(other?),
+        }
     }
 
     /// Change the phone: 6 to 15 digits.
@@ -528,7 +593,8 @@ impl Door {
             .find_email(to_email.trim())
             .await?
             .ok_or(DoorError::NotFound)?;
-        self.store().set_pin(profile, None).await?;
+        // The PIN and the automatic Kids flag are cleared inside the move, so a refused move
+        // leaves the profile exactly as it was.
         self.store()
             .move_profile(member.account(), profile, to, self.limits().profiles_max)
             .await?;
@@ -548,6 +614,15 @@ impl Door {
             .events_of(member.account(), EVENTS_SHOWN)
             .await?)
     }
+}
+
+/// The one letter a sign up or an address change sends.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum SignUpLetter {
+    /// A sign in code, to the address of the account just made.
+    Code,
+    /// A word to the person who already holds the address.
+    Taken,
 }
 
 /// Where a sign in comes from.

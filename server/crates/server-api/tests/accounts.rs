@@ -6,7 +6,8 @@ use std::sync::Arc;
 
 use axum::http::{Method, StatusCode};
 use common::{Answer, call, get, harness_with_auth};
-use contract::account::{DeviceCode, DeviceTokenAnswer, SignedIn};
+use contract::account::{DeviceCode, DeviceTokenAnswer, Done, SignedIn};
+use contract::api::ROUTES;
 use serde_json::json;
 use server_accounts::auth::MEMORY_CODE;
 use server_accounts::{AuthService, MemoryAuth};
@@ -20,9 +21,23 @@ fn sign_up_body(email: &str) -> serde_json::Value {
     json!({ "email": email, "password": "long-enough", "first_name": "Ada", "last_name": "Lace" })
 }
 
-async fn new_account(server: &common::Harness, email: &str) -> SignedIn {
-    let answer = call(Method::POST, "/v1/auth/signup")
+const PASSWORD: &str = "long-enough";
+
+async fn join(server: &common::Harness, email: &str) -> Answer {
+    call(Method::POST, "/v1/auth/signup")
         .json(sign_up_body(email))
+        .on(&server.state)
+        .await
+}
+
+/// A new account and the session of its first sign in. Signing up answers the same for an address
+/// that has an account and one that has none, so it hands out no tokens and the device signs in
+/// with the password it just chose.
+async fn new_account(server: &common::Harness, email: &str) -> SignedIn {
+    let joined = join(server, email).await;
+    assert_eq!(joined.status, StatusCode::OK, "{}", joined.body);
+    let answer = post("/v1/auth/password")
+        .json(json!({ "email": email, "password": PASSWORD }))
         .on(&server.state)
         .await;
     signed_in(answer)
@@ -80,23 +95,444 @@ async fn tmt13_an_unknown_address_and_a_wrong_password_answer_alike() {
 
 #[tokio::test]
 async fn tmt13_a_code_and_a_recovery_answer_the_same_for_any_address() {
-    let server = harness_with_auth(&[]);
+    // The auth service in memory now answers in the shape the built in one does: it looks the
+    // address up, writes only to one that has an account, and never lets the provider's answer
+    // reach the caller. With a provider that refuses, and with no mail at all, the two addresses
+    // must still be told the same thing; before this the first case answered 503 for an address
+    // that had an account and 200 for one that had none.
+    let auth = Arc::new(MemoryAuth::default());
+    let server = common::harness_on(&[], auth.clone());
     new_account(&server, "ada@example.test").await;
-    for path in ["/v1/auth/code", "/v1/auth/recovery/start"] {
-        let known = post(path)
-            .json(json!({ "email": "ada@example.test" }))
+    let order = std::sync::atomic::Ordering::SeqCst;
+    for (provider, want) in [
+        ("a provider that works", StatusCode::OK),
+        ("a provider that refuses", StatusCode::OK),
+        ("no mail at all", StatusCode::SERVICE_UNAVAILABLE),
+    ] {
+        auth.mail_down
+            .store(provider == "a provider that refuses", order);
+        auth.mail_off.store(provider == "no mail at all", order);
+        // Each round asks four times, and sign in tries are counted by the minute.
+        server.clock.advance_ms(60_000);
+        for path in ["/v1/auth/code", "/v1/auth/recovery/start"] {
+            let known = post(path)
+                .json(json!({ "email": "ada@example.test" }))
+                .on(&server.state)
+                .await;
+            let unknown = post(path)
+                .json(json!({ "email": "nobody@example.test" }))
+                .on(&server.state)
+                .await;
+            assert_eq!(known.status, want, "{provider} {path}: {}", known.body);
+            assert_eq!(
+                (known.status, known.body),
+                (unknown.status, unknown.body),
+                "{provider} {path}"
+            );
+        }
+    }
+}
+
+#[tokio::test]
+async fn tmt13_a_sign_up_answers_the_same_for_a_taken_and_a_free_address() {
+    // Before this a taken address answered 403 error.sign_up and a free one 200 with tokens, which
+    // told a stranger who has an account here. Now both are told the same, the person who holds
+    // the taken address hears that someone tried, and no answer carries tokens.
+    let auth = Arc::new(MemoryAuth::default());
+    let server = common::harness_on(&[], auth.clone());
+    new_account(&server, "ada@example.test").await;
+    // The sign up that made the account already wrote to this address inside this window.
+    server.clock.advance_ms(60_000);
+    let taken = join(&server, "ada@example.test").await;
+    let free = join(&server, "grace@example.test").await;
+    assert_eq!(taken.status, StatusCode::OK, "{}", taken.body);
+    assert_eq!((taken.status, &taken.body), (free.status, &free.body));
+    assert!(
+        !taken.body.to_string().contains("token"),
+        "no tokens leave a sign up: {}",
+        taken.body
+    );
+    let warned = auth.warned.lock().unwrap().clone();
+    assert_eq!(
+        warned,
+        ["ada@example.test"],
+        "the person who holds the address hears about the attempt, and nobody else"
+    );
+    let sent = auth.sent.lock().unwrap().clone();
+    assert!(
+        sent.contains(&String::from("grace@example.test")),
+        "the new account gets its code, so both branches cost one letter: {sent:?}"
+    );
+
+    // A second ask in the same window is answered the same and sends nothing, so this is no way
+    // to post letters at an address.
+    let again = join(&server, "ada@example.test").await;
+    assert_eq!((again.status, again.body), (taken.status, taken.body));
+    assert_eq!(
+        auth.warned.lock().unwrap().len(),
+        1,
+        "one letter per address per window"
+    );
+}
+
+#[tokio::test]
+async fn s59_an_address_change_does_not_say_who_holds_an_address() {
+    let auth = Arc::new(MemoryAuth::default());
+    let server = common::harness_on(&[], auth.clone());
+    let ada = new_account(&server, "ada@example.test").await;
+    new_account(&server, "grace@example.test").await;
+    server.clock.advance_ms(60_000);
+    let taken = post("/v1/account/email")
+        .token(&ada.access_token)
+        .json(json!({ "email": "grace@example.test" }))
+        .on(&server.state)
+        .await;
+    let free = post("/v1/account/email")
+        .token(&ada.access_token)
+        .json(json!({ "email": "ada2@example.test" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(taken.status, StatusCode::OK, "{}", taken.body);
+    assert_eq!((taken.status, taken.body), (free.status, free.body));
+    assert_eq!(
+        auth.warned.lock().unwrap().clone(),
+        ["grace@example.test"],
+        "the holder of the address hears that someone tried to move an account onto it"
+    );
+}
+
+#[tokio::test]
+async fn tmt2_a_password_change_signs_the_other_devices_out() {
+    // Before this a password change left every other session alive, so the one thing a person does
+    // after a token is stolen did not reach the thief, whose refresh chain carried on.
+    let server = harness_with_auth(&[]);
+    let one = new_account(&server, "ada@example.test").await;
+    let two = signed_in(
+        post("/v1/auth/password")
+            .json(json!({ "email": "ada@example.test", "password": PASSWORD }))
             .on(&server.state)
-            .await;
-        let unknown = post(path)
-            .json(json!({ "email": "nobody@example.test" }))
+            .await,
+    );
+    let changed = post("/v1/account/password")
+        .token(&one.access_token)
+        .json(json!({ "new_password": "a-new-long-password" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(changed.status, StatusCode::OK, "{}", changed.body);
+    let theirs = get("/v1/profiles")
+        .token(&two.access_token)
+        .on(&server.state)
+        .await;
+    assert_eq!(
+        theirs.status,
+        StatusCode::UNAUTHORIZED,
+        "the other device is signed out"
+    );
+    let refreshed = post("/v1/auth/refresh")
+        .json(json!({ "refresh_token": two.refresh_token }))
+        .on(&server.state)
+        .await;
+    assert_eq!(
+        refreshed.status,
+        StatusCode::UNAUTHORIZED,
+        "and its refresh chain is gone with it"
+    );
+    let mine = get("/v1/profiles")
+        .token(&one.access_token)
+        .on(&server.state)
+        .await;
+    assert_eq!(
+        mine.status,
+        StatusCode::OK,
+        "the device the person is standing at stays: {}",
+        mine.body
+    );
+}
+
+#[tokio::test]
+async fn n16_a_sign_up_answers_the_shape_the_contract_names() {
+    // The route stopped handing tokens out, and the contract went on declaring SignedIn for its
+    // 200, so the gate that regenerates the contract would have failed and every generated client
+    // still believed a shape the server no longer sends.
+    let route = ROUTES
+        .iter()
+        .find(|route| route.method == "POST" && route.path == "/v1/auth/signup")
+        .expect("the sign up route");
+    assert_eq!(route.response, "Done", "the contract names the answer");
+    let server = harness_with_auth(&[]);
+    let joined = join(&server, "ada@example.test").await;
+    assert_eq!(joined.status, StatusCode::OK, "{}", joined.body);
+    let done: Done = serde_json::from_value(joined.body.clone()).expect("a Done");
+    assert!(done.done);
+    assert!(
+        serde_json::from_value::<SignedIn>(joined.body).is_err(),
+        "and the shape it used to answer in is gone"
+    );
+}
+
+#[tokio::test]
+async fn tmt2_a_refused_password_change_leaves_every_session_alive() {
+    // The sessions went first and the password after, so a password the auth service refuses -
+    // one past the 72 bytes bcrypt reads, which the door's minimum length check lets through -
+    // signed every other device out for a change that never happened. Before: 400 bad_request and
+    // the other device signed out. After: 400 bad_request and the other device still signed in,
+    // with the old password still working.
+    let server = harness_with_auth(&[]);
+    let one = new_account(&server, "ada@example.test").await;
+    let two = signed_in(
+        post("/v1/auth/password")
+            .json(json!({ "email": "ada@example.test", "password": PASSWORD }))
+            .on(&server.state)
+            .await,
+    );
+    let refused = post("/v1/account/password")
+        .token(&one.access_token)
+        .json(json!({ "new_password": "x".repeat(73) }))
+        .on(&server.state)
+        .await;
+    assert_eq!(refused.status, StatusCode::BAD_REQUEST, "{}", refused.body);
+    assert_eq!(refused.code(), "bad_request", "{}", refused.body);
+    for (whose, token) in [("the other device", &two), ("this one", &one)] {
+        let theirs = get("/v1/profiles")
+            .token(&token.access_token)
             .on(&server.state)
             .await;
         assert_eq!(
-            (known.status, known.body),
-            (unknown.status, unknown.body),
-            "{path}"
+            theirs.status,
+            StatusCode::OK,
+            "{whose} is still signed in: {}",
+            theirs.body
         );
     }
+    let again = post("/v1/auth/password")
+        .json(json!({ "email": "ada@example.test", "password": PASSWORD }))
+        .on(&server.state)
+        .await;
+    assert_eq!(
+        again.status,
+        StatusCode::OK,
+        "the password that was refused did not land: {}",
+        again.body
+    );
+}
+
+#[tokio::test]
+async fn s42_a_television_signs_itself_out_and_no_other_device() {
+    // A step up on every device removal left a television unable to sign itself out: a session
+    // opened from a device code has no step up power until it proves a password or code on that
+    // device, and the shipped TV settings screens call DELETE /v1/devices. Signing this device
+    // out needs no proof, because POST /v1/auth/signout already ends this very session without
+    // one; another device still needs it.
+    let server = harness_with_auth(&[("SITE_ADDRESS", "https://site.host.example")]);
+    let phone = new_account(&server, "ada@example.test").await;
+    let started = post("/v1/auth/device/code")
+        .json(json!({ "device_name": "Living room" }))
+        .on(&server.state)
+        .await;
+    let code: DeviceCode = serde_json::from_value(started.body).unwrap();
+    post("/v1/auth/device/approve")
+        .token(&phone.access_token)
+        .json(json!({ "user_code": code.user_code }))
+        .on(&server.state)
+        .await;
+    server.clock.advance_ms(5000);
+    let answer: DeviceTokenAnswer = serde_json::from_value(
+        post("/v1/auth/device/token")
+            .json(json!({ "device_code": code.device_code }))
+            .on(&server.state)
+            .await
+            .body,
+    )
+    .unwrap();
+    let tv = answer.signed_in.expect("tokens");
+    let devices = get("/v1/devices")
+        .token(&tv.access_token)
+        .on(&server.state)
+        .await;
+    let listed = devices.body["devices"].as_array().unwrap().clone();
+    let id = |current: bool| {
+        listed
+            .iter()
+            .find(|device| device["current"] == current)
+            .expect("a device")["id"]
+            .as_str()
+            .unwrap()
+            .to_owned()
+    };
+    let others = call(Method::DELETE, "/v1/devices")
+        .token(&tv.access_token)
+        .on(&server.state)
+        .await;
+    assert_eq!(
+        others.code(),
+        "step_up_required",
+        "a television may not throw the other devices off on its own: {}",
+        others.body
+    );
+    let theirs = call(Method::DELETE, &format!("/v1/devices?id={}", id(false)))
+        .token(&tv.access_token)
+        .on(&server.state)
+        .await;
+    assert_eq!(
+        theirs.code(),
+        "step_up_required",
+        "nor another named device: {}",
+        theirs.body
+    );
+    let itself = call(Method::DELETE, &format!("/v1/devices?id={}", id(true)))
+        .token(&tv.access_token)
+        .on(&server.state)
+        .await;
+    assert_eq!(
+        itself.status,
+        StatusCode::OK,
+        "but it signs itself out: {}",
+        itself.body
+    );
+    let after = get("/v1/devices")
+        .token(&tv.access_token)
+        .on(&server.state)
+        .await;
+    assert_eq!(
+        after.status,
+        StatusCode::UNAUTHORIZED,
+        "and its own token is gone with the session"
+    );
+    let mine = get("/v1/profiles")
+        .token(&phone.access_token)
+        .on(&server.state)
+        .await;
+    assert_eq!(mine.status, StatusCode::OK, "the phone is untouched");
+}
+
+#[tokio::test]
+async fn tmt12_signing_a_device_out_needs_a_step_up() {
+    // The account flows say a device removal needs a recent password or code; the code did not ask
+    // for one, so a stolen access token could throw every other device off.
+    let server = harness_with_auth(&[]);
+    let signed = new_account(&server, "ada@example.test").await;
+    let token = signed.access_token.as_str();
+    signed_in(
+        post("/v1/auth/password")
+            .json(json!({ "email": "ada@example.test", "password": PASSWORD }))
+            .on(&server.state)
+            .await,
+    );
+    let devices = get("/v1/devices").token(token).on(&server.state).await;
+    let other = devices.body["devices"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|device| device["current"] == false)
+        .expect("the other device")["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let which = format!("/v1/devices?id={other}");
+    server.clock.advance_ms(301_000);
+    let refused = call(Method::DELETE, &which)
+        .token(token)
+        .on(&server.state)
+        .await;
+    assert_eq!(refused.code(), "step_up_required", "{}", refused.body);
+    let refused = call(Method::DELETE, "/v1/devices")
+        .token(token)
+        .on(&server.state)
+        .await;
+    assert_eq!(refused.code(), "step_up_required", "{}", refused.body);
+    let proved = post("/v1/auth/confirm")
+        .token(token)
+        .json(json!({ "password": PASSWORD }))
+        .on(&server.state)
+        .await;
+    assert_eq!(proved.status, StatusCode::OK, "{}", proved.body);
+    let done = call(Method::DELETE, "/v1/devices")
+        .token(token)
+        .on(&server.state)
+        .await;
+    assert_eq!(done.status, StatusCode::OK, "{}", done.body);
+    let left = get("/v1/devices").token(token).on(&server.state).await;
+    assert_eq!(
+        left.body["devices"].as_array().unwrap().len(),
+        1,
+        "only this device is left: {}",
+        left.body
+    );
+}
+
+#[tokio::test]
+async fn s203_the_device_key_a_device_sends_is_kept() {
+    // The route checked the length of the key and then dropped it, so nothing named the device
+    // across its sessions.
+    let server = harness_with_auth(&[]);
+    let signed = new_account(&server, "ada@example.test").await;
+    let key = "0123456789abcdef0123";
+    let saved = post("/v1/devices/me")
+        .token(&signed.access_token)
+        .json(json!({ "device_key": key, "card_hash": "h1" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(saved.status, StatusCode::OK, "{}", saved.body);
+    let member = server
+        .door
+        .member(&signed.access_token)
+        .await
+        .expect("the caller");
+    assert_eq!(
+        server.store.device_session(member.account(), key),
+        Some(member.session_id()),
+        "the key is kept against the account and the session that sent it"
+    );
+    let short = post("/v1/devices/me")
+        .token(&signed.access_token)
+        .json(json!({ "device_key": "short", "card_hash": "h1" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(short.status, StatusCode::BAD_REQUEST, "{}", short.body);
+}
+
+#[tokio::test]
+async fn s39_a_picture_the_brand_did_not_publish_is_refused() {
+    let site = common::folder("avatar-rules");
+    std::fs::create_dir_all(site.join("avatars")).unwrap();
+    let sets = json!({ "sets": [
+        { "name": "Soft", "kids": true, "pictures": [{ "name": "One", "path": "/avatars/one.webp" }] },
+        { "name": "Dark", "kids": false, "pictures": [{ "name": "Two", "path": "/avatars/two.webp" }] },
+    ]});
+    std::fs::write(site.join("avatars/sets.json"), sets.to_string()).unwrap();
+    let path = site.to_string_lossy().into_owned();
+    let server = harness_with_auth(&[("WEB_ROOT", path.as_str())]);
+    let signed = new_account(&server, "ada@example.test").await;
+    let token = signed.access_token.as_str();
+    let rows = get("/v1/profiles").token(token).on(&server.state).await;
+    let main = rows.body["profiles"][0]["id"].as_str().unwrap().to_owned();
+    let kids = rows.body["profiles"][1]["id"].as_str().unwrap().to_owned();
+    let set = |id: &str, avatar: &str| {
+        call(Method::PATCH, &format!("/v1/profiles/{id}"))
+            .token(token)
+            .json(json!({ "avatar": avatar }))
+    };
+    // A name the column cannot hold used to reach the store, which answered "busy, try again" for
+    // ever; a name no set names reached it too.
+    let long = set(&main, &"a".repeat(65)).on(&server.state).await;
+    assert_eq!(long.status, StatusCode::BAD_REQUEST, "{}", long.body);
+    let stranger = set(&main, "/avatars/three.webp").on(&server.state).await;
+    assert_eq!(
+        stranger.status,
+        StatusCode::BAD_REQUEST,
+        "{}",
+        stranger.body
+    );
+    let grown_up = set(&kids, "/avatars/two.webp").on(&server.state).await;
+    assert_eq!(
+        grown_up.status,
+        StatusCode::BAD_REQUEST,
+        "a Kids profile is offered only the Kids sets: {}",
+        grown_up.body
+    );
+    let kept = set(&kids, "/avatars/one.webp").on(&server.state).await;
+    assert_eq!(kept.status, StatusCode::OK, "{}", kept.body);
+    assert_eq!(kept.body["avatar"], "/avatars/one.webp");
 }
 
 #[tokio::test]
@@ -642,6 +1078,54 @@ async fn tmt12_tmp8_a_transfer_needs_a_step_up_and_leaves_the_pin_behind() {
         .find(|p| p["id"] == id.as_str())
         .unwrap();
     assert_eq!(found["has_pin"], false, "the PIN never travels");
+}
+
+#[tokio::test]
+async fn tmp8_a_refused_transfer_leaves_the_pin_where_it_was() {
+    // The PIN was cleared in its own committed write before the move was tried, so a transfer the
+    // other account had no room for answered "refused" and took the PIN with it anyway.
+    let server = harness_with_auth(&[]);
+    let first = new_account(&server, "ada@example.test").await;
+    let second = new_account(&server, "grace@example.test").await;
+    let token = first.access_token.as_str();
+    for n in 0..3 {
+        let made = post("/v1/profiles")
+            .token(&second.access_token)
+            .json(json!({ "name": format!("Extra {n}") }))
+            .on(&server.state)
+            .await;
+        assert_eq!(made.status, StatusCode::OK, "{}", made.body);
+    }
+    let made = post("/v1/profiles")
+        .token(token)
+        .json(json!({ "name": "Moving" }))
+        .on(&server.state)
+        .await;
+    let id = made.body["id"].as_str().unwrap().to_owned();
+    let pin = call(Method::PUT, &format!("/v1/profiles/{id}/pin"))
+        .token(token)
+        .json(json!({ "pin": "1234" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(pin.status, StatusCode::OK, "{}", pin.body);
+    let refused = post(&format!("/v1/profiles/{id}/transfer"))
+        .token(token)
+        .json(json!({ "to_account_email": "grace@example.test" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(refused.status, StatusCode::FORBIDDEN, "{}", refused.body);
+    assert_eq!(refused.body["label"], "error.profile_limit");
+    let mine = get("/v1/profiles").token(token).on(&server.state).await;
+    let row = mine.body["profiles"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|profile| profile["id"] == id.as_str())
+        .expect("the profile stayed where it was");
+    assert_eq!(
+        row["has_pin"], true,
+        "a transfer that was refused leaves the PIN alone"
+    );
 }
 
 #[tokio::test]

@@ -34,5 +34,8 @@
 "email-device-title": "New device signed in",
 "email-device-body": "{ $browser } on { $system } signed in to your account { $where } on { $time }. If this was you, nothing more is needed. If it was not, change your password and sign out of all devices.",
 "email-device-where": "from { $country }",
-"email-device-button": "Review your devices"
+"email-device-button": "Review your devices",
+"email-taken-subject": "Someone tried to sign up with your address",
+"email-taken-title": "Your address is already in use",
+"email-taken-body": "Someone tried to create a { $brand } account with this address. It already has one, so nothing changed. If it was you, sign in instead, or reset your password if you have forgotten it."
 }

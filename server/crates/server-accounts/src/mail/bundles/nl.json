@@ -34,5 +34,8 @@
 "email-device-title": "Nieuw apparaat ingelogd",
 "email-device-body": "{ $browser } op { $system } is ingelogd op je account { $where } op { $time }. Als dit jou was, hoeft niets meer te gebeuren. Als het niet jou was, verander dan je wachtwoord en log uit op alle apparaten.",
 "email-device-where": "van { $country }",
-"email-device-button": "Bekijk je apparaten"
+"email-device-button": "Bekijk je apparaten",
+"email-taken-subject": "Iemand probeerde zich aan te melden met jouw adres",
+"email-taken-title": "Jouw adres is al in gebruik",
+"email-taken-body": "Iemand probeerde een { $brand }-account te maken met dit adres. Er is al een account, dus er is niets veranderd. Was jij het? Log dan in, of stel je wachtwoord opnieuw in als je het vergeten bent."
 }

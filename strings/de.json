@@ -247,6 +247,7 @@
   "signin.choose": "Wie möchtest du dich anmelden?",
   "signin.email": "E-Mail-Adresse",
   "signin.getting": "Code wird geladen...",
+  "signin.join_done": "Melde dich mit dem Passwort an, das du gewählt hast. Falls diese Adresse schon ein Konto hat, haben wir ihr eine E-Mail geschickt.",
   "signin.off": "Auf diesem Server ist die Anmeldung am Fernseher noch nicht möglich.",
   "signin.password": "Passwort",
   "signin.phone": "Mit dem Smartphone",

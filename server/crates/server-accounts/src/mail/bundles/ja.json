@@ -34,5 +34,8 @@
 "email-device-title": "新しいデバイスがサインインしました",
 "email-device-body": "{ $browser } が { $system } でサインインしました。{ $where } から { $time } にサインインしました。これがあなたでしたら、何もさらには必要ありません。そうでなければ、パスワードを変更し、すべてのデバイスからサインアウトしてください。",
 "email-device-where": "から { $country }",
-"email-device-button": "デバイスを確認する"
+"email-device-button": "デバイスを確認する",
+"email-taken-subject": "だれかがこのアドレスで登録しようとしました",
+"email-taken-title": "このアドレスはすでに使われています",
+"email-taken-body": "だれかがこのアドレスで { $brand } のアカウントを作成しようとしました。すでにアカウントがあるため、何も変わっていません。ご自身であれば、そのままサインインしてください。パスワードをお忘れの場合はリセットできます。"
 }

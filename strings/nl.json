@@ -247,6 +247,7 @@
   "signin.choose": "Kies hoe je wilt inloggen",
   "signin.email": "E-mailadres",
   "signin.getting": "Code ophalen...",
+  "signin.join_done": "Log in met het wachtwoord dat je hebt gekozen. Als dat adres al een account heeft, hebben we het een e-mail gestuurd.",
   "signin.off": "Inloggen op een tv kan nog niet via deze server.",
   "signin.password": "Wachtwoord",
   "signin.phone": "Met je telefoon",

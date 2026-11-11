@@ -12,7 +12,9 @@ use crate::profile::{
     SessionId, name_key,
 };
 use crate::session::{Consent, DeviceSession};
-use crate::store::{AccountNames, AccountStore, DeviceCodeRow, StoreError, StoreResult};
+use crate::store::{
+    AccountNames, AccountStore, DeviceCard, DeviceCodeRow, StoreError, StoreResult,
+};
 use crate::token::TokenHash;
 
 #[derive(Default)]
@@ -22,6 +24,8 @@ struct Rows {
     cards: HashMap<SessionId, (String, Option<serde_json::Value>)>,
     profiles: HashMap<ProfileId, Profile>,
     pins: HashMap<ProfileId, PinRow>,
+    /// The key each device keeps for itself, as Postgres keeps it in `account_devices`.
+    devices: HashMap<(AccountId, String), SessionId>,
     events: Vec<(AccountId, String)>,
     device_codes: Vec<DeviceCodeRow>,
     names: HashMap<AccountId, AccountNames>,
@@ -50,6 +54,16 @@ impl MemoryStore {
     /// Make every call fail as an outage, or work again.
     pub fn set_down(&self, down: bool) {
         self.down.store(down, Ordering::SeqCst);
+    }
+
+    /// The session a device key was last seen on, as the store kept it.
+    #[must_use]
+    pub fn device_session(&self, account: AccountId, device_key: &str) -> Option<SessionId> {
+        let rows = self
+            .rows
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        rows.devices.get(&(account, device_key.to_owned())).copied()
     }
 
     /// Audit rows of an account, oldest first.
@@ -119,19 +133,28 @@ impl AccountStore for MemoryStore {
         Ok(self.guard()?.sessions.get(&id).cloned())
     }
 
-    async fn update_tokens(&self, session: &DeviceSession) -> StoreResult<()> {
+    async fn update_tokens(
+        &self,
+        session: &DeviceSession,
+        from_current: &TokenHash,
+        from_next: &TokenHash,
+    ) -> StoreResult<bool> {
         let mut rows = self.guard()?;
         let row = rows
             .sessions
             .get_mut(&session.id)
             .ok_or(StoreError::NotFound)?;
+        // The same test as the Postgres where: a snapshot that lost the race writes nothing.
+        if row.refresh_current != *from_current || row.refresh_next != *from_next {
+            return Ok(false);
+        }
         row.access_hash = session.access_hash;
         row.access_expires_ms = session.access_expires_ms;
         row.refresh_current = session.refresh_current;
         row.refresh_next = session.refresh_next;
         row.refresh_first_used_ms = session.refresh_first_used_ms;
         row.last_seen_ms = session.last_seen_ms;
-        Ok(())
+        Ok(true)
     }
 
     async fn set_active_profile(
@@ -161,7 +184,7 @@ impl AccountStore for MemoryStore {
         Ok(())
     }
 
-    async fn delete_session(&self, account: AccountId, id: SessionId) -> StoreResult<()> {
+    async fn delete_session(&self, account: AccountId, id: SessionId) -> StoreResult<bool> {
         let mut rows = self.guard()?;
         if rows
             .sessions
@@ -169,14 +192,22 @@ impl AccountStore for MemoryStore {
             .is_some_and(|row| row.account == account)
         {
             rows.sessions.remove(&id);
+            return Ok(true);
         }
-        Ok(())
+        Ok(false)
     }
 
     async fn delete_sessions(&self, account: AccountId) -> StoreResult<()> {
         self.guard()?
             .sessions
             .retain(|_, row| row.account != account);
+        Ok(())
+    }
+
+    async fn delete_other_sessions(&self, account: AccountId, keep: SessionId) -> StoreResult<()> {
+        self.guard()?
+            .sessions
+            .retain(|id, row| row.account != account || *id == keep);
         Ok(())
     }
 
@@ -417,6 +448,7 @@ impl AccountStore for MemoryStore {
         rows.sessions.retain(|_, row| row.account != account);
         rows.profiles.retain(|_, row| row.account != account);
         rows.events.retain(|(owner, _)| *owner != account);
+        rows.devices.retain(|(owner, _), _| *owner != account);
         Ok(())
     }
 
@@ -452,6 +484,11 @@ impl AccountStore for MemoryStore {
             return Err(StoreError::NotFound);
         }
         row.account = to;
+        // As Postgres does it in its transaction: the PIN belongs to the account that set it, and
+        // the automatic Kids flag is one per account, so neither travels with the row.
+        row.auto_kids = false;
+        row.has_pin = false;
+        rows.pins.remove(&profile);
         for session in rows.sessions.values_mut() {
             if session.active_profile == Some(profile) {
                 session.active_profile = None;
@@ -513,11 +550,11 @@ impl AccountStore for MemoryStore {
         Ok(held.map(|held| held.denied = true).is_some())
     }
 
-    async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<()> {
-        self.guard()?
-            .device_codes
-            .retain(|row| row.device_hash != *hash);
-        Ok(())
+    async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<bool> {
+        let mut rows = self.guard()?;
+        let before = rows.device_codes.len();
+        rows.device_codes.retain(|row| row.device_hash != *hash);
+        Ok(rows.device_codes.len() < before)
     }
 
     async fn prune(&self, idle_before_ms: u64, _: u64, now_ms: u64) -> StoreResult<u64> {
@@ -534,21 +571,20 @@ impl AccountStore for MemoryStore {
         Ok(rows.cards.get(&session).and_then(|(_, card)| card.clone()))
     }
 
-    async fn save_card(
-        &self,
-        session: SessionId,
-        card_hash: &str,
-        card: Option<&serde_json::Value>,
-    ) -> StoreResult<bool> {
+    async fn save_card(&self, seen: &DeviceCard<'_>) -> StoreResult<bool> {
         let mut rows = self.guard()?;
         let known = rows
             .cards
-            .get(&session)
-            .is_some_and(|(hash, stored)| hash == card_hash && stored.is_some());
+            .get(&seen.session)
+            .is_some_and(|(hash, stored)| hash == seen.card_hash && stored.is_some());
         if !known {
-            rows.cards
-                .insert(session, (card_hash.to_owned(), card.cloned()));
+            rows.cards.insert(
+                seen.session,
+                (seen.card_hash.to_owned(), seen.card.cloned()),
+            );
         }
-        Ok(!known && card.is_none())
+        rows.devices
+            .insert((seen.account, seen.device_key.to_owned()), seen.session);
+        Ok(!known && seen.card.is_none())
     }
 }

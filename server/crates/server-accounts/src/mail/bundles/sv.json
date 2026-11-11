@@ -34,5 +34,8 @@
 "email-device-title": "Ny enhet inloggad",
 "email-device-body": "{ $browser } på { $system } inloggad på ditt konto { $where } på { $time }. Om det var du, behöver du inte göra något mer. Om det inte var du, ändra ditt lösenord och logga ut från alla enheter.",
 "email-device-where": "från { $country }",
-"email-device-button": "Granska dina enheter"
+"email-device-button": "Granska dina enheter",
+"email-taken-subject": "Någon försökte skapa ett konto med din adress",
+"email-taken-title": "Din adress används redan",
+"email-taken-body": "Någon försökte skapa ett { $brand }-konto med den här adressen. Det finns redan ett konto, så ingenting har ändrats. Var det du? Logga in, eller återställ lösenordet om du har glömt det."
 }

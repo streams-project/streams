@@ -34,5 +34,8 @@
 "email-device-title": "Nuevo dispositivo inició sesión",
 "email-device-body": "{ $browser } en { $system } inició sesión en tu cuenta { $where } el { $time }. Si fuiste tú, no necesitas hacer nada. Si no, cambia tu contraseña y cierra la sesión en todos los dispositivos.",
 "email-device-where": "desde { $country }",
-"email-device-button": "Revisar tus dispositivos"
+"email-device-button": "Revisar tus dispositivos",
+"email-taken-subject": "Alguien intentó crear una cuenta con tu dirección",
+"email-taken-title": "Tu dirección ya está en uso",
+"email-taken-body": "Alguien intentó crear una cuenta de { $brand } con esta dirección. Ya existe una, así que no cambió nada. Si fuiste tú, inicia sesión, o restablece tu contraseña si la olvidaste."
 }

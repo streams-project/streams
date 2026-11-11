@@ -290,9 +290,10 @@ pub const ROUTES: &[Route] = &[
         "POST",
         "/v1/auth/signup",
         "signUp",
-        "Make an account.",
+        "Make an account. The answer carries no tokens and is the same for a free and a taken \
+         address.",
         Some("SignUp"),
-        "SignedIn",
+        "Done",
         SIGN_IN,
     ),
     write(

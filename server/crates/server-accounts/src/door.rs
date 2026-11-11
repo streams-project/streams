@@ -10,11 +10,11 @@ use crate::meter::{Meter, MeterKey};
 use crate::pin::{self, PinCheck, PinOutcome};
 use crate::profile::{
     AccountId, NewAccount, Profile, ProfileId, ProfileKind, ProfileLimitsRow, ProfilePatch,
-    SessionId, clean_profile_name, starting_profiles,
+    STARTING_AVATARS, SessionId, avatar_ok, clean_profile_name, starting_profiles,
 };
 use crate::session::{Consent, DeviceSession, IssuedTokens, RefreshOutcome};
-use crate::store::AccountStore;
-use crate::token::{hash_token, new_token};
+use crate::store::{AccountStore, DeviceCard};
+use crate::token::{TokenHash, hash_token, new_token};
 
 /// How a step up was made.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -132,6 +132,7 @@ pub struct Door {
     calls: Arc<Meter>,
     sign_ins: Arc<Meter>,
     device_tries: Arc<Meter>,
+    letters: Arc<Meter>,
     auth: Option<Arc<dyn AuthService>>,
 }
 
@@ -143,12 +144,26 @@ impl std::fmt::Debug for Door {
     }
 }
 
+/// What one attempt at a refresh rotation came to.
+enum Rotated {
+    /// The row held what was read and the new tokens are written.
+    Tokens(IssuedTokens),
+    /// The token is neither current nor next on a row nothing else was writing. It carries the
+    /// account so the session can be deleted without a second read.
+    Dead(AccountId),
+    /// Another refresh of this session wrote first, so nothing was written here.
+    Raced,
+}
+
 /// Calls per minute from one address, before any token lookup.
 const CALLS_PER_MINUTE: u32 = 600;
 /// Password or code tries per minute on one account name or address.
 const SIGN_INS_PER_MINUTE: u32 = 10;
 /// Typed device codes per minute .
 const DEVICE_TRIES_PER_MINUTE: u32 = 5;
+/// Letters one address may be sent per minute by a caller who does not hold it. One: a letter
+/// nobody asked for must not be something a stranger can repeat at will.
+const LETTERS_PER_MINUTE: u32 = 1;
 
 impl Door {
     /// A door with the default meters.
@@ -161,6 +176,7 @@ impl Door {
             calls: Arc::new(Meter::new(CALLS_PER_MINUTE)),
             sign_ins: Arc::new(Meter::new(SIGN_INS_PER_MINUTE)),
             device_tries: Arc::new(Meter::new(DEVICE_TRIES_PER_MINUTE)),
+            letters: Arc::new(Meter::new(LETTERS_PER_MINUTE)),
             auth: None,
         }
     }
@@ -199,6 +215,16 @@ impl Door {
                 .map_err(|retry_after_s| DoorError::RateLimited { retry_after_s })?;
         }
         Ok(())
+    }
+
+    /// Count a letter to one address.
+    ///
+    /// # Errors
+    /// `RateLimited` when this address already had its letter inside this window.
+    pub fn meter_letter(&self, email: &str) -> Result<(), DoorError> {
+        self.letters
+            .check(MeterKey::Account(email.trim().to_lowercase()), self.now())
+            .map_err(|retry_after_s| DoorError::RateLimited { retry_after_s })
     }
 
     /// The limits this door applies.
@@ -406,12 +432,41 @@ impl Door {
     /// Turn a refresh token into tokens. A lost reply is safe: the same current gets the same
     /// next. A dead token, or a current past the reuse window, ends the session.
     ///
+    /// The write is conditional on the two hashes that were read, so two refreshes of one session
+    /// at once cannot put a stale pair back over a finished rotation and leave the device holding
+    /// a token the row does not know. A write that loses that race is read and weighed once more;
+    /// if the second attempt races as well the caller is asked to try again, because losing a race
+    /// is no proof that a token is dead and an honest device must not be signed out for it.
+    ///
     /// # Errors
     /// `SessionEnded` when the token is refused for good; `Unavailable` keeps the tokens.
     pub async fn refresh(&self, token: &str) -> Result<IssuedTokens, DoorError> {
         let hash = hash_token(token);
         let (id, _) = token.split_once('.').ok_or(DoorError::SessionEnded)?;
         let id = SessionId::parse(id).map_err(|_| DoorError::SessionEnded)?;
+        match self.rotate(id, token, &hash).await? {
+            Rotated::Tokens(tokens) => return Ok(tokens),
+            // The row was settled when it was read, so this token is refused for good.
+            Rotated::Dead(account) => {
+                self.store.delete_session(account, id).await?;
+                return Err(DoorError::SessionEnded);
+            }
+            Rotated::Raced => {}
+        }
+        match self.rotate(id, token, &hash).await? {
+            Rotated::Tokens(tokens) => Ok(tokens),
+            Rotated::Dead(_) | Rotated::Raced => Err(DoorError::Unavailable { retry_after_s: 5 }),
+        }
+    }
+
+    /// One attempt at a rotation: read the row, weigh the token against it, and write under the
+    /// hashes that were read.
+    async fn rotate(
+        &self,
+        id: SessionId,
+        token: &str,
+        hash: &TokenHash,
+    ) -> Result<Rotated, DoorError> {
         let session = self
             .store
             .session(id)
@@ -427,19 +482,14 @@ impl Door {
             return Err(DoorError::SessionEnded);
         }
         let mut next = session.clone();
-        let refresh = match session.classify_refresh(&hash, now, reuse_ms) {
-            RefreshOutcome::End => {
-                self.store
-                    .delete_session(session.account, session.id)
-                    .await?;
-                return Err(DoorError::SessionEnded);
-            }
+        let refresh = match session.classify_refresh(hash, now, reuse_ms) {
+            RefreshOutcome::End => return Ok(Rotated::Dead(session.account)),
             RefreshOutcome::OfferNext => {
                 next.refresh_first_used_ms = next.refresh_first_used_ms.or(Some(now));
                 session.next_for(token)
             }
             RefreshOutcome::Promote => {
-                next.refresh_current = hash;
+                next.refresh_current = *hash;
                 next.refresh_first_used_ms = Some(now);
                 let offered = session.next_for(token);
                 next.refresh_next = hash_token(&offered);
@@ -450,12 +500,18 @@ impl Door {
         next.access_hash = hash_token(&access);
         next.access_expires_ms = now + u64::from(self.limits.access_s) * 1000;
         next.last_seen_ms = now;
-        self.store.update_tokens(&next).await?;
-        Ok(IssuedTokens {
+        if !self
+            .store
+            .update_tokens(&next, &session.refresh_current, &session.refresh_next)
+            .await?
+        {
+            return Ok(Rotated::Raced);
+        }
+        Ok(Rotated::Tokens(IssuedTokens {
             access,
             refresh,
             expires_in: self.limits.access_s,
-        })
+        }))
     }
 
     /// Refresh, naming the account the tokens belong to.
@@ -546,7 +602,7 @@ impl Door {
             id: ProfileId::new(),
             account: member.account(),
             name,
-            avatar: String::from(if kids { "kids" } else { "default" }),
+            avatar: String::from(STARTING_AVATARS[usize::from(kids)]),
             kind,
             is_main: false,
             auto_kids: false,
@@ -583,6 +639,14 @@ impl Door {
             .ok_or(DoorError::NotFound)?;
         if let Some(name) = &patch.name {
             patch.name = Some(clean_profile_name(name, &self.limits)?);
+        }
+        // The picture name is the one field a client sets that only the column checked, and a
+        // refused column reads to the caller as "busy, try again" for ever. It is checked here
+        // instead, where every profile change passes, so both stores see the same values.
+        if let Some(avatar) = &patch.avatar
+            && !avatar_ok(avatar)
+        {
+            return Err(DoorError::BadValue("avatar"));
         }
         if let Some(kind) = patch.kind.filter(|kind| *kind != row.kind) {
             if !self.has_step_up(member) {
@@ -744,29 +808,39 @@ impl Door {
 
     /// Sign out one device of this account. Another account's device is simply not found.
     ///
-    /// # Errors
-    /// The store's refusal.
-    pub async fn remove_device(&self, member: &Member, id: SessionId) -> Result<(), DoorError> {
-        let sessions = self.store.sessions_of(member.account()).await?;
-        if !sessions.iter().any(|session| session.id == id) {
-            return Err(DoorError::NotFound);
-        }
-        Ok(self.store.delete_session(member.account(), id).await?)
-    }
-
-    /// Sign out every device but this one.
+    /// Signing out another device takes a recent password or code: throwing the devices of an
+    /// account off is not something a stolen access token may do on its own. Signing out the
+    /// device the request comes from takes none, because `POST /v1/auth/signout` ends that very
+    /// session with no proof, so asking for one here would stop nothing and would leave a session
+    /// opened from a device code - a television, which has no step up power until it proves a
+    /// password or code on that device - unable to sign itself out at all.
     ///
     /// # Errors
-    /// The store's refusal.
-    pub async fn remove_other_devices(&self, member: &Member) -> Result<(), DoorError> {
-        for session in self.store.sessions_of(member.account()).await? {
-            if session.id != member.session_id() {
-                self.store
-                    .delete_session(member.account(), session.id)
-                    .await?;
-            }
+    /// `StepUpRequired` for another device, `NotFound` for a device this account does not hold.
+    pub async fn remove_device(&self, member: &Member, id: SessionId) -> Result<(), DoorError> {
+        if id != member.session_id() {
+            self.require_step_up(member)?;
         }
-        Ok(())
+        // The delete names the account, and its answer says whether there was such a row, so the
+        // reach of this call does not depend on what a listing shows.
+        if self.store.delete_session(member.account(), id).await? {
+            Ok(())
+        } else {
+            Err(DoorError::NotFound)
+        }
+    }
+
+    /// Sign out every device but this one. One statement, so a device past the end of the device
+    /// list is signed out with the rest.
+    ///
+    /// # Errors
+    /// `StepUpRequired`, or the store's refusal.
+    pub async fn remove_other_devices(&self, member: &Member) -> Result<(), DoorError> {
+        self.require_step_up(member)?;
+        Ok(self
+            .store
+            .delete_other_sessions(member.account(), member.session_id())
+            .await?)
     }
 
     /// Delete lapsed sessions, audit rows and device codes.
@@ -789,19 +863,27 @@ impl Door {
         Ok(self.store.card(session).await?)
     }
 
-    /// Save a device card (opaque JSON). True asks the device for the whole card.
+    /// Save what a device said about itself: the key it keeps for itself and its card (opaque
+    /// JSON). True asks the device for the whole card.
     ///
     /// # Errors
     /// The store's refusal.
     pub async fn save_card(
         &self,
         member: &Member,
+        device_key: &str,
         card_hash: &str,
         card: Option<&serde_json::Value>,
     ) -> Result<bool, DoorError> {
         Ok(self
             .store
-            .save_card(member.session_id(), card_hash, card)
+            .save_card(&DeviceCard {
+                session: member.session_id(),
+                account: member.account(),
+                device_key,
+                card_hash,
+                card,
+            })
             .await?)
     }
 }

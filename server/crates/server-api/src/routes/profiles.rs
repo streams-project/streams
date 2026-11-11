@@ -9,6 +9,7 @@ use contract::account::{
 };
 use contract::command::SettingKey;
 use contract::screen::ScreenName;
+use server_accounts::profile::STARTING_AVATARS;
 use server_accounts::{Door, Profile, ProfileId, ProfileKind, ProfileLimitsRow, ProfilePatch};
 use server_rules::{Tier, Viewer};
 
@@ -136,6 +137,23 @@ pub async fn avatars(
     send(&headers, &AvatarSets { sets }, Keep::Never)
 }
 
+/// True for a picture this profile may wear: one the brand published, and from a Kids set when the
+/// profile is a Kids one, which is exactly what `/avatars` offers it. A brand that publishes no
+/// pictures leaves the choice open, and the two names the server writes itself always stand.
+fn avatar_published(state: &Shared, kids: bool, avatar: &str) -> bool {
+    if STARTING_AVATARS.contains(&avatar) {
+        return true;
+    }
+    let sets = published_avatars(state).sets;
+    if sets.is_empty() {
+        return true;
+    }
+    sets.iter()
+        .filter(|set| set.kids || !kids)
+        .flat_map(|set| set.pictures.iter())
+        .any(|picture| picture.path == avatar)
+}
+
 /// The site's `avatars/sets.json`. A brand with no pictures has none, and that is a normal answer.
 fn published_avatars(state: &Shared) -> AvatarSets {
     state
@@ -173,6 +191,13 @@ pub async fn update(
         && !has_language(&state, code)
     {
         return Err(ApiError::refused("language_refused"));
+    }
+    if let Some(avatar) = &asked.avatar {
+        let row = door(&state)?.profile(&member, profile).await?;
+        let kids = asked.kids.unwrap_or(row.kind == ProfileKind::Kids);
+        if !avatar_published(&state, kids, avatar) {
+            return Err(ApiError::bad("avatar"));
+        }
     }
     let patch = ProfilePatch {
         name: asked.name,

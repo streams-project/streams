@@ -10,7 +10,7 @@ use sha2::{Digest, Sha256};
 use sqlx::{PgPool, Row};
 use uuid::Uuid;
 
-use crate::auth::{AuthError, AuthService, Identity};
+use crate::auth::{AuthError, AuthService, Identity, PASSWORD_MAX_BYTES};
 use crate::mail::render::{Brand, Kind, Request, render};
 use crate::mail::{Letter, MailSender};
 use crate::profile::AccountId;
@@ -20,8 +20,6 @@ pub const CODE_DIGITS: u32 = 8;
 const CODE_MINUTES: i32 = 10;
 const MAX_TRIES: i32 = 5;
 const PASSWORD_MIN: usize = 8;
-/// bcrypt reads no further than this, so a longer password would be silently cut.
-const PASSWORD_MAX_BYTES: usize = 72;
 const SIGN_IN: &str = "sign_in";
 const RECOVERY: &str = "recovery";
 
@@ -33,6 +31,18 @@ const DECOY_HASH: &str = "$2b$12$C6UzMDM.H6dfI/f/IKcEeO7ZjfnSJIxbJqfTvRCzNgKqHmO
 pub trait CodePost: Send + Sync {
     /// Send this code. `recovery` picks the wording.
     async fn deliver(&self, email: &str, code: &str, recovery: bool) -> Result<(), AuthError>;
+
+    /// True when a letter has any way out of this deployment. It is answered before an address is
+    /// read, so a server with no mail answers every address alike.
+    fn ready(&self) -> bool {
+        true
+    }
+
+    /// Tell the holder of an address that someone tried to use it for an account. A post that
+    /// carries only codes sends nothing.
+    async fn warn_taken(&self, _email: &str) -> Result<(), AuthError> {
+        Ok(())
+    }
 }
 
 /// Codes by the deployment's mail service. With mail off a code has no way out, so asking for one
@@ -45,9 +55,9 @@ pub struct MailPost {
     pub help_url: String,
 }
 
-#[async_trait]
-impl CodePost for MailPost {
-    async fn deliver(&self, email: &str, code: &str, recovery: bool) -> Result<(), AuthError> {
+impl MailPost {
+    /// One letter, written and sent. Every letter this post sends goes through here.
+    async fn post(&self, email: &str, kind: Kind, code: Option<&str>) -> Result<(), AuthError> {
         let Some(mail) = &self.mail else {
             return Err(AuthError::Unavailable);
         };
@@ -60,13 +70,13 @@ impl CodePost for MailPost {
         let page = render(
             &brand,
             &Request {
-                kind: if recovery { Kind::Recovery } else { Kind::Code },
+                kind,
                 lang: "en".to_owned(),
                 to: email.to_owned(),
                 name: None,
                 profile: None,
                 link: None,
-                code: Some(code.to_owned()),
+                code: code.map(str::to_owned),
                 minutes: CODE_MINUTES.unsigned_abs(),
                 new_email: None,
                 device: None,
@@ -79,6 +89,22 @@ impl CodePost for MailPost {
             text: page.text,
         };
         mail.send(&letter).await.map_err(|_| AuthError::Unavailable)
+    }
+}
+
+#[async_trait]
+impl CodePost for MailPost {
+    async fn deliver(&self, email: &str, code: &str, recovery: bool) -> Result<(), AuthError> {
+        let kind = if recovery { Kind::Recovery } else { Kind::Code };
+        self.post(email, kind, Some(code)).await
+    }
+
+    fn ready(&self) -> bool {
+        self.mail.is_some()
+    }
+
+    async fn warn_taken(&self, email: &str) -> Result<(), AuthError> {
+        self.post(email, Kind::Taken, None).await
     }
 }
 
@@ -96,9 +122,16 @@ impl BuiltInAuth {
     }
 
     async fn issue(&self, email: &str, purpose: &str) -> Result<(), AuthError> {
+        // Whether a letter can leave at all is a fact about the deployment, not about the address,
+        // so it is settled before the address is read. With no mail every address hears the same
+        // refusal, and people sign in with their password.
+        if !self.post.ready() {
+            return Err(AuthError::Unavailable);
+        }
         let email = address(email);
         let known = self.find_email(&email).await?.is_some();
-        // Sent or not, the answer is the same.
+        // Sent or not, the answer is the same. Nothing is written for an address with no account:
+        // keeping a row for every address a stranger types would be a record of strangers.
         if !known {
             return Ok(());
         }
@@ -116,33 +149,50 @@ impl BuiltInAuth {
         .execute(&self.pool)
         .await
         .map_err(gone)?;
-        self.post.deliver(&email, &code, purpose == RECOVERY).await
+        // A provider that refuses must not be the one thing that tells a stranger this address has
+        // an account, so the answer never carries the delivery's result; the server logs it.
+        if let Err(error) = self.post.deliver(&email, &code, purpose == RECOVERY).await {
+            tracing::warn!("a sign in code did not leave: {error}");
+        }
+        Ok(())
     }
 
     /// True once for a right code. A wrong one spends a try, and the last try ends the code.
+    ///
+    /// Taking the code is the one statement that decides it: the row is deleted only if it still
+    /// holds this code, is not past its life and has tries left, so of two submissions of one
+    /// right code only the one that deleted the row is told yes. Reading the hash first and
+    /// deleting afterwards let both of them through.
     async fn spend(&self, email: &str, purpose: &str, code: &str) -> Result<bool, AuthError> {
-        let row = sqlx::query(
-            "update auth.login_codes set tries = tries + 1 \
+        let taken = sqlx::query(
+            "delete from auth.login_codes \
              where email = $1 and purpose = $2 and expires_at > now() and tries < $3 \
+             and code_hash = $4 \
              returning code_hash",
         )
         .bind(email)
         .bind(purpose)
         .bind(MAX_TRIES)
+        .bind(code_hash(email, code))
         .fetch_optional(&self.pool)
         .await
         .map_err(gone)?;
-        let Some(row) = row else { return Ok(false) };
-        let right = row.get::<String, _>("code_hash") == code_hash(email, code);
-        if right {
-            sqlx::query("delete from auth.login_codes where email = $1 and purpose = $2")
-                .bind(email)
-                .bind(purpose)
-                .execute(&self.pool)
-                .await
-                .map_err(gone)?;
+        if taken.is_some() {
+            return Ok(true);
         }
-        Ok(right)
+        // Nothing was taken, so this was a wrong code, or one already used or spent. A try is
+        // spent on whatever row is still there, and the fifth wrong try ends the code for good.
+        sqlx::query(
+            "update auth.login_codes set tries = tries + 1 \
+             where email = $1 and purpose = $2 and expires_at > now() and tries < $3",
+        )
+        .bind(email)
+        .bind(purpose)
+        .bind(MAX_TRIES)
+        .execute(&self.pool)
+        .await
+        .map_err(gone)?;
+        Ok(false)
     }
 
     async fn by_email(&self, email: &str) -> Result<Option<(Identity, Option<String>)>, AuthError> {
@@ -260,24 +310,32 @@ impl AuthService for BuiltInAuth {
         self.issue(email, RECOVERY).await
     }
 
-    async fn finish_recovery(
-        &self,
-        email: &str,
-        code: &str,
-        password: &str,
-    ) -> Result<(), AuthError> {
-        strong_enough(password)?;
+    async fn take_recovery(&self, email: &str, code: &str) -> Result<Identity, AuthError> {
         let email = address(email);
         if !self.spend(&email, RECOVERY, code).await? {
             return Err(AuthError::Refused);
         }
-        let hashed = hash(password).await?;
-        sqlx::query("update auth.users set encrypted_password = $1 where lower(email) = $2")
-            .bind(hashed)
-            .bind(&email)
-            .execute(&self.pool)
-            .await
-            .map_err(gone)?;
+        let found = self.by_email(&email).await?;
+        found
+            .map(|(identity, _)| identity)
+            .ok_or(AuthError::Refused)
+    }
+
+    async fn send_taken_notice(&self, email: &str) -> Result<(), AuthError> {
+        if !self.post.ready() {
+            return Err(AuthError::Unavailable);
+        }
+        let email = address(email);
+        // Only the holder of an account hears anything, so this cannot be used to write to an
+        // address that has none.
+        if self.find_email(&email).await?.is_none() {
+            return Ok(());
+        }
+        // As with a sign in code: a provider that refuses must not be the one thing that tells a
+        // stranger this address has an account, so the delivery's result stays out of the answer.
+        if let Err(error) = self.post.warn_taken(&email).await {
+            tracing::warn!("a taken address notice did not leave: {error}");
+        }
         Ok(())
     }
 
@@ -288,6 +346,10 @@ impl AuthService for BuiltInAuth {
             .await
             .map_err(gone)?;
         row.map(|row| person(&row)).ok_or(AuthError::Refused)
+    }
+
+    fn password_ok(&self, password: &str) -> Result<(), AuthError> {
+        strong_enough(password)
     }
 
     async fn set_password(&self, account: AccountId, password: &str) -> Result<(), AuthError> {

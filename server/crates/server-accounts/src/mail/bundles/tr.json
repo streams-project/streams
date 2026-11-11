@@ -34,5 +34,8 @@
 "email-device-title": "Yeni cihaz giriş yaptı",
 "email-device-body": "{ $browser } { $system } üzerinde hesabınıza giriş yaptı { $where } { $time }'da. Bu sizseniz hiçbir şey yapmanıza gerek yok. Bu siz değilse şifrenizi değiştirin ve tüm cihazlardan çıkış yapın.",
 "email-device-where": "{ $country }'dan",
-"email-device-button": "Cihazlarınızı gözden geçirin"
+"email-device-button": "Cihazlarınızı gözden geçirin",
+"email-taken-subject": "Birisi adresinle kayıt olmayı denedi",
+"email-taken-title": "Bu adres zaten kullanılıyor",
+"email-taken-body": "Birisi bu adresle { $brand } hesabı oluşturmayı denedi. Bu adrese ait bir hesap zaten var, bu yüzden hiçbir şey değişmedi. Sen denediysen giriş yap, şifreni unuttuysan sıfırla."
 }

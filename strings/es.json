@@ -247,6 +247,7 @@
   "signin.choose": "Elige cómo iniciar sesión",
   "signin.email": "Correo electrónico",
   "signin.getting": "Generando el código...",
+  "signin.join_done": "Inicia sesión con la contraseña que elegiste. Si esa dirección ya tiene una cuenta, le enviamos un correo.",
   "signin.off": "Este servidor aún no permite iniciar sesión en un televisor.",
   "signin.password": "Contraseña",
   "signin.phone": "Usar el teléfono",

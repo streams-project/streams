@@ -126,6 +126,9 @@ mod tests {
             "email-code-body",
             "email-reauth-title",
             "email-device-body",
+            "email-taken-subject",
+            "email-taken-title",
+            "email-taken-body",
         ] {
             assert_ne!(text("en", key, &[]), key, "missing English message {key}");
         }

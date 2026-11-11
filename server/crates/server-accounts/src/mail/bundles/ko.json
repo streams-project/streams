@@ -34,5 +34,8 @@
 "email-device-title": "새로운 장치가 로그인했습니다",
 "email-device-body": "{ $browser } on { $system }가 귀하의 계정 { $where }에서 { $time }에 로그인했습니다. 이 것이 귀하였다면 추가적인 조치는 필요하지 않습니다. 그렇지 않다면 비밀번호를 변경하고 모든 장치에서 로그아웃하세요.",
 "email-device-where": "from { $country }",
-"email-device-button": "장치 확인"
+"email-device-button": "장치 확인",
+"email-taken-subject": "누군가 이 주소로 가입을 시도했어요",
+"email-taken-title": "이 주소는 이미 사용 중이에요",
+"email-taken-body": "누군가 이 주소로 { $brand } 계정을 만들려고 했어요. 이미 계정이 있어서 바뀐 것은 없어요. 본인이라면 그대로 로그인해 주세요. 비밀번호를 잊었다면 다시 설정할 수 있어요."
 }

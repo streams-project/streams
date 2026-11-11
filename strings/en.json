@@ -247,6 +247,7 @@
   "signin.choose": "Choose how to sign in",
   "signin.email": "Email address",
   "signin.getting": "Getting a code...",
+  "signin.join_done": "Sign in with the password you chose. If that address already has an account, we have emailed it.",
   "signin.off": "This server cannot sign in a television yet.",
   "signin.password": "Password",
   "signin.phone": "Use Phone",

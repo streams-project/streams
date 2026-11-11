@@ -34,5 +34,8 @@
 "email-device-title": "Nowy urządzenie zalogowało się",
 "email-device-body": "{ $browser } na { $system } zalogowało się do Twojego konta { $where } w { $time }. Jeśli to było Ty, nic więcej nie jest potrzebne. Jeśli to nie było Ty, zmień hasło i wyloguj się z wszystkich urządzeń.",
 "email-device-where": "z { $country }",
-"email-device-button": "Przejrzyj urządzenia"
+"email-device-button": "Przejrzyj urządzenia",
+"email-taken-subject": "Ktoś próbował założyć konto na Twój adres",
+"email-taken-title": "Ten adres jest już używany",
+"email-taken-body": "Ktoś próbował utworzyć konto { $brand } na ten adres. Konto już istnieje, więc nic się nie zmieniło. Jeśli to byłeś Ty, po prostu się zaloguj albo zmień hasło, jeśli je zapomniałeś."
 }

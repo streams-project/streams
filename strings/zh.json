@@ -247,6 +247,7 @@
   "signin.choose": "选择登录方式",
   "signin.email": "邮箱",
   "signin.getting": "正在获取验证码…",
+  "signin.join_done": "用你刚设置的密码登录。如果该邮箱已有账号，我们已经给它发了邮件。",
   "signin.off": "此服务器暂不支持在电视上登录。",
   "signin.password": "密码",
   "signin.phone": "用手机登录",

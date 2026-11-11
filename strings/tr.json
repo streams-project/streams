@@ -247,6 +247,7 @@
   "signin.choose": "Giriş yöntemini seç",
   "signin.email": "E-posta adresi",
   "signin.getting": "Kod alınıyor...",
+  "signin.join_done": "Seçtiğin şifreyle giriş yap. Bu adrese ait bir hesap zaten varsa, ona e-posta gönderdik.",
   "signin.off": "Bu sunucu henüz televizyondan girişi desteklemiyor.",
   "signin.password": "Şifre",
   "signin.phone": "Telefonla",

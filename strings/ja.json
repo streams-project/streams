@@ -248,6 +248,7 @@
   "signin.choose": "サインイン方法を選択",
   "signin.email": "メールアドレス",
   "signin.getting": "コードを取得中...",
+  "signin.join_done": "選んだパスワードでサインインしてください。そのアドレスにすでにアカウントがある場合は、メールをお送りしました。",
   "signin.off": "このサーバーはまだテレビでのサインインに対応していません。",
   "signin.password": "パスワード",
   "signin.phone": "スマホを使う",

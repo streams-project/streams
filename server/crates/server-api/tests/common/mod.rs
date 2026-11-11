@@ -37,6 +37,8 @@ pub struct Harness {
     pub door: Door,
     pub clock: Arc<ManualClock>,
     pub dir: PathBuf,
+    /// The rows behind the door, for a test that reads what a route wrote.
+    pub store: Arc<MemoryStore>,
 }
 
 /// Time the tests start at. After the sample's build time.
@@ -104,7 +106,8 @@ fn make(
     auth: Option<Arc<dyn AuthService>>,
 ) -> Harness {
     let clock = Arc::new(ManualClock::new(START_MS));
-    let store: Arc<dyn AccountStore> = Arc::new(MemoryStore::default());
+    let rows = Arc::new(MemoryStore::default());
+    let store: Arc<dyn AccountStore> = rows.clone();
     let mut door = Door::new(store, clock.clone(), DEFAULT_LIMITS);
     if let Some(auth) = auth {
         door = door.with_auth(auth);
@@ -127,6 +130,7 @@ fn make(
         door,
         clock,
         dir,
+        store: rows,
     }
 }
 

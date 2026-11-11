@@ -34,5 +34,8 @@
 "email-device-title": "Neues Gerät angemeldet",
 "email-device-body": "{ $browser } auf { $system } hat sich { $where } am { $time } bei deinem Konto angemeldet. Falls dies du warst, ist nichts weiter zu tun. Falls nicht, ändere dein Passwort und melde dich von allen Geräten ab.",
 "email-device-where": "aus { $country }",
-"email-device-button": "Geräte überprüfen"
+"email-device-button": "Geräte überprüfen",
+"email-taken-subject": "Jemand hat versucht, sich mit Ihrer Adresse zu registrieren",
+"email-taken-title": "Ihre Adresse wird bereits verwendet",
+"email-taken-body": "Jemand hat versucht, mit dieser Adresse ein { $brand }-Konto zu erstellen. Dafür gibt es schon ein Konto, daher hat sich nichts geändert. Falls Sie das waren, melden Sie sich einfach an, oder setzen Sie Ihr Passwort zurück, wenn Sie es vergessen haben."
 }

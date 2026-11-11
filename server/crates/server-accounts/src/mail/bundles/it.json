@@ -34,5 +34,8 @@
 "email-device-title": "Nuovo dispositivo connesso",
 "email-device-body": "{ $browser } su { $system } si è connesso al tuo account { $where } su { $time }. Se era tu, non è necessario altro. Se non era tu, cambia la password e disconnetti tutti i dispositivi.",
 "email-device-where": "da { $country }",
-"email-device-button": "Rivedi i dispositivi"
+"email-device-button": "Rivedi i dispositivi",
+"email-taken-subject": "Qualcuno ha provato a registrarsi con il tuo indirizzo",
+"email-taken-title": "Il tuo indirizzo è già in uso",
+"email-taken-body": "Qualcuno ha provato a creare un account { $brand } con questo indirizzo. Ne esiste già uno, quindi non è cambiato nulla. Se sei stato tu, accedi, oppure reimposta la password se l'hai dimenticata."
 }

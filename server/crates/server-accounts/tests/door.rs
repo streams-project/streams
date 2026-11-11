@@ -5,7 +5,7 @@ use std::sync::Arc;
 use server_accounts::limits::DEFAULT_LIMITS;
 use server_accounts::{
     AccountId, Consent, Door, DoorError, IssuedTokens, ManualClock, Member, MemoryStore,
-    NewAccount, ProfileId, ProfileKind, ProfileLimitsRow, ProfilePatch, StepUpMethod,
+    NewAccount, ProfileId, ProfileKind, ProfileLimitsRow, ProfilePatch, SessionId, StepUpMethod,
 };
 
 struct Bench {
@@ -441,4 +441,120 @@ async fn h31_a_stale_copy_of_a_session_cannot_undo_a_consent_or_a_profile() {
         "a refresh kept the profile"
     );
     assert!(after.consent.personal, "a refresh kept consent");
+}
+
+#[tokio::test]
+async fn tmt12_signing_a_device_out_needs_a_recent_password_or_code() {
+    let bench = bench().await;
+    let (proved, _) = bench.sign_in().await;
+    let plain = bench
+        .door
+        .member(&bench.sign_in_no_step_up().await)
+        .await
+        .unwrap();
+    // A device session proved nothing, and a stolen access token is no better, so neither may
+    // throw the account's devices off.
+    assert_eq!(
+        bench.door.remove_device(&plain, proved.session_id()).await,
+        Err(DoorError::StepUpRequired)
+    );
+    assert_eq!(
+        bench.door.remove_other_devices(&plain).await,
+        Err(DoorError::StepUpRequired)
+    );
+    assert_eq!(
+        bench.door.remove_device(&proved, SessionId::new()).await,
+        Err(DoorError::NotFound),
+        "a device this account does not hold is simply not there"
+    );
+    bench.door.remove_other_devices(&proved).await.unwrap();
+    let store = bench.door.store();
+    assert!(store.session(plain.session_id()).await.unwrap().is_none());
+    assert!(store.session(proved.session_id()).await.unwrap().is_some());
+}
+
+#[tokio::test]
+async fn s39_a_picture_name_the_column_cannot_hold_is_refused_here() {
+    let bench = bench().await;
+    let (member, _) = bench.sign_in().await;
+    let main = bench.profile(&member, ProfileKind::Adult).await;
+    let patch = |avatar: &str| ProfilePatch {
+        avatar: Some(avatar.to_owned()),
+        ..ProfilePatch::default()
+    };
+    // Left to the column, these come back as a store that is busy and a client that retries for
+    // ever, and the memory store takes them where Postgres does not.
+    assert_eq!(
+        bench
+            .door
+            .update_profile(&member, main, patch(&"a".repeat(65)))
+            .await,
+        Err(DoorError::BadValue("avatar"))
+    );
+    assert_eq!(
+        bench.door.update_profile(&member, main, patch("")).await,
+        Err(DoorError::BadValue("avatar"))
+    );
+    assert_eq!(
+        bench
+            .door
+            .update_profile(&member, main, patch("two words"))
+            .await,
+        Err(DoorError::BadValue("avatar"))
+    );
+    let kept = bench
+        .door
+        .update_profile(&member, main, patch("/avatars/orange.webp"))
+        .await
+        .unwrap();
+    assert_eq!(kept.avatar, "/avatars/orange.webp");
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn tmt1_two_refreshes_at_once_leave_the_device_with_a_token_the_row_knows() {
+    let bench = bench().await;
+    for _ in 0..50 {
+        let (_, tokens) = bench.sign_in().await;
+        // The device holds both: the token whose reply it kept, and the one it was offered.
+        let offered = bench.door.refresh(&tokens.refresh).await.unwrap();
+        let (one, two) = (bench.door.clone(), bench.door.clone());
+        let (current, next) = (tokens.refresh.clone(), offered.refresh.clone());
+        let tries = tokio::join!(
+            tokio::spawn(async move { one.refresh(&current).await }),
+            tokio::spawn(async move { two.refresh(&next).await }),
+        );
+        let offer = tries.0.expect("the task");
+        let promote = tries.1.expect("the task");
+        assert_ne!(
+            promote.as_ref().err(),
+            Some(&DoorError::SessionEnded),
+            "the token the server itself offered is never read as a theft"
+        );
+        // When both were answered, the retry either came first or overlapped the promotion, and
+        // either way the token the device was given last must be one the row knows. A write that
+        // put the pair it had read back over the promotion is what used to break that.
+        if let (Ok(_), Ok(held)) = (&offer, &promote) {
+            assert!(
+                bench.door.refresh(&held.refresh).await.is_ok(),
+                "the promotion that was answered still stands"
+            );
+        }
+    }
+}
+
+#[tokio::test]
+async fn tmt1_the_token_that_promoted_answers_the_same_twice() {
+    let bench = bench().await;
+    let (_, tokens) = bench.sign_in().await;
+    let offered = bench.door.refresh(&tokens.refresh).await.unwrap();
+    let first = bench.door.refresh(&offered.refresh).await.unwrap();
+    let again = bench.door.refresh(&offered.refresh).await.unwrap();
+    assert_eq!(
+        first.refresh, again.refresh,
+        "a device that sends the same token twice gets the same answer twice"
+    );
+    assert!(
+        bench.door.refresh(&again.refresh).await.is_ok(),
+        "and it is still signed in"
+    );
 }

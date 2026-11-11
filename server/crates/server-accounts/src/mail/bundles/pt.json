@@ -34,5 +34,8 @@
 "email-device-title": "Novo dispositivo logado",
 "email-device-body": "{ $browser } no { $system } logou na sua conta { $where } no { $time }. Se foi você, nada mais é necessário. Se não foi, mude sua senha e saia de todos os dispositivos.",
 "email-device-where": "de { $country }",
-"email-device-button": "Revisar seus dispositivos"
+"email-device-button": "Revisar seus dispositivos",
+"email-taken-subject": "Alguém tentou criar uma conta com o seu endereço",
+"email-taken-title": "O seu endereço já está em uso",
+"email-taken-body": "Alguém tentou criar uma conta { $brand } com este endereço. Já existe uma conta, então nada mudou. Se foi você, entre na sua conta, ou redefina a senha caso tenha esquecido."
 }

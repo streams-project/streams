@@ -34,5 +34,8 @@
 "email-device-title": "新设备已登录",
 "email-device-body": "{ $browser } 在 { $system } 上于 { $time } 从 { $where } 登录了你的账户。如果是你本人操作，无需其他步骤。如果不是，请更改密码并退出所有设备。",
 "email-device-where": "来自 { $country }",
-"email-device-button": "查看你的设备"
+"email-device-button": "查看你的设备",
+"email-taken-subject": "有人尝试用你的邮箱注册",
+"email-taken-title": "该邮箱已在使用中",
+"email-taken-body": "有人尝试用这个邮箱创建 { $brand } 账号。该邮箱已有账号，所以没有任何变动。如果是你，直接登录即可；忘记密码可以重新设置。"
 }

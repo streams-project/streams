@@ -248,6 +248,7 @@
   "signin.choose": "로그인 방법을 선택하세요",
   "signin.email": "이메일 주소",
   "signin.getting": "코드를 받는 중...",
+  "signin.join_done": "방금 정한 비밀번호로 로그인해 주세요. 이 주소에 이미 계정이 있으면 메일을 보냈어요.",
   "signin.off": "이 서버는 아직 TV 로그인을 지원하지 않아요.",
   "signin.password": "비밀번호",
   "signin.phone": "휴대폰으로 로그인",

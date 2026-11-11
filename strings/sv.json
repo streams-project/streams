@@ -247,6 +247,7 @@
   "signin.choose": "Välj hur du vill logga in",
   "signin.email": "E-postadress",
   "signin.getting": "Hämtar kod...",
+  "signin.join_done": "Logga in med lösenordet du valde. Om adressen redan har ett konto har vi skickat ett e-postmeddelande till den.",
   "signin.off": "Den här servern har inte stöd för inloggning på tv än.",
   "signin.password": "Lösenord",
   "signin.phone": "Med telefonen",

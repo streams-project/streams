@@ -34,5 +34,8 @@
 "email-device-title": "Nouvel appareil connecté",
 "email-device-body": "{ $browser } sur { $system } s'est connecté à votre compte { $where } le { $time }. Si c'était vous, aucune action n'est nécessaire. Sinon, changez votre mot de passe et déconnectez-vous de tous les appareils.",
 "email-device-where": "depuis { $country }",
-"email-device-button": "Vos appareils"
+"email-device-button": "Vos appareils",
+"email-taken-subject": "Quelqu'un a tenté de s'inscrire avec votre adresse",
+"email-taken-title": "Votre adresse est déjà utilisée",
+"email-taken-body": "Quelqu'un a tenté de créer un compte { $brand } avec cette adresse. Un compte existe déjà, donc rien n'a changé. Si c'était vous, identifiez-vous, ou réinitialisez votre mot de passe si vous l'avez oublié."
 }

@@ -137,6 +137,24 @@ pub fn clean_profile_name(name: &str, limits: &AccountLimits) -> Result<String, 
     Ok(name.to_owned())
 }
 
+/// The pictures the server writes itself, before anyone picks one from a published set. They
+/// belong to no set, so a profile may always keep the one it started with.
+pub const STARTING_AVATARS: [&str; 2] = ["default", "kids"];
+
+/// Most bytes a picture name may carry. The column takes no more, so a longer one is refused where
+/// the change is read; left to the store it comes back as "busy, try again" and never stops being
+/// busy.
+pub const AVATAR_MAX_BYTES: usize = 64;
+
+/// True for a picture name the server keeps: short, and one line of plain text, as a published set
+/// names its pictures.
+#[must_use]
+pub fn avatar_ok(avatar: &str) -> bool {
+    !avatar.is_empty()
+        && avatar.len() <= AVATAR_MAX_BYTES
+        && !avatar.chars().any(|c| c.is_whitespace() || c.is_control())
+}
+
 /// The key two names clash on: trimmed, lower case.
 #[must_use]
 pub fn name_key(name: &str) -> String {
@@ -172,7 +190,7 @@ pub fn starting_profiles(account: &NewAccount, limits: &AccountLimits) -> [Profi
             id: ProfileId::new(),
             account: account.id,
             name: main_profile_name(&account.first_name, &account.email, limits),
-            avatar: String::from("default"),
+            avatar: String::from(STARTING_AVATARS[0]),
             kind: ProfileKind::Adult,
             is_main: true,
             auto_kids: false,
@@ -186,7 +204,7 @@ pub fn starting_profiles(account: &NewAccount, limits: &AccountLimits) -> [Profi
             id: ProfileId::new(),
             account: account.id,
             name: String::from("Kids"),
-            avatar: String::from("kids"),
+            avatar: String::from(STARTING_AVATARS[1]),
             kind: ProfileKind::Kids,
             is_main: false,
             auto_kids: true,
@@ -215,6 +233,16 @@ mod tests {
             main_profile_name(&"a".repeat(40), "", l).chars().count(),
             30
         );
+    }
+
+    #[test]
+    fn s39_a_picture_name_is_short_and_one_line() {
+        assert!(avatar_ok("/avatars/orange.webp"));
+        assert!(avatar_ok(STARTING_AVATARS[0]));
+        assert!(!avatar_ok(""));
+        assert!(!avatar_ok(&"a".repeat(AVATAR_MAX_BYTES + 1)));
+        assert!(!avatar_ok("two words"));
+        assert!(!avatar_ok("line\nbreak"));
     }
 
     #[test]

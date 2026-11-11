@@ -247,6 +247,7 @@
   "signin.choose": "Scegli come accedere",
   "signin.email": "Indirizzo email",
   "signin.getting": "Generazione del codice...",
+  "signin.join_done": "Accedi con la password che hai scelto. Se quell'indirizzo ha già un account, gli abbiamo inviato un'email.",
   "signin.off": "Questo server non supporta ancora l'accesso da TV.",
   "signin.password": "Password",
   "signin.phone": "Usa il telefono",

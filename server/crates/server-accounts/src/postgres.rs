@@ -13,7 +13,9 @@ use crate::profile::{
     SessionId,
 };
 use crate::session::{Consent, DeviceSession};
-use crate::store::{AccountNames, AccountStore, DeviceCodeRow, StoreError, StoreResult};
+use crate::store::{
+    AccountNames, AccountStore, DeviceCard, DeviceCodeRow, StoreError, StoreResult,
+};
 use crate::token::TokenHash;
 
 /// Accounts on one pool.
@@ -235,11 +237,19 @@ impl AccountStore for PgStore {
         row.as_ref().map(session_row).transpose()
     }
 
-    async fn update_tokens(&self, s: &DeviceSession) -> StoreResult<()> {
-        sqlx::query(
+    async fn update_tokens(
+        &self,
+        s: &DeviceSession,
+        from_current: &TokenHash,
+        from_next: &TokenHash,
+    ) -> StoreResult<bool> {
+        // The two hashes that were read are part of the where, so a refresh that read the row
+        // before another one finished writes nothing instead of putting the old pair back.
+        let done = sqlx::query(
             "update device_sessions set access_hash = $2, access_expires_at = $3, \
              refresh_current = $4, refresh_next = $5, refresh_first_used_at = $6, \
-             last_seen_at = $7 where id = $1",
+             last_seen_at = $7 where id = $1 \
+             and refresh_current = $8 and refresh_next = $9",
         )
         .bind(s.id.0)
         .bind(s.access_hash.0.as_slice())
@@ -248,10 +258,12 @@ impl AccountStore for PgStore {
         .bind(s.refresh_next.0.as_slice())
         .bind(s.refresh_first_used_ms.map(to_time))
         .bind(to_time(s.last_seen_ms))
+        .bind(from_current.0.as_slice())
+        .bind(from_next.0.as_slice())
         .execute(&self.pool)
         .await
         .map_err(fail)?;
-        Ok(())
+        Ok(done.rows_affected() == 1)
     }
 
     async fn set_active_profile(
@@ -285,9 +297,18 @@ impl AccountStore for PgStore {
         Ok(())
     }
 
-    async fn delete_session(&self, account: AccountId, id: SessionId) -> StoreResult<()> {
-        sqlx::query("delete from device_sessions where id = $1 and user_id = $2")
+    async fn delete_session(&self, account: AccountId, id: SessionId) -> StoreResult<bool> {
+        let done = sqlx::query("delete from device_sessions where id = $1 and user_id = $2")
             .bind(id.0)
+            .bind(account.0)
+            .execute(&self.pool)
+            .await
+            .map_err(fail)?;
+        Ok(done.rows_affected() == 1)
+    }
+
+    async fn delete_sessions(&self, account: AccountId) -> StoreResult<()> {
+        sqlx::query("delete from device_sessions where user_id = $1")
             .bind(account.0)
             .execute(&self.pool)
             .await
@@ -295,9 +316,10 @@ impl AccountStore for PgStore {
         Ok(())
     }
 
-    async fn delete_sessions(&self, account: AccountId) -> StoreResult<()> {
-        sqlx::query("delete from device_sessions where user_id = $1")
+    async fn delete_other_sessions(&self, account: AccountId, keep: SessionId) -> StoreResult<()> {
+        sqlx::query("delete from device_sessions where user_id = $1 and id <> $2")
             .bind(account.0)
+            .bind(keep.0)
             .execute(&self.pool)
             .await
             .map_err(fail)?;
@@ -662,8 +684,12 @@ impl AccountStore for PgStore {
         if held >= i64::from(max) {
             return Err(StoreError::LimitReached);
         }
+        // The PIN belongs to the account that set it, and only one profile an account may hold is
+        // the automatic Kids one, so both go with the same statement that moves the row. A refusal
+        // past here rolls the whole transaction back and the profile keeps its PIN.
         let moved = sqlx::query(
-            "update profiles set user_id = $3, is_main = false where id = $2 and user_id = $1",
+            "update profiles set user_id = $3, is_main = false, auto_kids = false, \
+             has_pin = false where id = $2 and user_id = $1",
         )
         .bind(from.0)
         .bind(profile.0)
@@ -674,6 +700,11 @@ impl AccountStore for PgStore {
         if moved.rows_affected() == 0 {
             return Err(StoreError::NotFound);
         }
+        sqlx::query("delete from profile_pins where profile_id = $1")
+            .bind(profile.0)
+            .execute(&mut *tx)
+            .await
+            .map_err(fail)?;
         sqlx::query("update device_sessions set active_profile = null where active_profile = $1")
             .bind(profile.0)
             .execute(&mut *tx)
@@ -750,13 +781,15 @@ impl AccountStore for PgStore {
         Ok(done.rows_affected() == 1)
     }
 
-    async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<()> {
-        sqlx::query("delete from device_codes where device_hash = $1")
+    async fn delete_device_code(&self, hash: &TokenHash) -> StoreResult<bool> {
+        // One statement decides who took the row, so two polls on one approved code cannot both
+        // go on to open a session.
+        let done = sqlx::query("delete from device_codes where device_hash = $1")
             .bind(hash.0.as_slice())
             .execute(&self.pool)
             .await
             .map_err(fail)?;
-        Ok(())
+        Ok(done.rows_affected() == 1)
     }
 
     async fn prune(
@@ -794,30 +827,40 @@ impl AccountStore for PgStore {
         Ok(found.flatten())
     }
 
-    async fn save_card(
-        &self,
-        session: SessionId,
-        card_hash: &str,
-        card: Option<&serde_json::Value>,
-    ) -> StoreResult<bool> {
+    async fn save_card(&self, seen: &DeviceCard<'_>) -> StoreResult<bool> {
+        let mut tx = self.pool.begin().await.map_err(fail)?;
         let known: Option<bool> = sqlx::query_scalar(
             "select card is not null from device_sessions where id = $1 and card_hash = $2",
         )
-        .bind(session.0)
-        .bind(card_hash)
-        .fetch_optional(&self.pool)
+        .bind(seen.session.0)
+        .bind(seen.card_hash)
+        .fetch_optional(&mut *tx)
         .await
         .map_err(fail)?;
         let known = known.unwrap_or(false);
         if !known {
             sqlx::query("update device_sessions set card_hash = $2, card = $3 where id = $1")
-                .bind(session.0)
-                .bind(card_hash)
-                .bind(card)
-                .execute(&self.pool)
+                .bind(seen.session.0)
+                .bind(seen.card_hash)
+                .bind(seen.card)
+                .execute(&mut *tx)
                 .await
                 .map_err(fail)?;
         }
-        Ok(!known && card.is_none())
+        // The key the device keeps for itself names it across sessions, so each start writes the
+        // device row as well as the session's card.
+        sqlx::query(
+            "insert into account_devices (user_id, device_key, session_id) values ($1, $2, $3) \
+             on conflict (user_id, device_key) do update \
+             set session_id = excluded.session_id, last_seen = now()",
+        )
+        .bind(seen.account.0)
+        .bind(seen.device_key)
+        .bind(seen.session.0)
+        .execute(&mut *tx)
+        .await
+        .map_err(fail)?;
+        tx.commit().await.map_err(fail)?;
+        Ok(!known && seen.card.is_none())
     }
 }

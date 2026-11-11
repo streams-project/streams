@@ -12,6 +12,8 @@ pub enum Kind {
     Invite,
     Reauth,
     Device,
+    /// Someone tried to use an address that already has an account. Only the holder is written to.
+    Taken,
 }
 
 impl Kind {
@@ -25,6 +27,7 @@ impl Kind {
             Kind::Invite => "invite",
             Kind::Reauth => "reauth",
             Kind::Device => "device",
+            Kind::Taken => "taken",
         }
     }
 }
