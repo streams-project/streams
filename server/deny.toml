@@ -4,3 +4,20 @@ allow = ["MIT", "Apache-2.0", "Unicode-3.0", "BSD-3-Clause", "BSD-2-Clause", "IS
 [bans]
 multiple-versions = "warn"
 wildcards = "deny"
+
+[advisories]
+# A reported hole in a dependency stops the build. Nothing is waved through here: an entry under
+# `ignore` is a hole left open on purpose, and it carries the advisory id and the reason.
+ignore = []
+# A yanked release is one its author withdrew, so a build must not rest on it.
+yanked = "deny"
+# A crate nobody maintains any more, anywhere in the tree, gets no fix when a hole is found in it.
+unmaintained = "all"
+
+[sources]
+# Every crate comes from the one public registry. A git dependency or another registry is a way into
+# this server that no review covered, so neither is allowed without being written down here.
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

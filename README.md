@@ -3,7 +3,7 @@
 One server, one small core, and a real app for each device. Run it for yourself, or change one folder
 and make it yours.
 
-Status: the core, server, data builder, finder and website run together, and a television app is being built. Other devices come next. The first run on a clean machine is still being tested, so tell us if `./up` trips.
+The server, core, data builder, finder and website run together. Each device is at a different point, so there is one label per platform under [Status](#status) with the evidence for it. The first run on a clean machine is still being tested, so tell us if `./up` trips.
 
 ## Run it
 
@@ -46,6 +46,24 @@ Video comes from finders. `finder/open-films` plays films you list with their li
 | `tests` | The parts running together for real |
 
 Run every check with `./check`.
+
+## Status
+
+One label per platform and what the label rests on, so nobody has to guess from the folder. Lines
+counted with `git ls-files` on 2026-11-11.
+
+| Platform | Status | What that rests on |
+|---|---|---|
+| Server, core, contract, offline layer, bridges, launcher, finder | Runs | `./check` builds, lints and tests every crate on every push |
+| Data builder (`data`) | Runs | its own checks run inside `./check`, and they cross check the contract and the server |
+| Website (`apps/web`) | Runs | 1,744 lines of Rust in 15 files. It is a workspace crate, so `./check` builds, lints and tests it |
+| Television (`apps/tv`) | Runs, work stopped | 2,185 lines of ES5 in 26 files, from the code a phone approves to a playing film. `tests/tv/press_through.py` drives it by key presses through a real browser, which `./check` does not do. Work on it stopped on 2026-11-07 |
+| Android (`apps/android`) | Written, built by hand | 14,906 lines of Kotlin in 93 files: Compose screens behind the family's ports. It builds with gradle on a machine that has it, and `./check` neither builds it nor has unit tests for it |
+| Apple (`apps/apple`) | Written, built by hand | 10,994 lines of Swift in 75 files: a phone surface and a television surface behind the family's ports. It builds with Swift Package Manager after `build-core.sh`, and `./check` neither builds it nor has unit tests for it |
+| Desktop, Harmony, Roku, Xbox | Empty | a README and a `.gitignore` each, and no code |
+
+What every row has in common: `./check` holds the family to its ports with
+`platform/tools/check_rings.py`, whether or not it can build that family.
 
 The code is under MIT or Apache 2.0, at your option. The Streams name and marks are not, see
 `TRADEMARKS.md`.

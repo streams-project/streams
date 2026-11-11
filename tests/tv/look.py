@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Signs in a new test account and takes pictures of the television page at chosen key presses.
 
-    uv run --with playwright python tests/tv/look.py http://127.0.0.1:8092 <folder>
+    uv run --with playwright python tests/tv/look.py http://127.0.0.1:8080 <folder>
 """
 import json, os, secrets, sys, urllib.request
 from pathlib import Path

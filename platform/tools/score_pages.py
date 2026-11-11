@@ -4,7 +4,8 @@
 Measures catalog freshness, row quality, duplication, genre purity, language rendering,
 tier filtering, hero/gate art & logo coverage, and endpoint latencies across fixed profile
 sessions (adult_en, adult_ar, kids, history).
-Outputs markdown report to notes/scorecards/<date>-<label>.md.
+Writes a markdown report to <out-dir>/<date>-<label>.md. The folder is named on the command
+line, because a scorecard is read outside this repository and no machine's path belongs in here.
 """
 
 import argparse
@@ -20,7 +21,7 @@ import urllib.parse
 import urllib.request
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-DEFAULT_SERVER = os.environ.get("STREAMS_SERVER", "http://127.0.0.1:8092")
+DEFAULT_SERVER = os.environ.get("SERVER_URL", "http://127.0.0.1:8080")
 API_VERSION = "2026-11-05"
 PAGE_CAP = 50
 
@@ -201,8 +202,8 @@ def main():
     parser.add_argument("--label", default="current", help="Scorecard label")
     parser.add_argument(
         "--out-dir",
-        default="/Users/ibrahim/code/pstream/notes/scorecards",
-        help="Output directory",
+        required=True,
+        help="Folder the report is written to",
     )
     parser.add_argument(
         "--timing-calls", type=int, default=20, help="Timing benchmark call count"
@@ -221,17 +222,24 @@ def main():
         print(f"Error connecting to server {args.server}: {e}", file=sys.stderr)
         sys.exit(1)
 
-    # 2. Setup account
+    # 2. Setup account. A sign up answers the same for a free address and a taken one, so it
+    # hands out no tokens; the session comes from signing in with the password just chosen.
     signup_email = f"scorecard-{now_ts}@example.test"
-    auth, _ = client.request(
+    signup_password = "Password123!"
+    client.request(
         "/v1/auth/signup",
         method="POST",
         data={
             "email": signup_email,
-            "password": "Password123!",
+            "password": signup_password,
             "first_name": "Score",
             "last_name": "Card",
         },
+    )
+    auth, _ = client.request(
+        "/v1/auth/password",
+        method="POST",
+        data={"email": signup_email, "password": signup_password},
     )
     token = auth["access_token"]
 

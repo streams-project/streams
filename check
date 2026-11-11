@@ -1,7 +1,21 @@
 #!/bin/sh
 # Every check this repository has, in one place. CI runs this file and nothing else.
+#
+# What it does not cover, so nobody reads a green run as more than it is: the device app builds
+# (gradle for android, xcodebuild for apple, a browser for the television page), the release
+# profiles, the dependency advisories in server/deny.toml, which need a network database, the tests
+# marked ignored, and whichever generated client types this machine has no compiler for, which
+# check_types.py names as it goes.
 set -eu
 cd "$(dirname "$0")"
+
+# These two only read files, so they run before anything is built.
+# Nothing private is in any file. The data builder scans the folder it builds from; this reads the
+# whole repository, because the leak that started this check was in a tool under platform/.
+python3 platform/tools/check_private.py
+
+# Every word on every screen, in every language, with the same holes to fill as English.
+python3 platform/tools/check_strings.py
 
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --locked -- -D warnings
@@ -24,6 +38,10 @@ cargo test --locked -p bridge-c --no-default-features
   git diff --exit-code -- contract/generated
   test -z "$(git status --porcelain -- contract/generated)"
   python3 tools/test_fake_server.py
+  python3 tools/test_port_help.py
+  # The generated types really compile, and a fixture reads and writes back the same. A language
+  # whose compiler this machine has not got is printed as not run, by name, and counted.
+  python3 tools/check_types.py
 )
 
 # Every id a server test name claims must be a real ledger row.

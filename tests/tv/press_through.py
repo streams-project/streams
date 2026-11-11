@@ -2,7 +2,7 @@
 """Drives the television page with key presses against a running stack, from the door to a playing
 film, with a phone approving the code on the side. It needs nothing but a browser.
 
-    uv run --with playwright python tests/tv/press_through.py http://127.0.0.1:8091 <folder for pictures>
+    uv run --with playwright python tests/tv/press_through.py http://127.0.0.1:8080 <folder for pictures>
 """
 import json, os, secrets, sys, time, urllib.request
 from pathlib import Path
