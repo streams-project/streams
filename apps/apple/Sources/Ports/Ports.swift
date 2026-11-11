@@ -33,12 +33,19 @@ public enum Answer: Sendable {
 
 public protocol Network: AnyObject, Sendable {
     func send(_ call: Call, done: @escaping @Sendable (Answer) -> Void)
+    /// The bytes at this address, for a picture a surface must look into rather than show. Text
+    /// is what `send` carries, so a colour taken out of artwork has nowhere else to come from.
+    /// Nil when the address is unusable, the call failed, or the reply was not a success.
+    func bytes(_ url: String, done: @escaping @Sendable (Data?) -> Void)
     func watch(_ changed: @escaping @Sendable (Bool) -> Void)
 }
 
 public protocol Secrets: AnyObject, Sendable {
     func get(_ name: String) -> String?
-    func put(_ name: String, _ value: String)
+    /// False when the store refused the write. The caller must say so rather than pretend: a
+    /// session token that was never written signs the viewer out at the next launch.
+    @discardableResult
+    func put(_ name: String, _ value: String) -> Bool
     func drop(_ name: String)
 }
 
@@ -84,8 +91,15 @@ public final class Seen {
     public var rtl: Bool = false
     public var detail: TitleDetail? = nil
     public var notice: String? = nil
+    /// How many notices have been said in this run. The slot is app wide and a notice is one time,
+    /// so a screen that acts records this count first and reads the slot as its own answer only
+    /// once the count has moved. Without it a screen shows words another screen left behind.
+    public var notices: Int = 0
     public var brand: String = ""
     public var server: String = ""
+    /// True when that server is reached over plain http. The screen that shows the address marks
+    /// it, so nobody runs on an unencrypted connection without being told.
+    public var serverPlain: Bool = false
     public var positionMs: Int64 = 0
     public var lengthMs: Int64 = 0
     public var audio: [Track] = []
@@ -106,6 +120,8 @@ public protocol Shell: AnyObject {
     func act(_ action: Action)
     func ask(_ path: String, reply: @escaping (Int, String) -> Void)
     func send(_ method: String, _ path: String, _ body: String, reply: @escaping (Int, String) -> Void)
+    /// The bytes of a picture, through the network port. A surface never holds a session of its own.
+    func bytes(_ url: String, reply: @escaping @Sendable (Data?) -> Void)
     func keep(_ profile: Profile)
     func keepAll(_ profiles: [Profile])
     func speak(_ language: String?)
@@ -118,6 +134,12 @@ extension Shell {
             ask(path) { status, text in
                 continuation.resume(returning: (200...299).contains(status) ? text : nil)
             }
+        }
+    }
+
+    public func bytes(_ url: String) async -> Data? {
+        await withCheckedContinuation { continuation in
+            bytes(url) { data in continuation.resume(returning: data) }
         }
     }
 

@@ -17,7 +17,11 @@ pub fn perform(op: SecretOp, name: &str, value: Option<String>) -> EventBody {
     match op {
         SecretOp::Get => held = store.get_item(&key).ok().flatten(),
         SecretOp::Put => {
-            let _ = store.set_item(&key, &value.unwrap_or_default());
+            // A refused write is not a write: a full or blocked store would otherwise sign the
+            // viewer out at the next load, where the core keeps the tokens in memory instead.
+            if store.set_item(&key, &value.unwrap_or_default()).is_err() {
+                return EventBody::Unsupported;
+            }
         }
         _ => {
             let _ = store.remove_item(&key);

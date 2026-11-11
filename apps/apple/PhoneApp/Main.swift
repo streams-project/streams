@@ -15,7 +15,11 @@ struct MainApp: App {
             secrets: KeychainSecrets(),
             store: FileStore(),
             player: AvPlayer(),
-            reel: AvReel()
+            reel: AvReel(),
+            deviceClass: ThisDevice.deviceClass,
+            form: ThisDevice.form,
+            version: ThisDevice.version,
+            os: ThisDevice.os
         )
         // Pictures come through the system's shared cache; rows of posters need more than its default.
         URLCache.shared = URLCache(memoryCapacity: 64 << 20, diskCapacity: 512 << 20)

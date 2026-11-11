@@ -71,7 +71,7 @@ fun Television(shell: Shell) {
                     inside = true
                 }
                 when {
-                    seen.server.isEmpty() -> Server(shell)
+                    seen.server.isEmpty() -> Server(shell, seen)
                     target == null || target == Target.WAIT -> Unit
                     target == Target.START -> Door(shell, seen, opening)
                     target == Target.SIGN_IN -> SignIn(shell, seen)

@@ -38,7 +38,13 @@ interface Network {
 /** What the core keeps between runs. */
 interface Secrets {
     fun get(name: String): String?
-    fun put(name: String, value: String)
+
+    /**
+     * False when the store refused the write. The caller must say so rather than pretend: a session
+     * token that was never written signs the viewer out at the next launch with no signal.
+     */
+    fun put(name: String, value: String): Boolean
+
     fun drop(name: String)
 }
 
@@ -99,8 +105,20 @@ data class Seen(
     val rtl: Boolean = false,
     val detail: TitleDetail? = null,
     val notice: String? = null,
+    /**
+     * How many notices have been said in this run. The slot is app wide and a notice is one time,
+     * so a screen that acts records this count first and reads the slot as its own answer only once
+     * the count has moved. Without it a screen shows words another screen left behind. Every write
+     * of `notice` with words in it moves this.
+     */
+    val notices: Int = 0,
     val brand: String = "",
     val server: String = "",
+    /**
+     * True when that server is reached over plain http. The screen that shows the address marks it,
+     * so nobody runs on an unencrypted connection without being told.
+     */
+    val serverPlain: Boolean = false,
     val positionMs: Long = 0,
     val lengthMs: Long = 0,
     /** The sound and subtitle tracks of what is playing. */

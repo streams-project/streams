@@ -550,8 +550,7 @@ public struct GateView: View {
 
     private func updateTint(for title: GateTitle) async {
         guard let urlString = gateArtUrl(title.tile),
-              let url = URL(string: urlString),
-              let (data, _) = try? await URLSession.shared.data(from: url),
+              let data = await shell.bytes(urlString),
               let image = UIImage(data: data),
               let extracted = extractTintFromImage(image) else {
             return
@@ -617,6 +616,9 @@ public struct PinSheet: View {
 
     @State private var pin: String = ""
     @State private var errorMessage: String? = nil
+    /// How many notices had been said when this sheet last submitted a PIN. The notice slot is app
+    /// wide, so a notice is this sheet's answer only when the count has moved past this.
+    @State private var noticesAtSubmit: Int? = nil
     @FocusState private var isFieldFocused: Bool
 
     public init(profile: Profile, shell: Shell, seen: Seen, onDismiss: @escaping () -> Void) {
@@ -714,8 +716,8 @@ public struct PinSheet: View {
                     .foregroundStyle(Join)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
-            } else if let notice = seen.notice {
-                Text(notice.isEmpty ? fallbackError : notice)
+            } else if let before = noticesAtSubmit, seen.notices > before {
+                Text((seen.notice ?? "").isEmpty ? fallbackError : (seen.notice ?? ""))
                     .brand(13, 400)
                     .foregroundStyle(Join)
                     .multilineTextAlignment(.center)
@@ -732,10 +734,14 @@ public struct PinSheet: View {
     }
 
     private func submit(_ enteredPin: String) {
+        let before = seen.notices
+        noticesAtSubmit = before
         shell.act(.enterProfile(ActionEnterProfile(pin: enteredPin, profile: profile.id)))
         Task { @MainActor in
             try? await Task.sleep(nanoseconds: 350_000_000)
-            if seen.notice != nil {
+            // A notice that was already there is somebody else's. Only one said after this submit
+            // is an answer to this PIN.
+            if seen.notices > before {
                 let wrongPinStr = seen.say("error.pin_wrong")
                 errorMessage = wrongPinStr.isEmpty ? seen.notice : wrongPinStr
                 pin = ""

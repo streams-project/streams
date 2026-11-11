@@ -51,12 +51,13 @@ import contract.Profile
 import streams.ports.Seen
 import streams.ports.Shell
 import streams.shared.Accent
+import streams.shared.Join
 import streams.shared.Muted
 
 /** Where this app finds its server. Everyone runs their own, so nothing is built in. */
 @Composable
-fun Server(shell: Shell) {
-    var address by remember { mutableStateOf("http://") }
+fun Server(shell: Shell, seen: Seen) {
+    var address by remember { mutableStateOf("https://") }
     val focus = LocalFocusManager.current
     Column(
         Modifier.fillMaxSize().padding(32.dp),
@@ -81,6 +82,12 @@ fun Server(shell: Shell) {
         )
         Spacer(Modifier.height(24.dp))
         Button({ shell.connect(address) }) { Text("Connect") }
+        // A refused address is said here, where it was typed, or the screen would simply do
+        // nothing when the viewer presses Connect.
+        seen.notice?.let {
+            Spacer(Modifier.height(16.dp))
+            Text(it, color = Join)
+        }
     }
 }
 

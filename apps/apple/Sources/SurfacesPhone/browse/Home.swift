@@ -88,6 +88,7 @@ struct Home: View {
 
                         if let lead {
                             Billboard(
+                                shell: shell,
                                 tile: lead,
                                 words: words,
                                 saved: inList,

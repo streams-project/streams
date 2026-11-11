@@ -53,7 +53,7 @@ fun Root(shell: Shell, tv: Boolean) {
                     .then(if (run.over) Modifier else Modifier.clearAndSetSemantics {}),
             ) {
             when {
-                seen.server.isEmpty() -> Server(shell)
+                seen.server.isEmpty() -> Server(shell, seen)
                 target == null || target == Target.WAIT -> if (run.over) Waiting()
                 target == Target.START -> Door(shell, seen)
                 target == Target.SIGN_IN -> if (tv) Code(shell, seen) else SignIn(shell, seen)

@@ -40,9 +40,12 @@
 	</array>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleLightContent</string>
+	<!-- Transport security stays on. Only the viewer's own network may be reached in the clear,
+	     because a session's bearer and refresh tokens travel on every call. The host refuses any
+	     other plain http address before it is ever used. -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>NSAllowsArbitraryLoads</key>
+		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
 </dict>

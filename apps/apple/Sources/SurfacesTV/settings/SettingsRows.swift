@@ -33,11 +33,14 @@ public struct SettingsRow: Equatable, Sendable {
     public let label: String
     public let value: String
     public let action: SettingsAction?
+    /// Drawn in the warning colour, for a value the viewer should not pass over.
+    public let warn: Bool
 
-    public init(_ label: String, value: String = "", action: SettingsAction? = nil) {
+    public init(_ label: String, value: String = "", action: SettingsAction? = nil, warn: Bool = false) {
         self.label = label
         self.value = value
         self.action = action
+        self.warn = warn
     }
 }
 
@@ -68,7 +71,8 @@ public func buildSettingsRows(
     historyCleared: Bool,
     devices: [DeviceSession],
     account: Account?,
-    server: String
+    server: String,
+    serverPlain: Bool
 ) -> [SettingsRow] {
     let onWord = words["settings.on"] ?? ""
     let offWord = words["settings.off"] ?? ""
@@ -130,7 +134,9 @@ public func buildSettingsRows(
         ]
     case .about:
         return [
-            SettingsRow(words["settings.server"] ?? "", value: server),
+            // An unencrypted server is marked here, because this is the only screen that says
+            // which server this device talks to.
+            SettingsRow(words["settings.server"] ?? "", value: server, warn: serverPlain),
             SettingsRow(words["settings.sign_out_everywhere"] ?? "", value: "", action: .askSignOutEverywhere),
         ]
     }
@@ -147,7 +153,7 @@ public struct SettingsRowItem: View {
 
     public var body: some View {
         let labelColor = on ? Back : Color.white
-        let valueColor = on ? Back : Muted
+        let valueColor = row.warn ? Join : (on ? Back : Muted)
 
         HStack {
             Text(row.label)

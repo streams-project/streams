@@ -87,6 +87,47 @@ class Host(
         const val DEFAULT_LANGUAGE = "en"
         const val WAKE_CAP_MS = 60_000L
         const val TOUCH_EVERY_MS = 10_000L
+
+        // Said to the viewer, not logged: the only words this host has of its own.
+        const val PLAIN_REFUSED =
+            "This address must start with https://. Plain http reaches only a server on your own network."
+
+        /**
+         * True when this address is reached in the clear, false when it is encrypted, and null when
+         * it may not be used at all.
+         */
+        fun encryptionOf(server: String): Boolean? {
+            val lower = server.lowercase()
+            if (lower.startsWith("https://")) return false
+            if (!lower.startsWith("http://")) return null
+            return if (ownNetwork(hostOf(lower))) true else null
+        }
+
+        /** The host of an address, with the port, the path and an IPv6 address's brackets taken off. */
+        private fun hostOf(address: String): String {
+            val after = address.removePrefix("http://").takeWhile { it != '/' }
+            if (after.startsWith("[")) return after.drop(1).takeWhile { it != ']' }
+            return after.takeWhile { it != ':' }
+        }
+
+        /**
+         * The viewer's own machine or their own network: a hop no stranger is on. Names are here
+         * because a server is usually found by its name on the network, not by its number.
+         */
+        private fun ownNetwork(host: String): Boolean {
+            if (host == "localhost" || host.endsWith(".local") || host == "::1") return true
+            val parts = host.split(".")
+            if (parts.size != 4) return false
+            val numbers = parts.map { it.toIntOrNull() ?: return false }
+            if (numbers.any { it < 0 || it > 255 }) return false
+            return when {
+                numbers[0] == 127 || numbers[0] == 10 -> true
+                numbers[0] == 192 && numbers[1] == 168 -> true
+                numbers[0] == 169 && numbers[1] == 254 -> true
+                numbers[0] == 172 && numbers[1] in 16..31 -> true
+                else -> false
+            }
+        }
     }
 
     private val thread = HandlerThread("core").apply { start() }
@@ -118,11 +159,24 @@ class Host(
         if (kept != null) connect(kept)
     }
 
+    /**
+     * The one gate every server address passes, typed or kept. Plain http carries the session's
+     * bearer and refresh tokens in the clear, so it may only reach the viewer's own network;
+     * anything else must be https. A refused address is said, not swallowed.
+     */
     override fun connect(server: String) {
+        val typed = server.trim().trimEnd('/')
+        val plain = encryptionOf(typed)
+        if (plain == null) {
+            state.update { it.copy(notice = PLAIN_REFUSED, notices = it.notices + 1) }
+            return
+        }
         loop.post {
-            base = server.trimEnd('/')
+            base = typed
             secrets.put(SERVER, base)
-            state.update { it.copy(server = base) }
+            // A notice is one time. This address was taken, so a refusal still sitting in the app
+            // wide slot is not news any more and must not be read as some other screen's error.
+            state.update { it.copy(server = base, serverPlain = plain, notice = null) }
             if (handle == 0L) open()
         }
     }
@@ -322,7 +376,12 @@ class Host(
             is EffectStore -> queue.addLast(kept(effect))
             is EffectPlayer -> player.command(effect.command)
             is EffectView -> effect.notice?.let { notice ->
-                state.update { now -> now.copy(notice = notice.text.ifEmpty { now.words[notice.label] }) }
+                state.update { now ->
+                    now.copy(
+                        notice = notice.text.ifEmpty { now.words[notice.label] },
+                        notices = now.notices + 1,
+                    )
+                }
             }
             is EffectOpen, is EffectLog -> Unit
             else -> queue.addLast(EventUnsupported(id = effect.id))
@@ -351,8 +410,13 @@ class Host(
         return when (effect.op) {
             SecretOp.GET -> EventSecretDone(id = effect.id, value = secrets.get(name))
             SecretOp.PUT -> {
-                secrets.put(name, effect.value.orEmpty())
-                EventSecretDone(id = effect.id)
+                // A refused write is not a write. Saying it was done would sign the viewer out at
+                // the next launch with no signal, where the core keeps the tokens in memory instead.
+                if (secrets.put(name, effect.value.orEmpty())) {
+                    EventSecretDone(id = effect.id)
+                } else {
+                    EventUnsupported(id = effect.id)
+                }
             }
             else -> {
                 secrets.drop(name)

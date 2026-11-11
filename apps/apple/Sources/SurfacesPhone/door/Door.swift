@@ -5,7 +5,7 @@ import SwiftUI
 /// Where a phone points at its server, for self hosters.
 struct ServerAddress: View {
     let shell: Shell
-    @State private var address = "http://"
+    @State private var address = "https://"
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -16,6 +16,11 @@ struct ServerAddress: View {
                 Image(systemName: "arrow.right").frame(maxWidth: .infinity, minHeight: 48)
             }
             .buttonStyle(.borderedProminent).tint(.white).foregroundStyle(Back)
+            // A refused address is said here, where it was typed, or the screen would simply do
+            // nothing when the viewer presses on.
+            if let notice = shell.seen.notice {
+                Text(notice).brand(14).foregroundStyle(Join)
+            }
         }
         .padding(24)
     }

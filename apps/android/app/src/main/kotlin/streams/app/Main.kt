@@ -8,13 +8,13 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import contract.DeviceClass
 import contract.Form
 import streams.adapters.FileStore
 import streams.adapters.HttpNetwork
 import streams.adapters.Media3Player
 import streams.adapters.Media3Reel
 import streams.adapters.PrefsSecrets
+import streams.adapters.ThisDevice
 import streams.core.Host
 import streams.phone.Root
 import streams.tv.Television
@@ -33,7 +33,7 @@ class Main : ComponentActivity() {
             store = FileStore(this),
             player = Media3Player(this),
             reel = Media3Reel(),
-            deviceClass = if (tv) DeviceClass.TV else DeviceClass.PHONE,
+            deviceClass = ThisDevice.deviceClass(this),
             form = if (tv) Form.TV else Form.PHONE,
             version = "0.1.0",
         )

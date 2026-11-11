@@ -38,6 +38,11 @@ public final class Host: Shell, @unchecked Sendable {
     private static let defaultLanguage = "en"
     private static let wakeCapMs: Int64 = 60_000
     private static let touchEveryMs: Int64 = 10_000
+    private static let restartLimit = 3
+    // Said to the viewer, not logged: these two are the only moments the host has words of its own.
+    private static let plainRefused =
+        "This address must start with https://. Plain http reaches only a server on your own network."
+    private static let coreStopped = "This app could not start. Close it and open it again."
 
     private let network: Network
     private let secrets: Secrets
@@ -47,6 +52,7 @@ public final class Host: Shell, @unchecked Sendable {
     private let deviceClass: DeviceClass
     private let form: Form
     private let version: String
+    private let os: String
 
     private let queue = DispatchQueue(label: "core", qos: .userInteractive)
     @MainActor public let seen: Seen = Seen()
@@ -60,19 +66,25 @@ public final class Host: Shell, @unchecked Sendable {
     private var here: String = "/"
     private var wakeWorkItem: DispatchWorkItem? = nil
     private var lastTouch: Int64 = 0
+    private var restarts: Int = 0
 
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
+    /// Nothing here has a default. Three core policies key on the class, the form and the version,
+    /// and one on the operating system, so an entry point that left any of them out would inherit
+    /// another device's rules in silence: a phone that called itself a television was never asked
+    /// who is watching after time away.
     public init(
         network: Network,
         secrets: Secrets,
         store: Store,
         player: Player,
         reel: Reel,
-        deviceClass: DeviceClass = .tv,
-        form: Form = .tv,
-        version: String = "0.0.0"
+        deviceClass: DeviceClass,
+        form: Form,
+        version: String,
+        os: String
     ) {
         self.network = network
         self.secrets = secrets
@@ -82,6 +94,7 @@ public final class Host: Shell, @unchecked Sendable {
         self.deviceClass = deviceClass
         self.form = form
         self.version = version
+        self.os = os
 
         network.watch { [weak self] online in
             self?.sendEvents([Event(id: nil, body: .network(EventNetwork(online: online)))])
@@ -113,20 +126,74 @@ public final class Host: Shell, @unchecked Sendable {
         }
     }
 
+    /// The one gate every server address passes, typed or kept. Plain http carries the session's
+    /// bearer and refresh tokens in the clear, so it may only reach the viewer's own network;
+    /// anything else must be https. A refused address is said, not swallowed.
     public func connect(_ server: String) {
+        let trimmed = server
+            .trimmingCharacters(in: .whitespaces)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        guard let plain = Self.encryption(of: trimmed) else {
+            Task { @MainActor in self.said(Self.plainRefused) }
+            return
+        }
         // The screens see a kept server from the first frame, so a run with a server never looks
         // like a first run without one.
-        let trimmed = server.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        if Thread.isMainThread { MainActor.assumeIsolated { seen.server = trimmed } }
+        if Thread.isMainThread {
+            MainActor.assumeIsolated {
+                seen.server = trimmed
+                seen.serverPlain = plain
+                // A notice is one time. This address was taken, so a refusal still sitting in the
+                // app wide slot is not news any more and must not be read as a screen's own error.
+                seen.notice = nil
+            }
+        }
         queue.async {
             self.base = trimmed
-            self.secrets.put(Self.serverKey, self.base)
+            _ = self.secrets.put(Self.serverKey, self.base)
             Task { @MainActor in
                 self.seen.server = self.base
+                self.seen.serverPlain = plain
+                self.seen.notice = nil
             }
             if self.handle == nil {
                 self.open()
             }
+        }
+    }
+
+    /// True when this address is reached in the clear, false when it is encrypted, and nil when it
+    /// may not be used at all.
+    static func encryption(of server: String) -> Bool? {
+        let lower = server.lowercased()
+        if lower.hasPrefix("https://") { return false }
+        guard lower.hasPrefix("http://") else { return nil }
+        return ownNetwork(host(of: lower)) ? true : nil
+    }
+
+    /// The host of an address, with the port, the path and an IPv6 address's brackets taken off.
+    private static func host(of address: String) -> String {
+        let after = address.dropFirst("http://".count)
+        let upTo = after.prefix { $0 != "/" }
+        if upTo.hasPrefix("[") {
+            return String(upTo.dropFirst().prefix { $0 != "]" })
+        }
+        return String(upTo.prefix { $0 != ":" })
+    }
+
+    /// The viewer's own machine or their own network: a hop no stranger is on. Names are here
+    /// because a server is usually found by its name on the network, not by its number.
+    private static func ownNetwork(_ host: String) -> Bool {
+        if host == "localhost" || host.hasSuffix(".local") || host == "::1" { return true }
+        let parts = host.split(separator: ".").map { Int($0) }
+        guard parts.count == 4, let first = parts[0], let second = parts[1],
+              parts.allSatisfy({ $0.map { (0...255).contains($0) } == true }) else {
+            return false
+        }
+        switch (first, second) {
+        case (127, _), (10, _), (192, 168), (169, 254): return true
+        case (172, 16...31): return true
+        default: return false
         }
     }
 
@@ -137,7 +204,7 @@ public final class Host: Shell, @unchecked Sendable {
             contract: WireDate(wireVersion),
             form: form,
             mode: .local,
-            os: "tvos",
+            os: os,
             seed: seed(),
             type: .value,
             version: version
@@ -218,6 +285,17 @@ public final class Host: Shell, @unchecked Sendable {
         }
     }
 
+    public func bytes(_ url: String, reply: @escaping @Sendable (Data?) -> Void) {
+        network.bytes(url, done: reply)
+    }
+
+    /// The one place a notice is said. Every notice moves `notices`, so a screen that acted can
+    /// tell the answer to its own action from words another screen left in this shared slot.
+    @MainActor private func said(_ notice: String?) {
+        seen.notice = notice
+        seen.notices += 1
+    }
+
     public func keep(_ profile: Profile) {
         Task { @MainActor in
             self.seen.profiles = self.seen.profiles.map { $0.id == profile.id ? profile : $0 }
@@ -270,12 +348,34 @@ public final class Host: Shell, @unchecked Sendable {
                 guard let inData = try? self.encoder.encode(input),
                       let outData = NativeCore.step(handle: h, input: inData),
                       let out = try? self.decoder.decode(CoreOut.self, from: outData) else {
-                    break
+                    // A refused step lost its whole batch, so the core may be waiting on answers it
+                    // will never get, and it keeps no timer of its own. Dropping it quietly leaves
+                    // the app sitting there with nothing moving, so start the core again.
+                    self.restart()
+                    return
                 }
                 self.apply(out)
                 rounds += 1
             } while !self.eventQueue.isEmpty && rounds < 64
         }
+    }
+
+    /// Opens a fresh core and gives every waiting ask its no answer, up to a few tries.
+    private func restart() {
+        if let h = handle { NativeCore.close(handle: h) }
+        handle = nil
+        eventQueue.removeAll()
+        wakeWorkItem?.cancel()
+        wakeWorkItem = nil
+        let pending = waiting
+        waiting.removeAll()
+        for reply in pending.values { reply(0, "") }
+        restarts += 1
+        if restarts > Self.restartLimit {
+            Task { @MainActor in self.said(Self.coreStopped) }
+            return
+        }
+        open()
     }
 
     private func readWords(_ language: String, _ brand: String) {
@@ -373,7 +473,7 @@ public final class Host: Shell, @unchecked Sendable {
         case .view(let viewEffect):
             if let n = viewEffect.notice {
                 Task { @MainActor in
-                    self.seen.notice = n.text.isEmpty ? self.seen.words[n.label] : n.text
+                    self.said(n.text.isEmpty ? self.seen.words[n.label] : n.text)
                 }
             }
         case .open, .log:
@@ -407,7 +507,11 @@ public final class Host: Shell, @unchecked Sendable {
         case .get:
             return Event(id: id, body: .secretDone(EventSecretDone(value: secrets.get(name))))
         case .put:
-            secrets.put(name, effect.value ?? "")
+            // A refused write is not a write. Saying it was done would sign the viewer out at the
+            // next launch with no signal, where the core keeps the tokens in memory instead.
+            guard secrets.put(name, effect.value ?? "") else {
+                return Event(id: id, body: .unsupported(EventUnsupported()))
+            }
             return Event(id: id, body: .secretDone(EventSecretDone()))
         case .delete:
             secrets.drop(name)

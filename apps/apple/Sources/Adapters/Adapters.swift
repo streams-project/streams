@@ -8,6 +8,51 @@ import Ports
 import Security
 import UIKit
 
+/// What this build and this device are. One place reads it, because three core policies key on
+/// exactly these fields: the client version floor, the per class start deadline and how long a
+/// profile may be left before the gate asks again. A device that calls itself a television is
+/// never asked who is watching.
+public enum ThisDevice {
+    /// From the build target, not from the device: one binary is one operating system.
+    public static var os: String {
+        #if os(tvOS)
+        return "tvos"
+        #else
+        return "ios"
+        #endif
+    }
+
+    public static var deviceClass: DeviceClass {
+        switch UIDevice.current.userInterfaceIdiom {
+        case .phone: return .phone
+        case .pad: return .tablet
+        case .tv: return .tv
+        // A headset or a Mac running this app is held at arm's length on a big picture, and it is
+        // nobody's television, so it takes the desktop rules rather than the television's.
+        default: return .desktop
+        }
+    }
+
+    public static var form: Form {
+        switch UIDevice.current.userInterfaceIdiom {
+        case .phone: return .phone
+        case .pad: return .tablet
+        case .tv: return .tv
+        default: return .desktop
+        }
+    }
+
+    /// The version this build was stamped with. A build with none cannot be told apart from an old
+    /// one, and the server's version floor would read it as 0, so the build is wrong, not the run.
+    public static var version: String {
+        guard let text = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
+              !text.isEmpty else {
+            fatalError("this bundle has no CFBundleShortVersionString")
+        }
+        return text
+    }
+}
+
 /// The network port, using URLSession and NWPathMonitor.
 public final class UrlNetwork: Network, @unchecked Sendable {
     private let session: URLSession
@@ -66,6 +111,24 @@ public final class UrlNetwork: Network, @unchecked Sendable {
         }
         task.resume()
     }
+
+    public func bytes(_ url: String, done: @escaping @Sendable (Data?) -> Void) {
+        guard let address = URL(string: url) else {
+            done(nil)
+            return
+        }
+        let task = session.dataTask(with: address) { data, response, error in
+            guard error == nil,
+                  let http = response as? HTTPURLResponse,
+                  (200...299).contains(http.statusCode),
+                  let data else {
+                done(nil)
+                return
+            }
+            done(data)
+        }
+        task.resume()
+    }
 }
 
 /// The secrets port, using the system Keychain.
@@ -88,22 +151,28 @@ public final class KeychainSecrets: Secrets, @unchecked Sendable {
         return String(data: data, encoding: .utf8)
     }
 
-    public func put(_ name: String, _ value: String) {
+    public func put(_ name: String, _ value: String) -> Bool {
         let data = Data(value.utf8)
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: name,
         ]
+        // This device only, and only while it is unlocked: a session token belongs to the device
+        // the viewer signed in on, and must not ride a backup or a transfer onto another one. It is
+        // set on the update as well, so an item written by an older build is moved over too.
         let update: [String: Any] = [
             kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
         ]
         let status = SecItemUpdate(query as CFDictionary, update as CFDictionary)
-        if status == errSecItemNotFound {
-            var attributes = query
-            attributes[kSecValueData as String] = data
-            SecItemAdd(attributes as CFDictionary, nil)
+        if status != errSecItemNotFound {
+            return status == errSecSuccess
         }
+        var attributes = query
+        attributes[kSecValueData as String] = data
+        attributes[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        return SecItemAdd(attributes as CFDictionary, nil) == errSecSuccess
     }
 
     public func drop(_ name: String) {

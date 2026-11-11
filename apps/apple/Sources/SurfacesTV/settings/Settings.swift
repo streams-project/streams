@@ -179,7 +179,8 @@ public struct Settings: View {
             historyCleared: historyCleared,
             devices: devices,
             account: account,
-            server: seen.server
+            server: seen.server,
+            serverPlain: seen.serverPlain
         )
     }
 

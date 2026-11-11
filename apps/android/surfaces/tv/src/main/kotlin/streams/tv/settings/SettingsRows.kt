@@ -25,6 +25,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import streams.shared.Back
+import streams.shared.Join
 import streams.shared.Muted
 import streams.shared.Raised
 import streams.shared.ref
@@ -57,6 +58,8 @@ data class SettingsRow(
     val label: String,
     val value: String = "",
     val action: SettingsAction? = null,
+    /** Drawn in the warning colour, for a value the viewer should not pass over. */
+    val warn: Boolean = false,
 )
 
 private val DateFormat: DateTimeFormatter =
@@ -84,6 +87,7 @@ fun buildSettingsRows(
     devices: List<DeviceSession>,
     account: Account?,
     server: String,
+    serverPlain: Boolean,
 ): List<SettingsRow> {
     val onWord = words.say("settings.on")
     val offWord = words.say("settings.off")
@@ -166,7 +170,9 @@ fun buildSettingsRows(
             )
         }
         SettingsSection.ABOUT -> listOf(
-            SettingsRow(words.say("settings.server"), server),
+            // An unencrypted server is marked here, because this is the only screen that says
+            // which server this device talks to.
+            SettingsRow(words.say("settings.server"), server, warn = serverPlain),
             SettingsRow(words.say("settings.sign_out_everywhere"), "", AskSignOutEverywhere),
         )
     }
@@ -176,7 +182,7 @@ fun buildSettingsRows(
 @Composable
 fun SettingsRowItem(row: SettingsRow, on: Boolean) {
     val labelColor = if (on) Back else Color.White
-    val valueColor = if (on) Back else Muted
+    val valueColor = if (row.warn) Join else if (on) Back else Muted
     Row(
         Modifier
             .width(1080.ref)

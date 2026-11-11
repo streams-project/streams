@@ -22,6 +22,13 @@ use crate::state::Shared;
 /// A form's answer: the status, then the body.
 type Reply = Box<dyn FnOnce(u32, String)>;
 
+/// Activity counts at most this often, the same rate as the other three hosts.
+const TOUCH_EVERY_MS: u64 = 10_000;
+
+/// Where a viewport stops being a phone, and where it stops being a tablet.
+const PHONE_WIDEST_PX: f64 = 600.0;
+const TABLET_WIDEST_PX: f64 = 1024.0;
+
 pub struct Host {
     machine: Core,
     shared: Shared,
@@ -29,6 +36,7 @@ pub struct Host {
     wake: Option<i32>,
     replies: HashMap<String, Reply>,
     next_ask: u64,
+    last_touch_ms: Option<u64>,
 }
 
 thread_local! {
@@ -57,10 +65,33 @@ fn seed() -> String {
         .collect()
 }
 
+/// The form this browser draws in. The contract says a browser on a phone is class web, form
+/// phone, and the core's idle limit before the profile gate asks again keys on the form.
+fn form_of(width_px: f64) -> &'static str {
+    if width_px <= PHONE_WIDEST_PX {
+        "phone"
+    } else if width_px <= TABLET_WIDEST_PX {
+        "tablet"
+    } else {
+        "desktop"
+    }
+}
+
+/// A width a browser will not give reads as a desktop, which is the shortest idle limit of the
+/// three, so an unknown device is never left open for longer than a known one.
+fn viewport_width() -> f64 {
+    window()
+        .inner_width()
+        .ok()
+        .and_then(|width| width.as_f64())
+        .unwrap_or(f64::INFINITY)
+}
+
 /// Open the core once and start it at the address the page was opened on.
 pub fn start(shared: Shared) {
     let config: CoreConfig = serde_json::from_value(json!({
-        "contract": WIRE_VERSION, "type": "core_config", "class": "web", "form": "desktop",
+        "contract": WIRE_VERSION, "type": "core_config", "class": "web",
+        "form": form_of(viewport_width()),
         "mode": "local", "app": "web", "version": env!("CARGO_PKG_VERSION"), "os": "browser",
         "seed": seed(),
     }))
@@ -74,11 +105,13 @@ pub fn start(shared: Shared) {
             wake: None,
             replies: HashMap::new(),
             next_ask: 0,
+            last_touch_ms: None,
         });
     });
     let back = Closure::<dyn FnMut()>::new(go_silently);
     window().set_onpopstate(Some(back.as_ref().unchecked_ref()));
     back.forget();
+    listen();
     // Read first: the core can finish starting within this step and rewrite the bar.
     let opened_at = address::current();
     step(Vec::new());
@@ -102,6 +135,57 @@ fn go_silently() {
     step(vec![event(EventBody::Address {
         address: address::current(),
     })]);
+}
+
+/// What the page can tell the core about its own life. Without these the core never hears that the
+/// viewer is still here, so the profile gate asks in the middle of a film, and it never hears the
+/// network come back, so a waiting call sits out its whole backoff. The other three hosts send the
+/// same three events.
+fn listen() {
+    let document = window().document().expect("a document");
+    let shown = Closure::<dyn FnMut()>::new(|| {
+        let document = window().document().expect("a document");
+        step(vec![event(EventBody::Visibility {
+            visible: !document.hidden(),
+        })]);
+    });
+    let _ = document
+        .add_event_listener_with_callback("visibilitychange", shown.as_ref().unchecked_ref());
+    shown.forget();
+
+    for (name, online) in [("online", true), ("offline", false)] {
+        let moved = Closure::<dyn FnMut()>::new(move || {
+            step(vec![event(EventBody::Network { online })]);
+        });
+        let _ = window().add_event_listener_with_callback(name, moved.as_ref().unchecked_ref());
+        moved.forget();
+    }
+
+    for name in ["pointerdown", "keydown"] {
+        let used = Closure::<dyn FnMut()>::new(touched);
+        let _ = document.add_event_listener_with_callback(name, used.as_ref().unchecked_ref());
+        used.forget();
+    }
+}
+
+/// A press or a tap. The core only needs to hear this now and then.
+fn touched() {
+    let now = mono_ms();
+    let due = HOST.with_borrow_mut(|host| match host.as_mut() {
+        Some(host) => {
+            let due = host
+                .last_touch_ms
+                .is_none_or(|last| now.saturating_sub(last) >= TOUCH_EVERY_MS);
+            if due {
+                host.last_touch_ms = Some(now);
+            }
+            due
+        }
+        None => false,
+    });
+    if due {
+        step(vec![event(EventBody::Activity)]);
+    }
 }
 
 /// Ask the core to open an address.
@@ -305,5 +389,21 @@ pub fn keep_page(path: &str, text: &str) {
         shared.screen.set(serde_json::from_str(text).ok());
     } else if path.contains("/titles/") {
         shared.detail.set(serde_json::from_str(text).ok());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::form_of;
+
+    #[test]
+    fn a_browser_on_a_phone_draws_in_a_phone_s_form() {
+        assert_eq!(form_of(390.0), "phone");
+        assert_eq!(form_of(600.0), "phone");
+        assert_eq!(form_of(601.0), "tablet");
+        assert_eq!(form_of(1024.0), "tablet");
+        assert_eq!(form_of(1440.0), "desktop");
+        // A width a browser would not give reads as the form with the shortest idle limit.
+        assert_eq!(form_of(f64::INFINITY), "desktop");
     }
 }

@@ -3,7 +3,7 @@ import SwiftUI
 
 public struct ServerAddress: View {
     public let shell: Shell
-    @State private var address: String = "http://"
+    @State private var address: String = "https://"
     @State private var focused: Bool = true
 
     public init(shell: Shell) {
@@ -25,6 +25,16 @@ public struct ServerAddress: View {
                     .padding(.vertical, 16.ref)
                     .background(Color.white.opacity(0.1))
                     .clipShape(shapeOf(Round.field))
+
+                // A refused address is said here, where it was typed, or the screen would simply
+                // do nothing when the viewer presses Connect.
+                if let notice = shell.seen.notice {
+                    Text(notice)
+                        .font(.system(size: 26.refType, weight: .medium))
+                        .foregroundStyle(Join)
+                        .multilineTextAlignment(.center)
+                        .frame(width: 900.ref)
+                }
 
                 Button(action: {
                     shell.connect(address)

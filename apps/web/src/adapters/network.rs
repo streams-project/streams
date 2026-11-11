@@ -51,6 +51,34 @@ pub async fn perform(
     step(vec![answer(id, event)]);
 }
 
+/// A request's deadline, held for as long as the request is. It is dropped only when the whole
+/// call is over, body and all, so the deadline the core asked for covers reading the answer: a
+/// server that sends headers at once and then stalls used to hold a call open for ever.
+struct Deadline(Option<i32>);
+
+impl Deadline {
+    fn stops(ms: u32, abort: &AbortController) -> Self {
+        let stop = abort.clone();
+        let fire = Closure::once_into_js(move || stop.abort());
+        Self(
+            window()
+                .set_timeout_with_callback_and_timeout_and_arguments_0(
+                    fire.unchecked_ref(),
+                    ms as i32,
+                )
+                .ok(),
+        )
+    }
+}
+
+impl Drop for Deadline {
+    fn drop(&mut self) {
+        if let Some(handle) = self.0.take() {
+            window().clear_timeout_with_handle(handle);
+        }
+    }
+}
+
 fn method_word(method: HttpMethod) -> &'static str {
     match method {
         HttpMethod::Post => "POST",
@@ -81,18 +109,8 @@ async fn send(
         init.set_body(&body.into());
     }
     init.set_headers(&list);
-    let stop = abort.clone();
-    let timeout = Closure::once_into_js(move || stop.abort());
-    let handle = window()
-        .set_timeout_with_callback_and_timeout_and_arguments_0(
-            timeout.unchecked_ref(),
-            deadline_ms as i32,
-        )
-        .ok();
+    let _deadline = Deadline::stops(deadline_ms, &abort);
     let answer = JsFuture::from(window().fetch_with_str_and_init(path, &init)).await;
-    if let Some(handle) = handle {
-        window().clear_timeout_with_handle(handle);
-    }
     let response: Response = answer
         .map_err(|_| NoAnswerReason::Offline)?
         .dyn_into()

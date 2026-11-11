@@ -68,6 +68,9 @@ fun PinSheet(
     }
     val count = hello?.limits?.pinDigits?.toInt() ?: DEFAULT_PIN_DIGITS
     var pin by remember { mutableStateOf("") }
+    // How many notices had been said when this sheet submitted a PIN. The notice slot is app wide,
+    // so a notice is this sheet's answer only once the count has moved past this.
+    var noticesAtSubmit by remember { mutableStateOf<Int?>(null) }
     val focusRequester = remember { FocusRequester() }
     val words = seen.words
 
@@ -77,6 +80,7 @@ fun PinSheet(
 
     LaunchedEffect(pin) {
         if (pin.length == count) {
+            noticesAtSubmit = seen.notices
             shell.speak(person.language)
             shell.act(ActionEnterProfile(profile = person.id, pin = pin))
             onDismiss()
@@ -180,7 +184,8 @@ fun PinSheet(
                     cursorBrush = SolidColor(Color.Transparent),
                 )
 
-                if (seen.notice != null) {
+                val said = noticesAtSubmit
+                if (said != null && seen.notices > said) {
                     Spacer(Modifier.height(16.dp))
                     Text(
                         words["error.pin_wrong"].orEmpty(),

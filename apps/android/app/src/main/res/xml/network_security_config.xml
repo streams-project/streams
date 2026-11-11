@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The rule is https everywhere, except plain http to the viewer's own machine or their own network.
+  A session's bearer and refresh tokens travel on every call, so on a network the viewer does not
+  own they must be encrypted.
+
+  This file cannot state that rule. It names hosts one at a time and has no way to say "anything in
+  127/8, 10/8, 172.16/12, 192.168/16 or 169.254/16", which is where a self hosted server sits: the
+  launcher's public flag picks this machine's address on the network it would use to leave and
+  prints it, and the README offers that address as the way to reach the server from another device.
+  The list this file used to carry, of localhost, 127.0.0.1, the emulator's host and the mDNS
+  names, refused every bare private address, and it refused them for the whole app: the calls, the
+  artwork and the video all ask this policy first. So a self hoster who started the server on their
+  network and typed the 192.168 address it had just printed got an IOException the app could only
+  report as being offline.
+
+  So the rule is kept in the one place that can state it. Host.connect() is the gate every server
+  address passes, typed or kept: it allows https anywhere, allows plain http only to loopback, a
+  private range or an mDNS name, and refuses anything further out before a call is ever made. Every
+  address the app then uses is built from that server. The platform no longer holds a narrower copy
+  of the same rule that contradicts it.
+
+  What this does give up, and it is the whole of it: an absolute http address a server hands over
+  for artwork on some other host now loads instead of failing. Such a call carries no session, by
+  the contract: images go straight from their host to the viewer.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

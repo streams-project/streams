@@ -8,7 +8,9 @@
         android:label="@string/app_name"
         android:banner="@drawable/banner"
         android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:theme="@style/Launch">
         <receiver android:name="streams.phone.reminder.ReminderReceiver" android:exported="false">
             <intent-filter>

@@ -29,6 +29,7 @@ private let fade = LinearGradient(
 /// bold, two 48 pt buttons 16 pt apart, 16 pt in, 13.7 pt from the bottom). Our brand rounds the card
 /// and corners both buttons from brand.json. `tint` gets the picture's main colour, for the page behind.
 struct Billboard: View {
+    let shell: Shell
     let tile: Tile
     let words: [String: String]
     let saved: Bool
@@ -96,8 +97,8 @@ struct Billboard: View {
             .contentShape(shape)
             .onTapGesture(perform: open)
             .task(id: picture) {
-                guard let picture, let url = URL(string: picture) else { return }
-                if let (data, _) = try? await URLSession.shared.data(from: url),
+                guard let picture else { return }
+                if let data = await shell.bytes(picture),
                    let uiImage = UIImage(data: data) {
                     if let darkColor = extractDarkColor(from: uiImage) {
                         tint(darkColor)
