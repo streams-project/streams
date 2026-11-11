@@ -25,8 +25,9 @@ sys.path.insert(0, str(ROOT / "data" / "src"))
 from databuild import scan  # noqa: E402
 
 # A path under somebody's home folder. Nothing that ships may hold one: it names a person, and it
-# names a machine nobody else has.
-HOME = re.compile(r"/(?:Users|home)/[A-Za-z][A-Za-z0-9._-]*")
+# names a machine nobody else has. The folder has to start the path, so a temporary folder that
+# merely ends in the word (a test's /tmp/home/data) is not a person's home.
+HOME = re.compile(r"(?<![A-Za-z0-9._-])/(?:Users|home)/[A-Za-z][A-Za-z0-9._-]*")
 
 # Where a home folder belongs: the build runner's own temporary folder, which is the runner's name
 # and not a person's.
