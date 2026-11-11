@@ -136,7 +136,13 @@ fun ChipRow(chips: List<Chip>, shown: Float) {
         contentPadding = PaddingValues(horizontal = 16.dp),
     ) {
         // By place, not by word: the row always opens at its first chip, however the menu arrives.
-        itemsIndexed(chips) { index, chip ->
+        // The word is the key -- two chips of one row never carry the same one -- and whether a chip
+        // drops a menu is its type, so the row's chips are reused rather than rebuilt.
+        itemsIndexed(
+            chips,
+            key = { _, chip -> chip.word },
+            contentType = { _, chip -> chip.drops },
+        ) { index, chip ->
             val shape = if (outline) {
                 RoundedCornerShape(inner)
             } else {

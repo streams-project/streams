@@ -6,24 +6,22 @@ import SwiftUI
 /// The rows a page shows, in the server's order.
 public let rowKinds: Set<SectionKind> = [.row, .ranked, .continue, .grid]
 
-/// Tiles on the reference: standard 119 x 166.6 pt (5 : 7), the first row's tall panels 184.6 x 369.2 pt.
+/// Tiles on the reference: 119 x 166.6 pt (1 : 1.400), every row the same. The first row is not
+/// taller (phone/00-netflix-phone-measurements.md section 3, 2026-11-11).
 public let tileWide: CGFloat = 119
 public let tileHigh: CGFloat = 166.6
-public let tallWide: CGFloat = 184.6
-public let tallHigh: CGFloat = 369.2
 
 /// Between tiles, and the row's start from the screen's edge (reference: 5.9 and 12.1 pt).
 private let tileGap: CGFloat = 6
 private let rowStart: CGFloat = 12
 
 /// One row: its name over a sideways list of tiles (reference: the name 34.3 pt high, bold, 18 pt; 4 pt
-/// to the tiles; 12 pt to the next row). The page's first row shows tall panels, as the reference's.
+/// to the tiles; 12 pt to the next row). Every row draws the same tile.
 /// Top 10 row shows large outlined rank numerals beside each tile. Continue Watching shows progress
 /// and action buttons. Row title tap opens the row as a full page grid when it has more tiles.
 public struct SectionRow: View {
     public let section: Contract.Section
     public let words: [String: String]
-    public let tallTiles: Bool
     public let open: (Tile) -> Void
     public var openInfo: ((Tile) -> Void)? = nil
     public var onRemove: ((Tile) -> Void)? = nil
@@ -36,7 +34,6 @@ public struct SectionRow: View {
     public init(
         section: Contract.Section,
         words: [String: String],
-        tallTiles: Bool,
         open: @escaping (Tile) -> Void,
         openInfo: ((Tile) -> Void)? = nil,
         onRemove: ((Tile) -> Void)? = nil,
@@ -44,7 +41,6 @@ public struct SectionRow: View {
     ) {
         self.section = section
         self.words = words
-        self.tallTiles = tallTiles
         self.open = open
         self.openInfo = openInfo
         self.onRemove = onRemove
@@ -114,11 +110,10 @@ public struct SectionRow: View {
                                 let rank = tile.badges?.first(where: { $0.rank != nil })?.rank
                                 TileCard(
                                     tile: tile,
-                                    wide: tallTiles ? tallWide : tileWide,
-                                    high: tallTiles ? tallHigh : tileHigh,
+                                    wide: tileWide,
+                                    high: tileHigh,
                                     rank: rank,
                                     percent: nil,
-                                    isTall: tallTiles,
                                     words: words,
                                     open: { open(tile) }
                                 )
@@ -170,7 +165,6 @@ private struct RankedTileCard: View {
                     high: tileHigh,
                     rank: nil,
                     percent: nil,
-                    isTall: false,
                     words: words,
                     open: open
                 )
@@ -273,21 +267,17 @@ private struct ContinueCard: View {
 }
 
 /// One tile: the title's tall picture, rounded by the brand.
-/// Tall first row tiles show the TOP 10 corner badge and lower caption chip.
 private struct TileCard: View {
-    @Environment(\.layoutDirection) private var layoutDirection
     let tile: Tile
     let wide: CGFloat
     let high: CGFloat
     let rank: Int?
     let percent: Int?
-    let isTall: Bool
     let words: [String: String]
     let open: () -> Void
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: Corner.card)
-        let isRTL = layoutDirection == .rightToLeft
 
         Button(action: open) {
             ZStack(alignment: .topLeading) {
@@ -295,80 +285,38 @@ private struct TileCard: View {
                     .frame(width: wide, height: high)
                     .clipped()
 
-                if isTall {
-                    // "TOP 10" corner badge on tall first row tile
-                    if rank != nil || tile.badges?.contains(where: { $0.rank != nil || $0.kind == .ranked }) == true {
-                        Text(words["badge.top_10"] ?? "TOP 10")
-                            .brand(11, 700)
-                            .foregroundStyle(.white)
-                            .lineLimit(1)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 4)
-                            .background(
-                                Accent,
-                                in: UnevenRoundedRectangle(
-                                    topLeadingRadius: isRTL ? 0 : Corner.card,
-                                    bottomLeadingRadius: isRTL ? 6 : 0,
-                                    bottomTrailingRadius: isRTL ? 0 : 6,
-                                    topTrailingRadius: isRTL ? Corner.card : 0
-                                )
-                            )
-                    }
+                if let rank {
+                    let text = (words["badge.ranked"] ?? "#{rank}").fill("rank", rank)
+                    Text(text)
+                        .brand(12, 700)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Accent, in: RoundedRectangle(cornerRadius: 6))
+                        .padding(6)
+                }
 
-                    // Caption chip on lower edge ("New Episode", "Watch Now")
-                    let caption = (tile.isSeries || tile.badges?.contains(where: { $0.kind == .new }) == true)
-                        ? (words["badge.new_episode"] ?? words["badge.new"] ?? "New Episode")
-                        : (words["badge.watch_now"] ?? "Watch Now")
+                if tile.badges?.contains(where: { $0.kind == .new }) == true {
+                    Text(words["badge.new"] ?? "New")
+                        .brand(10, 700)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(Accent, in: RoundedRectangle(cornerRadius: 4))
+                        .padding(6)
+                }
 
+                if let percent {
+                    let ratio = CGFloat(max(0, min(100, percent))) / 100.0
                     VStack {
                         Spacer()
-                        HStack {
-                            Spacer()
-                            Text(caption)
-                                .brand(11, 700)
-                                .foregroundStyle(.white)
-                                .lineLimit(1)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
-                                .background(Color.black.opacity(0.75), in: RoundedRectangle(cornerRadius: 4))
-                            Spacer()
-                        }
-                        .padding(.bottom, 10)
-                    }
-                } else {
-                    if let rank {
-                        let text = (words["badge.ranked"] ?? "#{rank}").fill("rank", rank)
-                        Text(text)
-                            .brand(12, 700)
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Accent, in: RoundedRectangle(cornerRadius: 6))
-                            .padding(6)
-                    }
-
-                    if tile.badges?.contains(where: { $0.kind == .new }) == true {
-                        Text(words["badge.new"] ?? "New")
-                            .brand(10, 700)
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 2)
-                            .background(Accent, in: RoundedRectangle(cornerRadius: 4))
-                            .padding(6)
-                    }
-
-                    if let percent {
-                        let ratio = CGFloat(max(0, min(100, percent))) / 100.0
-                        VStack {
-                            Spacer()
-                            ZStack(alignment: .leading) {
-                                Rectangle()
-                                    .fill(Color.white.opacity(0.3))
-                                    .frame(height: 3)
-                                Rectangle()
-                                    .fill(Accent)
-                                    .frame(width: wide * ratio, height: 3)
-                            }
+                        ZStack(alignment: .leading) {
+                            Rectangle()
+                                .fill(Color.white.opacity(0.3))
+                                .frame(height: 3)
+                            Rectangle()
+                                .fill(Accent)
+                                .frame(width: wide * ratio, height: 3)
                         }
                     }
                 }

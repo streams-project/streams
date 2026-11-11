@@ -50,6 +50,13 @@ public final class RemoteUIView: UIView {
         didSet { if on != oldValue { claim() } }
     }
 
+    /// The presses a screen has already answered. A press arrives in three parts, and only the first
+    /// is offered to the screen; the parts after it must be held back too. A Back the screen used and
+    /// whose end still reached the system would leave the app on the way up. The set belongs to the
+    /// app, not to one receiver, because the press that changes the screen is answered by the
+    /// receiver going away and may end on the one that takes its place.
+    nonisolated(unsafe) private static var used: Set<String> = []
+
     public override var canBecomeFocused: Bool { on }
 
     public override func didMoveToWindow() {
@@ -96,16 +103,47 @@ public final class RemoteUIView: UIView {
         }
     }
 
+    /// The same name for every part of one press: its button, or the key that stood in for it.
+    private static func tag(_ press: UIPress) -> String {
+        "\(press.type.rawValue):\(press.key?.keyCode.rawValue ?? -1)"
+    }
+
     public override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
         Self.heard?()
         guard on, let press = presses.first, let word = Self.word(press) else {
             super.pressesBegan(presses, with: event)
             return
         }
+        if handler?(word) ?? false {
+            Self.used.insert(Self.tag(press))
+            return
+        }
         // Back that no screen used goes to the system, which leaves the app.
-        if !(handler?(word) ?? false) && word == .back {
+        if word == .back {
             super.pressesBegan(presses, with: event)
         }
+    }
+
+    public override func pressesChanged(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        if !presses.isEmpty && presses.allSatisfy({ Self.used.contains(Self.tag($0)) }) { return }
+        super.pressesChanged(presses, with: event)
+    }
+
+    public override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        if finish(presses) { return }
+        super.pressesEnded(presses, with: event)
+    }
+
+    public override func pressesCancelled(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        if finish(presses) { return }
+        super.pressesCancelled(presses, with: event)
+    }
+
+    /// True when every press ending here was one a screen answered, so its end stops here as well.
+    private func finish(_ presses: Set<UIPress>) -> Bool {
+        let ours = !presses.isEmpty && presses.allSatisfy { Self.used.contains(Self.tag($0)) }
+        for press in presses { Self.used.remove(Self.tag(press)) }
+        return ours
     }
 }
 

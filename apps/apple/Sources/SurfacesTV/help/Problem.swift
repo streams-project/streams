@@ -89,6 +89,19 @@ public struct UpgradeProblem: View {
     }
 }
 
+/// True when the screen the shell holds is the one this address asks for. Until it is, the answer for
+/// the tab before is still in hand, and drawing it would show the page the viewer has just left.
+@MainActor
+public func screenHere(_ seen: Seen) -> Bool {
+    let wanted: String? = switch seen.route?.target {
+    case .home: "home"
+    case .kidsHome: "kids"
+    default: seen.route?.screen?.rawValue
+    }
+    guard let name = seen.screen?.name.rawValue else { return false }
+    return wanted == nil || name == wanted
+}
+
 /// Draws `Browse`, or the offline problem screen when the target screen stays missing for 8 seconds.
 public struct BrowseOrProblem: View {
     let shell: Shell
@@ -103,12 +116,7 @@ public struct BrowseOrProblem: View {
     }
 
     public var body: some View {
-        let wanted: String? = switch seen.route?.target {
-        case .home: "home"
-        case .kidsHome: "kids"
-        default: seen.route?.screen?.rawValue
-        }
-        let hasScreen = seen.screen != nil && (wanted == nil || seen.screen?.name.rawValue == wanted)
+        let hasScreen = screenHere(seen)
 
         if timedOut && !hasScreen {
             let line = seen.notice.map { $0.isEmpty ? (seen.words["problem.offline.help"] ?? "") : $0 }

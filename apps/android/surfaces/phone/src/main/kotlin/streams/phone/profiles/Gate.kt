@@ -35,7 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.ImageLoader
+import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.toBitmap
@@ -108,11 +108,10 @@ fun Gate(shell: Shell, seen: Seen) {
             tintState = GateTint.Neutral
             return@LaunchedEffect
         }
-        val loader = ImageLoader(context)
-        val request = ImageRequest.Builder(context)
-            .data(artUrl)
-            .build()
-        val result = loader.execute(request)
+        // The app's one loader, so the picture the grid has already read is not read again.
+        val result = SingletonImageLoader.get(context).execute(
+            ImageRequest.Builder(context).data(artUrl).build(),
+        )
         if (result is SuccessResult) {
             val bitmap = result.image.toBitmap()
             tintState = GateTint.fromBitmap(bitmap)

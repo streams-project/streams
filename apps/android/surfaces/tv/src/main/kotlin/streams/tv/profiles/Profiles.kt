@@ -133,8 +133,11 @@ fun Profiles(shell: Shell, seen: Seen, fromInside: Boolean = false) {
                     shell.act(ActionEnterProfile(profile = person.id))
                 }
             }
-            // Opened with Switch Profiles, Back returns to the page; at the start of the app it leaves.
-            Word.BACK -> if (fromInside) shell.back() else return false
+            // Opened with Switch Profiles, Back returns to the page. At the start of the app it stops
+            // here and the app stays open: Netflix's own gate answered four Back presses without
+            // leaving (netflix-reference/tv/00-netflix-on-the-tv-measured.md, section 7, n=4), and it
+            // carries no way out of its own either - the way out is the television's own Home.
+            Word.BACK -> if (fromInside) shell.back()
         }
         return true
     }

@@ -1,5 +1,15 @@
 /* One 1920 by 1080 stage, scaled to the screen. Every place is a measurement of the real page:
    card u 0.0287 to 0.8315, v 0.1565 to 0.9567, corner 24 px, peek from u 0.852. */
+
+/* A corner on a television is the brand's value times 1.5, by role (note 188, the same rule the
+   two native television apps hold in Round.kt and Round.swift). One number changes all of them.
+   The fallbacks stand in when brand.css is not beside this page, as in a packaged app. */
+:root {
+  --tv-round: 1.5;
+  --tv-card: calc(var(--radius-card, 14px) * var(--tv-round));
+  --tv-panel: calc(var(--radius-panel, 24px) * var(--tv-round));
+  --tv-field: calc(var(--radius-field, 12px) * var(--tv-round));
+}
 html, body {
   margin: 0;
   height: 100%;
@@ -52,14 +62,14 @@ button {
 #tabs {
   position: absolute;
   left: 96px;
-  top: 78px;
+  top: 68px;
   display: flex;
   align-items: center;
 }
 
 .round {
-  width: 82px;
-  height: 82px;
+  width: 72px;
+  height: 72px;
   margin-right: 40px;
   display: flex;
   align-items: center;
@@ -68,7 +78,7 @@ button {
   background: rgba(255, 255, 255, 0.12);
 }
 .round svg { width: 38px; height: 38px; fill: var(--text); }
-.tab { font-size: 30px; font-weight: 600; opacity: 0.85; padding: 12px 8px; border-radius: var(--radius-button); }
+.tab { height: 72px; line-height: 72px; font-size: 30px; font-weight: 600; opacity: 0.85; padding: 0 8px; border-radius: var(--radius-button); }
 
 .round.on { background: var(--text); }
 .round.on svg { fill: var(--background); }
@@ -80,7 +90,7 @@ button {
   top: 169px;
   width: 1542px;
   height: 864px;
-  border-radius: 24px;
+  border-radius: var(--tv-panel);
   overflow: hidden;
   background: linear-gradient(#2b3a78, #42549c 70%, #141730);
   box-shadow: 0 0 0 3px #c4e4fb, 0 0 8px 3px rgba(196, 228, 251, 0.35);
@@ -91,11 +101,13 @@ button {
 #help {
   position: absolute;
   left: 96px;
-  top: 770px;
+  top: 720px;
+  height: 80px;
+  line-height: 80px;
   font-size: 24px;
   font-weight: 600;
-  padding: 8px 14px;
-  border-radius: var(--radius-field);
+  padding: 0 14px;
+  border-radius: var(--tv-field);
   opacity: 0.85;
 }
 #help.on { opacity: 1; background: var(--text); color: var(--background); }
@@ -123,7 +135,7 @@ button {
   top: 167px;
   width: 284px;
   height: 866px;
-  border-radius: 24px 0 0 24px;
+  border-radius: var(--tv-panel) 0 0 var(--tv-panel);
   background: var(--surface) center / cover no-repeat;
   background-image: url("peek.jpg");
   opacity: 0;
@@ -166,7 +178,7 @@ button {
 .code p { margin: 0 0 14px; font-size: 34px; color: var(--muted); }
 .code .code-address { font-size: 40px; font-weight: 700; color: var(--text); margin-bottom: 30px; }
 .code .code-value { font-size: 104px; font-weight: 800; letter-spacing: 6px; color: var(--text); margin: 8px 0 0; }
-.code-qr { position: absolute; left: 1140px; top: 60px; width: 460px; height: 460px; border-radius: 24px; }
+.code-qr { position: absolute; left: 1140px; top: 60px; width: 460px; height: 460px; border-radius: var(--tv-field); }
 
 /* Who is watching: a column on the left, a title beside it. */
 .who { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; background: #000; overflow: hidden; }
@@ -221,7 +233,7 @@ button {
   line-height: 150px;
   font-size: 72px;
   font-weight: 800;
-  border-radius: 20px;
+  border-radius: var(--tv-field);
   background: var(--raised);
 }
 .pin-digit.on { background: var(--text); color: var(--background); }
@@ -258,10 +270,10 @@ button {
 }
 .avatar.square { border-radius: 8px; }
 .avatar.kids { background-color: var(--join); }
-.top-who { position: absolute; left: 68px; top: 46px; }
-.top-search { position: absolute; left: 554px; top: 50px; }
-.top-tabs { position: absolute; left: 609px; top: 36px; white-space: nowrap; }
-.top-mark { position: absolute; left: 1796px; top: 40px; width: 64px; height: 64px; }
+.top-who { position: absolute; left: 72px; top: 44px; }
+.top-search { position: absolute; left: 554px; top: 51px; }
+.top-tabs { position: absolute; left: 609px; top: 37px; white-space: nowrap; }
+.top-mark { position: absolute; left: 1784px; top: 36px; width: 64px; height: 64px; }
 .top-tab {
   display: inline-block;
   height: 62px;
@@ -278,23 +290,23 @@ button {
 /* The hero card. */
 .hero-card {
   position: absolute;
-  left: 75px;
-  top: 143px;
-  width: 1789px;
-  height: 767px;
-  border-radius: 24px;
+  left: 72px;
+  top: 140px;
+  width: 1776px;
+  height: 772px;
+  border-radius: var(--tv-panel);
   overflow: hidden;
   background: var(--surface);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.28);
 }
 .hero-card.off { display: none; }
-.hero-card-art { position: absolute; left: 0; top: 0; width: 1789px; height: 767px; background: center / cover no-repeat; }
+.hero-card-art { position: absolute; left: 0; top: 0; width: 1776px; height: 772px; background: center / cover no-repeat; }
 .hero-card-shade {
   position: absolute;
   left: 0;
   top: 0;
-  width: 1789px;
-  height: 767px;
+  width: 1776px;
+  height: 772px;
   background: linear-gradient(90deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0) 62%), linear-gradient(0deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 45%);
 }
 .hero-card-text { position: absolute; left: 30px; bottom: 34px; width: 760px; }
@@ -329,38 +341,38 @@ button {
 .row-now h2 { position: absolute; left: 72px; top: 146px; margin: 0; font-size: 32px; font-weight: 700; }
 .open-card {
   position: absolute;
-  left: 66px;
+  left: 72px;
   top: 200px;
   width: 904px;
   height: 508px;
-  border-radius: 16px;
+  border-radius: var(--tv-card);
   overflow: hidden;
   background: var(--raised);
 }
 .open-art { position: absolute; left: 0; top: 0; width: 904px; height: 508px; background: center / cover no-repeat; }
 .open-shade { position: absolute; left: 0; bottom: 0; width: 904px; height: 200px; background: linear-gradient(0deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0)); }
 .open-name { position: absolute; left: 24px; bottom: 16px; margin: 0; width: 856px; font-size: 44px; font-weight: 800; }
-.open-ring { position: absolute; left: 0; top: 0; width: 898px; height: 502px; border: 3px solid var(--text); border-radius: 16px; }
-.posters { position: absolute; left: 989px; top: 202px; height: 504px; width: 1px; transition: transform 240ms cubic-bezier(0.22, 0.61, 0.2, 1); }
-.poster-before { position: absolute; left: -264px; top: 202px; width: 311px; height: 504px; opacity: 0.55; }
+.open-ring { position: absolute; left: 0; top: 0; width: 898px; height: 502px; border: 3px solid var(--text); border-radius: var(--tv-card); }
+.posters { position: absolute; left: 993px; top: 202px; height: 504px; width: 1px; transition: transform 240ms cubic-bezier(0.22, 0.61, 0.2, 1); }
+.poster-before { position: absolute; left: -256px; top: 202px; width: 311px; height: 504px; opacity: 0.55; }
 .poster {
   position: absolute;
   top: 0;
   width: 311px;
   height: 504px;
-  border-radius: var(--radius-card);
+  border-radius: var(--tv-card);
   overflow: hidden;
   background: var(--raised) center / cover no-repeat;
 }
 .poster-name { position: absolute; left: 16px; top: 220px; width: 279px; font-size: 26px; font-weight: 600; text-align: center; }
-.row-facts { position: absolute; left: 70px; top: 728px; margin: 0; }
-.row-text { position: absolute; left: 70px; top: 768px; width: 1000px; margin: 0; }
+.row-facts { position: absolute; left: 72px; top: 728px; margin: 0; }
+.row-text { position: absolute; left: 72px; top: 768px; width: 990px; margin: 0; }
 
 /* The next row, dim, cut by the screen's edge. */
 .row-next { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; opacity: 0.5; }
 .row-next.off { display: none; }
 .row-next h2 { position: absolute; left: 72px; top: 944px; margin: 0; font-size: 32px; font-weight: 700; }
-.next-posters { position: absolute; left: 68px; top: 998px; height: 504px; width: 1px; }
+.next-posters { position: absolute; left: 72px; top: 998px; height: 504px; width: 1px; }
 .row-next.high h2 { top: 946px; }
 .row-next.high .next-posters { top: 1001px; }
 

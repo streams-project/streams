@@ -132,6 +132,7 @@
         var size = on ? LARGE : SMALL;
         rows[n].face.style.width = size + "px";
         rows[n].face.style.height = size + "px";
+        rows[n].face.style.borderRadius = Math.round(size * 0.16) + "px";
         rows[n].face.style.lineHeight = size + "px";
         rows[n].face.style.fontSize = Math.round(size * 0.46) + "px";
       }

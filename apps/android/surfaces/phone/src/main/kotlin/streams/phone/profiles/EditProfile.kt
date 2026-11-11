@@ -91,6 +91,9 @@ import streams.shared.write
 private const val DEFAULT_NAME_MAX = 32
 private const val DEFAULT_PIN_DIGITS = 4
 
+/** The avatar tiles of the picture chooser, which is the size their picture is asked for. */
+private val AvatarBox = 72.dp
+
 private enum class LockStep { PASSWORD, FIRST, SECOND }
 
 /** Edit Profile page on mobile phones. */
@@ -615,7 +618,7 @@ private fun AvatarPickerSheet(
                                             .border(2.dp, Color.White, shape)
                                             .clickable { onSelect(worn) },
                                     ) {
-                                        Art(seen.server + worn, Modifier.fillMaxSize())
+                                        Art(seen.server + worn, Modifier.fillMaxSize(), AvatarBox, AvatarBox)
                                     }
                                 }
                             }
@@ -625,7 +628,7 @@ private fun AvatarPickerSheet(
 
                 // Theme sets
                 val allSets = sets?.sets.orEmpty()
-                items(allSets) { set ->
+                items(allSets, key = { it.name }) { set ->
                     Column(Modifier.fillMaxWidth()) {
                         Text(
                             set.name,
@@ -638,7 +641,7 @@ private fun AvatarPickerSheet(
                             contentPadding = PaddingValues(horizontal = 24.dp),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            items(set.pictures) { picture ->
+                            items(set.pictures, key = { it.path }) { picture ->
                                 val isSelected = picture.path == currentAvatar
                                 val shape = RoundedCornerShape(Corner.CARD.dp)
                                 Box(
@@ -651,7 +654,7 @@ private fun AvatarPickerSheet(
                                         )
                                         .clickable { onSelect(picture.path) },
                                 ) {
-                                    Art(seen.server + picture.path, Modifier.fillMaxSize())
+                                    Art(seen.server + picture.path, Modifier.fillMaxSize(), AvatarBox, AvatarBox)
                                 }
                             }
                         }
@@ -730,7 +733,7 @@ private fun LanguagePickerSheet(
                 Modifier.fillMaxWidth(),
                 contentPadding = PaddingValues(vertical = 8.dp),
             ) {
-                items(languages) { lang ->
+                items(languages, key = { it.code }) { lang ->
                     val isChosen = lang.code == current
                     Row(
                         Modifier

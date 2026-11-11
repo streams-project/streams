@@ -7,6 +7,8 @@
     var node = kit.make("span", "avatar" + (name ? " " + name : ""));
     node.style.width = size + "px";
     node.style.height = size + "px";
+    // A face keeps its shape as it grows: the corner is a share of the size, not a fixed number.
+    node.style.borderRadius = Math.round(size * 0.16) + "px";
     if (person && person.kids) node.className += " kids";
     if (person && person.avatar && /^(https?:|\/)/.test(person.avatar)) {
       kit.art(node, person.avatar);

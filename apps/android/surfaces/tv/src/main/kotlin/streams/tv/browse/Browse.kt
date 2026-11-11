@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DontMemoize
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -28,10 +29,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import contract.Address
+import contract.More
 import contract.Section
 import contract.SectionKind
 import contract.Tile
 import contract.TitleKey
+import contract.contractJson
 import streams.ports.Seen
 import streams.ports.Shell
 import streams.shared.Muted
@@ -41,12 +44,34 @@ import streams.shared.refType
 private const val RISE = 810
 private const val RISE_MS = 320
 
+/**
+ * How many rows past the focused one the page keeps in hand. A television screen holds one open row
+ * and the title plus 82 px of the next (netflix-reference/tv geometry, `row_screen.vertical_layout_px`),
+ * so the second row below focus is the first one the viewer cannot already see.
+ */
+private const val REACH = 2
+
 private enum class Where { TOP, HERO, ROW }
 
 /** Where the viewer was on each page of rows, for the run of the app. */
 val LocalPages = staticCompositionLocalOf { HashMap<String, Any>() }
 
 private val RowKinds = setOf(SectionKind.ROW, SectionKind.RANKED, SectionKind.CONTINUE, SectionKind.GRID)
+
+/**
+ * The rows a page has past its first answer. The server builds up to 50 rows and hands a screen 12
+ * with a cursor to read the rest; until this, nothing outside `apps/web` followed that cursor and 38
+ * built rows could not be reached from a television (notes/netflix-reference/00-gaps.md, gap 1).
+ */
+private class PageGrowth {
+    /** The cursor the first answer came with. A fresh answer carries a new one and starts the page again. */
+    var from: String? = null
+
+    /** The next cursor to read, or nothing when the page has given everything it has. */
+    var next: String? = null
+    var busy = false
+    var extra by mutableStateOf<List<Section>>(emptyList())
+}
 
 /** Where the viewer is on a page of rows. It knows nothing about drawing. */
 private class PageFocus(var rows: List<Section>, var tabs: Int, private val active: Int, var hero: Boolean) {
@@ -132,19 +157,21 @@ private class PageFocus(var rows: List<Section>, var tabs: Int, private val acti
 fun Browse(shell: Shell, seen: Seen) {
     val data = seen.screen ?: return
     val current = seen.route?.screen?.value ?: "home"
+    // A page is drawn from what was kept and then from the fresh answer. The focus belongs to the page.
+    // Each page keeps where the viewer was for the run of the app, so coming back from a title lands
+    // on the tile that opened it, and keeps the rows it has already read past the first twelve.
+    val memory = LocalPages.current
+    val page = "${seen.active} $current ${seen.route?.genre.orEmpty()}"
+    val growth = remember(current, seen.route?.genre) { memory.getOrPut("more $page") { PageGrowth() } as PageGrowth }
     // Games has no rows yet, and the kept page behind it belongs to the tab before.
     val sections = if (current == "games") emptyList() else data.sections.filter { !it.tiles.isNullOrEmpty() }
-    val rows = sections.filter { it.kind in RowKinds }
+    val rows = (sections + growth.extra).filter { it.kind in RowKinds }
     val lead = sections.firstOrNull { it.kind == SectionKind.HERO }?.tiles?.first()
     val tabs = tabsOf(seen.nav)
     val active = tabs.indexOfFirst { it.screen.value == current }.coerceAtLeast(0)
     val person = seen.profiles.firstOrNull { it.id == seen.active } ?: seen.profiles.firstOrNull()
-    // A page is drawn from what was kept and then from the fresh answer. The focus belongs to the page.
-    // Each page keeps where the viewer was for the run of the app, so coming back from a title lands
-    // on the tile that opened it.
-    val memory = LocalPages.current
     val focus = remember(current, seen.route?.genre) {
-        memory.getOrPut("${seen.active} $current ${seen.route?.genre.orEmpty()}") { PageFocus(rows, tabs.size, active, lead != null) } as PageFocus
+        memory.getOrPut(page) { PageFocus(rows, tabs.size, active, lead != null) } as PageFocus
     }
     focus.rows = rows
     focus.tabs = tabs.size
@@ -152,6 +179,36 @@ fun Browse(shell: Shell, seen: Seen) {
     val store = rememberDetails()
     val rise = with(LocalDensity.current) { RISE.ref.roundToPx() }
     var menu by remember { mutableStateOf(false) }
+
+    // A fresh answer is a fresh page: what was read past its first rows belongs to the answer it came from.
+    LaunchedEffect(data.cursor) {
+        if (growth.from != data.cursor) {
+            growth.from = data.cursor
+            growth.next = data.cursor
+            growth.extra = emptyList()
+            growth.busy = false
+        }
+    }
+    // The page reads its next rows as the focus comes within reach of the last one it holds. A remote
+    // cannot flick past twelve rows, so the rows arrive before they are wanted rather than on a gesture.
+    LaunchedEffect(focus.row, focus.where, growth.extra.size, current) {
+        val cursor = growth.next ?: return@LaunchedEffect
+        // A page whose first answer carried no rows at all can only grow by asking; any other page
+        // waits until the focus is within reach of the last row it already holds.
+        val within = rows.isEmpty() || (focus.where == Where.ROW && focus.row >= rows.lastIndex - REACH)
+        if (growth.busy || !within) return@LaunchedEffect
+        growth.busy = true
+        try {
+            val body = shell.read("/v1/more/$cursor") ?: return@LaunchedEffect
+            val more = runCatching { contractJson.decodeFromString(More.serializer(), body) }.getOrNull()
+                ?: return@LaunchedEffect
+            // An answer with no rows left is the end, whatever cursor came with it.
+            growth.next = if (more.sections.isNullOrEmpty()) null else more.cursor
+            growth.extra = growth.extra + more.sections.orEmpty().filter { !it.tiles.isNullOrEmpty() }
+        } finally {
+            growth.busy = false
+        }
+    }
 
     fun choose() {
         when {
@@ -173,9 +230,12 @@ fun Browse(shell: Shell, seen: Seen) {
             true
         }
         focus.press(word) -> true
-        // Back from the top of any page but Home goes Home. From Home it leaves the app.
-        word == Word.BACK && current != "home" -> {
-            shell.go(Address.HOME)
+        // Back from the top of any page but Home goes Home, and on Home it stops here: the app stays
+        // open. Netflix on a television answered four Back presses without leaving its activity
+        // (netflix-reference/tv/00-netflix-on-the-tv-measured.md, section 7, n=4); the way out is the
+        // Exit line at the foot of the profile menu behind the face.
+        word == Word.BACK -> {
+            if (current != "home") shell.go(Address.HOME)
             true
         }
         else -> false

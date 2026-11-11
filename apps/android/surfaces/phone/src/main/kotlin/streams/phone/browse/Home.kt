@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,9 +58,11 @@ import contract.Address
 import contract.CommandHide
 import contract.CommandList
 import contract.SectionKind
+import contract.Target
 import contract.Tile
 import java.text.Collator
 import java.util.Locale
+import kotlinx.coroutines.delay
 import streams.ports.Seen
 import streams.ports.Shell
 import streams.shared.Back
@@ -87,9 +90,6 @@ private val ChipScreens = listOf("series", "films", "games", "new")
 @Composable
 fun Home(shell: Shell, seen: Seen) {
     val words = seen.words
-    val sections = seen.screen?.sections.orEmpty()
-    val lead = sections.firstOrNull { it.kind == SectionKind.HERO }?.tiles?.firstOrNull()
-    val rows = sections.filter { it.kind in RowKinds }
     val here = seen.route?.screen?.value ?: "home"
     val onHome = here == "home" || here == "kids"
     val pickedGenre = if (here == "genre") {
@@ -102,6 +102,31 @@ fun Home(shell: Shell, seen: Seen) {
     val screenKey = if (onHome) "home" else "$here:${seen.route?.genre.orEmpty()}"
     val scrollStates = remember { mutableMapOf<String, LazyListState>() }
     val list = scrollStates.getOrPut(screenKey) { LazyListState() }
+
+    // The rows this page has, which is more than the answer carried: twelve arrive and the server
+    // has built up to fifty, so the page reads the rest through the screen's own cursor as the
+    // viewer travels down it. The same for a row's depth, which is held per page so a row keeps it.
+    val sections = rememberPage(shell, seen.screen, screenKey, list)
+    val depth = rememberDepth(shell, screenKey)
+    val lead = sections.firstOrNull { it.kind == SectionKind.HERO }?.tiles?.firstOrNull()
+    val rows = sections.filter { it.kind in RowKinds }
+
+    // Whether what is on screen is this route's page. Until it is, the page is waiting, and after
+    // the wait it says so. This is the television surface's own condition, in the same family.
+    val wanted = when (seen.route?.target) {
+        Target.HOME -> "home"
+        Target.KIDS_HOME -> "kids"
+        else -> seen.route?.screen?.value
+    }
+    val hasScreen = seen.screen != null && (wanted == null || seen.screen?.name?.value == wanted)
+    var tries by remember { mutableIntStateOf(0) }
+    var waitedOut by remember(seen.route, hasScreen, tries) { mutableStateOf(false) }
+    LaunchedEffect(seen.route, hasScreen, tries) {
+        if (!hasScreen) {
+            delay(OFFLINE_WAIT_MS)
+            waitedOut = true
+        }
+    }
 
     var tint by remember { mutableStateOf(FirstTint) }
     val shownTint by animateColorAsState(tint, tween(600), label = "tint")
@@ -153,9 +178,19 @@ fun Home(shell: Shell, seen: Seen) {
                 .height(top + 640.dp)
                 .background(Brush.verticalGradient(0f to shownTint.copy(alpha = 0.95f), 1f to Back)),
         )
+        val headroom = PaddingValues(top = top + TOP_BAR.dp + CHIP_ROW.dp, bottom = 120.dp)
+        val empty = !hasScreen && rows.isEmpty()
+        if (empty && waitedOut) {
+            Unreachable(words, seen.notice) {
+                tries += 1
+                shell.go(Address.START)
+            }
+        } else if (empty) {
+            WaitingRows(Modifier.padding(headroom))
+        }
         LazyColumn(
             state = list,
-            contentPadding = PaddingValues(top = top + TOP_BAR.dp + CHIP_ROW.dp, bottom = 120.dp),
+            contentPadding = headroom,
         ) {
             if (lead != null) {
                 item(key = "billboard") {
@@ -174,11 +209,17 @@ fun Home(shell: Shell, seen: Seen) {
                 }
                 item(key = "billboard-gap") { Box(Modifier.height(16.dp)) }
             }
-            itemsIndexed(rows, key = { _, section -> section.id }) { index, section ->
+            // The kind is the item's type, so the toolkit reuses a row of one kind for the next row
+            // of that kind instead of building a new one in the middle of a fling.
+            itemsIndexed(
+                rows,
+                key = { _, section -> section.id },
+                contentType = { _, section -> section.kind.value },
+            ) { _, section ->
                 SectionRow(
                     section = section,
                     words = words,
-                    tallTiles = index == 0 && section.kind == SectionKind.ROW,
+                    depth = depth,
                     open = ::open,
                     openInfo = { shell.go(titleAddress(it.title)) },
                     onRemove = { shell.act(ActionCommand(CommandHide(it.title))) },

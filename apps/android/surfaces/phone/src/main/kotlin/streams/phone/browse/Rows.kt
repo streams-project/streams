@@ -21,7 +21,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -29,6 +31,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,12 +43,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,40 +65,53 @@ import streams.shared.Corner
 import streams.shared.R
 import streams.shared.Raised
 import streams.shared.fill
-import streams.shared.isSeries
 import streams.shared.number
 import streams.shared.tall
+import streams.shared.warm
 
 /** The rows a page shows, in the server's order. */
 val RowKinds = setOf(SectionKind.ROW, SectionKind.RANKED, SectionKind.CONTINUE, SectionKind.GRID)
 
-/** Tiles on the reference: standard 119 x 166.6 dp (5 : 7), the first row's tall panels 184.6 x 369.2. */
-private val TileWide = 119.dp
-private val TileHigh = 166.6.dp
-private val TallWide = 184.6.dp
-private val TallHigh = 369.2.dp
+/**
+ * Tiles on the reference: 119 x 166.6 dp (5 : 7), every row the same. Measured on 2026-11-11 with
+ * `uiautomator`, where row 1 reads 305 x 427 px like every row after it: "the first row is not
+ * taller". This replaces the 184.6 x 369.2 dp panel the first row used to draw, which came from the
+ * 2026-10-04 reading in `netflix-reference/00-design-tokens.md:86`.
+ */
+internal val TileWide = 119.dp
+internal val TileHigh = 166.6.dp
 
 /** Between tiles, and the row's start from the screen's edge (reference: 5.9 and 12.1 dp). */
-private val TileGap = 6.dp
-private val RowStart = 12.dp
+internal val TileGap = 6.dp
+internal val RowStart = 12.dp
+
+/** The picture of a Continue Watching tile, which carries its controls under the art. */
+private val ContinueHigh = 138.dp
+
+/** Pictures read ahead of the last tile on screen, as the television surface reads its next posters. */
+private const val WARM_AHEAD = 6
 
 /**
  * One row: its name over a sideways list of tiles (reference: the name 34.3 dp high, bold, 18 sp; 4 dp
- * to the tiles; 12 dp to the next row). The page's first row shows tall panels, as the reference's.
+ * to the tiles; 12 dp to the next row).
  * Top 10 row shows large outlined rank numerals beside each tile. Continue Watching shows progress
  * and action buttons. Row title tap opens the row as a full page grid when it has more tiles.
+ *
+ * The row is as deep as the page has read it, and reads further as the viewer flings: the reference's
+ * standard row runs to 70 titles and this project's server holds 120, against the 15 one answer
+ * carries.
  */
 @Composable
 fun SectionRow(
     section: Section,
     words: Map<String, String>,
-    tallTiles: Boolean,
+    depth: Depth,
     open: (Tile) -> Unit,
     openInfo: ((Tile) -> Unit)? = null,
     onRemove: ((Tile) -> Unit)? = null,
     openGrid: ((Section) -> Unit)? = null,
 ) {
-    val rawTiles = section.tiles.orEmpty()
+    val rawTiles = depth.tiles(section)
     var hiddenTitles by remember { mutableStateOf(setOf<String>()) }
     val tiles = rawTiles.filter { it.title.value !in hiddenTitles }
     if (tiles.isEmpty()) return
@@ -105,6 +122,21 @@ fun SectionRow(
     fun onTitleTap() {
         if (hasMore) {
             if (openGrid != null) openGrid(section) else gridOpen = true
+        }
+    }
+
+    // How far the viewer has flung this row. It decides two things: when the next part of the row is
+    // read, and which pictures are fetched before anything draws them.
+    val row = rememberLazyListState()
+    val context = LocalContext.current
+    val tileBox = with(LocalDensity.current) { TileWide.roundToPx() to TileHigh.roundToPx() }
+    val reached by remember(row) {
+        derivedStateOf { row.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 }
+    }
+    LaunchedEffect(section.id, tiles.size, reached) {
+        depth.reach(section, tiles.size, reached)
+        for (place in reached + 1..reached + WARM_AHEAD) {
+            warm(context, tall(tiles.getOrNull(place)?.images), tileBox.first, tileBox.second)
         }
     }
 
@@ -139,10 +171,17 @@ fun SectionRow(
         }
         Spacer(Modifier.height(4.dp))
         LazyRow(
+            state = row,
             contentPadding = PaddingValues(horizontal = RowStart),
             horizontalArrangement = Arrangement.spacedBy(TileGap),
         ) {
-            itemsIndexed(tiles, key = { _, tile -> tile.title.value }) { index, tile ->
+            // Every tile of one row is the same kind, so the toolkit can hand a tile that has left
+            // the screen to the next row of that kind instead of building another one mid fling.
+            itemsIndexed(
+                tiles,
+                key = { _, tile -> tile.title.value },
+                contentType = { _, _ -> section.kind.value },
+            ) { index, tile ->
                 when (section.kind) {
                     SectionKind.RANKED -> {
                         val rank = tile.badges.orEmpty().firstOrNull { it.rank != null }?.rank ?: (index + 1).toLong()
@@ -169,11 +208,8 @@ fun SectionRow(
                         val rank = tile.badges.orEmpty().firstOrNull { it.rank != null }?.rank
                         TileCard(
                             tile = tile,
-                            wide = if (tallTiles) TallWide else TileWide,
-                            high = if (tallTiles) TallHigh else TileHigh,
                             rank = rank,
                             percent = null,
-                            tall = tallTiles,
                             words = words,
                             open = { open(tile) },
                         )
@@ -187,7 +223,9 @@ fun SectionRow(
         FullPageGrid(
             title = section.title.orEmpty(),
             tiles = tiles,
+            kind = section.kind.value,
             words = words,
+            reach = { held, place -> depth.reach(section, held, place) },
             onClose = { gridOpen = false },
             open = open,
         )
@@ -247,11 +285,8 @@ private fun RankedTileCard(
         Box(modifier = Modifier.align(Alignment.BottomEnd)) {
             TileCard(
                 tile = tile,
-                wide = TileWide,
-                high = TileHigh,
                 rank = null,
                 percent = null,
-                tall = false,
                 words = words,
                 open = open,
             )
@@ -282,10 +317,10 @@ private fun ContinueCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(138.dp)
+                .height(ContinueHigh)
                 .clickable(onClick = open),
         ) {
-            Art(tall(tile.images), Modifier.fillMaxSize())
+            Art(tall(tile.images), Modifier.fillMaxSize(), TileWide, ContinueHigh)
             val percent = tile.percent ?: 0L
             Box(
                 Modifier
@@ -363,118 +398,75 @@ private fun ContinueCard(
 }
 
 /**
- * One tile: the title's picture, rounded by the brand (reference about 6 dp).
- * Tall tiles in the first row display the TOP 10 corner badge and lower caption chip.
+ * One tile: the title's picture at 119 x 166.6 dp, rounded by the brand (reference about 6 dp).
+ *
+ * There was a second shape here, a 184.6 x 369.2 dp panel for the first row carrying a "TOP 10"
+ * corner badge and a caption chip reading "New Episode" or "Watch Now". The 2026-11-11 reading of
+ * the reference has no tall first row and no text on a tile at all, so both are gone.
  */
 @Composable
 private fun TileCard(
     tile: Tile,
-    wide: Dp,
-    high: Dp,
     rank: Long?,
     percent: Long?,
-    tall: Boolean,
     words: Map<String, String>,
     open: () -> Unit,
 ) {
     val shape = RoundedCornerShape(Corner.CARD.dp)
-    Box(Modifier.size(wide, high).clip(shape).background(Raised).clickable(onClick = open)) {
-        Art(tall(tile.images), Modifier.fillMaxSize())
+    Box(Modifier.size(TileWide, TileHigh).clip(shape).background(Raised).clickable(onClick = open)) {
+        Art(tall(tile.images), Modifier.fillMaxSize(), TileWide, TileHigh)
 
-        if (tall) {
-            // "TOP 10" corner badge on tall first row tile
-            if (rank != null || tile.badges.orEmpty().any { it.rank != null || it.kind == BadgeKind.RANKED }) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .background(
-                            Accent,
-                            RoundedCornerShape(
-                                topStart = Corner.CARD.dp,
-                                bottomEnd = 6.dp,
-                            ),
-                        )
-                        .padding(horizontal = 7.dp, vertical = 4.dp),
-                ) {
-                    Text(
-                        text = words["badge.top_10"] ?: "TOP 10",
-                        color = Color.White,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-            // Caption chip on lower edge ("New Episode", "Watch Now")
-            val caption = if (tile.isSeries() || tile.badges.orEmpty().any { it.kind == BadgeKind.NEW }) {
-                words["badge.new_episode"] ?: words["badge.new"] ?: "New Episode"
-            } else {
-                words["badge.watch_now"] ?: "Watch Now"
-            }
+        if (rank != null) {
+            Text(
+                words["badge.ranked"].orEmpty().fill("rank", rank),
+                Modifier
+                    .padding(6.dp)
+                    .background(Accent, RoundedCornerShape(6.dp))
+                    .padding(horizontal = 6.dp, vertical = 2.dp),
+                color = Color.White,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        if (tile.badges.orEmpty().any { it.kind == BadgeKind.NEW }) {
+            Text(
+                words["badge.new"] ?: "New",
+                Modifier
+                    .align(Alignment.TopStart)
+                    .padding(6.dp)
+                    .background(Accent, RoundedCornerShape(4.dp))
+                    .padding(horizontal = 5.dp, vertical = 2.dp),
+                color = Color.White,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        if (percent != null) {
             Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 10.dp)
-                    .background(Color.Black.copy(alpha = 0.75f), RoundedCornerShape(4.dp))
-                    .padding(horizontal = 8.dp, vertical = 3.dp),
+                Modifier
+                    .align(Alignment.BottomStart)
+                    .fillMaxWidth()
+                    .height(3.dp)
+                    .background(Color.White.copy(alpha = 0.3f)),
             ) {
-                Text(
-                    text = caption,
-                    color = Color.White,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        } else {
-            if (rank != null) {
-                Text(
-                    words["badge.ranked"].orEmpty().fill("rank", rank),
-                    Modifier
-                        .padding(6.dp)
-                        .background(Accent, RoundedCornerShape(6.dp))
-                        .padding(horizontal = 6.dp, vertical = 2.dp),
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-            if (tile.badges.orEmpty().any { it.kind == BadgeKind.NEW }) {
-                Text(
-                    words["badge.new"] ?: "New",
-                    Modifier
-                        .align(Alignment.TopStart)
-                        .padding(6.dp)
-                        .background(Accent, RoundedCornerShape(4.dp))
-                        .padding(horizontal = 5.dp, vertical = 2.dp),
-                    color = Color.White,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-            if (percent != null) {
-                Box(
-                    Modifier
-                        .align(Alignment.BottomStart)
-                        .fillMaxWidth()
-                        .height(3.dp)
-                        .background(Color.White.copy(alpha = 0.3f)),
-                ) {
-                    Box(Modifier.fillMaxWidth(percent.coerceIn(0L, 100L) / 100f).height(3.dp).background(Accent))
-                }
+                Box(Modifier.fillMaxWidth(percent.coerceIn(0L, 100L) / 100f).height(3.dp).background(Accent))
             }
         }
     }
 }
 
-/** Full-page grid opened when row title is tapped. */
+/**
+ * Full-page grid opened when row title is tapped. It reads the rest of the row as the viewer
+ * scrolls, through the same cursor the row itself uses, so the grid reaches the whole row and not
+ * only the part the page arrived with.
+ */
 @Composable
 private fun FullPageGrid(
     title: String,
     tiles: List<Tile>,
+    kind: String,
     words: Map<String, String>,
+    reach: (held: Int, place: Int) -> Unit,
     onClose: () -> Unit,
     open: (Tile) -> Unit,
 ) {
@@ -505,7 +497,7 @@ private fun FullPageGrid(
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.icon_back),
-                        contentDescription = "Back",
+                        contentDescription = words["common.back"],
                         modifier = Modifier.size(24.dp).graphicsLayer {
                             if (layoutDir == LayoutDirection.Rtl) scaleX = -1f
                         },
@@ -523,14 +515,20 @@ private fun FullPageGrid(
                     modifier = Modifier.weight(1f),
                 )
             }
+            val grid = rememberLazyGridState()
+            val reached by remember(grid) {
+                derivedStateOf { grid.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 }
+            }
+            LaunchedEffect(tiles.size, reached) { reach(tiles.size, reached) }
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
+                state = grid,
                 contentPadding = PaddingValues(horizontal = RowStart, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(TileGap),
                 verticalArrangement = Arrangement.spacedBy(TileGap),
                 modifier = Modifier.fillMaxSize(),
             ) {
-                items(tiles, key = { it.title.value }) { tile ->
+                items(tiles, key = { it.title.value }, contentType = { kind }) { tile ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -542,7 +540,7 @@ private fun FullPageGrid(
                                 open(tile)
                             },
                     ) {
-                        Art(tall(tile.images), Modifier.fillMaxSize())
+                        Art(tall(tile.images), Modifier.fillMaxSize(), TileWide, TileHigh)
                     }
                 }
             }

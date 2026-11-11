@@ -1,6 +1,11 @@
 target/
 dist/
 node_modules/
+oh_modules/
+build/
+.hvigor/
+.cxx/
+.clangd/
 .DS_Store
 *.env
 .env*
@@ -8,3 +13,5 @@ node_modules/
 *.keystore
 *.p12
 *.pem
+# Copied from platform/contract by build-core.sh. Written in one place only.
+contract/contract.ts

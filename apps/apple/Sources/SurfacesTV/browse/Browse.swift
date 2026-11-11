@@ -6,6 +6,9 @@ import SwiftUI
 private let rise: CGFloat = 810
 private let riseTime = 0.32
 
+/// How near the last row the focus has to come before the rest of the page is read.
+private let near = 2
+
 private enum Where { case top, hero, row }
 
 private let rowKinds: Set<SectionKind> = [.row, .ranked, .continue, .grid]
@@ -25,6 +28,13 @@ private final class PageFocus {
     var button = 0
     /// Which way the last row change went, so the rows slide the right way.
     var way: CGFloat = 1
+    /// The rows read past the first answer, the place the next read starts from, and whether one is
+    /// already out. They sit with the focus, so a page returned to keeps the rows it had reached.
+    var extra: [Contract.Section] = []
+    var cursor: Cursor?
+    var reading = false
+    /// True once this page's first cursor has been taken from the answer.
+    var seeded = false
     /// Where each row was left, by the row's id: the place and the title on it. A row the viewer comes
     /// back to, or sees below, opens there; a fresh answer that moved the title keeps the title.
     private var columns: [String: (at: Int, title: TitleKey?)] = [:]
@@ -128,17 +138,31 @@ public struct Browse: View {
     }
 
     public var body: some View {
-        if let data = seen.screen {
+        if let data = seen.screen, screenHere(seen) {
             page(data)
+        } else {
+            // The answer for this address is still on its way. The bar stands with the tab already
+            // lit and the body stays black: no tiles of the tab before, and no skeleton either.
+            waiting()
         }
+    }
+
+    private func waiting() -> some View {
+        let current = seen.route?.screen?.rawValue ?? "home"
+        let tabs = tabsOf(seen.nav)
+        let active = max(0, tabs.firstIndex(where: { $0.screen.rawValue == current }) ?? 0)
+        let person = seen.profiles.first(where: { $0.id == seen.active }) ?? seen.profiles.first
+        return ZStack(alignment: .topLeading) {
+            Color.black
+            TopBar(tabs: tabs, active: active, focus: active, person: person, server: seen.server)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        // A screen that is not here yet answers no key, and a key it let through would leave the app.
+        .remote { _ in true }
     }
 
     private func page(_ data: Contract.Screen) -> some View {
         let current = seen.route?.screen?.rawValue ?? "home"
-        // Games has no rows yet, and the kept page behind it belongs to the tab before.
-        let sections = current == "games" ? [] : data.sections.filter { !($0.tiles ?? []).isEmpty }
-        let rows = sections.filter { rowKinds.contains($0.kind) }
-        let lead = sections.first(where: { $0.kind == .hero })?.tiles?.first
         let tabs = tabsOf(seen.nav)
         let active = max(0, tabs.firstIndex(where: { $0.screen.rawValue == current }) ?? 0)
         let person = seen.profiles.first(where: { $0.id == seen.active }) ?? seen.profiles.first
@@ -146,7 +170,14 @@ public struct Browse: View {
         // Each page keeps where the viewer was for the run of the app, so coming back from a title lands
         // on the tile that opened it.
         let key = "\(seen.active ?? "") \(current) \(seen.route?.genre ?? "")"
-        let focus = self.focus ?? (memory.pages[key] as? PageFocus) ?? {
+        let kept = self.focus ?? (memory.pages[key] as? PageFocus)
+        // Games has no rows yet, and the kept page behind it belongs to the tab before.
+        // The answer's own rows come first, then the rows read from its cursor.
+        let read = data.sections + (kept?.extra ?? [])
+        let sections = current == "games" ? [] : read.filter { !($0.tiles ?? []).isEmpty }
+        let rows = sections.filter { rowKinds.contains($0.kind) }
+        let lead = sections.first(where: { $0.kind == .hero })?.tiles?.first
+        let focus = kept ?? {
             let made = PageFocus(rows: rows, tabs: tabs.count, active: active, hero: lead != nil)
             memory.pages[key] = made
             return made
@@ -220,10 +251,32 @@ public struct Browse: View {
         .onAppear {
             if self.focus == nil { self.focus = focus }
             shownRow = focus.row
+            if !focus.seeded {
+                focus.seeded = true
+                focus.cursor = data.cursor
+            }
+            readOn(focus, rows.count)
         }
         .onChange(of: focus.row) { _, now in
             // The new direction is drawn first, then the rows move.
             DispatchQueue.main.async { withAnimation(glide(riseTime)) { shownRow = now } }
+            readOn(focus, rows.count)
+        }
+    }
+
+    /// The rest of the page. The server builds many more rows than one answer carries and hands back
+    /// a cursor for the rest; without this read the rows past the first answer cannot be reached at
+    /// all, because one row fills a television screen and the viewer walks down them one at a time.
+    private func readOn(_ focus: PageFocus, _ count: Int) {
+        guard focus.row >= count - near, let mark = focus.cursor, !focus.reading else { return }
+        focus.reading = true
+        Task { @MainActor in
+            let answer = await shell.read("/v1/more/" + mark)
+            focus.reading = false
+            guard let answer,
+                  let more = try? JSONDecoder().decode(More.self, from: Data(answer.utf8)) else { return }
+            focus.extra += more.sections ?? []
+            focus.cursor = more.cursor
         }
     }
 }

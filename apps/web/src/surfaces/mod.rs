@@ -34,16 +34,22 @@ pub fn brand_name(shared: Shared) -> String {
 /// For a label with no text yet, so a notice is never blank.
 const FALLBACK: &str = "That did not work. Try again.";
 
+/// The text of a label, as the server states it, or `None` where this server has no such label.
+/// A screen whose whole point is the words - the search with no matches - draws nothing rather
+/// than invent them.
+pub fn maybe_text(shared: Shared, label: &str) -> Option<String> {
+    let text = shared.strings.with(|strings| strings.get(label).cloned())?;
+    Some(
+        shared
+            .hello
+            .with(|hello| hello.as_ref().map(|hello| hello.brand.fill(&text)))
+            .unwrap_or(text),
+    )
+}
+
 /// The text of a label, as the server states it.
 pub fn label_text(shared: Shared, label: &str) -> String {
-    let text = shared
-        .strings
-        .with(|strings| strings.get(label).cloned())
-        .unwrap_or_else(|| FALLBACK.to_owned());
-    shared
-        .hello
-        .with(|hello| hello.as_ref().map(|hello| hello.brand.fill(&text)))
-        .unwrap_or(text)
+    maybe_text(shared, label).unwrap_or_else(|| FALLBACK.to_owned())
 }
 
 #[component]

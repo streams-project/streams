@@ -7,7 +7,7 @@
   var make = kit.make;
   var STEP = 328;
   var AHEAD = 5;
-  var RISE = 810;
+  var RISE = 797;
   var RISE_MS = 340;
   var FADE_MS = 260;
 

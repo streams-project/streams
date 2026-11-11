@@ -12,6 +12,30 @@ private let chipScreens = ["series", "films", "games", "new"]
 /// The reference's muted grey for unselected genres in the Categories overlay.
 private let mutedGrey = Color(red: 0xC0 / 255.0, green: 0xC0 / 255.0, blue: 0xC0 / 255.0)
 
+/// How many rows before the end of a page the next part is asked for. Netflix's web home appends
+/// its next block "roughly two viewports of remaining scroll" before the end; a phone viewport is
+/// about four rows of 217, so two viewports is about eight. Three is the careful end of that.
+private let aheadRows = 3
+
+/// How far down each page was left, for this run of the app. This is not view state: the page is
+/// torn down when a title opens over it, and a viewer coming back expects the row they were on.
+/// The number is the distance from the top of the page, so it does not move with the safe area.
+@MainActor
+private enum AtRow {
+    private static var kept: [String: CGFloat] = [:]
+
+    static func of(_ key: String) -> CGFloat? { kept[key] }
+
+    static func keep(_ key: String, _ down: CGFloat) { kept[key] = down }
+}
+
+/// The last offset seen, held outside view state: it changes on every scrolled frame, and a page
+/// that re-reads its own body that often draws nothing new for the cost.
+@MainActor
+private final class Drift {
+    var last: CGFloat = 0
+}
+
 /// A main page (Home, Series, Films): the pinned header, the billboard, the rows, and the floating
 /// bar, laid out and behaving as the reference's. The page behind the header takes the billboard's
 /// colour at the top and turns black as it scrolls; the chips slide away while the page scrolls down
@@ -22,11 +46,11 @@ struct Home: View {
 
     @State private var tint: Color = firstTint
     @State private var chipsHidden: Bool = false
-    @State private var scrollOffset: CGFloat = 0
-    @State private var lastOffset: CGFloat = 0
+    @State private var headerSolid: Bool = false
     @State private var showCategories: Bool = false
     @State private var saved: Bool? = nil
-    @State private var scrollPositions: [String: String] = [:]
+    @State private var asking: Bool = false
+    @State private var drift = Drift()
 
     var body: some View {
         let words = seen.words
@@ -43,16 +67,15 @@ struct Home: View {
             ?? words["app.title"] ?? seen.brand
 
         let screenKey = onHome ? "home" : "\(here):\(seen.route?.genre ?? "")"
-        let scrollBinding = Binding<String?>(
-            get: { scrollPositions[screenKey] },
-            set: { scrollPositions[screenKey] = $0 }
-        )
 
         let inList = saved ?? false
 
         GeometryReader { proxy in
             let topInset = proxy.safeAreaInsets.top
-            let atTop = scrollOffset > -24
+            // The page rests with its first pixel under the chip row, as the reference's does
+            // (billboard y 453 = status bar 132 + header 321). The scroll view is already inside
+            // the safe area, so only the header's own height is held back.
+            let headerHigh = topBarHeight + chipRowHeight
 
             ZStack(alignment: .top) {
                 // Background: billboard tint fading to Back
@@ -72,19 +95,18 @@ struct Home: View {
 
                 // Scroll content
                 ScrollView {
-                    VStack(spacing: 0) {
-                        // Offset reporter
-                        GeometryReader { geo in
-                            Color.clear
-                                .preference(
-                                    key: ScrollOffsetKey.self,
-                                    value: geo.frame(in: .named("homeScroll")).minY
-                                )
+                    LazyVStack(spacing: 0) {
+                        // Before iOS 18 the offset is read from the content's own geometry.
+                        if #unavailable(iOS 18.0) {
+                            GeometryReader { geo in
+                                Color.clear
+                                    .preference(
+                                        key: ScrollOffsetKey.self,
+                                        value: geo.frame(in: .named("homeScroll")).minY
+                                    )
+                            }
+                            .frame(height: 0)
                         }
-                        .frame(height: 0)
-
-                        // Top spacing under header
-                        Spacer().frame(height: topInset + topBarHeight + chipRowHeight)
 
                         if let lead {
                             Billboard(
@@ -110,14 +132,13 @@ struct Home: View {
                             )
                             .id("billboard")
 
-                            Spacer().frame(height: 16)
+                            Color.clear.frame(height: 16)
                         }
 
                         ForEach(Array(rows.enumerated()), id: \.element.id) { index, section in
                             SectionRow(
                                 section: section,
                                 words: words,
-                                tallTiles: index == 0 && section.kind == .row,
                                 open: { tile in
                                     shell.go(titleAddress(tile.title))
                                 },
@@ -129,28 +150,22 @@ struct Home: View {
                                 }
                             )
                             .id(section.id)
+                            .onAppear {
+                                if index >= rows.count - aheadRows { readMore() }
+                            }
                         }
 
                         // Bottom spacing for bar
-                        Spacer().frame(height: 120)
+                        Color.clear.frame(height: 120)
                     }
                 }
                 .coordinateSpace(name: "homeScroll")
-                .scrollPosition(id: scrollBinding)
+                .contentMargins(.top, headerHigh, for: .scrollContent)
+                .modifier(Drifted { moved($0) })
                 .onPreferenceChange(ScrollOffsetKey.self) { value in
-                    let diff = value - lastOffset
-                    if diff < -4 {
-                        withAnimation(.easeInOut(duration: 0.22)) {
-                            chipsHidden = true
-                        }
-                    } else if diff > 4 {
-                        withAnimation(.easeInOut(duration: 0.22)) {
-                            chipsHidden = false
-                        }
-                    }
-                    lastOffset = value
-                    scrollOffset = value
+                    moved(-value)
                 }
+                .modifier(Place(key: screenKey))
 
                 // Pinned Header
                 VStack(spacing: 0) {
@@ -174,7 +189,7 @@ struct Home: View {
                     .frame(height: chipRowHeight * (chipsHidden ? 0.0 : 1.0))
                     .clipped()
                 }
-                .background(atTop ? Color.clear : Back.opacity(0.97))
+                .background(headerSolid ? Back.opacity(0.97) : Color.clear)
                 .animation(.easeInOut(duration: 0.22), value: chipsHidden)
                 .ignoresSafeArea(edges: .top)
 
@@ -254,6 +269,50 @@ struct Home: View {
                     .transition(.opacity)
                     .zIndex(10)
                 }
+            }
+        }
+    }
+
+    /// The page moved. `down` is how far it has been pulled up from its own top, nought at rest.
+    /// Only the two things the header draws from are written, and only when they turn over, so a
+    /// scrolled frame costs no re-reading of this page.
+    private func moved(_ down: CGFloat) {
+        let solid = down > 24
+        if solid != headerSolid { headerSolid = solid }
+
+        let step = down - drift.last
+        drift.last = down
+        if step > 4, !chipsHidden {
+            withAnimation(.easeInOut(duration: 0.22)) { chipsHidden = true }
+        } else if step < -4, chipsHidden {
+            withAnimation(.easeInOut(duration: 0.22)) { chipsHidden = false }
+        }
+    }
+
+    /// The next rows of this page, through the cursor the screen carries. Without this the page
+    /// stops at the rows the first answer held and the rest of what the server built is unreachable.
+    private func readMore() {
+        guard !asking,
+              let screen = seen.screen,
+              let cursor = screen.cursor,
+              !cursor.isEmpty else { return }
+        let name = screen.name
+        asking = true
+        shell.ask("/v1/more/" + cursor) { status, text in
+            Task { @MainActor in
+                asking = false
+                guard (200...299).contains(status),
+                      var screen = seen.screen,
+                      screen.name == name,
+                      screen.cursor == cursor,
+                      let more = try? JSONDecoder().decode(More.self, from: Data(text.utf8))
+                else { return }
+                let gained = more.sections ?? []
+                screen.sections.append(contentsOf: gained)
+                // An answer with no rows in it ends the page, whatever cursor it carries, so a
+                // page that has run out cannot ask again for ever.
+                screen.cursor = gained.isEmpty ? nil : more.cursor
+                seen.screen = screen
             }
         }
     }
@@ -341,6 +400,67 @@ private struct CloseX: Shape {
         path.move(to: CGPoint(x: rect.minX, y: rect.maxY))
         path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
         return path
+    }
+}
+
+/// How far the page has been pulled up, from the scroll view itself. Reading it from the content's
+/// own geometry stopped working in iOS 18: a scrolled page reports the same number it reports at
+/// rest, so the chips never left and the header never took its colour.
+private struct Drifted: ViewModifier {
+    let moved: (CGFloat) -> Void
+
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, *) {
+            content.onScrollGeometryChange(for: CGFloat.self) { geometry in
+                geometry.contentOffset.y + geometry.contentInsets.top
+            } action: { _, now in
+                moved(now)
+            }
+        } else {
+            content
+        }
+    }
+}
+
+/// Puts a page back where it was left. Nothing is written down until the page has been put back,
+/// so the first measurement of a fresh page cannot erase what the viewer left.
+private struct Place: ViewModifier {
+    let key: String
+
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, *) {
+            content.modifier(Placed(key: key))
+        } else {
+            content
+        }
+    }
+}
+
+@available(iOS 18.0, *)
+private struct Placed: ViewModifier {
+    let key: String
+
+    @State private var place = ScrollPosition()
+    @State private var settled = false
+
+    func body(content: Content) -> some View {
+        content
+            .scrollPosition($place)
+            .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                geometry.contentOffset.y + geometry.contentInsets.top
+            } action: { _, now in
+                if settled { AtRow.keep(key, now) }
+            }
+            .task(id: key) {
+                settled = false
+                let down = AtRow.of(key)
+                // A scroll view ignores a place given before it has laid its rows out.
+                await Task.yield()
+                if let down, down > 0 {
+                    place.scrollTo(point: CGPoint(x: 0, y: down))
+                }
+                settled = true
+            }
     }
 }
 

@@ -16,6 +16,12 @@ android {
     }
 }
 
+// What the toolkit may treat as stable although it was generated elsewhere. Without it every tile
+// on a page recomposed with the page, because a contract class is a type this module cannot annotate.
+composeCompiler {
+    stabilityConfigurationFiles.add(layout.projectDirectory.file("compose-stability.conf"))
+}
+
 dependencies {
     api(project(":ports"))
     api(project(":surfaces:shared"))

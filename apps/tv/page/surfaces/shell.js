@@ -80,8 +80,11 @@
   function press(word) {
     if (tv.surfaces.door.isOpen()) return tv.surfaces.door.press(word);
     if (keys && keys(word)) return true;
-    if (word === "back" && route && route.target !== "home" && route.target !== "kids_home") {
-      kit.back();
+    if (word === "back" && route) {
+      // Back never leaves the app once the viewer is in: it walks out the way they came, and at
+      // the first screen it does nothing. Netflix on a television answers four Back presses
+      // without leaving, and the way out there is a line in the profile menu, not this key.
+      if (route.target !== "home" && route.target !== "kids_home") kit.back();
       return true;
     }
     return false;

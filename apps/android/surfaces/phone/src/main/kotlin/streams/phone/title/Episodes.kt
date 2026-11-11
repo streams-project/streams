@@ -228,7 +228,8 @@ private fun EpisodeRow(episode: Episode, seasonNumber: Long, dataPath: String, s
                     .clip(RoundedCornerShape(Corner.CARD.dp))
                     .background(Plate),
             ) {
-                Art(wide(episode.images), Modifier.fillMaxSize())
+                // The reference's episode thumbnail, 130.0 x 80.0 dp, asked for at that size.
+                Art(wide(episode.images), Modifier.fillMaxSize(), 130.dp, 80.dp)
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)

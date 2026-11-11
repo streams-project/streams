@@ -1,0 +1,30 @@
+[package]
+name = "desktop"
+version = "0.0.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+publish = false
+
+# Until this crate is a member of the root workspace it is a workspace of its own, so cargo run in
+# this folder does not reach for the one above and fail. Joining is two changes: add
+# "apps/desktop" to `members` in the root Cargo.toml, and delete this table and the two `[lints]`
+# tables below in favour of `[lints] workspace = true`. Nothing else here changes.
+[workspace]
+
+[lib]
+path = "src/lib.rs"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+
+[dependencies]
+contract = { path = "../../platform/contract" }
+core-rules = { path = "../../platform/core", package = "core" }
+offline = { path = "../../platform/offline" }
+rand = "0.9"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
+serde_json = { version = "1", features = ["std"] }
+tokio = { version = "1", features = ["net", "rt", "rt-multi-thread", "time"] }

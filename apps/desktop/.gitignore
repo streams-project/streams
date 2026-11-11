@@ -8,3 +8,7 @@ node_modules/
 *.keystore
 *.p12
 *.pem
+
+# Until this crate is a member of the root workspace it resolves its own lock file. The root
+# Cargo.lock is the one the repository keeps.
+Cargo.lock

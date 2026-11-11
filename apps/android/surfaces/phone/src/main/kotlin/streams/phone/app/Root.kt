@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import streams.shared.Back
 import streams.shared.Brand
+import streams.shared.installLoader
 import streams.shared.Speaking
 import streams.phone.notifications.NotificationsScreen
 import streams.phone.profiles.Gate
@@ -29,6 +31,8 @@ import streams.ports.Shell
 /** The one place that picks a surface. `tv` chooses the remote's layouts over the phone's. */
 @Composable
 fun Root(shell: Shell, tv: Boolean) {
+    // One picture loader for the app, with a memory and a disk cache, set before any screen draws.
+    remember { installLoader() }
     val seen by shell.seen.collectAsStateWithLifecycle()
     // The language decides direction, digits, plural forms and text size, as on the TV; the
     // system's own text size is kept and multiplied, never replaced.
