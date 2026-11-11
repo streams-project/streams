@@ -11,6 +11,14 @@ private let foot = LinearGradient(
     startPoint: .top, endPoint: .bottom
 )
 
+/// The hero card's width: the page less its two margins. Parts scaled against the hero take it from
+/// here rather than repeating the arithmetic.
+let heroWide = pageWide - 2 * pageEdge
+
+/// The box the title's own treatment is fitted into on the hero. No measurement sets it; it is this
+/// surface's own, and the focused row card scales it (`Rows.swift`).
+let heroMark = CGSize(width: 600, height: 200)
+
 /// A logo at its own shape, no larger than its box, sitting on the box's bottom left.
 struct Logo: View {
     let url: String
@@ -55,7 +63,7 @@ struct HeroCard: View {
             foot
             VStack(alignment: .leading, spacing: 0) {
                 if let logoUrl {
-                    Logo(url: logoUrl, width: 600, height: 200)
+                    Logo(url: logoUrl, width: heroMark.width, height: heroMark.height)
                 } else {
                     Text(lead.name).brand(76, 800).lines(76, 80).foregroundStyle(.white)
                 }
@@ -78,7 +86,7 @@ struct HeroCard: View {
             .padding(.leading, 30.ref)
             .padding(.bottom, 34.ref)
         }
-        .frame(width: (1920 - 2 * pageEdge).ref, height: 767.ref)
+        .frame(width: heroWide.ref, height: 767.ref)
         .clipShape(shape)
         .overlay(shape.stroke(.white.opacity(0.28), lineWidth: 2.ref))
         .offset(x: pageEdge.ref, y: 143.ref)

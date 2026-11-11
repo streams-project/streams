@@ -57,7 +57,8 @@ fun PosterGrid(tiles: List<Tile>, focus: Int, left: Int, top: Int) {
                         .offset((left + index % POSTERS_ACROSS * (WIDE + GAP_X)).ref, (row * (HIGH + GAP_Y)).ref)
                         .size(WIDE.ref, HIGH.ref)
                         .clip(shape)
-                        .background(Raised),
+                        .background(Raised)
+                        .says(tile.name, index == focus),
                 ) {
                     Art(tall(tile.images), Modifier.fillMaxSize())
                     TileBadges(tile, Modifier.align(Alignment.BottomStart).padding(12.ref))

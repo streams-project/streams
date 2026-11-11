@@ -32,6 +32,10 @@ import contract.Profile
 import streams.ports.Seen
 import streams.shared.Corner
 import streams.shared.Face
+import streams.shared.decoration
+import streams.shared.fill
+import streams.shared.says
+import streams.shared.saysItsWords
 import streams.shared.Join
 import streams.shared.Muted
 import streams.shared.R
@@ -152,10 +156,20 @@ private fun ProfileTile(
     onClick: () -> Unit,
 ) {
     val words = seen.words
+    // The name is drawn under the face, so it is gathered rather than given again. A lock on the
+    // profile is drawn as a padlock and nothing else, which is why it is said here: whoever cannot
+    // see the padlock would otherwise reach the profile and be asked for a PIN with no warning.
     Column(
         modifier = Modifier
             .width(72.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .then(
+                if (!manageMode && person.hasPin) {
+                    Modifier.says(words["say.profile_locked"].orEmpty().fill("name", person.name))
+                } else {
+                    Modifier.saysItsWords()
+                },
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
@@ -195,7 +209,8 @@ private fun ProfileTile(
                 Box(
                     Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.5f)),
+                        .background(Color.Black.copy(alpha = 0.5f))
+                        .decoration(),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
@@ -223,10 +238,11 @@ private fun ProfileTile(
 
         if (!manageMode && person.hasPin) {
             Spacer(Modifier.height(4.dp))
+            // Said by the tile above, as its whole label.
             Icon(
                 painterResource(R.drawable.icon_locked),
                 null,
-                Modifier.size(14.dp),
+                Modifier.size(14.dp).decoration(),
                 tint = Color.White,
             )
         }
@@ -246,7 +262,8 @@ private fun ActionTile(
     Column(
         modifier = Modifier
             .width(72.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .saysItsWords(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
@@ -258,7 +275,7 @@ private fun ActionTile(
         ) {
             Icon(
                 painterResource(iconRes),
-                label,
+                null,
                 Modifier.size(iconSize.dp),
                 tint = Color.White,
             )

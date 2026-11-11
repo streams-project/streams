@@ -69,6 +69,8 @@ import streams.shared.R
 import streams.shared.detailOf
 import streams.shared.isSeries
 import streams.shared.rememberDetails
+import streams.shared.says
+import streams.shared.saysItsWords
 import streams.shared.tabAddress
 import streams.shared.titleAddress
 import streams.shared.watchAddress
@@ -227,6 +229,7 @@ fun Home(shell: Shell, seen: Seen) {
                 back = if (onHome) null else ({ shell.back() }),
                 bell = { shell.go(Address.NOTIFICATIONS) },
                 unreadCount = seen.unreadNotifications,
+                words = words,
             )
             Box(
                 Modifier
@@ -266,6 +269,7 @@ fun Home(shell: Shell, seen: Seen) {
                                     categories = false
                                     shell.go(Address.GENRE + item.genre.orEmpty())
                                 }
+                                .saysItsWords()
                                 .padding(vertical = 12.dp, horizontal = 24.dp),
                             contentAlignment = Alignment.Center,
                         ) {
@@ -288,7 +292,10 @@ fun Home(shell: Shell, seen: Seen) {
                         .size(56.dp)
                         .clip(RoundedCornerShape(minOf(Corner.BUTTON, 28).dp))
                         .background(Color.White)
-                        .clickable { categories = false },
+                        .clickable { categories = false }
+                        // The cross is two lines on a canvas: there is nothing here for a reader to
+                        // gather, so this control is given words.
+                        .says(words["say.close"].orEmpty()),
                     contentAlignment = Alignment.Center,
                 ) {
                     Canvas(Modifier.size(20.dp)) {

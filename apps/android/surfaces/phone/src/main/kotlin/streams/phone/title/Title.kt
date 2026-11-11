@@ -61,6 +61,9 @@ import streams.ports.Seen
 import streams.ports.Shell
 import streams.shared.Accent
 import streams.shared.Art
+import streams.shared.decoration
+import streams.shared.says
+import streams.shared.saysItsWords
 import streams.shared.Back
 import streams.shared.Corner
 import streams.shared.Muted
@@ -139,12 +142,13 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .clickable(onClick = { shell.back() }),
+                    .clickable(onClick = { shell.back() })
+                    .says(words["common.back"].orEmpty()),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     painter = painterResource(R.drawable.icon_back),
-                    contentDescription = words["player.back"] ?: "Back",
+                    contentDescription = null,
                     modifier = Modifier.size(24.dp),
                     tint = Color.White,
                 )
@@ -153,12 +157,13 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .clickable { /* cast action */ },
+                    .clickable { /* cast action */ }
+                    .says(words["say.cast"].orEmpty()),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     painter = painterResource(R.drawable.icon_cast),
-                    contentDescription = "Cast",
+                    contentDescription = null,
                     modifier = Modifier.size(24.dp),
                     tint = Color.White,
                 )
@@ -166,7 +171,9 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .clickable(onClick = { shell.back() }),
+                    .clickable(onClick = { shell.back() })
+                    // Two lines on a canvas: nothing here for a reader to gather.
+                    .says(words["say.close"].orEmpty()),
                 contentAlignment = Alignment.Center,
             ) {
                 androidx.compose.foundation.Canvas(modifier = Modifier.size(16.dp)) {
@@ -205,7 +212,9 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
                 if (logoUrl != null) {
                     AsyncImage(
                         model = logoUrl,
-                        contentDescription = data.name,
+                        // The logo is the title's name as a picture. The name is drawn as words
+                        // further down the page, so this is decoration and is not read twice.
+                        contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth(0.7f)
                             .heightIn(max = 80.dp),
@@ -375,7 +384,13 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
                         modifier = Modifier
                             .padding(top = 10.dp)
                             .fillMaxWidth()
-                            .clickable { synopsisExpanded = !synopsisExpanded },
+                            .clickable { synopsisExpanded = !synopsisExpanded }
+                            // The whole description is the control: a reader hears it, and then
+                            // whether tapping shows more of it or less.
+                            .says(
+                                overview,
+                                words[if (synopsisExpanded) "say.show_less" else "say.show_more"].orEmpty(),
+                            ),
                     ) {
                         Text(
                             text = overview,
@@ -405,7 +420,18 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
                         modifier = Modifier
                             .padding(top = 8.dp)
                             .fillMaxWidth()
-                            .clickable { if (genres.size > 3) castExpanded = !castExpanded },
+                            .then(
+                                if (genres.size > 3) {
+                                    Modifier
+                                        .clickable { castExpanded = !castExpanded }
+                                        .says(
+                                            genres.joinToString(", "),
+                                            words[if (castExpanded) "say.show_less" else "say.show_more"].orEmpty(),
+                                        )
+                                } else {
+                                    Modifier
+                                },
+                            ),
                     ) {
                         Text(
                             text = displayGenres.joinToString(", "),
@@ -440,6 +466,9 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
                                 saved = !saved
                                 shell.act(ActionCommand(CommandList(inList = saved, title = data.title)))
                             }
+                            // The word under the icon already says which way the control stands
+                            // ("My List" against "In My List"), so it is gathered, not replaced.
+                            .saysItsWords()
                             .padding(vertical = 4.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
@@ -465,6 +494,7 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
                             modifier = Modifier
                                 .width(96.dp)
                                 .clickable { rateMenuOpen = !rateMenuOpen }
+                                .saysItsWords()
                                 .padding(vertical = 4.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
@@ -509,7 +539,11 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
                                         shell.act(ActionCommand(CommandRate(rating = next, title = data.title)))
                                         rateMenuOpen = false
                                     }) {
-                                        Icon(painterResource(if (rating == Rating.DOWN) R.drawable.icon_thumb_down_filled else R.drawable.icon_thumb_down), null, tint = Color.White)
+                                        Icon(
+                                            painterResource(if (rating == Rating.DOWN) R.drawable.icon_thumb_down_filled else R.drawable.icon_thumb_down),
+                                            words["player.down"].orEmpty().ifEmpty { null },
+                                            tint = Color.White,
+                                        )
                                     }
                                     IconButton(onClick = {
                                         val next = if (rating == Rating.UP) null else Rating.UP
@@ -517,7 +551,11 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
                                         shell.act(ActionCommand(CommandRate(rating = next, title = data.title)))
                                         rateMenuOpen = false
                                     }) {
-                                        Icon(painterResource(if (rating == Rating.UP) R.drawable.icon_thumb_up_filled else R.drawable.icon_thumb_up), null, tint = Color.White)
+                                        Icon(
+                                            painterResource(if (rating == Rating.UP) R.drawable.icon_thumb_up_filled else R.drawable.icon_thumb_up),
+                                            words["player.up"].orEmpty().ifEmpty { null },
+                                            tint = Color.White,
+                                        )
                                     }
                                     IconButton(onClick = {
                                         val next = if (rating == Rating.LOVE) null else Rating.LOVE
@@ -525,7 +563,11 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
                                         shell.act(ActionCommand(CommandRate(rating = next, title = data.title)))
                                         rateMenuOpen = false
                                     }) {
-                                        Icon(painterResource(if (rating == Rating.LOVE) R.drawable.icon_love_filled else R.drawable.icon_love), null, tint = Color.White)
+                                        Icon(
+                                            painterResource(if (rating == Rating.LOVE) R.drawable.icon_love_filled else R.drawable.icon_love),
+                                            words["player.love"].orEmpty().ifEmpty { null },
+                                            tint = Color.White,
+                                        )
                                     }
                                 }
                             }
@@ -537,6 +579,7 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
                         modifier = Modifier
                             .width(96.dp)
                             .clickable { /* share */ }
+                            .saysItsWords()
                             .padding(vertical = 4.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
@@ -580,6 +623,7 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
                         modifier = Modifier
                             .height(48.dp)
                             .clickable { selectedTab = TitleTab.EPISODES }
+                            .saysItsWords()
                             .padding(horizontal = 12.dp),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -606,6 +650,7 @@ fun Title(shell: Shell, seen: Seen, tv: Boolean = false) {
                     modifier = Modifier
                         .height(48.dp)
                         .clickable { selectedTab = TitleTab.MORE_LIKE_THIS }
+                        .saysItsWords()
                         .padding(horizontal = 12.dp),
                     contentAlignment = Alignment.Center,
                 ) {

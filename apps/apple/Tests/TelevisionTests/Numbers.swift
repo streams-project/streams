@@ -9,7 +9,7 @@ import XCTest
 /// quietly drift from the reason it has that value. Pinning a derived number to itself would prove
 /// nothing.
 final class NumbersTests: XCTestCase {
-    /// The read of the rest of a page starts `near` rows from the end.
+    /// The read of the rest of a page starts `readNear` rows from the end.
     ///
     /// Derivation (`browse/Browse.swift` and the band in
     /// `notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md` section 6b, "next row title
@@ -19,7 +19,7 @@ final class NumbersTests: XCTestCase {
     /// one plus the number of rows drawn below the focus.
     func testTheReadWindowCoversTheRowsTheViewerCanAlreadySee() {
         XCTAssertEqual(rowsBelowFocus, 1, "the surface draws one row under the focus")
-        XCTAssertEqual(near, rowsBelowFocus + 1, "the window is the focused row plus the rows under it")
+        XCTAssertEqual(readNear, rowsBelowFocus + 1, "the window is the focused row plus the rows under it")
     }
 
     /// The treatment box on a focused row card.

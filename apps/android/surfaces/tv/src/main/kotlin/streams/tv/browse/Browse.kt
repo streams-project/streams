@@ -31,8 +31,6 @@ import androidx.compose.ui.platform.LocalDensity
 import contract.Address
 import contract.More
 import contract.Section
-import contract.SectionKind
-import contract.Tile
 import contract.TitleKey
 import contract.contractJson
 import streams.ports.Seen
@@ -58,8 +56,6 @@ private enum class Where { TOP, HERO, ROW }
 
 /** Where the viewer was on each page of rows, for the run of the app. */
 val LocalPages = staticCompositionLocalOf { HashMap<String, Any>() }
-
-private val RowKinds = setOf(SectionKind.ROW, SectionKind.RANKED, SectionKind.CONTINUE, SectionKind.GRID)
 
 /**
  * The rows a page has past its first answer. The server builds up to 50 rows and hands a screen 12
@@ -158,7 +154,8 @@ private class PageFocus(var rows: List<Section>, var tabs: Int, private val acti
 /** A page of rows. The parts draw, and this file only knows where the focus is. */
 @Composable
 fun Browse(shell: Shell, seen: Seen) {
-    val data = seen.screen ?: return
+    // No answer in hand yet: the page waits with its destination lit, rather than drawing nothing.
+    val data = seen.screen ?: return Waiting(seen)
     val current = seen.route?.screen?.value ?: "home"
     // A page is drawn from what was kept and then from the fresh answer. The focus belongs to the page.
     // Each page keeps where the viewer was for the run of the app, so coming back from a title lands
@@ -166,18 +163,13 @@ fun Browse(shell: Shell, seen: Seen) {
     val memory = LocalPages.current
     val page = "${seen.active} $current ${seen.route?.genre.orEmpty()}"
     val growth = remember(current, seen.route?.genre) { memory.getOrPut("more $page") { PageGrowth() } as PageGrowth }
-    // Games has no rows yet, and the kept page behind it belongs to the tab before.
-    val sections = if (current == "games") emptyList() else data.sections.filter { !it.tiles.isNullOrEmpty() }
-    // Rows read past the first twelve belong to the answer their cursor came from. The core holds the
-    // previous screen's answer while a new tab loads, and for the games screen it never asks and never
-    // clears what it holds (platform/core/src/lib.rs:410-417), so the cursor standing on the Games tab
-    // is the cursor of the tab before it. A page therefore grows only from an answer that names the
-    // screen the route asked for; Home and the kids home name no screen on the route, so there the
-    // answer's own name stands for it.
+    // Which rows this page may draw, and whether the answer in hand is even its own: Games has no
+    // rows yet, and the kept page behind it belongs to the tab before. Both answers are in Page.kt,
+    // apart from the drawing, because `src/test/kotlin/streams/tv/PageTest.kt` checks them.
     val asked = seen.route?.screen?.value
-    val mine = current != "games" && (asked == null || asked == data.name.value)
-    val rows = (if (mine) sections + growth.extra else sections).filter { it.kind in RowKinds }
-    val lead = sections.firstOrNull { it.kind == SectionKind.HERO }?.tiles?.first()
+    val mine = answerIsThisPage(current, asked, data.name.value)
+    val rows = rowsOn(current, asked, data.name.value, data.sections, growth.extra)
+    val lead = heroOn(current, data.sections)
     val tabs = tabsOf(seen.nav)
     val active = tabs.indexOfFirst { it.screen.value == current }.coerceAtLeast(0)
     val person = seen.profiles.firstOrNull { it.id == seen.active } ?: seen.profiles.firstOrNull()
@@ -260,9 +252,21 @@ fun Browse(shell: Shell, seen: Seen) {
         else -> false
     }
 
-    Box(Modifier.fillMaxSize().remote(!menu, @DontMemoize { press(it) })) {
+    // What a person hears as the remote moves. A television draws its own focus, so without this
+    // nothing announces where the remote has arrived (Spoken.kt).
+    val here = when {
+        focus.where == Where.TOP && focus.tab == WHO_TAB -> person?.name.orEmpty()
+        focus.where == Where.TOP && focus.tab == SEARCH_TAB -> seen.words["nav.search"].orEmpty()
+        focus.where == Where.TOP -> tabs.getOrNull(focus.tab)?.label.orEmpty()
+        focus.where == Where.HERO ->
+            seen.words[if (focus.button == 1) "common.more_info" else "common.play"].orEmpty()
+        else -> rows.getOrNull(focus.row).let { row ->
+            sayBoth(row?.tiles?.getOrNull(focus.column)?.name, row?.title)
+        }
+    }
+    Box(Modifier.fillMaxSize().remote(!menu, here, @DontMemoize { press(it) })) {
         val inRow = focus.where == Where.ROW
-        TopBar(tabs, active, if (focus.where == Where.TOP) focus.tab else -1, person, seen.server)
+        TopBar(tabs, active, if (focus.where == Where.TOP) focus.tab else -1, person, seen.server, seen.words)
         if (inRow) {
             AnimatedContent(
                 focus.row,

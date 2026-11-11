@@ -28,6 +28,11 @@ enum Round {
     static func face(_ size: CGFloat) -> CGFloat { size * (card * 100 / 130).rounded(.down) / 100 }
 }
 
+/// The reference screen this surface is drawn on, in reference pixels: 1920 x 1080, the size every
+/// television frame in `notes/netflix-reference/tv` was measured at.
+let pageWide: CGFloat = 1920
+let pageHigh: CGFloat = 1080
+
 /// The page margin on a television, left and right, in reference pixels. Pages line up their edges on it.
 let pageEdge: CGFloat = 72
 

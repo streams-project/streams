@@ -52,9 +52,13 @@ val Glide = CubicBezierEasing(0.22f, 0.61f, 0.2f, 1f)
 
 private val CardFoot = Brush.verticalGradient(0f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.7f))
 
+/**
+ * A tile in a row. The artwork is the title, so the title's name is what a person hears in place of
+ * seeing it; the badges drawn on top say the rest themselves.
+ */
 @Composable
 private fun Poster(tile: Tile, modifier: Modifier) {
-    Box(modifier.size(311.ref, 504.ref).clip(shapeOf(Round.card)).background(Raised)) {
+    Box(modifier.size(311.ref, 504.ref).clip(shapeOf(Round.card)).background(Raised).says(tile.name)) {
         val url = tall(tile.images)
         if (url != null) Art(url, Modifier.fillMaxSize())
         TileBadges(tile, Modifier.align(Alignment.BottomStart).padding(12.ref))
@@ -76,7 +80,16 @@ private fun Poster(tile: Tile, modifier: Modifier) {
 @Composable
 private fun OpenCard(tile: Tile) {
     val shape = shapeOf(Round.card)
-    Box(Modifier.offset(PAGE_EDGE.ref, 200.ref).size(904.ref, 508.ref).clip(shape).background(Raised)) {
+    // The card draws the title's name over its art, so its own words are its label and the remote
+    // is always on it: it is the one card of the row that is open.
+    Box(
+        Modifier
+            .offset(PAGE_EDGE.ref, 200.ref)
+            .size(904.ref, 508.ref)
+            .clip(shape)
+            .background(Raised)
+            .saysItsWords(on = true),
+    ) {
         Crossfade(wide(tile.images), animationSpec = tween(SLIDE_MS, easing = LinearEasing), label = "art") { url ->
             Art(url, Modifier.fillMaxSize())
         }

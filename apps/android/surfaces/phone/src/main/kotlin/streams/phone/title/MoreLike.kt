@@ -20,6 +20,7 @@ import contract.TitleDetail
 import streams.ports.Seen
 import streams.ports.Shell
 import streams.shared.Art
+import streams.shared.says
 import streams.shared.Corner
 import streams.shared.Plate
 import streams.shared.tall
@@ -53,7 +54,9 @@ fun MoreLike(shell: Shell, seen: Seen, data: TitleDetail) {
                             .background(Plate)
                             .clickable {
                                 shell.go(titleAddress(tile.title))
-                            },
+                            }
+                            // A poster and nothing else, as in a row: the title's name is the tile.
+                            .says(tile.name),
                     ) {
                         Art(tall(tile.images), Modifier.fillMaxSize())
                     }

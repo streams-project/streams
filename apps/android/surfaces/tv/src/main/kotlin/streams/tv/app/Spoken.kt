@@ -53,6 +53,16 @@ fun Modifier.says(words: String?, on: Boolean): Modifier = semantics {
 }
 
 /**
+ * A part whose own drawn words are its label: a pill, a tab, a key, a line of a menu. The words
+ * inside it are read as one label instead of as loose text, and `on` says whether the remote is on
+ * it. Nothing is written here, so the part keeps saying whatever the strings gave it to draw.
+ */
+fun Modifier.saysItsWords(on: Boolean): Modifier = semantics(mergeDescendants = true) {
+    role = Role.Button
+    selected = on
+}
+
+/**
  * A picture that repeats what is already said beside it: artwork behind a name, a mark, an arrow
  * drawn next to the thing it points at. A screen reader skips it instead of announcing an unnamed
  * image. The toolkit's own way of saying this is `contentDescription = null` on an `Icon` or an

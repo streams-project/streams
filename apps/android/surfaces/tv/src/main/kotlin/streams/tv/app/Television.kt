@@ -72,7 +72,9 @@ fun Television(shell: Shell) {
                 }
                 when {
                     seen.server.isEmpty() -> Server(shell, seen)
-                    target == null || target == Target.WAIT -> Unit
+                    // A route with no answer behind it yet: the page waits with its destination
+                    // lit, as the reference does, instead of drawing nothing at all (Waiting.kt).
+                    target == null || target == Target.WAIT -> Waiting(seen)
                     target == Target.START -> Door(shell, seen, opening)
                     target == Target.SIGN_IN -> SignIn(shell, seen)
                     target == Target.PROFILES -> Profiles(shell, seen, inside)

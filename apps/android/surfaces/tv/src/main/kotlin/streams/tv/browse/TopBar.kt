@@ -49,20 +49,38 @@ private fun Tab(item: NavItem, active: Boolean, on: Boolean) {
         else -> Color.Transparent
     }
     Box(
-        Modifier.height(BAR_HIGH.ref).background(back, CircleShape).padding(horizontal = 32.ref),
+        Modifier
+            .height(BAR_HIGH.ref)
+            .background(back, CircleShape)
+            .padding(horizontal = 32.ref)
+            .saysItsWords(on),
         contentAlignment = Alignment.Center,
     ) {
         Text(item.label, color = if (on) Back else Color.White, fontSize = 26.refType, fontWeight = FontWeight.Medium)
     }
 }
 
-/** Who is watching, search, the tabs and the mark, at the top of every signed in page. */
+/**
+ * Who is watching, search, the tabs and the mark, at the top of every signed in page.
+ *
+ * `words` is here for the two parts that are a picture and nothing else - the profile and search -
+ * because a picture with no words is unreachable from a remote. The tabs carry the names the server
+ * sent with them, and the mark is decoration: it is the same on every page and says nothing a
+ * viewer needs.
+ */
 @Composable
-fun TopBar(tabs: List<NavItem>, active: Int, focus: Int, person: Profile?, server: String) {
+fun TopBar(
+    tabs: List<NavItem>,
+    active: Int,
+    focus: Int,
+    person: Profile?,
+    server: String,
+    words: Map<String, String> = emptyMap(),
+) {
     val searchOn = focus == SEARCH_TAB
     val whoOn = focus == WHO_TAB
     val searchHere = active == SEARCH_TAB
-    Box(Modifier.offset(PAGE_EDGE.ref, (BAR_MID - FACE / 2).ref)) {
+    Box(Modifier.offset(PAGE_EDGE.ref, (BAR_MID - FACE / 2).ref).says(person?.name, whoOn)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Face(person, FACE, server, if (whoOn) Modifier.size(FACE.ref).border(3.ref, Color.White, Round.face) else Modifier.size(FACE.ref))
             Icon(painterResource(R.drawable.icon_caret_down), null, Modifier.size(22.ref), tint = Color.White)
@@ -79,7 +97,8 @@ fun TopBar(tabs: List<NavItem>, active: Int, focus: Int, person: Profile?, serve
                     else -> Color.Transparent
                 },
                 CircleShape,
-            ),
+            )
+            .says(words["nav.search"], searchOn),
         contentAlignment = Alignment.Center,
     ) {
         Icon(

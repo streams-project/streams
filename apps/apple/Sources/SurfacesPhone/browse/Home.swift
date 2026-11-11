@@ -416,7 +416,9 @@ private struct Drifted: ViewModifier {
     let moved: (CGFloat) -> Void
 
     func body(content: Content) -> some View {
-        if #available(iOS 18.0, *) {
+        // tvOS is named as well as iOS because the package declares a tvOS floor too, and `*` there
+        // means that floor: without it this file cannot be compiled for tvOS at all.
+        if #available(iOS 18.0, tvOS 18.0, *) {
             content.onScrollGeometryChange(for: CGFloat.self) { geometry in
                 geometry.contentOffset.y + geometry.contentInsets.top
             } action: { _, now in

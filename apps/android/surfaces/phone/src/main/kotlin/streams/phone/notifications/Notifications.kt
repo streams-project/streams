@@ -55,6 +55,9 @@ import contract.contractJson
 import streams.ports.Seen
 import streams.ports.Shell
 import streams.shared.Accent
+import streams.shared.decoration
+import streams.shared.says
+import streams.shared.saysItsWords
 import streams.shared.Back
 import streams.shared.Corner
 import streams.shared.Muted
@@ -128,12 +131,13 @@ fun NotificationsScreen(shell: Shell, seen: Seen) {
                 Modifier
                     .padding(start = 4.dp)
                     .size(48.dp)
-                    .clickable(onClick = { shell.back() }),
+                    .clickable(onClick = { shell.back() })
+                    .says(words["common.back"].orEmpty()),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     painterResource(R.drawable.icon_back),
-                    contentDescription = words["common.back"] ?: "Back",
+                    contentDescription = null,
                     modifier = Modifier
                         .size(24.dp)
                         .graphicsLayer {
@@ -158,10 +162,11 @@ fun NotificationsScreen(shell: Shell, seen: Seen) {
         } else if (items.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // A picture beside words that already say there is nothing here.
                     Icon(
                         painterResource(R.drawable.icon_bell),
                         contentDescription = null,
-                        modifier = Modifier.size(48.dp),
+                        modifier = Modifier.size(48.dp).decoration(),
                         tint = Muted,
                     )
                     Spacer(Modifier.height(16.dp))
@@ -236,6 +241,10 @@ private fun NotificationRow(
         Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
+            // The notice draws its kind, the title's name and its date, which is what a reader
+            // wants in that order. Whether it has been read is a dot with no words, so it is said
+            // as the control's state.
+            .saysItsWords(if (item.unread) words["say.unread"].orEmpty() else "")
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -248,7 +257,8 @@ private fun NotificationRow(
             if (poster != null) {
                 AsyncImage(
                     model = poster.url,
-                    contentDescription = item.tile.name,
+                    // The name is drawn as words beside it, so the poster is decoration.
+                    contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                 )
@@ -304,7 +314,8 @@ private fun NotificationRow(
             Box(
                 Modifier
                     .size(8.dp)
-                    .background(Accent, CircleShape),
+                    .background(Accent, CircleShape)
+                    .decoration(),
             )
         }
     }

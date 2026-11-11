@@ -6,21 +6,25 @@ import SwiftUI
 private let rise: CGFloat = 810
 private let riseTime = 0.32
 
-/// How near the last row the focus has to come before the rest of the page is read: two, meaning the
-/// row the focus is on and the one drawn below it.
-///
-/// Derived from the band this surface draws, not from a fetch Netflix was seen to make. A row screen
-/// always shows the next row's title and the top of its tiles under the focused row
+/// How many rows this surface draws under the focused one: one, the next row's title and the top of
+/// its tiles, as a row screen shows it
 /// (`notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md` section 6b: "next row title
-/// 948-978, next row tiles from 998 with 82 px visible"), and this page draws that row from
-/// `focus.row + 1`. Reading on arrival at the very last row would therefore leave the viewer looking
-/// at an empty band below the focus while the answer is in flight, so the read starts one row
-/// earlier - the smallest window that keeps a row under the focus, and no prefetch beyond it.
+/// 948-978, next row tiles from 998 with 82 px visible"). The page draws it from `focus.row + 1`
+/// below, and `near` is derived from it.
+let rowsBelowFocus = 1
+
+/// How near the last row the focus has to come before the rest of the page is read: the focused row
+/// and every row already drawn under it.
+///
+/// Derived from the band this surface draws, not from a fetch Netflix was seen to make. Reading on
+/// arrival at the very last row would leave the viewer looking at an empty band below the focus while
+/// the answer is in flight, so the read starts where the band ends - the smallest window that keeps a
+/// row under the focus, and no prefetch beyond it.
 ///
 /// Section 7 is not evidence for this number: it measures single steps on the profile gate, where
 /// every step costs a fetch and nothing is prefetched, which says nothing about how a page of rows
 /// is paged.
-private let near = 2
+let readNear = rowsBelowFocus + 1
 
 private enum Where { case top, hero, row }
 
@@ -256,7 +260,7 @@ public struct Browse: View {
                     .foregroundStyle(Muted)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            let below = inRow ? focus.row + 1 : 0
+            let below = inRow ? focus.row + rowsBelowFocus : 0
             if let next = rows[safe: below] {
                 NextRow(section: next, high: !inRow, words: seen.words, at: focus.columnOf(below))
             }
@@ -286,7 +290,7 @@ public struct Browse: View {
     /// a cursor for the rest; without this read the rows past the first answer cannot be reached at
     /// all, because one row fills a television screen and the viewer walks down them one at a time.
     private func readOn(_ focus: PageFocus, _ count: Int) {
-        guard focus.row >= count - near, let mark = focus.cursor, !focus.reading else { return }
+        guard focus.row >= count - readNear, let mark = focus.cursor, !focus.reading else { return }
         focus.reading = true
         Task { @MainActor in
             let answer = await shell.read("/v1/more/" + mark)

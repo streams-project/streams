@@ -47,6 +47,8 @@ import streams.ports.Seen
 import streams.ports.Shell
 import streams.shared.Corner
 import streams.shared.Face
+import streams.shared.decoration
+import streams.shared.says
 import streams.shared.Join
 import streams.shared.Muted
 import streams.shared.Plate
@@ -147,6 +149,8 @@ fun PinSheet(
                     for (i in 0 until count) {
                         val entered = i < pin.length
                         val isCurrent = i == pin.length
+                        // One box a digit, with a dot once it is typed. A reader hearing "bullet"
+                        // four times learns nothing, and the field below says how far the PIN is.
                         Box(
                             Modifier
                                 .size(width = 52.dp, height = 56.dp)
@@ -154,7 +158,8 @@ fun PinSheet(
                                 .then(
                                     if (isCurrent) Modifier.border(2.dp, Color.White, fieldShape)
                                     else Modifier,
-                                ),
+                                )
+                                .decoration(),
                             contentAlignment = Alignment.Center,
                         ) {
                             if (entered) {
@@ -176,10 +181,14 @@ fun PinSheet(
                         val digits = input.filter { it.isDigit() }.take(count)
                         pin = digits
                     },
+                    // This is the PIN control: 1 dp wide and invisible, with the boxes above
+                    // standing in for it. Nothing about it can be seen, so without words here a
+                    // reader has no way into the sheet at all.
                     modifier = Modifier
                         .focusRequester(focusRequester)
                         .size(1.dp)
-                        .alpha(0f),
+                        .alpha(0f)
+                        .says(words["say.pin"].orEmpty()),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                     cursorBrush = SolidColor(Color.Transparent),
                 )

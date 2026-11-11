@@ -52,7 +52,8 @@ fun Menu(lines: List<MenuLine>, focus: Int, modifier: Modifier = Modifier, width
                             else -> Color.Transparent
                         },
                         CircleShape,
-                    ),
+                    )
+                    .saysItsWords(on),
             ) {
                 line.icon?.let {
                     Icon(

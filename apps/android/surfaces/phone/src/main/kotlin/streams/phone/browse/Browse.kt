@@ -49,6 +49,8 @@ import streams.ports.Seen
 import streams.ports.Shell
 import streams.shared.Back
 import streams.shared.Muted
+import streams.shared.decoration
+import streams.shared.says
 import streams.shared.Raised
 
 fun Modifier.focusRing(changed: (Boolean) -> Unit): Modifier = onFocusChanged { changed(it.isFocused) }
@@ -81,13 +83,14 @@ private fun Hero(shell: Shell, tile: Tile?, tv: Boolean) {
     if (tile == null) return
     val first = remember { FocusRequester() }
     Box(Modifier.fillMaxWidth().height(if (tv) 340.dp else 420.dp)) {
+        // The name and the tags are drawn over this picture as words, so it is decoration.
         AsyncImage(
             model = picture(tile.images),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
         )
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Back))))
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Back))).decoration())
         Column(Modifier.align(Alignment.BottomStart).padding(if (tv) 48.dp else 20.dp)) {
             Text(tile.name, fontSize = if (tv) 44.sp else 32.sp, fontWeight = FontWeight.Black)
             Spacer(Modifier.height(4.dp))
@@ -135,10 +138,11 @@ private fun Card(tile: Tile, width: Int, focused: () -> Unit, open: () -> Unit) 
                 on = it
                 if (it) focused()
             }
-            .clickable(onClick = open),
+            .clickable(onClick = open)
+            .says(tile.name),
     ) {
         if (url != null) {
-            AsyncImage(url, tile.name, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+            AsyncImage(url, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         } else {
             Text(tile.name, Modifier.align(Alignment.Center).padding(8.dp), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
         }

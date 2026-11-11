@@ -14,6 +14,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    // The module's own tests, on this machine's JVM: `./gradlew :surfaces:tv:testDebugUnitTest`.
+    // What they cover is what can be checked without a screen - which rows a page may draw
+    // (browse/Page.kt) - because everything else here is drawing, and a drawing test needs a
+    // device. `./check` does not run gradle at all, so nothing runs these but a person or CI.
+    testOptions { unitTests.isReturnDefaultValues = true }
 }
 
 dependencies {
@@ -30,4 +35,5 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
     implementation("io.coil-kt.coil3:coil-svg:3.3.0")
     implementation("com.google.zxing:core:3.5.3")
+    testImplementation("junit:junit:4.13.2")
 }

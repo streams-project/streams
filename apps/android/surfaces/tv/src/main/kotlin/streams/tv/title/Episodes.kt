@@ -65,10 +65,11 @@ private val CardFoot = Brush.verticalGradient(0.5f to Color.Transparent, 1f to C
 @Composable
 private fun EpisodeCard(words: Map<String, String>, episode: Episode, label: String, on: Boolean, modifier: Modifier) {
     val shape = shapeOf(Round.card)
-    Box(modifier.fillMaxWidth().height(256.ref)) {
+    Box(modifier.fillMaxWidth().height(256.ref).saysItsWords(on)) {
         Box(Modifier.offset(CARD_X.ref, 0.ref).size(456.ref, 256.ref).clip(shape).background(Raised)) {
-            Art(wide(episode.images), Modifier.fillMaxSize())
-            Box(Modifier.fillMaxSize().background(CardFoot))
+            // The still is the episode that is named and described beside it.
+            Art(wide(episode.images), Modifier.fillMaxSize().decoration())
+            Box(Modifier.fillMaxSize().background(CardFoot).decoration())
             Text(
                 label,
                 Modifier.align(Alignment.BottomStart).padding(start = 20.ref, bottom = 14.ref),
@@ -104,7 +105,14 @@ private fun SeasonLine(words: Map<String, String>, season: SeasonSummary, chosen
         else -> Color.Transparent
     }
     val ink = if (on) Back else Color.White
-    Box(Modifier.width(546.ref).height(62.ref).background(back, CircleShape).padding(horizontal = 32.ref)) {
+    Box(
+        Modifier
+            .width(546.ref)
+            .height(62.ref)
+            .background(back, CircleShape)
+            .padding(horizontal = 32.ref)
+            .saysItsWords(on),
+    ) {
         Text(
             words["title.season.number"].orEmpty().fill("n", season.number),
             Modifier.align(Alignment.CenterStart),

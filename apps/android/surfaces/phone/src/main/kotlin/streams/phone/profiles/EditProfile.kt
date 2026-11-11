@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -80,6 +81,11 @@ import streams.shared.Back
 import streams.shared.BrandFont
 import streams.shared.Corner
 import streams.shared.Face
+import streams.shared.decoration
+import streams.shared.fill
+import streams.shared.says
+import streams.shared.saysItsWords
+import streams.shared.saysSwitch
 import streams.shared.Join
 import streams.shared.Muted
 import streams.shared.Plate
@@ -212,12 +218,13 @@ fun EditProfile(
                 Box(
                     Modifier
                         .size(48.dp)
-                        .clickable(onClick = leave),
+                        .clickable(onClick = leave)
+                        .says(words["common.cancel"].orEmpty()),
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     Icon(
                         painterResource(R.drawable.icon_back),
-                        words["common.cancel"],
+                        null,
                         Modifier.size(24.dp),
                         tint = Color.White,
                     )
@@ -233,7 +240,8 @@ fun EditProfile(
                 Box(
                     Modifier
                         .size(width = 64.dp, height = 48.dp)
-                        .clickable(enabled = !saving, onClick = ::save),
+                        .clickable(enabled = !saving, onClick = ::save)
+                        .saysItsWords(),
                     contentAlignment = Alignment.CenterEnd,
                 ) {
                     Text(
@@ -252,7 +260,9 @@ fun EditProfile(
                 Modifier
                     .align(Alignment.CenterHorizontally)
                     .size(100.dp)
-                    .clickable { showAvatarPicker = true },
+                    .clickable { showAvatarPicker = true }
+                    // A face with a pencil over it and no words anywhere near it.
+                    .says(words["say.avatar_pick"].orEmpty()),
             ) {
                 val previewProfile = person.copy(avatar = avatar, kids = kids, name = name)
                 Face(
@@ -275,7 +285,7 @@ fun EditProfile(
                 ) {
                     Icon(
                         painterResource(R.drawable.icon_pencil),
-                        words["profile.icon"],
+                        null,
                         Modifier.size(16.dp),
                         tint = Color.White,
                     )
@@ -307,7 +317,9 @@ fun EditProfile(
                                 nameError = null
                             }
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        // The field's own label is drawn above it as a separate line of text, which
+                        // a reader reaching the field never sees, so the field is given it.
+                        modifier = Modifier.fillMaxWidth().says(words["profile.name"].orEmpty()),
                         textStyle = TextStyle(
                             color = Color.White,
                             fontSize = 16.sp,
@@ -366,6 +378,7 @@ fun EditProfile(
                 Switch(
                     checked = kids,
                     onCheckedChange = { kids = it },
+                    modifier = Modifier.saysSwitch(words["profile.add.kids"].orEmpty()),
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.White,
                         checkedTrackColor = Accent,
@@ -383,6 +396,7 @@ fun EditProfile(
                 Modifier
                     .fillMaxWidth()
                     .clickable { showLanguagePicker = true }
+                    .saysItsWords()
                     .padding(horizontal = 24.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -416,6 +430,7 @@ fun EditProfile(
                 Modifier
                     .fillMaxWidth()
                     .clickable { showLockFlow = true }
+                    .saysItsWords()
                     .padding(horizontal = 24.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -449,6 +464,7 @@ fun EditProfile(
                     Modifier
                         .fillMaxWidth()
                         .clickable { showDeleteConfirm = true }
+                        .saysItsWords()
                         .padding(vertical = 16.dp),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -575,7 +591,8 @@ private fun AvatarPickerSheet(
                 Box(
                     Modifier
                         .size(48.dp)
-                        .clickable(onClick = onDismiss),
+                        .clickable(onClick = onDismiss)
+                        .saysItsWords(),
                     contentAlignment = Alignment.CenterEnd,
                 ) {
                     Text(
@@ -616,7 +633,17 @@ private fun AvatarPickerSheet(
                                             .size(72.dp)
                                             .clip(shape)
                                             .border(2.dp, Color.White, shape)
-                                            .clickable { onSelect(worn) },
+                                            .clickable { onSelect(worn) }
+                                            // A picture of nothing nameable. What can honestly be
+                                            // said is which set it is from and that it is the one
+                                            // being worn; the set's name is drawn above the row,
+                                            // out of a reader's reach.
+                                            .says(
+                                                words["say.avatar_in_set"].orEmpty()
+                                                    .fill("set", words["profile.icon.history"].orEmpty())
+                                                    .fill("n", 1),
+                                                words["say.chosen"].orEmpty(),
+                                            ),
                                     ) {
                                         Art(seen.server + worn, Modifier.fillMaxSize(), AvatarBox, AvatarBox)
                                     }
@@ -641,7 +668,7 @@ private fun AvatarPickerSheet(
                             contentPadding = PaddingValues(horizontal = 24.dp),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            items(set.pictures, key = { it.path }) { picture ->
+                            itemsIndexed(set.pictures, key = { _, picture -> picture.path }) { index, picture ->
                                 val isSelected = picture.path == currentAvatar
                                 val shape = RoundedCornerShape(Corner.CARD.dp)
                                 Box(
@@ -652,7 +679,13 @@ private fun AvatarPickerSheet(
                                             if (isSelected) Modifier.border(2.dp, Color.White, shape)
                                             else Modifier,
                                         )
-                                        .clickable { onSelect(picture.path) },
+                                        .clickable { onSelect(picture.path) }
+                                        .says(
+                                            words["say.avatar_in_set"].orEmpty()
+                                                .fill("set", set.name)
+                                                .fill("n", index + 1),
+                                            if (isSelected) words["say.chosen"].orEmpty() else "",
+                                        ),
                                 ) {
                                     Art(seen.server + picture.path, Modifier.fillMaxSize(), AvatarBox, AvatarBox)
                                 }
@@ -716,7 +749,8 @@ private fun LanguagePickerSheet(
                 Box(
                     Modifier
                         .size(48.dp)
-                        .clickable(onClick = onDismiss),
+                        .clickable(onClick = onDismiss)
+                        .saysItsWords(),
                     contentAlignment = Alignment.CenterEnd,
                 ) {
                     Text(
@@ -739,6 +773,9 @@ private fun LanguagePickerSheet(
                         Modifier
                             .fillMaxWidth()
                             .clickable { onSelect(lang.code) }
+                            // The language's own name is drawn here; the tick beside the one in use
+                            // is a picture, so it is said as the row's state.
+                            .saysItsWords(if (isChosen) words["say.chosen"].orEmpty() else "")
                             .padding(horizontal = 24.dp, vertical = 14.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -904,7 +941,8 @@ private fun LockFlowSheet(
                                 onValueChange = { password = it; errorMessage = null },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .focusRequester(passwordFocus),
+                                    .focusRequester(passwordFocus)
+                                    .says(words["signin.password"].orEmpty()),
                                 textStyle = TextStyle(
                                     color = Color.White,
                                     fontSize = 16.sp,
@@ -942,7 +980,8 @@ private fun LockFlowSheet(
                                     .weight(1f)
                                     .height(48.dp)
                                     .background(Raised, RoundedCornerShape(Corner.BUTTON.dp))
-                                    .clickable(onClick = onDismiss),
+                                    .clickable(onClick = onDismiss)
+                                    .saysItsWords(),
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Text(
@@ -985,7 +1024,9 @@ private fun LockFlowSheet(
                                         .then(
                                             if (isCurrent) Modifier.border(2.dp, Color.White, fieldShape)
                                             else Modifier,
-                                        ),
+                                        )
+                                        // A dot a digit: the field below is what a reader uses.
+                                        .decoration(),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     if (entered) {
@@ -1029,7 +1070,8 @@ private fun LockFlowSheet(
                             modifier = Modifier
                                 .focusRequester(pinFocus)
                                 .size(1.dp)
-                                .alpha(0f),
+                                .alpha(0f)
+                                .says(words["say.pin"].orEmpty()),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                             cursorBrush = SolidColor(Color.Transparent),
                         )
@@ -1051,7 +1093,8 @@ private fun LockFlowSheet(
                                 .fillMaxWidth()
                                 .height(48.dp)
                                 .background(Raised, RoundedCornerShape(Corner.BUTTON.dp))
-                                .clickable(onClick = onDismiss),
+                                .clickable(onClick = onDismiss)
+                                .saysItsWords(),
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
@@ -1116,7 +1159,8 @@ private fun DeleteConfirmSheet(
                     .fillMaxWidth()
                     .height(48.dp)
                     .background(Join, RoundedCornerShape(Corner.BUTTON.dp))
-                    .clickable(onClick = onConfirm),
+                    .clickable(onClick = onConfirm)
+                    .saysItsWords(),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -1134,7 +1178,8 @@ private fun DeleteConfirmSheet(
                     .fillMaxWidth()
                     .height(48.dp)
                     .background(Raised, RoundedCornerShape(Corner.BUTTON.dp))
-                    .clickable(onClick = onDismiss),
+                    .clickable(onClick = onDismiss)
+                    .saysItsWords(),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(

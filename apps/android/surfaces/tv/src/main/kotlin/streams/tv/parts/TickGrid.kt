@@ -34,12 +34,15 @@ fun TickGrid(words: List<String>, ticked: Int, focus: Int) {
         val middle = FIRST_MIDDLE + (index % GRID_LINES) * LINE
         val on = index == focus
         val ink = if (on) Back else Color.White
+        // OWNER: which line is ticked is drawn as a tick and is not said. Saying it needs a word
+        // in strings/ for "chosen", which this surface may not invent (see the handoff list).
         Box(
             Modifier
                 .offset((x - 90).ref, (middle - 31).ref)
                 .width(390.ref)
                 .height(63.ref)
-                .background(if (on) Color.White else Color.Transparent, CircleShape),
+                .background(if (on) Color.White else Color.Transparent, CircleShape)
+                .saysItsWords(on),
         ) {
             if (index == ticked) {
                 Icon(

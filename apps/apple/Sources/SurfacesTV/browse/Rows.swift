@@ -10,8 +10,19 @@ private let slide = 0.24
 private let fade = 0.2
 
 /// The open card, and the gutter between it and the poster beside it.
-private let openWide: CGFloat = 904
-private let openHigh: CGFloat = 508
+let openWide: CGFloat = 904
+let openHigh: CGFloat = 508
+
+/// How much smaller the open card is than the hero: one ratio, taken on the width, so a box scaled
+/// by it keeps its shape. 904 / 1776 = 0.509.
+let openMarkScale = openWide / heroWide
+
+/// The box the title's own treatment is fitted into on the open card: the hero's box at that ratio.
+/// Kept as the scale gives it rather than rounded to whole pixels, because rounding each side
+/// separately changes the shape of the box the treatment is fitted into, which is the whole point of
+/// scaling it in one ratio. An earlier pair, 305 x 102, was 3:1 by hand and 2.99:1 in fact.
+let openMarkWide = heroMark.width * openMarkScale
+let openMarkHigh = heroMark.height * openMarkScale
 private let gutter: CGFloat = 17
 
 /// A ranked row keeps the same tile and widens the gutter, so each rank numeral has its own room:
@@ -91,12 +102,10 @@ private struct OpenCard: View {
             // is what is left when the catalogue has no treatment for this title.
             //
             // No measurement sets a size for the treatment on the focused still, so the box is this
-            // app's own hero box scaled down, in one ratio both ways: the hero is 1776 wide
-            // (1920 - 2 x pageEdge) and carries a 600 x 200 box (HeroCard.swift:58), the card is 904
-            // wide, and 904 / 1776 = 0.509 gives 305 x 102. An earlier 132 scaled the height by the
-            // height ratio instead, which stretched the box the treatment is fitted into.
+            // app's own hero box scaled down in one ratio both ways (`openMarkWide`). An earlier 132
+            // scaled the height by the height ratio instead, which stretched the box.
             if let mark {
-                Logo(url: mark, width: 305, height: 102)
+                Logo(url: mark, width: openMarkWide, height: openMarkHigh)
                     .padding(.leading, 24.ref)
                     .padding(.bottom, 24.ref)
             } else {

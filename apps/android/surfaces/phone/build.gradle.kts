@@ -14,6 +14,16 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    // The family's first tests. They run on the machine, not on a device: what is tested here is
+    // the paging, which is plain Kotlin holding snapshot state, and a test that needed a device
+    // would be a different thing with a different cost. No Android resources are read, so the
+    // slower resource-backed runner is left off.
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = false
+            isReturnDefaultValues = true
+        }
+    }
 }
 
 // What the toolkit may treat as stable although it was generated elsewhere. Without it every tile
@@ -37,4 +47,11 @@ dependencies {
     // The brand's mark is an SVG the server serves; the page tint is read from the billboard's colours.
     implementation("io.coil-kt.coil3:coil-svg:3.3.0")
     implementation("androidx.palette:palette-ktx:1.0.0")
+
+    // JUnit 4 and nothing else. `ports` uses kotlin-test on the JUnit platform, which it can
+    // because it is a plain Kotlin module and applies the Kotlin plugin itself; an Android library
+    // gets its Kotlin from the Android plugin, its unit tests run on JUnit 4 by default, and
+    // kotlin-test picks its framework from a rule the Kotlin plugin would have installed. Asking
+    // for JUnit 4 directly is one dependency that needs no rule to work.
+    testImplementation("junit:junit:4.13.2")
 }

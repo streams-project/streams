@@ -58,7 +58,10 @@ import streams.shared.Corner
 import streams.shared.Muted
 import streams.shared.Plate
 import streams.shared.R
+import streams.shared.decoration
 import streams.shared.fill
+import streams.shared.says
+import streams.shared.saysItsWords
 import streams.shared.number
 import streams.shared.wide
 
@@ -101,6 +104,8 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail) {
                     .clip(RoundedCornerShape(Corner.CHIP.dp))
                     .background(Color(0xFF212121))
                     .clickable { showSeasonPicker = true }
+                    // The season it is on is drawn here; what tapping does is not, so it is said.
+                    .says(words["say.season_pick"].orEmpty(), words["title.season.number"].orEmpty().fill("n", seasonNumber))
                     .padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -169,7 +174,8 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail) {
                                 .clickable {
                                     chosenSeasonIndex = index
                                     showSeasonPicker = false
-                                },
+                                }
+                                .saysItsWords(),
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
@@ -189,7 +195,8 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail) {
                         .size(64.dp)
                         .clip(CircleShape)
                         .background(Color.White)
-                        .clickable { showSeasonPicker = false },
+                        .clickable { showSeasonPicker = false }
+                        .says(words["say.close"].orEmpty()),
                     contentAlignment = Alignment.Center,
                 ) {
                     androidx.compose.foundation.Canvas(modifier = Modifier.size(20.dp)) {
@@ -215,6 +222,10 @@ private fun EpisodeRow(episode: Episode, seasonNumber: Long, dataPath: String, s
             .clickable {
                 shell.go("${Address.WATCH}$dataPath/$seasonNumber/${episode.number}")
             }
+            // The row draws the episode's number, its name, how long it runs and what happens in
+            // it. All of that is what a reader wants, so the row gathers its own words; the play
+            // circle over the thumbnail is marked decoration below.
+            .saysItsWords()
             .padding(vertical = 4.dp),
     ) {
         Row(
@@ -230,12 +241,15 @@ private fun EpisodeRow(episode: Episode, seasonNumber: Long, dataPath: String, s
             ) {
                 // The reference's episode thumbnail, 130.0 x 80.0 dp, asked for at that size.
                 Art(wide(episode.images), Modifier.fillMaxSize(), 130.dp, 80.dp)
+                // The play circle over the thumbnail: the row it sits in is already the control
+                // that plays the episode, so this is a picture of what tapping does, not a control.
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .size(36.dp)
                         .background(Color.Black.copy(alpha = 0.5f), CircleShape)
-                        .border(1.5.dp, Color.White.copy(alpha = 0.8f), CircleShape),
+                        .border(1.5.dp, Color.White.copy(alpha = 0.8f), CircleShape)
+                        .decoration(),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(

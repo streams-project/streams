@@ -67,7 +67,8 @@ private fun Line(on: Boolean, word: String, under: String? = null, lead: @Compos
             .fillMaxWidth()
             .height(LINE_HIGH.ref)
             .background(if (on) Color.White else Color.Transparent, shapeOf(Round.inside(Round.panel, MENU_INSET)))
-            .padding(horizontal = LINE_PAD.ref),
+            .padding(horizontal = LINE_PAD.ref)
+            .saysItsWords(on),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(MENU_FACE.ref), contentAlignment = Alignment.Center) { lead(ink) }

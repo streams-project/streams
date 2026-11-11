@@ -35,6 +35,15 @@ import androidx.compose.ui.semantics.stateDescription
 fun Modifier.saysItsWords(): Modifier = semantics(mergeDescendants = true) { role = Role.Button }
 
 /**
+ * The same, for a control that also stands one of two ways and says so with something that is not
+ * words -- a dot, a tick, a filled bar. [state] is those words, from `strings/`, read after the
+ * control's own.
+ */
+fun Modifier.saysItsWords(state: String): Modifier = saysItsWords().then(
+    if (state.isEmpty()) Modifier else Modifier.semantics { stateDescription = state },
+)
+
+/**
  * A control with no words on it: an icon, a picture, a tile. [label] is words a person hears, so it
  * comes from `strings/` or from the title's own name, and is never an English literal in the code.
  *
@@ -59,6 +68,21 @@ fun Modifier.says(label: String): Modifier =
 fun Modifier.says(label: String, state: String): Modifier = says(label).then(
     if (state.isEmpty()) Modifier else Modifier.semantics { stateDescription = state },
 )
+
+/**
+ * A switch. The toolkit's own `Switch` already says which way it stands and that it is a switch; it
+ * does not say what it switches, because the words for that are drawn beside it as a row of text
+ * the switch is no part of. [label] is those words, from `strings/`.
+ */
+fun Modifier.saysSwitch(label: String): Modifier =
+    if (label.isEmpty()) {
+        this
+    } else {
+        semantics {
+            role = Role.Switch
+            contentDescription = label
+        }
+    }
 
 /**
  * A picture that carries no meaning: the art inside a tile that already says the title's name, a

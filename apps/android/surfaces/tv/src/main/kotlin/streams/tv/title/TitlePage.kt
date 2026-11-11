@@ -57,12 +57,15 @@ private fun TitleDetail.isSeries() = title.value.startsWith("tv:")
 
 private fun TitleDetail.path() = title.value.replace(':', '/')
 
-/** The artwork and its shades, behind a title's pages. */
+/**
+ * The artwork and its shades, behind a title's pages. Decoration: the title is named, described and
+ * listed on top of it, so a screen reader that announced the picture as well would say it twice.
+ */
 @Composable
 fun TitleBackdrop(data: TitleDetail) {
-    Art(wide(data.images), Modifier.fillMaxSize())
-    Box(Modifier.fillMaxSize().background(fromStart(*Side)))
-    Box(Modifier.fillMaxSize().background(Foot))
+    Art(wide(data.images), Modifier.fillMaxSize().decoration())
+    Box(Modifier.fillMaxSize().background(fromStart(*Side)).decoration())
+    Box(Modifier.fillMaxSize().background(Foot).decoration())
 }
 
 /** One title: its facts, three ratings, and a menu of what to do next. */
@@ -181,7 +184,13 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, line: MutableIn
             )
         }
     }
-    Box(Modifier.fillMaxSize().remote(@DontMemoize { press(it) })) {
+    // What the remote is on: a line of the menu, or one of the three reactions.
+    val here = if (part == Part.REACTIONS) {
+        reactionWord(reaction, words)
+    } else {
+        sayBoth(lines.getOrNull(row)?.word, data.name)
+    }
+    Box(Modifier.fillMaxSize().remote(here, @DontMemoize { press(it) })) {
         TitleBackdrop(data)
         val logo = data.images?.firstOrNull { it.role == ImageRole.LOGO }?.url
         Box(Modifier.offset(PAGE_EDGE.ref, 26.ref).size(900.ref, 200.ref), contentAlignment = Alignment.BottomStart) {
@@ -216,7 +225,7 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, line: MutableIn
             style = storyStyle(),
         )
         // The reactions sit over the menu icons: both centre on 122.
-        Reactions(rating, if (part == Part.REACTIONS) reaction else -1, PAGE_EDGE + 18, 504)
+        Reactions(rating, if (part == Part.REACTIONS) reaction else -1, PAGE_EDGE + 18, 504, words)
         Menu(lines, if (part == Part.MENU) row else -1, Modifier.offset(PAGE_EDGE.ref, 581.ref), width = 570)
     }
 }

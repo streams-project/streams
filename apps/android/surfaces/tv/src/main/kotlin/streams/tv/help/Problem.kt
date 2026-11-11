@@ -57,7 +57,10 @@ private fun ProblemView(
     }
 
     Box(
-        Modifier.fillMaxSize().background(Color.Black).remote(@DontMemoize { press(it) }),
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .remote(sayBoth(heading, line), @DontMemoize { press(it) }),
         contentAlignment = Alignment.Center,
     ) {
         Column(
@@ -78,7 +81,9 @@ private fun ProblemView(
                 color = Muted,
                 textAlign = TextAlign.Center,
             )
-            if (buttonWord != null) {
+            // A button with no word on it is a white shape a person can neither read nor hear, which
+            // is what the Streamer settled on with no server (note 206). No word, no button.
+            if (!buttonWord.isNullOrEmpty()) {
                 Spacer(Modifier.height(44.ref))
                 Pill(buttonWord, on = true)
             }
@@ -128,10 +133,15 @@ fun BrowseOrProblem(shell: Shell, seen: Seen) {
         }
     }
 
-    if (timedOut && !hasScreen) {
+    // A problem screen is words, and the words are the server's. When the server is the thing that
+    // did not answer there are none of them, and what drew was a black screen holding one empty
+    // white pill (note 206, measured on a Google TV Streamer on 2026-11-11). With nothing to say,
+    // the page keeps waiting with its destination lit instead of saying it wordlessly.
+    val heading = seen.words["problem.offline"].orEmpty()
+    if (timedOut && !hasScreen && heading.isNotEmpty()) {
         val line = seen.notice?.takeIf { it.isNotEmpty() } ?: seen.words["problem.offline.help"].orEmpty()
         ProblemView(
-            heading = seen.words["problem.offline"].orEmpty(),
+            heading = heading,
             line = line,
             buttonWord = seen.words["problem.retry"].orEmpty(),
             onPress = {

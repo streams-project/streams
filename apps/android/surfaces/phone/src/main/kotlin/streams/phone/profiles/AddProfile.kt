@@ -57,6 +57,10 @@ import streams.shared.Art
 import streams.shared.Back
 import streams.shared.BrandFont
 import streams.shared.Corner
+import streams.shared.decoration
+import streams.shared.says
+import streams.shared.saysItsWords
+import streams.shared.saysSwitch
 import streams.shared.Join
 import streams.shared.Muted
 import streams.shared.R
@@ -146,12 +150,13 @@ fun AddProfile(
                 Box(
                     Modifier
                         .size(48.dp)
-                        .clickable(onClick = leave),
+                        .clickable(onClick = leave)
+                        .says(words["common.cancel"].orEmpty()),
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     Icon(
                         painterResource(R.drawable.icon_back),
-                        words["common.cancel"],
+                        null,
                         Modifier.size(24.dp),
                         tint = Color.White,
                     )
@@ -167,7 +172,8 @@ fun AddProfile(
                 Box(
                     Modifier
                         .size(width = 64.dp, height = 48.dp)
-                        .clickable(enabled = !saving, onClick = ::save),
+                        .clickable(enabled = !saving, onClick = ::save)
+                        .saysItsWords(),
                     contentAlignment = Alignment.CenterEnd,
                 ) {
                     Text(
@@ -187,7 +193,10 @@ fun AddProfile(
                     .align(Alignment.CenterHorizontally)
                     .size(100.dp)
                     .clip(RoundedCornerShape(Corner.CARD.dp))
-                    .background(if (kids) Join else Accent),
+                    .background(if (kids) Join else Accent)
+                    // What the new profile will look like. Nothing to do and nothing to hear: the
+                    // letter inside it is the name, which is drawn as words in the field below.
+                    .decoration(),
                 contentAlignment = Alignment.Center,
             ) {
                 if (defaultAvatar != null) {
@@ -227,7 +236,9 @@ fun AddProfile(
                                 nameError = null
                             }
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        // The field's label is drawn above it as its own line of text, which a
+                        // reader reaching the field never sees, so the field is given it.
+                        modifier = Modifier.fillMaxWidth().says(words["profile.name"].orEmpty()),
                         textStyle = TextStyle(
                             color = Color.White,
                             fontSize = 16.sp,
@@ -286,6 +297,7 @@ fun AddProfile(
                 Switch(
                     checked = kids,
                     onCheckedChange = { kids = it },
+                    modifier = Modifier.saysSwitch(words["profile.add.kids"].orEmpty()),
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.White,
                         checkedTrackColor = Accent,

@@ -56,14 +56,17 @@ fun HeroCard(shell: Shell, seen: Seen, store: DetailStore, lead: Tile, button: I
             .background(Plate)
             .border(2.ref, Color.White.copy(alpha = 0.28f), shape),
     ) {
-        Art(wide(lead.images), Modifier.fillMaxSize())
-        Box(Modifier.fillMaxSize().background(fromStart(*Side)))
-        Box(Modifier.fillMaxSize().background(Foot))
+        // The artwork behind the card is the title that is named, pictured and described on top of
+        // it, so it is decoration; the two shades over it are nothing at all.
+        Art(wide(lead.images), Modifier.fillMaxSize().decoration())
+        Box(Modifier.fillMaxSize().background(fromStart(*Side)).decoration())
+        Box(Modifier.fillMaxSize().background(Foot).decoration())
         Column(Modifier.align(Alignment.BottomStart).padding(start = 30.ref, bottom = 34.ref).width(760.ref)) {
             val logo = (lead.images.orEmpty() + detail?.images.orEmpty())
                 .firstOrNull { it.role == ImageRole.LOGO }
                 ?.url
             if (logo != null) {
+                // The logo is the title's name drawn as a picture, so it says the name.
                 AsyncImage(
                     logo,
                     lead.name,
