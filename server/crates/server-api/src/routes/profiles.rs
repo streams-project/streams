@@ -39,7 +39,7 @@ pub fn view(row: &Profile) -> ProfileView {
 }
 
 /// The wire view with the profile's language, which the library holds.
-async fn shown(state: &Shared, row: &Profile) -> ApiResult<ProfileView> {
+pub(crate) async fn shown(state: &Shared, row: &Profile) -> ApiResult<ProfileView> {
     let mut answer = view(row);
     if let Some(library) = &state.library {
         answer.language = library.store().settings(row.id).await?.ui_language;
@@ -92,11 +92,10 @@ pub async fn feature(
         .iter()
         .find(|row| row.id.to_string() == id)
         .ok_or_else(|| ApiError::refused("profile_refused"))?;
-    let tier = if view(row).kids {
-        Tier::OlderKids
-    } else {
-        Tier::Adult
-    };
+    // One function owns "what tier is this profile": the saved age limit wins over the older
+    // level, a Kids profile never rises above PG, and a limit that cannot be read answers 503
+    // rather than Adult. Nothing here may compute a tier from the Kids flag alone.
+    let tier = Tier::of_profile(row)?;
     let set = data(&state)?;
     let tile = state
         .pages
@@ -226,9 +225,7 @@ pub async fn delete(
     Path(id): Path<String>,
     headers: HeaderMap,
 ) -> ApiResult<Response> {
-    door(&state)?
-        .delete_profile(&member, ProfileId::parse(&id)?)
-        .await?;
+    crate::erase::profile(&state, &member, ProfileId::parse(&id)?).await?;
     send(&headers, &done(), Keep::Never)
 }
 
@@ -321,6 +318,13 @@ pub async fn set_limits(
     headers: HeaderMap,
     Body(asked): Body<ProfileLimits>,
 ) -> ApiResult<Response> {
+    // The word is checked with the same function that reads it back, so a rating this server
+    // cannot turn into a tier never reaches a row. The column takes the same five words, and
+    // without this the answer was either "busy, try again" for ever (Postgres refuses the value)
+    // or a profile whose every page afterwards says its limit cannot be read.
+    if Tier::from_rating(&asked.age_rating).is_none() {
+        return Err(ApiError::bad("age_rating"));
+    }
     let row = ProfileLimitsRow {
         age_limit: asked.age_rating.clone(),
         blocked_names: asked.blocked_titles.clone(),

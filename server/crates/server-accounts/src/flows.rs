@@ -21,6 +21,9 @@ const USER_CODE_LENGTH: usize = 8;
 const DEVICE_DECIDED: &str = "device_decided";
 /// Newest audit rows a person sees.
 const EVENTS_SHOWN: usize = 10;
+/// Audit rows the export carries. The table is pruned at 365 days, so this is a ceiling on the
+/// answer's size and not a second retention rule.
+const EVENTS_EXPORTED: usize = 10_000;
 
 /// Where a sign in ended up.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -580,6 +583,17 @@ impl Door {
         to_email: &str,
     ) -> Result<(), DoorError> {
         self.require_step_up(member)?;
+        // The holder's own answer about moving a profile, which the column has carried since the
+        // first migration and nothing read. A move takes a profile's whole library, settings,
+        // taste and blocked names to another account holder, so the one column designed to stop
+        // it is read before anything else is looked at.
+        if !self
+            .store()
+            .profile_transfer_allowed(member.account())
+            .await?
+        {
+            return Err(DoorError::Refused("profile_transfer"));
+        }
         let all = self.store().profiles_of(member.account()).await?;
         let row = all
             .iter()
@@ -612,6 +626,19 @@ impl Door {
         Ok(self
             .store()
             .events_of(member.account(), EVENTS_SHOWN)
+            .await?)
+    }
+
+    /// The audit log of the caller, as far back as it is kept, for the export. A screen shows the
+    /// newest few; a person asking for their data is owed the lot, which the 365 day prune
+    /// already bounds (`holdings::HELD`, `account_events`).
+    ///
+    /// # Errors
+    /// The store's refusal.
+    pub async fn whole_audit_log(&self, member: &Member) -> Result<Vec<String>, DoorError> {
+        Ok(self
+            .store()
+            .events_of(member.account(), EVENTS_EXPORTED)
             .await?)
     }
 }

@@ -140,6 +140,10 @@ pub trait AccountStore: Send + Sync {
     async fn events_of(&self, account: AccountId, limit: usize) -> StoreResult<Vec<String>>;
     /// The names of an account.
     async fn names(&self, account: AccountId) -> StoreResult<AccountNames>;
+    /// Whether this account holder lets a profile of theirs be moved to another account:
+    /// `account_details.profile_transfer`, which is true until it is turned off. An account with
+    /// no details row counts as allowing it, which is the column's default.
+    async fn profile_transfer_allowed(&self, account: AccountId) -> StoreResult<bool>;
     /// Change the names of an account, and the main profile's name when `main` says so.
     async fn set_names(
         &self,

@@ -32,6 +32,7 @@ import streams.shared.Art
 import streams.shared.Corner
 import streams.shared.Face
 import streams.shared.Join
+import streams.shared.saysItsWords
 
 /**
  * One place on the bar: its icon, its word, whether it is the page in view, and where it goes.
@@ -73,6 +74,10 @@ fun BottomBar(items: List<BarItem>, modifier: Modifier = Modifier) {
                     .clip(itemShape)
                     .background(if (item.here) ChosenFill else Color.Transparent)
                     .clickable(onClick = item.go)
+                    // Each place on the bar draws its own word under its icon. The face shown in
+                    // place of an icon is decoration (`Face` marks it), so what is gathered here is
+                    // the word and nothing else.
+                    .saysItsWords()
                     .padding(horizontal = 6.dp),
                 contentAlignment = Alignment.Center,
             ) {
@@ -83,7 +88,7 @@ fun BottomBar(items: List<BarItem>, modifier: Modifier = Modifier) {
                     if (item.face != null) {
                         BarFace(item.face, item.server)
                     } else {
-                        Icon(painterResource(item.icon), item.word, Modifier.size(24.dp), tint = if (item.here) Color.White else IdleInk)
+                        Icon(painterResource(item.icon), null, Modifier.size(24.dp), tint = if (item.here) Color.White else IdleInk)
                     }
                     Spacer(Modifier.height(2.dp))
                     Text(

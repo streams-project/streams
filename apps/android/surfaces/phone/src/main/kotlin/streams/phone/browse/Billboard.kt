@@ -46,6 +46,8 @@ import contract.ImageRole
 import contract.Tile
 import streams.shared.Corner
 import streams.shared.R
+import streams.shared.says
+import streams.shared.saysItsWords
 import streams.shared.isSeries
 import streams.shared.tall
 
@@ -115,13 +117,17 @@ fun Billboard(
                 .clip(shape)
                 .border(1.dp, Color.White.copy(alpha = 0.28f), shape)
                 .background(Color(0xFF16161D))
-                .clickable(onClick = open),
+                .clickable(onClick = open)
+                // The card is one control that opens the title. Its picture, its logo and its tag
+                // line carry the same name between them, so the name is said once, here, and the
+                // two buttons inside it are reached separately with their own words.
+                .says(tile.name),
         ) {
             val picture = tall(tile.images)
             if (picture != null) {
                 AsyncImage(
                     ImageRequest.Builder(context).data(picture).allowHardware(false).build(),
-                    tile.name,
+                    null,
                     Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
                     onSuccess = { state ->
@@ -139,7 +145,7 @@ fun Billboard(
                 if (logo != null) {
                     AsyncImage(
                         logo,
-                        tile.name,
+                        null,
                         Modifier.sizeIn(maxWidth = wide * 0.7f, maxHeight = 108.dp),
                         contentScale = ContentScale.Fit,
                     )
@@ -199,6 +205,9 @@ private fun Wide(word: String, icon: Int, fill: Color, ink: Color, go: () -> Uni
             .clip(RoundedCornerShape(minOf(Corner.BUTTON, 24).dp))
             .background(fill)
             .clickable(onClick = go)
+            // The word is drawn in the button, so the button gathers it rather than being given a
+            // second copy from a key of its own.
+            .saysItsWords()
             .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,

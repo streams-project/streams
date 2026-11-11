@@ -98,6 +98,12 @@ pub trait LibraryRead: Send + Sync {
     ) -> Row<Vec<(TitleKey, contract::Rating)>>;
     /// The newest positions, hidden titles left out.
     async fn recent(&self, profile: ProfileId, limit: usize) -> Row<Vec<EpisodeProgress>>;
+    /// Every saved position, newest first, hidden titles included. `recent` is what rows are
+    /// built from; this is what a person is owed when they ask for their viewing activity, which
+    /// must not stop at the titles they hid.
+    async fn positions(&self, profile: ProfileId, limit: usize) -> Row<Vec<EpisodeProgress>>;
+    /// The titles hidden from this profile's rows, newest first.
+    async fn hidden_titles(&self, profile: ProfileId, limit: usize) -> Row<Vec<HiddenTitle>>;
     /// The saved position of a title or episode.
     async fn position(
         &self,
@@ -135,4 +141,17 @@ pub trait LibraryRead: Send + Sync {
 pub trait LibraryStore: LibraryRead {
     /// Open the writer of one profile. A second writer waits.
     async fn begin(&self, profile: ProfileId) -> Row<Box<dyn LibraryTx>>;
+    /// Remove everything this store holds for a profile: its list and ratings, its positions and
+    /// hidden titles, its settings, its taste and viewing signals, its reminders, its read marks,
+    /// its refused trailers, its op ids and its change counter.
+    ///
+    /// On Postgres the foreign keys already carry these rows away with the profile row, so this
+    /// is the same answer by another route and running both changes nothing. It exists because a
+    /// store that cannot be asked to do it cannot be proved to do it: the memory store is the one
+    /// CI runs, and nothing in it models the cascade. Deletion calls this for every profile it
+    /// removes, so "deleting a profile removes its library" is a rule both stores answer.
+    ///
+    /// # Errors
+    /// The store did not answer. The profile's rows may then be partly removed.
+    async fn delete_profile(&self, profile: ProfileId) -> Row<()>;
 }

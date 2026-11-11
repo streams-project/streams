@@ -10,6 +10,7 @@ use contract::screen::{GateLineKind, ImageRole, ProfileGate};
 use serde_json::json;
 use server_accounts::{AccountId, StepUpMethod};
 use server_catalog::sample::{SEASON_COMING_BACK, sample_titles};
+use server_rules::{Tier, Viewer};
 
 const IMAGES: (&str, &str) = ("IMAGE_BASE", "https://images.host.example/t/w780");
 const DAY_MS: u64 = 86_400_000;
@@ -263,5 +264,97 @@ async fn n12_an_account_kept_to_pg_never_sees_a_title_above_it() {
             // A child's chart is no place in Today's Top 10.
             assert_ne!(title.line.kind, GateLineKind::Ranked);
         }
+    }
+}
+
+/// The picker's one title for a profile is chosen by that profile's own saved limit, by the same
+/// function the gate beside it uses (`server_rules::Tier::of_profile`). Before this the route read
+/// the Kids flag alone and asked for `OlderKids`, so a Kids profile saved at U could be shown a
+/// PG film: the guardian's answer was in the row and nothing read it.
+///
+/// The body looks for a profile whose U answer and PG answer are not the same title, because a
+/// seed where the two tiers agree would prove nothing, and then holds the route to the U answer.
+/// It fails if it cannot find one, rather than passing on a seed that cannot tell them apart.
+#[tokio::test]
+async fn h27_h33_the_picker_reads_the_profiles_saved_limit() {
+    let server = harness(&[IMAGES]);
+    let set = server.state.data.as_ref().expect("the sample set").load();
+    let pick = |tier, seed: &str| -> Option<String> {
+        let tile = server
+            .state
+            .pages
+            .feature(&set, &Viewer::visitor(tier), seed)?;
+        let value = serde_json::to_value(&tile).expect("a tile");
+        Some(value["title"].as_str().expect("a title key").to_owned())
+    };
+    for _ in 0..60 {
+        let (_, token) = member(&server.door).await;
+        let profiles = get("/v1/profiles").token(&token).on(&server.state).await;
+        let id = profiles.body["profiles"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|row| row["kids"] == true)
+            .expect("the Kids profile of a new account")["id"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+        let (at_u, at_pg) = (
+            pick(Tier::LittleKids, &id).expect("a U answer"),
+            pick(Tier::OlderKids, &id).expect("a PG answer"),
+        );
+        if at_u == at_pg {
+            continue;
+        }
+        let limited = call(Method::PUT, &format!("/v1/profiles/{id}/limits"))
+            .token(&token)
+            .json(json!({ "age_rating": "U", "blocked_titles": [] }))
+            .on(&server.state)
+            .await;
+        assert_eq!(limited.status, StatusCode::OK, "{}", limited.body);
+        let answer = get(&format!("/v1/profiles/{id}/feature"))
+            .token(&token)
+            .on(&server.state)
+            .await;
+        assert_eq!(answer.status, StatusCode::OK, "{}", answer.body);
+        let given = answer.body["title"].as_str().unwrap();
+        assert_eq!(
+            given,
+            at_u,
+            "the profile is saved at U and was given {given}, which is the {} answer",
+            cert_of(given)
+        );
+        assert_ne!(given, at_pg, "the Kids flag alone would have given {at_pg}");
+        assert_eq!(cert_of(given), "U");
+        return;
+    }
+    panic!("no profile in 60 tries had a different answer at U and at PG, so nothing was proved");
+}
+
+/// The one rating the server writes is one it can read back. The column takes the same five
+/// words, so a word it refuses is a bad request and not a store failure a client retries.
+#[tokio::test]
+async fn h27_a_rating_the_server_cannot_read_is_refused_where_it_is_written() {
+    let server = harness(&[IMAGES]);
+    let (_, token) = member(&server.door).await;
+    let profiles = get("/v1/profiles").token(&token).on(&server.state).await;
+    let id = profiles.body["profiles"][0]["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let refused = call(Method::PUT, &format!("/v1/profiles/{id}/limits"))
+        .token(&token)
+        .json(json!({ "age_rating": "R18", "blocked_titles": [] }))
+        .on(&server.state)
+        .await;
+    assert_eq!(refused.status, StatusCode::BAD_REQUEST, "{}", refused.body);
+    assert_eq!(refused.body["label"], "error.age_rating");
+    for word in ["U", "PG", "12", "15", "18"] {
+        let taken = call(Method::PUT, &format!("/v1/profiles/{id}/limits"))
+            .token(&token)
+            .json(json!({ "age_rating": word, "blocked_titles": [] }))
+            .on(&server.state)
+            .await;
+        assert_eq!(taken.status, StatusCode::OK, "{word}: {}", taken.body);
     }
 }

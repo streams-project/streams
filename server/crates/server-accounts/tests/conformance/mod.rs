@@ -6,10 +6,10 @@
 use std::sync::Arc;
 
 use server_accounts::pin::{PinCheck, PinOutcome};
-use server_accounts::profile::{AVATAR_MAX_BYTES, starting_profiles};
+use server_accounts::profile::{AVATAR_MAX_CHARS, starting_profiles};
 use server_accounts::{
-    AccountId, AccountStore, Consent, DeviceCodeRow, DeviceSession, NewAccount, Profile, ProfileId,
-    ProfileKind, ProfilePatch, SessionId, StoreError, hash_token,
+    AccountId, AccountStore, Consent, DeviceCard, DeviceCodeRow, DeviceSession, NewAccount,
+    Profile, ProfileId, ProfileKind, ProfilePatch, SessionId, StoreError, hash_token,
 };
 
 /// The time these bodies run at. Any fixed time will do: nothing here reads a real clock.
@@ -304,11 +304,13 @@ pub async fn tmt2_only_the_session_that_is_kept_survives(both: &Both<'_>) {
 }
 
 /// A session belongs to its account: another account's call removes nothing, and only the call
-/// that removed a row is told so.
+/// that removed a row is told so. Ledger S57 is the row this proves — deny by default, where a
+/// query takes a scope the door minted and nothing wider. The name said H31 before, which is the
+/// row about the active profile on the session and the step up, and is not this.
 ///
 /// # Panics
 /// When the store refuses, or an answer is wrong.
-pub async fn h31_a_session_of_another_account_is_not_theirs_to_remove(both: &Both<'_>) {
+pub async fn s57_a_session_of_another_account_is_not_theirs_to_remove(both: &Both<'_>) {
     let row = session(both.one, &format!("mine-{}", SessionId::new()));
     both.store
         .insert_session(&row)
@@ -339,8 +341,185 @@ pub async fn h31_a_session_of_another_account_is_not_theirs_to_remove(both: &Bot
     );
 }
 
-/// A picture name as long as the column takes is kept by both stores. Longer than that never
-/// reaches a store: the door refuses it, which `tests/door.rs` proves.
+/// Deleting an account leaves no row of it on either store: no profile, no session, no device
+/// card, no PIN, no audit row, no waiting device code. Postgres loses them by cascade; the memory
+/// store kept the PIN hashes and the device cards, because nothing in it holds the account on
+/// those rows, and no body covered account deletion at all — so the one promise a person cares
+/// most about was proved on neither store.
+///
+/// # Panics
+/// When the store refuses, or anything of the account is still there.
+pub async fn s55_deleting_an_account_leaves_nothing_of_it(both: &Both<'_>) {
+    let profiles = both
+        .store
+        .profiles_of(both.one)
+        .await
+        .expect("the profiles");
+    assert!(!profiles.is_empty(), "a new account has profiles");
+    for row in &profiles {
+        both.store
+            .set_pin(row.id, Some(String::from("a-pin-hash")))
+            .await
+            .expect("a PIN");
+    }
+    let device = session(both.one, &format!("gone-{}", SessionId::new()));
+    both.store
+        .insert_session(&device)
+        .await
+        .expect("a session row");
+    let key = format!("device-key-{}", SessionId::new());
+    both.store
+        .save_card(&DeviceCard {
+            session: device.id,
+            account: both.one,
+            device_key: &key,
+            card_hash: "hash-of-the-card",
+            card: Some(&serde_json::json!({ "class": "tv" })),
+        })
+        .await
+        .expect("a card");
+    both.store
+        .log_event(both.one, "signed_in")
+        .await
+        .expect("an audit row");
+    let waiting = DeviceCodeRow {
+        device_hash: hash_token(&format!("waiting-{}", SessionId::new())),
+        user_code: SessionId::new().to_string().chars().take(8).collect(),
+        device_name: String::from("tv"),
+        account: Some(both.one),
+        denied: false,
+        last_poll_ms: None,
+        expires_ms: NOW_MS + 900_000,
+    };
+    both.store
+        .insert_device_code(&waiting)
+        .await
+        .expect("a waiting sign in");
+
+    both.store
+        .delete_account(both.one)
+        .await
+        .expect("the deletion");
+
+    assert!(
+        both.store
+            .profiles_of(both.one)
+            .await
+            .expect("a read")
+            .is_empty(),
+        "no profile of the account is left"
+    );
+    assert!(
+        both.store
+            .sessions_of(both.one)
+            .await
+            .expect("a read")
+            .is_empty(),
+        "no session of the account is left"
+    );
+    assert_eq!(
+        both.store.card(device.id).await.expect("a read"),
+        None,
+        "no device card of the account is left"
+    );
+    assert!(
+        both.store
+            .events_of(both.one, 100)
+            .await
+            .expect("a read")
+            .is_empty(),
+        "no audit row of the account is left"
+    );
+    assert_eq!(
+        both.store
+            .device_code(&waiting.device_hash)
+            .await
+            .expect("a read"),
+        None,
+        "no waiting sign in of the account is left"
+    );
+    for row in &profiles {
+        let check = PinCheck {
+            pin: Some("0000"),
+            now_ms: NOW_MS,
+        };
+        assert_eq!(
+            both.store
+                .pin_attempt(row.id, check)
+                .await
+                .expect("a PIN check"),
+            PinOutcome::Pass,
+            "no PIN hash of a deleted profile is left to be met"
+        );
+    }
+    // The other account is untouched, so this is deletion and not a truncation.
+    assert!(
+        !both
+            .store
+            .profiles_of(both.two)
+            .await
+            .expect("a read")
+            .is_empty(),
+        "the other account keeps its profiles"
+    );
+}
+
+/// The retention the prune is asked for is the retention it keeps. The memory store took
+/// `events_before_ms` and ignored it, so the 365 day rule on the audit log held on no store that
+/// CI runs.
+///
+/// # Panics
+/// When the store refuses, or a row outlives or outlasts its argument.
+pub async fn s51_the_prune_keeps_the_retention_it_is_given(both: &Both<'_>) {
+    both.store
+        .log_event(both.one, "signed_in")
+        .await
+        .expect("an audit row");
+    let now = real_now_ms();
+    both.store
+        .prune(0, now.saturating_sub(DAY_MS), now)
+        .await
+        .expect("a prune that reaches nothing");
+    assert!(
+        !both
+            .store
+            .events_of(both.one, 100)
+            .await
+            .expect("a read")
+            .is_empty(),
+        "an audit row younger than the argument stays"
+    );
+    both.store
+        .prune(0, now + DAY_MS, now)
+        .await
+        .expect("a prune that reaches it");
+    assert!(
+        both.store
+            .events_of(both.one, 100)
+            .await
+            .expect("a read")
+            .is_empty(),
+        "an audit row older than the argument goes"
+    );
+}
+
+/// A day, for the prune bodies.
+const DAY_MS: u64 = 86_400_000;
+
+/// Now by the machine clock. Both stores stamp an audit row with a clock of their own — Postgres
+/// with `now()`, the memory store with the clock it was built with, the machine clock by default
+/// — so the bodies above compare against the same wall clock the row was written by.
+fn real_now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(NOW_MS, |since| {
+            u64::try_from(since.as_millis()).unwrap_or(NOW_MS)
+        })
+}
+
+/// A picture name as long as the column takes is kept by both stores, counted in the unit the
+/// column counts: 64 characters, which is more than 64 bytes once one of them is not ASCII.
+/// Longer than that never reaches a store: the door refuses it, which `tests/door.rs` proves.
 ///
 /// # Panics
 /// When the store refuses, or the name comes back changed.
@@ -354,8 +533,9 @@ pub async fn s39_a_picture_name_at_the_limit_is_kept(both: &Both<'_>) {
         .find(|row| row.is_main)
         .expect("the main profile");
     let head = "/avatars/";
-    let name = format!("{head}{}", "a".repeat(AVATAR_MAX_BYTES - head.len()));
-    assert_eq!(name.len(), AVATAR_MAX_BYTES);
+    let name = format!("{head}{}", "é".repeat(AVATAR_MAX_CHARS - head.len()));
+    assert_eq!(name.chars().count(), AVATAR_MAX_CHARS);
+    assert!(name.len() > AVATAR_MAX_CHARS, "the name is not plain ASCII");
     let patch = ProfilePatch {
         avatar: Some(name.clone()),
         ..ProfilePatch::default()

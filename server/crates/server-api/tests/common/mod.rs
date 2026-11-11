@@ -106,7 +106,9 @@ fn make(
     auth: Option<Arc<dyn AuthService>>,
 ) -> Harness {
     let clock = Arc::new(ManualClock::new(START_MS));
-    let rows = Arc::new(MemoryStore::default());
+    // One clock in the test server: the double stamps its audit rows with the same scripted
+    // clock the door prunes by, as Postgres stamps them with the clock the database prunes by.
+    let rows = Arc::new(MemoryStore::with_clock(clock.clone()));
     let store: Arc<dyn AccountStore> = rows.clone();
     let mut door = Door::new(store, clock.clone(), DEFAULT_LIMITS);
     if let Some(auth) = auth {

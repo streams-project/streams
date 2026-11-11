@@ -8,7 +8,7 @@ use std::time::Duration;
 use anyhow::{Context, Result, bail};
 use launcher::address::{self, Site};
 use launcher::brand::Brand;
-use launcher::data::{self, Data};
+use launcher::data::{self, Data, Found};
 use launcher::films;
 use launcher::postgres::{self, Postgres};
 use launcher::supervise::{Program, answers, keep, log_path};
@@ -229,20 +229,38 @@ fn publish_site(stack: &Stack) -> Result<PathBuf> {
 /// instead of inheriting one test film for every id.
 fn data_set(stack: &Stack) -> Result<Data> {
     let sample_key = server_catalog::sample::sample_key_pem();
-    if let Some(own) = data::operator_set(&stack.home, &sample_key)? {
-        // An install that once ran without a catalogue kept the seeded film list, and the finder
-        // that reads it answers before the catalogue, so a test film stood in front of every real
-        // title with the same id. It is decided here on every start, so an install that already
-        // has the file is reached and not only a fresh one.
-        if let Some(aside) = films::retire_seed(&own.films)? {
+    match data::read(&stack.home, &sample_key)? {
+        Found::Operator(own) => {
+            // An install that once ran without a catalogue kept the seeded film list, and the
+            // finder that reads it answers before the catalogue, so a test film stood in front of
+            // every real title with the same id. It is decided here on every start, so an install
+            // that already has the file is reached and not only a fresh one.
+            if let Some(aside) = films::retire_seed(&own.films)? {
+                println!(
+                    "The sample film list was moved to {}, so this catalogue answers for itself.",
+                    aside.display()
+                );
+            }
+            return Ok(own);
+        }
+        Found::Nothing => {
             println!(
-                "The sample film list was moved to {}, so this catalogue answers for itself.",
-                aside.display()
+                "No catalogue yet, so the site shows a generated sample with invented titles."
             );
         }
-        return Ok(own);
+        // An older version of this program wrote the sample into the operator's own folder, which
+        // left the published sample key standing as this install's trust root. That is refused
+        // now, and until this branch existed the refusal asked a person to delete two files by
+        // hand to undo something this program had done to them.
+        Found::Reseeded { manifest, key } => println!(
+            "This install was holding the generated sample under the names a real catalogue is \
+             read from, so the sample's key would have accepted a set signed by anyone. The \
+             manifest was moved to {} and its key to {}, and the sample is written fresh in a \
+             folder of its own.",
+            manifest.display(),
+            key.display()
+        ),
     }
-    println!("No catalogue yet, so the site shows a generated sample with invented titles.");
     let (folder, key) = data::sample_at(&stack.home);
     let manifest = server_catalog::sample::write_sample(&folder);
     std::fs::write(&key, &sample_key)?;
@@ -520,15 +538,31 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
     }
     running.spawn(keep(server));
     // A finder that never came up used to show as nothing at all: play simply found no sources.
-    for (name, url) in &listening {
-        if !answers(&format!("{url}/v1/health"), FINDER_READY_WITHIN).await {
-            eprintln!(
+    //
+    // All of them at once, and alongside the server's own wait: asked one after another, every
+    // finder that never answers pushed the line below back by its whole wait, so a copy with
+    // three dead packs took a minute of waits before it said it was running.
+    let mut probing = tokio::task::JoinSet::new();
+    for (name, url) in listening {
+        probing.spawn(async move {
+            (
+                name,
+                answers(&format!("{url}/v1/health"), FINDER_READY_WITHIN).await,
+            )
+        });
+    }
+    let server_ready = answers(&format!("{local}/v1/ready"), READY_WITHIN).await;
+    while let Some(probed) = probing.join_next().await {
+        match probed {
+            Ok((_, true)) => {}
+            Ok((name, false)) => eprintln!(
                 "PROBLEM the {name} finder is not answering, so its sources are missing. See {}",
-                log_path(&stack.home, name).display()
-            );
+                log_path(&stack.home, &name).display()
+            ),
+            Err(_) => eprintln!("PROBLEM a finder could not be asked whether it came up"),
         }
     }
-    if !answers(&format!("{local}/v1/ready"), READY_WITHIN).await {
+    if !server_ready {
         eprintln!(
             "The server is not answering yet, see {}",
             log_path(&stack.home, "server").display()
@@ -711,6 +745,91 @@ async fn main() -> ExitCode {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The whole of `data_set` over a home that is in the state an older version of this program
+    /// left behind. The type's own rule is tested in `data.rs`; this is the call path, which is
+    /// the half that decided whether a person had to delete two files by hand.
+    #[test]
+    fn an_install_holding_the_sample_at_the_operators_path_starts_on_a_fresh_sample() {
+        let root = find_root().expect("the repository");
+        let home = std::env::temp_dir().join(format!("data-set-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&home);
+        std::fs::create_dir_all(home.join("data")).expect("a home");
+        let stack = Stack {
+            brand: Brand::read(&root.join("brand.json")).expect("the brand"),
+            programs: root.join("bin"),
+            root,
+            home: home.clone(),
+        };
+        // The sample written where the operator's own set is read from, which is what the older
+        // version did and what the owner's install had held since 8 November.
+        let built = server_catalog::sample::write_sample(&home.join("data"));
+        assert_eq!(built, home.join("data/manifest.json"));
+        std::fs::write(
+            home.join("data/data_key.pem"),
+            server_catalog::sample::sample_key_pem(),
+        )
+        .expect("a key");
+
+        let data = data_set(&stack).expect("the start refused to carry on");
+
+        // It carries on, on the sample, under the sample's own names.
+        assert!(data.sample);
+        let (folder, key) = data::sample_at(&home);
+        assert_eq!(data.manifest, folder.join("manifest.json"));
+        assert_eq!(data.key, key);
+        assert!(data.key.exists() && data.manifest.exists());
+        // And the published key is no longer the trust root of the operator's path.
+        assert!(!home.join("data/data_key.pem").exists());
+        assert!(home.join("data/data_key.pem.sample").exists());
+        assert!(home.join("data/manifest.json.sample").exists());
+        // A second start has nothing left to move and still runs.
+        assert!(data_set(&stack).expect("a second start").sample);
+        std::fs::remove_dir_all(&home).expect("cleaned");
+    }
+
+    /// The name of the variable that turns the test below into a port binder.
+    const BIND_PORT: &str = "LAUNCHER_TEST_BIND_PORT";
+
+    /// A child process that binds the port it was handed, which is what the database is. With the
+    /// variable unset this does nothing, so it costs an ordinary run nothing; the test below runs
+    /// this same binary again with it set.
+    #[test]
+    fn bind_the_port_this_run_was_given() {
+        let Ok(asked) = std::env::var(BIND_PORT) else {
+            return;
+        };
+        let port: u16 = asked.parse().expect("a port number");
+        let bound = std::net::TcpListener::bind(("127.0.0.1", port));
+        assert!(bound.is_ok(), "the child could not bind {port}: {bound:?}");
+    }
+
+    /// The same proof as below, against a real other process rather than this one. It is the test
+    /// the audit asked for and the one whose absence let the boot breaker through: every proof of
+    /// `Ports` was over a type, and what broke was a child being told to bind a number this
+    /// program still held.
+    #[test]
+    fn a_port_a_child_process_is_handed_is_bound_by_it_and_a_held_one_is_not() {
+        let mut ports = Ports::default();
+        let now = ports.take_and_free().expect("a port to bind now");
+        let held = ports.take().expect("a held port");
+        let child = |port: u16| {
+            Command::new(std::env::current_exe().expect("this test binary"))
+                .args(["tests::bind_the_port_this_run_was_given", "--exact"])
+                .env(BIND_PORT, port.to_string())
+                .output()
+                .expect("the child ran")
+        };
+        assert!(
+            child(now).status.success(),
+            "a port handed over for a child to bind now was still held by this program"
+        );
+        assert!(
+            !child(held).status.success(),
+            "a port this program is holding was free for a child to take, so two children can \
+             be handed the same number"
+        );
+    }
 
     /// The database is handed a port and binds it at once, so the launcher must not still have it.
     /// Holding it until `release` is what stopped `up` and `backup` starting the database at all.

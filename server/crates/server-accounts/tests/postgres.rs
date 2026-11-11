@@ -72,7 +72,8 @@ impl CodePost for Letterbox {
     }
 }
 
-#[tokio::test]
+// Two tasks really run at once only on a runtime with more than one thread.
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 #[ignore = "needs a real Postgres in TEST_DATABASE_URL"]
 async fn tmt13_one_right_code_signs_in_once_however_many_ask_at_once() {
     let pool = pool().await;
@@ -117,7 +118,7 @@ async fn tmt1_a_token_write_that_lost_the_race_changes_nothing() {
     conformance::tmt1_a_token_write_that_lost_the_race_changes_nothing(&both).await;
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 #[ignore = "needs a real Postgres in TEST_DATABASE_URL"]
 async fn n11_an_approved_device_code_is_taken_once() {
     let (store, one, two) = both().await;
@@ -167,14 +168,14 @@ async fn tmt2_only_the_session_that_is_kept_survives() {
 
 #[tokio::test]
 #[ignore = "needs a real Postgres in TEST_DATABASE_URL"]
-async fn h31_a_session_of_another_account_is_not_theirs_to_remove() {
+async fn s57_a_session_of_another_account_is_not_theirs_to_remove() {
     let (store, one, two) = both().await;
     let both = Both {
         store: &store,
         one,
         two,
     };
-    conformance::h31_a_session_of_another_account_is_not_theirs_to_remove(&both).await;
+    conformance::s57_a_session_of_another_account_is_not_theirs_to_remove(&both).await;
 }
 
 #[tokio::test]
@@ -233,4 +234,28 @@ async fn h60_tmp2_deleting_the_active_profile_clears_the_session_row() {
     door.delete_profile(&member, kids).await.expect("delete");
     let member = door.member(&tokens.access).await.expect("member");
     assert_eq!(door.scope(&member).await, Err(DoorError::ProfileRequired));
+}
+
+#[tokio::test]
+#[ignore = "needs a real Postgres in TEST_DATABASE_URL"]
+async fn s55_deleting_an_account_leaves_nothing_of_it() {
+    let (store, one, two) = both().await;
+    let both = Both {
+        store: &store,
+        one,
+        two,
+    };
+    conformance::s55_deleting_an_account_leaves_nothing_of_it(&both).await;
+}
+
+#[tokio::test]
+#[ignore = "needs a real Postgres in TEST_DATABASE_URL"]
+async fn s51_the_prune_keeps_the_retention_it_is_given() {
+    let (store, one, two) = both().await;
+    let both = Both {
+        store: &store,
+        one,
+        two,
+    };
+    conformance::s51_the_prune_keeps_the_retention_it_is_given(&both).await;
 }

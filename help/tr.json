@@ -2,6 +2,7 @@
   "articles": {
     "accessibility": {
       "body": "- <b>Altyazılar.</b> Dili profilinizin <b>Diller</b> bölümünden, boyutu, rengi ve arka planı <b>Altyazı görünümü</b>'nden seçin. Bkz. <a=/help/article/subtitles>Altyazıları kullanma veya ses dilini seçme</a>.\n- <b>Klavye.</b> Kontroller arasında <b>Tab</b> ile geçin, pencereleri <b>Esc</b> ile kapatın. Oynatıcının kendi tuşları vardır, bkz. <a=/help/article/shortcuts>Klavye kısayolları</a>.\n- <b>Yazı boyutu.</b> Tarayıcınızda <b>Ctrl</b> ve <b>+</b> ile yakınlaştırın (Mac'te <b>Cmd</b> ve <b>+</b>). Düzen kendini ayarlar.\n- <b>Hareket.</b> Cihazınız hareketin azaltılmasını istiyorsa hareketli logo durur.\n\nBir şeyi kullanmak zorsa bunu <a=/help/article/report-bug>Sorun bildirme</a> sayfasından bize iletin. Bu bildirimleri ciddiye alırız.",
+      "from": "3830ee42515f5d78",
       "keywords": "erişilebilirlik altyazı klavye yakınlaştırma hareket",
       "related": [
         "subtitles",
@@ -15,6 +16,7 @@
     },
     "autoplay-blocked": {
       "body": "Tarayıcılar, siz sayfaya tıklayana veya dokunana kadar bir sayfanın sesli video başlatmasına izin vermez. {brand} önce sesli başlatmayı dener. Tarayıcı izin vermezse video sessiz başlar ve sesi kapalı hoparlör simgesi görünür. Sesi <b>M</b> tuşuyla veya hoparlör düğmesiyle açın.\n\n- Önizlemelerin kendiliğinden başlamasını durdurmak için profilinizin <b>Oynatma ayarları</b> bölümünde <b>Önizlemeleri otomatik oynat</b>'ı kapatın.\n- Bir başlık hiç başlamıyorsa bkz. <a=/help/article/wont-play>Bir başlık oynatılmıyor</a>.",
+      "from": "2a0ce5be04ae6874",
       "keywords": "otomatik oynatma engellendi sessiz başlat tarayıcı önizlemeler fragman",
       "related": [
         "no-sound",
@@ -28,6 +30,7 @@
     },
     "black-screen": {
       "body": "1. Tam ekrandan çıkıp yeniden girmek için <b>F</b> tuşuna basın ya da <b>Esc</b>'ye basıp yeniden oynatın.\n2. Sayfayı yenileyin.\n3. Tarayıcı ayarlarında donanım hızlandırmayı kapatın, tarayıcıyı yeniden başlatıp tekrar deneyin.\n4. Tarayıcınızı ve ekran kartı sürücünüzü güncelleyin.\n5. Başka bir tarayıcı deneyin.\n\n!! Not: Sayfa renklerini değiştiren veya medyayı engelleyen bazı tarayıcı uzantıları da görüntüyü gizleyebilir. Bkz. <a=/help/article/extensions-blockers>Oynatıcıyı engelleyen uzantılar</a>.\n\n@@ diagnostics",
+      "from": "d22ce77a6ea32aba",
       "keywords": "siyah ekran görüntü yok ses var donanım hızlandırma",
       "related": [
         "wont-play",
@@ -41,6 +44,7 @@
     },
     "browse-language": {
       "body": "1. Üst çubuktan <b>Dile göre göz at</b> bölümünü açın.\n2. <b>Orijinal Dil</b> zaten seçilidir. O dilde çekilmiş başlıkları görmek için bir dil seçin.\n\n!! Not: Sayfa başlıkları orijinal dillerine göre listeler. Dublaj ve altyazılar her başlığın kaynağına bağlıdır ve oynatma sırasında <b>Ses ve altyazı</b> bölümünde görünür.",
+      "from": "947d6f269f5ea296",
       "keywords": "dile göre göz at orijinal dil yabancı uluslararası dünya sineması anime kore ispanyol",
       "related": [
         "language",
@@ -54,6 +58,7 @@
     },
     "buffering": {
       "body": "Bağlantınız veriyi videonun ihtiyacından daha yavaş getirdiğinde akış durur.\n\n- Aynı ağı kullanan diğer sekmeleri, indirmeleri ve cihazları kapatın.\n- Modeme yaklaşın veya kablo kullanın.\n- Oynatıcının ileriye doğru yükleyebilmesi için bir dakika duraklatın, sonra oynat'a basın.\n- VPN'i kapatın veya daha yakın bir sunucu seçin.\n- Daha sonra tekrar deneyin. Kaynaklar yoğun saatlerde daha yavaştır.\n\nHangi kalitenin sunulacağına kaynak karar verir, bu yüzden görüntü netliği oynatma sırasında değişebilir.\n\n@@ diagnostics",
+      "from": "356cbb6bd33c7928",
       "keywords": "arabellek takılma yavaş yükleniyor donma bağlantı hız kalite",
       "related": [
         "wont-play",
@@ -67,6 +72,7 @@
     },
     "change-email-password": {
       "body": "Profil menüsünü açın ve <b>Hesap</b>'ı seçin. Bilgileriniz <b>Hesap bilgileri</b> altındadır. Bir değişiklikten önce, şifrenizle veya e-postayla gönderdiğimiz bir kodla siz olduğunuzu doğrulamanızı isteyebiliriz.\n\n## Şifre\n1. <b>Şifre</b>'yi seçin.\n2. Mevcut şifrenizi, ardından yeni şifreyi iki kez yazın. Yeni şifre en az 8 karakter olmalıdır.\n3. Eski şifreyi başka biri biliyor olabilirse <b>Tüm cihazlardan çıkış yap</b>'ı açın ve <b>Kaydet</b>'i seçin.\n\n## E-posta\n1. <b>E-posta</b>'yı seçin ve yeni adresi yazın.\n2. Değişikliği tamamlamak için yeni adrese gönderdiğimiz bağlantıyı açın.\n\n## Cep telefonu ve ad\nHesabınıza yeniden erişmenize yardımcı olacak bir numara eklemek için <b>Cep telefonu</b>'nu, adınızı değiştirmek için <b>Ad</b>'ı seçin. Ana profil adınızı taşır.",
+      "from": "c667d4075dac9a1b",
       "keywords": "e-posta değiştir şifre değiştir şifre güncelle telefon numarası cep hesap bilgileri ad güvenlik",
       "related": [
         "forgot-password",
@@ -80,6 +86,7 @@
     },
     "clear-data": {
       "body": "Bir tarayıcıda site verilerini temizlemek o tarayıcıda oturumunuzu kapatır ve tarayıcının tuttuğu profil ve ayar kopyasını siler. Her şey hesabınızda kalır ve yeniden oturum açtığınızda geri gelir.\n\n## Chrome, Edge ve Brave\n1. Adres çubuğunun solundaki site bilgileri simgesini seçin, <b>Çerezler ve site verileri</b>'ni, ardından <b>Cihazdaki site verilerini yönet</b>'i seçin.\n2. Bu siteye ait kayıtları kaldırın.\n\n## Firefox\n1. Adres çubuğundaki kilit simgesini seçin ve <b>Çerezleri ve site verilerini temizle</b>'yi seçin.\n\n## Mac'te Safari\n1. <b>Safari</b>'yi, sonra <b>Ayarlar</b>'ı, <b>Gizlilik</b>'i ve <b>Web Sitesi Verilerini Yönet</b>'i açın.\n2. Bu siteyi bulun ve <b>Kaldır</b>'ı seçin.\n\n## iPhone ve iPad'de Safari\n<b>Ayarlar</b> uygulamasını açın, ardından <b>Uygulamalar</b>, <b>Safari</b>, <b>İleri Düzey</b>, <b>Web Sitesi Verileri</b>'ni seçin ve bu siteyi kaldırın.\n\n## Hesabınızdan veri silme\n- İzleme etkinliğinizden başlık kaldırmak için bkz. <a=/help/article/viewing-history>İzleme geçmişinizi yönetme</a>.\n- Bir profili silmek için bkz. <a=/help/article/profiles-manage>Profil oluşturma, düzenleme veya silme</a>.\n- Her şeyi silmek için bkz. <a=/help/article/delete-account>Hesabınızı silme</a>.\n\n@@ data",
+      "from": "50d64be1034279e1",
       "keywords": "verileri temizle site verileri çerezler sil tarayıcı çıkış",
       "related": [
         "saved-data",
@@ -93,6 +100,7 @@
     },
     "clips": {
       "body": "<b>Klipler</b>, kısa önizlemeleri art arda gösterir; telefonda alt çubuktadır.\n\n1. Sonraki klibe geçmek için kaydırın.\n2. Sesi açmak veya kapatmak için hoparlör düğmesini seçin. Klipler sessiz başlar.\n3. Başlığı kaydetmek için <b>Listem</b>'i, izlemek için <b>Oynat</b>'ı ya da hakkında okumak için <b>Bilgi</b>'yi seçin.",
+      "from": "6f6634e465f1cd2d",
       "keywords": "klipler kısa videolar kaydır dikey fragmanlar ses",
       "related": [
         "trailers-clips",
@@ -106,6 +114,7 @@
     },
     "continue-watching": {
       "body": "Başladığınız başlıklar, ne kadarını izlediğinizi gösteren bir çubukla <b>İzlemeye Devam Et</b> sırasında görünür. Bu sıra <b>Sayfam</b>'de de bulunur.\n\n## Devam etme\nBaşlığı seçin. Oynatma, oturum açtığınız her cihazda kaldığınız yerden başlar.\n\n## Sıradan başlık kaldırma\n1. Başlık kartındaki seçenekler menüsünü açın.\n2. <b>İzlemeye Devam Et listesinden kaldır</b>'ı seçin.\n\nBir başlığı izleme etkinliğinizden de kaldırmak için bkz. <a=/help/article/viewing-history>İzleme geçmişinizi yönetme</a>.",
+      "from": "a84b15aa2f37dfcf",
       "keywords": "izlemeye devam et devam ilerleme kaldır sıra yarıda kalan",
       "related": [
         "viewing-history",
@@ -119,6 +128,7 @@
     },
     "contribute": {
       "body": "{brand} açık bir şekilde geliştiriliyor. Birkaç şekilde yardımcı olabilirsiniz:\n\n- <b>Çeviriler.</b> Arayüz metinleri her dil için birer düz metin dosyasında durur; yani bir çeviri, düzenleyebileceğiniz bir metin dosyasıdır.\n- <b>Hata bildirimleri.</b> Bkz. <a=/help/article/report-bug>Sorun bildirme</a>.\n- <b>Düzeltmeler ve özellikler.</b> Bir açıklama veya yama gönderin.\n- <b>Fikirler.</b> Yardım Merkezi'nin veya uygulamanın neler yapmasını istediğinizi bize anlatın.\n\nNe yapmak istediğinizi birkaç satırla <a=mailto:{support_email}>{support_email}</a> adresine yazın.",
+      "from": "da2afef5f69e71ee",
       "keywords": "katkı yardım çeviri hata bildir fikirler",
       "related": [
         "report-bug",
@@ -143,6 +153,7 @@
     },
     "copyright": {
       "body": "{brand} video dosyası barındırmaz. Başka hizmetlerde bulunan başlıkların bağlantılarını listeler. Bir başlığın haklarına sahipseniz ve bir bağlantının bu hakları ihlal ettiğini düşünüyorsanız bize bir bildirim gönderin, inceleyelim.\n\nBildirimde şunlar olmalıdır:\n1. Adınız ve iletişim bilgileriniz.\n2. Hakkına sahip olduğunuz eserin açıklaması.\n3. {brand} üzerinde ona bağlantı veren sayfanın adresi.\n4. Hak sahibi olduğunuza veya onun adına hareket etmeye yetkili olduğunuza dair bir beyan.\n\nBildirimi <b>DMCA bildirimi</b> konusuyla <a=mailto:{support_email}>{support_email}</a> adresine gönderin. Sürecin tamamı <a=/help/legal/dmca>DMCA sayfasında</a>.",
+      "from": "fe5665701bd3b517",
       "keywords": "telif hakkı dmca kaldırma hak sahibi bildirim",
       "related": [
         "sources",
@@ -156,6 +167,7 @@
     },
     "delete-account": {
       "body": "Hesabınızı sildiğinizde hesap tüm profiller, listeler, puanlar, ayarlar ve tüm izleme etkinliğiyle birlikte hemen kaldırılır. Bu işlem geri alınamaz.\n\n1. Profil menüsünü açın ve <b>Hesap</b>'ı seçin.\n2. Sayfanın altındaki <b>Hesabı sil</b>'i seçin.\n3. Siz olduğunuzu doğrulayın ve <b>Kalıcı olarak sil</b>'i seçin.\n\nYalnızca bir kişiyi kaldırmak istiyorsanız onun profilini silin. Bkz. <a=/help/article/profiles-manage>Profil oluşturma, düzenleme veya silme</a>.\n\n!! Not: Verilerinizin bir kopyasını saklamak istiyorsanız önce indirin. Bkz. <a=/help/article/download-data>Verilerinizin bir kopyasını indirme</a>.",
+      "from": "5753af866b2e71d5",
       "keywords": "hesap sil hesabı kapat hesabı kaldır verileri sil üyelik iptal",
       "related": [
         "download-data",
@@ -169,6 +181,7 @@
     },
     "devices-sign-out": {
       "body": "1. Profil menüsünü açın ve <b>Hesap</b>'ı seçin.\n2. <b>Erişim ve cihazlar</b>'ı seçin.\n3. <b>Bu cihazdan çıkış yap</b>'ı ya da hesabınızın açık olduğu her tarayıcıdan, bu tarayıcı dahil, çıkış yapmak için <b>Tüm cihazlardan çıkış yap</b>'ı seçin.\n\nAynı sayfadaki <b>Son güvenlik etkinliği</b>, hesabınızdaki son oturum açmaları ve değişiklikleri gösterir. Yeni bir cihaz oturum açtığında size e-posta da göndeririz.\n\n!! Not: Tanımadığınız bir oturum açma görürseniz tüm cihazlardan çıkış yapın ve şifrenizi değiştirin. Bkz. <a=/help/article/change-email-password>E-posta adresinizi, şifrenizi veya telefon numaranızı değiştirme</a>.",
+      "from": "4dd3bceeedd46b97",
       "keywords": "çıkış yap tüm cihazlar oturum açılmış cihazlar oturumlar güvenlik yeni cihaz kayıp telefon ortak bilgisayar",
       "related": [
         "change-email-password",
@@ -182,6 +195,7 @@
     },
     "download-data": {
       "body": "1. Profil menüsünü açın ve <b>Hesap</b>'ı seçin.\n2. <b>Kişisel bilgilere erişim</b>'i seçin.\n3. Dosyayı kaydetmek için adımları izleyin.\n\nDosya hesap bilgilerinizi, profillerinizi, ayarlarınızı, Listem'i, puanlarınızı ve izleme etkinliğinizi içerir. Cihazınıza kaydedilir, bu yüzden güvenli bir yerde saklayın.\n\nBir profilin izleme etkinliğini tablo olarak indirmek için o profilin <b>İzleme etkinliği</b> sayfasını açın ve <b>Hepsini indir</b>'i seçin.",
+      "from": "cbd479e2b96c89c7",
       "keywords": "verilerimi indir kişisel bilgiler kopya dışa aktar kvkk gdpr erişim talebi",
       "related": [
         "privacy-data",
@@ -195,6 +209,7 @@
     },
     "episodes": {
       "body": "## Oynatmadan önce\nBir dizi açın ve <b>Bölümler</b>'i seçin. Sezon menüsüyle sezon değiştirin, sonra bir bölüm seçin.\n\n## İzlerken\n- Oynatıcıdan çıkmadan listeyi açmak için oynatıcı kontrollerinde <b>Bölümler</b>'i seçin.\n- <b>Sonraki Bölüm</b>'ü seçin ya da kendiliğinden başlamasına izin verin. Bkz. <a=/help/article/skip-intro-next>\"Girişi Atla\" ve \"Sonraki Bölüm\"</a>.",
+      "from": "ba6b5a53888c6ad5",
       "keywords": "bölümler sezonlar dizi liste sonraki bölüm",
       "related": [
         "skip-intro-next",
@@ -208,6 +223,7 @@
     },
     "extensions-blockers": {
       "body": "Oynatıcı akışları üçüncü taraf kaynaklardan yükler. Başka sitelerden gelen komut dosyalarını, çerçeveleri veya medyayı engelleyen araçlar onu durdurabilir.\n\n1. Uzantınızı açıp bu site için duraklatın, sonra sayfayı yenileyin.\n2. DNS filtresi ya da okul veya iş ağı gibi tüm ağa uygulanan bir filtre kullanıyorsanız başka bir ağ deneyin.\n3. Oynatma sonrasında çalışıyorsa {brand} adresini uzantının izin verilenler listesine ekleyin.\n\n!! Not: İzlemek için sizden asla bir tarayıcı uzantısı veya codec yüklemenizi istemeyiz. Bunu isteyen sayfaları kapatın.\n\n@@ diagnostics",
+      "from": "3ff7f61833e82663",
       "keywords": "uzantı reklam engelleyici adblock ublock ghostery gizlilik komut dosyası engelleme vpn dns filtre",
       "related": [
         "wont-play",
@@ -221,6 +237,7 @@
     },
     "fix-phone": {
       "body": "1. Sekmeyi kapatın ve {brand} uygulamasını yeniden açın.\n2. Tarayıcınızı uygulama mağazasından güncelleyin.\n3. İzlerken veri tasarrufunu veya düşük güç modunu kapatın.\n4. Bağlantınızın kararlı olduğunu kontrol edin. Bkz. <a=/help/article/buffering>Arabelleğe alma, donma veya yavaş başlama</a>.\n5. {brand} uygulamasını ana ekrana eklediyseniz ve eski görünüyorsa kaldırıp yeniden ekleyin. Bkz. <a=/help/article/install-app>{brand} uygulamasını yükleme</a>.\n\n@@ diagnostics\n\n@@ refresh",
+      "from": "b8242684e09356e2",
       "keywords": "telefon tablet iphone ipad android mobil sorun",
       "related": [
         "phone-tablet",
@@ -234,6 +251,7 @@
     },
     "fix-tv": {
       "body": "{brand} için bir televizyon uygulaması yoktur. Televizyonun web tarayıcısından ya da bir bilgisayardan veya telefondan bir tarayıcı sekmesini yansıtarak izlersiniz.\n\n- Televizyonun yazılımını ve tarayıcısını güncelleyin.\n- Televizyonu veya yayın çubuğunu yeniden başlatın.\n- Bir sekmeyi yansıtıyorsanız gönderen cihazı aynı ağda tutun ve üzerindeki diğer sekmeleri kapatın.\n- Televizyonun tarayıcısı yavaşsa sekmeyi bunun yerine bir bilgisayardan yansıtın.\n\nBkz. <a=/help/article/watch-on-tv>Televizyonda izleme</a>.\n\n@@ diagnostics",
+      "from": "121e16832aff701c",
       "keywords": "televizyon akıllı tv yansıtma chromecast tarayıcı sorun",
       "related": [
         "watch-on-tv",
@@ -258,6 +276,7 @@
     },
     "forgot-pin": {
       "body": "1. Profil menüsünü açın, <b>Hesap</b>'ı, ardından <b>Profilleri yönet</b>'i seçin ve kilitli profili seçin.\n2. <b>Profil kilidi</b>'ni seçin ve hesap şifrenizi yazın.\n3. <b>PIN'inizi unuttunuz mu?</b> seçeneğini, ardından <b>Profil kilidini kaldır</b>'ı seçin.\n\nProfil yeniden PIN'siz açılır ve yeni bir PIN belirleyebilirsiniz. Bkz. <a=/help/article/profile-pin>Profil PIN'i ekleme, değiştirme veya kaldırma</a>.\n\n!! Not: PIN'i yalnızca hesap şifresini bilen biri kaldırabilir. Şifreyi de unuttuysanız bkz. <a=/help/article/forgot-password>Şifremi unuttum</a>.\n\n@@ profiles",
+      "from": "a9edcb9b198fd2f8",
       "keywords": "pin unuttum pin kayıp profil kilidi kaldır",
       "related": [
         "profile-pin",
@@ -271,6 +290,7 @@
     },
     "free-to-use": {
       "body": "{brand} ücret almaz, abonelik sunmaz ve kart bilgisi istemez. Paket, deneme süresi veya fatura tarihi yoktur.\n\nBir sayfa, e-posta veya mesaj {brand} olduğunu söyleyip sizden ödeme istiyorsa bizden gelmemiştir. Ödeme bilgisi girmeyin. Mesajı <a=mailto:{support_email}>{support_email}</a> adresine iletin, inceleyelim.\n\n{brand}, başka hizmetlerin sunduğu başlıklara giden bağlantıların bir dizinidir. Bir hizmetin kendi içeriği için ücret alıp almadığına o hizmet karar verir. Bkz. <a=/help/article/sources>Başlıklar nereden geliyor</a>.",
+      "from": "0181d4520a6b960f",
       "keywords": "ücretsiz ücret ödeme abonelik fiyat kredi kartı",
       "related": [
         "what-is",
@@ -284,6 +304,7 @@
     },
     "genres": {
       "body": "1. Üst çubukta <b>Filmler</b>'i veya <b>Diziler</b>'i açın.\n2. Sayfa başlığının yanındaki <b>Türler</b>'i seçin.\n3. Bir tür seçin. Sayfa artık yalnızca o türü, onun için hazırlanmış sıralarla gösterir.\n\nHer şeye geri dönmek için <b>Filmler</b>'i veya <b>Diziler</b>'i yeniden açın. Telefonda tür listesi alttan açılır.",
+      "from": "9806bf3185047a83",
       "keywords": "türler kategoriler komedi dram korku aksiyon filtre",
       "related": [
         "search-browse",
@@ -297,6 +318,7 @@
     },
     "getting-started": {
       "body": "1. <b>Ücretsiz hesabınızı oluşturun.</b> Bkz. <a=/help/article/need-account>Hesaba ihtiyacım var mı?</a>\n2. <b>Bir profil seçin veya oluşturun.</b> Bkz. <a=/help/article/profiles-manage>Profil oluşturma, düzenleme veya silme</a>.\n3. <b>Ana sayfaya göz atın.</b> Sıralar temaya göre gruplanır ve üstteki büyük başlık değişir.\n4. Büyüteçle bir başlık, oyuncu veya yönetmen <b>arayın</b>. Bkz. <a=/help/article/search-browse>Arama ve göz atma</a>.\n5. Hakkında okumak, fragmanını izlemek ve oynatmak için <b>bir başlık seçin</b>.\n6. <b>+</b> düğmesiyle <b>başlıkları Listem'e ekleyin</b>.\n\nİzlerken işinize yarayacak tuşları öğrenin: <a=/help/article/shortcuts>Klavye kısayolları</a>.",
+      "from": "12535040dcafa0b0",
       "keywords": "başlarken başlangıç ilk kez rehber yeni kullanıcı temel bilgiler",
       "related": [
         "what-is",
@@ -310,6 +332,7 @@
     },
     "install-app": {
       "body": "{brand} bir web uygulamasıdır. Mağazadan indirilecek bir şey yoktur. Tarayıcınız uygulamayı yükleyebilir; böylece kendi simgesiyle kendi penceresinde açılır.\n\n## Windows, Mac ve Linux'ta Chrome ve Edge\nAdres çubuğunun sağındaki yükleme simgesini seçin ya da tarayıcı menüsünü açıp <b>{brand} uygulamasını yükle</b>'yi seçin (Edge'de: <b>Uygulamalar</b>, ardından <b>Bu siteyi uygulama olarak yükle</b>).\n\n## Mac'te Safari\n<b>Dosya</b> menüsünü açın ve <b>Dock'a Ekle</b>'yi seçin.\n\n## Android\nTarayıcı menüsünü açın ve <b>Uygulamayı yükle</b>'yi ya da <b>Ana ekrana ekle</b>'yi seçin.\n\n## iPhone ve iPad\nSafari'de <b>Paylaş</b> düğmesini, ardından <b>Ana Ekrana Ekle</b>'yi seçin.\n\n!! Not: Bilgisayarda Firefox siteleri uygulama olarak yükleyemez. Bir yer imi kullanın ya da Chrome, Edge veya Safari'den yükleyin. Yüklenen uygulama aynı web sitesidir: kendini günceller ve tarayıcı gibi oturumunuzu açık tutar.",
+      "from": "10b00952111f5806",
       "keywords": "uygulama yükle ana ekran dock masaüstü pwa",
       "related": [
         "phone-tablet",
@@ -323,6 +346,7 @@
     },
     "is-down": {
       "body": "{brand} birbirinden bağımsız olarak çökebilen üç parçadan oluşur:\n\n- <b>Uygulama</b>, şu anda baktığınız.\n- <b>Film ve dizi kataloğu</b>, ayrıntıları ve resimleri sağlar.\n- <b>Akış kaynakları</b>, videoyu sağlar.\n\nHangilerinin cihazınızdan yanıt verdiğini görmek için kontrolü çalıştırın. Katalog veya kaynaklar kimseye yanıt vermiyorsa birkaç dakika bekleyip tekrar deneyin. Biri yalnızca size ulaşılamıyorsa bkz. <a=/help/article/vpn-network>VPN'ler, okul ve iş ağları</a>.\n\n@@ diagnostics",
+      "from": "d1d5a5f747450472",
       "keywords": "çöktü kesinti durum çalışmıyor çevrim dışı",
       "related": [
         "vpn-network",
@@ -336,6 +360,7 @@
     },
     "kids-profile": {
       "body": "Çocuk profili yalnızca çocuklara uygun başlıkları, çocuklar için hazırlanmış kendi ana sayfası ve menüleriyle gösterir.\n\n1. <b>Profilleri Yönet</b>'i açın ve <b>Profil Ekle</b>'yi seçin.\n2. Bir ad yazın ve <b>Çocuk Profili</b>'ni açın.\n3. <b>Kaydet</b>'i seçin.\n\nMevcut bir profili çocuk profiline çevirmek için profili düzenleyip <b>Çocuk Profili</b>'ni açın. Ana profil çocuk profili olamaz.\n\nÇocuk sayfalarından çıkmak için <b>Çocuk modundan çık</b>'ı seçip başka bir profil seçin. Bir çocuğun profil değiştirmesini önlemek için diğer profilleri PIN ile kilitleyin. Bkz. <a=/help/article/profile-pin>Profil PIN'i ekleme, değiştirme veya kaldırma</a>.\n\nDaha büyük çocuklar için bunun yerine herhangi bir profile yaş derecelendirmesi koyabilirsiniz. Bkz. <a=/help/article/parental-controls>Ebeveyn denetimleri: yaş derecelendirmeleri ve engellenen başlıklar</a>.\n\n!! Not: Başlıklar bağımsız kaynaklardan gelir ve her başlığın yaş derecelendirmesi yoktur. Çocuk profili, bir çocuğun bulabileceklerini azaltır ama birlikte izlemenin yerini tutmaz.\n\n@@ profiles",
+      "from": "c2becfc89e433fb0",
       "keywords": "çocuk profili çocuklar kids güvenli yaş ebeveyn",
       "related": [
         "parental-controls",
@@ -349,6 +374,7 @@
     },
     "language": {
       "body": "## Görüntüleme dili\n1. Profil menüsünü açın, <b>Hesap</b>'ı, ardından <b>Profilleri yönet</b>'i seçin ve profilinizi seçin.\n2. <b>Diller</b>'i, sonra <b>Görüntüleme dili</b>'ni seçin ve bir dil seçin.\n\nSeçim profile aittir, bu yüzden tüm cihazlarınızda geçerlidir. Yardım Merkezi'nde her sayfanın altından da dil seçebilirsiniz.\n\n## Ses ve altyazı dilleri\n1. Yukarıdaki gibi profilinizin <b>Diller</b> bölümünü, ardından <b>Ses ve altyazı</b>'yı açın.\n2. Bir <b>Ses dili</b> ve bir <b>Altyazı dili</b> seçin. <b>Görüntüleme diliyle aynı</b> seçeneği uygulamanın dilini izler.\n\nOynatıcı, başlık sunduğu sürece bunları kullanır.\n\n!! Not: Listede yalnızca tamamen çevrilmiş diller yer alır.\n\n@@ language",
+      "from": "2be388c9477a8312",
       "keywords": "dil değiştir görüntüleme dili altyazı dili ses dili",
       "related": [
         "subtitles",
@@ -362,6 +388,7 @@
     },
     "list-missing": {
       "body": "Listem ve ilerlemeniz bir profile aittir ve hesabınızda saklanır. Boş görünüyorlarsa:\n\n- Doğru profilde olduğunuzu kontrol edin. Her profilin kendi listesi vardır. Profil menüsünden değiştirin.\n- Daha önceki hesapla oturum açtığınızı kontrol edin.\n- Oturum açtıktan sonra yeni bir cihaza hesabınızı yüklemesi için birkaç saniye verin ya da sayfayı yenileyin.\n- İzleme etkinliğinizde gizlediğiniz başlıklar İzlemeye Devam Et'ten de çıkar.\n\nBir cihazda hâlâ bir şey eksikse o cihazda çıkış yapıp yeniden oturum açın. Bkz. <a=/help/article/saved-data>Profilleriniz, listeniz ve ilerlemeniz nerede saklanır</a>.\n\n@@ profiles",
+      "from": "982b5e13426d3ba5",
       "keywords": "listem kayboldu boş izlemeye devam et ilerleme",
       "related": [
         "my-list",
@@ -375,6 +402,7 @@
     },
     "my-list": {
       "body": "## Başlık ekleme\nBir başlık kartında, ayrıntılar penceresinde ya da sayfanın üstündeki büyük başlıkta <b>+</b> düğmesini seçin.\n\n## Başlık kaldırma\nBaşlıktaki onay işaretini seçin. Yeniden <b>+</b>'ya dönüşür.\n\n## Listenizi görme\nÜst çubukta veya telefonda alt çubukta <b>Sayfam</b>'i açın. Listeniz orada, <b>İzlemeye Devam Et</b>, beğendiğiniz başlıklar ve izlediğiniz fragmanlarla birlikte yer alır.\n\nListem profile aittir ve hesabınızda saklanır, bu yüzden her cihazda aynıdır.",
+      "from": "869ec897780d9c2d",
       "keywords": "listem ekle kaldır sonra izle kaydet favoriler artı",
       "related": [
         "list-missing",
@@ -388,6 +416,7 @@
     },
     "need-account": {
       "body": "Evet. {brand} üzerinde izlemek için ücretsiz bir hesaba ihtiyacınız var. Hesap bir dakikada oluşturulur ve hiçbir zaman ödeme bilgisi istemez.\n\n1. {brand} ana sayfasında e-posta adresinizi yazın ve <b>Başla</b>'yı seçin.\n2. Adınızı ve soyadınızı yazın ve en az 8 karakterli bir şifre seçin.\n3. Adresinizi onaylamak için size e-postayla gönderdiğimiz bağlantıyı açın, ardından oturum açın.\n\nHesabınız profillerinizi, Listem'i, puanlarınızı, izleme etkinliğinizi ve ayarlarınızı saklar; böylece oturum açtığınız her cihazda her şey aynıdır. Adınız ana profilinizin adı olur.\n\n!! Not: {brand} ücretsizdir ve hiçbir zaman kart numarası istemez. Bkz. <a=/help/article/free-to-use>{brand} ücretsiz mi?</a>",
+      "from": "5b9ef4806fb4fe00",
       "keywords": "hesap gerekli ücretsiz kayıt ol hesap oluştur",
       "related": [
         "sign-in",
@@ -401,6 +430,7 @@
     },
     "new-popular": {
       "body": "Üst çubuktaki <b>Yeni ve Popüler</b>, yeni ve popüler başlıkları gösterir. Ayrıntılar için bir başlık açın ve daha sonra bulmak için <b>Listem</b>'e ekleyin.\n\nListeler katalogdan yenilenir, bu yüzden günden güne değişir.",
+      "from": "8c8873206e406dc1",
       "keywords": "yeni popüler yakında gündemde yeni başlıklar",
       "related": [
         "notifications",
@@ -414,6 +444,7 @@
     },
     "no-sound": {
       "body": "1. Sesi açmak için <b>M</b> tuşuna basın ya da oynatıcıdaki hoparlör düğmesini seçin. Tarayıcılar kendiliğinden başlayan bir videoyu genellikle sessiz başlatır, bkz. <a=/help/article/autoplay-blocked>Video sessiz başlıyor veya kendiliğinden başlamıyor</a>.\n2. Sesi artırmak için <b>Yukarı ok</b>'a basın ve cihazınızın ses düzeyini kontrol edin.\n3. Tarayıcı sekmesinin sessize alınmadığını kontrol edin. Görmek için sekmeye sağ tıklayın.\n4. <b>Ses ve altyazı</b>'yı açın ve varsa başka bir ses parçası seçin.\n5. Bluetooth kullanıyorsanız kulaklığınızın bağlantısını kesip yeniden bağlayın.",
+      "from": "e07a82a23aaee163",
       "keywords": "ses yok sessiz ses düzeyi hoparlör bluetooth kulaklık",
       "related": [
         "autoplay-blocked",
@@ -427,6 +458,7 @@
     },
     "notifications": {
       "body": "Üst çubuktaki zil, yeni ve popüler başlıklar gibi göz atmaya değer başlıkları gösterir. Başlığın ayrıntılarını açmak için bir öğe seçin.\n\nAçtığınız öğeler okundu olarak işaretlenir ve zildeki sayı kaç öğenin okunmadığını gösterir.\n\nProfilinizin <b>Bildirim ayarları</b> bölümünde e-posta ve anlık bildirim seçenekleri vardır. Bunlar profille birlikte kaydedilir, ancak {brand} henüz başlıklarla ilgili e-posta veya anlık bildirim göndermiyor. Oturum açma bağlantıları gibi hesabınızla ilgili e-postalar her zaman gelir.",
+      "from": "2fc92c28c2091000",
       "keywords": "bildirimler zil yeni e-posta push",
       "related": [
         "new-popular",
@@ -440,6 +472,7 @@
     },
     "parental-controls": {
       "body": "Her profilin kendi sınırları olabilir. Profil menüsünü açın, <b>Hesap</b>'ı, ardından <b>Profilleri yönet</b>'i seçin, profili seçin ve <b>Ebeveyn denetimlerini ayarla</b>'yı seçin.\n\n## Yaş derecelendirmeleri\n1. <b>Yaş derecelendirmeleri</b>'ni seçin.\n2. Profilin görebileceği en yüksek derecelendirmeyi seçin. Yalnızca bu derecelendirmeye kadar olan başlıklar gösterilir; derecelendirmesi olmayan başlıklar da gizlenir.\n\n<b>Derecelendirme sistemi</b> hangi etiketleri göreceğinizi belirler: İngiltere (U, PG, 12, 15, 18) veya ABD (G, PG, PG-13, R, NC-17). <b>Otomatik</b>, oturum açtığınız ülkeye göre seçer.\n\n## Başlıkları engelleme\n1. <b>Başlıkları engelle</b>'yi seçin.\n2. Bir dizinin veya filmin adını yazın ve <b>Ekle</b>'yi seçin.\n\nEngellenen başlıklar o profilde gösterilmez. Bir başlığı yeniden göstermek için <b>Kaldır</b>'ı seçin.\n\n!! Not: Başlıklar bağımsız kaynaklardan gelir ve bazılarının derecelendirmesi yoktur. Küçük çocuklar için çocuk profili daha güvenli bir seçimdir. Bkz. <a=/help/article/kids-profile>Çocuklar için profil oluşturma</a>.\n\n@@ profiles",
+      "from": "6ad10aa120c46893",
       "keywords": "ebeveyn denetimi yaş derecelendirmesi kısıtlamalar başlık engelle gizle çocuk genç 7 13 18",
       "related": [
         "kids-profile",
@@ -453,6 +486,7 @@
     },
     "phone-tablet": {
       "body": "Siteyi telefonunuzun tarayıcısında açın. Sayfa dokunmaya uygun bir düzene geçer ve altta <b>Ana Sayfa</b>, <b>Klipler</b>, <b>Ara</b> ve <b>Sayfam</b> için bir çubuk bulunur.\n\n- Ayrıntılar için bir karta, başlamak için oynat düğmesine dokunun.\n- En iyi görüntü için telefonu yatay çevirin.\n- Bir uygulama gibi hissettirmesi için bkz. <a=/help/article/install-app>{brand} uygulamasını yükleme</a>.",
+      "from": "e02962c60d015b80",
       "keywords": "telefon tablet mobil alt çubuk",
       "related": [
         "install-app",
@@ -466,6 +500,7 @@
     },
     "playback-unavailable": {
       "body": "<b>Oynatma Kullanılamıyor</b> ya da <b>Video oynatılamıyor. Tüm kaynaklar kullanılamıyor ya da tarayıcınız tarafından desteklenmiyor.</b> mesajını görebilirsiniz.\n\nBu, oynatıcının bu başlık için bildiği tüm kaynaklara sorduğu ve hiçbirinin tarayıcınızın oynatabileceği bir akış vermediği anlamına gelir.\n\n1. Bir dakika bekleyip yeniden oynat'a basın. Kaynaklar zaman zaman kısa süreliğine çöker.\n2. Engelleyicileri kapatın. Bkz. <a=/help/article/extensions-blockers>Oynatıcıyı engelleyen uzantılar</a>.\n3. Başka bir tarayıcı deneyin. Bazı akışlar eski tarayıcılarda olmayan özelliklere ihtiyaç duyar.\n4. Sorunun yalnızca bu başlıkta olup olmadığını görmek için başka bir başlık deneyin.\n\nAynı başlık bütün gün açılmıyorsa <a=/help/article/report-bug>bize bildirin</a>. Başlığı, yılı ve kullandığınız tarayıcıyı yazın.\n\n@@ diagnostics",
+      "from": "d2d97491a7244c15",
       "keywords": "oynatma kullanılamıyor hata mesajı kaynak akış yok",
       "related": [
         "wont-play",
@@ -491,6 +526,7 @@
     },
     "profile-icons": {
       "body": "1. <b>Profilleri Yönet</b>'i açın ve profili seçin.\n2. Resmi seçin.\n3. Yeni bir resim seçin, ardından <b>Kaydet</b>'i seçin.\n\nResmi <b>Hesap</b> bölümünde, <b>Profilleri yönet</b> altında da değiştirebilirsiniz: profili, sonra resmini seçin. Çocuk profili, siz başka bir resim seçene kadar çocuk resmini kullanır.",
+      "from": "9aa9c184a83dfe80",
       "keywords": "profil resmi resim avatar simge seç",
       "related": [
         "profiles-manage",
@@ -504,6 +540,7 @@
     },
     "profile-pin": {
       "body": "Profil kilidi, profil açılmadan önce 4 haneli bir PIN ister. PIN hesabınıza aittir, bu yüzden oturum açtığınız her cihazda çalışır.\n\n## Profil kilidini açma\n1. Profil menüsünü açın, <b>Hesap</b>'ı, ardından <b>Profilleri yönet</b>'i seçin ve profili seçin.\n2. <b>Profil kilidi</b>'ni seçin ve siz olduğunuzu doğrulamak için hesap şifrenizi yazın.\n3. Dört rakam yazın ve <b>Kaydet</b>'i seçin.\n\n<b>Profilleri Yönet</b>'te bir profil eklerken veya düzenlerken de <b>Profil Kilidi</b>'ni açabilirsiniz.\n\n## PIN'i değiştirme veya kaldırma\n1. Profilin <b>Profil kilidi</b> sayfasını yukarıdaki gibi açın.\n2. <b>PIN değiştir</b>'i ya da <b>Profil kilidini kaldır</b>'ı seçip mevcut PIN'i yazın.\n\n!! Not: Çok fazla hatalı denemeden sonra profil bir süre kilitli kalır. PIN'i unuttuysanız bkz. <a=/help/article/forgot-pin>Profil PIN'imi unuttum</a>.\n\n@@ profiles",
+      "from": "87b48551cab7870a",
       "keywords": "pin kilit profil kilidi kod gizli profili koru şifre",
       "related": [
         "forgot-pin",
@@ -517,6 +554,7 @@
     },
     "profiles-manage": {
       "body": "Evdeki herkesin kendi adı, resmi, Listem'i, izleme etkinliği ve önerileri olan bir profili olabilir. Bir hesapta en fazla 5 profil bulunabilir.\n\n## Profil ekleme\n1. Sağ üstteki profil menüsünü açıp <b>Profilleri Yönet</b>'i seçin ya da <b>Kim izliyor?</b> ekranında <b>Profilleri Yönet</b>'i seçin.\n2. <b>Profil Ekle</b>'yi seçin.\n3. Bir ad yazın ve bir resim seçin. Profil bir çocuk içinse <b>Çocuk Profili</b>'ni açın.\n4. <b>Kaydet</b>'i seçin.\n\n## Profil düzenleme veya silme\n1. <b>Profilleri Yönet</b>'i açın ve değiştirmek istediğiniz profili seçin.\n2. Adı veya resmi değiştirin, <b>Çocuk Profili</b>'ni ya da <b>Profil Kilidi</b>'ni açıp kapatın, ardından <b>Kaydet</b>'i seçin.\n3. Profili kaldırmak için <b>Profili Sil</b>'i seçin. Profilin izleme etkinliği ve ayarları da silinir.\n\nBir profilin dilleri, altyazıları, ebeveyn denetimleri ve diğer tercihleri <b>Hesap</b> bölümünde, <b>Profilleri yönet</b> altında bulunur.\n\n!! Not: Profiller hesabınızda saklanır, bu yüzden oturum açtığınız her cihazda görünür.\n\n@@ profiles\n\n>> Bir profili silemiyorum\nAdınızı taşıyan ana profil silinemez ve bir hesapta her zaman en az bir profil bulunur. Diğer tüm profiller silinebilir.",
+      "from": "6e69e4a3e168d839",
       "keywords": "profil oluştur profil düzenle profil sil profilleri yönet ad resim",
       "related": [
         "switch-profile",
@@ -530,6 +568,7 @@
     },
     "recommendations": {
       "body": "Sıralar başlıkların ne olduğuna göre oluşturulur: türleri, havaları, konuları, ülkeleri ve on yılları; örneğin <b>İçinizi ısıtacak romantik komediler</b> veya <b>Kore suç dizileri</b>. Her sıranın içindeki düzen zevkinize göredir.\n\n## Sıralarınızı neler değiştirir\n- Başlattığınız ve bitirdiğiniz, puanladığınız ve Listem'e eklediğiniz başlıklar.\n- <b>İzlediğiniz için</b>, <b>Bugün Sizin İçin Seçtiklerimiz</b> ve <b>Sıradaki İzlemeniz</b> gibi sıralar son başlıklarınızdan gelir. Bir türün sayfasında o türün içinde kalırlar.\n- Kullandığınız profil. Her profilin kendi zevki vardır ve çocuk profili yalnızca çocuklara yönelik başlıkları gösterir.\n- Gün ve mevsim. Bayramlar ve etkinlikler için sıralar kendi dönemlerinde görünür.\n\n## Kapatma\nProfilinizin <b>Gizlilik ve veri ayarları</b> bölümünde <b>Kişiselleştirilmiş öneriler</b>'i kapatın. O zaman herkesle aynı önerileri görürsünüz.\n\nBaşlık seçmek için adınızı veya e-postanızı asla kullanmayız. Bkz. <a=/help/article/privacy-data>{brand} hangi verileri topluyor?</a>\n\n@@ data",
+      "from": "40888e5d02bdf2ac",
       "keywords": "öneriler sıralar tavsiyeler izlediğiniz için zevk kişisel",
       "related": [
         "viewing-history",
@@ -543,6 +582,7 @@
     },
     "report-bug": {
       "body": "Ne kadar çok şey bilirsek o kadar hızlı düzeltiriz. Lütfen şunları ekleyin:\n\n1. Ne yaptığınızı ve ne beklediğinizi.\n2. Bunun yerine ne olduğunu ve gördüğünüz mesajı.\n3. Oynatmayla ilgiliyse başlığı.\n4. Cihazınızı ve tarayıcınızı.\n\n<a=/help/contact>Bize Ulaşın</a> sayfasında, tarayıcı bilgileriniz önceden doldurulmuş bir e-posta açan bir düğme vardır.\n\n@@ diagnostics",
+      "from": "14fbf0edb3ac07fc",
       "keywords": "sorun bildir hata arıza iletişim",
       "related": [
         "title-feedback",
@@ -555,6 +595,7 @@
     },
     "rows-wont-load": {
       "body": "Sıralar ve arama, öneri hizmetimizden gelir. Afişler ve ayrıntılar herkese açık bir film kataloğundan gelir. Bunlardan biri yanıt vermezse boş sıralar, bir yükleme simgesi veya eksik resimler görebilirsiniz.\n\n1. Sayfayı yenileyin.\n2. Bağlantınızı kontrol edin.\n3. Bu site için engelleyicileri kapatın. Bkz. <a=/help/article/extensions-blockers>Oynatıcıyı engelleyen uzantılar</a>.\n4. Birkaç dakika sonra tekrar deneyin.\n\nBu sırada profilleriniz, Listem ve ayarlarınız hesabınızda güvendedir. Sorun bir saatten uzun sürerse <a=/help/article/report-bug>bize bildirin</a>.\n\n@@ diagnostics\n\n@@ refresh",
+      "from": "0e9566ec5858d69c",
       "keywords": "sıralar boş yükleme boş sayfa resimler afişler yüklenmiyor ana sayfa hata öneriler",
       "related": [
         "supported-browsers",
@@ -567,6 +608,7 @@
     },
     "saved-data": {
       "body": "Profilleriniz, Listem, puanlarınız, izleme etkinliğiniz ve ayarlarınız hesabınızda saklanır. Oturum açtığınız her tarayıcı bir kopya tutar; böylece sayfalar hemen açılır ve bir süre bağlantı olmadan da çalışır. Değişiklikler birkaç saniye içinde hesabınıza, diğer cihazlarınıza ise {brand} uygulamasını orada açtığınızda ulaşır.\n\n## Bunun anlamı\n- Başka bir cihazda oturum açın, her şey orada olur.\n- Bir tarayıcıda site verilerini temizlemek o tarayıcıda oturumunuzu kapatır ve o kopyayı siler. Hesabınız her şeyi saklar.\n- Gizli pencerede kopya, pencereyi kapattığınızda silinir.\n\n## Sunucularımıza başka neler gönderilir\nBir başlığı başlattığınızda öneri hizmeti hangisi olduğunu öğrenir, böylece sıralarınız zevkinize göre şekillenir. Bunu <b>Gizlilik ve veri ayarları</b>'ndaki <b>Kişiselleştirilmiş öneriler</b> ile kapatabilirsiniz. Bkz. <a=/help/article/recommendations>Öneriler nasıl çalışır</a>.\n\n@@ data",
+      "from": "a8eaf672e7c6ea16",
       "keywords": "kaydedilen veriler hesap eşitleme cihazlar tarayıcı kopya ilerleme liste",
       "related": [
         "clear-data",
@@ -580,6 +622,7 @@
     },
     "search-browse": {
       "body": "## Arama\n1. Üst çubuktaki büyüteci seçin.\n2. Bir başlık, oyuncu veya yönetmen yazın. Siz yazarken sonuçlar çıkar ve küçük yazım hataları sorun olmaz.\n\n## Göz atma\n- Üst çubuktaki <b>Diziler</b> ve <b>Filmler</b>, her başlık türü için bir sayfa açar. Daraltmak için orada <b>Türler</b>'i kullanın.\n- Ana sayfadaki sıralar temaya göre gruplanır. Bkz. <a=/help/article/recommendations>Öneriler nasıl çalışır</a>.\n- <b>Dile göre göz at</b>, başlıkları orijinal dillerine göre bulur. Bkz. <a=/help/article/browse-language>Dile göre göz atma</a>.",
+      "from": "fb1a4c4e167a8c83",
       "keywords": "ara göz at başlık oyuncu yönetmen tür",
       "related": [
         "browse-language",
@@ -593,6 +636,7 @@
     },
     "security-report": {
       "body": "Başka birinin verilerini okumanın, bir profil PIN'ini atlatmanın veya siteyi bozmanın bir yolunu bulduysanız lütfen başkasına anlatmadan önce bize söyleyin.\n\n1. <b>Güvenlik</b> konusuyla <a=mailto:{support_email}>{support_email}</a> adresine yazın.\n2. Ne bulduğunuzu, tekrarlamak için adımları ve etkilenen sayfayı veya adresi açıklayın.\n3. Başkalarının verilerine erişmeyin ve otomatik istek yağmurlarıyla test yapmayın.\n\nHer bildirimi okuruz. Aynı bilgiler <a=/.well-known/security.txt>/.well-known/security.txt</a> adresindeki makine tarafından okunabilir dosyada da yer alır.",
+      "from": "2e1fbdf05052b2ab",
       "keywords": "güvenlik açık zafiyet bildir sorumlu bildirim",
       "related": [
         "report-bug",
@@ -605,6 +649,7 @@
     },
     "share": {
       "body": "1. Bir başlığın ayrıntılarını açın ve <b>Paylaş</b>'ı seçin.\n2. Bağlantıyı göndermek için <b>WhatsApp</b> ya da <b>Mesajlar</b>'ı, istediğiniz yere yapıştırmak için <b>Bağlantıyı kopyala</b>'yı seçin.\n3. Instagram ve Snapchat için bağlantı kopyalanır, siz de uygulamaya yapıştırırsınız.\n\nBağlantı başlığı {brand} üzerinde açar. Açan kişinin izlemek için oturum açması ya da ücretsiz bir hesap oluşturması gerekir.",
+      "from": "d887486d576fb76e",
       "keywords": "paylaş bağlantı whatsapp mesajlar kopyala",
       "related": [
         "title-details",
@@ -618,6 +663,7 @@
     },
     "shortcuts": {
       "body": "Bu tuşlar bilgisayarda bir başlık oynarken çalışır.\n\n- <b>Boşluk</b> veya <b>K</b>: oynat veya duraklat\n- <b>Sol ok</b> veya <b>J</b>: 10 saniye geri\n- <b>Sağ ok</b> veya <b>L</b>: 10 saniye ileri\n- <b>Yukarı ok</b> ve <b>Aşağı ok</b>: sesi artır ve azalt\n- <b>M</b>: sesi kapat veya aç\n- <b>F</b>: tam ekranı aç veya kapat",
+      "from": "bf5524b8b9fba6bf",
       "keywords": "klavye kısayolları boşluk duraklat ses tam ekran",
       "related": [
         "accessibility",
@@ -631,6 +677,7 @@
     },
     "sign-in": {
       "body": "## Oturum açma\n1. {brand} ana sayfasının üst kısmında <b>Oturum Aç</b>'ı seçin.\n2. E-posta adresinizi ve şifrenizi yazın, ardından <b>Oturum Aç</b>'ı seçin.\n\nBu cihazda oturumunuzun açık kalması için <b>Beni hatırla</b> seçeneğini açık bırakın. Bu cihazdan kısa süre önce çıkış yaptıysanız şifrenizi yeniden yazmadan devam edebilirsiniz.\n\n## Çıkış yapma\nProfil menüsünü açın ve <b>{brand} hesabından çıkış yap</b>'ı seçin. Her yerden aynı anda çıkış yapmak için bkz. <a=/help/article/devices-sign-out>Bir cihazdan veya tüm cihazlardan çıkış yapma</a>.\n\n## Oturum açılamıyor\n- E-posta adresinin doğru yazıldığını kontrol edin. Şifre büyük ve küçük harfe duyarlıdır.\n- Yeni kaydolduysanız önce size gönderdiğimiz onay bağlantısını açın. <b>Onay e-postasını tekrar gönder</b> yeni bir tane gönderir.\n- Çok fazla denemeden sonra bir dakika bekleyip tekrar deneyin.\n- Şifrenizi mi unuttunuz? Bkz. <a=/help/article/forgot-password>Şifremi unuttum</a>.",
+      "from": "f5340c073384b4fb",
       "keywords": "oturum aç giriş yap çıkış yap beni hatırla e-posta şifre hesap",
       "related": [
         "need-account",
@@ -644,6 +691,7 @@
     },
     "skip-intro-next": {
       "body": "- <b>Girişi Atla</b>, bir bölümün açılışı başladığında birkaç saniye görünür. Doğrudan hikâyeye geçmek için seçin.\n- Oynatıcı kontrollerindeki <b>Sonraki Bölüm</b> sonraki bölümü başlatır.\n- <b>Bölümler</b>, istediğiniz bölümü seçebilmeniz için sezonun listesini açar.\n\nBir bölüm bittiğinde ne olacağını seçmek için profilinizin <b>Oynatma ayarları</b> bölümünü açın ve <b>Sonraki bölümü otomatik oynat</b>'ı açın veya kapatın.",
+      "from": "8973dce35bea69ff",
       "keywords": "girişi atla sonraki bölüm otomatik oynat art arda izleme bölümler sezon",
       "related": [
         "shortcuts",
@@ -657,6 +705,7 @@
     },
     "slow-pages": {
       "body": "İlk ziyarette uygulama indirilir, yaklaşık 2 MB. Sonrasında beklemenin çoğu resimlerden ve önizlemelerden kaynaklanır.\n\n- Profilinizin <b>Oynatma ayarları</b> bölümünde <b>Önizlemeleri otomatik oynat</b>'ı kapatın. Kendiliğinden başlayan önizlemeler veri ve bellek harcar.\n- Ağı veya çok fazla belleği kullanan sekmeleri ve uygulamaları kapatın.\n- Güncel bir tarayıcı kullanın. Eski tarayıcılar uygulamayı daha yavaş çalıştırır.\n- Mobil veri kullanıyorsanız mümkünse Wi-Fi'ye geçin.\n\n@@ diagnostics",
+      "from": "a0d2ff0977a1b2cc",
       "keywords": "yavaş takılma performans hız yükleme bellek eski telefon önizlemeler",
       "related": [
         "buffering",
@@ -670,6 +719,7 @@
     },
     "sources": {
       "body": "Ayrıntılar, afişler ve puanlar herkese açık bir film ve dizi kataloğundan gelir. Videonun kendisi {brand} üzerinde değildir. Oynat'a bastığınızda oynatıcı bağımsız üçüncü taraf kaynaklardan bir akış ister.\n\n- Bir başlık bir kaynakta bulunup diğerinde bulunmayabilir.\n- Bir kaynak haber vermeden çevrim dışı olabilir.\n- Kalite, ses parçaları ve altyazılar kaynaktan gelir.\n\nBu kaynakları kontrol etmeyiz ve denetlemeyiz. Bkz. <a=/help/legal/disclaimer>Sorumluluk Reddi</a>. Hak sahibiyseniz bkz. <a=/help/article/copyright>Telif hakkı sorunu bildirme</a>.",
+      "from": "c37aa13aecddc777",
       "keywords": "kaynaklar başlıklar nereden akış çalışmıyor",
       "related": [
         "what-is",
@@ -683,6 +733,7 @@
     },
     "stuck-loading": {
       "body": "{brand} açılırken hareket eden bir sıra noktayla birlikte küp logoyu görürsünüz. Bu birkaç saniye sürmelidir. {brand} bir WebAssembly uygulaması olarak çalışır, bu yüzden WebAssembly'yi kapatan bir tarayıcı veya ayar sizi bu ekranda bırakır.\n\n1. En yeni sürümü almak için <b>Ctrl + Shift + R</b> (Mac'te <b>Cmd + Shift + R</b>) ile yeniden yükleyin.\n2. Sayfayı gizli pencerede açın. Orada çalışıyorsa bir uzantı engel oluyordur. Bkz. <a=/help/article/extensions-blockers>Oynatıcıyı engelleyen uzantılar</a>.\n3. Tarayıcınızı güncelleyin. Bkz. <a=/help/article/supported-browsers>Desteklenen tarayıcılar</a>.\n4. Bu site için web özelliklerini sınırlayan modları kapatın; örneğin Apple cihazlarındaki Kilitleme Modu'nu veya Edge'deki katı güvenlik ayarını.\n5. Bu sitenin verilerini temizleyip yeniden oturum açın. Bkz. <a=/help/article/clear-data>Kayıtlı verilerinizi temizleme</a>.\n\n@@ refresh",
+      "from": "b144102e5c539afc",
       "keywords": "takıldı yükleniyor logo boş beyaz ekran açılmıyor webassembly wasm donuyor",
       "related": [
         "supported-browsers",
@@ -695,6 +746,7 @@
     },
     "subtitles": {
       "body": "## Altyazıları açma veya kapatma\n1. Bir başlığı başlatın ve işaretçiyi oynatıcının üzerine getirin ya da ekrana dokunun.\n2. <b>Ses ve altyazı</b>'yı seçin.\n3. Bir altyazı dili ya da <b>Kapalı</b>'yı seçin.\n\nYazılar çok erken veya çok geç geliyorsa aynı panelde <b>-0.5s</b> ve <b>+0.5s</b> ile kaydırın.\n\n## Altyazıların görünümünü değiştirme\n1. Profil menüsünü açın, <b>Hesap</b>'ı, ardından <b>Profilleri yönet</b>'i seçin ve profilinizi seçin.\n2. <b>Altyazı görünümü</b>'nü seçin.\n3. Yazı boyutunu, yazı rengini, kenarı, arka planı ve pencere rengini seçin. Önizleme sonucu gösterir. <b>Varsayılanlara sıfırla</b> değişikliklerinizi geri alır.\n\n!! Not: Hangi dillerin ve ses parçalarının olduğu başlığın kaynağına bağlıdır. Bkz. <a=/help/article/subtitles-missing>Altyazı eksik veya senkronize değil</a>.",
+      "from": "84a4c5850a26e45f",
       "keywords": "altyazı aç kapat dil boyut renk görünüm",
       "related": [
         "language",
@@ -708,6 +760,7 @@
     },
     "subtitles-missing": {
       "body": "1. Oynatıcıda <b>Ses ve altyazı</b>'yı seçin ve bir altyazı dilinin seçili olduğunu kontrol edin.\n2. Listede başka bir parça varsa onu seçin. Parçalar kaynaktan gelir ve başlığa göre değişir.\n3. Profilin tercih ettiği altyazı dilini ayarlayın. Bkz. <a=/help/article/language>Dili değiştirme</a>.\n4. Yazı erken veya geç kalıyorsa konuşmayla eşleşene kadar <b>Ses ve altyazı</b>'daki <b>-0.5s</b> veya <b>+0.5s</b>'yi kullanın.\n\nBir başlığın hiç altyazısı yoksa kaynak altyazı sağlamamıştır.\n\n@@ language",
+      "from": "b53824bf62a26b78",
       "keywords": "altyazı eksik yanlış dil senkron değil gecikme yazı",
       "related": [
         "subtitles",
@@ -721,6 +774,7 @@
     },
     "supported-browsers": {
       "body": "{brand} şu tarayıcıların güncel sürümlerinde çalışır:\n\n- Windows, macOS, Linux ve Android'de <b>Google Chrome</b>, <b>Microsoft Edge</b>, <b>Brave</b> ve diğer Chromium tarayıcıları\n- Windows, macOS, Linux ve Android'de <b>Mozilla Firefox</b>\n- Mac, iPhone ve iPad'de <b>Safari</b>\n\nInternet Explorer desteklenmez. Tarayıcınızı güncel tutun ve sitenin JavaScript ile site verilerini kullanmasına izin verin.\n\n@@ diagnostics\n\n>> Tarayıcı, sayfa yüklenmeden önce hata gösteriyor\nUygulamanın en yeni sürümünü almak için Windows ve Linux'ta <b>Ctrl + Shift + R</b>, Mac'te <b>Cmd + Shift + R</b> ile yeniden yükleyin, sonra tekrar deneyin.",
+      "from": "dd9cac32b9d242c0",
       "keywords": "tarayıcı chrome firefox safari edge brave opera internet explorer sürüm güncelle",
       "related": [
         "wont-play",
@@ -734,6 +788,7 @@
     },
     "switch-profile": {
       "body": "1. Sayfanın sağ üstündeki profil menüsünü açın. Telefonda alttaki çubukta profil resminize dokunun.\n2. Kullanmak istediğiniz profili seçin.\n3. Profil kilitliyse 4 haneli PIN'ini yazın.\n\nÖneriler, <b>Listem</b> ve <b>İzlemeye Devam Et</b> seçtiğiniz profile göre değişir.\n\n!! Not: Bir profili PIN ile kilitleyebilirsiniz. Bkz. <a=/help/article/profile-pin>Profil PIN'i ekleme, değiştirme veya kaldırma</a>.\n\n@@ profiles",
+      "from": "648c5f8c0d39e2c8",
       "keywords": "profil değiştir başka profil kim izliyor profil menüsü",
       "related": [
         "profiles-manage",
@@ -747,6 +802,7 @@
     },
     "title-details": {
       "body": "Ayrıntıları açmak için bir başlık kartını ya da <b>Daha Fazla Bilgi</b>'yi seçin.\n\n- <b>Oynat</b> veya <b>Devam Et</b>, başlığı kaldığınız yerden başlatır.\n- <b>Listem</b> başlığı kaydeder, başparmakla da puan verirsiniz.\n- Özet, oyuncular, türler ve havayı anlatan birkaç kelime karar vermenize yardımcı olur.\n- Dizilerde <b>Bölümler</b> sezonları listeler.\n- <b>Benzer içerikler</b> benzer başlıkları gösterir; yeni bir şey keşfetmenin iyi bir yoludur.",
+      "from": "ea18782a7ff61314",
       "keywords": "ayrıntılar başlık daha fazla bilgi oynat puan",
       "related": [
         "my-list",
@@ -760,6 +816,7 @@
     },
     "title-feedback": {
       "body": "<a=mailto:{support_email}>{support_email}</a> adresine yazın ve şunları belirtin:\n\n- başlık ve yılı\n- {brand} üzerindeki sayfasının adresi\n- neyin yanlış olduğu; örneğin yanlış afiş, eksik sezon veya hiç oynatılmayan bir başlık\n\nAyrıntılar herkese açık bir katalogdan gelir, bu yüzden yanlış bir açıklama en iyi kaynağında düzeltilir. Aldığımız düzeltmeleri iletiriz.",
+      "from": "b7fa5e7a14329a66",
       "keywords": "geri bildirim başlık hata açıklama eksik sezon",
       "related": [
         "report-bug",
@@ -773,6 +830,7 @@
     },
     "top-10": {
       "body": "<b>Top 10</b> sırası, şu anda en popüler on filmi veya diziyi her birinin üzerinde büyük bir numarayla gösterir. Film kataloğundaki başlıkların günlük popülerliğini izler, bu yüzden günden güne değişir. Herkes için aynıdır ve profilinize bağlı değildir.",
+      "from": "380c7e8d861004c1",
       "keywords": "top 10 en popüler on liste sıralama numaralar sıra",
       "related": [
         "new-popular",
@@ -798,6 +856,7 @@
     },
     "transfer-profile": {
       "body": "Bir profil başka bir hesaba kopyalanabilir, örneğin biri evden taşındığında. Kopya ad, resim, ayarlar ve izleme etkinliğini korur.\n\n## Profili kaydetme\n1. Profil menüsünü açın ve <b>Profili Aktar</b>'ı seçin.\n2. Profili seçin ve <b>Profil dosyasını indir</b>'i seçin. Dosyayı güvenli bir yerde saklayın.\n\n## Diğer hesaba ekleme\n1. Diğer hesapta oturum açın ve <b>Profilleri Yönet</b>'i açın.\n2. <b>Bir profili içe aktar</b>'ı seçin ve dosyayı seçin.\n\n!! Not: Dosya profilin PIN'ini içermez. Dosyaya sahip olan herkes profili kendi hesabına ekleyebilir, bu yüzden dosyayı paylaşmayın.\n\n<b>Hesap</b> bölümündeki <b>Profil transferi</b>, profillerin hesabınızdan dışarı kopyalanmasını açar veya kapatır. Hesabınıza gelen profilleri hiçbir zaman engellemez.",
+      "from": "351f450bedd5043a",
       "keywords": "profil aktar taşı kopyala başka hesap içe aktar dışa aktar profil dosyası",
       "related": [
         "profiles-manage",
@@ -811,6 +870,7 @@
     },
     "translate": {
       "body": "Tüm arayüz metinleri her dil için tek bir düz metin dosyasında saklanır. Çeviri yapmak için programlama bilmenize gerek yoktur.\n\n## Bilmeniz gerekenler\n- Mesajlar <b>anahtar = metin</b> şeklindedir. Yalnızca eşittir işaretinden sonraki metni değiştirin.\n- <b>{ \"{brand}\" }</b> gibi süslü parantez içindeki kelimeleri uygulama doldurur. Onları olduğu gibi bırakın ve dilinizin gerektirdiği yere koyun.\n- Bazı mesajların tekil ve çoğul biçimleri vardır (<b>1 sezon</b>, <b>2 sezon</b>). İkiden fazla biçimi olan diller hepsini ekleyebilir.\n- Dilinizde bir kelime cinsiyete veya hâle göre değişiyorsa cümleye uyan biçimi yazın.\n\n## Çeviri gönderme\nDili ve dosyayı ya da değişikliğinizin bağlantısını <a=mailto:{support_email}>{support_email}</a> adresine yazın. Birbirinin çalışmasını kontrol eden ana dili konuşanlar, sahip olduğumuz en iyi denetimdir.",
+      "from": "70140556b14fbb21",
       "keywords": "çeviri çevir dil katkı ftl fluent",
       "related": [
         "contribute",
@@ -824,6 +884,7 @@
     },
     "viewing-history": {
       "body": "Her profilin, izlediği başlıkları en yeniden başlayarak gösteren bir <b>İzleme etkinliği</b> sayfası vardır. {brand} bunu İzlemeye Devam Et ve öneriler için kullanır.\n\n1. Profil menüsünü açın, <b>Hesap</b>'ı, ardından <b>Profilleri yönet</b>'i seçin ve profili seçin.\n2. <b>İzleme etkinliği</b>'ni seçin.\n3. Bir başlığın yanındaki <b>Bu başlığı gizle</b>'yi ya da <b>Hepsini gizle</b>'yi seçin.\n\nGizlenen başlık, tüm cihazlarda İzlemeye Devam Et'ten çıkar ve önerileri artık etkilemez. <b>Hepsini indir</b> listeyi tablo olarak kaydeder.\n\n@@ data",
+      "from": "f8818fd25db37aaa",
       "keywords": "izleme geçmişi izleme etkinliği gizle sil indir",
       "related": [
         "continue-watching",
@@ -837,6 +898,7 @@
     },
     "vpn-network": {
       "body": "{brand}, ayrıntıları ve resimleri herkese açık bir film kataloğundan, akışları ise bağımsız kaynaklardan yükler. Bazı ağlar bu siteleri engeller, bazı kaynaklar da bazı adresleri reddeder.\n\n- <b>VPN veya proxy.</b> Bazı kaynaklar VPN adreslerine yanıt vermez. VPN'i kapatın veya başka bir ülke seçin.\n- <b>Okul, iş veya halka açık Wi-Fi.</b> Filtreler genellikle yayını veya kataloğu engeller. Telefonunuzun mobil verisini deneyin.\n- <b>DNS filtreleri.</b> Filtreleyen bir DNS hizmeti kataloğu engelleyip sıraları veya resimleri boş bırakabilir. Farklı bir DNS kullanın ya da bu site için filtreyi kapatın.\n\nCihaz kontrolü, ağınızın hangi hizmete ulaşamadığını gösterir.\n\n@@ diagnostics",
+      "from": "162464a8b22a7be7",
       "keywords": "vpn proxy okul iş ağ engellendi dns",
       "related": [
         "is-down",
@@ -850,6 +912,7 @@
     },
     "watch-on-tv": {
       "body": "Henüz televizyonlar için bir {brand} uygulaması yok. Şu yöntemler bugün çalışır:\n\n- <b>Televizyonun tarayıcısı.</b> {brand} adresini televizyonunuzla gelen tarayıcıda açın.\n- <b>Sekme yansıtma.</b> Bilgisayardaki Chrome veya Edge'de tarayıcı menüsünü açın, <b>Yayınla</b>'yı seçin, ardından televizyonunuzu veya yayın çubuğunuzu seçin.\n- <b>Kablo.</b> Bir dizüstü bilgisayarı HDMI kablosuyla televizyona bağlayın ve tam ekranı kullanın.\n\nGörüntü veya ses düzgün değilse bkz. <a=/help/article/fix-tv>Televizyonda bir sorunu çözme</a>.",
+      "from": "6799f14f64b8edcc",
       "keywords": "televizyon izle yansıt hdmi tarayıcı",
       "related": [
         "fix-tv",
@@ -863,6 +926,7 @@
     },
     "what-is": {
       "body": "{brand} bir sonraki filminizi veya dizinizi bulmanıza yardım eder. Neleri sevdiğinizi öğrenir ve kataloğu sizin için, tanıdığınız yayın hizmetlerini andıran bir sayfada sıralara dizer.\n\n{brand} bir bağlantı dizinidir. Video barındırmaz veya yüklemez. Oynat'a bastığınızda oynatıcı bağımsız kaynaklardan bir akış ister ve çalışan ilkini oynatır. Bkz. <a=/help/article/sources>Başlıklar nereden geliyor</a>.\n\nSatın alınacak bir şey ve abonelik yoktur. Bkz. <a=/help/article/free-to-use>{brand} ücretsiz mi?</a>",
+      "from": "50a6d88e1cef768b",
       "keywords": "nedir streams hizmet açıklama bağlantılar katalog",
       "related": [
         "getting-started",
@@ -876,6 +940,7 @@
     },
     "wont-play": {
       "body": "Bu adımları sırayla deneyin. Her adımdan sonra kontrol edin.\n\n1. Sayfayı yenileyin. En sık neden kaynaktaki geçici bir arızadır.\n2. Başka bir bölüm seçin ya da başlığı ayrıntılar penceresinden yeniden başlatın. Oynatıcı mevcut kaynakları sırayla dener.\n3. Bu site için reklam engelleyicileri ve gizlilik uzantılarını kapatın. Bkz. <a=/help/article/extensions-blockers>Oynatıcıyı engelleyen uzantılar</a>.\n4. Chrome, Edge, Firefox veya Safari'nin güncel bir sürümünü kullanın. Bkz. <a=/help/article/supported-browsers>Desteklenen tarayıcılar</a>.\n5. Ağ değiştirin, örneğin Wi-Fi'den mobil veriye geçin ya da VPN'i kapatın. Bazı kaynaklar bazı ağları reddeder.\n\n@@ diagnostics\n\n>> Hâlâ oynatılmıyor\nBazı başlıklar belirli bir anda hiçbir kaynakta bulunmaz. Daha sonra tekrar deneyin. Popüler bir başlık hiç oynatılmıyorsa hangisi olduğunu <a=/help/article/report-bug>Sorun bildirme</a> sayfasından bize yazın.",
+      "from": "399dda5c03d12650",
       "keywords": "oynatılmıyor çalışmıyor hata siyah ekran başlamıyor",
       "related": [
         "playback-unavailable",
@@ -892,17 +957,36 @@
     "cookie-policy": {
       "sections": [
         {
-          "body": "{brand} reklam veya analiz çerezleri kullanmaz. Tarayıcınızın yerel depolamasını, yani cihazınızda yalnızca bu sitenin okuyabildiği alanı şunlar için kullanırız:",
+          "body": "Bu sunucu çerez koymaz. Hiçbir sayfa ve hiçbir yanıt koymaz; bir yol denediği anda bir test derlemeyi düşürür: reklam çerezi yok, ölçüm çerezi yok, bize ait çerez yok.\n\nSizi girişte tutan şeyi uygulamanın kendisi saklar, çerez olarak gönderilmez:",
           "bullets": [
-            "<b>Oturum açma:</b> bu tarayıcıda oturumunuzu açık tutan bilgi ve Yardım Merkezi'nin sizi oturum açmış olarak göstermesi için profil adınızı taşıyan bir çerez.",
-            "<b>Hız:</b> sayfaların hemen açılması için profillerinizin, ayarlarınızın ve ilerlemenizin bir kopyası.",
-            "<b>Seçimleriniz:</b> çerezler ve kişiselleştirme hakkındaki seçimleriniz ve görüntüleme diliniz."
+            "<b>Tarayıcıda:</b> oturumunuzun anahtarları, yalnızca bu sitenin okuyabildiği yerel depoda.",
+            "<b>Telefon, televizyon ya da bilgisayardaki uygulamada:</b> aynı anahtarlar, cihazın kendi güvenli deposunda. Deposu bunları tutmayı reddeden bir cihazda oturumunuz yalnızca uygulama açık kaldığı sürece sürer.",
+            "<b>Başka hiçbir şey.</b> Sunucu cihazınıza profillerinizin, ayarlarınızın ya da ilerlemenizin kopyasını bırakmaz ve hiçbir çerez profilinizin adını taşımaz."
           ],
-          "title": "Çerezleri ve depolamayı nasıl kullanıyoruz"
+          "id": "store",
+          "title": "Cihazınızda ne kalıyor"
+        },
+        {
+          "body": "Bir fragman, oynatıldığında kendi çerezlerini koyan dışarıdan bir video servisinden gelebilir. Afişler ve açıklamalar açık bir film kataloğundan, video bağımsız kaynaklardan gelir. Cihazınız bunları doğrudan yükler, yani her biri kendi çerezini koyabilir ve açtığınız her sitede olduğu gibi IP adresinizi görebilir. Onları biz yönetmiyoruz ve hesabınız hakkında onlara bir şey söylemiyoruz.",
+          "bullets": [],
+          "id": "others",
+          "title": "Diğer siteler"
+        },
+        {
+          "body": "Tarayıcınızda bu sitenin verilerini silmek o tarayıcıda çıkışınızı yapar; hesabınız her şeyi saklar. Çıkış yapmak da aynı şeyi bilerek yapar.\n\nKişiselleştirme siz açana kadar kapalıdır ve cevap verdiğiniz cihaza aittir: ikinci cihaz yine kapalı başlar. Çerez şeridi ve çerez tercihleri sayfası yoktur, çünkü seçilecek çerez yoktur.",
+          "bullets": [],
+          "id": "choices",
+          "title": "Seçimleriniz"
+        },
+        {
+          "body": "Uygulamanın cihazınızda tuttuğu şey değiştiğinde bu sayfa da değişir ve yukarıdaki tarih kayar.",
+          "bullets": [],
+          "id": "changes",
+          "title": "Bu metindeki değişiklikler"
         }
       ],
       "title": "Çerez Politikası",
-      "updated": "Son güncelleme: Ekim 2026"
+      "updated": "Son güncelleme: Kasım 2026"
     },
     "credits": {
       "sections": [
@@ -914,16 +998,20 @@
             "Google Fonts'tan <b>Abril Fatface, Caveat Brush, DM Serif Display, Fredoka, Gochi Hand, Kalam, Londrina Solid, Playfair Display ve Sedgwick Ave</b>, SIL Open Font License 1.1 kapsamında kullanılır.",
             "Google Fonts'tan <b>Permanent Marker</b> ve <b>Rock Salt</b>, Apache License 2.0 kapsamında kullanılır."
           ],
-          "title": "1. Fontlar"
+          "id": "fonts",
+          "title": "Fontlar"
         },
         {
           "body": "Arayüz simgeleri Phosphor Icons, Tabler Icons ve Hugeicons'tan MIT Lisansı altında, Remix Icon ve IBM Carbon'dan Apache Lisansı 2.0 altında kullanılmıştır.",
           "bullets": [],
-          "title": "2. Simgeler"
+          "id": "icons",
+          "title": "Simgeler"
         },
         {
+          "body": "Film ve dizi bilgileri, bu ürünü desteklemeyen ve onaylamayan açık kataloglardan gelir. Adlar, özetler, afişler, puanlar ve kadro The Movie Database'den gelir. Bu ürün TMDB API'sini kullanır ama TMDB tarafından desteklenmez ve onaylanmaz.",
           "bullets": [],
-          "title": "3. Film ve diziler bilgisi"
+          "id": "catalogue",
+          "title": "Film ve diziler bilgisi"
         },
         {
           "body": "{brand} açık kaynak yazılımları ile geliştirilmiştir, her biri kendi lisansı altında kullanılmıştır:",
@@ -933,17 +1021,20 @@
             "<b>hls.js</b> adaptif video oynatımı için (Apache 2.0).",
             "<b>Project Fluent</b> çevrilen arayüz metinleri için (Apache 2.0 ve MIT)."
           ],
-          "title": "4. Yazılım"
+          "id": "software",
+          "title": "Yazılım"
         },
         {
           "body": "{brand} üzerinde gösterilen filmler, diziler ve hizmetlerin isimleri, logoları, afişleri ve sanat eserleri sahiplerine aittir. Bu, başlık tanımını sağlamak amacıyla gösterilir ve sahiplerin {brand}'ı desteklediğini göstermez.",
           "bullets": [],
-          "title": "5. Markalar ve sanat eserleri"
+          "id": "trademarks",
+          "title": "Markalar ve sanat eserleri"
         },
         {
           "body": "Burada bir şey yanlış bildirildiğine veya değişiklik gerektirdiğine inanıyorsanız, lütfen {support_email} adresine yazın.",
           "bullets": [],
-          "title": "6. İletişim"
+          "id": "contact",
+          "title": "İletişim"
         }
       ],
       "title": "Lisanslar ve krediler",
@@ -954,26 +1045,32 @@
         {
           "body": "{brand}, halka açık gömülü medya bağlantıları için bir bağlantı toplayıcısı ve arama motorudur. Biz, videoları, sesleri veya medya içeriklerini sunucularımızda barındırır, yükler, depolar, iletir veya kontrol ederiz.",
           "bullets": [],
-          "title": "1. İçerik Barındırma"
+          "id": "no-hosting",
+          "title": "İçerik Barındırma"
         },
         {
           "body": "{brand} tarafından indekslenen bağlantılar aracılığıyla erişilebilen tüm içerik, dışarıdan bağımsız üçüncü taraf kaynaklarından gelir. {brand}, bu içeriklerin yasal durumu, doğruluğu, kalitesi veya mevcut olma durumu hakkında kontrolü olmaz ve sorumluluk üstlenmez.",
           "bullets": [],
-          "title": "2. Üçüncü Taraf İçerik — Sorumluluk Yok"
+          "id": "third-party",
+          "title": "Üçüncü Taraf İçerik — Sorumluluk Yok"
         },
         {
           "body": "Kullanıcı, {brand} kullanmanız ve dışarıdan gömülü bağlantılar aracılığıyla içeriklere erişiminiz tamamen kendi riskinizde olduğunu kabul ve onay edersiniz. {brand}, tüm yazılım ve yazılım garantilerini açıkça reddeder.",
           "bullets": [],
-          "title": "3. Kullanıcı Riski"
+          "id": "risk",
+          "title": "Kullanıcı Riski"
         },
         {
           "body": "{brand} tarafından indekslenen gömülü bağlantılar, üçüncü taraf sunuculara işaret eder. Bağlantılı içeriklerin sürekli mevcutluğunu, kalitesini veya tamamlanmasını garanti edemeyiz ve bağlantılar haber vermeden kırılabilir veya kullanılamaz hale gelebilir.",
           "bullets": [],
-          "title": "4. Bağlantı Mevcutluğu"
+          "id": "availability",
+          "title": "Bağlantı Mevcutluğu"
         },
         {
+          "body": "Yapımlar, erişilebilirlik, puanlar ve kaynaklar hakkındaki bilgiler üçüncü taraflardan gelir ve yanlış, eski ya da eksik olabilir. Bunları denetlemiyoruz ve doğruluklarını garanti etmiyoruz.",
           "bullets": [],
-          "title": "5. Bilgi Doğruluğu"
+          "id": "accuracy",
+          "title": "Bilgi Doğruluğu"
         }
       ],
       "title": "Bildirim",
@@ -984,7 +1081,8 @@
         {
           "body": "{brand} bir bağlantı toplayıcısı ve arama motorudur. Video veya medya içeriğini barındırmaz, yüklemez, saklamaz, aktarım yapmaz veya kontrol eder. Tüm içerik, tamamen kontrolümüzden dışarıda kalan üçüncü taraf sunucularından sunulur.",
           "bullets": [],
-          "title": "1. Rolümüz — Bağlantı Toplayıcısı, Bir Sunucu Değil"
+          "id": "role",
+          "title": "Rolümüz — Bağlantı Toplayıcısı, Bir Sunucu Değil"
         },
         {
           "body": "Eğer bir kopya hakkı sahibiyseniz veya kopya hakkı sahibi adına işlem yapmaya yetkili bir temsilcisiyseniz ve bizim indeksimizdeki bir bağlantı kopya hakkınızı ihlal ettiğini düşünüyorsanız, lütfen {support_email} adresine yazılı bir bildirim gönderin:",
@@ -993,7 +1091,8 @@
             "<b>Patentli eser</b> hakkında kimin ihlali olduğunu belirtin, veya birden fazla eser tek bir bildirimle kapsandığında, bu tür eserlerin temsilcili bir listesi.",
             "<b>Materyal</b> (yani özel {brand} bağlantısı veya URL) hakkında ihlal olduğunu iddia eden, bizi bu materyale ulaşmamızı sağlayacak yeterli bilgi içeren."
           ],
-          "title": "2. Bildirme ve Kaldırma Süreci"
+          "id": "takedown",
+          "title": "Bildirme ve Kaldırma Süreci"
         },
         {
           "body": "DMCA bildiriminiz aynı zamanda şu içermelidir:",
@@ -1005,22 +1104,26 @@
             "Tüm bildirimleri inceleyeceğiz ve yukarıdaki yasal gereklilikleri karşılayan bağlantıları indeksimizden kaldıracağız.",
             "<b>İptal Bildirimi:</b> Bağlantınız yanlış olarak kaldırıldığını düşünüyorsanız, 17 U.S.C. § 512(g) kapsamında bir iptal bildirimi göndermek mümkündür."
           ],
-          "title": "3. Ekstra Gereken Elemanlar"
+          "id": "elements",
+          "title": "Ekstra Gereken Elemanlar"
         },
         {
           "body": "Çünkü {brand} hiçbir medya dosyası barındırmaz, sadece arama indeksimizden bağlantıyı kaldırma imkanımız vardır. Sunucuda barındırıldığı sunucudan altındaki içerikleri kaldıramayız.",
           "bullets": [],
-          "title": "4. Önemli Sınırlama — Sadece Bağlantıları Kaldırabiliriz"
+          "id": "limitation",
+          "title": "Önemli Sınırlama — Sadece Bağlantıları Kaldırabiliriz"
         },
         {
           "body": "Uygun durumlarda ve kendi isteğimiz doğrultusunda, {brand} tekrarlı ihlal yapan kullanıcıları veya hesapları devre dışı bırakma veya erişimini sonlandırma hakkına sahiptir.",
           "bullets": [],
-          "title": "5. Tekrarlı İhlal Politikası"
+          "id": "repeat",
+          "title": "Tekrarlı İhlal Politikası"
         },
         {
           "body": "DMCA bildirimi sonucu indeksimizden bir bağlantının kaldırılması, {brand} tarafından herhangi bir ihlalin meydana gelmiş olduğuna dair bir tanım değildir.",
           "bullets": [],
-          "title": "6. Sorumluluk Tanımlama"
+          "id": "no-admission",
+          "title": "Sorumluluk Tanımlama"
         }
       ],
       "title": "DMCA Güvenlik Sahip Kırmızı Duyuru",
@@ -1029,82 +1132,170 @@
     "privacy": {
       "sections": [
         {
-          "body": "{brand} bir bağlantı toplayıcı ve arama motorudur. Bu Gizlilik Politikası, hizmetimizi kullanırken kişisel bilgilerinizi nasıl topladığımızı, kullandığımızı ve koruduğumuzu açıklar.",
+          "body": "{brand}, birinin işlettiği bir sunucuda çalışır. Verilerinizden o kişi sorumludur ve ona {support_email} adresinden ulaşırsınız. Bu metin yazılımın kendisini anlatır; yazılım her yerde aynıdır. Sunucuyu işleten kişinin kurulumuna bağlı olan şeyleri de açıkça söyler.\n\n{brand} bağlantı toplar ve arama yapar: filmler ve diziler bizde durmaz. Giriş, veritabanı ve öneriler hep bu tek sunucuda çalışır. Dışarıdan bir hesap sağlayıcısı ve dışarıdan bir öneri servisi yoktur.",
           "bullets": [],
-          "title": "1. Giriş"
+          "id": "who-we-are",
+          "title": "Biz kimiz"
         },
         {
-          "body": "Hizmeti sunmak ve geliştirmek için sınırlı miktarda kişisel bilgi toplarız:",
+          "body": "Servisin ihtiyacı olanı saklıyoruz, hepsi de bu:",
           "bullets": [
-            "<b>Hesap bilgileri:</b> adınız ve soyadınız, e-posta adresiniz, şifreniz (oturum açma sağlayıcımız tarafından yalnızca şifrelenmiş olarak saklanır) ve eklerseniz cep telefonu numaranız.",
-            "<b>Profiller ve etkinlik:</b> profilleriniz ve ayarları, Listem, puanlarınız, ilerlemeniz ve izleme etkinliğiniz. Her cihazda sizinle olmaları için hesabınıza bağlıdırlar.",
-            "<b>Güvenlik kayıtları:</b> size cihazlarınızı göstermek ve yeni bir oturum açma konusunda sizi uyarmak için, hesabınızdaki son oturum açmalar ve değişiklikler; geldikleri tarayıcı, sistem ve ülke ile birlikte.",
-            "<b>Cihazınızdaki depolama:</b> oturumunuzu açık tutan bilgi, sayfaların hızlı açılması için profillerinizin ve ayarlarınızın bir kopyası ve çerez seçimleriniz. Bkz. Çerez Politikası."
+            "<b>Hesabınız:</b> adınız ve soyadınız, e-posta adresiniz, eklerseniz bir cep numarası ve şifreniz; şifre yalnızca özet (hash) olarak durur.",
+            "<b>Profilleriniz:</b> en fazla beş tane; her birinin adı, resmi, yaş sınırı, kendi ayarları (otomatik oynatma, diller, altyazı), koyarsanız özet olarak bir PIN, ve yazarsanız cinsiyet ile oyuncu adı.",
+            "<b>Ne izlediğiniz:</b> Listem, puanlarınız, gizlediğiniz yapımlar, her bölümde nerede kaldığınız, hatırlatmalarınız ve kişiselleştirme açıkken bunlardan çıkarılan beğeni profili.",
+            "<b>Hangi satırları gördüğünüz:</b> profil başına her gösterim, tıklama, başlatma, bitirme, beğeni, atlama ve Listem değişikliği için bir kayıt. Yalnızca o oturumda kişiselleştirme açıkken ve 180 gün boyunca.",
+            "<b>Oynatma raporları:</b> her oynatma denemesi; saati, ilk kareye kadar geçen süre, hatalar ve yanıt veren kaynak. Yalnızca o oturumda kişiselleştirme açıksa ve yapımın adı olmadan. Uygulamanızın gönderdiği sorun raporları ayrıdır: sürümünü ve yazdıklarınızı taşır, profil ve hesap taşımaz, ve cevabınız ne olursa olsun saklanır.",
+            "<b>Cihazlarınız ve oturumlarınız:</b> cihaz adı, sizi girişte tutan anahtarların özetleri, cihazı oturumlar arasında adlandıran bir cihaz anahtarı ve oturum başına bir teknik kart: uygulama ve sürümü, cihazın türü, sistemi ve sürümü, ekran boyutu, oynatıcının kaldırdığı kodek, kapsayıcı ve başlıklar, verdiği depolama, nasıl kumanda edildiği ve bildirdiği diller. Bu kart, bu cihaza bir yapımın hangi sürümünün verileceğine karar verir.",
+            "<b>Hesap olayları:</b> her giriş ve her değişiklik için tarihli bir satır, 365 gün. Bu listeyi size gösteren bir ekran henüz yok; bizden isteyin.",
+            "<b>Ebeveyn denetimi:</b> bir profilin yaş sınırı ve bir yetişkinin adıyla kapattığı yapımlar, en fazla 200 tane.",
+            "<b>Giriş kodları:</b> kodun gittiği adres ve kodun özeti, kullanılana kadar.",
+            "<b>IP adresiniz değil.</b> Sunucu istekleri saymak için onu okur ve yaklaşık bir dakika bellekte tutar. Hiçbir tablo kaydetmez, ve adreslerinizin ya da bulunduğunuz yerlerin hiçbir yerde geçmişi tutulmaz."
           ],
-          "title": "2. Topladığımız Bilgiler"
+          "id": "collect",
+          "title": "Neyi saklıyoruz"
         },
         {
-          "body": "Gizliliğiniz için kararlıyız:",
-          "bullets": [
-            "<b>Kişisel Verilerinizi Paylaşmıyoruz:</b> Reklamcılar veya veri aracı sağlayıcılarla kişisel verilerinizi paylaşmıyoruz.",
-            "<b>Kişisel Verilerinizi Satmıyoruz:</b> Asla üçüncü taraflara kişisel verilerinizi satmaz, kiralamaz veya satmaz.",
-            "<b>Sizi izlemek:</b> Reklam veya analiz çerezleri kullanmayız, tarayıcınızın parmak izini çıkarmayız ve sizi başka web sitelerinde takip etmeyiz."
-          ],
-          "title": "3. Ne Yapmıyoruz"
-        },
-        {
-          "body": "UK Genel Veri Koruma Kanunu (UK GDPR) kapsamında bu bilgileri işleme için güvenilir temellerimiz şunlardır:",
-          "bullets": [
-            "<b>Sözleşme:</b> hesabınızı, profillerinizi ve kullandığınız özellikleri sağlamak için.",
-            "<b>Meşru menfaat:</b> hesapları güvende tutmak (oturum açma kayıtları) ve hizmetin çalışması ve gelişmesi için.",
-            "<b>Açık rıza:</b> izlediklerinizi kişiselleştirilmiş önerilerde kullanmak için. Rızanızı istediğiniz zaman Gizlilik ve veri ayarları'ndan geri çekebilirsiniz."
-          ],
-          "title": "4. İşleme Yasal Temeli (UK GDPR)"
-        },
-        {
-          "body": "Hesap verileriniz, veritabanı sağlayıcımız Supabase'de yalnızca hesabınızın okuyabileceği şekilde satır düzeyinde güvenlikle saklanır. Oturum açtığınız her tarayıcı hız için bir kopya tutar. Hesabınızı sildiğinizde verileri hemen silinir.",
+          "body": "Neredeyse her şey sizden: kaydolurken yazdıklarınız, oluşturduğunuz profiller ve ayarlar, uygulamada yaptıklarınız. Uygulamanız iki şey ekler: ne oynatabildiğini söyleyen teknik kart ve yukarıdaki oynatma raporları.\n\nSizinle ilgili veri satın almıyoruz ve başka şirketlerden almıyoruz. Nerede olduğunuza bakmıyoruz; yaş işaretleri, uygulamanızın istediği bölgeyi izler.",
           "bullets": [],
-          "title": "5. Verilerinizi Nasıl Saklıyoruz"
+          "id": "where",
+          "title": "Nereden geliyor"
         },
         {
-          "bullets": [],
-          "title": "6. Üçüncü Taraflar Hizmetleri"
-        },
-        {
-          "body": "UK GDPR'ye göre, aşağıdaki haklara sahipsiniz:",
+          "body": "Her kullanımın bir hukuki dayanağı var, parantez içinde. Şunlar için kullanıyoruz:",
           "bullets": [
-            "<b>Erişim hakkı:</b> verilerinizin bir kopyasını istediğiniz zaman Hesap bölümünde, Kişisel bilgilere erişim altından indirin.",
-            "<b>Silme hakkı:</b> hesabınızı istediğiniz zaman Hesap bölümünde, Hesabı sil altından silin. İçindeki her şey hemen silinir.",
-            "<b>Düzeltme hakkı:</b> adınızı, e-posta adresinizi ve telefon numaranızı Hesap bölümünden değiştirin ya da başka bir şeyi düzeltmemizi isteyin.",
-            "<b>İtiraz hakkı:</b> kişiselleştirilmiş önerileri kapatın ya da meşru menfaate dayalı işlemeye itiraz etmek için bize yazın."
+            "hesabınızı, profillerinizi, Listem'i, puanlarınızı ve İzlemeye Devam'ı her cihazda yürütmek (sözleşme);",
+            "hesabı korumak: hassas bir adımdan önce sizi doğrulamak, cihazlarınızı göstermek, çok sayıda yanlış PIN'den sonra profili kilitlemek ve şifre değişiminde diğer tüm oturumları kapatmak (meşru menfaat);",
+            "hesabın ihtiyacı olan mektupları göndermek: giriş kodu, yeni şifre bağlantısı ve birisi sizin adresinizle hesap açmaya çalışırsa bir bilgi (sözleşme);",
+            "izlediklerinizden yola çıkarak hangi satırları hangi sırada göreceğinizi seçmek; yalnızca kişiselleştirmeyi açtığınız cihazda (açık rıza);",
+            "bozulanı bulmak ve onarmak, yukarıdaki raporlardan (meşru menfaat);",
+            "mesajlarınızı yanıtlamak (meşru menfaat)."
           ],
-          "title": "7. Veri Koruma Haklarınız"
+          "id": "use",
+          "title": "Ne için kullanıyoruz"
         },
         {
-          "body": "Bu Gizlilik Politikası hakkında sorularınız varsa ya da haklarınızı kullanmak istiyorsanız {support_email} adresine yazın.",
+          "body": "Her maddeyi iyi niyet değil, kod tutuyor:",
+          "bullets": [
+            "<b>Satış yok, reklam için paylaşım yok.</b> Kişisel veriyi satmıyor, kiralamıyor, takas etmiyoruz; reklamcılara ve veri tacirlerine vermiyoruz.",
+            "<b>Hiç çerez yok.</b> Bu sunucunun hiçbir sayfası ve hiçbir yanıtı çerez koymaz; bir yol koymayı denediği anda bir test derlemeyi düşürür. Reklam ve ölçüm çerezi yok, çünkü çerez yok.",
+            "<b>Web'de iz sürme yok.</b> Üründe ne ölçüm servisi ne reklam etiketi var, ve sakladığımız hiçbir şey sizi başka siteye izlemez.",
+            "<b>IP adresi yok, yer geçmişi yok.</b> Yukarıdaki listede olduğu gibi.",
+            "<b>Yaş verisi yok.</b> Kaç yaşında olduğunuzu sormuyoruz ve denetlemiyoruz, çünkü bunu tutmamayı yeğliyoruz.",
+            "<b>Cihaz kartı üzerine kurulu hiçbir şey yok.</b> Yukarıdaki teknik kart, cihazınızın ne oynatabildiğini söyler. Sizi tanımak için kullanılmaz, başka cihazlarla karşılaştırılmaz ve bu sunucudan çıkmaz."
+          ],
+          "id": "not",
+          "title": "Yapmadıklarımız"
+        },
+        {
+          "body": "Bu sunucudan neredeyse hiçbir şey çıkmaz. Giriş, veritabanı ve öneriler sunucuyu işletenin makinesinde, sunucunun kendi başlattığı bir PostgreSQL içinde çalışır. Gerçek anlamda tek bir işleyici var, sonrası cihazınızın kendi konuştuğu yerler:",
+          "bullets": [
+            "<b>E-posta.</b> Giriş kodları, şifre bağlantıları ve hesap bildirimleri, sunucuyu işletenin ayarladığı e-posta servisine verilir. O servis gidecek adresi ve mektubun metnini alır, başka bir şey almaz. {brand} bakımını yapan kişinin işlettiği kurulumda bu servis Resend (resend.com). Bu yazılımı herkes işletebildiği için başka bir işleten başka bir servisi ya da kendi posta sunucusunu gösterebilir; bu sunucuyu işletene hangisi olduğunu sorun.",
+            "<b>Cihazınızın kendi aldığı şeyler.</b> Afişler, açıklamalar ve fragmanlar açık kataloglardan, video bağımsız kaynaklardan gelir. Cihazınız onlara doğrudan sorar, bu yüzden açtığınız her sitede olduğu gibi IP adresinizi ve isteğinizi görürler. Hesabınız hakkında onlara bir şey söylemiyoruz.",
+            "<b>Kanun.</b> Kanun istediğinde kişisel veriyi veririz."
+          ],
+          "id": "share",
+          "title": "Başka kim görüyor"
+        },
+        {
+          "body": "Verileriniz bu sunucunun çalıştığı makinedeki veritabanında durur ve o makinenin nerede olduğunu sunucuyu işleten seçti. Yazılım hiçbir şeyi belli bir ülkeye koymaz, bu yüzden burada bir bölge sözü verilmez; sunucunun nerede çalıştığını ve verileri hangi hukuka göre tuttuğunu işletene sorun.\n\nO makineden çıkan tek şey, yukarıdaki e-posta servisine verilenlerdir; onun nerede işlendiği seçilen servise bağlıdır.",
           "bullets": [],
-          "title": "8. İletişim"
+          "id": "where-it-lives",
+          "title": "Nerede duruyor"
+        },
+        {
+          "body": "Hiçbir şey sonradan işe yarar diye tutulmaz. Bütün depolar ve süreleri:",
+          "bullets": [
+            "<b>Hesabınız ve bilgileri:</b> hesap durdukça. Silmek onları hemen götürür.",
+            "<b>Profilleriniz ve içindekiler:</b> profil, resmi, PIN'i, yaş sınırı ve kapattığı yapımlar, Listem, puanlar, gizlenen yapımlar, ilerleme, ayarlar, hatırlatmalar ve kapattığınız bildirimler; profil durdukça. Profili ya da hesabı silmek onları hemen kaldırır.",
+            "<b>İzlediklerinizden çıkarılan beğeni profili:</b> profil durdukça. Kişiselleştirmeyi kapatmak, kullandığınız profilin beğeni profilini siler.",
+            "<b>Hangi satırları gördüğünüz:</b> her kayıt için 180 gün, ve yalnızca o oturumda kişiselleştirme açıksa.",
+            "<b>Oynatma raporları:</b> her rapor için 30 gün, ve yalnızca kişiselleştirme açıksa. Hesabınızı silmek profilinizi oradan hemen çıkarır; raporların kendisi her biri 30 güne ulaştıkça gider.",
+            "<b>Uygulamanızın gönderdiği sorun raporları:</b> 30 gün. Profil ve hesap taşımazlar, yani hesabınızla silinecek bir şey içermezler.",
+            "<b>Hesap olayları:</b> 365 gün.",
+            "<b>Açık oturumlar:</b> çıkana kadar ya da 30 gün kullanılmazsa, hangisi önce gelirse. Şifre değiştirmek diğer tüm oturumları hemen kapatır. Televizyonda diğer cihazları çıkarmak önce şifrenizi ya da bir kodu ister.",
+            "<b>Cihaz listeniz ve bir cihazı adlandıran anahtar:</b> hesap durdukça.",
+            "<b>Kodlar:</b> giriş kodu ve televizyonun eşleşmeyi beklerken gösterdiği kod; kullanılana ya da süresi geçene kadar. Hiç kullanmadığınız bir giriş kodu, gittiği adresi saklar; bu, hesap silindikten sonra da böyledir.",
+            "<b>Başlamayan fragmanlar ve uygulamanızın hangi değişiklikleri gönderdiğine dair not:</b> profil başına en son 300 başarısız deneme, notlar ise profil durdukça.",
+            "<b>Sizinle ilgili olmayanlar:</b> hangi ülkenin hangi yaş işareti sistemini kullandığı ve bir kaynağın kaç kez yanıt verdiğine dair sayımlar. İkisinde de kişi yoktur ve hesap silmek onlara dokunmaz.",
+            "<b>Cihazınızda:</b> sizi girişte tutan şey, başka bir şey değil. Çerez metnine bakın."
+          ],
+          "id": "keep",
+          "title": "Ne kadar süre tutuyoruz"
+        },
+        {
+          "body": "Verilerinizi burada koruyanlar:",
+          "bullets": [
+            "<b>Ayrımı sunucu zorlar, nazikçe rica etmez.</b> Her sorgu hesabınızı bağlar ve bir profili açan anahtar, yalnızca oturumunuzu çoktan denetlemiş olan kapıda üretilir. Denetlemeyi unutan kod hiçbir şey okuyamaz. Bu, bir veritabanı kuralından daha güçlüdür; bu veritabanında satır bazlı kural yoktur.",
+            "<b>Şifreler ve PIN'ler</b> yalnızca özet olarak durur; hiçbir mektupta ve hiçbir kayıtta görünmez.",
+            "<b>Hassas adımlar yeniden sorar.</b> Hesabı silmek, verilerinizi istemek, şifre değiştirmek ve ebeveyn denetimini değiştirmek, dakikalarca geçerli taze bir onay ister.",
+            "<b>Profil kilitlenir</b> çok sayıda yanlış PIN'den sonra.",
+            "<b>Şifreli bağlantıyı sunucuyu işleten kurar.</b> Bu sunucu düz HTTP konuşur ve önüne HTTPS konmasını bekler. Bunu okuduğunuz adres https:// ile başlıyorsa, konmuş.",
+            "<b>Hiçbir sistem kusursuz güvenli değildir.</b> Hesabınızın başkası tarafından kullanıldığını düşünüyorsanız şifrenizi değiştirin; bu diğer tüm oturumları hemen kapatır; ve bize yazın."
+          ],
+          "id": "safe",
+          "title": "Nasıl koruyoruz"
+        },
+        {
+          "body": "Hesabınıza girebilen herkes profillerini açar ve PIN ile kilitli değilse onların Listem'ini, puanlarını ve etkinliğini görür. Hesap sahibi her profili oluşturabilir, adını değiştirebilir, kilitleyebilir ve silebilir.\n\nHesap sahibi bir profili e-posta adresiyle belirtilen başka bir hesaba da verebilir. Bütün kütüphane, ayarlar, beğeni profili ve kapatılan yapımlar onunla gider ve profilin sahibi olan kişiye sorulmaz. Girişinizi kiminle paylaştığınızı iyi seçin ve özel kalmasını istediğiniz profilleri kilitleyin.",
+          "bullets": [],
+          "id": "household",
+          "title": "Hesabınız ve profiller"
+        },
+        {
+          "body": "Şu haklara sahipsiniz:",
+          "bullets": [
+            "<b>Erişim:</b> siz olduğunuzu doğruladıktan sonra, istediğiniz zaman verilerinizin bir kopyasını isteyin. Dosya bugün hesap bilgilerinizi, profillerinizi ve cihazlarınızı içerir. Listem, puanlar, ilerleme, ayarlar, beğeni profili, hatırlatmalar ve yukarıda anlatılan kayıtlar henüz içinde değil: {support_email} adresine yazın, onları da gönderelim.",
+            "<b>Silme:</b> hesabınızı istediğiniz zaman silin. Süre listesindeki oynatma raporları dışında her şey hemen gider: profiliniz onlardan hemen çıkar ve her rapor 30 güne ulaştığında gider.",
+            "<b>Düzeltme:</b> adınızı, e-postanızı ve numaranızı kendiniz değiştirin ya da başka bir şeyin düzeltilmesini isteyin.",
+            "<b>İtiraz:</b> kişiselleştirmeyi kapatın ya da meşru menfaate dayanan bir kullanıma itiraz etmek için bize yazın.",
+            "<b>Kısıtlama ve taşınabilirlik:</b> bir soru çözülürken kullanımı durdurmamızı ya da verileri yaygın ve makinece okunabilir bir biçimde (JSON) vermemizi isteyin.",
+            "<b>Rızayı geri almak:</b> kişiselleştirme siz açana kadar kapalıdır ve cevabınız, verdiğiniz cihaza aittir, profile değil: ikinci cihaz yine kapalı başlar. Kapatmak, kullandığınız profilin beğeni profilini siler. Açıkken olanları geri almaz.",
+            "<b>Şikâyet:</b> önce bize yazın. Veri koruma kurumuna da başvurabilirsiniz."
+          ],
+          "id": "rights",
+          "title": "Haklarınız"
+        },
+        {
+          "body": "Hesap açmak için 18 yaşında ya da daha büyük olmanız gerekir. Yaşınızı sormuyor ve denetlemiyoruz, çünkü bunu tutmamayı yeğliyoruz. Çocuklar, hesap sahibinin kurup gözettiği bir Çocuk profili ya da yaş sınırlı bir profille izler; Çocuk profiline yalnızca bir bağlantı arayıcının denetlediği kaynaklar verilir. Bir çocuk hakkında, hesap sahibinin yazdıkları ve o profilin uygulamada yaptıkları dışında hiçbir şey tutmuyoruz. Bir çocuğun hesap açtığını düşünüyorsanız {support_email} adresine yazın, hesabı silelim.",
+          "bullets": [],
+          "id": "children",
+          "title": "Çocuklar"
+        },
+        {
+          "body": "Servis ya da kanun değiştiğinde bu metni değiştiririz ve yukarıdaki tarih sözlerle birlikte değişir. Bu sunucunun size politika bildirimi gönderme yolu yok, bu yüzden bildirim bu sayfadır: tarih kaydığında yeniden okuyun.",
+          "bullets": [],
+          "id": "changes",
+          "title": "Bu metindeki değişiklikler"
+        },
+        {
+          "body": "Bu metinle ya da haklarınızla ilgili sorular için {support_email} adresine yazın. Haklarınıza ilişkin istekleri bir ay içinde yanıtlarız. Yanıtlayan, bu sunucuyu işleten kişidir.",
+          "bullets": [],
+          "id": "contact",
+          "title": "İletişim"
         }
       ],
       "title": "Gizlilik Politikası",
-      "updated": "Son güncelleme: Ekim 2026"
+      "updated": "Son güncelleme: Kasım 2026"
     },
     "terms": {
       "sections": [
         {
           "body": "{brand}'a erişim veya kullanım yaparak, bu Hizmet Şartları ve Gizlilik Politikamızı kabul etmiş olursunuz. Kabul etmiyorsanız, hizmeti kullanmayınız.",
           "bullets": [],
-          "title": "1. Hizmet Şartlarına Katılım"
+          "id": "acceptance",
+          "title": "Hizmet Şartlarına Katılım"
         },
         {
           "body": "{brand}, bir bağlantı toplayıcısı ve arama motorudur. Sunucularımızda herhangi bir video içeriğini barındırır, yükler, iletir veya kontrol ederiz. Tüm medya üçüncü taraf platformlardan alınmıştır.",
           "bullets": [],
-          "title": "2. Hizmetin Doğası"
+          "id": "service",
+          "title": "Hizmetin Doğası"
         },
         {
           "body": "{brand} kullanmak için ücretsiz bir hesaba ihtiyacınız vardır. Şifrenizi güvende tutmaktan ve hesabınızda olanlardan siz sorumlusunuz. Başka birinin hesabınızı kullandığını düşünüyorsanız bize hemen bildirin.",
           "bullets": [],
-          "title": "3. Kullanıcı Hesapları"
+          "id": "account",
+          "title": "Kullanıcı Hesapları"
         },
         {
           "body": "Hizmeti şu şekilde kullanmayacağınızı kabul edersiniz:",
@@ -1114,37 +1305,44 @@
             "Hizmetin altyapısının zafiyetini araştırmaya, tarayıcıya veya test etmeye çalışın.",
             "Herhangi bir yasal, zararlı veya bizim tarafından uygun olmayan olarak değerlendirilen davranışa girmeyin."
           ],
-          "title": "4. Kabul Edilebilir Kullanım"
+          "id": "acceptable-use",
+          "title": "Kabul Edilebilir Kullanım"
         },
         {
           "body": "{brand} markası, arayüz tasarımı ve orijinal yazılım kodları telif hakkı korunmaktadır. {brand} üzerinden erişilebilen tüm medya içerikleri, ilgili hak sahiplerinin mülkiyetindedir.",
           "bullets": [],
-          "title": "5. Telif Hakkı"
+          "id": "property",
+          "title": "Telif Hakkı"
         },
         {
           "body": "Hizmet, herhangi bir garanti olmadan \"geliştirilmiş\" ve \"mevcut\" olarak sağlanmaktadır. {brand}, sürekli kullanılabilirlik garantisini vermez ve doğrudan veya dolaylı zararlara karşı sorumluluk üstlenmez.",
           "bullets": [],
-          "title": "6. Beyanatlar ve Sorumluluk Sınırlamaları"
+          "id": "disclaimers",
+          "title": "Beyanatlar ve Sorumluluk Sınırlamaları"
         },
         {
           "body": "{brand}, bağımsız üçüncü taraf sunucularında barındırılan içeriklere işaret eden bağlantılar sağlar. Üçüncü taraf sitelerin içeriklerini, gizlilik politikalarını veya uygulamalarını kontrol edemeyiz ve bunlarla ilgili sorumluluk üstlenmeyiz.",
           "bullets": [],
-          "title": "7. Üçüncü Taraf İçerikleri"
+          "id": "third-party",
+          "title": "Üçüncü Taraf İçerikleri"
         },
         {
           "body": "Hizmetin kullanımını ve hesabınızı, bu Kullanım Koşullarını ihlal ettiğimizi veya diğer kullanıcılar, biz veya üçüncü taraflar için zararlı olduğumuzu düşünüldüğünde, önceden bildirim olmadan kendi isteğimizle durdurabilir veya sona erdirebiliriz.",
           "bullets": [],
-          "title": "8. Bitirme"
+          "id": "termination",
+          "title": "Bitirme"
         },
         {
           "body": "Bu Hizmet Kullanım Koşulları, İngiltere ve Galway'in yasalarına göre düzenlenir ve uygulanır, yasal çatışma hükümlerine bakılmaksızın.",
           "bullets": [],
-          "title": "9. Hukuki Düzenleme"
+          "id": "law",
+          "title": "Hukuki Düzenleme"
         },
         {
           "body": "Bu Hizmet Kullanım Koşulları ile ilgili herhangi bir soru veya talep için lütfen İletişim sayfamız üzerinden bize ulaşın.",
           "bullets": [],
-          "title": "10. İletişim"
+          "id": "contact",
+          "title": "İletişim"
         }
       ],
       "title": "Hizmet Şartları",

@@ -15,7 +15,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import contract.Profile
 
-/** A profile's picture, or its first letter on Accent (Join for Kids) when it has none. */
+/**
+ * A profile's picture, or its first letter on Accent (Join for Kids) when it has none.
+ *
+ * [says] is the words a screen reader is given. The default is none, because the letter standing in
+ * for a missing picture is not a word -- a reader would say "J" and stop -- and because a face is
+ * almost always drawn inside a control that already says whose it is. A face that stands alone
+ * passes the person's name here.
+ */
 @Composable
 fun Face(
     person: Profile?,
@@ -23,11 +30,13 @@ fun Face(
     modifier: Modifier = Modifier,
     shape: Shape? = null,
     fontSize: TextUnit = TextUnit.Unspecified,
+    says: String? = null,
 ) {
     val avatar = person?.avatar?.takeIf { it.startsWith("/") || it.startsWith("http") }
     val plate = if (person?.kids == true) Join else Accent
     val boxMod = if (shape != null) modifier.clip(shape) else modifier
-    Box(boxMod.background(plate), contentAlignment = Alignment.Center) {
+    val heard = if (says != null) Modifier.says(says) else Modifier.decoration()
+    Box(boxMod.background(plate).then(heard), contentAlignment = Alignment.Center) {
         if (avatar != null) {
             Art(if (avatar.startsWith("/")) server + avatar else avatar, Modifier.fillMaxSize())
         } else {

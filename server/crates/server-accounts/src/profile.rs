@@ -141,17 +141,20 @@ pub fn clean_profile_name(name: &str, limits: &AccountLimits) -> Result<String, 
 /// belong to no set, so a profile may always keep the one it started with.
 pub const STARTING_AVATARS: [&str; 2] = ["default", "kids"];
 
-/// Most bytes a picture name may carry. The column takes no more, so a longer one is refused where
-/// the change is read; left to the store it comes back as "busy, try again" and never stops being
-/// busy.
-pub const AVATAR_MAX_BYTES: usize = 64;
+/// Most letters a picture name may carry. The column counts characters
+/// (`0001_accounts.sql:26`, `char_length(avatar) <= 64`), so this counts characters too: counting
+/// bytes refused a name of 64 letters the column would have taken, and the sibling rule on the
+/// device key (`routes/devices.rs`) already counts the same unit as its column. A name the column
+/// would refuse is refused where the change is read; left to the store it comes back as "busy,
+/// try again" and never stops being busy.
+pub const AVATAR_MAX_CHARS: usize = 64;
 
 /// True for a picture name the server keeps: short, and one line of plain text, as a published set
 /// names its pictures.
 #[must_use]
 pub fn avatar_ok(avatar: &str) -> bool {
     !avatar.is_empty()
-        && avatar.len() <= AVATAR_MAX_BYTES
+        && avatar.chars().count() <= AVATAR_MAX_CHARS
         && !avatar.chars().any(|c| c.is_whitespace() || c.is_control())
 }
 
@@ -240,7 +243,12 @@ mod tests {
         assert!(avatar_ok("/avatars/orange.webp"));
         assert!(avatar_ok(STARTING_AVATARS[0]));
         assert!(!avatar_ok(""));
-        assert!(!avatar_ok(&"a".repeat(AVATAR_MAX_BYTES + 1)));
+        assert!(!avatar_ok(&"a".repeat(AVATAR_MAX_CHARS + 1)));
+        // 64 letters the column takes, which counting bytes refused.
+        let multibyte = "/avatars/".to_owned() + &"é".repeat(AVATAR_MAX_CHARS - "/avatars/".len());
+        assert_eq!(multibyte.chars().count(), AVATAR_MAX_CHARS);
+        assert!(multibyte.len() > AVATAR_MAX_CHARS);
+        assert!(avatar_ok(&multibyte));
         assert!(!avatar_ok("two words"));
         assert!(!avatar_ok("line\nbreak"));
     }

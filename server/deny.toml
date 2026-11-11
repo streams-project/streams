@@ -6,8 +6,14 @@ multiple-versions = "warn"
 wildcards = "deny"
 
 [advisories]
-# A reported hole in a dependency stops the build. Nothing is waved through here: an entry under
-# `ignore` is a hole left open on purpose, and it carries the advisory id and the reason.
+# What this file says, and who says it: nothing in this repository runs `cargo deny`. `./check`
+# cannot, because the advisory database is a network fetch, and `./check` is the whole of CI. So
+# these rules hold for whoever runs `cargo deny --manifest-path Cargo.toml --config server/deny.toml
+# check` by hand, and for no automatic build, until a job with a network runs it. Written down here
+# because the sentence that used to be here, "a reported hole in a dependency stops the build", was
+# a claim no check kept.
+# Nothing is waved through: an entry under `ignore` is a hole left open on purpose, and it carries
+# the advisory id and the reason.
 ignore = []
 # A yanked release is one its author withdrew, so a build must not rest on it.
 yanked = "deny"

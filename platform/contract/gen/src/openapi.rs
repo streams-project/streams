@@ -3,6 +3,7 @@
 
 use std::collections::BTreeMap;
 
+use contract::TITLE_ID_PATTERN;
 use contract::api::{Auth, CLIENT_HEADERS, Group, ROUTES, Route};
 use contract::version::{API_VERSION_HEADER, WIRE_VERSION};
 use serde_json::{Map, Value, json};
@@ -68,7 +69,7 @@ fn path_schema(route: &Route, name: &str) -> Value {
         "name" => type_ref("ScreenName"),
         "n" => json!({ "type": "integer", "minimum": 0 }),
         "id" if route.path.contains("/titles/") => {
-            json!({ "type": "string", "pattern": "^[1-9][0-9]{0,9}$" })
+            json!({ "type": "string", "pattern": format!("^{TITLE_ID_PATTERN}$") })
         }
         _ => json!({ "type": "string" }),
     }

@@ -101,3 +101,69 @@ fn a_folder_with_no_english_is_refused() {
     assert!(Help::open(&dir).is_err());
     std::fs::remove_dir_all(&dir).unwrap();
 }
+
+#[test]
+fn a_policy_section_is_found_by_id_and_a_half_written_one_stays_english() {
+    let policy = help().policy("terms", Some("de"), NAMED).unwrap();
+    let titles: Vec<_> = policy
+        .sections
+        .iter()
+        .map(|section| section.title.as_deref().unwrap_or_default())
+        .collect();
+    assert_eq!(
+        titles,
+        ["Use", "Kontakt"],
+        "English holds the order; the German section is found by its id, not its position. \
+         `use` is half written in German (no bullets where English has two), so it is read whole \
+         in English rather than as a German heading over English bullets."
+    );
+    let words = |at: usize| -> Vec<String> {
+        policy.sections[at]
+            .blocks
+            .iter()
+            .flat_map(|block| &block.lines)
+            .map(|line| line.runs.iter().map(|run| run.text.as_str()).collect())
+            .collect()
+    };
+    assert_eq!(words(0), ["Plain terms.", "One", "Two"]);
+    assert_eq!(words(1), ["Schreiben an help@host.example."]);
+}
+
+#[test]
+fn a_bullet_is_marked_up_like_any_other_line() {
+    let dir = std::env::temp_dir().join(format!("server_help_bullet_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    std::fs::write(
+        dir.join("en.json"),
+        r#"{"policies":{"p":{"sections":[{"id":"one","title":"T","body":"B",
+           "bullets":["<b>Lead:</b> and the rest"]}]}}}"#,
+    )
+    .unwrap();
+    let help = Help::open(&dir).unwrap();
+    std::fs::remove_dir_all(&dir).ok();
+    let policy = help.policy("p", None, NAMED).unwrap();
+    let list = policy.sections[0].blocks.last().unwrap();
+    let runs = &list.lines[0].runs;
+    assert_eq!(runs.len(), 2, "the tag opens a bold run, it is not shown");
+    assert_eq!(runs[0].text, "Lead:");
+    assert!(runs[0].bold);
+    assert_eq!(runs[1].text, " and the rest");
+}
+
+#[test]
+fn a_book_whose_bullets_and_tables_do_not_pair_is_refused() {
+    let dir = std::env::temp_dir().join(format!("server_help_tables_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    std::fs::write(
+        dir.join("en.json"),
+        r#"{"policies":{"p":{"sections":[{"id":"one","title":"T","body":"B",
+           "bullets":["a","b"],"tables":[["t1"]]}]}}}"#,
+    )
+    .unwrap();
+    let refused = Help::open(&dir);
+    std::fs::remove_dir_all(&dir).ok();
+    assert!(
+        refused.is_err(),
+        "two bullets and one table list would tie a sentence to the wrong rows"
+    );
+}

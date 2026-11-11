@@ -59,7 +59,7 @@ pub async fn prune(state: &Shared) -> u64 {
         let before = now.saturating_sub(FEED_DAYS * DAY_MS);
         gone += library.store().prune_feed(before).await.unwrap_or(0);
     }
-    if let Some(log) = &state.play_log {
+    if let Some(log) = state.log_of_no_one() {
         gone += log.prune(now.saturating_sub(REPORT_DAYS * DAY_MS)).await;
     }
     gone

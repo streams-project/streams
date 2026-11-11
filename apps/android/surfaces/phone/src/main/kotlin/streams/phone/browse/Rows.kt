@@ -64,8 +64,11 @@ import streams.shared.Back
 import streams.shared.Corner
 import streams.shared.R
 import streams.shared.Raised
+import streams.shared.decoration
 import streams.shared.fill
 import streams.shared.number
+import streams.shared.says
+import streams.shared.saysItsWords
 import streams.shared.tall
 import streams.shared.warm
 
@@ -141,11 +144,22 @@ fun SectionRow(
     }
 
     Column(Modifier.fillMaxWidth().padding(bottom = 12.dp)) {
+        // The name opens the row as a page when there is more of it than the row shows. The chevron
+        // that says so is drawn, so it is said too: on its own the merged words would be the row's
+        // name and a "\u203a", which tells a reader nothing about where the control goes.
         Box(
             modifier = Modifier
                 .defaultMinSize(minHeight = 34.dp)
                 .padding(horizontal = RowStart)
-                .then(if (hasMore) Modifier.clickable(onClick = ::onTitleTap) else Modifier),
+                .then(
+                    if (hasMore) {
+                        Modifier
+                            .clickable(onClick = ::onTitleTap)
+                            .says(words["say.see_all"].orEmpty().fill("row", section.title.orEmpty()))
+                    } else {
+                        Modifier
+                    },
+                ),
             contentAlignment = Alignment.CenterStart,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -250,11 +264,14 @@ private fun RankedTileCard(
         modifier = Modifier.size(itemWide, TileHigh),
         contentAlignment = Alignment.BottomStart,
     ) {
-        // Large outlined rank numeral at start
+        // Large outlined rank numeral at start. One numeral is drawn twice over itself, as a fill
+        // and as a stroke, so read as it stands it is said twice. It is decoration: the place is
+        // part of what the tile itself says.
         Box(
             modifier = Modifier
                 .width(numeralWide)
-                .height(numeralHigh),
+                .height(numeralHigh)
+                .decoration(),
             contentAlignment = Alignment.CenterStart,
         ) {
             val strokeWidthPx = with(LocalDensity.current) { 3.dp.toPx() }
@@ -277,7 +294,7 @@ private fun RankedTileCard(
             )
         }
 
-        // Poster Tile at end, on top of numeral
+        // Poster Tile at end, on top of numeral. It carries the place, since the numeral does not.
         Box(modifier = Modifier.align(Alignment.BottomEnd)) {
             TileCard(
                 tile = tile,
@@ -285,6 +302,7 @@ private fun RankedTileCard(
                 percent = null,
                 words = words,
                 open = open,
+                says = words["say.ranked"].orEmpty().fill("rank", rankText).fill("title", tile.name),
             )
         }
     }
@@ -309,12 +327,21 @@ private fun ContinueCard(
             .clip(shape)
             .background(Raised),
     ) {
-        // Art with progress bar
+        // Art with progress bar. The bar is drawn, so how far in the viewer is has to be said:
+        // a reader otherwise hears the same words for a title half watched and one not started.
+        val watched = tile.percent?.coerceIn(0L, 100L)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(ContinueHigh)
-                .clickable(onClick = open),
+                .clickable(onClick = open)
+                .says(
+                    if (watched == null) {
+                        tile.name
+                    } else {
+                        words["say.watched"].orEmpty().fill("title", tile.name).fill("percent", number(watched))
+                    },
+                ),
         ) {
             Art(tall(tile.images), Modifier.fillMaxSize(), TileWide, ContinueHigh)
             val percent = tile.percent ?: 0L
@@ -347,12 +374,14 @@ private fun ContinueCard(
                 modifier = Modifier
                     .size(34.dp)
                     .clip(RoundedCornerShape(17.dp))
-                    .clickable(onClick = openInfo),
+                    .clickable(onClick = openInfo)
+                    .says(words["common.more_info"].orEmpty()),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     painter = painterResource(R.drawable.icon_info),
-                    contentDescription = words["title.about"] ?: "Info",
+                    // The words are on the control around it, which is what a reader focuses.
+                    contentDescription = null,
                     modifier = Modifier.size(20.dp),
                     tint = Color.White,
                 )
@@ -361,7 +390,8 @@ private fun ContinueCard(
                 modifier = Modifier
                     .size(34.dp)
                     .clip(RoundedCornerShape(17.dp))
-                    .clickable { menuOpen = true },
+                    .clickable { menuOpen = true }
+                    .says(words["say.more_options"].orEmpty()),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -407,9 +437,16 @@ private fun TileCard(
     percent: Long?,
     words: Map<String, String>,
     open: () -> Unit,
+    says: String = tile.name,
 ) {
     val shape = RoundedCornerShape(Corner.CARD.dp)
-    Box(Modifier.size(TileWide, TileHigh).clip(shape).background(Raised).clickable(onClick = open)) {
+    // A tile draws a picture and sometimes a badge over it, and no words of its own. The title's
+    // name is the tile: it is the one thing a reader has to hear, and it comes from the answer, so
+    // it needs no key. The badges are drawn inside this merged node and are read after it.
+    Box(
+        Modifier.size(TileWide, TileHigh).clip(shape).background(Raised)
+            .clickable(onClick = open).says(says),
+    ) {
         Art(tall(tile.images), Modifier.fillMaxSize(), TileWide, TileHigh)
 
         if (rank != null) {
@@ -487,7 +524,8 @@ private fun FullPageGrid(
                 Box(
                     modifier = Modifier
                         .size(48.dp, 48.dp)
-                        .clickable(onClick = onClose),
+                        .clickable(onClick = onClose)
+                        .saysItsWords(),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
@@ -533,7 +571,8 @@ private fun FullPageGrid(
                             .clickable {
                                 onClose()
                                 open(tile)
-                            },
+                            }
+                            .says(tile.name),
                     ) {
                         Art(tall(tile.images), Modifier.fillMaxSize(), TileWide, TileHigh)
                     }

@@ -84,6 +84,10 @@ fn denied_v4(ip: Ipv4Addr) -> Option<&'static str> {
         () if ip.is_broadcast() => "broadcast",
         // 240.0.0.0/4, never assigned.
         () if a >= 240 => "reserved",
+        // 0.0.0.0/8, "this network" (RFC 1122): a source address on the local network, never a
+        // host anywhere to call. `is_unspecified` above matches 0.0.0.0 and nothing else, so the
+        // rest of the range came back public, here and through `inner_v4` as `::0.1.2.3`.
+        () if a == 0 => "this network",
         () => return None,
     })
 }
@@ -329,8 +333,10 @@ impl Fetched {
 /// cannot widen to the rest of a host between the check and the socket.
 #[derive(Clone, Debug)]
 pub struct Guard {
-    /// For the configured endpoints, whose packs listen on a private address.
-    operator_client: reqwest::Client,
+    /// For the configured endpoints, whose packs listen on a private address. `None` when this
+    /// install configured none, so a guard with nothing to allow holds no client that could allow
+    /// anything, rather than one that is built, carries a connection pool and is never reached.
+    operator_client: Option<reqwest::Client>,
     /// For every other address, including a hop or a locator a caller handed over.
     public_client: reqwest::Client,
     limits: Limits,
@@ -387,7 +393,14 @@ impl Guard {
         let names: Arc<BTreeSet<String>> =
             Arc::new(operator_hosts.iter().filter_map(|a| name_of(a)).collect());
         Ok(Self {
-            operator_client: client(names)?,
+            // The allowance and the client that carries it are made together, so "no configured
+            // endpoint" and "no client that may answer privately" are one state and not two that
+            // could drift apart.
+            operator_client: if operator.is_empty() {
+                None
+            } else {
+                Some(client(names)?)
+            },
             public_client: client(Arc::new(BTreeSet::new()))?,
             limits,
             operator,
@@ -474,10 +487,12 @@ impl Guard {
     async fn one(&self, url: &Url, ask: &Ask) -> Result<reqwest::Response, Refusal> {
         // The allowance and the socket are chosen by the same rule, so a call that was judged as
         // a caller's URL cannot be opened by the resolver that may answer privately.
-        let client = if self.configured(url) {
-            &self.operator_client
-        } else {
-            &self.public_client
+        // No configured endpoint means no operator client, and `configured` can only be true
+        // when there is one, so the last arm is unreachable; were it ever reached it is the
+        // client that reads the deny table, which refuses rather than allows.
+        let client = match &self.operator_client {
+            Some(operator) if self.configured(url) => operator,
+            _ => &self.public_client,
         };
         let mut call = match &ask.body {
             Some(body) => client
@@ -665,10 +680,32 @@ mod tests {
         out
     }
 
+    /// A guard built with no configured endpoint used to build the client whose resolver may
+    /// answer with a private address anyway, and carry its connection pool for the life of the
+    /// process. The two states are now one.
+    #[test]
+    fn s4_a_guard_with_no_configured_endpoint_holds_no_client_that_may_answer_privately() {
+        assert!(
+            Guard::new(small(), &[])
+                .expect("a guard")
+                .operator_client
+                .is_none()
+        );
+        assert!(
+            Guard::new(small(), &[String::from("http://127.0.0.1:41234")])
+                .expect("a guard")
+                .operator_client
+                .is_some()
+        );
+    }
+
     #[test]
     fn h72_every_closed_range_is_closed_in_both_families() {
         for text in [
             "0.0.0.0",
+            // The rest of 0.0.0.0/8, which the table named for the first address only.
+            "0.1.2.3",
+            "0.255.255.255",
             "127.0.0.1",
             "127.1.2.3",
             "10.0.0.1",
@@ -694,6 +731,8 @@ mod tests {
             "100::1",
             "2001:db8::1",
             "2001::1",
+            // The same range reached through the other family.
+            "::0.1.2.3",
         ] {
             let ip: IpAddr = text.parse().expect("an address");
             assert!(denied(ip).is_some(), "{text} is not refused");

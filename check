@@ -5,9 +5,14 @@
 # (gradle for android, xcodebuild for apple, a browser for the television page), the release
 # profiles, the dependency advisories in server/deny.toml, which need a network database, the tests
 # marked ignored, and whichever generated client types this machine has no compiler for, which
-# check_types.py names as it goes.
+# check_types.py names as it goes. On a machine with no compiler for any of the three, that step
+# fails rather than passing: CI installs TypeScript so one of them is always proved.
 set -eu
 cd "$(dirname "$0")"
+
+# Before anything else: this proves the tree in git, not the tree on this disk. A file that is
+# here and not committed breaks a fresh clone, and every other step below would still pass.
+python3 platform/tools/check_tracked.py
 
 # These two only read files, so they run before anything is built.
 # Nothing private is in any file. The data builder scans the folder it builds from; this reads the
@@ -16,6 +21,13 @@ python3 platform/tools/check_private.py
 
 # Every word on every screen, in every language, with the same holes to fill as English.
 python3 platform/tools/check_strings.py
+
+# No public file claims a size that nothing measures.
+python3 platform/tools/check_claims.py
+
+# The android app strips the core it packages, and keeps the symbols to read a crash with. Read
+# from the build files, because this check does not run gradle.
+python3 platform/tools/check_android_native.py
 
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --locked -- -D warnings
@@ -39,9 +51,20 @@ cargo test --locked -p bridge-c --no-default-features
   test -z "$(git status --porcelain -- contract/generated)"
   python3 tools/test_fake_server.py
   python3 tools/test_port_help.py
+  # The expression every generated client compiles into itself refuses exactly what the core
+  # refuses: same text everywhere, same verdict on every fixture, same bound as the Rust constant.
+  python3 tools/check_patterns.py
   # The generated types really compile, and a fixture reads and writes back the same. A language
   # whose compiler this machine has not got is printed as not run, by name, and counted.
   python3 tools/check_types.py
+  # The checks themselves, each test named after the defect it keeps shut.
+  python3 tools/test_check_patterns.py
+  python3 tools/test_check_tracked.py
+  python3 tools/test_check_private.py
+  python3 tools/test_check_rings.py
+  python3 tools/test_check_types.py
+  python3 tools/test_check_claims.py
+  python3 tools/test_check_android_native.py
 )
 
 # Every id a server test name claims must be a real ledger row.

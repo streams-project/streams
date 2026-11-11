@@ -37,7 +37,7 @@ fn run(text: &str) -> HelpRun {
 }
 
 /// The marked runs of one line. A tag with no end stays as plain words.
-fn runs(line: &str) -> Vec<HelpRun> {
+pub(crate) fn runs(line: &str) -> Vec<HelpRun> {
     let mut out = Vec::new();
     let mut rest = line;
     loop {

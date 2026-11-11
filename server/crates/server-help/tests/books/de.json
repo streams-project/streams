@@ -1,8 +1,39 @@
 {
   "articles": {
-    "first": {"title": "Erste Schritte"}
+    "first": {
+      "title": "Erste Schritte"
+    }
   },
-  "policies": {},
+  "policies": {
+    "terms": {
+      "sections": [
+        {
+          "body": "Schreiben an {support_email}.",
+          "bullets": [],
+          "id": "contact",
+          "title": "Kontakt"
+        },
+        {
+          "body": "Klare Bedingungen.",
+          "bullets": [],
+          "id": "use",
+          "title": "Nutzung"
+        }
+      ],
+      "title": "Nutzungsbedingungen"
+    }
+  },
   "popular": [],
-  "topics": [{"groups": [{"articles": [], "id": "basics"}], "id": "start", "title": "Start"}]
+  "topics": [
+    {
+      "groups": [
+        {
+          "articles": [],
+          "id": "basics"
+        }
+      ],
+      "id": "start",
+      "title": "Start"
+    }
+  ]
 }

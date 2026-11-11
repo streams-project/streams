@@ -620,6 +620,17 @@ impl AccountStore for PgStore {
         })
     }
 
+    async fn profile_transfer_allowed(&self, account: AccountId) -> StoreResult<bool> {
+        let row = sqlx::query("select profile_transfer from account_details where user_id = $1")
+            .bind(account.0)
+            .fetch_optional(&self.pool)
+            .await
+            .map_err(fail)?;
+        row.map_or(Ok(true), |row| {
+            row.try_get("profile_transfer").map_err(fail)
+        })
+    }
+
     async fn set_names(
         &self,
         account: AccountId,

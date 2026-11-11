@@ -3,7 +3,7 @@
 
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 
 use anyhow::Result;
 use arc_swap::{ArcSwap, ArcSwapOption};
@@ -410,7 +410,7 @@ impl DataSlot {
     /// # Errors
     /// The new set was refused: a bad signature or file, or a set older than the one in service.
     pub fn reload(&self) -> Result<bool, SwapError> {
-        let _swap = self
+        let swap = self
             .swap_lock
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
@@ -422,12 +422,19 @@ impl DataSlot {
         // Refuse an older set before reading a whole one off disk. The manifest is unsigned at
         // this point, which only ever refuses: `adopt` checks the signed one again.
         refuse_older(&offered, &serving.manifest)?;
-        self.adopt(DataSet::load(&self.manifest_path, &self.trust)?)
+        self.adopt(&swap, DataSet::load(&self.manifest_path, &self.trust)?)
     }
 
     /// Put a loaded set in service, or refuse it. Every swap goes through here, so the age rule
-    /// holds for any later caller and the last good set keeps serving when it does not.
-    fn adopt(&self, next: DataSet) -> Result<bool, SwapError> {
+    /// holds for every caller and the last good set keeps serving when it does not.
+    ///
+    /// The swap lock is an argument, not something this takes itself: the check and the store
+    /// must be one step, or two callers could each read the current set, each find itself newer,
+    /// and the older one land last. `swap_lock` is a plain mutex and is not reentrant, so a
+    /// caller that already holds it — `reload` does — cannot have this take it again. Asking for
+    /// the guard is what makes a swap without the lock impossible to write rather than a rule in
+    /// this comment.
+    fn adopt(&self, _swap: &MutexGuard<'_, ()>, next: DataSet) -> Result<bool, SwapError> {
         refuse_older(&next.manifest, &self.load().manifest)?;
         info!("Data set {} in use", next.manifest.dataset_version);
         self.current.store(Arc::new(next));

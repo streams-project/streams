@@ -480,3 +480,87 @@ async fn c54_a_film_gets_no_marks() {
         .await;
     assert_eq!(marks.body["windows"], json!([]));
 }
+
+/// Playback telemetry is kept only for a viewer who said yes to personal rows, which is the rule
+/// the feed path beside it already followed (`server-library/src/apply.rs`, ledger C36: the server
+/// discards feedback when consent is off). Before this the events handler wrote every row
+/// whatever the answer on the session was, while the page path one file over tested it.
+///
+/// The write is not reachable from a handler any other way: the log is private to `AppState` and
+/// the only way to it is `AppState::learned`, which cannot be built without the consent fact.
+#[tokio::test]
+async fn c36_c104_with_consent_off_a_play_writes_no_event() {
+    let finder = Arc::new(MemoryFinder::answering(found(&[
+        "https://host.example/one.m3u8",
+    ])));
+    let mut server = harness_play(finder);
+    let log = Arc::new(server_play::MemoryPlayLog::default());
+    Arc::get_mut(&mut server.state)
+        .expect("one owner")
+        .keep_play_log(log.clone());
+    let token = enter(&server, false).await;
+    let answer = play("movie:100").token(&token).on(&server.state).await;
+    assert_eq!(answer.status, StatusCode::OK, "{}", answer.body);
+    let id = answer.body["play_id"]
+        .as_str()
+        .expect("a play id")
+        .to_owned();
+    let events = format!("/v1/play/{id}/events");
+    let body = json!({
+        "events": [{ "name": "first_frame", "at_ms": 1, "first_frame_ms": 900 }]
+    });
+
+    // Consent is off until it is given, which is where every session starts.
+    let off = call(Method::POST, &events)
+        .token(&token)
+        .json(body.clone())
+        .on(&server.state)
+        .await;
+    assert_eq!(off.status, StatusCode::OK, "{}", off.body);
+    assert_eq!(off.body["done"], true, "the call answers as it did before");
+    assert!(
+        log.events.lock().expect("the log").is_empty(),
+        "a viewer who said nothing about personal rows is not recorded"
+    );
+
+    let given = call(Method::PUT, "/v1/consent")
+        .token(&token)
+        .json(json!({ "personal": true }))
+        .on(&server.state)
+        .await;
+    assert_eq!(given.status, StatusCode::OK, "{}", given.body);
+    let on = call(Method::POST, &events)
+        .token(&token)
+        .json(body)
+        .on(&server.state)
+        .await;
+    assert_eq!(on.status, StatusCode::OK, "{}", on.body);
+    assert_eq!(
+        log.events.lock().expect("the log").len(),
+        1,
+        "with consent on the event is kept"
+    );
+}
+
+/// A fault report is not a record of a person: the row has no account or profile column, so the
+/// personal-rows answer does not govern it and a client with consent off is still able to say
+/// that something broke.
+#[tokio::test]
+async fn c53_s108_a_fault_report_is_kept_whatever_the_consent_answer() {
+    let finder = Arc::new(MemoryFinder::answering(found(&[
+        "https://host.example/x.m3u8",
+    ])));
+    let mut server = harness_play(finder);
+    let log = Arc::new(server_play::MemoryPlayLog::default());
+    Arc::get_mut(&mut server.state)
+        .expect("one owner")
+        .keep_play_log(log.clone());
+    let token = enter(&server, false).await;
+    let sent = call(Method::POST, "/v1/reports")
+        .token(&token)
+        .json(json!({ "code": "player_failed", "build": "test-build" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(sent.status, StatusCode::OK, "{}", sent.body);
+    assert_eq!(log.reports.lock().expect("the log").len(), 1);
+}

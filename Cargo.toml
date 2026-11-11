@@ -93,6 +93,11 @@ panic = "abort"
 strip = true
 
 # Native libraries: a panic unwinds, so the C bridge can stop it at the boundary.
+# `strip` here does nothing for the Android app: bridge-c is a staticlib, and cargo strips linked
+# artifacts, not archives, so the DWARF stays in the `.a` and the NDK linker carries it into
+# libstreamscore.so. The strip that matters is Android Gradle's, which needs `ndkVersion` on the
+# module that packages the library (apps/android/app/build.gradle.kts, and
+# platform/tools/check_android_native.py keeps it there).
 [profile.native]
 inherits = "release"
 opt-level = "z"

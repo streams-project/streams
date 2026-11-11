@@ -685,6 +685,45 @@ impl LibraryRead for PgLibrary {
             .map_err(fail)
     }
 
+    async fn positions(&self, profile: ProfileId, limit: usize) -> Row<Vec<EpisodeProgress>> {
+        let rows = sqlx::query(
+            "select * from episode_progress where profile_id = $1
+             order by changed_at desc, seq desc limit $2",
+        )
+        .bind(profile.0)
+        .bind(big(limit as u64))
+        .fetch_all(&self.pool)
+        .await
+        .map_err(fail)?;
+        rows.iter()
+            .map(progress_row)
+            .collect::<Result<_, _>>()
+            .map_err(fail)
+    }
+
+    async fn hidden_titles(&self, profile: ProfileId, limit: usize) -> Row<Vec<HiddenTitle>> {
+        let rows = sqlx::query(
+            "select kind, title_id, hidden_at, seq from hidden_titles where profile_id = $1
+             order by hidden_at desc, seq desc limit $2",
+        )
+        .bind(profile.0)
+        .bind(big(limit as u64))
+        .fetch_all(&self.pool)
+        .await
+        .map_err(fail)?;
+        let mut out = Vec::with_capacity(rows.len());
+        for row in &rows {
+            let kind: String = row.try_get("kind").map_err(fail)?;
+            let at: OffsetDateTime = row.try_get("hidden_at").map_err(fail)?;
+            out.push(HiddenTitle {
+                title: key_of(&kind, row.try_get("title_id").map_err(fail)?)?,
+                hidden_ms: to_ms(at),
+                seq: wide(row.try_get("seq").map_err(fail)?),
+            });
+        }
+        Ok(out)
+    }
+
     async fn position(
         &self,
         profile: ProfileId,
@@ -922,5 +961,33 @@ impl LibraryStore for PgLibrary {
             .await
             .map_err(fail)?;
         Ok(Box::new(PgTx { tx, profile }))
+    }
+
+    /// One transaction over every table of this store keyed to the profile. The names come from
+    /// `server_accounts::holdings::HELD`, where each of them is an entry, and the counter row goes
+    /// last so a batch that is waiting on it is not left holding a lock on a row that is gone.
+    async fn delete_profile(&self, profile: ProfileId) -> Row<()> {
+        let mut tx = self.pool.begin().await.map_err(fail)?;
+        for table in [
+            "title_state",
+            "episode_progress",
+            "hidden_titles",
+            "applied_ops",
+            "profile_settings",
+            "refused_trailers",
+            "profile_taste",
+            "feed_events",
+            "profile_reminders",
+            "notification_reads",
+            "profile_library",
+        ] {
+            sqlx::query(&format!("delete from {table} where profile_id = $1"))
+                .bind(profile.0)
+                .execute(&mut *tx)
+                .await
+                .map_err(fail)?;
+        }
+        tx.commit().await.map_err(fail)?;
+        Ok(())
     }
 }

@@ -25,7 +25,8 @@ fn door(state: &Shared) -> ApiResult<&Door> {
     state.door.as_ref().ok_or_else(|| ApiError::off("accounts"))
 }
 
-/// One device as the account reads it.
+/// One device as the account reads it. The class is `Unknown` until the card is read, which the
+/// device list does not do; [`session_view_with_card`] is the view that knows it.
 #[must_use]
 pub fn session_view(session: &server_accounts::DeviceSession, current: SessionId) -> DeviceSession {
     DeviceSession {
@@ -34,6 +35,25 @@ pub fn session_view(session: &server_accounts::DeviceSession, current: SessionId
         class: DeviceClass::Unknown,
         last_seen_ms: session.last_seen_ms,
         current: session.id == current,
+    }
+}
+
+/// The same view with the class the device itself reported, from the card on its session row. A
+/// card this build cannot read leaves the class `Unknown`, which is what it meant before.
+#[must_use]
+pub fn session_view_with_card(
+    session: &server_accounts::DeviceSession,
+    current: SessionId,
+    card: Option<&serde_json::Value>,
+) -> DeviceSession {
+    let class = card
+        .and_then(|value| {
+            serde_json::from_value::<contract::client::CapabilityCard>(value.clone()).ok()
+        })
+        .map_or(DeviceClass::Unknown, |card| card.class);
+    DeviceSession {
+        class,
+        ..session_view(session, current)
     }
 }
 

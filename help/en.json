@@ -66,7 +66,7 @@
       "title": "Buffering, freezing or slow start"
     },
     "change-email-password": {
-      "body": "Open the profile menu and choose <b>Account</b>. Your details are under <b>Account Details</b>. Before a change we may ask you to confirm it's you, with your password or a code we email you.\n\n## Password\n1. Choose <b>Password</b>.\n2. Enter your current password, then the new one twice. It needs at least 8 characters.\n3. Turn on <b>Sign out of all devices</b> if someone else might know the old password, then choose <b>Save</b>.\n\n## Email\n1. Choose <b>Email</b> and enter the new address.\n2. Open the link we send to the new address to finish the change.\n\n## Mobile phone and name\nChoose <b>Mobile phone</b> to add a number that helps you get back into your account, or <b>Name</b> to change your name. The main profile follows your first name.",
+      "body": "Open the profile menu and choose <b>Account</b>. Your details are under <b>Account Details</b>. Before a change we may ask you to confirm it's you, with your password or a code we email you.\n\n## Password\n1. Choose <b>Password</b>.\n2. Enter your current password, then the new one twice. It needs at least 8 characters.\n3. Choose <b>Save</b>. Changing your password signs out every other device at once, this one excepted, so anyone who knew the old password is out.\n\n## Email\n1. Choose <b>Email</b> and enter the new address.\n2. Open the link we send to the new address to finish the change.\n\n## Mobile phone and name\nChoose <b>Mobile phone</b> to add a number that helps you get back into your account, or <b>Name</b> to change your name. The main profile follows your first name.",
       "keywords": "change email change password update password phone number mobile account details name security",
       "related": [
         "forgot-password",
@@ -79,7 +79,7 @@
       "title": "Change your email, password or phone number"
     },
     "clear-data": {
-      "body": "Clearing site data in a browser signs you out there and removes the copy of your profiles and settings that the browser keeps. Everything stays in your account and comes back when you sign in again.\n\n## Chrome, Edge and Brave\n1. Select the site information icon at the left of the address bar and choose <b>Cookies and site data</b>, then <b>Manage on-device site data</b>.\n2. Remove the entries for this site.\n\n## Firefox\n1. Select the padlock icon in the address bar and choose <b>Clear cookies and site data</b>.\n\n## Safari on a Mac\n1. Open <b>Safari</b>, then <b>Settings</b>, then <b>Privacy</b>, then <b>Manage Website Data</b>.\n2. Find this site and choose <b>Remove</b>.\n\n## Safari on iPhone and iPad\nOpen the <b>Settings</b> app, then <b>Apps</b>, <b>Safari</b>, <b>Advanced</b>, <b>Website Data</b>, and remove this site.\n\n## Delete data from your account\n- To remove titles from your viewing activity, see <a=/help/article/viewing-history>How to manage your viewing history</a>.\n- To delete a profile, see <a=/help/article/profiles-manage>How to create, edit, or delete profiles</a>.\n- To delete everything, see <a=/help/article/delete-account>Delete your account</a>.\n\n@@ data",
+      "body": "Clearing site data in a browser signs you out there, because what keeps you signed in is held in that browser. Everything else stays in your account and comes back when you sign in again.\n\n## Chrome, Edge and Brave\n1. Select the site information icon at the left of the address bar and choose <b>Cookies and site data</b>, then <b>Manage on-device site data</b>.\n2. Remove the entries for this site.\n\n## Firefox\n1. Select the padlock icon in the address bar and choose <b>Clear cookies and site data</b>.\n\n## Safari on a Mac\n1. Open <b>Safari</b>, then <b>Settings</b>, then <b>Privacy</b>, then <b>Manage Website Data</b>.\n2. Find this site and choose <b>Remove</b>.\n\n## Safari on iPhone and iPad\nOpen the <b>Settings</b> app, then <b>Apps</b>, <b>Safari</b>, <b>Advanced</b>, <b>Website Data</b>, and remove this site.\n\n## Delete data from your account\n- To remove titles from your viewing activity, see <a=/help/article/viewing-history>How to manage your viewing history</a>.\n- To delete a profile, see <a=/help/article/profiles-manage>How to create, edit, or delete profiles</a>.\n- To delete everything, see <a=/help/article/delete-account>Delete your account</a>.\n\n@@ data",
       "keywords": "clear delete reset remove data history cache storage cookies start over",
       "related": [
         "saved-data",
@@ -131,7 +131,7 @@
       "title": "How can I contribute?"
     },
     "cookies-explained": {
-      "body": "<b>Cookies</b> are small notes a website asks your browser to keep. <b>Local storage</b> is a similar place that only the site itself can read and that is not sent with every request.\n\n{brand} uses local storage, not advertising or tracking cookies. It keeps:\n- what keeps you signed in,\n- a copy of your profiles, settings and progress, so pages open fast,\n- your cookie and personalisation choices.\n\nTrailers can come from an outside video service, which can set its own cookies, and pictures come from a public film catalog. We do not control those. See <a=/help/article/sources>Where titles come from</a>.\n\n## Your choices\n- On your first visit a banner asks whether recommendations may use what you watch. Change your mind at any time under <b>Privacy and data settings</b>, or with the tool below.\n- <b>Reject</b> keeps only what the site needs to work and turns off personalisation.\n- If your browser clears site data, you are signed out on that browser. Your account keeps everything.\n\n@@ cookies",
+      "body": "<b>Cookies</b> are small notes a website asks your browser to keep. <b>Local storage</b> is a similar place that only the site itself can read and that is not sent with every request.\n\n{brand} sets no cookies at all. No page and no request of this server sets one, and a test fails the build if any route starts to. In a browser, what keeps you signed in is held in this site's local storage; in an app, in the device's own secure store. That is the only thing kept on your device.\n\nTrailers can come from an outside video service, which can set its own cookies, and pictures come from a public film catalog. We do not control those. See <a=/help/article/sources>Where titles come from</a>.\n\n## Your choices\n- There is no cookie banner and no cookie preferences page, because there are no cookies to choose between.\n- Personalised recommendations are off until you turn them on, and the answer belongs to the device you answer on. A second device starts off again.\n- If your browser clears site data, you are signed out on that browser. Your account keeps everything.\n\n@@ cookies",
       "keywords": "cookies local storage browser data tracking consent banner preferences session third party",
       "related": [
         "privacy-data",
@@ -157,7 +157,7 @@
       "title": "How to report a copyright problem"
     },
     "delete-account": {
-      "body": "Deleting your account removes it straight away, with every profile, list, rating, setting and all viewing activity. It cannot be undone.\n\n1. Open the profile menu and choose <b>Account</b>.\n2. Choose <b>Delete account</b> at the bottom of the page.\n3. Confirm it's you, then choose <b>Permanently delete</b>.\n\nIf you only want to remove one person, delete their profile instead. See <a=/help/article/profiles-manage>How to create, edit, or delete profiles</a>.\n\n!! Note: To keep a copy of your data, download it first. See <a=/help/article/download-data>Download a copy of your data</a>.",
+      "body": "Deleting your account removes it straight away, with every profile, list, rating, setting and all viewing activity. It cannot be undone.\n\nOne thing outlives it, and we would rather say so: the playback reports kept for 30 days (the time a title took to start, any failure and which source answered) lose the link to your profile at once, and each report is deleted as it reaches 30 days. An unused sign in code also keeps the address it was sent to until it lapses.\n\n1. Open the profile menu and choose <b>Account</b>.\n2. Choose <b>Delete account</b> at the bottom of the page.\n3. Confirm it's you, then choose <b>Permanently delete</b>.\n\nIf you only want to remove one person, delete their profile instead. See <a=/help/article/profiles-manage>How to create, edit, or delete profiles</a>.\n\n!! Note: To keep a copy of your data, download it first. See <a=/help/article/download-data>Download a copy of your data</a>.",
       "keywords": "delete account close account remove account erase data cancel account",
       "related": [
         "download-data",
@@ -170,7 +170,7 @@
       "title": "Delete your account"
     },
     "devices-sign-out": {
-      "body": "1. Open the profile menu and choose <b>Account</b>.\n2. Choose <b>Access and devices</b>.\n3. Choose <b>Sign out of this device</b>, or <b>Sign out of all devices</b> to sign out every browser where your account is open, this one included.\n\n<b>Recent security activity</b> on the same page lists recent sign ins and changes to your account. We also email you when a new device signs in.\n\n!! Note: If you see a sign in you don't recognise, sign out of all devices and change your password. See <a=/help/article/change-email-password>Change your email, password or phone number</a>.",
+      "body": "1. Open the profile menu and choose <b>Account</b>.\n2. Choose <b>Access and devices</b>.\n3. Choose <b>Sign out of this device</b>, or <b>Sign out of all devices</b> to sign out every browser where your account is open, this one included.\n\nChanging your password signs out every other device at once, so it is the fastest way to end a session you do not recognise. On a television, signing other devices out asks for your password or a code first.\n\nWe keep a dated list of sign ins and changes to your account for 365 days. No screen shows it to you yet, and we do not send an email when a new device signs in; write to us and we will send you the list.\n\n!! Note: If you see a sign in you don't recognise, sign out of all devices and change your password. See <a=/help/article/change-email-password>Change your email, password or phone number</a>.",
       "keywords": "sign out all devices devices signed in sessions security new device lost phone public computer",
       "related": [
         "change-email-password",
@@ -183,7 +183,7 @@
       "title": "Sign out of a device or of all devices"
     },
     "download-data": {
-      "body": "1. Open the profile menu and choose <b>Account</b>.\n2. Choose <b>Personal information access</b>.\n3. Follow the steps to save the file.\n\nThe file lists your account details, profiles, settings, My List, ratings and viewing activity. It is saved on your device, so keep it somewhere safe.\n\nTo download the viewing activity of one profile as a spreadsheet, open <b>Viewing activity</b> for that profile and choose <b>Download all</b>.",
+      "body": "1. Open the profile menu and choose <b>Account</b>.\n2. Choose <b>Personal information access</b>.\n3. Follow the steps to save the file.\n\nThe file is JSON and is saved on your device, so keep it somewhere safe. Today it holds your account details, your profiles and your devices.\n\nIt does not hold My List, your ratings, viewing progress, settings, your taste or the records described in the <a=/help/legal/privacy>Privacy Policy</a> yet. You are entitled to those: ask us and we will send them.",
       "keywords": "download my data personal information copy export gdpr data request access",
       "related": [
         "privacy-data",
@@ -338,7 +338,7 @@
       "title": "Is {brand} down?"
     },
     "kids-profile": {
-      "body": "A Kids profile only shows titles suited to children, with its own home page and menus made for kids.\n\n1. Open <b>Manage Profiles</b> and choose <b>Add Profile</b>.\n2. Type a name and turn on <b>Kids Profile</b>.\n3. Choose <b>Save</b>.\n\nTo turn an existing profile into a Kids profile, edit it and turn on <b>Kids Profile</b>. The main profile cannot be a Kids profile.\n\nTo leave the Kids pages, choose <b>Exit Kids</b> and pick another profile. To stop a child from switching, lock the other profiles with a PIN. See <a=/help/article/profile-pin>How to add, edit, or remove a profile PIN</a>.\n\nFor older children, you can set an age rating on any profile instead. See <a=/help/article/parental-controls>Parental controls: age ratings and blocked titles</a>.\n\n!! Note: Titles come from independent sources, and not every title carries an age rating. A Kids profile reduces what a child can find. It does not replace watching together.\n\n@@ profiles",
+      "body": "A Kids profile only shows titles suited to children, with its own home page and menus made for kids.\n\n1. Open <b>Manage Profiles</b> and choose <b>Add Profile</b>.\n2. Type a name and turn on <b>Kids Profile</b>.\n3. Choose <b>Save</b>.\n\nTo turn an existing profile into a Kids profile, edit it and turn on <b>Kids Profile</b>. The main profile cannot be a Kids profile.\n\nTo leave the Kids pages, choose <b>Exit Kids</b> and pick another profile. To stop a child from switching, lock the other profiles with a PIN. See <a=/help/article/profile-pin>How to add, edit, or remove a profile PIN</a>.\n\nFor older children, you can set an age rating on any profile instead. See <a=/help/article/parental-controls>Parental controls: age ratings and blocked titles</a>.\n\n!! Note: Titles come from independent sources, and not every title carries an age rating. A Kids profile reduces what a child can find. It does not replace watching together.\n\n!! Note: A Kids profile only plays sources a finder has checked. The finder shipped with this project checks none, so on a server with no finder of its own a Kids profile may find nothing to play. Ask the operator of this server which finder it uses.\n\n@@ profiles",
       "keywords": "kids children child family parental controls safe young profile",
       "related": [
         "parental-controls",
@@ -390,7 +390,7 @@
       "title": "How to use My List"
     },
     "need-account": {
-      "body": "Yes. You need a free account to watch on {brand}, and you must be 18 or older to create one. Creating one takes a minute and never asks for payment details.\n\n1. On the {brand} home page, enter your email address and choose <b>Get Started</b>.\n2. Enter your first and last name and choose a password of at least 8 characters.\n3. Open the link we email you to confirm your address, then sign in.\n\nYour account keeps your profiles, My List, ratings, viewing activity and settings, so they are the same on every device where you sign in. Your first name becomes the name of your main profile.\n\n!! Note: {brand} is free and will never ask for a card number. See <a=/help/article/free-to-use>Is {brand} free?</a>",
+      "body": "Yes. You need a free account to watch on {brand}, and you must be 18 or older to create one. Creating one takes a minute and never asks for payment details.\n\n1. On the {brand} home page, enter your email address and choose <b>Get Started</b>.\n2. Enter your first and last name and choose a password of at least 8 characters.\n3. Sign in with the address and password you just chose.\n\nWe answer the same way whether or not that address already has an account, and we never say which, because that answer would tell anyone who asks whether you are a member. If the address is already in use we email the person who holds it instead, and nothing changes.\n\nYour account keeps your profiles, My List, ratings, viewing activity and settings, so they are the same on every device where you sign in. Your first name becomes the name of your main profile.\n\n!! Note: {brand} is free and will never ask for a card number. See <a=/help/article/free-to-use>Is {brand} free?</a>",
       "keywords": "account sign up register login required membership",
       "related": [
         "sign-in",
@@ -481,7 +481,7 @@
       "title": "{brand} says \"Playback Unavailable\""
     },
     "privacy-data": {
-      "body": "We do not sell personal data and we do not show ads. Here is the short version. The <a=/help/legal/privacy>Privacy Policy</a> has the full text.\n\n## Kept in your account\nYour name, email address, an optional phone number, your profiles, My List, ratings, viewing activity and settings, and a list of recent sign ins and the devices they came from.\n\n## Sent when you use the app\n- Requests for titles, pictures and details go to a public film catalog and to our recommendation service.\n- When you start a title, the recommendation service learns which title it was, so your rows follow your taste. Turn this off with <b>Personalised recommendations</b> in <b>Privacy and data settings</b>.\n- Video comes from independent third party sources, and trailers from an outside video service. They see your IP address like any website you visit.\n\n## Your choices\n- Download a copy of your data. See <a=/help/article/download-data>Download a copy of your data</a>.\n- Delete your account at any time. See <a=/help/article/delete-account>Delete your account</a>.\n\nFor cookies and browser storage, see the <a=/help/legal/cookies>Cookie Policy</a>.\n\n@@ cookies\n\n@@ data",
+      "body": "We do not sell personal data and we do not show ads. Here is the short version. The <a=/help/legal/privacy>Privacy Policy</a> has the full text.\n\n## Kept in your account\nYour name, email address, an optional phone number, your profiles, My List, ratings, viewing activity and settings, a list of recent sign ins, and one technical card per signed in device describing what it can play. We keep no IP address and set no cookies. The <a=/help/legal/privacy>Privacy Policy</a> lists every store and how long it lives.\n\n## Sent when you use the app\n- Pictures, details and trailers are fetched by your own device from a public film catalog and an outside video service. Video comes from independent third party sources. They see your IP address like any website you visit, and we tell them nothing about your account.\n- Recommendations are worked out on this server itself. There is no outside recommendation service, and no account data leaves the server except the address and text of the emails your account needs.\n- When personalisation is on for the device you are using, starting a title is recorded for your taste, and the rows you were shown are kept for 180 days. It is off until you turn it on.\n\n## Your choices\n- Download a copy of your data. See <a=/help/article/download-data>Download a copy of your data</a>.\n- Delete your account at any time. See <a=/help/article/delete-account>Delete your account</a>.\n\nFor cookies and browser storage, see the <a=/help/legal/cookies>Cookie Policy</a>.\n\n@@ cookies\n\n@@ data",
       "keywords": "privacy data collect personal information tracking sell share cookies analytics",
       "related": [
         "download-data",
@@ -533,7 +533,7 @@
       "title": "How to create, edit, or delete profiles"
     },
     "recommendations": {
-      "body": "Rows are made from what titles are: their genres, moods, subjects, country and decade, for example <b>Feel-good Romantic Comedies</b> or <b>Korean Crime Series</b>. Within a row, the order follows your taste.\n\n## What changes your rows\n- What you start and finish, what you rate, and what you add to My List.\n- Rows such as <b>Because You Watched</b>, <b>Today's Top Picks for You</b> and <b>Your Next Watch</b> come from your recent titles. On a genre page they stay inside that genre.\n- The profile you use. Each profile has its own taste, and a Kids profile only shows titles for children.\n- The day and the season. Rows for holidays and events appear in their season.\n\n## Turn it off\nTurn off <b>Personalised recommendations</b> in your profile's <b>Privacy and data settings</b>. You then see the same picks as everyone else.\n\nWe never use your name or email to choose titles. See <a=/help/article/privacy-data>What data does {brand} collect?</a>\n\n@@ data",
+      "body": "Rows are made from what titles are: their genres, moods, subjects, country and decade, for example <b>Feel-good Romantic Comedies</b> or <b>Korean Crime Series</b>. Within a row, the order follows your taste.\n\n## What changes your rows\n- What you start and finish, what you rate, and what you add to My List.\n- Rows such as <b>Because You Watched</b>, <b>Today's Top Picks for You</b> and <b>Your Next Watch</b> come from your recent titles. On a genre page they stay inside that genre.\n- The profile you use. Each profile has its own taste, and a Kids profile only shows titles for children.\n- The day and the season. Rows for holidays and events appear in their season.\n\n## Turn it off\nPersonalised recommendations are off until you turn them on, and the answer belongs to the device you answer on, not to the profile: signing in on a second device starts with it off again. Turn it off and you see the same picks as everyone else, and the taste worked out for the profile you are using is deleted.\n\nWhile it is on, we also keep a record of which rows you were shown, clicked and skipped, for 180 days. The <a=/help/legal/privacy>Privacy Policy</a> says what is in it.\n\nWe never use your name or email to choose titles. See <a=/help/article/privacy-data>What data does {brand} collect?</a>\n\n@@ data",
       "keywords": "recommendations rows suggestions because you watched taste algorithm for you personalised personalized",
       "related": [
         "viewing-history",
@@ -570,7 +570,7 @@
       "title": "Rows or pictures do not load"
     },
     "saved-data": {
-      "body": "Your profiles, My List, ratings, viewing activity and settings are saved in your account. Each browser where you sign in keeps a copy, so pages open at once and work for a while without a connection. Changes go to your account within a few seconds and reach your other devices when you open {brand} there.\n\n## What this means\n- Sign in on another device and everything is there.\n- Clearing site data in a browser signs you out there and removes that copy. Your account keeps everything.\n- In a private or incognito window, the copy is removed when the window closes.\n\n## What else is sent to our servers\nWhen you start a title, the recommendation service learns which title it was, so your rows can follow your taste. You can turn this off with <b>Personalised recommendations</b> in <b>Privacy and data settings</b>. See <a=/help/article/recommendations>How recommendations work</a>.\n\n@@ data",
+      "body": "Your profiles, My List, ratings, viewing activity and settings are saved in your account, on the server. Your device keeps only what signs you in. Changes go to your account within a few seconds and reach your other devices when you open {brand} there.\n\n## What this means\n- Sign in on another device and everything is there.\n- Clearing site data in a browser signs you out there. Your account keeps everything.\n- In a private or incognito window, you are signed out when the window closes.\n\n## What else is sent to our servers\nWhen personalisation is on for the device you are using, starting a title is recorded so your rows can follow your taste. The work is done on this server; nothing about it goes to another company. It is off until you turn it on, and the answer belongs to the device. See <a=/help/article/recommendations>How recommendations work</a>.\n\n@@ data",
       "keywords": "saved data storage local browser device lost sync progress history profiles cookies",
       "related": [
         "clear-data",
@@ -634,7 +634,7 @@
       "title": "Keyboard shortcuts"
     },
     "sign-in": {
-      "body": "## Sign in\n1. Choose <b>Sign In</b> at the top of the {brand} home page.\n2. Enter your email address and password, then choose <b>Sign In</b>.\n\nLeave <b>Remember me</b> on to stay signed in on this device. If you signed out of this device a short while ago, you can continue without typing your password again.\n\n## Sign out\nOpen the profile menu and choose <b>Sign out of {brand}</b>. To sign out everywhere at once, see <a=/help/article/devices-sign-out>Sign out of a device or of all devices</a>.\n\n## Sign in does not work\n- Check the email address for typing mistakes. The password is case sensitive.\n- If you just signed up, open the confirmation link we emailed you first. <b>Send the confirmation email again</b> sends a new one.\n- After too many tries, wait a minute and try again.\n- Forgot your password? See <a=/help/article/forgot-password>I forgot my password</a>.",
+      "body": "## Sign in\n1. Choose <b>Sign In</b> at the top of the {brand} home page.\n2. Enter your email address and password, then choose <b>Sign In</b>.\n\nLeave <b>Remember me</b> on to stay signed in on this device. If you signed out of this device a short while ago, you can continue without typing your password again.\n\nOn a device whose secure store refuses to keep what signs you in, the session lasts only as long as the app is open, so you sign in again next time. Changing your password signs out every other device at once.\n\n## Sign out\nOpen the profile menu and choose <b>Sign out of {brand}</b>. To sign out everywhere at once, see <a=/help/article/devices-sign-out>Sign out of a device or of all devices</a>.\n\n## Sign in does not work\n- Check the email address for typing mistakes. The password is case sensitive.\n- If you just signed up, open the confirmation link we emailed you first. <b>Send the confirmation email again</b> sends a new one.\n- After too many tries, wait a minute and try again.\n- Forgot your password? See <a=/help/article/forgot-password>I forgot my password</a>.",
       "keywords": "sign in log in login sign out log out remember me email password account",
       "related": [
         "need-account",
@@ -802,7 +802,7 @@
       "title": "Trailers and clips"
     },
     "transfer-profile": {
-      "body": "A profile can be copied to another account, for example when someone moves out. The copy keeps the name, picture, settings and viewing activity.\n\n## Save the profile\n1. Open the profile menu and choose <b>Transfer Profile</b>.\n2. Select the profile and choose <b>Download profile file</b>. Keep the file safe.\n\n## Add it to the other account\n1. Sign in to the other account and open <b>Manage profiles</b>.\n2. Choose <b>Import a profile</b> and select the file.\n\n!! Note: The file does not contain the profile's PIN. Anyone with the file can add the profile to their account, so do not share it.\n\n<b>Profile transfer</b> in <b>Account</b> turns copying out of your account on or off. It never blocks profiles coming in.",
+      "body": "A profile can be copied to another account, for example when someone moves out. The copy keeps the name, picture, settings and viewing activity.\n\n## Save the profile\n1. Open the profile menu and choose <b>Transfer Profile</b>.\n2. Select the profile and choose <b>Download profile file</b>. Keep the file safe.\n\n## Add it to the other account\n1. Sign in to the other account and open <b>Manage profiles</b>.\n2. Choose <b>Import a profile</b> and select the file.\n\n!! Note: The file does not contain the profile's PIN. Anyone with the file can add the profile to their account, so do not share it.\n\n!! Note: A profile moved to another account takes its whole library with it: My List, ratings, viewing progress, settings and the taste worked out from them. The person whose profile it is is not asked first, so agree it between you.",
       "keywords": "transfer profile move copy profile another account import export profile file",
       "related": [
         "profiles-manage",
@@ -828,7 +828,7 @@
       "title": "Help translate {brand}"
     },
     "viewing-history": {
-      "body": "Each profile has a <b>Viewing activity</b> page with the titles it watched, newest first. {brand} uses it for Continue Watching and for recommendations.\n\n1. Open the profile menu, choose <b>Account</b>, then <b>Manage profiles</b>, and select the profile.\n2. Choose <b>Viewing activity</b>.\n3. Choose <b>Hide this title</b> next to a title, or <b>Hide all</b>.\n\nA hidden title leaves Continue Watching and no longer shapes recommendations, on every device. <b>Download all</b> saves the list as a spreadsheet.\n\n@@ data",
+      "body": "Each profile has a <b>Viewing activity</b> page with the titles it watched, newest first. {brand} uses it for Continue Watching and for recommendations.\n\n1. Open the profile menu, choose <b>Account</b>, then <b>Manage profiles</b>, and select the profile.\n2. Choose <b>Viewing activity</b>.\n3. Choose <b>Hide this title</b> next to a title, or <b>Hide all</b>.\n\nA hidden title leaves Continue Watching and no longer shapes recommendations, on every device. To get the list as a file, see <a=/help/article/download-data>Download a copy of your data</a>.\n\n@@ data",
       "keywords": "viewing history watched activity delete clear remove ratings recommendations",
       "related": [
         "continue-watching",
@@ -897,105 +897,118 @@
     "cookie-policy": {
       "sections": [
         {
-          "body": "{brand} does not use advertising or analytics cookies. We use your browser's local storage, a place on your device that only this site can read, for:",
+          "body": "This server sets no cookies. Not one page or request does, and a test fails the build if any route starts to: there are no advertising cookies, no analytics cookies, and none of our own.\n\nWhat keeps you signed in is kept by the app you use, not sent as a cookie:",
           "bullets": [
-            "<b>Signing in:</b> what keeps you signed in on this browser, and a cookie with your profile's name so the Help Centre shows you as signed in.",
-            "<b>Speed:</b> a copy of your profiles, settings and viewing progress, so pages open at once.",
-            "<b>Your choices:</b> your cookie and personalisation choices and your display language."
+            "<b>In a browser:</b> the tokens for your session, in this site's local storage, which only this site can read.",
+            "<b>In an app on a phone, a television or a computer:</b> the same tokens, in the device's own secure store. On a device whose store refuses to keep them, your session lasts only as long as the app is open.",
+            "<b>Nothing else.</b> The server keeps no copy of your profiles, your settings or your viewing progress on your device, and no cookie carries your profile's name."
           ],
-          "title": "1. What we keep in your browser"
+          "id": "store",
+          "title": "What we keep on your device"
         },
         {
-          "body": "Trailers can come from an outside video service, which may set its own cookies when a trailer plays. Posters and details come from a public film catalog, and streams from independent sources; those sites can set their own cookies when your browser loads from them. We do not control them.",
+          "body": "A trailer can come from an outside video service, which may set its own cookies when it plays. Posters and descriptions come from a public film catalogue, and video comes from independent sources. Your device loads those directly, so each of them can set its own cookies and see your IP address, as any site you open can. We do not control them and we tell them nothing about your account.",
           "bullets": [],
-          "title": "2. Other sites"
+          "id": "others",
+          "title": "Other sites"
         },
         {
-          "body": "Open Cookie Preferences, at the bottom of the Help Centre and sign in pages or in Privacy and data settings, to see every item we keep and to turn personalisation on or off. Deleting this site's data in your browser signs you out on that browser; your account keeps everything.",
+          "body": "Clearing this site's data in your browser signs you out on that browser, and your account keeps everything. Signing out does the same on purpose.\n\nPersonalisation is off until you turn it on, and the answer belongs to the device you give it on: a second device starts off again. There is no cookie banner on this server and no cookie preferences page, because there are no cookies to choose between.",
           "bullets": [],
-          "title": "3. Your choices"
+          "id": "choices",
+          "title": "Your choices"
         },
         {
-          "body": "When what we keep in your browser changes, we update this policy and the list in Cookie Preferences.",
+          "body": "When what the app keeps on your device changes, this page changes with it and the date at the top moves.",
           "bullets": [],
-          "title": "4. Changes to this policy"
+          "id": "changes",
+          "title": "Changes to this policy"
         }
       ],
       "title": "Cookie Policy",
-      "updated": "Last updated: October 2026"
+      "updated": "Last updated: November 2026"
     },
     "credits": {
       "sections": [
         {
-          "body": "The logo is set in a pixel font, the interface in Inter, and the titles of collections in display fonts:",
+          "body": "Two typefaces are used, both under the SIL Open Font License 1.1:",
           "bullets": [
-            "<b>Baby Blocks</b> by Colorful Typhoon, used for the {brand} logo under its freeware terms for non-commercial use. See <a href=\"https://www.fontspace.com/baby-blocks-font-f3699\" target=\"_blank\" rel=\"noopener\">the font on FontSpace</a>.",
-            "<b>Inter</b> by Rasmus Andersson, used under the SIL Open Font License 1.1.",
-            "<b>Abril Fatface, Caveat Brush, DM Serif Display, Fredoka, Gochi Hand, Kalam, Londrina Solid, Playfair Display and Sedgwick Ave</b> from Google Fonts, used under the SIL Open Font License 1.1.",
-            "<b>Permanent Marker</b> and <b>Rock Salt</b> from Google Fonts, used under the Apache License 2.0."
+            "<b>Inter</b> by Rasmus Andersson, for the interface.",
+            "<b>Sofia Sans Extra Condensed</b> from the Sofia Sans project, drawn as outlines in the {brand} wordmark. The licence text is carried beside the artwork."
           ],
-          "title": "1. Fonts"
+          "id": "fonts",
+          "title": "Fonts"
         },
         {
-          "body": "Interface icons come from Phosphor Icons, Tabler Icons and Hugeicons, used under the MIT License, and from Remix Icon and IBM Carbon, used under the Apache License 2.0.",
+          "body": "Interface icons come from Phosphor Icons, Tabler Icons and Hugeicons Free, used under the MIT License, and from Remix Icon and IBM Carbon, used under the Apache License 2.0.",
           "bullets": [],
-          "title": "2. Icons"
+          "id": "icons",
+          "title": "Icons"
         },
         {
-          "body": "Film and series information comes from public catalogs, which do not endorse or certify this product. Titles, summaries, posters, ratings and cast information come from <a href=\"https://www.themoviedb.org\" target=\"_blank\" rel=\"noopener\">The Movie Database</a>.",
+          "body": "Film and series information comes from public catalogues, which do not endorse or certify this product. Titles, summaries, posters, ratings and cast come from The Movie Database. This product uses the TMDB API but is not endorsed or certified by TMDB.",
           "bullets": [],
-          "title": "3. Film and series information"
+          "id": "catalogue",
+          "title": "Film and series information"
         },
         {
-          "body": "{brand} is built with open source software, each used under its own license:",
+          "body": "{brand} is built with open source software, each piece under its own licence:",
           "bullets": [
-            "<b>Rust</b> and <b>Leptos</b> for the application (MIT and Apache 2.0).",
-            "<b>Tailwind CSS</b> for styling (MIT).",
-            "<b>hls.js</b> for adaptive video playback (Apache 2.0).",
-            "<b>Project Fluent</b> for translated interface text (Apache 2.0 and MIT)."
+            "<b>Rust</b> and the crates listed in Cargo.lock, each stating its own licence there.",
+            "<b>Leptos</b> for the web app (MIT).",
+            "<b>hls.js</b> 1.7.3 for adaptive playback in a browser (Apache 2.0).",
+            "<b>PostgreSQL</b> 18.6, built by theseus-rs, fetched on first start and checked against a pinned hash (PostgreSQL License)."
           ],
-          "title": "4. Software"
+          "id": "software",
+          "title": "Software"
         },
         {
           "body": "Names, logos, posters and artwork of films, series and services shown on {brand} belong to their owners. They are shown to identify the title and do not mean that the owner supports {brand}.",
           "bullets": [],
-          "title": "5. Trademarks and artwork"
+          "id": "trademarks",
+          "title": "Trademarks and artwork"
         },
         {
           "body": "If you believe something here is credited wrongly or needs to change, please write to {support_email}.",
           "bullets": [],
-          "title": "6. Contact"
+          "id": "contact",
+          "title": "Contact"
         }
       ],
       "title": "Licenses and credits",
-      "updated": "Last updated: October 2026"
+      "updated": "Last updated: November 2026"
     },
     "disclaimer": {
       "sections": [
         {
           "body": "{brand} is a link aggregator and search engine for publicly available embedded media links. We do not host, upload, store, transmit, or control any video, audio, or media content on our servers.",
           "bullets": [],
-          "title": "1. No Content Hosting"
+          "id": "no-hosting",
+          "title": "No Content Hosting"
         },
         {
           "body": "All content accessible via links indexed by {brand} originates from external, independent third-party sources. {brand} has no control over, and assumes no responsibility for, the legality, accuracy, quality, or availability of such content.",
           "bullets": [],
-          "title": "2. Third-Party Content — No Liability"
+          "id": "third-party",
+          "title": "Third-Party Content — No Liability"
         },
         {
           "body": "You acknowledge and agree that your use of {brand} and your access to any content via external embedded links is entirely at your own risk. {brand} expressly disclaims all warranties, express or implied.",
           "bullets": [],
-          "title": "3. User Assumption of Risk"
+          "id": "risk",
+          "title": "User Assumption of Risk"
         },
         {
           "body": "Embedded links indexed by {brand} point to resources on third-party servers. We cannot guarantee the ongoing availability, quality, or completeness of any linked content, and links may break or become unavailable without notice.",
           "bullets": [],
-          "title": "4. Link Availability"
+          "id": "availability",
+          "title": "Link Availability"
         },
         {
           "body": "Metadata displayed on {brand} (including titles, descriptions, ratings, and images) is sourced from third-party data providers. We do not guarantee the accuracy or completeness of this metadata.",
           "bullets": [],
-          "title": "5. Accuracy of Information"
+          "id": "accuracy",
+          "title": "Accuracy of Information"
         }
       ],
       "title": "Disclaimer",
@@ -1006,7 +1019,8 @@
         {
           "body": "{brand} is a link aggregator and search engine. We do not host, upload, store, transmit, or control any video or media content. All content is served from third-party servers that are entirely outside of our control.",
           "bullets": [],
-          "title": "1. Our Role — Link Aggregator, Not a Host"
+          "id": "role",
+          "title": "Our Role — Link Aggregator, Not a Host"
         },
         {
           "body": "If you are a copyright owner, or an agent authorised to act on behalf of a copyright owner, and you believe that a link in our index infringes your copyright, please send a written notice to {support_email} containing:",
@@ -1015,7 +1029,8 @@
             "<b>Identification of the copyrighted work</b> you claim has been infringed, or if multiple works are covered by a single notice, a representative list of such works.",
             "<b>Identification of the material</b> (i.e. the specific {brand} link or URL) that you claim is infringing, with sufficient information to permit us to locate it."
           ],
-          "title": "2. Notice-and-Takedown Procedure"
+          "id": "takedown",
+          "title": "Notice-and-Takedown Procedure"
         },
         {
           "body": "Your DMCA notice must also include:",
@@ -1027,22 +1042,26 @@
             "We will review all notices and remove links from our index that satisfy the above statutory requirements.",
             "<b>Counter-Notification:</b> If you believe your link was removed in error, you may submit a counter-notification under 17 U.S.C. § 512(g)."
           ],
-          "title": "3. Additional Required Elements"
+          "id": "elements",
+          "title": "Additional Required Elements"
         },
         {
           "body": "Because {brand} does not host any media files, we are only able to remove the link from our search index. We cannot remove the underlying content from the server on which it is hosted.",
           "bullets": [],
-          "title": "4. Important Limitation — We Can Only Remove Links"
+          "id": "limitation",
+          "title": "Important Limitation — We Can Only Remove Links"
         },
         {
           "body": "In appropriate circumstances, and at our sole discretion, {brand} will disable or terminate access for users or accounts that are repeat infringers.",
           "bullets": [],
-          "title": "5. Repeat Infringer Policy"
+          "id": "repeat",
+          "title": "Repeat Infringer Policy"
         },
         {
           "body": "Removal of a link from our index in response to a DMCA notice does not constitute an admission by {brand} that any infringement has occurred.",
           "bullets": [],
-          "title": "6. No Admission of Liability"
+          "id": "no-admission",
+          "title": "No Admission of Liability"
         }
       ],
       "title": "DMCA Safe Harbor Notice",
@@ -1051,155 +1070,240 @@
     "privacy": {
       "sections": [
         {
-          "body": "{brand} is run by the operator of this server, who is the controller of your personal information. You can reach us at {support_email}. This policy explains what we collect, why we collect it, who we share it with, how long we keep it and the rights you have. {brand} is a link aggregator and search engine: it does not host the films and series it shows.",
+          "body": "{brand} runs on a server that someone operates. That operator is the controller of your personal information and you can reach them at {support_email}. This policy describes the software as it is written, which is the same on every deployment, and it says plainly which few things the operator's own setup decides.\n\n{brand} is a link aggregator and search engine: it does not host the films and series it shows. Signing in, the database and the recommendations all run on this one server. There is no separate accounts company and no outside recommendation service.",
           "bullets": [],
-          "title": "1. Who we are"
+          "id": "who-we-are",
+          "title": "Who we are"
         },
         {
-          "body": "We collect only what the service needs:",
+          "body": "We keep what the service needs, and this is all of it:",
           "bullets": [
-            "<b>Account information:</b> your first and last name, email address and password (kept only in scrambled form by our sign in provider), and a mobile number if you add one.",
-            "<b>Profiles and activity:</b> your profiles and their settings, profile PINs (kept only in scrambled form), My List, ratings, viewing progress and viewing activity. They are linked to your account, so they follow you to every device.",
-            "<b>Security records:</b> recent sign ins and changes to your account, with the browser, system and country they came from. Our sign in provider also keeps the IP address and browser of each signed in session.",
-            "<b>Storage on your device:</b> what keeps you signed in, a copy of your profiles and settings so pages open fast, and your cookie choices. See the Cookie Policy.",
-            "<b>Messages you send us:</b> your emails to our addresses and what they contain, such as a problem report with your browser details."
+            "<b>Your account:</b> your first and last name, your email address, a mobile number if you add one, and your password, which is kept only as a scrambled (hashed) value.",
+            "<b>Your profiles:</b> up to five, each with a name, a picture, an age limit, its settings (autoplay, languages, subtitle appearance), a PIN if you set one, kept only as a hashed value, and the gender and player name you enter if you choose to.",
+            "<b>What you watch:</b> My List, your ratings, the titles you hide, how far you are through each episode, the reminders you set, and, while personalisation is on, the taste profile worked out from them.",
+            "<b>Which rows you were shown:</b> a record for each row impression, click, start, completion, like, skip and change to My List, per profile. We keep these only while personalisation is on for that session, and for 180 days.",
+            "<b>Playback reports:</b> each attempt to play something, with the time, how long the first frame took, any failure and which streaming source answered. These are kept only while personalisation is on for that session, and they do not say which title it was. The problem reports your app sends are separate: they carry its build and whatever you write in them, no profile and no account, and they are kept whatever you answer.",
+            "<b>Your devices and sessions:</b> the device name, hashed forms of the tokens that keep you signed in, a device key that names the device across sessions, and one technical card for each session: the app and its version, the kind of device, its system and version, its screen size, the codecs, containers and request headers its player handles, how much storage it offers, how it is controlled, and the languages it lists. The card is what decides which version of a title this device is offered.",
+            "<b>Account events:</b> one dated line for each sign in and each change to your account, kept 365 days. No screen shows this list to you yet; write to us for it.",
+            "<b>Parental controls:</b> a profile's age limit and the titles a guardian blocked by name, up to 200.",
+            "<b>Sign in codes:</b> the address a code was sent to and a hashed form of the code, until it is used.",
+            "<b>Not your IP address.</b> The server reads it to count requests and keeps it in memory for about a minute. No table stores it, and no history of your addresses or your locations exists anywhere."
           ],
-          "title": "2. Information we collect"
+          "id": "collect",
+          "title": "What we keep"
         },
         {
-          "body": "Almost everything comes from you: what you type when you sign up, the profiles and settings you create and what you do in the app. When you sign in, your browser tells us its type, your system and the country of your connection. We do not buy information about you or receive it from other companies.",
+          "body": "Almost everything comes from you: what you type when you sign up, the profiles and settings you make, and what you do in the app. Your app adds two things of its own: the technical card that says what it can play, and the playback reports above.\n\nWe do not buy information about you and we are not given any by other companies. We do not look up where you are; the age ratings you see follow the region your own app asks for.",
           "bullets": [],
-          "title": "3. Where it comes from"
+          "id": "where",
+          "title": "Where it comes from"
         },
         {
-          "body": "Under the UK GDPR each use needs a lawful basis, shown in brackets. We use your information to:",
+          "body": "Each use needs a lawful basis under the UK GDPR, shown in brackets. We use what we keep to:",
           "bullets": [
-            "create and run your account, profiles, My List, ratings and Continue Watching on every device (contract);",
-            "keep your account safe: confirm it is you, show your devices, lock a profile after too many wrong PINs and tell you about new sign ins (legitimate interests);",
-            "send the emails your account needs, such as confirmation links, sign in codes and security alerts (contract);",
-            "personalise your rows from what you watch, if you allow it (consent);",
-            "answer your messages and fix the problems you report (legitimate interests)."
+            "run your account, profiles, My List, ratings and Continue Watching on every device you sign in on (contract);",
+            "keep the account safe: confirm it is you before anything sensitive, show you your devices, lock a profile after too many wrong PINs, and end every other session when you change your password (legitimate interests);",
+            "send the letters your account needs: a code to sign in, a link to set a new password, and a note if someone tries to open an account with your address (contract);",
+            "choose which rows you see and in what order, from what you watch, on a device where you have turned personalisation on (consent);",
+            "find and fix what breaks, from the playback and problem reports above (legitimate interests);",
+            "answer the messages you send us (legitimate interests)."
           ],
-          "title": "4. How we use it"
+          "id": "use",
+          "title": "What we use it for"
         },
         {
-          "body": "We are committed to your privacy:",
+          "body": "Each of these is held by the code, not by goodwill:",
           "bullets": [
-            "<b>Share Your Data:</b> We do not share personal data with advertisers or data brokers.",
-            "<b>Sell Your Data:</b> We do not sell, rent, or trade any personal data to third parties, ever.",
-            "<b>Track You:</b> We do not use advertising or analytics cookies, we do not fingerprint browsers, and we do not follow you across other websites."
+            "<b>No selling, no sharing for advertising.</b> We do not sell, rent or trade personal information, and we give none of it to advertisers or data brokers.",
+            "<b>No cookies at all.</b> No page or request of this server sets one, and a test fails the build if any route starts to. There are no advertising or analytics cookies because there are no cookies.",
+            "<b>No tracking across the web.</b> There is no analytics service and no advertising tag in this product, and nothing we keep follows you to another site.",
+            "<b>No IP addresses, no location history.</b> As in the list above.",
+            "<b>No age data.</b> We do not ask how old you are and we do not check it, because we would rather not hold it.",
+            "<b>Nothing built on your device's card.</b> The technical card described above says what your device can play. It is not used to recognise you, it is not compared with other devices, and it does not leave this server. If you would rather we did not hold it at all, say so and we will tell you what the app needs."
           ],
-          "title": "5. What we do not do"
+          "id": "not",
+          "title": "What we do not do"
         },
         {
-          "body": "We use these providers to run the service. Each handles your information only to provide its part, under its own privacy policy:",
+          "body": "Almost nothing leaves this server. Signing in, the database and the recommendations all run on the machine the operator runs, in a PostgreSQL that the server starts itself. There is one real processor, and then there are the places your own device talks to:",
           "bullets": [
-            "<b>Supabase:</b> accounts and the account database, stored in the European Union (Ireland).",
-            "<b>Hosting and email providers:</b> hosting the site and forwarding email to our inboxes.",
-            "<b>Hugging Face:</b> hosting the recommendation service, which receives the titles you start and a random session number when personalisation is on.",
-            "<b>Resend:</b> sending account emails.",
-            "<b>Catalog and video services:</b> film and series information, pictures and trailers, which your browser loads directly from them.",
-            "<b>Stream sources:</b> video comes from independent third party sources, which see your IP address like any website you visit. We may also share information when the law requires it."
+            "<b>Mail.</b> Your sign in codes, password links and account notes are handed to the mail service the operator configures. It is given the address the letter goes to and the text of the letter, and nothing else. On the deployment the maintainer of {brand} runs, that service is Resend (resend.com). Because this is software anyone can run, another operator can point it at a different service or at their own mail server; ask the operator of this server which one it is.",
+            "<b>What your own device fetches.</b> Posters, descriptions and trailers come from public catalogues, and the video comes from independent sources. Your device asks them directly, so they see your IP address and your request as any website you open does. We send them nothing about your account.",
+            "<b>The law.</b> We hand over personal information when the law requires it."
           ],
-          "title": "6. Who we share it with"
+          "id": "share",
+          "title": "Who else sees it"
         },
         {
-          "body": "Your account database is kept in the European Union (Ireland). Some of the providers above are based in, or process data in, the United States and other countries outside the UK. When personal information leaves the UK, we rely on the protections UK law provides, such as adequacy regulations (including the UK Extension to the EU-US Data Privacy Framework where a provider is certified) or the standard contractual clauses in the provider's terms.",
+          "body": "Your information lives in the database on the machine this server runs on, and the operator chose where that machine is. Nothing in the software puts data in a particular country, so this policy promises no region; ask the operator of this server where it runs and under which law they hold it.\n\nThe only personal information that leaves that machine is what the mail service above is given, and where that is processed depends on the service the operator chose.",
           "bullets": [],
-          "title": "7. International transfers"
+          "id": "where-it-lives",
+          "title": "Where it lives"
         },
         {
-          "body": "We keep information only as long as we need it:",
+          "body": "Nothing is kept in case it is useful later. This is every store we have, with how long each lives:",
           "bullets": [
-            "<b>Your account:</b> account information, profiles, My List, ratings and viewing activity stay while your account exists. Deleting your account deletes them at once.",
-            "<b>Hidden viewing activity:</b> titles you hide are no longer shown or used for recommendations; they are deleted with the profile or the account.",
-            "<b>Security events:</b> 365 days.",
-            "<b>Signed in sessions:</b> while you use them. A session unused for 30 days ends, and the IP address and browser kept for it are deleted with it. Signing out of a device, or of all devices, ends it at once.",
-            "<b>Recommendation sessions:</b> about 24 hours after your last activity.",
-            "<b>Emails you send us:</b> as long as we need them to answer and resolve your request.",
-            "<b>Copies in your browser:</b> until the session on that browser ends (you sign out here or everywhere, or it runs out) or you clear this site's data. The browser then keeps only its own settings, such as your language and cookie choices."
+            "<b>Your account and its details:</b> while the account exists. Deleting your account removes them at once.",
+            "<b>Your profiles and what is in them:</b> the profile, its picture, its PIN, its age limit and blocked titles, My List, your ratings, the titles you hide, viewing progress, settings, reminders and the notifications you dismissed, all while the profile exists. Deleting the profile, or the account, removes them at once.",
+            "<b>The taste worked out from what you watch:</b> while the profile exists. Turning personalisation off deletes it for the profile you are using.",
+            "<b>Which rows you were shown:</b> 180 days from each record, and only while personalisation is on for that session.",
+            "<b>Playback reports:</b> 30 days from each report, and only while personalisation is on for that session. Deleting your account removes your profile from them at once; the reports themselves go as each one reaches 30 days.",
+            "<b>Problem reports your app sends:</b> 30 days. These carry no profile and no account, so there is nothing in them to delete with your account.",
+            "<b>Account events:</b> 365 days.",
+            "<b>Signed in sessions:</b> until you sign out, or 30 days without use, whichever comes first. Changing your password ends every other session at once. On a television, signing other devices out asks for your password or a code first.",
+            "<b>Your device list and the key in it that names a device:</b> while the account exists.",
+            "<b>Codes:</b> a sign in code, and the code a television shows while it waits to be paired, until it is used or lapses. A sign in code you never use keeps the address it was sent to, and that stays true after the account is deleted.",
+            "<b>Trailers that would not play, and the note of which changes your app already sent:</b> the 300 most recent refusals per profile, and the notes while the profile exists.",
+            "<b>Not about you:</b> which certificate system each country uses, and counts of how often playback reached each source. No person is named in either, and deleting an account does not touch them.",
+            "<b>On your device:</b> what keeps you signed in, and nothing else. See the Cookie Policy."
           ],
-          "title": "8. How long we keep it"
+          "id": "keep",
+          "tables": [
+            [
+              "auth.users",
+              "account_details"
+            ],
+            [
+              "profiles",
+              "profile_pins",
+              "profile_limits",
+              "title_state",
+              "episode_progress",
+              "hidden_titles",
+              "profile_settings",
+              "profile_reminders",
+              "notification_reads",
+              "profile_library"
+            ],
+            [
+              "profile_taste"
+            ],
+            [
+              "feed_events"
+            ],
+            [
+              "play_events"
+            ],
+            [
+              "client_reports"
+            ],
+            [
+              "account_events"
+            ],
+            [
+              "device_sessions"
+            ],
+            [
+              "account_devices"
+            ],
+            [
+              "auth.login_codes",
+              "device_codes"
+            ],
+            [
+              "refused_trailers",
+              "applied_ops"
+            ],
+            [
+              "rating_system_by_country",
+              "reachability"
+            ],
+            []
+          ],
+          "title": "How long we keep it"
         },
         {
-          "body": "We protect your information with:",
+          "body": "What protects your information here:",
           "bullets": [
-            "row level security, so the database lets only your own account read or change your data;",
-            "passwords and profile PINs kept only in scrambled (hashed) form;",
-            "encrypted connections (HTTPS) for every page and request;",
-            "a lockout after too many wrong PINs, and an email when a new device signs in.",
-            "No system is perfectly secure. If you think your account has been misused, change your password and write to us."
+            "<b>Isolation is enforced by the server, not asked for politely.</b> Every statement that touches your data binds your account, and the key that opens a profile cannot be made anywhere but the door that has already checked your session. Code that forgot to check cannot read anything, which is a stronger guarantee than a database rule, and this database has no row level security rules.",
+            "<b>Passwords and PINs</b> are kept only in scrambled (hashed) form, and never put in a letter or a log.",
+            "<b>Sensitive actions ask again.</b> Deleting your account, asking for your data, changing your password and changing parental controls each need a fresh confirmation that lasts minutes.",
+            "<b>A profile locks</b> after too many wrong PINs.",
+            "<b>Encrypted connections are the operator's to set up.</b> This server speaks plain HTTP and expects the operator to put it behind HTTPS. If the address you are reading this on starts with https:// then they did.",
+            "<b>No system is perfectly secure.</b> If you think your account has been misused, change your password, which ends every other session at once, and write to us."
           ],
-          "title": "9. How we keep it safe"
+          "id": "safe",
+          "title": "How we keep it safe"
         },
         {
-          "body": "Everyone who can sign in to your account can open its profiles and see their My List, ratings and viewing activity, unless a profile is locked with a PIN. The account holder can manage, transfer or delete every profile. Choose carefully who you share your sign in with, and lock the profiles you want to keep private.",
+          "body": "Everyone who can sign in to your account can open its profiles and see their My List, ratings and viewing activity, unless a profile is locked with a PIN. The account holder can create, rename, lock and delete every profile.\n\nThe account holder can also move a profile to another account, named by its email address. The profile's whole library, its settings, its taste profile and its blocked titles go with it, and the person whose profile it is is not asked first. Choose carefully who you share your sign in with, and lock the profiles you want to keep private.",
           "bullets": [],
-          "title": "10. Your account and profiles"
+          "id": "household",
+          "title": "Your account and profiles"
         },
         {
           "body": "Under the UK GDPR you have these rights:",
           "bullets": [
-            "<b>Right of access:</b> download a copy of your data at any time in Account, under Personal information access.",
-            "<b>Right to erasure:</b> delete your account at any time in Account, under Delete account. Everything in it is deleted straight away.",
-            "<b>Right to rectification:</b> change your name, email address and phone number in Account, or ask us to correct anything else.",
-            "<b>Right to object:</b> turn off personalised recommendations, or write to us to object to processing based on legitimate interests.",
-            "<b>Rights to restriction and portability:</b> ask us to pause using your information while a question is settled, or take your data with you: the file from Personal information access is in a common machine readable format (JSON).",
-            "<b>Withdrawing consent:</b> turn off Personalised recommendations at any time. This does not affect what happened before.",
-            "<b>Complaints:</b> if you are unhappy with how we handle your information, write to us first. You can also complain to the Information Commissioner's Office at <a href=\"https://ico.org.uk/make-a-complaint/\" target=\"_blank\" rel=\"noopener\">ico.org.uk</a>."
+            "<b>Access:</b> ask for a copy of your data at any time, after confirming it is you. The file you get today holds your account details, your profiles and your devices. It does not yet hold My List, ratings, viewing progress, settings, your taste, reminders or the records listed above: write to {support_email} and we will send those too.",
+            "<b>Erasure:</b> delete your account at any time. Everything goes at once, except the playback reports named in the retention list: your profile is removed from them at once and each report goes as it reaches 30 days.",
+            "<b>Rectification:</b> change your name, email address and phone number yourself, or ask us to correct anything else.",
+            "<b>Objection:</b> turn personalisation off, or write to us to object to a use that rests on legitimate interests.",
+            "<b>Restriction and portability:</b> ask us to stop using your information while a question is settled, or to give it to you in a common machine readable format (JSON).",
+            "<b>Withdrawing consent:</b> personalisation is off until you turn it on, and your answer belongs to the device you give it on, not to the profile, so a second device starts off again. Turning it off deletes the taste profile of the profile you are using. It does not undo what happened while it was on.",
+            "<b>Complaints:</b> write to us first. You can also complain to the Information Commissioner's Office at ico.org.uk."
           ],
-          "title": "11. Your rights"
+          "id": "rights",
+          "title": "Your rights"
         },
         {
-          "body": "You must be 18 or older to create an account. Children can watch through a Kids profile, or a profile with age limits, that the account holder sets up and supervises. We do not knowingly collect information from children beyond the profile details the account holder enters. If you think a child has created an account, write to us at {support_email} and we will delete it.",
+          "body": "You must be 18 or older to open an account. We do not ask your age and we do not check it, because we would rather not hold it. Children watch through a Kids profile, or a profile with an age limit, that the account holder sets up and supervises; a Kids profile is only offered sources a finder has checked. We keep nothing about a child beyond what the account holder enters and what that profile does in the app. If you think a child has opened an account, write to {support_email} and we will delete it.",
           "bullets": [],
-          "title": "12. Children"
+          "id": "children",
+          "title": "Children"
         },
         {
-          "body": "We may update this policy when the service or the law changes. The date at the top shows the latest version. If a change affects how we use your information, we will tell you by email or in the app before it takes effect.",
+          "body": "We update this policy when the service or the law changes, and the date at the top changes with the words. This server has no way to send you a notice about a policy, so this page is the notice: read it again when that date moves.",
           "bullets": [],
-          "title": "13. Changes to this policy"
+          "id": "changes",
+          "title": "Changes to this policy"
         },
         {
-          "body": "For questions about this policy, or to use your rights, write to {support_email}. We answer requests about your rights within one month.",
+          "body": "For questions about this policy, or to use any of the rights above, write to {support_email}. We answer requests about your rights within one month. The person who answers is the operator of this server.",
           "bullets": [],
-          "title": "14. Contact"
+          "id": "contact",
+          "title": "Contact"
         }
       ],
       "title": "Privacy Policy",
-      "updated": "Last updated: October 2026"
+      "updated": "Last updated: November 2026"
     },
     "terms": {
       "sections": [
         {
           "body": "By accessing or using {brand}, you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree, do not use the service.",
           "bullets": [],
-          "title": "1. Acceptance of Terms"
+          "id": "acceptance",
+          "title": "Acceptance of Terms"
         },
         {
           "body": "{brand} is run by the operator of this server. You can reach us at {support_email}.",
           "bullets": [],
-          "title": "2. Who we are"
+          "id": "who-we-are",
+          "title": "Who we are"
         },
         {
           "body": "{brand} is a link aggregator and search engine. We do not host, upload, transmit, or control any video content on our servers. All media is sourced from third-party platforms.",
           "bullets": [],
-          "title": "3. Nature of the Service"
+          "id": "service",
+          "title": "Nature of the Service"
         },
         {
           "body": "You need a free account to use {brand}, and you must be 18 or older to create one. You are responsible for keeping your password safe and for what happens on your account. Tell us at once if you think someone else is using it.",
           "bullets": [],
-          "title": "4. Your Account"
+          "id": "account",
+          "title": "Your Account"
         },
         {
           "body": "An account can have up to 5 profiles for the people in your household. Anyone signed in to the account can open a profile and see its activity unless it is locked with a PIN. Children may use the service only through a profile that an adult account holder sets up and supervises.",
           "bullets": [],
-          "title": "5. Profiles and Household Use"
+          "id": "household",
+          "title": "Profiles and Household Use"
         },
         {
           "body": "{brand} is for your personal, non commercial use. You may not sell, rent, publicly show or charge for access to it, or copy or reuse its interface, data or code beyond what the law allows.",
           "bullets": [],
-          "title": "6. Personal Use"
+          "id": "personal-use",
+          "title": "Personal Use"
         },
         {
           "body": "You agree not to use the service to:",
@@ -1209,66 +1313,78 @@
             "Attempt to probe, scan, or test the vulnerability of the service's infrastructure.",
             "Engage in any conduct that is unlawful, harmful, or that we determine to be inappropriate."
           ],
-          "title": "7. Acceptable Use"
+          "id": "acceptable-use",
+          "title": "Acceptable Use"
         },
         {
           "body": "We may add, change or remove features, titles and languages at any time, and the service may be unavailable while we work on it. Titles come from independent sources and can stop working without notice.",
           "bullets": [],
-          "title": "8. Availability and Changes to the Service"
+          "id": "availability",
+          "title": "Availability and Changes to the Service"
         },
         {
           "body": "You need an internet connection and a current browser; the Help Centre lists the supported ones. {brand} is a web app that updates itself. An installed app is the same website and updates the same way.",
           "bullets": [],
-          "title": "9. Technical Requirements and Updates"
+          "id": "requirements",
+          "title": "Technical Requirements and Updates"
         },
         {
-          "body": "We send the emails your account needs, such as confirmation links, sign in codes and security alerts. You cannot turn these off while you have an account. We do not send marketing emails.",
+          "body": "We send only the letters your account needs: a code to sign in, a link to set a new password, and a note if someone tries to open an account with your address. You cannot turn these off while you have an account. We send no marketing email, and we do not send a letter when a new device signs in.",
           "bullets": [],
-          "title": "10. Emails From Us"
+          "id": "emails",
+          "title": "Emails From Us"
         },
         {
           "body": "If you send us ideas, translations, fixes or other feedback, you allow us to use them to improve {brand} without payment, unless we agree otherwise in writing.",
           "bullets": [],
-          "title": "11. Ideas and Feedback"
+          "id": "feedback",
+          "title": "Ideas and Feedback"
         },
         {
           "body": "The {brand} brand, interface design, and original software code are protected by copyright. All media content accessible via {brand} remains the property of its respective rights holders.",
           "bullets": [],
-          "title": "12. Intellectual Property"
+          "id": "property",
+          "title": "Intellectual Property"
         },
         {
           "body": "The service is provided \"as is\" and \"as available\" without any warranty of any kind. {brand} does not guarantee continuous availability and is not liable for any indirect or consequential damages. Nothing in these terms limits liability that cannot be limited by law, such as for death or personal injury caused by negligence, or for fraud.",
           "bullets": [],
-          "title": "13. Disclaimers and Limitation of Liability"
+          "id": "disclaimers",
+          "title": "Disclaimers and Limitation of Liability"
         },
         {
           "body": "{brand} provides access to links pointing to content hosted on independent third-party servers. We have no control over, and assume no responsibility for, the content, privacy policies, or practices of any third-party sites.",
           "bullets": [],
-          "title": "14. Third-Party Content"
+          "id": "third-party",
+          "title": "Third-Party Content"
         },
         {
           "body": "You can stop using the service and delete your account at any time. We reserve the right to suspend or terminate your account and access to the service at our sole discretion, without prior notice, for conduct that we believe violates these Terms or is harmful to other users, us, or third parties.",
           "bullets": [],
-          "title": "15. Termination"
+          "id": "termination",
+          "title": "Termination"
         },
         {
           "body": "We may update these terms. The date at the top shows the latest version. If a change matters, we will tell you by email or in the app before it takes effect. If you keep using {brand} after that, the new terms apply.",
           "bullets": [],
-          "title": "16. Changes to These Terms"
+          "id": "changes",
+          "title": "Changes to These Terms"
         },
         {
           "body": "These Terms of Service shall be governed by and construed in accordance with the laws of England and Wales, without regard to conflict-of-law provisions. If you live in Scotland or Northern Ireland, you can also bring a claim in your local courts.",
           "bullets": [],
-          "title": "17. Governing Law"
+          "id": "law",
+          "title": "Governing Law"
         },
         {
           "body": "For any questions regarding these Terms of Service, write to {support_email} or use the Contact page.",
           "bullets": [],
-          "title": "18. Contact"
+          "id": "contact",
+          "title": "Contact"
         }
       ],
       "title": "Terms of Service",
-      "updated": "Last updated: October 2026"
+      "updated": "Last updated: November 2026"
     }
   },
   "popular": [

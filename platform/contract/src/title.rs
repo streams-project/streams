@@ -15,6 +15,15 @@ pub const MAX_KEYS_PER_LIST: usize = 40;
 /// Highest title id. The top bit of a packed key holds the kind.
 pub const MAX_TITLE_ID: u32 = (1 << 31) - 1;
 
+/// The id part of a title key as a regular expression: exactly 1 to `MAX_TITLE_ID`, no leading
+/// zero. `TitleKey::parse` is the rule; this is the same rule in the one dialect a generated
+/// client can hold, and it is the only copy, used by the schema and by the id in a route path.
+/// `platform/tools/check_patterns.py` proves the two agree on both sides of `MAX_TITLE_ID`, so a
+/// client cannot be born more forgiving than the core again.
+pub const TITLE_ID_PATTERN: &str = "(?:[1-9][0-9]{0,8}|1[0-9]{9}|20[0-9]{8}|21[0-3][0-9]{7}\
+|214[0-6][0-9]{6}|2147[0-3][0-9]{5}|21474[0-7][0-9]{4}|214748[0-2][0-9]{3}\
+|2147483[0-5][0-9]{2}|21474836[0-3][0-9]|214748364[0-7])";
+
 const TV_BIT: u32 = 1 << 31;
 
 /// Completed means this percentage of the duration or more.
@@ -235,7 +244,7 @@ impl schemars::JsonSchema for TitleKey {
     fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
         schemars::json_schema!({
             "type": "string",
-            "pattern": "^(movie|tv):[1-9][0-9]{0,9}$",
+            "pattern": format!("^(movie|tv):{TITLE_ID_PATTERN}$"),
             "description": "movie:<id> or tv:<id>. A bare id does not parse."
         })
     }

@@ -13,7 +13,15 @@ from databuild.pull.details import pull_details, pull_refresh
 from databuild.pull.exports import read_export
 from databuild.pull.fresh import pull_fresh
 from databuild.pull.popularity import pull_popularity
-from databuild.pull.tmdb import Limiter, open_pull, parse_season, parse_title, pick_art, pick_logo
+from databuild.pull.tmdb import (
+    Limiter,
+    lost_is_systemic,
+    open_pull,
+    parse_season,
+    parse_title,
+    pick_art,
+    pick_logo,
+)
 
 from .conftest import API, EXPORTS, KEY, NOW, FakeTransport, gz_lines
 
@@ -349,6 +357,49 @@ def test_an_answer_this_build_cannot_read_fails_that_fetch_and_the_pull_ends(
     assert sorted(db.execute("SELECT media_type, id FROM fetch_log")) == [("tv", 2)]
     assert any("cannot read" in line for line in ctx.said), ctx.said
     assert any("1 failed" in line for line in ctx.said), ctx.said
+
+
+@pytest.mark.parametrize(
+    "answer,why",
+    [
+        pytest.param(Reply(200, b"<html>not json</html>"), "unreadable", id="a changed shape"),
+        pytest.param(Reply(500), "unanswered", id="an upstream that stopped answering"),
+    ],
+)
+def test_a_run_that_stores_nothing_fails_the_build(context, key_file, monkeypatch, answer, why):
+    # One lost title counts as a failed fetch and the run goes on (the test above). A run that
+    # stored nothing has not pulled a catalogue: it must not return, because pull.db would keep
+    # yesterday's rows, the export would rebuild yesterday's catalogue with a fresh built_at_ms,
+    # and server-catalog's refuse_older accepts a set whose build time moved forward. A changed
+    # answer shape and an upstream that stopped answering leave the same frozen set, so both
+    # count against the one ceiling.
+    # One attempt per title, so the six real waits between retries do not slow this test down.
+    monkeypatch.setattr("databuild.pull.tmdb.ATTEMPTS", 1)
+    routes = {**exports(), "/movie/1": answer, "/tv/2": answer}
+    ctx = context(
+        FakeTransport(routes),
+        api_base=API,
+        exports_base=EXPORTS,
+        key_file=key_file,
+    )
+    with pytest.raises(StageFailed, match="nothing this build could store") as caught:
+        ends_in_time(lambda: pull_details(ctx))
+    assert f"2 {why}" in str(caught.value)
+    db = sqlite3.connect(ctx.work / "pull.db")
+    assert db.execute("SELECT count(*) FROM titles").fetchone() == (0,)
+    assert db.execute("SELECT count(*) FROM fetch_log").fetchone() == (0,)
+
+
+def test_the_lost_ceiling_has_a_floor_so_a_small_run_is_not_flaky():
+    # A big run fails at a fifth; a run shorter than the floor has to lose every title.
+    assert not lost_is_systemic(0, 0)
+    assert not lost_is_systemic(1, 2)
+    assert lost_is_systemic(2, 2)
+    assert not lost_is_systemic(19, 20)
+    assert lost_is_systemic(20, 20)
+    assert not lost_is_systemic(25, 1_000)
+    assert not lost_is_systemic(199, 1_000)
+    assert lost_is_systemic(200, 1_000)
 
 
 def test_pull_is_off_with_no_address_or_key(context, key_file):

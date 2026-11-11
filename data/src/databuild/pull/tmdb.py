@@ -28,6 +28,22 @@ APPEND = {
     "movie": "credits,keywords,release_dates,external_ids,images,videos,translations",
     "tv": "credits,keywords,content_ratings,external_ids,images,videos,translations",
 }
+# The ceiling on titles that answered nothing this build could store: status -1, whether the
+# answer never came (six attempts, then None) or came in a shape this build cannot read. One odd
+# title must not stop a whole set, so a single lost title counts as a failed fetch and the run
+# goes on; but a run that lost this share of its work has not pulled a catalogue at all, and must
+# fail loudly. Why it has to fail rather than return: no row is stored for a lost title, so
+# pull.db keeps yesterday's rows, the export rebuilds yesterday's catalogue with a fresh
+# built_at_ms, and `refuse_older` in server-catalog (dataset.rs) accepts that set because the
+# build time moved forward. A hang that used to be loud would be a silently frozen catalogue that
+# passes every gate. The pair is deliberate: `refuse_older` trusts build time, so the build must
+# not lie about having built something. Both reasons are counted together on purpose: a changed
+# answer shape and an upstream that stopped answering leave exactly the same frozen set.
+LOST_PERCENT = 20
+# A run shorter than this must lose every title to fail, so a two title test run and a small
+# refresh cannot go red on one odd answer.
+LOST_FLOOR = 20
+
 MAX_CAST = 10
 MAX_DIRECTORS = 3
 MAX_COMPANIES = 5
@@ -419,6 +435,14 @@ def _store(
         db.execute("INSERT OR REPLACE INTO fetch_log VALUES (?,?,?)", (kind, title_id, status))
 
 
+def lost_is_systemic(lost: int, total: int) -> bool:
+    """True when this run stored too little to be a pull. The one place the ceiling is decided."""
+    if total <= 0:
+        return False
+    floor = min(LOST_FLOOR, total)
+    return lost >= floor and lost * 100 >= LOST_PERCENT * total
+
+
 def pull_titles(
     ctx: Context,
     client: Client,
@@ -457,6 +481,7 @@ def pull_titles(
     threading.Thread(target=feeder, daemon=True).start()
     counts = client.counts
     unreadable = 0
+    lost = 0
     for done in range(1, len(todo) + 1):
         task, *rest = results.get()
         if isinstance(rest[0], StageFailed):
@@ -472,6 +497,21 @@ def pull_titles(
                 reason = f"{type(rest[0]).__name__}: {rest[0]}"
                 ctx.say(f"pull: {kind} {title_id} answered what this build cannot read: {reason}")
             rest = [-1, None, [], []]
+        if rest[0] == -1:
+            # Checked on every lost title, so the build stops at the earliest moment it is clear
+            # this run is not storing a catalogue, instead of at the end of the work list. The
+            # ceiling only ever grows with `lost`, so this also covers the state the whole run
+            # would have ended in.
+            lost += 1
+            if lost_is_systemic(lost, len(todo)):
+                db.commit()
+                unanswered = lost - unreadable
+                raise StageFailed(
+                    f"pull: {lost} of {len(todo)} titles answered nothing this build could store"
+                    f" ({unreadable} unreadable, {unanswered} unanswered);"
+                    f" {LOST_PERCENT}% is the ceiling, and a run that stored almost nothing must"
+                    " not be exported as a new set over yesterday's rows"
+                )
         _store(db, *task, *rest, counts)
         if done % 500 == 0:
             db.commit()
@@ -479,6 +519,8 @@ def pull_titles(
     db.commit()
     if unreadable:
         ctx.say(f"pull: {unreadable} answers could not be read and count as failed fetches")
+    if lost:
+        ctx.say(f"pull: {lost} of {len(todo)} titles stored nothing, under the ceiling")
     return counts
 
 

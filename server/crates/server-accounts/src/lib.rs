@@ -6,6 +6,7 @@ mod clock;
 mod door;
 mod error;
 pub mod flows;
+pub mod holdings;
 pub mod limits;
 pub mod mail;
 mod memory;
@@ -25,6 +26,7 @@ pub use error::DoorError;
 pub use flows::{
     AccountView, DevicePollState, DeviceStart, Origin, SignUpAsk, SignedIn, email_shape_ok,
 };
+pub use holdings::{Asked, Export, HELD, Held, Keyed, Lives, Removal};
 pub use limits::AccountLimits;
 pub use memory::MemoryStore;
 pub use meter::{Meter, MeterKey};
@@ -35,5 +37,5 @@ pub use profile::{
     SessionId, main_profile_name,
 };
 pub use session::{Consent, DeviceSession, IssuedTokens, RefreshOutcome};
-pub use store::{AccountNames, AccountStore, DeviceCodeRow, StoreError, StoreResult};
+pub use store::{AccountNames, AccountStore, DeviceCard, DeviceCodeRow, StoreError, StoreResult};
 pub use token::{TokenHash, hash_token, new_token};

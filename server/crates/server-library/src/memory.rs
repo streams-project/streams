@@ -243,6 +243,20 @@ impl LibraryRead for Arc<MemoryLibrary> {
             rows.into_iter().take(limit).cloned().collect()
         }))
     }
+    async fn positions(&self, profile: ProfileId, limit: usize) -> Row<Vec<EpisodeProgress>> {
+        Ok(self.with(profile, |p| {
+            let mut rows: Vec<&EpisodeProgress> = p.progress.values().collect();
+            rows.sort_by_key(|r| std::cmp::Reverse((r.changed_ms, r.seq)));
+            rows.into_iter().take(limit).cloned().collect()
+        }))
+    }
+    async fn hidden_titles(&self, profile: ProfileId, limit: usize) -> Row<Vec<HiddenTitle>> {
+        Ok(self.with(profile, |p| {
+            let mut rows: Vec<&HiddenTitle> = p.hidden.values().collect();
+            rows.sort_by_key(|r| std::cmp::Reverse((r.hidden_ms, r.seq)));
+            rows.into_iter().take(limit).cloned().collect()
+        }))
+    }
     async fn position(
         &self,
         profile: ProfileId,
@@ -359,5 +373,21 @@ impl LibraryStore for Arc<MemoryLibrary> {
             work: self.with(profile, Clone::clone),
             _writer: writer,
         }))
+    }
+
+    /// The whole profile goes: one entry holds its list, ratings, positions, hidden titles,
+    /// settings, taste, signals, reminders, read marks, refused trailers and op ids, which is the
+    /// cascade Postgres does in the schema. The writer lock is dropped with it, so a later batch
+    /// for the same id starts from nothing rather than from a counter the rows no longer have.
+    async fn delete_profile(&self, profile: ProfileId) -> Row<()> {
+        self.profiles
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .remove(&profile);
+        self.writers
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .remove(&profile);
+        Ok(())
     }
 }

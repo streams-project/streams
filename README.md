@@ -49,18 +49,21 @@ Run every check with `./check`.
 
 ## Status
 
-One label per platform and what the label rests on, so nobody has to guess from the folder. Lines
-counted with `git ls-files` on 2026-11-11.
+One label per platform and what the label rests on, so nobody has to guess from the folder. No
+counts: a number in prose is a promise nothing enforces, and three of the four here were already
+wrong a day after they were written. What each row rests on is a check anybody can run.
 
 | Platform | Status | What that rests on |
 |---|---|---|
 | Server, core, contract, offline layer, bridges, launcher, finder | Runs | `./check` builds, lints and tests every crate on every push |
 | Data builder (`data`) | Runs | its own checks run inside `./check`, and they cross check the contract and the server |
-| Website (`apps/web`) | Runs | 1,744 lines of Rust in 15 files. It is a workspace crate, so `./check` builds, lints and tests it |
-| Television (`apps/tv`) | Runs, work stopped | 2,185 lines of ES5 in 26 files, from the code a phone approves to a playing film. `tests/tv/press_through.py` drives it by key presses through a real browser, which `./check` does not do. Work on it stopped on 2026-11-07 |
-| Android (`apps/android`) | Written, built by hand | 14,906 lines of Kotlin in 93 files: Compose screens behind the family's ports. It builds with gradle on a machine that has it, and `./check` neither builds it nor has unit tests for it |
-| Apple (`apps/apple`) | Written, built by hand | 10,994 lines of Swift in 75 files: a phone surface and a television surface behind the family's ports. It builds with Swift Package Manager after `build-core.sh`, and `./check` neither builds it nor has unit tests for it |
-| Desktop, Harmony, Roku, Xbox | Empty | a README and a `.gitignore` each, and no code |
+| Website (`apps/web`) | Runs | Rust behind the family's ports. It is a workspace crate, so `./check` builds, lints and tests it |
+| Television (`apps/tv`) | Runs, work stopped | ES5, from the code a phone approves to a playing film. `tests/tv/press_through.py` drives it by key presses through a real browser, which `./check` does not do. Work on it stopped on 2026-11-07 |
+| Android (`apps/android`) | Written, built by hand | Compose screens in Kotlin behind the family's ports. It builds with gradle on a machine that has it, and `./check` neither builds it nor has unit tests for it |
+| Apple (`apps/apple`) | Written, built by hand | A phone surface and a television surface in Swift behind the family's ports. It builds with Swift Package Manager after `build-core.sh`, and `./check` neither builds it nor has unit tests for it |
+| Desktop (`apps/desktop`) | Started, built nowhere | ports, adapters, a host and two test files in Rust. It is not a workspace member, so `./check` does not build it |
+| Harmony (`apps/harmony`), Xbox (`apps/xbox`) | Started, built nowhere | ports and a native bridge each, no screens, and no build this repository runs |
+| Roku (`apps/roku`) | Empty | a README and a `.gitignore`, and no code |
 
 What every row has in common: `./check` holds the family to its ports with
 `platform/tools/check_rings.py`, whether or not it can build that family.

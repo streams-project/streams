@@ -37,6 +37,10 @@ import coil3.compose.AsyncImage
 import streams.shared.Accent
 import streams.shared.Corner
 import streams.shared.R
+import streams.shared.decoration
+import streams.shared.fill
+import streams.shared.says
+import streams.shared.saysItsWords
 
 /** The top bar's height (reference: 51.9 dp) and the chip row's (73.4 dp, chips 49.2 tall). */
 const val TOP_BAR = 52
@@ -50,14 +54,24 @@ private const val OUTLINE_HIGH = 43
  * On a page reached from a chip (Series, Films) the mark gives way to a back arrow, as the reference's does.
  */
 @Composable
-fun TopBar(server: String, name: String, back: (() -> Unit)?, bell: (() -> Unit)?, unreadCount: Int = 0) {
+fun TopBar(
+    server: String,
+    name: String,
+    back: (() -> Unit)?,
+    bell: (() -> Unit)?,
+    unreadCount: Int = 0,
+    words: Map<String, String> = emptyMap(),
+) {
     val layoutDirection = LocalLayoutDirection.current
     Row(
         Modifier.fillMaxWidth().height(TOP_BAR.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        // Either a back arrow, which is a control and needs words, or the brand's mark, which is
+        // decoration: the page's own name is drawn next to it and says the same thing.
         Box(
-            Modifier.padding(start = 4.dp).size(48.dp, 48.dp).let { if (back != null) it.clickable(onClick = back) else it },
+            Modifier.padding(start = 4.dp).size(48.dp, 48.dp)
+                .let { if (back != null) it.clickable(onClick = back).says(words["common.back"].orEmpty()) else it.decoration() },
             contentAlignment = Alignment.Center,
         ) {
             if (back != null) {
@@ -83,7 +97,16 @@ fun TopBar(server: String, name: String, back: (() -> Unit)?, bell: (() -> Unit)
             overflow = TextOverflow.Ellipsis,
         )
         if (bell != null) {
-            Box(Modifier.size(48.dp).clickable(onClick = bell), contentAlignment = Alignment.Center) {
+            // The bell says how many notices are waiting, because the count is drawn on it.
+            val bellSays = if (unreadCount > 0) {
+                words["say.notifications_unread"].orEmpty().fill("n", unreadCount)
+            } else {
+                words["notifications.title"].orEmpty()
+            }
+            Box(
+                Modifier.size(48.dp).clickable(onClick = bell).says(bellSays),
+                contentAlignment = Alignment.Center,
+            ) {
                 Icon(painterResource(R.drawable.icon_bell), null, Modifier.size(24.dp), tint = Color.White)
                 if (unreadCount > 0) {
                     val countText = if (unreadCount > 9) "9+" else unreadCount.toString()
@@ -173,6 +196,8 @@ fun ChipRow(chips: List<Chip>, shown: Float) {
                     .background(fill)
                     .border(1.dp, edge, shape)
                     .clickable(onClick = chip.go)
+                    // A chip draws its own word, and the caret beside it is drawn inside this node.
+                    .saysItsWords()
                     .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {

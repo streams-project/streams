@@ -16,6 +16,15 @@ jobs:
           targets: wasm32v1-none,wasm32-unknown-unknown
           components: rustfmt,clippy
       - uses: astral-sh/setup-uv@v6
+      # One of the three generated client languages must really compile here: without a compiler
+      # check_types.py proves nothing about them, and a step that proves nothing now exits 1.
+      # TypeScript is the one that installs in seconds on this runner. The major version is pinned
+      # and not the patch, because a patch that is yanked would stop every push.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the TypeScript compiler
+        run: npm install --global typescript@5
       - name: Run ./check
         env:
           TMPDIR: /home/runner/tmp

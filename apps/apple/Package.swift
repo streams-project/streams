@@ -68,5 +68,21 @@ let package = Package(
             exclude: ["README.md"],
             resources: [.process("Resources")]
         ),
+        // What a screen reader would hear, asked of a view instead of a running app. Test support
+        // only: no product carries it, so no app links it.
+        .target(
+            name: "Heard",
+            path: "Tests/Heard"
+        ),
+        .testTarget(
+            name: "TelevisionTests",
+            dependencies: ["Heard", "Contract", "SurfacesShared", "SurfacesTV"],
+            path: "Tests/TelevisionTests"
+        ),
+        .testTarget(
+            name: "PhoneTests",
+            dependencies: ["Heard", "Contract", "SurfacesShared", "SurfacesPhone"],
+            path: "Tests/PhoneTests"
+        ),
     ]
 )

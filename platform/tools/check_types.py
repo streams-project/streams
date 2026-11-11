@@ -17,8 +17,12 @@ to. These name one elsewhere, because machines differ:
 
 A language whose compiler is nowhere is printed as not run, with what is missing, and counted in a
 last line. That line is why this can be run everywhere: on a machine with no Swift and no Kotlin the
-languages it could not prove are named out loud, never passed over in silence. The exit code is 1
-when a language that did run failed, and 0 otherwise.
+languages it could not prove are named out loud, never passed over in silence.
+
+The exit code is 1 when a language that did run failed, and 1 when none of them ran: a guard that
+proved nothing is a failure, not a pass. CI therefore installs a TypeScript compiler, so at least
+one language is always proved; before 2026-11-11 CI had none of the three and this step printed
+"0 of 3 languages compiled (none)" and passed, which is the silence this file exists to break.
 """
 
 import json
@@ -33,8 +37,20 @@ CONTRACT = os.path.join(os.path.dirname(HERE), "contract")
 FIXTURES = os.path.join(CONTRACT, "fixtures", "2026-11-05")
 TYPES = os.path.join(CONTRACT, "generated", "types")
 
-# A template type has no number range, so this one is refused only at run time.
-TS_CANNOT_SEE = {"TitleKey.id_zero.json"}
+# What TypeScript's type system cannot say, so the fixture is left out of the TypeScript run and
+# named out loud in the output instead. A template literal type matches any number where it writes
+# `${number}`: it holds the shape of a title key and of a date, and no range inside either. Every
+# one of these is refused by Rust, by Kotlin and by Swift; TypeScript refuses it only at run time.
+TS_CANNOT_SEE = {
+    # `movie:${number}` has no lower bound, so id 0 fits the type.
+    "TitleKey.id_zero.json",
+    # ... and no upper bound, so an id above MAX_TITLE_ID fits it too.
+    "TitleKey.id_over_max.json",
+    "TitleKey.id_ten_digits.json",
+    # `${number}-${number}-${number}` has no month range and no day range.
+    "CalendarDay.month_13.json",
+    "CalendarDay.day_32.json",
+}
 
 
 def compiler(variable, program):
@@ -69,7 +85,9 @@ def check_typescript(work):
         return None, why
     shutil.copy(os.path.join(TYPES, "contract.ts"), work)
     valid = names("valid")
+    blind = [name for name in names("refused") if name in TS_CANNOT_SEE]
     refused = [name for name in names("refused") if name not in TS_CANNOT_SEE]
+    unknown = sorted(TS_CANNOT_SEE - set(names("refused")))
     used = sorted({type_of(name) for name in valid + refused})
     lines = ["import type { %s } from \"./contract\";" % ", ".join(used), ""]
     for index, name in enumerate(valid):
@@ -84,7 +102,16 @@ def check_typescript(work):
     with open(path, "w") as handle:
         handle.write("\n".join(lines) + "\n")
     done = run([tool, "--noEmit", "--strict", "--target", "es2022", "--module", "esnext", "--moduleResolution", "bundler", path], cwd=work)
-    return (done.returncode, "%d valid typed, %d refused at compile time\n%s" % (len(valid), len(refused), done.stdout[-3000:])), None
+    # A fixture this cannot ask about is said out loud, with the type that cannot say it. A stale
+    # name in that list is a failure of its own: it would hide a fixture TypeScript does refuse.
+    code = done.returncode
+    text = "%d valid typed, %d refused at compile time; the type cannot refuse: %s" % (
+        len(valid), len(refused), ", ".join(blind) or "nothing",
+    )
+    if unknown:
+        code = code or 1
+        text += "\nTS_CANNOT_SEE names %s, which is no refused fixture" % ", ".join(unknown)
+    return (code, text + "\n" + done.stdout[-3000:]), None
 
 
 def check_swift(work):
@@ -234,6 +261,11 @@ def main():
         ", ".join(ran) or "none",
         "; NOT RUN: " + ", ".join(skipped) if skipped else "",
     ))
+    if not ran:
+        # Nothing was proved, so there is nothing to pass. A machine with no compiler at all says
+        # so with an exit code, and CI installs one (.github/workflows/check.yml).
+        print("types: no language compiled, so nothing about the generated types was proved")
+        return worst or 1
     return worst
 
 

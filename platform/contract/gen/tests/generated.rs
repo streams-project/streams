@@ -322,7 +322,10 @@ fn the_unknown_catch_all_is_not_a_word_a_server_may_send() {
 fn h57_h91_the_schema_of_a_title_key_demands_a_kind() {
     let all = schemas();
     let pattern = all["TitleKey"]["pattern"].as_str().unwrap();
-    assert_eq!(pattern, "^(movie|tv):[1-9][0-9]{0,9}$");
+    assert_eq!(
+        pattern,
+        format!("^(movie|tv):{}$", contract::TITLE_ID_PATTERN)
+    );
     assert_eq!(all["TitleKey"]["type"], "string");
 }
 
@@ -359,7 +362,10 @@ fn h57_h91_a_bare_id_is_refused_in_the_three_client_languages() {
     let all = files();
     assert!(all["types/contract.ts"].contains("`movie:${number}` | `tv:${number}`"));
     assert!(all["types/Contract.kt"].contains("value class TitleKey(val value: String)"));
-    assert!(all["types/Contract.kt"].contains("^(movie|tv):[1-9][0-9]{0,9}\\$"));
+    assert!(
+        all["types/Contract.kt"]
+            .contains(&format!("^(movie|tv):{}\\$", contract::TITLE_ID_PATTERN))
+    );
     assert!(all["types/Contract.swift"].contains("ContractError.refused(\"TitleKey\")"));
     assert!(!all["types/Contract.swift"].contains("typealias TitleKey"));
     assert!(!all["types/Contract.kt"].contains("typealias TitleKey"));

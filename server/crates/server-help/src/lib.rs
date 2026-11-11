@@ -4,5 +4,5 @@
 mod book;
 mod markup;
 
-pub use book::{Help, HelpError, Named};
+pub use book::{Gap, Help, HelpError, Named};
 pub use markup::{parse, plain};

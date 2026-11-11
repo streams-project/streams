@@ -2,7 +2,7 @@
 
 use contract::command::{Command, CommandOp, OpAnswer, Outcome};
 use contract::{EpisodeRef, TitleKey, TitleKind};
-use offline::queue::{BATCH_MAX, DEBOUNCE_MS, Kept, Queue};
+use offline::queue::{Admitted, BATCH_MAX, DEBOUNCE_MS, Hold, Kept, Queue};
 
 const SCOPE: &str = "u1/p1";
 const BOOT: &str = "boot-1";
@@ -44,7 +44,7 @@ fn add_to(queue: &mut Queue, op: CommandOp, scope: &str, mono_ms: u64) -> (Kept,
     let planned = queue
         .plan(op, Some(scope.to_string()), BOOT, mono_ms)
         .expect("an op writes out");
-    let (kept, _, replaced) = queue.admit(planned);
+    let Admitted { kept, replaced, .. } = queue.admit(planned, Hold::Stored);
     (kept, replaced)
 }
 
@@ -252,9 +252,10 @@ fn a_kept_op_counts_its_store_bytes_before_it_is_admitted() {
         .plan(list(1), Some(SCOPE.to_string()), BOOT, 0)
         .unwrap();
     // the bytes are known while the queue is still empty, so a full store can refuse the op
-    assert!(planned.need() > 0);
+    assert!(queue.need(&planned) > 0);
     assert_eq!(queue.bytes(), 0);
-    let (kept, text, _) = queue.admit(planned);
+    let Admitted { kept, text, .. } = queue.admit(planned, Hold::Stored);
+    let text = text.expect("a stored op gives the store its text");
     assert_eq!(kept.bytes, text.len() as u64);
     assert_eq!(queue.bytes(), kept.bytes);
 
@@ -264,10 +265,14 @@ fn a_kept_op_counts_its_store_bytes_before_it_is_admitted() {
         .plan(position(3, 7, None, 60), Some(SCOPE.to_string()), BOOT, 0)
         .unwrap();
     assert!(
-        planned.need() < first.bytes,
+        queue.need(&planned) < first.bytes,
         "the older one gives its bytes back"
     );
-    let (second, _, replaced) = queue.admit(planned);
+    let Admitted {
+        kept: second,
+        replaced,
+        ..
+    } = queue.admit(planned, Hold::Stored);
     assert_eq!(replaced, Some(first.key()));
     assert_eq!(queue.bytes(), kept.bytes + second.bytes);
 }
@@ -284,9 +289,15 @@ fn an_op_that_is_planned_and_not_admitted_leaves_the_queue_alone() {
             5_000,
         )
         .unwrap();
-    drop(planned);
+    let seq = planned.seq();
+    queue.release(planned);
     assert_eq!(queue.len(), 1, "the older position is still there");
     assert_eq!(queue.bytes(), first.bytes);
+    assert_eq!(
+        seq,
+        first.seq + 1,
+        "it had the next number and gave it back"
+    );
     assert_eq!(
         queue.next_wake(),
         Some(DEBOUNCE_MS),
@@ -295,4 +306,141 @@ fn an_op_that_is_planned_and_not_admitted_leaves_the_queue_alone() {
     let batch = queue.batch(SCOPE, BOOT, 10).unwrap();
     assert_eq!(batch.ops.len(), 1);
     assert_eq!(batch.ops[0].op_id, "op-1");
+}
+
+#[test]
+fn h20_a_released_plan_gives_its_sequence_number_back() {
+    let mut queue = Queue::default();
+    let planned = queue
+        .plan(list(1), Some(SCOPE.to_string()), BOOT, 0)
+        .unwrap();
+    let seq = planned.seq();
+    queue.release(planned);
+    let again = queue
+        .plan(list(2), Some(SCOPE.to_string()), BOOT, 0)
+        .unwrap();
+    assert_eq!(again.seq(), seq, "a refused op costs no sequence number");
+    let Admitted { kept, .. } = queue.admit(again, Hold::Stored);
+    assert_eq!(kept.seq, seq);
+}
+
+#[test]
+fn h20_two_plans_in_flight_remove_only_their_own_op_and_never_share_a_key() {
+    // Both plans replace the same unsent position, and an unrelated op sits in front of it after
+    // the first admit. With a positional index the second admit removed that unrelated op and
+    // minted the first one's store key again.
+    let mut queue = Queue::default();
+    let (older, _) = add(&mut queue, position(1, 7, None, 30), 0);
+    let (other, _) = add(&mut queue, list(9), 0);
+    let first = queue
+        .plan(position(2, 7, None, 60), Some(SCOPE.to_string()), BOOT, 10)
+        .unwrap();
+    let second = queue
+        .plan(position(3, 7, None, 90), Some(SCOPE.to_string()), BOOT, 20)
+        .unwrap();
+    assert_ne!(
+        first.seq(),
+        second.seq(),
+        "each plan reserves its own number"
+    );
+
+    let one = queue.admit(first, Hold::Stored);
+    assert_eq!(one.replaced, Some(older.key()), "it replaced the position");
+    let two = queue.admit(second, Hold::Stored);
+    assert_eq!(
+        two.replaced, None,
+        "the position it planned to replace had already gone"
+    );
+    assert_ne!(one.kept.key(), two.kept.key(), "no key is minted twice");
+
+    let ids: Vec<String> = queue
+        .batch(SCOPE, BOOT, 30)
+        .unwrap()
+        .ops
+        .iter()
+        .map(|op| op.op_id.clone())
+        .collect();
+    assert_eq!(
+        ids,
+        vec![
+            other.op.op_id.clone(),
+            String::from("op-2"),
+            String::from("op-3")
+        ],
+        "the op nobody planned against is still queued"
+    );
+}
+
+#[test]
+fn h20_a_plan_whose_op_was_acknowledged_in_between_removes_nothing() {
+    // The replaced op left on the server's answer between plan and admit. A positional index ran
+    // past the end of an empty queue here, which panics in a core that cannot unwind.
+    let mut queue = Queue::default();
+    let (older, _) = add(&mut queue, position(1, 7, None, 30), 0);
+    let planned = queue
+        .plan(position(2, 7, None, 60), Some(SCOPE.to_string()), BOOT, 10)
+        .unwrap();
+    assert_eq!(
+        queue.acknowledge(&applied(&["op-1"]), 20),
+        vec![older.key()]
+    );
+    let admitted = queue.admit(planned, Hold::Stored);
+    assert_eq!(admitted.replaced, None);
+    assert_ne!(admitted.kept.key(), older.key(), "no key is minted twice");
+    assert_eq!(queue.len(), 1);
+}
+
+#[test]
+fn c2_h20_an_op_held_for_the_session_only_is_never_written_and_never_deleted() {
+    let mut queue = Queue::default();
+    let planned = queue
+        .plan(list(1), Some(SCOPE.to_string()), BOOT, 0)
+        .unwrap();
+    let Admitted { kept, text, .. } = queue.admit(planned, Hold::Session);
+    assert!(text.is_none(), "there is nothing for the store to hold");
+    assert_eq!(kept.bytes, 0);
+    assert_eq!(queue.bytes(), 0, "it counts nothing against the byte cap");
+    assert_eq!(queue.session_held(), 1);
+
+    // it still goes out this session
+    let batch = queue.batch(SCOPE, BOOT, 10).unwrap();
+    assert_eq!(batch.ops.len(), 1);
+    // and it has no store key, so nothing asks the store to delete one
+    assert!(queue.acknowledge(&applied(&["op-1"]), 20).is_empty());
+    assert!(queue.is_empty());
+}
+
+#[test]
+fn c2_h20_clearing_asks_for_no_key_an_op_held_for_the_session_never_wrote() {
+    let mut queue = Queue::default();
+    let (stored, _) = add(&mut queue, list(1), 0);
+    let planned = queue
+        .plan(list(2), Some(SCOPE.to_string()), BOOT, 0)
+        .unwrap();
+    queue.admit(planned, Hold::Session);
+    assert_eq!(queue.clear(), vec![stored.key()]);
+    assert!(queue.is_empty());
+}
+
+#[test]
+fn c2_h20_a_position_that_went_out_between_plan_and_admit_keeps_its_place_and_its_key() {
+    // `plan` leaves an op that is on its way alone. By the time `admit` runs it may have gone
+    // out, and removing it then would delete the store copy of an op the server has not settled.
+    let mut queue = Queue::default();
+    let (older, _) = add(&mut queue, position(1, 7, None, 30), 0);
+    let planned = queue
+        .plan(position(2, 7, None, 60), Some(SCOPE.to_string()), BOOT, 10)
+        .unwrap();
+    let before = queue.need(&planned);
+    assert!(before < older.bytes, "the older one is still creditable");
+    queue.batch(SCOPE, BOOT, 20).unwrap();
+    assert_eq!(
+        queue.need(&planned),
+        before + older.bytes,
+        "an op on its way gives nothing back"
+    );
+    let admitted = queue.admit(planned, Hold::Stored);
+    assert_eq!(admitted.replaced, None, "it was not taken out of the queue");
+    assert_eq!(queue.len(), 2);
+    assert_eq!(queue.bytes(), older.bytes + admitted.kept.bytes);
 }

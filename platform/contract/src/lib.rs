@@ -27,6 +27,6 @@ mod title;
 pub mod version;
 
 pub use title::{
-    EpisodeRef, MAX_KEYS_PER_LIST, MAX_TITLE_ID, Rating, TitleKey, TitleKeyError, TitleKind,
-    is_completed, watch_percent,
+    EpisodeRef, MAX_KEYS_PER_LIST, MAX_TITLE_ID, Rating, TITLE_ID_PATTERN, TitleKey, TitleKeyError,
+    TitleKind, is_completed, watch_percent,
 };

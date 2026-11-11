@@ -417,8 +417,11 @@ def test_a_set_built_twice_holds_the_same_files(context, tmp_path):
     bytes_again = (first.out / "manifest.json").read_bytes()
     again = json.loads(bytes_again)
     assert {role: e["sha256"] for role, e in again["files"].items()} == hashes
-    # The manifest repeats byte for byte too, so the whole export is the same and not only the
-    # files it names: the names, order, sizes and row count are in these bytes as well.
+    # The manifest repeats byte for byte too, so the names, order, sizes and row count it holds
+    # are the same and not only the files it names. It says nothing about `built_at_ms`: the
+    # fixture clock is frozen (conftest NOW), so that field cannot differ between the two runs
+    # here, and a build time that moves on every rebuild is what server-catalog's refuse_older
+    # trusts. The pull stage's unreadable ceiling is what keeps that trust honest.
     assert bytes_again == bytes_first
 
 

@@ -1,11 +1,63 @@
 {
   "articles": {
-    "first": {"body": "Welcome to {brand}.\n\n1. Do this\n>> More\nAsk {support_email}", "keywords": "start begin", "related": ["second"], "summary": "How {brand} starts", "title": "Getting started"},
-    "second": {"body": "Sound and <b>words</b>.", "keywords": "audio", "related": [], "summary": "Sound", "title": "Subtitles"}
+    "first": {
+      "body": "Welcome to {brand}.\n\n1. Do this\n>> More\nAsk {support_email}",
+      "keywords": "start begin",
+      "related": [
+        "second"
+      ],
+      "summary": "How {brand} starts",
+      "title": "Getting started"
+    },
+    "second": {
+      "body": "Sound and <b>words</b>.",
+      "keywords": "audio",
+      "related": [],
+      "summary": "Sound",
+      "title": "Subtitles"
+    }
   },
   "policies": {
-    "terms": {"sections": [{"body": "Plain terms.", "bullets": ["One", "Two"], "title": "Use"}], "title": "Terms", "updated": "2026-11-07"}
+    "terms": {
+      "sections": [
+        {
+          "body": "Plain terms.",
+          "bullets": [
+            "One",
+            "Two"
+          ],
+          "id": "use",
+          "title": "Use"
+        },
+        {
+          "body": "Write to {support_email}.",
+          "bullets": [],
+          "id": "contact",
+          "title": "Contact"
+        }
+      ],
+      "title": "Terms",
+      "updated": "2026-11-07"
+    }
   },
-  "popular": ["second", "missing"],
-  "topics": [{"groups": [{"articles": ["first", "second"], "id": "basics", "title": "Basics"}], "id": "start", "title": "Start here"}]
+  "popular": [
+    "second",
+    "missing"
+  ],
+  "topics": [
+    {
+      "groups": [
+        {
+          "articles": [
+            "first",
+            "second"
+          ],
+          "id": "basics",
+          "title": "Basics"
+        }
+      ],
+      "id": "start",
+      "title": "Start here"
+    }
+  ]
 }

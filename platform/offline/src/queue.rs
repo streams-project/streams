@@ -16,6 +16,11 @@ pub const DEBOUNCE_MS: u64 = 4_000;
 /// Most ops in one batch.
 pub const BATCH_MAX: usize = 400;
 
+/// Most ops held for this session only, with no store room for them. They count no store bytes,
+/// so the byte cap does not bound them and this does. Well under `BATCH_MAX`, so a session-held
+/// backlog always fits in one batch.
+pub const SESSION_MAX: usize = 64;
+
 /// Prefix of queue keys in the store.
 pub const KEY_PREFIX: &str = "q/";
 
@@ -31,6 +36,10 @@ pub struct Kept {
     /// Bytes this takes in the store.
     #[serde(skip)]
     pub bytes: u64,
+    /// Kept for this session only: never written, so never deleted and gone on the next start.
+    /// Skipped, and false by default, so an op read back from the store is a stored one.
+    #[serde(skip)]
+    pub session_only: bool,
 }
 
 impl Kept {
@@ -45,25 +54,54 @@ impl Kept {
     }
 }
 
-/// One op ready to be kept: the entry with the bytes the store needs, the text the store must
-/// hold, and the unsent position it would replace. Nothing is in the queue until `admit` takes
-/// it, so an op the store has no room for leaves the queue, the byte count and the older position
-/// it would have replaced exactly as they were.
+/// One op ready to be kept: the entry with its reserved sequence number, the text the store must
+/// hold, and the identity of the unsent position it would replace. Nothing is in the queue until
+/// `admit` takes it, so an op the store has no room for leaves the queue, the byte count and the
+/// older position it would have replaced exactly as they were, and `release` gives the reserved
+/// sequence number back.
 pub struct Planned {
     kept: Kept,
     text: String,
-    /// Where the unsent position of the same title and episode sits, with its key and its bytes.
-    replaces: Option<(usize, String, u64)>,
+    /// The op id of the unsent position of the same title and episode. An op id, not a position
+    /// in `Queue::ops`: anything may leave the queue between `plan` and `admit`, and a stale
+    /// index would remove another op or run past the end, which panics in a core with no
+    /// unwinding.
+    replaces: Option<String>,
 }
 
 impl Planned {
-    /// Bytes the store must find for this op. What a replaced position gives back is taken off,
-    /// so a position replacing one of its own size needs no new room.
+    /// The sequence number reserved for this op. No other plan can be given it.
     #[must_use]
-    pub fn need(&self) -> u64 {
-        let given_back = self.replaces.as_ref().map_or(0, |(_, _, bytes)| *bytes);
-        self.kept.bytes.saturating_sub(given_back)
+    pub const fn seq(&self) -> u64 {
+        self.kept.seq
     }
+
+    /// True when nothing else will send this command again, so refusing it loses what the person
+    /// did. A `Position` is carried by the next heartbeat; the rest are sent once and a core with
+    /// no layer only logs a dropped one (`platform/core/src/lib.rs`, `command-dropped`).
+    #[must_use]
+    pub const fn only_chance(&self) -> bool {
+        !matches!(self.kept.op.command, Command::Position { .. })
+    }
+}
+
+/// How long an admitted op is held.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Hold {
+    /// Written to the store, so it survives a restart. Counts against the byte cap.
+    Stored,
+    /// Held for this session only: nothing is written, nothing is counted, and it is gone on the
+    /// next start. For an op the store has no room for and nothing else would send again.
+    Session,
+}
+
+/// What `admit` took into the queue.
+pub struct Admitted {
+    pub kept: Kept,
+    /// The text the store must hold. `None` for a `Hold::Session` op, which is never written.
+    pub text: Option<String>,
+    /// The key of the unsent position this op replaced, if it was still in the queue.
+    pub replaced: Option<String>,
 }
 
 /// The queue. One batch is on its way at a time, so a session has one writer.
@@ -80,7 +118,9 @@ impl Queue {
     /// Put back what the store held, in the order it was made.
     pub fn load(&mut self, mut kept: Vec<Kept>) {
         kept.sort_by_key(|item| item.seq);
-        self.next_seq = kept.last().map_or(0, |item| item.seq + 1);
+        // Never backwards: a sequence number already spent must not be handed out again.
+        let after = kept.last().map_or(0, |item| item.seq + 1);
+        self.next_seq = self.next_seq.max(after);
         self.ops = kept;
     }
 
@@ -90,7 +130,7 @@ impl Queue {
     /// cannot fill the queue.
     #[must_use]
     pub fn plan(
-        &self,
+        &mut self,
         op: CommandOp,
         scope: Option<String>,
         boot: &str,
@@ -103,12 +143,17 @@ impl Queue {
             mono_ms,
             boot: boot.into(),
             bytes: 0,
+            session_only: false,
         };
         let text = serde_json::to_string(&kept).ok()?;
         kept.bytes = u64::try_from(text.len()).unwrap_or(u64::MAX);
         let replaces = self
             .position_slot(&kept.op, kept.scope.as_deref())
-            .map(|index| (index, self.ops[index].key(), self.ops[index].bytes));
+            .map(|index| self.ops[index].op.op_id.clone());
+        // The sequence number is spent here, not in `admit`. It is in the text the store will
+        // hold and in the key that text is written under, so two plans in flight must not read
+        // the same one: that is a second store key minting the first one's name.
+        self.next_seq += 1;
         Some(Planned {
             kept,
             text,
@@ -116,22 +161,80 @@ impl Queue {
         })
     }
 
-    /// Take a planned op into the queue, with its store bytes already counted. Gives back the
-    /// entry, the text the store must hold, and the key of the position it replaced, if any.
-    pub fn admit(&mut self, planned: Planned) -> (Kept, String, Option<String>) {
+    /// Bytes the store must find for this planned op, measured now. What the position it replaces
+    /// gives back is taken off, so a position replacing one of its own size needs no new room —
+    /// and only while that position is still in the queue, since an op that left has already
+    /// given its bytes back.
+    #[must_use]
+    pub fn need(&self, planned: &Planned) -> u64 {
+        let given_back = self
+            .replaceable(planned)
+            .map_or(0, |index| self.ops[index].bytes);
+        planned.kept.bytes.saturating_sub(given_back)
+    }
+
+    /// Take a planned op into the queue, with its store bytes already counted. `hold` is asked
+    /// for, never assumed: a `Hold::Session` op is not written, so it must not be counted or
+    /// deleted either.
+    pub fn admit(&mut self, planned: Planned, hold: Hold) -> Admitted {
         let Planned {
-            kept,
+            mut kept,
             text,
             replaces,
         } = planned;
-        let replaced = replaces.map(|(index, key, _)| {
-            self.ops.remove(index);
-            key
-        });
-        self.next_seq = kept.seq + 1;
+        // By op id, and read now: `plan` may have run before an `acknowledge`, a `clear`, a
+        // `batch` or another `admit`, so the position this op sat at means nothing by the time we
+        // get here.
+        let replaced = self
+            .replaceable_id(replaces.as_deref())
+            .map(|index| self.ops.remove(index))
+            .filter(|gone| !gone.session_only)
+            .map(|gone| gone.key());
+        let text = match hold {
+            Hold::Stored => Some(text),
+            Hold::Session => {
+                kept.bytes = 0;
+                kept.session_only = true;
+                None
+            }
+        };
         self.ops.push(kept.clone());
         self.flush_at = Some(kept.mono_ms + DEBOUNCE_MS);
-        (kept, text, replaced)
+        Admitted {
+            kept,
+            text,
+            replaced,
+        }
+    }
+
+    /// Give back a planned op that was not admitted. Its sequence number returns when no other
+    /// plan has taken one since, so a refusal leaves the queue exactly as it was.
+    pub fn release(&mut self, planned: Planned) {
+        if planned.kept.seq + 1 == self.next_seq {
+            self.next_seq = planned.kept.seq;
+        }
+    }
+
+    /// Ops held for this session only. Bounded, because they count no store bytes and the byte
+    /// cap is what otherwise bounds the queue.
+    #[must_use]
+    pub fn session_held(&self) -> usize {
+        self.ops.iter().filter(|kept| kept.session_only).count()
+    }
+
+    /// Where the op this plan would replace sits, if it is still there to be replaced. The rule
+    /// `plan` applied holds here too: an op already on its way keeps its place and its store key,
+    /// so a batch that fails still has it, and the server settles the pair by op id.
+    fn replaceable(&self, planned: &Planned) -> Option<usize> {
+        self.replaceable_id(planned.replaces.as_deref())
+    }
+
+    fn replaceable_id(&self, op_id: Option<&str>) -> Option<usize> {
+        let op_id = op_id?;
+        if self.in_flight.iter().any(|sent| sent == op_id) {
+            return None;
+        }
+        self.ops.iter().position(|kept| kept.op.op_id == op_id)
     }
 
     fn position_slot(&self, op: &CommandOp, scope: Option<&str>) -> Option<usize> {
@@ -205,8 +308,8 @@ impl Queue {
         Some(CommandBatch { ops })
     }
 
-    /// Clear what the server answered. Returns the keys that left. An op left out of the answer
-    /// stays for the next batch.
+    /// Clear what the server answered. Returns the store keys that left — a session-held op was
+    /// never written, so it has none. An op left out of the answer stays for the next batch.
     pub fn acknowledge(&mut self, answers: &[OpAnswer], mono_ms: u64) -> Vec<String> {
         let settled = |kept: &Kept| {
             answers.iter().any(|answer| {
@@ -220,7 +323,7 @@ impl Queue {
         let keys: Vec<String> = self
             .ops
             .iter()
-            .filter(|kept| settled(kept))
+            .filter(|kept| settled(kept) && !kept.session_only)
             .map(Kept::key)
             .collect();
         self.ops.retain(|kept| !settled(kept));
@@ -249,12 +352,17 @@ impl Queue {
         self.flush_at = wait_ms.map(|wait| mono_ms + wait);
     }
 
-    /// Forget everything. Returns the keys to delete.
+    /// Forget everything. Returns the keys to delete, which a session-held op has none of.
     pub fn clear(&mut self) -> Vec<String> {
         self.in_flight.clear();
         self.flush_at = None;
         self.backoff.reset();
-        let keys = self.ops.iter().map(Kept::key).collect();
+        let keys = self
+            .ops
+            .iter()
+            .filter(|kept| !kept.session_only)
+            .map(Kept::key)
+            .collect();
         self.ops.clear();
         keys
     }

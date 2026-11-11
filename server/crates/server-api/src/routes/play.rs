@@ -234,20 +234,26 @@ pub async fn events(
     Body(asked): Body<PlayEvents>,
 ) -> ApiResult<Response> {
     gate(&state)?.check(&id, &watching.scope)?;
-    if let Some(log) = &state.play_log {
-        log.events(watching.scope.profile(), &asked.events).await;
+    // Playback telemetry is a write that exists to learn from this person, so it is reached only
+    // through the writer that took their answer. With consent off nothing is written and the call
+    // still answers done, as the feed path does for a discarded signal.
+    if let Some(learned) = state.learned(&watching.scope) {
+        learned.play_events(&asked.events).await;
     }
     send(&headers, &Done { done: true }, Keep::Never)
 }
 
-/// `POST /v1/reports`.
+/// `POST /v1/reports`: a build, a code and the client's own words about a failure. It carries no
+/// profile and no account column (`0110_play.sql:19`), so it is not a record of a person's
+/// viewing and the personal-rows answer does not govern it; it is kept 30 days like the rest of
+/// `client_reports`.
 pub async fn report(
     State(state): State<Shared>,
     Caller(_): Caller,
     headers: HeaderMap,
     Body(asked): Body<Report>,
 ) -> ApiResult<Response> {
-    if let Some(log) = &state.play_log {
+    if let Some(log) = state.log_of_no_one() {
         log.report(&asked).await;
     }
     send(&headers, &Done { done: true }, Keep::Never)

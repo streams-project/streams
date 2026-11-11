@@ -389,12 +389,26 @@ impl AuthService for BuiltInAuth {
         Ok(())
     }
 
+    /// Remove the person. Every table keyed to the account goes with the row by cascade; the one
+    /// table that is keyed to the address instead, `auth.login_codes`, has no foreign key and is
+    /// removed here by name, inside the same transaction, so a code still in flight cannot keep
+    /// the address of a deleted account. `holdings::HELD` names this function as the remover.
     async fn delete(&self, account: AccountId) -> Result<(), AuthError> {
+        let mut tx = self.pool.begin().await.map_err(gone)?;
+        sqlx::query(
+            "delete from auth.login_codes \
+             where email in (select lower(email) from auth.users where id = $1)",
+        )
+        .bind(account.0)
+        .execute(&mut *tx)
+        .await
+        .map_err(gone)?;
         sqlx::query("delete from auth.users where id = $1")
             .bind(account.0)
-            .execute(&self.pool)
+            .execute(&mut *tx)
             .await
             .map_err(gone)?;
+        tx.commit().await.map_err(gone)?;
         Ok(())
     }
 

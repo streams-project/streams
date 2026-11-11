@@ -1,11 +1,12 @@
 //! The account store in memory, for tests and for checks with no database.
 
 use std::collections::HashMap;
-use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
 
+use crate::clock::{Clock, SystemClock};
 use crate::pin::{self, PinCheck, PinOutcome, PinRow};
 use crate::profile::{
     AccountId, NewAccount, Profile, ProfileId, ProfileKind, ProfileLimitsRow, ProfilePatch,
@@ -26,16 +27,32 @@ struct Rows {
     pins: HashMap<ProfileId, PinRow>,
     /// The key each device keeps for itself, as Postgres keeps it in `account_devices`.
     devices: HashMap<(AccountId, String), SessionId>,
-    events: Vec<(AccountId, String)>,
+    /// The audit log: the account, the event and the time it was written, so the retention this
+    /// store is asked for can be the retention it keeps.
+    events: Vec<(AccountId, String, u64)>,
     device_codes: Vec<DeviceCodeRow>,
     names: HashMap<AccountId, AccountNames>,
+    /// `account_details.profile_transfer`: absent counts as the column's default, true.
+    transfer_off: HashMap<AccountId, bool>,
 }
 
 /// Rows in a mutex. A test can stop it to prove an outage is not read as a sign out.
-#[derive(Default)]
 pub struct MemoryStore {
     rows: Mutex<Rows>,
     down: AtomicBool,
+    /// Stamps the audit rows. Postgres stamps them with `now()`; this store is given a clock so
+    /// the same prune call means the same thing on both.
+    clock: Arc<dyn Clock>,
+}
+
+impl Default for MemoryStore {
+    fn default() -> Self {
+        Self {
+            rows: Mutex::default(),
+            down: AtomicBool::default(),
+            clock: Arc::new(SystemClock),
+        }
+    }
 }
 
 impl std::fmt::Debug for MemoryStore {
@@ -49,6 +66,26 @@ impl MemoryStore {
     #[must_use]
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// An empty store whose audit rows are stamped by this clock.
+    #[must_use]
+    pub fn with_clock(clock: Arc<dyn Clock>) -> Self {
+        Self {
+            clock,
+            ..Self::default()
+        }
+    }
+
+    /// Turn the account holder's answer about moving a profile on or off. The column exists and
+    /// no route writes it, so this stands for an operator setting it by hand, which is the only
+    /// way it is set today.
+    pub fn set_profile_transfer(&self, account: AccountId, allowed: bool) {
+        self.rows
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .transfer_off
+            .insert(account, allowed);
     }
 
     /// Make every call fail as an outage, or work again.
@@ -75,8 +112,8 @@ impl MemoryStore {
             .unwrap_or_else(std::sync::PoisonError::into_inner);
         rows.events
             .iter()
-            .filter(|(owner, _)| *owner == account)
-            .map(|(_, event)| event.clone())
+            .filter(|(owner, _, _)| *owner == account)
+            .map(|(_, event, _)| event.clone())
             .collect()
     }
 
@@ -337,6 +374,7 @@ impl AccountStore for MemoryStore {
         let Some(row) = rows.pins.get(&profile).cloned() else {
             return Ok(PinOutcome::Pass);
         };
+        let at = self.clock.now_ms();
         let (outcome, next) = pin::decide(&row, check);
         if let Some(next) = next {
             let locked =
@@ -345,7 +383,7 @@ impl AccountStore for MemoryStore {
             if locked {
                 let owner = rows.profiles.get(&profile).map(|row| row.account);
                 if let Some(owner) = owner {
-                    rows.events.push((owner, String::from("pin_locked")));
+                    rows.events.push((owner, String::from("pin_locked"), at));
                 }
             }
         }
@@ -406,7 +444,8 @@ impl AccountStore for MemoryStore {
     }
 
     async fn log_event(&self, account: AccountId, event: &str) -> StoreResult<()> {
-        self.guard()?.events.push((account, event.to_owned()));
+        let at = self.clock.now_ms();
+        self.guard()?.events.push((account, event.to_owned(), at));
         Ok(())
     }
 
@@ -416,13 +455,20 @@ impl AccountStore for MemoryStore {
             .events
             .iter()
             .rev()
-            .filter(|(owner, _)| *owner == account);
-        Ok(mine.take(limit).map(|(_, event)| event.clone()).collect())
+            .filter(|(owner, _, _)| *owner == account);
+        Ok(mine
+            .take(limit)
+            .map(|(_, event, _)| event.clone())
+            .collect())
     }
 
     async fn names(&self, account: AccountId) -> StoreResult<AccountNames> {
         let rows = self.guard()?;
         Ok(rows.names.get(&account).cloned().unwrap_or_default())
+    }
+
+    async fn profile_transfer_allowed(&self, account: AccountId) -> StoreResult<bool> {
+        Ok(*self.guard()?.transfer_off.get(&account).unwrap_or(&true))
     }
 
     async fn set_names(
@@ -441,14 +487,40 @@ impl AccountStore for MemoryStore {
         Ok(())
     }
 
+    /// Every row of the account goes, which is what the foreign keys do in Postgres. The rows
+    /// keyed to a profile or a session of this account have to be found first, because nothing in
+    /// this store holds the account on them: `profile_pins` is keyed by profile, and the card in
+    /// `device_sessions` by session. Leaving either behind made the double answer differently
+    /// from the database it stands in for, and account deletion is only ever tested on the
+    /// double.
     async fn delete_account(&self, account: AccountId) -> StoreResult<()> {
         let mut rows = self.guard()?;
+        let profiles: Vec<ProfileId> = rows
+            .profiles
+            .values()
+            .filter(|row| row.account == account)
+            .map(|row| row.id)
+            .collect();
+        let sessions: Vec<SessionId> = rows
+            .sessions
+            .values()
+            .filter(|row| row.account == account)
+            .map(|row| row.id)
+            .collect();
         rows.accounts.remove(&account);
         rows.names.remove(&account);
+        rows.transfer_off.remove(&account);
+        for profile in profiles {
+            rows.pins.remove(&profile);
+        }
+        for session in sessions {
+            rows.cards.remove(&session);
+        }
         rows.sessions.retain(|_, row| row.account != account);
         rows.profiles.retain(|_, row| row.account != account);
-        rows.events.retain(|(owner, _)| *owner != account);
+        rows.events.retain(|(owner, _, _)| *owner != account);
         rows.devices.retain(|(owner, _), _| *owner != account);
+        rows.device_codes.retain(|row| row.account != Some(account));
         Ok(())
     }
 
@@ -557,13 +629,23 @@ impl AccountStore for MemoryStore {
         Ok(rows.device_codes.len() < before)
     }
 
-    async fn prune(&self, idle_before_ms: u64, _: u64, now_ms: u64) -> StoreResult<u64> {
+    /// Sessions unused since a time, audit rows older than a time, and device codes past their
+    /// life. The audit row half was taken and dropped before, so the 365 day rule was proved on
+    /// no store that CI runs.
+    async fn prune(
+        &self,
+        idle_before_ms: u64,
+        events_before_ms: u64,
+        now_ms: u64,
+    ) -> StoreResult<u64> {
         let mut rows = self.guard()?;
-        let before = rows.sessions.len() + rows.device_codes.len();
+        let before = rows.sessions.len() + rows.device_codes.len() + rows.events.len();
         rows.sessions
             .retain(|_, row| row.last_seen_ms >= idle_before_ms);
         rows.device_codes.retain(|row| row.expires_ms > now_ms);
-        Ok((before - rows.sessions.len() - rows.device_codes.len()) as u64)
+        rows.events.retain(|(_, _, at)| *at >= events_before_ms);
+        let after = rows.sessions.len() + rows.device_codes.len() + rows.events.len();
+        Ok((before - after) as u64)
     }
 
     async fn card(&self, session: SessionId) -> StoreResult<Option<serde_json::Value>> {

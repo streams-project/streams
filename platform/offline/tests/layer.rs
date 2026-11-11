@@ -11,6 +11,7 @@ use contract::core_msg::{
 };
 use contract::version::WireDate;
 use core_rules::Step;
+use offline::queue::SESSION_MAX;
 use offline::{Config, Layer};
 use serde_json::json;
 
@@ -123,15 +124,72 @@ fn command(id: &str, scope: &str, ops: &str) -> Effect {
 
 /// One position op of this run, as the core would write it in a batch.
 fn position_op(n: u64) -> String {
+    position_at(n, n, 30)
+}
+
+/// A position op of this run on a named title, at a named second.
+fn position_at(n: u64, title: u64, seconds: u32) -> String {
     json!({
         "op_id": format!("op-{n}"),
         "age_ms": 0,
         "command": "position",
-        "title": format!("movie:{n}"),
-        "position_s": 30,
+        "title": format!("movie:{title}"),
+        "position_s": seconds,
         "duration_s": 600,
     })
     .to_string()
+}
+
+/// One list op of this run. Nothing re-sends a list change: there is no heartbeat for it.
+fn list_op(n: u64) -> String {
+    json!({
+        "op_id": format!("op-{n}"),
+        "age_ms": 0,
+        "command": "list",
+        "title": format!("movie:{n}"),
+        "in_list": true,
+    })
+    .to_string()
+}
+
+/// The text of the queue item this step wrote to the store.
+fn queue_put(out: &CoreOut) -> Option<String> {
+    out.effects.iter().find_map(|effect| match &effect.body {
+        EffectBody::Store {
+            op: StoreOp::Put,
+            key: Some(key),
+            value: Some(value),
+        } if key.starts_with("q/") => Some(value.clone()),
+        _ => None,
+    })
+}
+
+/// True when this step asked the store to delete this key.
+fn deleted(out: &CoreOut, key: &str) -> bool {
+    out.effects.iter().any(|effect| {
+        matches!(
+            &effect.body,
+            EffectBody::Store { op: StoreOp::Delete, key: Some(held), .. } if held == key
+        )
+    })
+}
+
+/// The ops of the batch this layer sent, in order.
+fn sent_ops(tape: &Rc<RefCell<Tape>>) -> String {
+    requests(tape)
+        .iter()
+        .find(|(method, path, _)| *method == HttpMethod::Post && path == "/v1/commands")
+        .map(|(_, _, body)| body.clone().unwrap_or_default())
+        .unwrap_or_default()
+}
+
+/// Bytes one queue item takes in the store, measured from a layer with room to spare.
+fn item_bytes(ops: &str) -> u64 {
+    let (mut layer, tape) = with_cap(100_000);
+    tape.borrow_mut().effects = vec![command("m1", "u1/p1", ops)];
+    let out = step(&mut layer, 2_000, Vec::new());
+    let text = queue_put(&out).expect("the op was written");
+    text.len() as u64
 }
 
 /// True when this step wrote a queue item to the store.
@@ -411,4 +469,132 @@ fn c2_h20_an_op_with_no_room_in_the_store_is_refused_and_does_not_wait_in_the_qu
             "op-{n} goes out only if it was kept: {batch}"
         );
     }
+}
+
+#[test]
+fn c2_h20_a_refused_position_leaves_the_one_it_would_have_replaced_in_the_store() {
+    // The store holds exactly one op. A newer position of the same title is two bytes longer, so
+    // it is refused even after the older one's bytes are credited back. Nothing may be deleted:
+    // the op that is still in the queue is the only copy of that position anywhere.
+    let first = position_at(1, 7, 30);
+    let (mut layer, tape) = with_cap(item_bytes(&first));
+    tape.borrow_mut().effects = vec![command("e1", "u1/p1", &first)];
+    let out = step(&mut layer, 2_000, Vec::new());
+    let key = String::from("q/0000000000000000");
+    assert!(queue_put(&out).is_some(), "the first position is written");
+
+    tape.borrow_mut().effects = vec![command("e2", "u1/p1", &position_at(2, 7, 3_000))];
+    let out = step(&mut layer, 2_100, Vec::new());
+    assert!(
+        queue_put(&out).is_none(),
+        "there is no room for the newer one"
+    );
+    assert!(
+        !deleted(&out, &key),
+        "the position still in the queue keeps its store key: {:?}",
+        out.effects
+    );
+    assert!(
+        no_answer(&tape).contains(&String::from("e2")),
+        "the refusal is reported"
+    );
+
+    tape.borrow_mut().view = Some(signed_in("u1/p1"));
+    step(&mut layer, 9_000, Vec::new());
+    let batch = sent_ops(&tape);
+    assert!(
+        batch.contains("\"op-1\""),
+        "the kept position goes out: {batch}"
+    );
+    assert!(
+        !batch.contains("\"op-2\""),
+        "the refused one does not: {batch}"
+    );
+}
+
+#[test]
+fn c2_h20_one_refused_op_fails_the_answer_for_the_whole_batch() {
+    // One answer per batch, so a batch where one op is refused is answered as taken by none.
+    // The ops that did fit stay queued and go out, which is what this pins: the core logs every
+    // op of this batch as dropped while the first is in fact kept and will be applied.
+    let (mut layer, tape) = with_cap(item_bytes(&position_op(1)));
+    let two = format!("{},{}", position_op(1), position_op(2));
+    tape.borrow_mut().effects = vec![command("e1", "u1/p1", &two)];
+    let out = step(&mut layer, 2_000, Vec::new());
+    assert!(queue_put(&out).is_some(), "the first op fits");
+    assert!(
+        answers(&tape)
+            .iter()
+            .all(|(id, status, _)| !(id == "e1" && *status == 202)),
+        "a batch with a refused op is not answered as taken: {:?}",
+        answers(&tape)
+    );
+    assert!(no_answer(&tape).contains(&String::from("e1")));
+
+    tape.borrow_mut().view = Some(signed_in("u1/p1"));
+    step(&mut layer, 9_000, Vec::new());
+    let batch = sent_ops(&tape);
+    assert!(
+        batch.contains("\"op-1\""),
+        "the op that fit goes out: {batch}"
+    );
+    assert!(
+        !batch.contains("\"op-2\""),
+        "the refused one does not: {batch}"
+    );
+}
+
+#[test]
+fn c2_h20_a_command_nothing_resends_is_held_for_the_session_when_the_store_is_full() {
+    // A full store must not lose what a device with no layer at all would have delivered. A
+    // position is refused, because the next heartbeat carries a newer one; a list change is sent
+    // once and nothing re-sends it, so it is held for this session, written nowhere, counted
+    // nowhere, and gone on the next start.
+    let (mut layer, tape) = with_cap(item_bytes(&position_op(1)));
+    tape.borrow_mut().effects = vec![command("e1", "u1/p1", &position_op(1))];
+    step(&mut layer, 2_000, Vec::new());
+
+    tape.borrow_mut().effects = vec![command("e2", "u1/p1", &list_op(2))];
+    let out = step(&mut layer, 2_100, Vec::new());
+    assert!(
+        queue_put(&out).is_none(),
+        "there is no room to write it: {:?}",
+        out.effects
+    );
+    assert!(
+        answers(&tape)
+            .iter()
+            .any(|(id, status, _)| id == "e2" && *status == 202),
+        "it is taken, because it will go out: {:?}",
+        answers(&tape)
+    );
+    assert!(!no_answer(&tape).contains(&String::from("e2")));
+
+    tape.borrow_mut().view = Some(signed_in("u1/p1"));
+    step(&mut layer, 9_000, Vec::new());
+    let batch = sent_ops(&tape);
+    assert!(
+        batch.contains("\"op-2\""),
+        "the list change goes out: {batch}"
+    );
+}
+
+#[test]
+fn c2_h20_ops_held_for_the_session_are_capped_so_a_full_store_is_not_unbounded_memory() {
+    let (mut layer, tape) = with_cap(item_bytes(&position_op(1)));
+    tape.borrow_mut().effects = vec![command("e0", "u1/p1", &position_op(1))];
+    step(&mut layer, 2_000, Vec::new());
+    for n in 1..=SESSION_MAX as u64 {
+        let id = format!("e{n}");
+        tape.borrow_mut().effects = vec![command(&id, "u1/p1", &list_op(100 + n))];
+        step(&mut layer, 3_000 + n, Vec::new());
+        assert!(!no_answer(&tape).contains(&id), "op {n} is held");
+    }
+    let last = String::from("e-over");
+    tape.borrow_mut().effects = vec![command(&last, "u1/p1", &list_op(999))];
+    step(&mut layer, 4_000, Vec::new());
+    assert!(
+        no_answer(&tape).contains(&last),
+        "past the cap the op is refused rather than held"
+    );
 }

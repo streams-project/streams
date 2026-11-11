@@ -11,6 +11,15 @@ use rand::Rng;
 use sha2::{Digest, Sha256};
 
 const VERSION: &str = "18.6.1";
+/// The most this will hold in memory for one archive. The macOS x86-64 build of this version is
+/// 92,085,423 bytes (its release `Content-Length`, read 2026-11-11), so this is a ceiling with
+/// room for a larger build of another machine and not a second pin on the body.
+///
+/// The hash below is what makes a substituted archive useless, and it still is: this cap is not
+/// there to catch a wrong body but to stop an unbounded one. Reading a body whole before anything
+/// judges it was the only read in this program with no size at all, so what a server that answered
+/// for ever cost was this process's memory, before the hash ever got a look.
+const ARCHIVE_MAX_BYTES: usize = 256 * 1024 * 1024;
 const RELEASES: &str = "https://github.com/theseus-rs/postgresql-binaries/releases/download";
 const USER: &str = "postgres";
 
@@ -80,8 +89,7 @@ pub async fn install(cache: &Path) -> Result<PathBuf> {
         return Ok(bin);
     }
     let url = format!("{RELEASES}/{VERSION}/{name}.tar.gz");
-    let answer = reqwest::get(&url).await?.error_for_status()?;
-    let archive = answer.bytes().await?;
+    let archive = fetch_capped(&url, ARCHIVE_MAX_BYTES).await?;
     let found = hex(&Sha256::digest(&archive));
     if found != expected {
         bail!("the database download has hash {found}, expected {expected}");
@@ -92,7 +100,7 @@ pub async fn install(cache: &Path) -> Result<PathBuf> {
     let unpacking = cache.join(format!(".unpacking-{}-{turn}", std::process::id()));
     let _ = std::fs::remove_dir_all(&unpacking);
     std::fs::create_dir_all(&unpacking)?;
-    tar::Archive::new(GzDecoder::new(archive.as_ref()))
+    tar::Archive::new(GzDecoder::new(archive.as_slice()))
         .unpack(&unpacking)
         .context("the database archive did not unpack")?;
     let placed = std::fs::rename(unpacking.join(&name), cache.join(&name));
@@ -104,6 +112,31 @@ pub async fn install(cache: &Path) -> Result<PathBuf> {
         return Err(error.into());
     }
     Ok(bin)
+}
+
+/// Read a body, stopping at the cap rather than holding whatever arrives.
+///
+/// A declared length over the cap is refused before a byte is read, and a body that declares
+/// nothing is stopped at the cap as it arrives, so neither a wrong header nor a missing one buys
+/// more than `cap` bytes of memory.
+///
+/// # Errors
+/// The call failed, the service answered with an error, or the body passed the cap.
+async fn fetch_capped(url: &str, cap: usize) -> Result<Vec<u8>> {
+    let mut answer = reqwest::get(url).await?.error_for_status()?;
+    if let Some(declared) = answer.content_length()
+        && declared > cap as u64
+    {
+        bail!("the database download declares {declared} bytes, over the {cap} this reads");
+    }
+    let mut body: Vec<u8> = Vec::new();
+    while let Some(chunk) = answer.chunk().await? {
+        if body.len() + chunk.len() > cap {
+            bail!("the database download passed {cap} bytes, which is more than this reads");
+        }
+        body.extend_from_slice(&chunk);
+    }
+    Ok(body)
 }
 
 /// A running database. Dropping it stops it.
@@ -241,5 +274,54 @@ mod tests {
             archive_name("linux", "aarch64"),
             "postgresql-18.6.1-aarch64-unknown-linux-gnu"
         );
+    }
+
+    /// One HTTP answer of this many bytes, with or without a length header, over raw TCP: what is
+    /// proved here is what this program does with a body, not what any library does with a URL.
+    async fn serving(bytes: usize, declare: bool) -> String {
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("a port");
+        let url = format!(
+            "http://{}/x.tar.gz",
+            listener.local_addr().expect("address")
+        );
+        tokio::spawn(async move {
+            while let Ok((mut stream, _)) = listener.accept().await {
+                use tokio::io::{AsyncReadExt, AsyncWriteExt};
+                // Read the request first: a server that answers and closes without reading it
+                // resets the connection before the client is done sending.
+                let mut asked = [0u8; 2048];
+                let _ = stream.read(&mut asked).await;
+                let head = if declare {
+                    format!("HTTP/1.1 200 OK\r\nContent-Length: {bytes}\r\n\r\n")
+                } else {
+                    // No length and no chunking: the body is whatever arrives until the close,
+                    // which is the shape a cap on the header alone would not catch.
+                    String::from("HTTP/1.0 200 OK\r\n\r\n")
+                };
+                let _ = stream.write_all(head.as_bytes()).await;
+                let _ = stream.write_all(&vec![b'z'; bytes]).await;
+                let _ = stream.shutdown().await;
+            }
+        });
+        url
+    }
+
+    /// The archive used to be read whole before the hash judged it, so a body of any size cost
+    /// this process's memory first. Both an honest length and none at all now stop at the cap.
+    #[tokio::test]
+    async fn a_download_over_the_cap_is_refused_however_it_declares_itself() {
+        for declare in [true, false] {
+            let url = serving(4096, declare).await;
+            let why = fetch_capped(&url, 1024)
+                .await
+                .expect_err("read over the cap")
+                .to_string();
+            assert!(why.contains("1024"), "{why}");
+        }
+        // And a body within it arrives whole, so the cap is not in the way of the real archive.
+        let url = serving(4096, true).await;
+        assert_eq!(fetch_capped(&url, 4096).await.expect("read").len(), 4096);
     }
 }

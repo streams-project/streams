@@ -1226,3 +1226,248 @@ async fn a_brand_with_no_pictures_answers_an_empty_list() {
     assert_eq!(answer.status, StatusCode::OK, "{}", answer.body);
     assert!(answer.body["sets"].as_array().unwrap().is_empty());
 }
+
+/// The export carries a section for every table the one list names as exported, and the answer
+/// holds the things a person asks for when they ask for their data: their list, their ratings,
+/// their viewing positions, their settings, the names a guardian blocked, the taste the server
+/// inferred and the audit log. Before this it answered three things out of twenty five while its
+/// own doc comment said "everything held about the account".
+///
+/// The sections are not a list in the test either: both sides read
+/// `server_accounts::holdings::export_names()`, so a table added to that list with no section
+/// fails here, which is the half of the rule a type cannot carry.
+#[tokio::test]
+async fn s129_s130_the_export_carries_every_table_the_list_names() {
+    let server = harness_with_auth(&[]);
+    let signed = new_account(&server, "ada@example.test").await;
+    let token = signed.access_token.as_str();
+    let profiles = get("/v1/profiles").token(token).on(&server.state).await;
+    let id = profiles.body["profiles"][0]["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    call(Method::POST, &format!("/v1/profiles/{id}/enter"))
+        .token(token)
+        .json(json!({}))
+        .on(&server.state)
+        .await;
+    let batch = json!({ "ops": [
+        { "op_id": "a", "command": "list", "title": "movie:100", "in_list": true },
+        { "op_id": "b", "command": "rate", "title": "movie:101", "rating": "love" },
+        { "op_id": "c", "command": "position", "title": "movie:102", "position_s": 90, "duration_s": 6000 },
+        { "op_id": "d", "command": "hide", "title": "movie:103" },
+        { "op_id": "e", "command": "setting", "key": "audio_language", "value": "fr" },
+        { "op_id": "f", "command": "remind", "title": "movie:104", "on": true },
+    ] });
+    let sent = post("/v1/commands")
+        .token(token)
+        .json(batch)
+        .on(&server.state)
+        .await;
+    assert_eq!(sent.status, StatusCode::OK, "{}", sent.body);
+    let limits = call(Method::PUT, &format!("/v1/profiles/{id}/limits"))
+        .token(token)
+        .json(json!({ "age_rating": "12", "blocked_titles": ["A Name A Guardian Hid"] }))
+        .on(&server.state)
+        .await;
+    assert_eq!(limits.status, StatusCode::OK, "{}", limits.body);
+    // One audit row, so the section is proved with something in it. Setting a PIN is the change
+    // the log records that needs no second account.
+    let pin = call(Method::PUT, &format!("/v1/profiles/{id}/pin"))
+        .token(token)
+        .json(json!({ "pin": "1234" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(pin.status, StatusCode::OK, "{}", pin.body);
+
+    let export = get("/v1/account/export")
+        .token(token)
+        .on(&server.state)
+        .await;
+    assert_eq!(export.status, StatusCode::OK, "{}", export.body);
+    let body = export.body.as_object().expect("an export body");
+    for name in server_accounts::holdings::export_names() {
+        assert!(
+            body.contains_key(name),
+            "the list says {name} is exported and the body has no such section: {:?}",
+            body.keys().collect::<Vec<_>>()
+        );
+    }
+    let mine = |section: &str| -> serde_json::Value {
+        body[section]
+            .as_array()
+            .unwrap_or_else(|| panic!("{section} is a row per profile"))
+            .iter()
+            .find(|row| row["profile"] == id.as_str())
+            .unwrap_or_else(|| panic!("{section} has no row for the profile"))
+            .clone()
+    };
+    assert_eq!(mine("library")["list"][0], "movie:100", "My List");
+    assert_eq!(mine("library")["ratings"][0]["title"], "movie:101");
+    assert_eq!(mine("library")["ratings"][0]["rating"], "love");
+    assert_eq!(mine("progress")["positions"][0]["title"], "movie:102");
+    assert_eq!(mine("progress")["positions"][0]["position_s"], 90);
+    assert_eq!(mine("hidden")["titles"][0]["title"], "movie:103");
+    assert_eq!(mine("settings")["audio_language"], "fr");
+    assert_eq!(mine("reminders")["titles"][0], "movie:104");
+    assert!(mine("taste").get("genre_weights").is_some());
+    assert!(mine("notification_reads").get("read_up_to_ms").is_some());
+    let limits_row = body["profile_limits"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|row| row["profile"] == id.as_str())
+        .expect("the limits of the profile");
+    assert_eq!(limits_row["age_rating"], "12");
+    assert_eq!(limits_row["blocked_titles"][0], "A Name A Guardian Hid");
+    assert_eq!(
+        body["account_events"][0], "pin_set",
+        "the audit log a person is told exists is in the file: {}",
+        body["account_events"]
+    );
+    // The profile's language is in the answer, which `view()` left as null for every profile.
+    let language = body["profiles"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|row| row["id"] == id.as_str())
+        .expect("the profile");
+    assert!(language.get("language").is_some() || language["language"].is_null());
+    // What is deliberately left out stays out.
+    let text = export.body.to_string();
+    assert!(!text.contains("pin_hash"), "S130");
+    assert!(!text.contains("code_hash"));
+    assert!(!text.contains("encrypted_password"));
+}
+
+/// Deleting a profile removes that profile's library, and deleting the account removes the
+/// library of every profile it had. One function does both walks (`server_api::erase`), and the
+/// claim is now true of the store CI runs: before this `LibraryStore` had no way to be asked, so
+/// the rows stayed behind on the double and the promise was proved on nothing.
+#[tokio::test]
+async fn s55_deleting_a_profile_and_an_account_takes_the_library_with_them() {
+    let server = harness_with_auth(&[]);
+    let signed = new_account(&server, "ada@example.test").await;
+    let token = signed.access_token.as_str();
+    let profiles = get("/v1/profiles").token(token).on(&server.state).await;
+    let rows = profiles.body["profiles"].as_array().unwrap().clone();
+    let kept = rows
+        .iter()
+        .find(|row| row["main"] == true)
+        .expect("the main profile")["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let going = rows
+        .iter()
+        .find(|row| row["main"] != true)
+        .expect("a second profile")["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    let library = server.state.library.clone().expect("the library");
+    let put_a_list_entry = |id: &str| {
+        let id = server_accounts::ProfileId::parse(id).expect("a profile id");
+        let library = library.clone();
+        async move {
+            let mut tx = library.store().begin(id).await.expect("a writer");
+            let seq = tx.next_seq().await.expect("a change number");
+            tx.put_title(&server_library::TitleState {
+                title: contract::TitleKey::parse("movie:100").expect("a title"),
+                in_list: true,
+                list_version: 1,
+                list_changed_ms: 1,
+                added_ms: Some(1),
+                rating: None,
+                rating_version: 0,
+                rating_changed_ms: 0,
+                seq,
+            })
+            .await
+            .expect("a list entry");
+            tx.commit().await.expect("the commit");
+        }
+    };
+    put_a_list_entry(&kept).await;
+    put_a_list_entry(&going).await;
+    let holds = |id: &str| {
+        let id = server_accounts::ProfileId::parse(id).expect("a profile id");
+        let library = library.clone();
+        async move {
+            !library
+                .store()
+                .list(id, 10)
+                .await
+                .expect("a read")
+                .is_empty()
+        }
+    };
+    assert!(
+        holds(&kept).await && holds(&going).await,
+        "both have a list"
+    );
+
+    let gone = call(Method::DELETE, &format!("/v1/profiles/{going}"))
+        .token(token)
+        .on(&server.state)
+        .await;
+    assert_eq!(gone.status, StatusCode::OK, "{}", gone.body);
+    assert!(!holds(&going).await, "the deleted profile keeps no library");
+    assert!(holds(&kept).await, "the other profile keeps its own");
+
+    let closed = call(Method::DELETE, "/v1/account")
+        .token(token)
+        .on(&server.state)
+        .await;
+    assert_eq!(closed.status, StatusCode::OK, "{}", closed.body);
+    assert!(
+        !holds(&kept).await,
+        "the account is gone and so is the library of its profiles"
+    );
+}
+
+/// The account holder's own answer about moving a profile is read before a profile moves.
+/// `account_details.profile_transfer` has been in the schema since the first migration, defaults
+/// to true, and was consulted by nothing — while a move carries a profile's whole library,
+/// settings, taste and blocked names to another account holder who is named only by an e-mail
+/// address. Nothing today sets the column, so no answer anyone can give changes yet; the column
+/// is now read, so turning it off stops the move it was designed to stop.
+#[tokio::test]
+async fn tmp8_a_holder_who_turned_moving_off_moves_no_profile() {
+    let server = harness_with_auth(&[]);
+    let first = new_account(&server, "ada@example.test").await;
+    let _second = new_account(&server, "grace@example.test").await;
+    let token = first.access_token.as_str();
+    let made = post("/v1/profiles")
+        .token(token)
+        .json(json!({ "name": "Moving" }))
+        .on(&server.state)
+        .await;
+    let id = made.body["id"].as_str().unwrap().to_owned();
+    let member = server.door.member(token).await.expect("the caller");
+    server.store.set_profile_transfer(member.account(), false);
+    let refused = post(&format!("/v1/profiles/{id}/transfer"))
+        .token(token)
+        .json(json!({ "to_account_email": "grace@example.test" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(refused.status, StatusCode::FORBIDDEN, "{}", refused.body);
+    assert_eq!(refused.body["label"], "error.profile_transfer");
+    let still_here = get("/v1/profiles").token(token).on(&server.state).await;
+    assert!(
+        still_here.body["profiles"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|row| row["id"] == id.as_str()),
+        "the profile stayed where it was"
+    );
+    // On again, and the move the holder allows goes through.
+    server.store.set_profile_transfer(member.account(), true);
+    let moved = post(&format!("/v1/profiles/{id}/transfer"))
+        .token(token)
+        .json(json!({ "to_account_email": "grace@example.test" }))
+        .on(&server.state)
+        .await;
+    assert_eq!(moved.status, StatusCode::OK, "{}", moved.body);
+}

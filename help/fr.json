@@ -2,6 +2,7 @@
   "articles": {
     "accessibility": {
       "body": "- <b>Sous-titres.</b> Choisissez la langue dans <b>Langues</b> de votre profil, et la taille, la couleur et l'arrière-plan dans <b>Apparence des sous-titres</b>. Consultez <a=/help/article/subtitles>Comment utiliser les sous-titres ou choisir la langue audio</a>.\n- <b>Clavier.</b> Utilisez <b>Tab</b> pour passer d'une commande à l'autre et <b>Échap</b> pour fermer les fenêtres. Le lecteur a ses propres touches, consultez <a=/help/article/shortcuts>Raccourcis clavier</a>.\n- <b>Taille du texte.</b> Zoomez dans votre navigateur avec <b>Ctrl</b> et <b>+</b> (<b>Cmd</b> et <b>+</b> sur Mac). La mise en page s'adapte.\n- <b>Animations.</b> Si votre appareil demande de réduire les animations, le logo animé reste immobile.\n\nSi quelque chose est difficile à utiliser, dites-le-nous sur la page <a=/help/article/report-bug>Signaler un problème</a>. Nous prenons ces signalements au sérieux.",
+      "from": "3830ee42515f5d78",
       "keywords": "accessibilité lecteur d'écran clavier sous-titres légendes taille contraste zoom mouvement réduit handicap",
       "related": [
         "subtitles",
@@ -15,6 +16,7 @@
     },
     "autoplay-blocked": {
       "body": "Les navigateurs n'autorisent pas une page à lancer une vidéo avec le son tant que vous n'avez pas cliqué ou touché la page. {brand} essaie d'abord de démarrer avec le son. Si le navigateur refuse, la vidéo démarre sans le son et affiche le haut-parleur barré. Rétablissez le son avec <b>M</b> ou le bouton du haut-parleur.\n\n- Pour que les aperçus ne démarrent plus seuls, désactivez <b>Lecture automatique des aperçus</b> dans les <b>Paramètres de lecture</b> de votre profil.\n- Si un titre ne démarre jamais, consultez <a=/help/article/wont-play>Un titre ne se lance pas</a>.",
+      "from": "2a0ce5be04ae6874",
       "keywords": "lecture automatique bloquée muet démarrage politique navigateur son lecture auto aperçus bande-annonce",
       "related": [
         "no-sound",
@@ -28,6 +30,7 @@
     },
     "black-screen": {
       "body": "1. Appuyez sur <b>F</b> pour quitter puis réactiver le plein écran, ou appuyez sur <b>Esc</b> et relancez la lecture.\n2. Rechargez la page.\n3. Désactivez l'accélération matérielle dans les paramètres de votre navigateur, redémarrez le navigateur et réessayez.\n4. Mettez à jour votre navigateur et votre pilote graphique.\n5. Essayez un autre navigateur.\n\n!! Note : Certaines extensions de navigateur qui modifient les couleurs de la page ou bloquent les médias peuvent aussi masquer l'image. Voir <a=/help/article/extensions-blockers>Extensions qui bloquent le lecteur</a>.\n\n@@ diagnostics",
+      "from": "d22ce77a6ea32aba",
       "keywords": "écran noir pas d'image audio seul vidéo manquante écran vert",
       "related": [
         "wont-play",
@@ -41,6 +44,7 @@
     },
     "browse-language": {
       "body": "1. Ouvrez <b>Parcourir par langue</b> dans la barre du haut.\n2. <b>Langue originale</b> est déjà sélectionnée. Choisissez une langue pour voir les titres tournés à l'origine dans cette langue.\n\n!! Remarque : La page classe les titres selon leur langue originale. Le doublage et les sous-titres dépendent de la source de chaque titre et apparaissent dans <b>Audio & sous-titres</b> pendant la lecture.",
+      "from": "947d6f269f5ea296",
       "keywords": "parcourir par langue langue originale étranger international cinéma du monde anime coréen espagnol",
       "related": [
         "language",
@@ -54,6 +58,7 @@
     },
     "buffering": {
       "body": "Un flux se met en pause lorsque votre connexion transmet les données plus lentement que la vidéo ne l'exige.\n\n- Fermez les autres onglets, téléchargements et appareils utilisant le même réseau.\n- Rapprochez-vous du routeur ou utilisez un câble.\n- Mettez en pause pendant une minute pour que le lecteur puisse charger à l'avance, puis appuyez sur lecture.\n- Désactivez un VPN, ou choisissez un serveur plus proche dans le VPN.\n- Réessayez plus tard. Les sources sont plus lentes aux heures de pointe.\n\nLa source détermine le niveau de qualité proposé, donc la netteté de l'image peut changer pendant la lecture.\n\n@@ diagnostics",
+      "from": "356cbb6bd33c7928",
       "keywords": "mise en mémoire tampon lenteur lent gel saccades chargement indicateur de chargement vitesse de connexion qualité",
       "related": [
         "wont-play",
@@ -67,6 +72,7 @@
     },
     "change-email-password": {
       "body": "Ouvrez le menu du profil et choisissez <b>Compte</b>. Vos informations se trouvent sous <b>Détails du compte</b>. Avant un changement, nous pouvons vous demander de confirmer qu'il s'agit bien de vous, avec votre mot de passe ou un code envoyé par e-mail.\n\n## Mot de passe\n1. Choisissez <b>Mot de passe</b>.\n2. Saisissez votre mot de passe actuel, puis le nouveau deux fois. Il doit comporter au moins 8 caractères.\n3. Activez <b>Se déconnecter de tous les appareils</b> si quelqu'un d'autre pourrait connaître l'ancien mot de passe, puis choisissez <b>Enregistrer</b>.\n\n## E-mail\n1. Choisissez <b>E-mail</b> et saisissez la nouvelle adresse.\n2. Ouvrez le lien envoyé à la nouvelle adresse pour terminer le changement.\n\n## Téléphone mobile et nom\nChoisissez <b>Téléphone mobile</b> pour ajouter un numéro qui vous aide à récupérer votre compte, ou <b>Nom</b> pour changer votre nom. Le profil principal suit votre prénom.",
+      "from": "c667d4075dac9a1b",
       "keywords": "changer e-mail changer mot de passe modifier mot de passe téléphone mobile informations du compte nom sécurité",
       "related": [
         "forgot-password",
@@ -80,6 +86,7 @@
     },
     "clear-data": {
       "body": "Effacer les données du site dans un navigateur vous déconnecte de ce navigateur et supprime la copie de vos profils et réglages qu'il garde. Tout reste dans votre compte et revient quand vous vous reconnectez.\n\n## Chrome, Edge et Brave\n1. Sélectionnez l'icône d'informations du site à gauche de la barre d'adresse et choisissez <b>Cookies et données de site</b>, puis <b>Gérer les données de site sur l'appareil</b>.\n2. Supprimez les entrées de ce site.\n\n## Firefox\n1. Sélectionnez l'icône du cadenas dans la barre d'adresse et choisissez <b>Effacer les cookies et les données de site</b>.\n\n## Safari sur Mac\n1. Ouvrez <b>Safari</b>, puis <b>Réglages</b>, <b>Confidentialité</b> et <b>Gérer les données de sites web</b>.\n2. Trouvez ce site et choisissez <b>Supprimer</b>.\n\n## Safari sur iPhone et iPad\nOuvrez l'app <b>Réglages</b>, puis <b>Apps</b>, <b>Safari</b>, <b>Avancé</b>, <b>Données de sites</b>, et supprimez ce site.\n\n## Effacer des données de votre compte\n- Pour retirer des titres de votre activité de visionnage, consultez <a=/help/article/viewing-history>Comment gérer votre historique de visionnage</a>.\n- Pour supprimer un profil, consultez <a=/help/article/profiles-manage>Comment créer, modifier ou supprimer des profils</a>.\n- Pour tout supprimer, consultez <a=/help/article/delete-account>Supprimer votre compte</a>.\n\n@@ data",
+      "from": "50d64be1034279e1",
       "keywords": "effacer supprimer réinitialiser retirer données historique cache stockage cookies recommencer",
       "related": [
         "saved-data",
@@ -93,6 +100,7 @@
     },
     "clips": {
       "body": "<b>Extraits</b> affiche de courts aperçus les uns après les autres, dans la barre inférieure sur téléphone.\n\n1. Faites défiler ou balayez l'écran pour passer à l'extrait suivant.\n2. Sélectionnez le bouton haut-parleur pour activer ou couper le son. Les extraits démarrent en sourdine.\n3. Sélectionnez <b>Ma liste</b> pour enregistrer le titre, <b>Lecture</b> pour le regarder, ou <b>Infos</b> pour en savoir plus.",
+      "from": "6f6634e465f1cd2d",
       "keywords": "extraits clips courts aperçus défiler vertical bandes-annonces son muet infos ma liste",
       "related": [
         "trailers-clips",
@@ -106,6 +114,7 @@
     },
     "continue-watching": {
       "body": "Les titres que vous avez commencés apparaissent dans la rangée <b>Reprendre la lecture</b>, avec une barre qui montre où vous en êtes. Elle se trouve aussi dans <b>Mon {brand}</b>.\n\n## Reprendre\nSélectionnez le titre. La lecture reprend là où vous vous êtes arrêté, sur n'importe quel appareil où vous êtes connecté.\n\n## Retirer un titre de la rangée\n1. Ouvrez le menu d'options de la vignette du titre.\n2. Choisissez <b>Retirer de Reprendre la lecture</b>.\n\nPour retirer aussi un titre de votre activité de visionnage, consultez <a=/help/article/viewing-history>Comment gérer votre historique de visionnage</a>.",
+      "from": "a84b15aa2f37dfcf",
       "keywords": "reprendre lecture reprendre progression supprimer rangée arrêté moitié vu",
       "related": [
         "viewing-history",
@@ -119,6 +128,7 @@
     },
     "contribute": {
       "body": "{brand} est développé en open source. Vous pouvez aider de plusieurs façons :\n\n- <b>Traductions.</b> Les textes de l'interface sont dans des fichiers texte, un par langue, donc une traduction est un fichier texte que vous pouvez modifier.\n- <b>Rapports de bogues.</b> Consultez <a=/help/article/report-bug>Signaler un problème</a>.\n- <b>Corrections et fonctionnalités.</b> Envoyez une description ou un correctif.\n- <b>Idées.</b> Dites-nous ce que vous aimeriez que le Centre d'aide ou l'application fasse.\n\nÉcrivez à <a=mailto:{support_email}>{support_email}</a> avec quelques lignes sur ce que vous souhaitez faire.",
+      "from": "da2afef5f69e71ee",
       "keywords": "contribuer contribution bénévole traduire traduction code github aide améliorer suggestions",
       "related": [
         "report-bug",
@@ -144,6 +154,7 @@
     },
     "copyright": {
       "body": "{brand} n’héberge pas de fichiers vidéo. Il répertorie des liens vers des titres hébergés par d’autres services. Si vous détenez les droits sur un titre et estimez qu’un lien les viole, envoyez-nous un avis et nous l’examinerons.\n\nUn avis doit inclure :\n1. Votre nom et vos coordonnées.\n2. Une description de l’œuvre dont vous êtes propriétaire.\n3. L’adresse de la page sur {brand} qui y fait référence.\n4. Une déclaration indiquant que vous êtes le titulaire des droits ou autorisé à agir en son nom.\n\nEnvoyez-le à <a=mailto:{support_email}>{support_email}</a> avec l’objet <b>Avis DMCA</b>. Le processus complet est sur la <a=/help/legal/dmca>page DMCA</a>.",
+      "from": "fe5665701bd3b517",
       "keywords": "droits d'auteur dmca retrait infraction titulaire de droits supprimer signaler avis juridique",
       "related": [
         "sources",
@@ -157,6 +168,7 @@
     },
     "delete-account": {
       "body": "La suppression de votre compte est immédiate et emporte tous les profils, listes, notes, réglages et toute l'activité de visionnage. Elle est irréversible.\n\n1. Ouvrez le menu du profil et choisissez <b>Compte</b>.\n2. Choisissez <b>Supprimer le compte</b> en bas de la page.\n3. Confirmez qu'il s'agit bien de vous, puis choisissez <b>Supprimer définitivement</b>.\n\nSi vous voulez seulement retirer une personne, supprimez plutôt son profil. Consultez <a=/help/article/profiles-manage>Comment créer, modifier ou supprimer des profils</a>.\n\n!! Remarque : Pour garder une copie de vos données, téléchargez-la d'abord. Consultez <a=/help/article/download-data>Télécharger une copie de vos données</a>.",
+      "from": "5753af866b2e71d5",
       "keywords": "supprimer compte fermer compte effacer compte effacer données résilier compte",
       "related": [
         "download-data",
@@ -170,6 +182,7 @@
     },
     "devices-sign-out": {
       "body": "1. Ouvrez le menu du profil et choisissez <b>Compte</b>.\n2. Choisissez <b>Accès et appareils</b>.\n3. Choisissez <b>Se déconnecter de cet appareil</b>, ou <b>Se déconnecter de tous les appareils</b> pour déconnecter tous les navigateurs où votre compte est ouvert, celui-ci compris.\n\n<b>Activités de sécurité récentes</b>, sur la même page, liste les connexions et changements récents de votre compte. Nous vous envoyons aussi un e-mail quand un nouvel appareil se connecte.\n\n!! Remarque : Si vous voyez une connexion que vous ne reconnaissez pas, déconnectez tous les appareils et changez votre mot de passe. Consultez <a=/help/article/change-email-password>Changer votre e-mail, votre mot de passe ou votre numéro de téléphone</a>.",
+      "from": "4dd3bceeedd46b97",
       "keywords": "se déconnecter tous les appareils appareils connectés sessions sécurité nouvel appareil téléphone perdu ordinateur public",
       "related": [
         "change-email-password",
@@ -183,6 +196,7 @@
     },
     "download-data": {
       "body": "1. Ouvrez le menu du profil et choisissez <b>Compte</b>.\n2. Choisissez <b>Accès aux informations personnelles</b>.\n3. Suivez les étapes pour enregistrer le fichier.\n\nLe fichier contient les informations de votre compte, vos profils, vos réglages, Ma liste, vos notes et votre activité de visionnage. Il est enregistré sur votre appareil : gardez-le en lieu sûr.\n\nPour télécharger l'activité de visionnage d'un profil sous forme de tableur, ouvrez <b>Activité de visionnage</b> pour ce profil et choisissez <b>Tout télécharger</b>.",
+      "from": "cbd479e2b96c89c7",
       "keywords": "télécharger mes données informations personnelles copie exporter rgpd demande d'accès",
       "related": [
         "privacy-data",
@@ -196,6 +210,7 @@
     },
     "episodes": {
       "body": "## Avant de lancer la lecture\nOuvrez une série et sélectionnez <b>Épisodes</b>. Utilisez le menu des saisons pour changer de saison, puis sélectionnez un épisode.\n\n## Pendant la lecture\n- Sélectionnez <b>Épisodes</b> dans les commandes du lecteur pour ouvrir la liste sans quitter.\n- Sélectionnez <b>Épisode suivant</b>, ou laissez-le démarrer automatiquement. Voir <a=/help/article/skip-intro-next>« Passer l'intro » et « Épisode suivant »</a>.",
+      "from": "ba6b5a53888c6ad5",
       "keywords": "saisons épisodes série liste épisode suivant marathon sélecteur",
       "related": [
         "skip-intro-next",
@@ -209,6 +224,7 @@
     },
     "extensions-blockers": {
       "body": "Le lecteur charge les flux depuis des sources tierces. Les outils qui bloquent les scripts, les cadres ou les médias d'autres sites peuvent l'arrêter.\n\n1. Ouvrez votre extension et mettez-la en pause pour ce site, puis rechargez la page.\n2. Si vous utilisez un filtre réseau, tel qu'un filtre DNS ou un réseau scolaire ou professionnel, essayez un autre réseau.\n3. Si la lecture fonctionne ensuite, ajoutez {brand} à la liste d'autorisation de l'extension.\n\n!! Note : Nous ne vous demandons jamais d'installer une extension de navigateur ou un codec pour regarder. Fermez toute page qui le fait.\n\n@@ diagnostics",
+      "from": "3ff7f61833e82663",
       "keywords": "extension bloqueur de publicité adblock ublock ghostery confidentialité blocage de scripts vpn filtre dns",
       "related": [
         "wont-play",
@@ -222,6 +238,7 @@
     },
     "fix-phone": {
       "body": "1. Fermez l'onglet et rouvrez {brand}.\n2. Mettez à jour votre navigateur depuis le magasin d'applications.\n3. Désactivez l'économie de données ou le mode économie d'énergie pendant la lecture.\n4. Vérifiez que vous avez une connexion stable. Consultez <a=/help/article/buffering>Mise en mémoire tampon, blocages ou démarrage lent</a>.\n5. Si vous avez ajouté {brand} à votre écran d'accueil et qu'il semble obsolète, supprimez-le et ajoutez-le à nouveau. Consultez <a=/help/article/install-app>Comment installer {brand} en tant qu'application</a>.\n\n@@ diagnostics\n\n@@ refresh",
+      "from": "b8242684e09356e2",
       "keywords": "téléphone tablette android iphone ipad mobile correction problème application",
       "related": [
         "phone-tablet",
@@ -235,6 +252,7 @@
     },
     "fix-tv": {
       "body": "{brand} n'a pas d'application TV. Vous regardez via le navigateur web de votre téléviseur ou en envoyant un onglet de navigateur depuis un ordinateur ou un téléphone.\n\n- Mettez à jour le logiciel du téléviseur et son navigateur.\n- Redémarrez le téléviseur ou la clé de streaming.\n- Si vous envoyez un onglet, gardez l'appareil émetteur sur le même réseau et fermez les autres onglets dessus.\n- Si le navigateur du téléviseur est lent, envoyez l'onglet depuis un ordinateur à la place.\n\nVoir <a=/help/article/watch-on-tv>Comment regarder sur votre téléviseur</a>.\n\n@@ diagnostics",
+      "from": "121e16832aff701c",
       "keywords": "tv téléviseur smart tv chromecast cast correction problème hdmi stick navigateur",
       "related": [
         "watch-on-tv",
@@ -259,6 +277,7 @@
     },
     "forgot-pin": {
       "body": "1. Ouvrez le menu du profil, choisissez <b>Compte</b>, puis <b>Gérer les profils</b>, et sélectionnez le profil verrouillé.\n2. Choisissez <b>Verrouillage du profil</b> et saisissez le mot de passe de votre compte.\n3. Choisissez <b>PIN oublié ?</b>, puis <b>Supprimer le verrouillage du profil</b>.\n\nLe profil s'ouvre de nouveau sans code PIN, et vous pouvez en définir un nouveau. Consultez <a=/help/article/profile-pin>Comment ajouter, modifier ou supprimer un code PIN de profil</a>.\n\n!! Remarque : Seule une personne qui connaît le mot de passe du compte peut supprimer un code PIN. Si vous avez aussi oublié le mot de passe, consultez <a=/help/article/forgot-password>J'ai oublié mon mot de passe</a>.\n\n@@ profiles",
+      "from": "a9edcb9b198fd2f8",
       "keywords": "oublié code PIN réinitialiser perdu mot de passe verrouillé profil verrouillé",
       "related": [
         "profile-pin",
@@ -272,6 +291,7 @@
     },
     "free-to-use": {
       "body": "{brand} ne facture aucun frais, n'offre pas d'abonnement et ne demande pas de coordonnées bancaires. Il n'y a pas d'offres, d'essais ni de dates de facturation.\n\nSi une page, un e-mail ou un message se présente comme étant {brand} et vous demande de payer, il ne provient pas de nous. N'entrez pas de coordonnées de paiement. Transmettez-le à <a=mailto:{support_email}>{support_email}</a> et nous examinerons l'affaire.\n\n{brand} est un index de liens vers des titres hébergés par d'autres services. Le fait qu'un service facture ou non son propre contenu relève de sa seule décision. Consultez <a=/help/article/sources>D'où viennent les titres</a>.",
+      "from": "0181d4520a6b960f",
       "keywords": "gratuit prix coût payer paiement abonnement facturation carte crédit essai",
       "related": [
         "what-is",
@@ -285,6 +305,7 @@
     },
     "genres": {
       "body": "1. Ouvrez <b>Films</b> ou <b>Séries</b> dans la barre supérieure.\n2. Sélectionnez <b>Genres</b> à côté du titre de la page.\n3. Choisissez un genre. La page n'affiche alors que ce genre, avec des rangées dédiées.\n\nPour revenir à tout le catalogue, rouvrez <b>Films</b> ou <b>Séries</b>. Sur téléphone, la liste des genres s'ouvre en panneau depuis le bas.",
+      "from": "9806bf3185047a83",
       "keywords": "genres catégories comédie drame horreur action filtrer parcourir films séries sous-menu",
       "related": [
         "search-browse",
@@ -298,6 +319,7 @@
     },
     "getting-started": {
       "body": "1. <b>Créez votre compte gratuit.</b> Consultez <a=/help/article/need-account>Ai-je besoin d'un compte ?</a>\n2. <b>Choisissez ou créez un profil.</b> Consultez <a=/help/article/profiles-manage>Comment créer, modifier ou supprimer des profils</a>.\n3. <b>Parcourez la page d'accueil.</b> Les rangées sont groupées par thème, et le grand titre en haut change.\n4. <b>Recherchez</b> un titre, un acteur ou un réalisateur avec la loupe. Consultez <a=/help/article/search-browse>Comment rechercher et parcourir</a>.\n5. <b>Sélectionnez un titre</b> pour en savoir plus, voir la bande-annonce et lancer la lecture.\n6. <b>Ajoutez des titres à Ma liste</b> avec le bouton <b>+</b>.\n\nApprenez les touches utiles pendant la lecture : <a=/help/article/shortcuts>Raccourcis clavier</a>.",
+      "from": "12535040dcafa0b0",
       "keywords": "premiers pas commencer première fois visite nouvel utilisateur comment utiliser guide bases",
       "related": [
         "what-is",
@@ -311,6 +333,7 @@
     },
     "install-app": {
       "body": "{brand} est une app web. Il n'y a rien à télécharger dans une boutique. Votre navigateur peut l'installer pour qu'elle s'ouvre dans sa propre fenêtre, avec sa propre icône.\n\n## Chrome et Edge sous Windows, Mac et Linux\nSélectionnez l'icône d'installation à droite de la barre d'adresse, ou ouvrez le menu du navigateur et choisissez <b>Installer {brand}</b> (dans Edge : <b>Applications</b>, puis <b>Installer ce site en tant qu'application</b>).\n\n## Safari sur Mac\nOuvrez le menu <b>Fichier</b> et choisissez <b>Ajouter au Dock</b>.\n\n## Android\nOuvrez le menu du navigateur et choisissez <b>Installer l'application</b> ou <b>Ajouter à l'écran d'accueil</b>.\n\n## iPhone et iPad\nDans Safari, sélectionnez le bouton <b>Partager</b>, puis <b>Sur l'écran d'accueil</b>.\n\n!! Remarque : Firefox sur ordinateur ne peut pas installer les sites comme des apps. Utilisez un favori, ou installez-la depuis Chrome, Edge ou Safari. Une app installée est le même site web : elle se met à jour toute seule et vous garde connecté comme le navigateur.",
+      "from": "10b00952111f5806",
       "keywords": "installer application pwa ajouter à l'écran d'accueil bureau raccourci icône application web",
       "related": [
         "phone-tablet",
@@ -324,6 +347,7 @@
     },
     "is-down": {
       "body": "{brand} comporte trois parties qui peuvent tomber en panne séparément :\n\n- <b>L'application</b>, que vous consultez actuellement.\n- <b>Le catalogue de films et séries</b>, qui fournit les détails et les images.\n- <b>Les sources de streaming</b>, qui fournissent la vidéo.\n\nLancez la vérification pour voir laquelle répond depuis votre appareil. Si le catalogue ou les sources ne répondent pas pour tout le monde, attendez quelques minutes et réessayez. Si l'une est inaccessible uniquement pour vous, consultez <a=/help/article/vpn-network>VPN, réseaux scolaires et professionnels</a>.\n\n@@ diagnostics",
+      "from": "d1d5a5f747450472",
       "keywords": "panne indisponibilité statut ne fonctionne pas hors ligne indisponible serveur maintenance erreur site",
       "related": [
         "vpn-network",
@@ -337,6 +361,7 @@
     },
     "kids-profile": {
       "body": "Un profil Enfants n'affiche que des titres adaptés aux enfants, avec sa propre page d'accueil et des menus pensés pour eux.\n\n1. Ouvrez <b>Gérer les profils</b> et choisissez <b>Ajouter un profil</b>.\n2. Saisissez un nom et activez <b>Profil Enfants</b>.\n3. Choisissez <b>Enregistrer</b>.\n\nPour transformer un profil existant en profil Enfants, modifiez-le et activez <b>Profil Enfants</b>. Le profil principal ne peut pas être un profil Enfants.\n\nPour quitter les pages Enfants, choisissez <b>Quitter Enfants</b> et sélectionnez un autre profil. Pour empêcher un enfant de changer de profil, verrouillez les autres profils avec un code PIN. Consultez <a=/help/article/profile-pin>Comment ajouter, modifier ou supprimer un code PIN de profil</a>.\n\nPour les enfants plus grands, vous pouvez plutôt fixer une classification par âge sur n'importe quel profil. Consultez <a=/help/article/parental-controls>Contrôle parental : classifications par âge et titres bloqués</a>.\n\n!! Remarque : Les titres proviennent de sources indépendantes et tous n'ont pas de classification par âge. Un profil Enfants réduit ce qu'un enfant peut trouver, mais ne remplace pas le fait de regarder ensemble.\n\n@@ profiles",
+      "from": "c2becfc89e433fb0",
       "keywords": "enfants enfants famille contrôles parentaux sûr jeune profil",
       "related": [
         "parental-controls",
@@ -350,6 +375,7 @@
     },
     "language": {
       "body": "## Langue d'affichage\n1. Ouvrez le menu du profil, choisissez <b>Compte</b>, puis <b>Gérer les profils</b>, et sélectionnez votre profil.\n2. Choisissez <b>Langues</b>, puis <b>Langue d'affichage</b>, et sélectionnez une langue.\n\nCe choix appartient au profil : il vous suit sur tous vos appareils. Dans le Centre d'aide, vous pouvez aussi choisir une langue en bas de chaque page.\n\n## Langues audio et des sous-titres\n1. Ouvrez <b>Langues</b> pour votre profil, comme ci-dessus, puis <b>Audio et sous-titres</b>.\n2. Choisissez une <b>Langue audio</b> et une <b>Langue des sous-titres</b>. <b>Identique à la langue d'affichage</b> suit la langue de l'app.\n\nLe lecteur les utilise chaque fois qu'un titre les propose.\n\n!! Remarque : Seules les langues entièrement traduites apparaissent dans la liste.\n\n@@ language",
+      "from": "2be388c9477a8312",
       "keywords": "langue changer traduire interface affichage sous-titres audio anglais espagnol français arabe",
       "related": [
         "subtitles",
@@ -363,6 +389,7 @@
     },
     "list-missing": {
       "body": "Ma liste et votre progression appartiennent à un profil et sont enregistrées dans votre compte. Si elles semblent vides :\n\n- Vérifiez que vous êtes sur le bon profil. Chaque profil a sa propre liste. Changez de profil depuis le menu du profil.\n- Vérifiez que vous êtes connecté avec le même compte qu'avant.\n- Laissez quelques secondes à un nouvel appareil pour charger votre compte après la connexion, ou rechargez la page.\n- Les titres que vous avez masqués de votre activité de visionnage disparaissent aussi de Reprendre la lecture.\n\nS'il manque encore quelque chose sur un appareil, déconnectez-vous puis reconnectez-vous sur cet appareil. Consultez <a=/help/article/saved-data>Où sont enregistrés vos profils, votre liste et votre progression</a>.\n\n@@ profiles",
+      "from": "982b5e13426d3ba5",
       "keywords": "ma liste disparue vide perdue reprendre la lecture progression effacée",
       "related": [
         "my-list",
@@ -376,6 +403,7 @@
     },
     "my-list": {
       "body": "## Ajouter un titre\nSélectionnez le bouton <b>+</b> sur la vignette d'un titre, dans sa fenêtre de détails ou sur le grand titre en haut de la page.\n\n## Retirer un titre\nSélectionnez la coche du titre. Elle redevient un <b>+</b>.\n\n## Voir votre liste\nOuvrez <b>Mon {brand}</b> dans la barre du haut, ou dans la barre du bas sur un téléphone. Votre liste s'y trouve, à côté de <b>Reprendre la lecture</b>, des titres que vous avez aimés et des bandes-annonces que vous avez regardées.\n\nMa liste appartient au profil et est enregistrée dans votre compte : elle est donc la même sur tous les appareils.",
+      "from": "869ec897780d9c2d",
       "keywords": "ma liste ajouter supprimer liste d'attente enregistrer plus tard favoris plus",
       "related": [
         "list-missing",
@@ -389,6 +417,7 @@
     },
     "need-account": {
       "body": "Oui. Il vous faut un compte gratuit pour regarder sur {brand}. Il se crée en une minute et ne demande jamais de moyen de paiement.\n\n1. Sur la page d'accueil de {brand}, saisissez votre adresse e-mail et choisissez <b>Démarrer</b>.\n2. Saisissez votre prénom et votre nom, et choisissez un mot de passe d'au moins 8 caractères.\n3. Ouvrez le lien que nous vous envoyons par e-mail pour confirmer votre adresse, puis connectez-vous.\n\nVotre compte garde vos profils, Ma liste, vos notes, votre activité de visionnage et vos réglages : ils sont les mêmes sur tous les appareils où vous vous connectez. Votre prénom devient le nom de votre profil principal.\n\n!! Remarque : {brand} est gratuit et ne vous demandera jamais de numéro de carte. Consultez <a=/help/article/free-to-use>{brand} est-il gratuit ?</a>",
+      "from": "5b9ef4806fb4fe00",
       "keywords": "compte inscription s'inscrire connexion obligatoire adhésion",
       "related": [
         "sign-in",
@@ -402,6 +431,7 @@
     },
     "new-popular": {
       "body": "<b>Nouveautés et populaires</b> dans la barre supérieure répertorie les titres récents ou tendance. Ouvrez un titre pour voir ses détails, puis ajoutez-le à <b>Ma liste</b> pour le retrouver plus tard.\n\nLes listes sont actualisées depuis le catalogue, elles changent donc d'un jour à l'autre.",
+      "from": "8c8873206e406dc1",
       "keywords": "nouveau populaire tendance dernier top 10 bientôt cette semaine",
       "related": [
         "notifications",
@@ -415,6 +445,7 @@
     },
     "no-sound": {
       "body": "1. Appuyez sur <b>M</b> ou sélectionnez le bouton du haut-parleur dans le lecteur pour annuler le mode muet. Les navigateurs démarrent souvent une vidéo en mode muet lorsqu'elle commence d'elle-même, voir <a=/help/article/autoplay-blocked>La vidéo démarre sans le son ou ne démarre pas toute seule</a>.\n2. Appuyez sur la <b>flèche vers le haut</b> pour augmenter le volume et vérifiez le volume de votre appareil.\n3. Vérifiez que l'onglet du navigateur n'est pas en mode muet. Faites un clic droit sur l'onglet pour voir.\n4. Ouvrez <b>Audio et sous-titres</b> et choisissez une autre piste audio s'il y en a une.\n5. Si vous utilisez Bluetooth, déconnectez puis reconnectez vos écouteurs.",
+      "from": "e07a82a23aaee163",
       "keywords": "pas de son audio muet silencieux volume haut-parleur bluetooth écouteurs lecture automatique",
       "related": [
         "autoplay-blocked",
@@ -428,6 +459,7 @@
     },
     "notifications": {
       "body": "La cloche de la barre du haut liste des titres à découvrir, comme les nouveautés et les titres populaires. Sélectionnez-en un pour ouvrir ses détails.\n\nLes éléments ouverts sont marqués comme lus, et le nombre sur la cloche indique combien restent non lus.\n\nLes <b>Paramètres de notification</b> de votre profil proposent des choix pour les e-mails et les notifications push. Ils sont enregistrés avec le profil, mais {brand} n'envoie pas encore d'e-mails ni de notifications push sur les titres. Les e-mails liés à votre compte, comme les liens de connexion, arrivent toujours.",
+      "from": "2fc92c28c2091000",
       "keywords": "notifications cloche alertes nouveautés mises à jour lu non lu",
       "related": [
         "new-popular",
@@ -441,6 +473,7 @@
     },
     "parental-controls": {
       "body": "Chaque profil peut avoir ses propres limites. Ouvrez le menu du profil, choisissez <b>Compte</b>, puis <b>Gérer les profils</b>, sélectionnez le profil et choisissez <b>Ajuster le contrôle parental</b>.\n\n## Classifications par âge\n1. Choisissez <b>Classifications par âge</b>.\n2. Choisissez la classification la plus élevée que le profil peut voir. Seuls les titres jusqu'à cette classification s'affichent, et les titres sans classification sont aussi masqués.\n\n<b>Étiquettes de classification</b> définit les étiquettes que vous voyez : britanniques (U, PG, 12, 15, 18) ou américaines (G, PG, PG-13, R, NC-17). <b>Automatique</b> suit le pays depuis lequel vous vous connectez.\n\n## Bloquer des titres\n1. Choisissez <b>Bloquer les titres</b>.\n2. Saisissez le nom d'une série ou d'un film et choisissez <b>Ajouter</b>.\n\nLes titres bloqués ne s'affichent pas sur ce profil. Choisissez <b>Retirer</b> pour en afficher un à nouveau.\n\n!! Remarque : Les titres proviennent de sources indépendantes et certains n'ont pas de classification. Pour les jeunes enfants, un profil Enfants est le choix le plus sûr. Consultez <a=/help/article/kids-profile>Comment créer un profil pour enfants</a>.\n\n@@ profiles",
+      "from": "6ad10aa120c46893",
       "keywords": "contrôle parental classification âge restrictions bloquer titre masquer enfants ados pg 12 15 18",
       "related": [
         "kids-profile",
@@ -454,6 +487,7 @@
     },
     "phone-tablet": {
       "body": "Ouvrez le site dans le navigateur de votre téléphone. La page passe à une mise en page pensée pour le tactile, avec une barre en bas pour <b>Accueil</b>, <b>Extraits</b>, <b>Rechercher</b> et <b>Mon {brand}</b>.\n\n- Touchez une vignette pour voir ses détails, puis le bouton de lecture pour démarrer.\n- Tournez le téléphone à l'horizontale pour une meilleure image.\n- Pour l'utiliser comme une app, consultez <a=/help/article/install-app>Comment installer {brand} en tant qu'application</a>.",
+      "from": "e02962c60d015b80",
       "keywords": "téléphone tablette mobile android iphone ipad tactile barre inférieure application mise en page",
       "related": [
         "install-app",
@@ -467,6 +501,7 @@
     },
     "playback-unavailable": {
       "body": "Vous pouvez voir <b>Lecture indisponible</b> ou <b>Impossible de diffuser la vidéo. Tous les fournisseurs de sources étaient indisponibles ou non pris en charge par votre navigateur.</b>\n\nCela signifie que le lecteur a demandé à toutes les sources connues pour ce titre, et aucune n'a renvoyé de flux que votre navigateur peut lire.\n\n1. Attendez une minute et appuyez à nouveau sur lecture. Les sources fluctuent.\n2. Désactivez les bloqueurs. Voir <a=/help/article/extensions-blockers>Extensions qui bloquent le lecteur</a>.\n3. Essayez un autre navigateur. Certains flux nécessitent des fonctionnalités absentes des navigateurs plus anciens.\n4. Essayez un autre titre pour vérifier si le problème ne concerne que celui-ci.\n\nSi le même titre échoue pendant une journée, <a=/help/article/report-bug>signalez-le-nous</a>. Indiquez le titre, l'année et le navigateur utilisé.\n\n@@ diagnostics",
+      "from": "d2d97491a7244c15",
       "keywords": "lecture indisponible message d'erreur impossible de diffuser fournisseurs non pris en charge",
       "related": [
         "wont-play",
@@ -492,6 +527,7 @@
     },
     "profile-icons": {
       "body": "1. Ouvrez <b>Gérer les profils</b> et sélectionnez le profil.\n2. Sélectionnez l'image.\n3. Choisissez-en une nouvelle, puis <b>Enregistrer</b>.\n\nVous pouvez aussi la changer dans <b>Compte</b>, sous <b>Gérer les profils</b> : sélectionnez le profil, puis son image. Un profil Enfants utilise l'image Enfants jusqu'à ce que vous en choisissiez une autre.",
+      "from": "9aa9c184a83dfe80",
       "keywords": "icône de profil avatar image photo modifier choisir personnage",
       "related": [
         "profiles-manage",
@@ -505,6 +541,7 @@
     },
     "profile-pin": {
       "body": "Le verrouillage du profil demande un code PIN à 4 chiffres avant d'ouvrir le profil. Le code PIN est lié à votre compte : il fonctionne donc sur tous les appareils où vous vous connectez.\n\n## Activer le verrouillage du profil\n1. Ouvrez le menu du profil, choisissez <b>Compte</b>, puis <b>Gérer les profils</b>, et sélectionnez le profil.\n2. Choisissez <b>Verrouillage du profil</b> et saisissez le mot de passe de votre compte pour confirmer qu'il s'agit bien de vous.\n3. Saisissez quatre chiffres et choisissez <b>Enregistrer</b>.\n\nVous pouvez aussi activer <b>Verrouillage du profil</b> quand vous ajoutez ou modifiez un profil dans <b>Gérer les profils</b>.\n\n## Changer ou supprimer le code PIN\n1. Ouvrez <b>Verrouillage du profil</b> pour le profil, comme ci-dessus.\n2. Choisissez <b>Changer le code PIN</b>, ou <b>Supprimer le verrouillage du profil</b> et saisissez le code PIN actuel.\n\n!! Remarque : Après trop d'essais erronés, le profil reste bloqué un moment. Si vous avez oublié le code PIN, consultez <a=/help/article/forgot-pin>J'ai oublié le code PIN de mon profil</a>.\n\n@@ profiles",
+      "from": "87b48551cab7870a",
       "keywords": "pin code verrouillage verrouiller profil privé protéger code secret",
       "related": [
         "forgot-pin",
@@ -518,6 +555,7 @@
     },
     "profiles-manage": {
       "body": "Chaque personne de votre foyer peut avoir un profil avec son propre nom, son image, Ma liste, son activité de visionnage et ses recommandations. Un compte peut contenir jusqu'à 5 profils.\n\n## Ajouter un profil\n1. Ouvrez le menu du profil en haut à droite et choisissez <b>Gérer les profils</b>, ou sélectionnez <b>Gérer les profils</b> sur l'écran <b>Qui regarde ?</b>.\n2. Sélectionnez <b>Ajouter un profil</b>.\n3. Saisissez un nom et choisissez une image. Activez <b>Profil Enfants</b> si le profil est destiné à un enfant.\n4. Choisissez <b>Enregistrer</b>.\n\n## Modifier ou supprimer un profil\n1. Ouvrez <b>Gérer les profils</b> et sélectionnez le profil à modifier.\n2. Changez le nom ou l'image, ou activez ou désactivez <b>Profil Enfants</b> ou <b>Verrouillage du profil</b>, puis choisissez <b>Enregistrer</b>.\n3. Pour retirer le profil, choisissez <b>Supprimer le profil</b>. Son activité de visionnage et ses réglages sont supprimés avec lui.\n\nLes langues, les sous-titres, le contrôle parental et les autres préférences d'un profil se trouvent dans <b>Compte</b>, sous <b>Gérer les profils</b>.\n\n!! Remarque : Les profils sont enregistrés dans votre compte. Ils apparaissent donc sur tous les appareils où vous vous connectez.\n\n@@ profiles\n\n>> Impossible de supprimer un profil\nLe profil principal, celui qui porte votre prénom, ne peut pas être supprimé, et un compte garde toujours au moins un profil. Tous les autres profils peuvent être supprimés.",
+      "from": "6e69e4a3e168d839",
       "keywords": "profil profils ajouter créer modifier supprimer retirer nom icône avatar qui regarde",
       "related": [
         "switch-profile",
@@ -531,6 +569,7 @@
     },
     "recommendations": {
       "body": "Les rangées partent de ce que sont les titres : leurs genres, leur ambiance, leurs sujets, leur pays et leur décennie, par exemple <b>Comédies romantiques qui font du bien</b> ou <b>Séries policières coréennes</b>. Dans chaque rangée, l'ordre suit vos goûts.\n\n## Ce qui change vos rangées\n- Ce que vous lancez et terminez, ce que vous notez et ce que vous ajoutez à Ma liste.\n- Des rangées comme <b>Parce que vous avez regardé</b>, <b>Les meilleures suggestions du jour pour vous</b> et <b>À regarder ensuite</b> viennent de vos titres récents. Sur la page d'un genre, elles restent dans ce genre.\n- Le profil utilisé. Chaque profil a ses propres goûts, et un profil Enfants n'affiche que des titres pour les enfants.\n- Le jour et la saison. Les rangées des fêtes et des événements apparaissent en saison.\n\n## Désactiver\nDésactivez <b>Recommandations personnalisées</b> dans <b>Confidentialité et paramètres des données</b> de votre profil. Vous voyez alors les mêmes suggestions que tout le monde.\n\nNous n'utilisons jamais votre nom ni votre e-mail pour choisir des titres. Consultez <a=/help/article/privacy-data>Quelles données {brand} collecte-t-il ?</a>\n\n@@ data",
+      "from": "40888e5d02bdf2ac",
       "keywords": "recommandations rangées suggestions parce que vous avez regardé goût algorithme pour vous personnalisé",
       "related": [
         "viewing-history",
@@ -544,6 +583,7 @@
     },
     "report-bug": {
       "body": "Plus nous en savons, plus nous pouvons le corriger rapidement. Veuillez inclure :\n\n1. Ce que vous faisiez et ce que vous attendiez.\n2. Ce qui s’est passé à la place, et tout message que vous avez vu.\n3. Le titre, s’il s’agit de la lecture.\n4. Votre appareil et votre navigateur.\n\nLa page <a=/help/contact>Contactez-nous</a> contient un bouton qui ouvre un e-mail avec les détails de votre navigateur préremplis.\n\n@@ diagnostics",
+      "from": "14fbf0edb3ac07fc",
       "keywords": "signaler bug problème erreur plantage cassé ne fonctionne pas commentaires contact",
       "related": [
         "title-feedback",
@@ -556,6 +596,7 @@
     },
     "rows-wont-load": {
       "body": "Les rangées et la recherche viennent de notre service de recommandations. Les affiches et les détails viennent d'un catalogue public de films. Si l'un des deux ne répond pas, vous pouvez voir des rangées vides, une roue de chargement ou des images manquantes.\n\n1. Rechargez la page.\n2. Vérifiez votre connexion.\n3. Désactivez les bloqueurs pour ce site. Consultez <a=/help/article/extensions-blockers>Extensions qui bloquent le lecteur</a>.\n4. Réessayez dans quelques minutes.\n\nPendant ce temps, vos profils, Ma liste et vos réglages restent en sécurité dans votre compte. Si le problème dure plus d'une heure, <a=/help/article/report-bug>prévenez-nous</a>.\n\n@@ diagnostics\n\n@@ refresh",
+      "from": "0e9566ec5858d69c",
       "keywords": "rangées vides chargement page blanche images affiches ne se chargent pas accueil erreur recommandations",
       "related": [
         "supported-browsers",
@@ -568,6 +609,7 @@
     },
     "saved-data": {
       "body": "Vos profils, Ma liste, vos notes, votre activité de visionnage et vos réglages sont enregistrés dans votre compte. Chaque navigateur où vous vous connectez en garde une copie : les pages s'ouvrent tout de suite et fonctionnent un moment sans connexion. Les changements arrivent dans votre compte en quelques secondes, puis sur vos autres appareils quand vous y ouvrez {brand}.\n\n## Ce que cela veut dire\n- Connectez-vous sur un autre appareil et tout y est.\n- Effacer les données du site dans un navigateur vous déconnecte de ce navigateur et supprime cette copie. Votre compte garde tout.\n- Dans une fenêtre privée, la copie disparaît à la fermeture de la fenêtre.\n\n## Ce qui est envoyé d'autre à nos serveurs\nQuand vous lancez un titre, le service de recommandations sait lequel, pour que vos rangées suivent vos goûts. Vous pouvez le désactiver avec <b>Recommandations personnalisées</b> dans <b>Confidentialité et paramètres des données</b>. Consultez <a=/help/article/recommendations>Fonctionnement des recommandations</a>.\n\n@@ data",
+      "from": "a8eaf672e7c6ea16",
       "keywords": "données enregistrées stockage local navigateur appareil perdu synchronisation progression historique profils cookies",
       "related": [
         "clear-data",
@@ -581,6 +623,7 @@
     },
     "search-browse": {
       "body": "## Rechercher\n1. Sélectionnez la loupe dans la barre du haut.\n2. Saisissez un titre, un acteur ou un réalisateur. Les résultats s'affichent pendant la saisie, et les petites fautes de frappe sont pardonnées.\n\n## Parcourir\n- <b>Séries</b> et <b>Films</b>, dans la barre du haut, ouvrent une page pour chaque type de titre. Utilisez <b>Genres</b> pour affiner.\n- Les rangées de la page d'accueil sont groupées par thème. Consultez <a=/help/article/recommendations>Fonctionnement des recommandations</a>.\n- <b>Parcourir par langue</b> trouve des titres selon leur langue originale. Consultez <a=/help/article/browse-language>Parcourir par langue</a>.",
+      "from": "fb1a4c4e167a8c83",
       "keywords": "recherche parcourir trouver genre films séries catégorie chercher titre acteur réalisateur",
       "related": [
         "browse-language",
@@ -594,6 +637,7 @@
     },
     "security-report": {
       "body": "Si vous avez trouvé un moyen de lire les données d'une autre personne, de contourner le code PIN d'un profil ou de compromettre le site, veuillez nous en informer avant de le dire à quiconque.\n\n1. Écrivez à <a=mailto:{support_email}>{support_email}</a> avec l'objet <b>Sécurité</b>.\n2. Décrivez ce que vous avez trouvé, les étapes pour le reproduire et la page ou l'adresse concernée.\n3. N'accédez pas aux données d'autres personnes et ne testez pas avec des inondations automatisées de requêtes.\n\nNous lisons chaque signalement. Les mêmes détails figurent dans le fichier lisible par machine à l'adresse <a=/.well-known/security.txt>/.well-known/security.txt</a>.",
+      "from": "2e1fbdf05052b2ab",
       "keywords": "sécurité vulnérabilité bug prime responsable divulgation exploitation piratage signalement faiblesse",
       "related": [
         "report-bug",
@@ -606,6 +650,7 @@
     },
     "share": {
       "body": "1. Ouvrez les détails d'un titre et sélectionnez <b>Partager</b>.\n2. Choisissez <b>WhatsApp</b> ou <b>Messages</b> pour envoyer le lien, ou <b>Copier le lien</b> pour le coller où vous voulez.\n3. Pour Instagram et Snapchat, le lien est copié et vous le collez ensuite dans l'app.\n\nLe lien ouvre le titre sur {brand}. La personne qui l'ouvre doit se connecter, ou créer un compte gratuit, pour le regarder.",
+      "from": "d887486d576fb76e",
       "keywords": "partager lien whatsapp messages instagram snapchat copier envoyer ami",
       "related": [
         "title-details",
@@ -619,6 +664,7 @@
     },
     "shortcuts": {
       "body": "Ces touches fonctionnent pendant la lecture d'un titre sur ordinateur.\n\n- <b>Espace</b> ou <b>K</b> : lecture ou pause\n- <b>Flèche gauche</b> ou <b>J</b> : reculer de 10 secondes\n- <b>Flèche droite</b> ou <b>L</b> : avancer de 10 secondes\n- <b>Flèche haut</b> et <b>Flèche bas</b> : augmenter ou baisser le volume\n- <b>M</b> : couper ou rétablir le son\n- <b>F</b> : activer ou quitter le plein écran",
+      "from": "bf5524b8b9fba6bf",
       "keywords": "raccourcis clavier touches espace flèche plein écran couper volume sauter rembobiner touches rapides",
       "related": [
         "accessibility",
@@ -632,6 +678,7 @@
     },
     "sign-in": {
       "body": "## Se connecter\n1. Choisissez <b>S'identifier</b> en haut de la page d'accueil de {brand}.\n2. Saisissez votre adresse e-mail et votre mot de passe, puis choisissez <b>S'identifier</b>.\n\nLaissez <b>Se souvenir de moi</b> activé pour rester connecté sur cet appareil. Si vous vous êtes déconnecté de cet appareil il y a peu, vous pouvez continuer sans retaper votre mot de passe.\n\n## Se déconnecter\nOuvrez le menu du profil et choisissez <b>Se déconnecter de {brand}</b>. Pour vous déconnecter partout à la fois, consultez <a=/help/article/devices-sign-out>Se déconnecter d'un appareil ou de tous les appareils</a>.\n\n## La connexion ne fonctionne pas\n- Vérifiez qu'il n'y a pas de faute dans l'adresse e-mail. Le mot de passe tient compte des majuscules.\n- Si vous venez de vous inscrire, ouvrez d'abord le lien de confirmation que nous vous avons envoyé. <b>Renvoyer l'e-mail de confirmation</b> en envoie un nouveau.\n- Après trop d'essais, attendez une minute et réessayez.\n- Mot de passe oublié ? Consultez <a=/help/article/forgot-password>J'ai oublié mon mot de passe</a>.",
+      "from": "f5340c073384b4fb",
       "keywords": "se connecter s'identifier connexion se déconnecter déconnexion se souvenir de moi e-mail mot de passe compte",
       "related": [
         "need-account",
@@ -645,6 +692,7 @@
     },
     "skip-intro-next": {
       "body": "- <b>Passer l'intro</b> apparaît quelques secondes au début du générique d'un épisode. Sélectionnez-le pour aller directement à l'histoire.\n- <b>Épisode suivant</b>, dans les commandes du lecteur, lance l'épisode suivant.\n- <b>Épisodes</b> ouvre la liste de la saison pour choisir n'importe quel épisode.\n\nPour choisir ce qui se passe à la fin d'un épisode, ouvrez les <b>Paramètres de lecture</b> de votre profil et activez ou désactivez <b>Lecture automatique de l'épisode suivant</b>.",
+      "from": "8973dce35bea69ff",
       "keywords": "passer intro épisode suivant lecture automatique marathons épisodes tiroir",
       "related": [
         "shortcuts",
@@ -658,6 +706,7 @@
     },
     "slow-pages": {
       "body": "La première visite télécharge l'app, environ 2 Mo. Ensuite, l'essentiel de l'attente vient des images et des aperçus.\n\n- Désactivez <b>Lecture automatique des aperçus</b> dans les <b>Paramètres de lecture</b> de votre profil. Les aperçus qui démarrent seuls consomment des données et de la mémoire.\n- Fermez les onglets et les autres apps qui utilisent le réseau ou beaucoup de mémoire.\n- Utilisez un navigateur à jour. Les anciens font tourner l'app plus lentement.\n- En données mobiles, passez au Wi-Fi si vous le pouvez.\n\n@@ diagnostics",
+      "from": "a0d2ff0977a1b2cc",
       "keywords": "lent lag performance vitesse chargement mémoire vieux téléphone saccadé défilement aperçus",
       "related": [
         "buffering",
@@ -671,6 +720,7 @@
     },
     "sources": {
       "body": "Les détails, les affiches et les notes proviennent d'un catalogue public de films et de séries. La vidéo elle-même n'est pas hébergée sur {brand}. Lorsque vous lancez la lecture, le lecteur demande un flux à des sources tierces indépendantes.\n\n- Un titre peut être disponible sur une source et non sur une autre.\n- Une source peut devenir indisponible sans préavis.\n- La qualité, les pistes audio et les sous-titres proviennent de la source.\n\nNous ne contrôlons pas et ne vérifions pas ces sources. Consultez le <a=/help/legal/disclaimer>Avertissement</a>. Si vous êtes titulaire de droits, consultez <a=/help/article/copyright>Comment signaler un problème de droits d'auteur</a>.",
+      "from": "c37aa13aecddc777",
       "related": [
         "what-is",
         "wont-play",
@@ -683,6 +733,7 @@
     },
     "stuck-loading": {
       "body": "Pendant le démarrage de {brand}, vous voyez le logo en forme de cube avec une ligne de points qui bougent. Cela devrait prendre quelques secondes. {brand} est une app WebAssembly : un navigateur ou un réglage qui désactive WebAssembly vous laisse bloqué sur cet écran.\n\n1. Rechargez avec <b>Ctrl + Maj + R</b> (<b>Cmd + Maj + R</b> sur Mac) pour récupérer la version la plus récente.\n2. Ouvrez la page dans une fenêtre privée. Si elle fonctionne là, une extension gêne. Consultez <a=/help/article/extensions-blockers>Extensions qui bloquent le lecteur</a>.\n3. Mettez à jour votre navigateur. Consultez <a=/help/article/supported-browsers>Navigateurs compatibles</a>.\n4. Désactivez pour ce site tout mode qui limite les fonctions web, comme le mode Isolement sur les appareils Apple ou la sécurité stricte d'Edge.\n5. Effacez les données de ce site, puis reconnectez-vous. Consultez <a=/help/article/clear-data>Comment effacer vos données enregistrées</a>.\n\n@@ refresh",
+      "from": "b144102e5c539afc",
       "keywords": "chargement bloqué logo écran blanc écran de démarrage splash ne démarre pas webassembly wasm figé démarrage",
       "related": [
         "supported-browsers",
@@ -695,6 +746,7 @@
     },
     "subtitles": {
       "body": "## Activer ou désactiver les sous-titres\n1. Lancez un titre et passez le pointeur sur le lecteur, ou touchez l'écran.\n2. Sélectionnez <b>Audio & sous-titres</b>.\n3. Choisissez une langue de sous-titres, ou <b>Désactivé</b>.\n\nSi le texte arrive trop tôt ou trop tard, utilisez <b>-0.5s</b> et <b>+0.5s</b> dans le même panneau pour le décaler.\n\n## Changer l'apparence des sous-titres\n1. Ouvrez le menu du profil, choisissez <b>Compte</b>, puis <b>Gérer les profils</b>, et sélectionnez votre profil.\n2. Choisissez <b>Apparence des sous-titres</b>.\n3. Choisissez la taille, la couleur du texte, le contour, l'arrière-plan et la couleur de la fenêtre. L'aperçu montre le résultat. <b>Réinitialiser</b> annule vos changements.\n\n!! Remarque : Les langues et pistes audio disponibles dépendent de la source du titre. Consultez <a=/help/article/subtitles-missing>Sous-titres manquants ou désynchronisés</a>.",
+      "from": "84a4c5850a26e45f",
       "keywords": "sous-titres légendes cc langue audio piste taille couleur apparence arrière-plan",
       "related": [
         "language",
@@ -708,6 +760,7 @@
     },
     "subtitles-missing": {
       "body": "1. Sélectionnez <b>Audio & sous-titres</b> dans le lecteur et vérifiez qu'une langue de sous-titres est choisie.\n2. Choisissez une autre piste si la liste en propose. Les pistes viennent de la source et varient d'un titre à l'autre.\n3. Définissez la langue de sous-titres préférée du profil. Consultez <a=/help/article/language>Comment changer la langue</a>.\n4. Si le texte est en avance ou en retard, utilisez <b>-0.5s</b> ou <b>+0.5s</b> dans <b>Audio & sous-titres</b> jusqu'à ce qu'il corresponde aux dialogues.\n\nSi un titre n'a aucun sous-titre, c'est que la source n'en fournit pas.\n\n@@ language",
+      "from": "b53824bf62a26b78",
       "keywords": "sous-titres légendes manquants mauvaise langue désynchronisation retard cc texte",
       "related": [
         "subtitles",
@@ -721,6 +774,7 @@
     },
     "supported-browsers": {
       "body": "{brand} fonctionne dans les versions récentes de ces navigateurs :\n\n- <b>Google Chrome</b>, <b>Microsoft Edge</b>, <b>Brave</b> et les autres navigateurs Chromium sous Windows, macOS, Linux et Android\n- <b>Mozilla Firefox</b> sous Windows, macOS, Linux et Android\n- <b>Safari</b> sur Mac, iPhone et iPad\n\nInternet Explorer n'est pas pris en charge. Gardez votre navigateur à jour et autorisez le site à utiliser JavaScript et les données de site.\n\n@@ diagnostics\n\n>> Le navigateur affiche une erreur avant le chargement de la page\nRechargez avec <b>Ctrl + Maj + R</b> sous Windows et Linux, ou <b>Cmd + Maj + R</b> sur Mac, pour récupérer la version la plus récente de l'app, puis réessayez.",
+      "from": "dd9cac32b9d242c0",
       "keywords": "navigateur chrome firefox safari edge brave opera internet explorer version mise à jour compatible",
       "related": [
         "wont-play",
@@ -734,6 +788,7 @@
     },
     "switch-profile": {
       "body": "1. Ouvrez le menu du profil en haut à droite de la page. Sur un téléphone, touchez l'image de votre profil dans la barre du bas.\n2. Sélectionnez le profil à utiliser.\n3. Si le profil est verrouillé, saisissez son code PIN à 4 chiffres.\n\nLes recommandations, <b>Ma liste</b> et <b>Reprendre la lecture</b> changent selon le profil choisi.\n\n!! Remarque : Vous pouvez verrouiller un profil avec un code PIN. Consultez <a=/help/article/profile-pin>Comment ajouter, modifier ou supprimer un code PIN de profil</a>.\n\n@@ profiles",
+      "from": "648c5f8c0d39e2c8",
       "keywords": "changer changer de profil qui regarde menu",
       "related": [
         "profiles-manage",
@@ -747,6 +802,7 @@
     },
     "title-details": {
       "body": "Sélectionnez une carte de titre, ou <b>Plus d'infos</b>, pour ouvrir ses détails.\n\n- <b>Lecture</b> ou <b>Reprendre</b> lance le titre là où vous l'aviez laissé.\n- <b>Ma liste</b> l'enregistre, et le pouce le note.\n- Le résumé, la distribution, les genres et quelques mots décrivant l'ambiance vous aident à décider.\n- Pour les séries, <b>Épisodes</b> liste les saisons.\n- <b>Similaire</b> affiche des titres proches par sens, ce qui est un bon moyen de découvrir quelque chose de nouveau.",
+      "from": "ea18782a7ff61314",
       "keywords": "plus d'infos détails modal distribution genres synopsis similaires plus comme ça bande-annonce note correspondance",
       "related": [
         "my-list",
@@ -760,6 +816,7 @@
     },
     "title-feedback": {
       "body": "Écrivez à <a=mailto:{support_email}>{support_email}</a> et incluez :\n\n- le titre et l’année\n- l’adresse de sa page sur {brand}\n- ce qui est incorrect, par exemple une affiche erronée, une saison manquante ou un titre qui ne se lit jamais\n\nLes détails proviennent d’un catalogue public, il est donc préférable de corriger une description erronée à la source. Nous pouvons transmettre les corrections que nous recevons.",
+      "from": "b7fa5e7a14329a66",
       "keywords": "commentaires titre description erronée manquant demande film série ajouter signaler affiche incorrecte",
       "related": [
         "report-bug",
@@ -773,6 +830,7 @@
     },
     "top-10": {
       "body": "Une rangée <b>Top 10</b> montre les dix films ou séries les plus populaires du moment, avec un grand numéro sur chacun. Elle suit la popularité quotidienne des titres dans le catalogue de films, donc elle change d'un jour à l'autre. Elle est la même pour tout le monde et ne dépend pas de votre profil.",
+      "from": "380c7e8d861004c1",
       "keywords": "top 10 dix populaires tendances classement numéros rangée les plus regardés",
       "related": [
         "new-popular",
@@ -798,6 +856,7 @@
     },
     "transfer-profile": {
       "body": "Un profil peut être copié vers un autre compte, par exemple quand quelqu'un quitte le foyer. La copie garde le nom, l'image, les réglages et l'activité de visionnage.\n\n## Enregistrer le profil\n1. Ouvrez le menu du profil et choisissez <b>Transférer le profil</b>.\n2. Sélectionnez le profil et choisissez <b>Télécharger le fichier de profil</b>. Conservez le fichier en lieu sûr.\n\n## L'ajouter à l'autre compte\n1. Connectez-vous à l'autre compte et ouvrez <b>Gérer les profils</b>.\n2. Choisissez <b>Importer un profil</b> et sélectionnez le fichier.\n\n!! Remarque : Le fichier ne contient pas le code PIN du profil. Toute personne qui a le fichier peut ajouter le profil à son compte : ne le partagez pas.\n\n<b>Transfert de profil</b>, dans <b>Compte</b>, autorise ou bloque la copie des profils hors de votre compte. Il ne bloque jamais les profils qui arrivent.",
+      "from": "351f450bedd5043a",
       "keywords": "transférer profil déplacer copier profil autre compte importer exporter fichier de profil",
       "related": [
         "profiles-manage",
@@ -811,6 +870,7 @@
     },
     "translate": {
       "body": "Tout le texte de l'interface est stocké dans un fichier texte simple par langue. Une traduction ne nécessite pas de programmation.\n\n## Ce qu'il faut savoir\n- Les messages ressemblent à <b>clé = texte</b>. Ne modifiez que le texte après le signe égal.\n- Les mots entre accolades, comme <b>{ \"{brand}\" }</b>, sont remplis par l'application. Conservez-les tels quels et déplacez-les là où votre langue l'exige.\n- Certains messages ont des formes pour un et pour plusieurs (<b>1 saison</b>, <b>2 saisons</b>). Les langues avec plus de deux formes peuvent toutes les ajouter.\n- Si votre langue modifie un mot selon le genre ou le cas, écrivez la forme qui convient à la phrase.\n\n## Comment envoyer une traduction\nÉcrivez à <a=mailto:{support_email}>{support_email}</a> avec la langue et soit le fichier, soit un lien vers votre modification. Les locuteurs natifs qui se relisent mutuellement sont le meilleur contrôle dont nous disposons.",
+      "from": "70140556b14fbb21",
       "keywords": "traduire traduction localisation langue contribuer ftl fluent grammaire genre pluriel",
       "related": [
         "contribute",
@@ -824,6 +884,7 @@
     },
     "viewing-history": {
       "body": "Chaque profil a une page <b>Activité de visionnage</b> avec les titres qu'il a regardés, du plus récent au plus ancien. {brand} s'en sert pour Reprendre la lecture et pour les recommandations.\n\n1. Ouvrez le menu du profil, choisissez <b>Compte</b>, puis <b>Gérer les profils</b>, et sélectionnez le profil.\n2. Choisissez <b>Activité de visionnage</b>.\n3. Choisissez <b>Masquer ce titre</b> à côté d'un titre, ou <b>Tout masquer</b>.\n\nUn titre masqué quitte Reprendre la lecture et n'influence plus les recommandations, sur tous les appareils. <b>Tout télécharger</b> enregistre la liste sous forme de tableur.\n\n@@ data",
+      "from": "f8818fd25db37aaa",
       "keywords": "historique de visionnage activité visionnée supprimer effacer retirer notes recommandations",
       "related": [
         "continue-watching",
@@ -837,6 +898,7 @@
     },
     "vpn-network": {
       "body": "{brand} charge les détails et les images depuis un catalogue de films public et diffuse depuis des sources indépendantes. Certains réseaux bloquent ces sites, et certaines sources refusent certaines adresses.\n\n- <b>VPN ou proxy.</b> Certaines sources ne répondent pas aux adresses VPN. Désactivez-le ou choisissez un autre pays.\n- <b>Wi-Fi scolaire, professionnel ou public.</b> Les filtres bloquent souvent le streaming ou le catalogue. Essayez les données mobiles de votre téléphone.\n- <b>Filtres DNS.</b> Un service DNS de filtrage peut bloquer le catalogue et laisser les lignes ou les images vides. Utilisez un autre DNS ou désactivez le filtre pour ce site.\n\nLa vérification de l'appareil indique quel service votre réseau ne peut pas atteindre.\n\n@@ diagnostics",
+      "from": "162464a8b22a7be7",
       "keywords": "vpn proxy école travail réseau pare-feu dns filtre bloqué safedns restreint wifi",
       "related": [
         "is-down",
@@ -850,6 +912,7 @@
     },
     "watch-on-tv": {
       "body": "Il n'existe pas encore d'application {brand} pour les téléviseurs. Ces options fonctionnent aujourd'hui :\n\n- <b>Navigateur TV.</b> Ouvrez l'adresse {brand} dans le navigateur fourni avec votre téléviseur.\n- <b>Diffusion d'un onglet.</b> Dans Chrome ou Edge sur ordinateur, ouvrez le menu du navigateur et choisissez <b>Diffuser</b>, puis sélectionnez votre téléviseur ou votre clé de streaming.\n- <b>Câble.</b> Connectez un ordinateur portable au téléviseur avec un câble HDMI et utilisez le plein écran.\n\nSi l'image ou le son n'est pas correct, voir <a=/help/article/fix-tv>Résoudre un problème sur votre téléviseur</a>.",
+      "from": "6799f14f64b8edcc",
       "keywords": "tv télévision smart tv cast chromecast airplay hdmi fire stick grand écran",
       "related": [
         "fix-tv",
@@ -863,6 +926,7 @@
     },
     "what-is": {
       "body": "{brand} vous aide à trouver votre prochain film ou série. Il apprend ce que vous aimez et organise le catalogue en rangées pour vous, sur une page qui ressemble aux services de streaming que vous connaissez.\n\n{brand} est un index de liens. Il n'héberge ni ne télécharge de vidéo. Lorsque vous appuyez sur lecture, le lecteur demande un flux à des sources indépendantes et lit le premier qui fonctionne. Voir <a=/help/article/sources>D'où viennent les titres</a>.\n\nIl n'y a rien à acheter et pas d'abonnement. Voir <a=/help/article/free-to-use>{brand} est-il gratuit ?</a>",
+      "from": "50a6d88e1cef768b",
       "related": [
         "getting-started",
         "sources",
@@ -875,6 +939,7 @@
     },
     "wont-play": {
       "body": "Essayez ces étapes dans l'ordre. Testez après chacune d'elles.\n\n1. Rechargez la page. Une panne temporaire à la source est la cause la plus fréquente.\n2. Choisissez un autre épisode, ou relancez le titre depuis sa page de détails. Le lecteur essaie les sources disponibles les unes après les autres.\n3. Désactivez les bloqueurs de publicités et les extensions de confidentialité pour ce site. Consultez <a=/help/article/extensions-blockers>Extensions qui bloquent le lecteur</a>.\n4. Utilisez une version récente de Chrome, Edge, Firefox ou Safari. Consultez <a=/help/article/supported-browsers>Navigateurs pris en charge</a>.\n5. Changez de réseau, par exemple du Wi-Fi aux données mobiles, ou désactivez un VPN. Certaines sources refusent certains réseaux.\n\n@@ diagnostics\n\n>> Ça ne se lit toujours pas\nCertains titres ne sont disponibles depuis aucune source à un moment donné. Réessayez plus tard. Si un titre populaire ne se lit jamais, indiquez-nous lequel sur la page <a=/help/article/report-bug>Signaler un problème</a>.",
+      "from": "399dda5c03d12650",
       "keywords": "ne se lit pas erreur impossible de lire vidéo échec chargement spinner bloqué lecteur",
       "related": [
         "playback-unavailable",
@@ -891,17 +956,36 @@
     "cookie-policy": {
       "sections": [
         {
-          "body": "{brand} n'utilise pas de cookies publicitaires ni d'analyse. Nous utilisons le stockage local de votre navigateur, un espace de votre appareil que seul ce site peut lire, pour :",
+          "body": "Ce serveur ne pose aucun cookie. Aucune page, aucune requête, et un test fait échouer la compilation dès qu'une route s'y essaie : pas de cookie publicitaire, pas de mesure d'audience, aucun des nôtres.\n\nCe qui vous garde connecté est gardé par l'application elle-même, pas envoyé comme cookie :",
           "bullets": [
-            "<b>La connexion :</b> ce qui vous garde connecté sur ce navigateur, et un cookie avec le nom de votre profil pour que le Centre d'aide vous affiche comme connecté.",
-            "<b>La rapidité :</b> une copie de vos profils, réglages et progression, pour que les pages s'ouvrent tout de suite.",
-            "<b>Vos choix :</b> vos choix concernant les cookies et la personnalisation, et votre langue d'affichage."
+            "<b>Dans un navigateur :</b> les jetons de votre session, dans le stockage local de ce site, que seul ce site peut lire.",
+            "<b>Dans une application sur téléphone, téléviseur ou ordinateur :</b> les mêmes jetons, dans le coffre du système. Sur un appareil dont le coffre refuse de les garder, votre session ne dure que le temps où l'application reste ouverte.",
+            "<b>Rien d'autre.</b> Le serveur ne laisse sur votre appareil aucune copie de vos profils, de vos réglages ou de votre progression, et aucun cookie ne porte le nom de votre profil."
           ],
-          "title": "Comment nous utilisons les cookies et le stockage"
+          "id": "store",
+          "title": "Ce qui reste sur votre appareil"
+        },
+        {
+          "body": "Une bande-annonce peut venir d'un service vidéo extérieur, qui pose ses propres cookies à la lecture. Les affiches et les descriptions viennent d'un catalogue public, la vidéo de sources indépendantes. Votre appareil les charge directement : chacun peut poser ses cookies et voir votre adresse IP, comme tout site que vous ouvrez. Nous ne les contrôlons pas et ne leur disons rien de votre compte.",
+          "bullets": [],
+          "id": "others",
+          "title": "Les autres sites"
+        },
+        {
+          "body": "Effacer les données de ce site dans votre navigateur vous déconnecte sur ce navigateur ; votre compte garde tout. Se déconnecter fait la même chose, volontairement.\n\nLa personnalisation est désactivée jusqu'à ce que vous l'activiez, et la réponse appartient à l'appareil où vous la donnez : un deuxième appareil repart désactivé. Il n'y a ni bandeau de cookies ni page de préférences, parce qu'il n'y a pas de cookie à choisir.",
+          "bullets": [],
+          "id": "choices",
+          "title": "Vos choix"
+        },
+        {
+          "body": "Quand ce que l'application garde sur votre appareil change, cette page change avec, et la date en haut bouge.",
+          "bullets": [],
+          "id": "changes",
+          "title": "Modifications de cette politique"
         }
       ],
       "title": "Politique de cookies",
-      "updated": "Dernière mise à jour : octobre 2026"
+      "updated": "Dernière mise à jour : novembre 2026"
     },
     "credits": {
       "sections": [
@@ -913,16 +997,20 @@
             "<b>Abril Fatface, Caveat Brush, DM Serif Display, Fredoka, Gochi Hand, Kalam, Londrina Solid, Playfair Display et Sedgwick Ave</b> de Google Fonts, utilisées sous la SIL Open Font License 1.1.",
             "<b>Permanent Marker</b> et <b>Rock Salt</b> de Google Fonts, utilisées sous la licence Apache 2.0."
           ],
-          "title": "1. Polices"
+          "id": "fonts",
+          "title": "Polices"
         },
         {
           "body": "Les icônes de l'interface proviennent de Phosphor Icons, Tabler Icons et Hugeicons, utilisées sous la licence MIT, et de Remix Icon et IBM Carbon, utilisées sous la licence Apache 2.0.",
           "bullets": [],
-          "title": "2. Icônes"
+          "id": "icons",
+          "title": "Icônes"
         },
         {
+          "body": "Les informations sur les films et les séries viennent de catalogues publics, qui ne soutiennent ni ne certifient ce produit. Les titres, résumés, affiches, notes et distributions viennent de The Movie Database. Ce produit utilise l'API de TMDB mais n'est ni approuvé ni certifié par TMDB.",
           "bullets": [],
-          "title": "3. Informations sur les films et séries"
+          "id": "catalogue",
+          "title": "Informations sur les films et séries"
         },
         {
           "body": "{brand} est développé avec des logiciels open source, chacun utilisé sous sa propre licence :",
@@ -932,17 +1020,20 @@
             "<b>hls.js</b> pour la lecture vidéo adaptative (Apache 2.0).",
             "<b>Project Fluent</b> pour le texte de l'interface traduit (Apache 2.0 et MIT)."
           ],
-          "title": "4. Logiciels"
+          "id": "software",
+          "title": "Logiciels"
         },
         {
           "body": "Les noms, logos, affiches et visuels des films, séries et services affichés sur {brand} appartiennent à leurs propriétaires. Ils sont affichés pour identifier le titre et ne signifient pas que le propriétaire soutient {brand}.",
           "bullets": [],
-          "title": "5. Marques et visuels"
+          "id": "trademarks",
+          "title": "Marques et visuels"
         },
         {
           "body": "Si vous pensez qu'un crédit est incorrect ou doit être modifié, veuillez écrire à {support_email}.",
           "bullets": [],
-          "title": "6. Contact"
+          "id": "contact",
+          "title": "Contact"
         }
       ],
       "title": "Licences et crédits",
@@ -953,26 +1044,32 @@
         {
           "body": "{brand} est un agrégateur de liens et un moteur de recherche pour les liens de médias intégrés publiquement disponibles. Nous n'hébergeons, ne téléchargeons, ne stockons, ne transmettons et ne contrôlons aucun contenu vidéo, audio ou média sur nos serveurs.",
           "bullets": [],
-          "title": "1. Absence d'hébergement de contenu"
+          "id": "no-hosting",
+          "title": "Absence d'hébergement de contenu"
         },
         {
           "body": "Tout le contenu accessible via les liens indexés par {brand} provient de sources tierces externes et indépendantes. {brand} n'a aucun contrôle sur ce contenu et n'assume aucune responsabilité quant à sa légalité, son exactitude, sa qualité ou sa disponibilité.",
           "bullets": [],
-          "title": "2. Contenu tiers — Absence de responsabilité"
+          "id": "third-party",
+          "title": "Contenu tiers — Absence de responsabilité"
         },
         {
           "body": "Vous reconnaissez et acceptez que votre utilisation de {brand} et votre accès à tout contenu via des liens intégrés externes se font entièrement à vos risques et périls. {brand} décline expressément toute garantie, expresse ou implicite.",
           "bullets": [],
-          "title": "3. Acceptation des risques par l'utilisateur"
+          "id": "risk",
+          "title": "Acceptation des risques par l'utilisateur"
         },
         {
           "body": "Les liens intégrés indexés par {brand} pointent vers des ressources sur des serveurs tiers. Nous ne pouvons garantir la disponibilité continue, la qualité ou l'intégrité de tout contenu lié, et les liens peuvent cesser de fonctionner ou devenir indisponibles sans préavis.",
           "bullets": [],
-          "title": "4. Disponibilité des liens"
+          "id": "availability",
+          "title": "Disponibilité des liens"
         },
         {
+          "body": "Les informations sur les titres, leur disponibilité, les notes et les sources viennent de tiers et peuvent être fausses, périmées ou incomplètes. Nous ne les vérifions pas et nous ne garantissons pas leur exactitude.",
           "bullets": [],
-          "title": "5. Exactitude des informations"
+          "id": "accuracy",
+          "title": "Exactitude des informations"
         }
       ],
       "title": "Avertissement",
@@ -983,7 +1080,8 @@
         {
           "body": "{brand} est un agrégateur de liens et un moteur de recherche. Nous n'hébergeons, ne téléchargeons, ne stockons, ne transmettons ni ne contrôlons aucun contenu vidéo ou multimédia. Tout le contenu est servi par des serveurs tiers qui sont entièrement hors de notre contrôle.",
           "bullets": [],
-          "title": "1. Notre rôle — Agrégateur de liens, pas un hébergeur"
+          "id": "role",
+          "title": "Notre rôle — Agrégateur de liens, pas un hébergeur"
         },
         {
           "body": "Si vous êtes titulaire d'un droit d'auteur, ou un agent autorisé à agir au nom d'un titulaire de droits d'auteur, et que vous estimez qu'un lien de notre index porte atteinte à vos droits d'auteur, veuillez envoyer une notification écrite à {support_email} contenant :",
@@ -992,7 +1090,8 @@
             "<b>Identification de l'œuvre protégée</b> que vous estimez avoir été contrefaite, ou, si plusieurs œuvres sont couvertes par une seule notification, une liste représentative de ces œuvres.",
             "<b>Identification du matériel</b> (c'est-à-dire le lien ou l'URL spécifique de {brand}) que vous estimez contrefaisant, avec suffisamment d'informations pour nous permettre de le localiser."
           ],
-          "title": "2. Procédure de notification et de retrait"
+          "id": "takedown",
+          "title": "Procédure de notification et de retrait"
         },
         {
           "body": "Votre notification DMCA doit également inclure :",
@@ -1004,22 +1103,26 @@
             "Nous examinerons toutes les notifications et retirerons de notre index les liens qui satisfont aux exigences légales ci-dessus.",
             "<b>Notification de contestation :</b> Si vous estimez que votre lien a été retiré par erreur, vous pouvez soumettre une notification de contestation conformément au 17 U.S.C. § 512(g)."
           ],
-          "title": "3. Éléments supplémentaires requis"
+          "id": "elements",
+          "title": "Éléments supplémentaires requis"
         },
         {
           "body": "Comme {brand} n'héberge aucun fichier média, nous ne pouvons que retirer le lien de notre index de recherche. Nous ne pouvons pas supprimer le contenu sous-jacent du serveur sur lequel il est hébergé.",
           "bullets": [],
-          "title": "4. Limitation importante — Nous ne pouvons retirer que des liens"
+          "id": "limitation",
+          "title": "Limitation importante — Nous ne pouvons retirer que des liens"
         },
         {
           "body": "Dans les circonstances appropriées et à notre seule discrétion, {brand} désactivera ou mettra fin à l'accès des utilisateurs ou des comptes qui sont des contrevenants récidivistes.",
           "bullets": [],
-          "title": "5. Politique relative aux contrevenants récidivistes"
+          "id": "repeat",
+          "title": "Politique relative aux contrevenants récidivistes"
         },
         {
           "body": "Le retrait d'un lien de notre index en réponse à un avis DMCA ne constitue pas un aveu de la part de {brand} qu'une infraction a eu lieu.",
           "bullets": [],
-          "title": "6. Absence d'aveu de responsabilité"
+          "id": "no-admission",
+          "title": "Absence d'aveu de responsabilité"
         }
       ],
       "title": "Avis de port sûr DMCA",
@@ -1028,82 +1131,170 @@
     "privacy": {
       "sections": [
         {
-          "body": "{brand} est un agrégateur de liens et un moteur de recherche. Cette politique de confidentialité explique comment nous collectons, utilisons et protégeons vos données personnelles lorsque vous utilisez notre service.",
+          "body": "{brand} tourne sur un serveur que quelqu'un exploite. C'est cette personne qui répond de vos données, et vous la joignez à {support_email}. Cette politique décrit le logiciel lui-même, identique partout, et dit clairement ce que décide l'installation de l'exploitant.\n\n{brand} rassemble des liens et cherche : les films et les séries ne sont pas chez nous. La connexion, la base de données et les recommandations tournent toutes sur ce seul serveur. Il n'y a pas de fournisseur de comptes extérieur, ni de service de recommandation extérieur.",
           "bullets": [],
-          "title": "1. Introduction"
+          "id": "who-we-are",
+          "title": "Qui nous sommes"
         },
         {
-          "body": "Nous collectons des informations personnelles limitées afin de fournir et d'améliorer le service :",
+          "body": "Nous gardons ce dont le service a besoin, et voici tout :",
           "bullets": [
-            "<b>Informations du compte :</b> votre prénom et votre nom, votre adresse e-mail et votre mot de passe (conservé uniquement sous forme chiffrée par notre prestataire de connexion), et un numéro de mobile si vous en ajoutez un.",
-            "<b>Profils et activité :</b> vos profils et leurs réglages, Ma liste, vos notes, votre progression et votre activité de visionnage. Ils sont liés à votre compte pour vous suivre sur tous vos appareils.",
-            "<b>Journaux de sécurité :</b> les connexions et changements récents de votre compte, avec le navigateur, le système et le pays d'où ils viennent, pour vous montrer vos appareils et vous prévenir d'une nouvelle connexion.",
-            "<b>Stockage sur votre appareil :</b> ce qui vous garde connecté, une copie de vos profils et réglages pour que les pages s'ouvrent vite, et vos choix concernant les cookies. Consultez la Politique relative aux cookies."
+            "<b>Votre compte :</b> vos nom et prénom, votre adresse e-mail, un numéro de mobile si vous en ajoutez un, et votre mot de passe, gardé seulement sous forme hachée.",
+            "<b>Vos profils :</b> jusqu'à cinq, chacun avec un nom, une image, une limite d'âge, ses réglages (lecture automatique, langues, sous-titres), un code PIN haché si vous en mettez un, et le genre et le pseudo de jeu si vous les saisissez.",
+            "<b>Ce que vous regardez :</b> Ma liste, vos notes, les titres que vous masquez, où vous en êtes dans chaque épisode, vos rappels et, tant que la personnalisation est active, le goût qui en est déduit.",
+            "<b>Quelles rangées vous avez vues :</b> par profil, une trace pour chaque affichage, clic, lancement, fin, j'aime, passage et changement dans Ma liste. Seulement tant que la personnalisation est active pour cette session, et pendant 180 jours.",
+            "<b>Rapports de lecture :</b> chaque tentative de lecture, avec l'heure, le temps jusqu'à la première image, les échecs et la source qui a répondu. Seulement si la personnalisation est active pour cette session, et sans le titre. Les rapports de problème que votre application envoie sont à part : ils portent sa version et ce que vous écrivez, aucun profil et aucun compte, et nous les gardons quelle que soit votre réponse.",
+            "<b>Vos appareils et vos sessions :</b> le nom de l'appareil, les empreintes des jetons qui vous gardent connecté, une clé d'appareil qui le nomme d'une session à l'autre, et une fiche technique par session : l'application et sa version, le type d'appareil, son système et sa version, la taille de l'écran, les codecs, conteneurs et en-têtes que son lecteur accepte, le stockage offert, la façon de le commander et les langues qu'il annonce. C'est cette fiche qui décide quelle version d'un titre cet appareil reçoit.",
+            "<b>Événements du compte :</b> une ligne datée par connexion et par changement, gardée 365 jours. Aucun écran ne vous montre encore cette liste ; demandez-la-nous.",
+            "<b>Contrôle parental :</b> la limite d'âge d'un profil et les titres qu'un adulte a bloqués par leur nom, jusqu'à 200.",
+            "<b>Codes de connexion :</b> l'adresse à laquelle un code est parti et le code sous forme hachée, jusqu'à son usage.",
+            "<b>Pas votre adresse IP.</b> Le serveur la lit pour compter les requêtes et la garde en mémoire une minute environ. Aucune table ne l'enregistre, et il n'existe nulle part d'historique de vos adresses ni de vos lieux."
           ],
-          "title": "2. Informations que nous collectons"
+          "id": "collect",
+          "title": "Ce que nous gardons"
         },
         {
-          "body": "Nous nous engageons à respecter votre vie privée :",
-          "bullets": [
-            "<b>Partager vos données :</b> Nous ne partageons pas de données personnelles avec des annonceurs ou des courtiers en données.",
-            "<b>Vendre vos données :</b> Nous ne vendons, ne louons et n'échangeons jamais de données personnelles avec des tiers.",
-            "<b>Vous pister :</b> Nous n'utilisons pas de cookies publicitaires ni d'analyse, nous ne prenons pas d'empreinte de votre navigateur et nous ne vous suivons pas sur d'autres sites."
-          ],
-          "title": "3. Ce que nous ne faisons pas"
-        },
-        {
-          "body": "En vertu du Règlement général sur la protection des données du Royaume-Uni (RGPD du RU), les bases légales sur lesquelles nous nous appuyons pour traiter ces informations sont les suivantes :",
-          "bullets": [
-            "<b>Contrat :</b> pour vous fournir votre compte, vos profils et les fonctions que vous utilisez.",
-            "<b>Intérêt légitime :</b> pour sécuriser les comptes (journaux de connexion) et faire fonctionner et améliorer le service.",
-            "<b>Consentement :</b> pour utiliser ce que vous regardez dans des recommandations personnalisées. Vous pouvez le retirer à tout moment dans Confidentialité et paramètres des données."
-          ],
-          "title": "4. Base légale du traitement (RGPD du Royaume-Uni)"
-        },
-        {
-          "body": "Les données de votre compte sont stockées chez Supabase, notre fournisseur de base de données, avec une sécurité au niveau des lignes pour que seul votre compte puisse les lire. Chaque navigateur où vous vous connectez en garde une copie pour aller plus vite. Quand vous supprimez votre compte, ses données sont supprimées immédiatement.",
+          "body": "Presque tout vient de vous : ce que vous saisissez à l'inscription, les profils et les réglages que vous créez, et ce que vous faites dans l'application. Votre application ajoute deux choses : la fiche technique qui dit ce qu'elle peut lire, et les rapports de lecture ci-dessus.\n\nNous n'achetons aucune donnée sur vous et aucune entreprise ne nous en donne. Nous ne cherchons pas où vous êtes ; les classifications d'âge suivent la région que votre application demande.",
           "bullets": [],
-          "title": "5. Comment nous stockons vos données"
+          "id": "where",
+          "title": "D'où cela vient"
         },
         {
-          "bullets": [],
-          "title": "6. Services tiers"
-        },
-        {
-          "body": "Conformément au RGPD britannique, vous disposez des droits suivants :",
+          "body": "Chaque usage a sa base légale, indiquée entre parenthèses. Nous nous en servons pour :",
           "bullets": [
-            "<b>Droit d'accès :</b> téléchargez une copie de vos données à tout moment dans Compte, sous Accès aux informations personnelles.",
-            "<b>Droit à l'effacement :</b> supprimez votre compte à tout moment dans Compte, sous Supprimer le compte. Tout ce qu'il contient est supprimé immédiatement.",
-            "<b>Droit de rectification :</b> changez votre nom, votre adresse e-mail et votre numéro de téléphone dans Compte, ou demandez-nous de corriger toute autre information.",
-            "<b>Droit d'opposition :</b> désactivez les recommandations personnalisées, ou écrivez-nous pour vous opposer à un traitement fondé sur l'intérêt légitime."
+            "faire fonctionner votre compte, vos profils, Ma liste, vos notes et Reprendre la lecture sur chaque appareil (contrat) ;",
+            "protéger le compte : vérifier que c'est vous avant un geste sensible, vous montrer vos appareils, verrouiller un profil après trop de codes PIN faux, et fermer toutes les autres sessions quand vous changez de mot de passe (intérêt légitime) ;",
+            "envoyer les courriers dont votre compte a besoin : un code de connexion, un lien pour choisir un nouveau mot de passe, et un mot si quelqu'un tente d'ouvrir un compte avec votre adresse (contrat) ;",
+            "choisir quelles rangées vous voyez et dans quel ordre, à partir de ce que vous regardez, sur un appareil où vous avez activé la personnalisation (consentement) ;",
+            "trouver et réparer ce qui casse, à partir des rapports ci-dessus (intérêt légitime) ;",
+            "répondre à vos messages (intérêt légitime)."
           ],
-          "title": "7. Vos droits en matière de protection des données"
+          "id": "use",
+          "title": "À quoi cela sert"
         },
         {
-          "body": "Pour toute question sur cette Politique de confidentialité ou pour exercer vos droits, écrivez-nous à {support_email}.",
+          "body": "Chaque point tient par le code, pas par la bonne volonté :",
+          "bullets": [
+            "<b>Aucune vente, aucun partage publicitaire.</b> Nous ne vendons, ne louons ni n'échangeons aucune donnée, et nous n'en donnons ni aux annonceurs ni aux courtiers de données.",
+            "<b>Aucun cookie.</b> Aucune page et aucune requête de ce serveur n'en pose, et un test fait échouer la compilation dès qu'une route s'y essaie. Il n'y a pas de cookie publicitaire ni de mesure d'audience parce qu'il n'y a pas de cookie.",
+            "<b>Aucun suivi à travers le web.</b> Ce produit ne contient aucun service de mesure ni balise publicitaire, et rien de ce que nous gardons ne vous suit sur un autre site.",
+            "<b>Aucune adresse IP, aucun historique de lieux.</b> Comme dans la liste ci-dessus.",
+            "<b>Aucune donnée d'âge.</b> Nous ne demandons pas votre âge et ne le vérifions pas, car nous préférons ne pas le détenir.",
+            "<b>Rien construit sur la fiche de votre appareil.</b> La fiche technique ci-dessus dit ce que votre appareil peut lire. Elle ne sert pas à vous reconnaître, n'est comparée à aucun autre appareil et ne quitte pas ce serveur."
+          ],
+          "id": "not",
+          "title": "Ce que nous ne faisons pas"
+        },
+        {
+          "body": "Presque rien ne quitte ce serveur. La connexion, la base et les recommandations tournent sur la machine de l'exploitant, dans un PostgreSQL que le serveur démarre lui-même. Il y a un seul sous-traitant véritable, puis les endroits auxquels votre appareil parle lui-même :",
+          "bullets": [
+            "<b>Le courrier.</b> Les codes de connexion, les liens de mot de passe et les mots sur votre compte sont confiés au service de courrier que l'exploitant configure. Il reçoit l'adresse de destination et le texte de la lettre, rien d'autre. Sur l'installation que tient le mainteneur de {brand}, ce service est Resend (resend.com). Comme ce logiciel peut être exploité par n'importe qui, un autre exploitant peut indiquer un autre service ou son propre serveur de courrier ; demandez à l'exploitant de ce serveur lequel c'est.",
+            "<b>Ce que votre appareil va chercher.</b> Les affiches, les descriptions et les bandes-annonces viennent de catalogues publics, et la vidéo de sources indépendantes. Votre appareil les interroge directement, donc ils voient votre adresse IP et votre requête comme tout site que vous ouvrez. Nous ne leur disons rien de votre compte.",
+            "<b>La loi.</b> Nous remettons des données quand la loi l'exige."
+          ],
+          "id": "share",
+          "title": "Qui d'autre le voit"
+        },
+        {
+          "body": "Vos données vivent dans la base de données de la machine qui fait tourner ce serveur, et c'est l'exploitant qui a choisi où elle se trouve. Le logiciel ne place rien dans un pays donné, donc cette politique ne promet aucune région ; demandez à l'exploitant où elle tourne et sous quel droit il la détient.\n\nLa seule chose qui quitte cette machine est ce que reçoit le service de courrier ci-dessus, et le lieu de ce traitement dépend du service choisi.",
           "bullets": [],
-          "title": "8. Contact"
+          "id": "where-it-lives",
+          "title": "Où cela se trouve"
+        },
+        {
+          "body": "Rien n'est gardé au cas où cela servirait plus tard. Voici tous nos stockages et leur durée :",
+          "bullets": [
+            "<b>Votre compte et ses informations :</b> tant que le compte existe. Le supprimer les enlève aussitôt.",
+            "<b>Vos profils et ce qu'ils contiennent :</b> le profil, son image, son code PIN, sa limite d'âge et ses titres bloqués, Ma liste, vos notes, les titres masqués, la progression, les réglages, les rappels et les notifications écartées, tant que le profil existe. Supprimer le profil ou le compte les enlève aussitôt.",
+            "<b>Le goût déduit de ce que vous regardez :</b> tant que le profil existe. Désactiver la personnalisation le supprime pour le profil que vous utilisez.",
+            "<b>Quelles rangées vous avez vues :</b> 180 jours par trace, et seulement si la personnalisation est active pour la session.",
+            "<b>Rapports de lecture :</b> 30 jours par rapport, et seulement si la personnalisation est active. Supprimer votre compte en retire aussitôt votre profil ; les rapports eux-mêmes partent dès que chacun atteint 30 jours.",
+            "<b>Rapports de problème envoyés par votre application :</b> 30 jours. Ils ne portent ni profil ni compte, il n'y a donc rien dedans à supprimer avec votre compte.",
+            "<b>Événements du compte :</b> 365 jours.",
+            "<b>Sessions connectées :</b> jusqu'à votre déconnexion, ou 30 jours sans usage, selon ce qui arrive d'abord. Changer de mot de passe ferme aussitôt toutes les autres sessions. Sur un téléviseur, déconnecter les autres appareils demande d'abord votre mot de passe ou un code.",
+            "<b>Votre liste d'appareils et la clé qui nomme un appareil :</b> tant que le compte existe.",
+            "<b>Les codes :</b> un code de connexion et celui qu'un téléviseur affiche en attendant d'être associé, jusqu'à son usage ou son expiration. Un code de connexion jamais utilisé garde l'adresse à laquelle il est parti, et cela reste vrai après la suppression du compte.",
+            "<b>Les bandes-annonces qui n'ont pas démarré et la note des changements déjà envoyés par votre application :</b> les 300 derniers échecs par profil, et les notes tant que le profil existe.",
+            "<b>Ce qui ne parle pas de vous :</b> quel système de classification chaque pays utilise, et des compteurs de fois où une source a répondu. Aucune personne n'y figure, et supprimer un compte n'y touche pas.",
+            "<b>Sur votre appareil :</b> ce qui vous garde connecté, et rien d'autre. Voyez la politique de cookies."
+          ],
+          "id": "keep",
+          "title": "Combien de temps nous le gardons"
+        },
+        {
+          "body": "Ce qui protège vos données ici :",
+          "bullets": [
+            "<b>L'isolement est imposé par le serveur, il n'est pas demandé poliment.</b> Chaque requête lie votre compte, et la clé qui ouvre un profil ne se fabrique qu'à la porte qui a déjà vérifié votre session. Du code qui oublie la vérification ne lit rien du tout. C'est plus solide qu'une règle de base de données, et cette base n'a aucune règle par ligne.",
+            "<b>Mots de passe et codes PIN</b> ne sont gardés que hachés, et ne figurent dans aucun courrier ni journal.",
+            "<b>Les gestes sensibles redemandent.</b> Supprimer le compte, demander vos données, changer de mot de passe et modifier le contrôle parental exigent une confirmation récente, valable quelques minutes.",
+            "<b>Un profil se verrouille</b> après trop de codes PIN faux.",
+            "<b>Le chiffrement des connexions revient à l'exploitant.</b> Ce serveur parle en HTTP simple et attend que l'exploitant place HTTPS devant lui. Si l'adresse où vous lisez ceci commence par https://, il l'a fait.",
+            "<b>Aucun système n'est parfaitement sûr.</b> Si votre compte a été utilisé par un autre, changez votre mot de passe, ce qui ferme aussitôt toutes les autres sessions, et écrivez-nous."
+          ],
+          "id": "safe",
+          "title": "Comment nous le protégeons"
+        },
+        {
+          "body": "Quiconque peut se connecter à votre compte ouvre ses profils et voit leur Ma liste, leurs notes et leur activité, sauf si un profil est verrouillé par un code PIN. Le titulaire du compte peut créer, renommer, verrouiller et supprimer chaque profil.\n\nLe titulaire peut aussi remettre un profil à un autre compte, désigné par son adresse e-mail. Toute la bibliothèque, les réglages, le goût et les titres bloqués partent avec lui, et la personne dont c'est le profil n'est pas consultée. Choisissez donc bien avec qui vous partagez votre connexion, et verrouillez les profils que vous voulez garder privés.",
+          "bullets": [],
+          "id": "household",
+          "title": "Votre compte et vos profils"
+        },
+        {
+          "body": "Vous avez ces droits :",
+          "bullets": [
+            "<b>Accès :</b> demandez une copie de vos données à tout moment, après avoir confirmé que c'est vous. Le fichier contient aujourd'hui les informations de votre compte, vos profils et vos appareils. Ma liste, vos notes, la progression, les réglages, le goût, les rappels et les traces décrites plus haut n'y sont pas encore : écrivez à {support_email} et nous les enverrons aussi.",
+            "<b>Effacement :</b> supprimez votre compte à tout moment. Tout part aussitôt, sauf les rapports de lecture cités dans la liste des durées : votre profil en est retiré aussitôt, et chaque rapport part dès qu'il atteint 30 jours.",
+            "<b>Rectification :</b> changez vous-même votre nom, votre adresse e-mail et votre numéro, ou demandez-nous de corriger autre chose.",
+            "<b>Opposition :</b> désactivez la personnalisation, ou écrivez-nous pour vous opposer à un usage fondé sur l'intérêt légitime.",
+            "<b>Limitation et portabilité :</b> demandez-nous de suspendre l'usage le temps de régler une question, ou de vous remettre vos données dans un format courant et lisible par une machine (JSON).",
+            "<b>Retirer votre consentement :</b> la personnalisation est désactivée jusqu'à ce que vous l'activiez, et votre réponse appartient à l'appareil sur lequel vous la donnez, pas au profil : un deuxième appareil repart désactivé. La désactiver supprime le goût du profil que vous utilisez. Elle n'annule pas ce qui s'est passé avant.",
+            "<b>Réclamations :</b> écrivez-nous d'abord. Vous pouvez aussi saisir votre autorité de protection des données."
+          ],
+          "id": "rights",
+          "title": "Vos droits"
+        },
+        {
+          "body": "Il faut avoir 18 ans ou plus pour ouvrir un compte. Nous ne demandons pas votre âge et ne le vérifions pas, car nous préférons ne pas le détenir. Les enfants regardent par un profil Enfants, ou un profil avec limite d'âge, que le titulaire met en place et surveille ; un profil Enfants ne reçoit que des sources vérifiées par un chercheur de liens. Sur un enfant, nous ne gardons rien d'autre que ce que le titulaire saisit et ce que ce profil fait dans l'application. Si un enfant a ouvert un compte, écrivez à {support_email} et nous le supprimerons.",
+          "bullets": [],
+          "id": "children",
+          "title": "Les enfants"
+        },
+        {
+          "body": "Nous modifions cette politique quand le service ou la loi change, et la date en haut change avec les mots. Ce serveur n'a aucun moyen de vous envoyer un avis à ce sujet : cette page est l'avis, relisez-la quand la date bouge.",
+          "bullets": [],
+          "id": "changes",
+          "title": "Modifications de cette politique"
+        },
+        {
+          "body": "Pour une question sur cette politique, ou pour exercer un droit, écrivez à {support_email}. Nous répondons aux demandes sur vos droits dans le mois. C'est l'exploitant de ce serveur qui répond.",
+          "bullets": [],
+          "id": "contact",
+          "title": "Contact"
         }
       ],
       "title": "Politique de confidentialité",
-      "updated": "Dernière mise à jour : octobre 2026"
+      "updated": "Dernière mise à jour : novembre 2026"
     },
     "terms": {
       "sections": [
         {
           "body": "En accédant à {brand} ou en l'utilisant, vous acceptez d'être lié par les présentes Conditions d'utilisation et notre politique de confidentialité. Si vous n'êtes pas d'accord, n'utilisez pas le service.",
           "bullets": [],
-          "title": "1. Acceptation des conditions"
+          "id": "acceptance",
+          "title": "Acceptation des conditions"
         },
         {
           "body": "{brand} est un agrégateur de liens et un moteur de recherche. Nous n'hébergeons, ne téléchargeons, ne transmettons et ne contrôlons aucun contenu vidéo sur nos serveurs. Tous les médias proviennent de plateformes tierces.",
           "bullets": [],
-          "title": "2. Nature du service"
+          "id": "service",
+          "title": "Nature du service"
         },
         {
           "body": "Il vous faut un compte gratuit pour utiliser {brand}. Vous êtes responsable de la sécurité de votre mot de passe et de ce qui se passe sur votre compte. Prévenez-nous tout de suite si vous pensez que quelqu'un d'autre l'utilise.",
           "bullets": [],
-          "title": "3. Comptes utilisateurs"
+          "id": "account",
+          "title": "Comptes utilisateurs"
         },
         {
           "body": "Vous vous engagez à ne pas utiliser le service pour :",
@@ -1113,37 +1304,44 @@
             "Tenter de sonder, d’analyser ou de tester la vulnérabilité de l’infrastructure du service.",
             "Adopter tout comportement illégal, nuisible ou que nous jugeons inapproprié."
           ],
-          "title": "4. Utilisation acceptable"
+          "id": "acceptable-use",
+          "title": "Utilisation acceptable"
         },
         {
           "body": "La marque {brand}, la conception de l’interface et le code source original sont protégés par le droit d’auteur. Tout contenu média accessible via {brand} reste la propriété de ses titulaires de droits respectifs.",
           "bullets": [],
-          "title": "5. Propriété intellectuelle"
+          "id": "property",
+          "title": "Propriété intellectuelle"
         },
         {
           "body": "Le service est fourni « en l’état » et « selon disponibilité », sans aucune garantie de quelque nature que ce soit. {brand} ne garantit pas une disponibilité continue et n’est pas responsable des dommages indirects ou consécutifs.",
           "bullets": [],
-          "title": "6. Avertissements et limitation de responsabilité"
+          "id": "disclaimers",
+          "title": "Avertissements et limitation de responsabilité"
         },
         {
           "body": "{brand} donne accès à des liens pointant vers du contenu hébergé sur des serveurs tiers indépendants. Nous n’avons aucun contrôle sur le contenu, les politiques de confidentialité ou les pratiques des sites tiers, et n’assumons aucune responsabilité à cet égard.",
           "bullets": [],
-          "title": "7. Contenu de tiers"
+          "id": "third-party",
+          "title": "Contenu de tiers"
         },
         {
           "body": "Nous nous réservons le droit de suspendre ou de résilier votre compte et votre accès au service, à notre seule discrétion et sans préavis, en cas de comportement que nous estimons contraire aux présentes Conditions ou nuisible à d’autres utilisateurs, à nous-mêmes ou à des tiers.",
           "bullets": [],
-          "title": "8. Résiliation"
+          "id": "termination",
+          "title": "Résiliation"
         },
         {
           "body": "Les présentes Conditions d’utilisation sont régies par les lois d’Angleterre et du Pays de Galles et interprétées conformément à celles-ci, sans égard aux dispositions relatives aux conflits de lois.",
           "bullets": [],
-          "title": "9. Droit applicable"
+          "id": "law",
+          "title": "Droit applicable"
         },
         {
           "body": "Pour toute question concernant les présentes Conditions d’utilisation, veuillez nous contacter via la page Contact.",
           "bullets": [],
-          "title": "10. Contact"
+          "id": "contact",
+          "title": "Contact"
         }
       ],
       "title": "Conditions d'utilisation",

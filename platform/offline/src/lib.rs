@@ -28,7 +28,7 @@ use contract::error::ErrorBody;
 use contract::version::WireDate;
 use core_rules::net::{Next, problem_of_status};
 use core_rules::{BadMessage, Core, Step};
-use queue::{KEY_PREFIX, Kept, Queue};
+use queue::{Admitted, Hold, KEY_PREFIX, Kept, Queue, SESSION_MAX};
 use serde::Deserialize;
 
 /// What the host tells the layer at start.
@@ -392,18 +392,36 @@ impl<S: Step> Layer<S> {
         let Some(planned) = self.queue.plan(op, scope, &self.config.boot_id, mono_ms) else {
             return false;
         };
-        // The cap bounds what the store holds, so with no store the op is only kept in memory and
-        // goes out on the next batch. With a store, an op that cannot be written is not admitted
-        // at all: it would report as kept, count as nothing against the cap, which then bounds
-        // nothing, and be gone on the next start.
-        if self.durable && !self.make_room(planned.need(), out) {
+        // The cap bounds what the store holds, so with no store every op is held for the session
+        // and goes out on the next batch. With a store, an op that cannot be written is held for
+        // the session only when nothing else would ever send it again: a rating, a list change,
+        // a hide, a setting, a reminder or a cleared history is sent once, and refusing it here
+        // loses it although a device with no layer at all would have delivered it this session.
+        // A position is refused instead, because the next heartbeat carries a newer one, and
+        // because an op that reported as kept while counting nothing against the cap would leave
+        // the cap bounding nothing. Session-held ops are counted and capped at `SESSION_MAX`.
+        let need = self.queue.need(&planned);
+        let hold = if !self.durable {
+            Hold::Session
+        } else if self.make_room(need, out) {
+            Hold::Stored
+        } else if planned.only_chance() && self.queue.session_held() < SESSION_MAX {
+            Hold::Session
+        } else {
+            self.queue.release(planned);
             return false;
-        }
-        let (kept, text, replaced) = self.queue.admit(planned);
+        };
+        let Admitted {
+            kept,
+            text,
+            replaced,
+        } = self.queue.admit(planned, hold);
         if let Some(key) = replaced {
             self.delete(key, out);
         }
-        self.write(kept.key(), text, out);
+        if let Some(text) = text {
+            self.write(kept.key(), text, out);
+        }
         true
     }
 
@@ -748,6 +766,11 @@ impl<S: Step> Layer<S> {
         let own = event.id.as_deref().and_then(|id| self.own.get(id)).cloned();
         match own {
             Some(Own::Write) => {
+                // A write is requested, not promised. Only `Unsupported` is read, and it says the
+                // host has no store at all; every other answer, a failed single write included, is
+                // forgotten here. So "kept" means the op is in the queue and a `Put` went out for
+                // it, never that the store took it: the contract has no wire form for one failed
+                // write (see the `SecretFailed` gap the hosts asked for).
                 self.forget(event.id.as_deref());
                 if matches!(event.body, EventBody::Unsupported) {
                     self.durable = false;

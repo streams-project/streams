@@ -3,9 +3,11 @@
 pub mod answer;
 pub mod caller;
 pub mod config;
+pub mod erase;
 pub mod error;
 pub mod guard;
 pub mod jobs;
+pub mod learned;
 pub mod live;
 pub mod router;
 pub mod routes;
