@@ -13,8 +13,11 @@ async-trait.workspace = true
 contract.workspace = true
 encoding_rs.workspace = true
 moka.workspace = true
+# The one network exit for this crate, and the only HTTP client it has: with no `reqwest` here, a
+# call that skipped the guard cannot be written. A path, because the workspace dependency list is
+# not this package's to add to.
+net-guard = { path = "../../../platform/base/net-guard" }
 regex.workspace = true
-reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 server-accounts.workspace = true
@@ -25,9 +28,9 @@ sha2.workspace = true
 sqlx.workspace = true
 thiserror.workspace = true
 time.workspace = true
+tokio.workspace = true
 tracing.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]
 server-catalog = { workspace = true, features = ["sample"] }
-tokio.workspace = true

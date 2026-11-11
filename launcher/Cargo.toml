@@ -26,3 +26,7 @@ server-catalog = { workspace = true, features = ["sample"] }
 sha2.workspace = true
 tar = "0.4"
 tokio.workspace = true
+
+# Paused time, so the test that proves a program is given up on does not wait out the real waits.
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }

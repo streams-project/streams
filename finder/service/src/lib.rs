@@ -21,6 +21,12 @@ use contract::hello::ServiceState;
 use crate::search::{Run, RunKey, wait};
 use crate::slot::Slot;
 
+/// The way out of this process. A provider fetches pages from the outside, and every one of those
+/// addresses comes from a page or a list rather than from this install, so they all go through the
+/// guard: one deny table, the address pinned between resolving and connecting, each redirect hop
+/// checked again, and bytes capped while they are read.
+pub use net_guard::{Ask, Fetched, Guard, Limits, Refusal};
+
 /// Why a provider gave no answer. A title it simply does not have is an empty list instead.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Failed(pub String);

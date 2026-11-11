@@ -50,12 +50,14 @@ async fn answer(app: Router, body: &str) -> FindAnswer {
 const LISTED: &str = r#"{"title":"movie:7","name":"Open Film","budget_ms":1000}"#;
 
 #[tokio::test]
-async fn s6_listed_film_is_found_verified_with_no_order_field() {
+async fn s6_listed_film_is_found_unverified_with_no_order_field() {
     let found = answer(settings(), LISTED).await;
     assert_eq!(found.outcome, FindOutcome::Found);
     assert_eq!(found.sources.len(), 1);
-    assert!(found.sources[0].verified);
     assert_eq!(found.sources[0].height, Some(720));
+    // The flag says the finder fetched and read the address. This one reads a file the operator
+    // wrote and fetches nothing, so it may not claim it, whatever that costs a kids tier.
+    assert!(!found.sources[0].verified);
 }
 
 #[tokio::test]

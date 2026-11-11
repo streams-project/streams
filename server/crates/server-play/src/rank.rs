@@ -74,6 +74,11 @@ pub fn keep_for(source: &FoundSource, card: Option<&CapabilityCard>, viewing: &V
     if source.url.trim().is_empty() || !source.url.starts_with("https://") {
         return false;
     }
+    // The same deny table the outbound guard uses. A source address is fetched by the device, not
+    // by this server, so this is the only place it can be judged at all.
+    if !net_guard::public_address(&source.url) {
+        return false;
+    }
     if viewing.kids && (!source.verified || source.kind == AttemptKind::Embed) {
         return false;
     }
@@ -337,6 +342,32 @@ mod tests {
         ));
         assert!(!keep_for(
             &source("  ", AttemptKind::Hls, None, &[]),
+            None,
+            &v
+        ));
+    }
+
+    #[test]
+    fn h10_h18_an_address_inside_the_machine_or_the_network_never_reaches_a_device() {
+        let v = viewing();
+        for url in [
+            "https://127.0.0.1/1.m3u8",
+            "https://127.0.0.1:8080/1.m3u8",
+            "https://10.1.2.3/1.m3u8",
+            "https://192.168.0.5/1.m3u8",
+            "https://169.254.169.254/latest/meta-data",
+            "https://[::1]/1.m3u8",
+            "https://[fd00::1]/1.m3u8",
+            "https://[::ffff:127.0.0.1]/1.m3u8",
+        ] {
+            assert!(
+                !keep_for(&source(url, AttemptKind::Hls, None, &[]), None, &v),
+                "{url} was kept"
+            );
+        }
+        // A name is resolved on the device's own network, so it is not this layer's to judge.
+        assert!(keep_for(
+            &source("https://media.example/1.m3u8", AttemptKind::Hls, None, &[]),
             None,
             &v
         ));

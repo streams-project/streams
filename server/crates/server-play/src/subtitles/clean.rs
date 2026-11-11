@@ -18,7 +18,8 @@ pub struct Cue {
 
 /// Fewer cues than this is not a subtitle file for a film or an episode.
 pub const MIN_CUES: usize = 10;
-/// A larger file is refused unread.
+/// The size a file may be. The fetch stops at this byte, so a larger file is never read past it;
+/// the check below is the same rule for a file that reached here another way.
 pub const MAX_BYTES: usize = 3_000_000;
 
 /// The older code page a file in this language is usually written in.

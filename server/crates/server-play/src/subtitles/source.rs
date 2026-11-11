@@ -1,6 +1,6 @@
 //! Where subtitle files come from. A source holds the keys and calls the outside service, so the key
-//! stays on the server. Its real form needs the outbound guard from `platform`, and tests use a
-//! scripted one.
+//! stays on the server. Its real form goes out through the outbound guard in `platform/base`, and
+//! tests use a scripted one.
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -20,8 +20,9 @@ const PER_LANGUAGE: usize = 3;
 /// A list is kept this long.
 const LIST_TTL_S: u64 = 6 * 3600;
 const LISTS_MAX: u64 = 10_000;
-/// Read files kept for reuse.
-const FILES_MAX: u64 = 2_000;
+/// Read files kept for reuse, counted in bytes of cue text rather than in files. Counting files
+/// let two thousand of them sit here at once, and a file may be three million bytes.
+const FILES_BYTES: u64 = 64 * 1024 * 1024;
 
 /// One file a source offers.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -102,6 +103,12 @@ impl std::fmt::Debug for Subtitles {
     }
 }
 
+/// What one read file costs: its cue text, plus a little for the two times and the string itself.
+fn weight_of(cues: &[Cue]) -> u32 {
+    let bytes: usize = cues.iter().map(|cue| cue.t.len() + 40).sum();
+    u32::try_from(bytes).unwrap_or(u32::MAX)
+}
+
 /// An opaque file id. A locator holds an address and a key may hide in it, so it never leaves.
 fn file_id(locator: &str) -> String {
     Sha256::digest(locator)
@@ -123,7 +130,8 @@ impl Subtitles {
                 .time_to_live(keep)
                 .build(),
             read: Cache::builder()
-                .max_capacity(FILES_MAX)
+                .max_capacity(FILES_BYTES)
+                .weigher(|_: &String, cues: &Arc<Vec<Cue>>| weight_of(cues))
                 .time_to_live(keep)
                 .build(),
         }

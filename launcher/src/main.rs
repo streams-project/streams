@@ -8,6 +8,7 @@ use std::time::Duration;
 use anyhow::{Context, Result, bail};
 use launcher::address::{self, Site};
 use launcher::brand::Brand;
+use launcher::data::{self, Data};
 use launcher::films;
 use launcher::postgres::{self, Postgres};
 use launcher::supervise::{Program, answers, keep, log_path};
@@ -24,16 +25,70 @@ struct Stack {
 
 const DEFAULT_PORT: u16 = 8080;
 const READY_WITHIN: Duration = Duration::from_secs(60);
+/// A finder is a small program with no database, so it answers long before the server does.
+const FINDER_READY_WITHIN: Duration = Duration::from_secs(20);
 
 fn hex_secret() -> String {
     let bytes: [u8; 32] = rand::rng().random();
     bytes.iter().map(|byte| format!("{byte:02x}")).collect()
 }
 
-fn free_port() -> Result<u16> {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
-    Ok(listener.local_addr()?.port())
+/// Ports for the children, every one of them chosen before any child starts.
+///
+/// Each listener is held open until `release`, so two children are never handed the same number:
+/// asking the system for a free port and letting go of it each time could answer with the same one
+/// twice. The window between letting go and a child binding is still there, which is why a child
+/// that cannot bind has to be noticed rather than left restarting into a log file.
+///
+/// Every number handed out is remembered whether or not its listener is still held, so a port let
+/// go of for a child that starts at once cannot be handed out a second time by the system.
+#[derive(Debug, Default)]
+struct Ports {
+    held: Vec<std::net::TcpListener>,
+    given: Vec<u16>,
 }
+
+impl Ports {
+    /// Tries at finding a number this run has not already spoken for.
+    const TRIES: u8 = 64;
+
+    /// A port for a child started after `release`, held open until then.
+    fn take(&mut self) -> Result<u16> {
+        let (listener, port) = self.pick()?;
+        self.held.push(listener);
+        Ok(port)
+    }
+
+    /// A port for a child asked to bind it right now, let go of before this returns.
+    ///
+    /// The database starts in the middle of the run, so holding its port until `release` told it to
+    /// bind a port this program still had open. Only this one number is let go of early, and it
+    /// stays spoken for, so the rest of the handover is unchanged.
+    fn take_and_free(&mut self) -> Result<u16> {
+        let (listener, port) = self.pick()?;
+        drop(listener);
+        Ok(port)
+    }
+
+    /// A fresh listener on a number this run has not handed out before.
+    fn pick(&mut self) -> Result<(std::net::TcpListener, u16)> {
+        for _ in 0..Self::TRIES {
+            let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+            let port = listener.local_addr()?.port();
+            if !self.given.contains(&port) {
+                self.given.push(port);
+                return Ok((listener, port));
+            }
+        }
+        bail!("no free port was found for a child to listen on")
+    }
+
+    /// Let the children have them.
+    fn release(self) {}
+}
+
+/// One finder's name and the address it listens on.
+type Listening = (String, String);
 
 /// This repository, from where the program sits: `bin/` or `target/<profile>/`.
 fn find_root() -> Result<PathBuf> {
@@ -167,18 +222,42 @@ fn publish_site(stack: &Stack) -> Result<PathBuf> {
 }
 
 /// The data set in use: this install's own, or a generated sample until one is built.
-fn data_set(stack: &Stack) -> Result<(PathBuf, PathBuf)> {
-    let data = stack.home.join("data");
-    let (manifest, key) = (data.join("manifest.json"), data.join("data_key.pem"));
-    if manifest.exists() && key.exists() {
-        return Ok((manifest, key));
+///
+/// The sample is written into a folder of its own with its key under a name of its own, so the
+/// operator's `data/` stays theirs and a real set can never be checked against the sample's
+/// published key. The sample's film list goes with it, so a real catalogue drops that list
+/// instead of inheriting one test film for every id.
+fn data_set(stack: &Stack) -> Result<Data> {
+    let sample_key = server_catalog::sample::sample_key_pem();
+    if let Some(own) = data::operator_set(&stack.home, &sample_key)? {
+        // An install that once ran without a catalogue kept the seeded film list, and the finder
+        // that reads it answers before the catalogue, so a test film stood in front of every real
+        // title with the same id. It is decided here on every start, so an install that already
+        // has the file is reached and not only a fresh one.
+        if let Some(aside) = films::retire_seed(&own.films)? {
+            println!(
+                "The sample film list was moved to {}, so this catalogue answers for itself.",
+                aside.display()
+            );
+        }
+        return Ok(own);
     }
     println!("No catalogue yet, so the site shows a generated sample with invented titles.");
-    films::seed(&stack.home.join("films.json"))?;
-    Ok((
-        server_catalog::sample::write_sample(&data),
-        server_catalog::sample::write_sample_key(&data),
-    ))
+    let (folder, key) = data::sample_at(&stack.home);
+    let manifest = server_catalog::sample::write_sample(&folder);
+    std::fs::write(&key, &sample_key)?;
+    let films = folder.join("films.json");
+    let titles: Vec<films::Title> = server_catalog::sample::sample_titles()
+        .into_iter()
+        .map(|title| (title.kind.to_owned(), title.id))
+        .collect();
+    films::seed(&films, &titles)?;
+    Ok(Data {
+        manifest,
+        key,
+        films,
+        sample: true,
+    })
 }
 
 fn base_env(pairs: &[(&str, String)]) -> BTreeMap<String, String> {
@@ -210,7 +289,11 @@ fn migrate(stack: &Stack, database: &Postgres) -> Result<()> {
 const SUBTITLE_PACK: &str = "subtitles";
 
 /// The subtitle pack if this copy has one, and where it listens.
-fn subtitle_pack(stack: &Stack, token: &str) -> Result<Option<(Program, String)>> {
+fn subtitle_pack(
+    stack: &Stack,
+    token: &str,
+    ports: &mut Ports,
+) -> Result<Option<(Program, String)>> {
     let path = stack
         .root
         .join("packs")
@@ -220,7 +303,7 @@ fn subtitle_pack(stack: &Stack, token: &str) -> Result<Option<(Program, String)>
     if !path.exists() {
         return Ok(None);
     }
-    let port = free_port()?;
+    let port = ports.take()?;
     let program = Program {
         log: log_path(&stack.home, SUBTITLE_PACK),
         name: SUBTITLE_PACK.to_owned(),
@@ -249,21 +332,26 @@ fn packs(stack: &Stack) -> Vec<(String, PathBuf)> {
         .collect()
 }
 
-fn finders(stack: &Stack, token: &str) -> Result<(Vec<Program>, Vec<String>)> {
+/// Every finder this copy has, with the address each one listens on.
+fn finders(
+    stack: &Stack,
+    token: &str,
+    films: &Path,
+    ports: &mut Ports,
+) -> Result<(Vec<Program>, Vec<Listening>)> {
     let mut list = vec![(
         String::from("open-films"),
         stack.programs.join("finder-open-films"),
     )];
     list.extend(packs(stack));
-    let films = stack.home.join("films.json");
     if !films.exists() {
-        std::fs::write(&films, "[]")?;
+        std::fs::write(films, "[]")?;
     }
     let mut programs = Vec::new();
-    let mut urls = Vec::new();
+    let mut listening = Vec::new();
     for (name, path) in list {
-        let port = free_port()?;
-        urls.push(format!("http://127.0.0.1:{port}"));
+        let port = ports.take()?;
+        listening.push((name.clone(), format!("http://127.0.0.1:{port}")));
         programs.push(Program {
             log: log_path(&stack.home, &name),
             name,
@@ -275,7 +363,7 @@ fn finders(stack: &Stack, token: &str) -> Result<(Vec<Program>, Vec<String>)> {
             ]),
         });
     }
-    Ok((programs, urls))
+    Ok((programs, listening))
 }
 
 /// Ctrl-C, or the stop a service manager sends.
@@ -326,20 +414,26 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
         .context("the secrets file has no finder token")?
         .to_owned();
     let site = publish_site(stack)?;
-    let (manifest, key) = data_set(stack)?;
+    let data = data_set(stack)?;
     println!("Preparing the database...");
     let bin = postgres::install(&stack.home.join("postgres")).await?;
-    let database = Postgres::start(&bin, &stack.home.join("database/data"), free_port()?)?;
-    migrate(stack, &database)?;
-
-    let (mut programs, finder_urls) = finders(stack, &token)?;
-    let subtitle_url = match subtitle_pack(stack, &token)? {
+    let mut ports = Ports::default();
+    let (mut programs, listening) = finders(stack, &token, &data.films, &mut ports)?;
+    let subtitle_url = match subtitle_pack(stack, &token, &mut ports)? {
         Some((program, url)) => {
             programs.push(program);
             url
         }
         None => String::new(),
     };
+    // The database binds its port as it starts, so this one number is let go of here and not
+    // at `release` below, where the children that start after this point take theirs.
+    let database = Postgres::start(
+        &bin,
+        &stack.home.join("database/data"),
+        ports.take_and_free()?,
+    )?;
+    migrate(stack, &database)?;
     let host = if options.public {
         "0.0.0.0"
     } else {
@@ -361,9 +455,19 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
         env: base_env(&[
             ("SERVER_LISTEN", format!("{host}:{}", options.port)),
             ("DATABASE_URL", database.url.clone()),
-            ("DATA_MANIFEST", manifest.to_string_lossy().into_owned()),
-            ("DATA_PUBLIC_KEYS", key.to_string_lossy().into_owned()),
-            ("FINDER_URLS", finder_urls.join(",")),
+            (
+                "DATA_MANIFEST",
+                data.manifest.to_string_lossy().into_owned(),
+            ),
+            ("DATA_PUBLIC_KEYS", data.key.to_string_lossy().into_owned()),
+            (
+                "FINDER_URLS",
+                listening
+                    .iter()
+                    .map(|(_, url)| url.as_str())
+                    .collect::<Vec<&str>>()
+                    .join(","),
+            ),
             ("FINDER_TOKEN", token.clone()),
             ("SUBTITLE_URL", subtitle_url),
             ("WEB_ROOT", site.to_string_lossy().into_owned()),
@@ -408,11 +512,22 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
         ]),
     };
 
+    // The children take the ports from here on, so the holder lets go of them first.
+    ports.release();
     let mut running = tokio::task::JoinSet::new();
     for program in programs {
         running.spawn(keep(program));
     }
     running.spawn(keep(server));
+    // A finder that never came up used to show as nothing at all: play simply found no sources.
+    for (name, url) in &listening {
+        if !answers(&format!("{url}/v1/health"), FINDER_READY_WITHIN).await {
+            eprintln!(
+                "PROBLEM the {name} finder is not answering, so its sources are missing. See {}",
+                log_path(&stack.home, name).display()
+            );
+        }
+    }
     if !answers(&format!("{local}/v1/ready"), READY_WITHIN).await {
         eprintln!(
             "The server is not answering yet, see {}",
@@ -517,7 +632,8 @@ async fn backup(stack: &Stack, words: &[String]) -> Result<()> {
     if data.join("postmaster.pid").exists() {
         bail!("stop the service first, a backup runs while it is stopped");
     }
-    let database = Postgres::start(&bin, &data, free_port()?)?;
+    let mut ports = Ports::default();
+    let database = Postgres::start(&bin, &data, ports.take_and_free()?)?;
     let output = Command::new(bin.join("pg_dump"))
         .arg(&database.url)
         .arg("--file")
@@ -589,5 +705,40 @@ async fn main() -> ExitCode {
             eprintln!("{why:#}");
             ExitCode::FAILURE
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The database is handed a port and binds it at once, so the launcher must not still have it.
+    /// Holding it until `release` is what stopped `up` and `backup` starting the database at all.
+    #[test]
+    fn a_port_for_a_child_that_binds_now_is_let_go_of_and_never_handed_out_twice() {
+        let mut ports = Ports::default();
+        let held = ports.take().expect("a held port");
+        let now = ports.take_and_free().expect("a port to bind now");
+        assert_ne!(held, now);
+        // What the database does with it, which only works because nothing here holds it.
+        let child = std::net::TcpListener::bind(("127.0.0.1", now)).expect("the child binds it");
+        drop(child);
+        // A port still held here cannot be bound by a child, which is the race this type closes.
+        assert!(
+            std::net::TcpListener::bind(("127.0.0.1", held)).is_err(),
+            "a held port was free for a child to take"
+        );
+        // And letting one go early does not put its number back in the hat.
+        let mut more: Vec<u16> = Vec::new();
+        for _ in 0..16 {
+            more.push(ports.take().expect("a port"));
+        }
+        more.push(ports.take_and_free().expect("another port"));
+        assert!(!more.contains(&now), "a freed port was handed out twice");
+        assert!(!more.contains(&held));
+        let mut seen = more.clone();
+        seen.sort_unstable();
+        seen.dedup();
+        assert_eq!(seen.len(), more.len(), "two children got the same port");
     }
 }

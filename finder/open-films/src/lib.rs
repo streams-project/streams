@@ -96,7 +96,11 @@ impl Provider for OpenFilms {
                 kind: film.kind,
                 group: "open-films".to_owned(),
                 headers: BTreeMap::new(),
-                verified: true,
+                // The flag means the finder fetched and read this address. This one fetches
+                // nothing, so it cannot claim it: the operator vouched for the licence, which is
+                // not the same statement. Saying true here made the rule that keeps unchecked
+                // sources away from kids tiers do nothing at all.
+                verified: false,
                 container: None,
                 height: film.height,
                 audio: film.audio.clone(),
