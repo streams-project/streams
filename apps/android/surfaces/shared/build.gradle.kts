@@ -48,4 +48,13 @@ dependencies {
     // APK still has both. What is left here is the drawing binding, until these screens are
     // rewritten in Java and ask the port instead.
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+
+    // This module's first tests, on this machine's JVM. JUnit 4 and nothing else, for the reason
+    // `surfaces/phone/build.gradle.kts` gives: an Android library gets its Kotlin from the Android
+    // plugin and its unit tests run on JUnit 4 by default. The semantics and the dp scale these
+    // tests read are plain Kotlin value classes, so they need no device, no resources and no
+    // toolkit runner. `androidx.compose.ui:ui-test` and `org.robolectric` are not in `~/.gradle`
+    // and gradle runs `--offline` here, so a composed-tree test is not available; `Heard.kt` in
+    // the test source set says what that costs.
+    testImplementation("junit:junit:4.13.2")
 }

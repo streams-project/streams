@@ -239,6 +239,14 @@ def dependencies(code: Path, family: dict) -> list[str]:
 # banned words, which is a check reading its own build output and calling it the app.
 BUILT = frozenset({"build", ".gradle", "target", "dist", "node_modules", "DerivedData", ".build"})
 
+# A test is in no ring. It stands outside the app looking in, so it may name a port's own library and
+# a page's own address without that being a surface reaching past a port - and a test that scans the
+# surfaces for a banned word has to be able to write the word down. The apple family has always said
+# this, by naming `Tests` in its `rest`; these are the folder names the other families use for the
+# same thing, and without them the eleven preservation tests written on 2026-11-12 counted as
+# surfaces and were scanned as if they drew something.
+OUTSIDE = frozenset({"test", "androidTest", "testFixtures", "Tests"})
+
 
 def surface_files(code: Path, family: dict) -> list[Path]:
     """Every surface file of a family, each one once, and nothing a build wrote."""
@@ -251,6 +259,7 @@ def surface_files(code: Path, family: dict) -> list[Path]:
         and path.suffix in family["ends"]
         and path.name not in family["skip"]
         and not BUILT.intersection(path.relative_to(folder).parts[:-1])
+        and not OUTSIDE.intersection(path.relative_to(folder).parts[:-1])
     }
     return sorted(files)
 
