@@ -20,7 +20,7 @@ import streams.shared.refType
 
 internal var keptWords: Map<String, String> = emptyMap()
 
-private fun badgeLabel(badge: Badge, words: Map<String, String>): String = when (badge.kind) {
+internal fun badgeLabel(badge: Badge, words: Map<String, String>): String = when (badge.kind) {
     BadgeKind.NEW -> words["badge.new"].orEmpty()
     BadgeKind.RANKED -> {
         val rank = badge.rank ?: return ""

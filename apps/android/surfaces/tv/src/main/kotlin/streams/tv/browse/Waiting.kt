@@ -1,12 +1,13 @@
 package streams.tv
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.foundation.layout.fillMaxSize
 import streams.ports.Seen
+import streams.ports.Shell
+import streams.tv.browse.WaitingView
 
 /**
  * What a television page shows while it has nothing to show.
@@ -27,23 +28,36 @@ import streams.ports.Seen
  * There is no wording here, invented or otherwise. A page that cannot say where it is - no tabs
  * yet, which is what a run with no server looks like - draws the black body alone rather than a
  * bar with nothing in it.
+ *
+ * The drawing is `browse/WaitingView.java`. What is left here is the same data seam `Browse` keeps,
+ * for the same reason: `it.screen.value` on a `NavItem` is `getScreen-mbV6UQU()` in the bytecode and
+ * cannot be written in Java (`browse/Reading.kt`).
  */
 @Composable
-fun Waiting(seen: Seen) {
+fun Waiting(shell: Shell, seen: Seen) {
     val tabs = tabsOf(seen.nav)
     val current = seen.route?.screen?.value ?: "home"
     val person = seen.profiles.firstOrNull { it.id == seen.active } ?: seen.profiles.firstOrNull()
-    Box(Modifier.fillMaxSize().background(Color.Black)) {
-        // The destination, lit, as the reference lights it. Nothing is lit when nothing is known.
-        if (tabs.isNotEmpty()) {
-            TopBar(
-                tabs = tabs,
-                active = tabs.indexOfFirst { it.screen.value == current },
-                focus = -1,
-                person = person,
-                server = seen.server,
-                words = seen.words,
-            )
-        }
+    // The face and the mark are pictures, so this screen needs the port even though it has nothing
+    // else on it. `shell` was not passed to the Compose version and both its call sites had one;
+    // without it the bar draws a plate where the profile's picture goes, which is a behaviour this
+    // port is not allowed to lose.
+    val pictures = remember(shell) { ShellArt(shell) }
+    val feed = feedOf(
+        tabs = tabs,
+        active = tabs.indexOfFirst { it.screen.value == current },
+        person = person,
+        server = seen.server,
+        rows = emptyList(),
+        lead = null,
+        words = seen.words,
+        empty = "",
+    )
+    AndroidView(
+        factory = { context -> WaitingView(context, pictures) },
+        modifier = Modifier.fillMaxSize(),
+    ) { view ->
+        view.mirror(seen.rtl)
+        view.show(feed, seen.words)
     }
 }

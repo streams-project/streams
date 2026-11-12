@@ -34,7 +34,7 @@ private fun formatLength(words: Map<String, String>, minutes: Long): String {
     }
 }
 
-private fun facts(detail: TitleDetail, words: Map<String, String>): List<String> = buildList {
+internal fun facts(detail: TitleDetail, words: Map<String, String>): List<String> = buildList {
     detail.genres?.firstOrNull()?.let(::add)
     detail.year?.let { add(number(it)) }
     val seasons = detail.seasons?.size ?: 0
