@@ -95,9 +95,15 @@ fun Home(shell: Shell, seen: Seen) {
     val pickedGenre = if (here == "genre") {
         seen.nav.firstOrNull { it.screen.value == "genre" && it.genre == seen.route?.genre }
     } else null
+    // Ends on the brand, as the Apple surface does (`SurfacesPhone/browse/Home.swift:55`). Before
+    // 2026-11-12 this ended on `words["app.title"].orEmpty()`, so a page the menu has no label for
+    // and a language with no `app.title` drew a header with nothing in it. `app.title` is still not
+    // in `strings/` and is still listed as a deliberate gap by `WordsTest.kt`; the brand is the
+    // answer either way, and it is what a person would call this app out loud.
     val title = pickedGenre?.label
         ?: seen.nav.firstOrNull { it.screen.value == here }?.label
-        ?: words["app.title"].orEmpty()
+        ?: words["app.title"]?.takeIf { it.isNotEmpty() }
+        ?: seen.brand
 
     val screenKey = if (onHome) "home" else "$here:${seen.route?.genre.orEmpty()}"
     val scrollStates = remember { mutableMapOf<String, LazyListState>() }
