@@ -4,9 +4,11 @@ Desktop shell for Mac, Windows and Linux, and a small C host for boxes.
 
 Part of an open video platform. Status: a host and four ports, no screen. 1,158 lines of Rust in 8
 files, and 539 lines of tests in 2 files, 29 tests in all, counted with `find src -name '*.rs' |
-xargs wc -l` and `cargo test` in this folder. The core is linked as native Rust here, not Wasm and
-not through the C bridge. `./check` does not reach this crate yet, because it is not a member of the root workspace:
-build and test it from this folder with `cargo test`, which is how those figures were taken. The
+xargs wc -l` and `cargo test -p desktop` from the repository root. The core is linked as native
+Rust here, not Wasm and not through the C bridge. `./check` reaches this crate: it is a member of
+the root workspace, so `cargo clippy --workspace --all-targets --locked -- -D warnings` and
+`cargo test --workspace --locked` both cover it, which is how those figures were taken. Two of the
+29 are `#[cfg(unix)]`, a file mode and a secret's rights, so a machine that is not unix runs 27. The
 root README's status table still groups this folder with the ones holding a README and nothing
 else; that line is now wrong, and the row is shared, so it is not changed here.
 

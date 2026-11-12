@@ -160,13 +160,47 @@ the two `[lints]` tables with `[lints] workspace = true`; and regenerate and com
 have. Without that third change both commands fail, and they fail on CI rather than on the machine
 making the edit.
 
-Status: open, and named as a handoff.
+Status: superseded by decision 9 on 2026-11-12, which did it. The paragraphs above describe the
+tree before that date: this folder is no longer a workspace of its own and `./check` no longer
+skips it.
+
+## 2026-11-12
+
+### 9. The crate is a member of the root workspace, and `./check` covers it
+
+Decision 8 is done, by the three changes it named and nothing else. `"apps/desktop"` is in
+`members` in the root `Cargo.toml`; this folder's manifest inherits `version`, `edition`,
+`license`, `publish` and `[lints]` from the workspace, and takes `contract`, `rand`, `reqwest` and
+`tokio` from `[workspace.dependencies]`; this folder's own `Cargo.lock` is deleted, with the
+`.gitignore` line that hid it, and the root `Cargo.lock` gained one package entry, `desktop`, with
+no dependency version moved.
+
+Two of decision 8's premises were wrong by the time they were acted on, and both are recorded
+rather than quietly fixed. The root workspace declares `edition = "2024"` and this crate already
+said `edition = "2024"`, so joining is not an edition change and no lint arrived with a new
+edition. And the two `[lints]` tables this crate declared were already the workspace's two, byte
+for byte, so `[lints] workspace = true` changed no lint level at all. What had in fact never run
+over these files was `-D warnings` together with `--all-targets`, which is what `./check` runs, and
+it found nothing: four clippy units, the library, the library's own tests, `tests/host.rs` and
+`tests/ports.rs`, with no warning and so no `#[expect]` anywhere in the crate.
+
+Rejected: keeping this crate's narrower `reqwest` and `tokio` feature lists. The workspace's
+`reqwest` carries `json`, which this host does not use, and its `tokio` is `full` against the four
+features this host named. Both are supersets of what is needed, both are already built that way for
+the server crates in the same invocation, so neither costs a byte here, and the convention in
+`launcher`, `finder/service`, `platform/base/net-guard` and `tests/wired` is to inherit.
+`serde_json` is still written out, because the workspace declaration is `default-features = false`
+with `alloc` alone for the no_std core and this host is std, which is what every std member in this
+repository does.
+
+Status: verified. 29 tests run under `cargo test --workspace --locked`: 11 in the library, 7 in
+`tests/host.rs`, 11 in `tests/ports.rs`. Two of the 29 are `#[cfg(unix)]`, so a machine that is not
+unix runs 27, and nobody should read that as a regression.
 
 ## Open items
 
 | What | What unblocks it |
 |---|---|
-| This crate is outside `./check` | one line in the root `Cargo.toml`, by whoever owns it |
 | The root README still calls this folder empty | the owner of that shared status row replaces it |
 | No window, so no screen and no capability card | decision 3's web view binding, then the card |
 | No film plays | libmpv behind the window, once there is a window |

@@ -19,6 +19,7 @@ members = [
     "finder/service",
     "finder/open-films",
     "launcher",
+    "apps/desktop",
     "apps/web",
     "tests/wired",
 ]
