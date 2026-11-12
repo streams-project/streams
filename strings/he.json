@@ -96,6 +96,7 @@
   "language.digits": "latn",
   "language.dir": "rtl",
   "language.name": "עברית",
+  "language.text_scale": "1",
   "list.add": "הרשימה שלי",
   "list.added": "ברשימה שלי",
   "menu.exit": "יציאה מ-{brand}",

@@ -28,13 +28,14 @@ class WordsTest {
      * `app.title` is the phone header's last fallback when the menu has no label for the page
      * (`browse/Home.kt:100`); the Apple surface falls through it to `seen.brand`
      * (`apps/apple/Sources/SurfacesPhone/browse/Home.swift:55`) and the phone does not, so the
-     * header can be empty. `language.digits` and `language.text_scale` are per-language settings,
-     * not labels, read by this surface's siblings as well
-     * (`apps/android/surfaces/tv/src/main/kotlin/streams/tv/app/Television.kt:53`); both have a
-     * default in the code, so their absence is the current behaviour and not a defect to fix from
-     * here. None of the three is one of this surface's spoken labels.
+     * header can be empty. `language.digits` and `language.text_scale` left this list on
+     * 2026-11-12, when both were filled in all eighteen language files with the value the code
+     * already fell back to; they were per-language data rather than labels. `app.title` stays,
+     * because filling it is not the obvious fix: the Apple surface falls through to `seen.brand`
+     * and this one does not, so the open question is whether the phone should do the same and the
+     * key is wanted at all. That is the owner's, and until he takes it the gap is real.
      */
-    private val gaps = setOf("app.title", "language.digits", "language.text_scale")
+    private val gaps = setOf("app.title")
 
     @Test
     fun `every word the phone asks for is in the strings file`() {

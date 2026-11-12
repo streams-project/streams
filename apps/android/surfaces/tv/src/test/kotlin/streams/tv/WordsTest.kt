@@ -27,14 +27,16 @@ class WordsTest {
      * one fails this test, and filling one of these fails it too, so the list cannot outlive the
      * gap.
      *
-     * None of the three is a label. All three are per-language settings that the surface reads and
-     * falls back on in the code, and all three are in `ar.json` (302 keys against English's 290),
-     * which is where the twelve extra Arabic keys note 215 records live. `language.digits` and
-     * `language.text_scale` are read at `app/Television.kt:53`; `search.letters` is the on-screen
-     * keyboard's alphabet, which has a Latin default in the code. Their absence from English is the
-     * current behaviour and not a defect to fix from a test.
+     * Empty, and that is the point of asserting it exactly: on 2026-11-12 the three keys this test
+     * was written to record were filled in all eighteen language files, so the list had to shrink or
+     * this test would have kept a gap alive that no longer exists. They were per-language DATA
+     * rather than prose - `language.digits` is a CLDR numbering token whose only meaningful values
+     * are `arab`, `arabext` and `latn`; `language.text_scale` is a float the surface clamps to
+     * 0.8 to 1.4; `search.letters` is the on-screen keyboard's alphabet, which the grid lays out
+     * seven across, so its length should be a multiple of seven. Each was filled with the value the
+     * code already fell back to, so nothing on screen moved and English now holds 293 keys.
      */
-    private val gaps = setOf("language.digits", "language.text_scale", "search.letters")
+    private val gaps = emptySet<String>()
 
     @Test
     fun `every word the television asks for is in the strings file`() {
