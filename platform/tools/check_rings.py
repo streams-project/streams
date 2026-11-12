@@ -16,6 +16,12 @@ are asserted, in this order:
               whether they are folders or links to folders
   no strays   every code file the family has in git is inside a ring, or inside a folder the
               family declares as `rest`, which is the part of the app that is not a ring
+  depends     no surface module DECLARES a dependency that reaches the device. The read above is a
+              read of words in source, which is a different assertion: the android family's
+              `okhttp3` ban passed on every run while okhttp3 was linked into all three surface
+              modules, arriving under `io.coil-kt.coil3:coil-network-okhttp`, which those modules
+              declared themselves. 78 okhttp3 and 89 okio classes were in the APK while this read
+              said the network was behind a port. A dependency is not a word anybody types
 
 `least` stays, with a margin under today's count, and it is now only a floor against a scan that
 read nothing like the tree: a deleted file is bookkeeping, a missing folder is caught above.
@@ -31,6 +37,18 @@ ROOT = Path(__file__).resolve().parents[2]
 # surface files, the parts of the family that are not rings, and what a surface may not name.
 # `least` carries a margin under the real count, so an ordinary deletion is bookkeeping; `rest` is
 # the whole of the rest of the family, so a folder that is in neither is a failure with a name.
+# What a surface module may not DEPEND ON, read from the coordinates its own build file declares.
+#
+# Only the android family has a build file per surface. The apple family's surface targets declare
+# in-package targets alone (`Package.swift`: Contract, Ports, SurfacesShared), the web family is one
+# crate with one manifest, and the television page was stopped, so for those three there is nothing
+# of this kind to read and `builds` is empty on purpose rather than by omission.
+#
+# What is read is what a build file DECLARES, not the transitive graph: the whole graph needs a
+# Gradle run, and this is a guard that has to stay seconds long -- `./check` starts no Gradle at
+# all. So a surface that declares something harmless which drags a banned library in behind it is
+# NOT caught here. That hole is the smaller one of the two: a declaration is a line somebody chose
+# to type, and this read now sees every one of them.
 FAMILIES = {
     "tv": {
         "code": "apps/tv/page",
@@ -39,6 +57,9 @@ FAMILIES = {
         "least": 17,
         "rest": ("host.js",),
         "skip": set(),
+        "builds": (),
+        "banned_deps": {},
+        "allowed_deps": frozenset(),
         "banned": {
             "the keys port": r"\bkeyCode\b|\baddEventListener\(\"keydown\"",
             "the network port": r"\bXMLHttpRequest\b|\bfetch\(",
@@ -53,6 +74,9 @@ FAMILIES = {
         "least": 4,
         "rest": ("host.rs", "main.rs", "state.rs"),
         "skip": set(),
+        "builds": (),
+        "banned_deps": {},
+        "allowed_deps": frozenset(),
         "banned": {
             "the address table": r'"/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)[/"?]',
             "the network port": r"\bfetch_with|\bRequestInit\b|\breqwest\b",
@@ -76,6 +100,21 @@ FAMILIES = {
         # The one activity that plugs adapters into ports, and the core in its JNI shell.
         "rest": ("app", "core"),
         "skip": set(),
+        "builds": ("surfaces/*/build.gradle.kts",),
+        "banned_deps": {
+            "the pictures port": r"^io\.coil-kt|^com\.github\.bumptech\.glide:|^com\.squareup\.picasso:",
+            "the network port": r"^com\.squareup\.(okhttp3|okio|retrofit2):|^io\.ktor:",
+            "the player port": r"^androidx\.media3:|^com\.google\.android\.exoplayer:",
+            "the store port": r"^androidx\.(room|datastore|security|sqlite):",
+            "a port, and the adapters and the core are not a surface's to link": r"^:(adapters|core)$",
+        },
+        # The one exemption, and it is named here rather than left out of the ban above, so that
+        # deleting it is what closes this. Coil's Compose binding is still declared by the three
+        # surface modules because 15 surface files draw through `AsyncImage`, and those files are
+        # rewritten in Java anyway; what reaches the device -- the network fetcher and the decoders
+        # -- moved to `:adapters` behind the `Pictures` port on 2026-11-12. This line goes when the
+        # last `AsyncImage` does.
+        "allowed_deps": frozenset({"io.coil-kt.coil3:coil-compose"}),
         "banned": {
             "the address table": r'"/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)[/"?]',
             "the network port": r"\bjava\.net\b|\bokhttp3\b|\bHttpURLConnection\b",
@@ -102,6 +141,9 @@ FAMILIES = {
             "Tests",
         ),
         "skip": set(),
+        "builds": (),
+        "banned_deps": {},
+        "allowed_deps": frozenset(),
         "banned": {
             "the address table": r'"/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)[/"?]',
             "the network port": r"\bURLSession\b",
@@ -111,6 +153,17 @@ FAMILIES = {
     },
 }
 PARTS = ("adapters", "surfaces")
+
+# A line's comment, so prose about a library is not mistaken for a declaration of one. It is read
+# per line and knows nothing about quotes, so a `//` inside a string takes the rest of that line
+# with it; a build file with a url and a dependency on one line would hide the dependency, and no
+# build file here has one.
+ASIDE = re.compile(r"//.*$")
+# `group:artifact` or `group:artifact:version` inside quotes, which is how every build system this
+# project uses names an outside library.
+COORDINATE = re.compile(r'"([a-z][\w.\-]*:[\w.\-]+)(?::[^"]*)?"')
+# A module of this same build, named the way Gradle names one.
+NEARBY = re.compile(r'project\(\s*"(:[\w:.\-]+)"\s*\)')
 
 
 def surface_folders(code: Path, family: dict) -> tuple[set[Path], list[str]]:
@@ -131,6 +184,52 @@ def surface_folders(code: Path, family: dict) -> tuple[set[Path], list[str]]:
             )
         folders |= matched
     return folders, blind
+
+
+def surface_builds(code: Path, family: dict) -> tuple[list[Path], list[str]]:
+    """Every build file a family's `builds` patterns name, and a line per pattern that named none.
+
+    A pattern matching nothing is the same failure as a `surfaces` pattern matching nothing: the
+    module moved and the read went on passing.
+    """
+    files: list[Path] = []
+    blind = []
+    for pattern in family["builds"]:
+        matched = sorted(path for path in code.glob(pattern) if path.is_file())
+        if not matched:
+            blind.append(
+                f"`builds` names {pattern!r}, which is no build file of this family: a surface "
+                "module moved, and this read would pass without it"
+            )
+        files += matched
+    return files, blind
+
+
+def declared(path: Path) -> list[tuple[int, str]]:
+    """Every outside library and nearby module a build file names, as (line, what it named)."""
+    found = []
+    for number, line in enumerate(path.read_text("utf-8").splitlines(), 1):
+        bare = ASIDE.sub("", line)
+        found += [(number, match.group(1)) for match in NEARBY.finditer(bare)]
+        found += [(number, match.group(1)) for match in COORDINATE.finditer(bare)]
+    return found
+
+
+def dependencies(code: Path, family: dict) -> list[str]:
+    """Every dependency a surface module declares that reaches the device behind a port."""
+    files, blind = surface_builds(code, family)
+    found = list(blind)
+    for path in files:
+        for number, named in declared(path):
+            if named in family["allowed_deps"]:
+                continue
+            for port, words in family["banned_deps"].items():
+                if re.search(words, named):
+                    found.append(
+                        f"{path.relative_to(ROOT)}:{number}: this module declares {named}, which "
+                        f"puts it on this surface's classpath: reach it through {port}"
+                    )
+    return found
 
 
 def surface_files(code: Path, family: dict) -> list[Path]:
@@ -216,6 +315,8 @@ def check(name: str, family: dict) -> list[str]:
     # assertion `least` could never make: a new folder of screens is a failure here even when the
     # count of what was read goes up.
     found += [f"{name}: {line}" for line in strays(code, family, rings)]
+    # What the surfaces DEPEND ON, which the banned-word read below cannot see at all.
+    found += [f"{name}: {line}" for line in dependencies(code, family)]
     files = surface_files(code, family)
     # A floor under the read, with a margin: a deleted surface is bookkeeping, a surfaces folder
     # that went missing is already a failure above.
@@ -239,9 +340,11 @@ def main() -> int:
     for name, family in FAMILIES.items():
         code = ROOT / family["code"]
         folders, _ = surface_folders(code, family)
+        builds, _ = surface_builds(code, family)
         print(
             f"rings: {name} read {len(surface_files(code, family))} surface files in "
-            f"{len(folders)} folders, {len(tracked_code(code, family))} files of the family in git"
+            f"{len(folders)} folders, {len(tracked_code(code, family))} files of the family in git, "
+            f"{len(builds)} surface build files for what they depend on"
         )
     for line in found:
         print(line)

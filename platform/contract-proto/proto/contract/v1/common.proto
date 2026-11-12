@@ -1,0 +1,614 @@
+// The vocabulary: every word of the contract, and the five values every family
+// carries. This file imports nothing but the options, on purpose.
+//
+// Why one file for all 40 enums, when the Rust has them beside the messages that
+// use them: the Rust modules are mutually recursive (platform/contract/src/play.rs
+// uses client::CoreMode and platform/contract/src/client.rs uses play::AttemptKind)
+// and proto imports cannot be. A leaf file is the only layering that holds, and it
+// is the honest one: a word is shared vocabulary, not the property of one family.
+//
+// Every enum here except TitleKind is OPEN. A number this build does not know is
+// kept as the number, which is what `#[serde(other)] Unknown` does today with the
+// word (platform/contract/src/macros.rs:21-33), except protobuf keeps the number
+// and Rust keeps nothing. The zero value stands in for that unknown.
+syntax = "proto3";
+
+package contract.v1;
+
+import "contract/constraints/v1/constraints.proto";
+
+// ---------------------------------------------------------------------------
+// Title and rating. platform/contract/src/title.rs.
+// ---------------------------------------------------------------------------
+
+// The two kinds of title. Closed on purpose: a new kind reaches old clients only
+// through a dated transform, so a key always names a kind this build can open
+// (platform/contract/src/title.rs:23). proto3 enums are open over numbers, so the
+// closure is a refusal declared on every FIELD that carries a kind, with
+// `closed: true`, and is not a property of this declaration.
+enum TitleKind {
+  TITLE_KIND_UNSPECIFIED = 0;
+  TITLE_KIND_MOVIE = 1;
+  TITLE_KIND_TV = 2;
+}
+
+// Rating words on the wire. Screens use the words like, love and dislike.
+enum Rating {
+  RATING_UNSPECIFIED = 0;
+  RATING_DOWN = 1;
+  RATING_UP = 2;
+  RATING_LOVE = 3;
+}
+
+// ---------------------------------------------------------------------------
+// Screens. platform/contract/src/screen.rs.
+// ---------------------------------------------------------------------------
+
+// The screens the server builds. `my-list` is kebab-case on the JSON wire today; a
+// proto enum value name cannot hold a hyphen and protobuf has no `json_name` for an
+// enum value, which is why one valid fixture (Screen.my_list) had no proto3 JSON
+// form at all. On a binary wire the name never travels: this is number 6 and the
+// word is a client side label again.
+enum ScreenName {
+  SCREEN_NAME_UNSPECIFIED = 0;
+  SCREEN_NAME_HOME = 1;
+  SCREEN_NAME_FILMS = 2;
+  SCREEN_NAME_SERIES = 3;
+  SCREEN_NAME_GENRE = 4;
+  SCREEN_NAME_NEW = 5;
+  SCREEN_NAME_MY_LIST = 6;
+  // The viewer's own page: what they are watching, saved and liked.
+  SCREEN_NAME_MINE = 7;
+  SCREEN_NAME_KIDS = 8;
+  SCREEN_NAME_SEARCH = 9;
+  SCREEN_NAME_NOTIFICATIONS = 10;
+  SCREEN_NAME_ACTIVITY = 11;
+  SCREEN_NAME_GAMES = 12;
+  SCREEN_NAME_CLIPS = 13;
+  SCREEN_NAME_LANGUAGE = 14;
+  // Help. Its text comes from the help routes, so it has no page of rows.
+  SCREEN_NAME_HELP = 15;
+  // The viewer's settings, which also have no page of rows.
+  SCREEN_NAME_SETTINGS = 16;
+}
+
+// Section kinds. A kind this build does not draw falls back to a plain row, which is
+// why this enum must stay open: the fallback needs an unknown to fall back from.
+enum SectionKind {
+  SECTION_KIND_UNSPECIFIED = 0;
+  SECTION_KIND_HERO = 1;
+  SECTION_KIND_ROW = 2;
+  SECTION_KIND_RANKED = 3;
+  SECTION_KIND_CONTINUE = 4;
+  SECTION_KIND_GRID = 5;
+  SECTION_KIND_NOTICE = 6;
+}
+
+// What an image is for.
+enum ImageRole {
+  IMAGE_ROLE_UNSPECIFIED = 0;
+  IMAGE_ROLE_POSTER = 1;
+  IMAGE_ROLE_BACKDROP = 2;
+  IMAGE_ROLE_LOGO = 3;
+  IMAGE_ROLE_STILL = 4;
+  IMAGE_ROLE_AVATAR = 5;
+  // A tall picture of the title with no words on it, to fill a portrait screen.
+  IMAGE_ROLE_ART = 6;
+}
+
+// What the line under a title's logo on the profile chooser tells.
+enum GateLineKind {
+  GATE_LINE_KIND_UNSPECIFIED = 0;
+  // The title comes out on `date`.
+  GATE_LINE_KIND_COMING = 1;
+  // A new season of the series starts on `date`.
+  GATE_LINE_KIND_SEASONS_COMING = 2;
+  // The title is number `rank` among today's most watched of its `media`.
+  GATE_LINE_KIND_RANKED = 3;
+  // No line.
+  GATE_LINE_KIND_NONE = 4;
+}
+
+// The colour family of an age mark. The server picks it and each app paints it.
+enum AgeTone {
+  AGE_TONE_UNSPECIFIED = 0;
+  AGE_TONE_GREEN = 1;
+  AGE_TONE_YELLOW = 2;
+  AGE_TONE_ORANGE = 3;
+  AGE_TONE_PINK = 4;
+  AGE_TONE_RED = 5;
+  AGE_TONE_DARK_RED = 6;
+  AGE_TONE_BLUE = 7;
+  AGE_TONE_GREY = 8;
+}
+
+// Marks on a tile.
+enum BadgeKind {
+  BADGE_KIND_UNSPECIFIED = 0;
+  BADGE_KIND_RANKED = 1;
+  BADGE_KIND_NEW = 2;
+}
+
+// Events after which a screen should be read again.
+enum RefreshTrigger {
+  REFRESH_TRIGGER_UNSPECIFIED = 0;
+  REFRESH_TRIGGER_FOCUS = 1;
+  REFRESH_TRIGGER_SIGN_IN = 2;
+  REFRESH_TRIGGER_PROFILE_CHANGE = 3;
+  REFRESH_TRIGGER_LIST_CHANGE = 4;
+  REFRESH_TRIGGER_HISTORY_CHANGE = 5;
+}
+
+// ---------------------------------------------------------------------------
+// Play. platform/contract/src/play.rs.
+// ---------------------------------------------------------------------------
+
+// How an attempt is played.
+enum AttemptKind {
+  ATTEMPT_KIND_UNSPECIFIED = 0;
+  ATTEMPT_KIND_HLS = 1;
+  ATTEMPT_KIND_FILE = 2;
+  ATTEMPT_KIND_EMBED = 3;
+}
+
+// Windows of time inside a video.
+enum WindowKind {
+  WINDOW_KIND_UNSPECIFIED = 0;
+  WINDOW_KIND_RECAP = 1;
+  WINDOW_KIND_INTRO = 2;
+  WINDOW_KIND_CREDITS = 3;
+  WINDOW_KIND_AGE_CARD = 4;
+  WINDOW_KIND_CUE = 5;
+}
+
+// What a play report says happened.
+enum PlayEventName {
+  PLAY_EVENT_NAME_UNSPECIFIED = 0;
+  PLAY_EVENT_NAME_FIRST_FRAME = 1;
+  PLAY_EVENT_NAME_REBUFFER = 2;
+  PLAY_EVENT_NAME_FAILURE = 3;
+  PLAY_EVENT_NAME_ENDED = 4;
+}
+
+// ---------------------------------------------------------------------------
+// The core boundary. platform/contract/src/core_msg.rs.
+// ---------------------------------------------------------------------------
+
+// Why an http effect got no answer. Any status at all is an answer.
+enum NoAnswerReason {
+  NO_ANSWER_REASON_UNSPECIFIED = 0;
+  NO_ANSWER_REASON_OFFLINE = 1;
+  NO_ANSWER_REASON_TIMEOUT = 2;
+  NO_ANSWER_REASON_TLS = 3;
+  NO_ANSWER_REASON_CLOCK_WRONG = 4;
+  NO_ANSWER_REASON_CANCELLED = 5;
+}
+
+// Methods of an http effect.
+enum HttpMethod {
+  HTTP_METHOD_UNSPECIFIED = 0;
+  HTTP_METHOD_GET = 1;
+  HTTP_METHOD_POST = 2;
+  HTTP_METHOD_PUT = 3;
+  HTTP_METHOD_PATCH = 4;
+  HTTP_METHOD_DELETE = 5;
+}
+
+// How an http effect may be handled.
+enum HttpClass {
+  HTTP_CLASS_UNSPECIFIED = 0;
+  // Must reach the server. The offline layer keeps it when one is present.
+  HTTP_CLASS_COMMAND = 1;
+  // May be answered from a kept copy.
+  HTTP_CLASS_CACHEABLE = 2;
+  // The host performs it as it arrives.
+  HTTP_CLASS_PLAIN = 3;
+}
+
+// Where the body of an answer goes. An answer outside 200 to 299 always comes to
+// the core, because the core reads its error code.
+enum BodyTarget {
+  BODY_TARGET_UNSPECIFIED = 0;
+  BODY_TARGET_CORE = 1;
+  BODY_TARGET_SCREEN = 2;
+}
+
+// Store operations. Only the offline layer uses store.
+enum StoreOp {
+  STORE_OP_UNSPECIFIED = 0;
+  STORE_OP_GET = 1;
+  STORE_OP_PUT = 2;
+  STORE_OP_DELETE = 3;
+  STORE_OP_LIST = 4;
+}
+
+// Secret operations.
+enum SecretOp {
+  SECRET_OP_UNSPECIFIED = 0;
+  SECRET_OP_GET = 1;
+  SECRET_OP_PUT = 2;
+  SECRET_OP_DELETE = 3;
+}
+
+// Timer operations. A clear uses the id of the timer it clears.
+enum TimerOp {
+  TIMER_OP_UNSPECIFIED = 0;
+  TIMER_OP_SET = 1;
+  TIMER_OP_CLEAR = 2;
+}
+
+// Log levels.
+enum LogLevel {
+  LOG_LEVEL_UNSPECIFIED = 0;
+  LOG_LEVEL_DEBUG = 1;
+  LOG_LEVEL_INFO = 2;
+  LOG_LEVEL_WARN = 3;
+  LOG_LEVEL_ERROR = 4;
+}
+
+// Where sign in stands.
+enum SessionState {
+  SESSION_STATE_UNSPECIFIED = 0;
+  SESSION_STATE_STARTING = 1;
+  SESSION_STATE_SIGNED_OUT = 2;
+  SESSION_STATE_SIGNED_IN = 3;
+}
+
+// Where a device sign in stands.
+enum DeviceSignInState {
+  DEVICE_SIGN_IN_STATE_UNSPECIFIED = 0;
+  // Nothing is running: it was stopped, or a session opened.
+  DEVICE_SIGN_IN_STATE_IDLE = 1;
+  // The core polls. With no `user_code` yet, a code is on its way.
+  DEVICE_SIGN_IN_STATE_WAITING = 2;
+  // The viewer said no on the approving screen.
+  DEVICE_SIGN_IN_STATE_DENIED = 3;
+  // The code ran out and a new one follows with no press.
+  DEVICE_SIGN_IN_STATE_EXPIRED = 4;
+  // This server cannot do device sign in.
+  DEVICE_SIGN_IN_STATE_OFF = 5;
+}
+
+// Why a session ended.
+enum EndReason {
+  END_REASON_UNSPECIFIED = 0;
+  END_REASON_SIGNED_OUT = 1;
+  END_REASON_EVERYWHERE = 2;
+  END_REASON_REFUSED = 3;
+  END_REASON_ELSEWHERE = 4;
+}
+
+// A semantic target. Each device maps it to one of its own screens.
+enum Target {
+  TARGET_UNSPECIFIED = 0;
+  TARGET_START = 1;
+  TARGET_SIGN_IN = 2;
+  TARGET_PROFILES = 3;
+  TARGET_HOME = 4;
+  TARGET_KIDS_HOME = 5;
+  TARGET_SCREEN = 6;
+  TARGET_TITLE = 7;
+  TARGET_WATCH = 8;
+  TARGET_NOT_FOUND = 9;
+  TARGET_WAIT = 10;
+  TARGET_UPGRADE = 11;
+  // Approve or refuse a device that shows a code. It needs an account, even where
+  // visitors may browse, and no profile.
+  TARGET_ACTIVATE = 12;
+}
+
+// Where the play session stands.
+enum PlayState {
+  PLAY_STATE_UNSPECIFIED = 0;
+  PLAY_STATE_RESOLVING = 1;
+  PLAY_STATE_STARTING = 2;
+  PLAY_STATE_PLAYING = 3;
+  PLAY_STATE_PAUSED = 4;
+  PLAY_STATE_STALLED = 5;
+  PLAY_STATE_SWITCHING = 6;
+  PLAY_STATE_ENDED = 7;
+  PLAY_STATE_FAILED = 8;
+}
+
+// ---------------------------------------------------------------------------
+// Who is calling. platform/contract/src/client.rs.
+// ---------------------------------------------------------------------------
+
+// Client class. Minimum versions, start deadlines and reachability are kept per
+// class.
+enum DeviceClass {
+  DEVICE_CLASS_UNSPECIFIED = 0;
+  DEVICE_CLASS_WEB = 1;
+  DEVICE_CLASS_PHONE = 2;
+  DEVICE_CLASS_TABLET = 3;
+  DEVICE_CLASS_DESKTOP = 4;
+  DEVICE_CLASS_TV = 5;
+  DEVICE_CLASS_BOX = 6;
+  DEVICE_CLASS_CAR = 7;
+}
+
+// The form a client draws in. A browser on a phone is class web, form phone.
+enum Form {
+  FORM_UNSPECIFIED = 0;
+  FORM_PHONE = 1;
+  FORM_TABLET = 2;
+  FORM_DESKTOP = 3;
+  FORM_TV = 4;
+}
+
+// Where the core runs for this device.
+enum CoreMode {
+  CORE_MODE_UNSPECIFIED = 0;
+  CORE_MODE_LOCAL = 1;
+  CORE_MODE_HOSTED = 2;
+}
+
+// Input a device has.
+enum InputKind {
+  INPUT_KIND_UNSPECIFIED = 0;
+  INPUT_KIND_TOUCH = 1;
+  INPUT_KIND_POINTER = 2;
+  INPUT_KIND_KEYBOARD = 3;
+  INPUT_KIND_REMOTE = 4;
+  INPUT_KIND_GAMEPAD = 5;
+  INPUT_KIND_ROTARY = 6;
+}
+
+// ---------------------------------------------------------------------------
+// Commands and changes. platform/contract/src/command.rs.
+// ---------------------------------------------------------------------------
+
+// Answer per op.
+enum Outcome {
+  OUTCOME_UNSPECIFIED = 0;
+  OUTCOME_APPLIED = 1;
+  OUTCOME_SUPERSEDED = 2;
+  OUTCOME_REJECTED = 3;
+}
+
+// Signals a viewer gives.
+enum FeedbackEvent {
+  FEEDBACK_EVENT_UNSPECIFIED = 0;
+  FEEDBACK_EVENT_CLICK = 1;
+  FEEDBACK_EVENT_START = 2;
+  FEEDBACK_EVENT_COMPLETE = 3;
+  FEEDBACK_EVENT_LIKE = 4;
+  FEEDBACK_EVENT_SKIP = 5;
+}
+
+// Settings a queued command may change. Age rating and blocked titles are absent on
+// purpose: they need a step up, so a queued write can never touch them.
+enum SettingKey {
+  SETTING_KEY_UNSPECIFIED = 0;
+  SETTING_KEY_AUTOPLAY_NEXT = 1;
+  SETTING_KEY_AUTOPLAY_PREVIEWS = 2;
+  SETTING_KEY_AUDIO_LANGUAGE = 3;
+  SETTING_KEY_SUBTITLE_LANGUAGE = 4;
+  SETTING_KEY_SUBTITLE_STYLE = 5;
+  SETTING_KEY_UI_LANGUAGE = 6;
+  SETTING_KEY_HANDLE = 7;
+  SETTING_KEY_GENDER = 8;
+}
+
+// ---------------------------------------------------------------------------
+// Service and language. platform/contract/src/hello.rs.
+// ---------------------------------------------------------------------------
+
+// State of a part of the service.
+enum ServiceState {
+  SERVICE_STATE_UNSPECIFIED = 0;
+  SERVICE_STATE_READY = 1;
+  SERVICE_STATE_DEGRADED = 2;
+  SERVICE_STATE_DOWN = 3;
+}
+
+// Which way a language's lines run. The apps lay out, mirror and move focus by it;
+// the player's timeline and the brand's art never turn.
+enum TextDirection {
+  TEXT_DIRECTION_UNSPECIFIED = 0;
+  TEXT_DIRECTION_LTR = 1;
+  TEXT_DIRECTION_RTL = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Player and errors. platform/contract/src/driver.rs, error.rs.
+// ---------------------------------------------------------------------------
+
+// Failure classes a driver reports. The core picks the next attempt from these.
+enum ErrorClass {
+  ERROR_CLASS_UNSPECIFIED = 0;
+  ERROR_CLASS_NETWORK = 1;
+  ERROR_CLASS_MANIFEST = 2;
+  ERROR_CLASS_SEGMENT = 3;
+  ERROR_CLASS_DECODE = 4;
+  ERROR_CLASS_KEY = 5;
+  ERROR_CLASS_FORMAT = 6;
+  ERROR_CLASS_REFUSED = 7;
+}
+
+// Stable error code. A code this build does not know keeps its number.
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;
+  ERROR_CODE_BAD_REQUEST = 1;
+  ERROR_CODE_UNAUTHORIZED = 2;
+  ERROR_CODE_SESSION_ENDED = 3;
+  ERROR_CODE_PROFILE_REQUIRED = 4;
+  ERROR_CODE_PIN_REQUIRED = 5;
+  ERROR_CODE_STEP_UP_REQUIRED = 6;
+  ERROR_CODE_REFUSED = 7;
+  ERROR_CODE_NOT_FOUND = 8;
+  ERROR_CODE_NO_LONGER_AVAILABLE = 9;
+  ERROR_CODE_CONFLICT = 10;
+  ERROR_CODE_RATE_LIMITED = 11;
+  ERROR_CODE_OVERLOADED = 12;
+  ERROR_CODE_DEADLINE_EXCEEDED = 13;
+  ERROR_CODE_UPGRADE_REQUIRED = 14;
+  ERROR_CODE_UNSUPPORTED = 15;
+  ERROR_CODE_NO_SOURCE = 16;
+  ERROR_CODE_CLOCK_WRONG = 17;
+  ERROR_CODE_INTERNAL = 18;
+}
+
+// ---------------------------------------------------------------------------
+// Finder, help, notifications, device sign in.
+// ---------------------------------------------------------------------------
+
+// How a search for sources ended. platform/contract/src/finder.rs.
+enum FindOutcome {
+  FIND_OUTCOME_UNSPECIFIED = 0;
+  FIND_OUTCOME_FOUND = 1;
+  FIND_OUTCOME_PARTIAL = 2;
+  FIND_OUTCOME_NOT_FOUND = 3;
+  FIND_OUTCOME_PENDING = 4;
+}
+
+// What a block of an article is. platform/contract/src/help.rs.
+enum HelpBlockKind {
+  HELP_BLOCK_KIND_UNSPECIFIED = 0;
+  HELP_BLOCK_KIND_PARAGRAPH = 1;
+  HELP_BLOCK_KIND_HEADING = 2;
+  HELP_BLOCK_KIND_STEPS = 3;
+  HELP_BLOCK_KIND_LIST = 4;
+  HELP_BLOCK_KIND_NOTE = 5;
+  // An action the app offers here. An app without it leaves the block out.
+  HELP_BLOCK_KIND_TOOL = 6;
+}
+
+// What kind of notice this is. platform/contract/src/notification.rs.
+enum NoticeKind {
+  NOTICE_KIND_UNSPECIFIED = 0;
+  NOTICE_KIND_NEW_ARRIVAL = 1;
+  NOTICE_KIND_COMING = 2;
+  NOTICE_KIND_REMINDER_LIVE = 3;
+  NOTICE_KIND_NEW_SEASON = 4;
+  NOTICE_KIND_NEW_EPISODE = 5;
+}
+
+// Answers while a device waits for approval. platform/contract/src/account.rs.
+enum DevicePoll {
+  DEVICE_POLL_UNSPECIFIED = 0;
+  DEVICE_POLL_AUTHORIZATION_PENDING = 1;
+  DEVICE_POLL_SLOW_DOWN = 2;
+  DEVICE_POLL_ACCESS_DENIED = 3;
+  DEVICE_POLL_EXPIRED_TOKEN = 4;
+}
+
+// ---------------------------------------------------------------------------
+// The five values every family carries.
+// ---------------------------------------------------------------------------
+
+// `movie:<id>`, structured. The text grammar - the colon, the kind word, digits
+// only, no leading zero - is gone with the text, and what survives of
+// platform/contract/src/title.rs:100-110 is these two options.
+//
+// Which refused fixtures these two lines close: the ten bare-id and unknown-kind
+// ones by `closed` (a bare id arrives as kind unset, which is the zero value, and
+// `show:1` as a number the schema does not declare); TitleKey.id_zero,
+// TitleKey.id_over_max and TitleKey.id_ten_digits by the bounds. The last two are
+// the pair the generated Kotlin accepts today and the core refuses.
+message TitleKey {
+  TitleKind kind = 1 [(contract.constraints.v1.field) = {closed: true}];
+  // The id is 31 bits in Rust: the top bit of a packed key holds the kind
+  // (platform/contract/src/title.rs:17, MAX_TITLE_ID = 2^31-1).
+  //
+  // The field is uint64 ANYWAY, and this is the sharpest thing measured in this
+  // package. As a uint32 it is not safe: protobuf truncates a varint that does not
+  // fit the declared width, so a sender writing `tv:9999999999` - which is
+  // refused/TitleKey.id_ten_digits.json, and which the generated Kotlin accepts -
+  // produces a message that decodes cleanly as id 1410065407, a DIFFERENT AND VALID
+  // title. Measured, not reasoned: tests/refusals.rs decodes the bytes and prost
+  // returns Ok(TitleKey { kind: Tv, id: 1410065407 }). A viewer would be shown the
+  // wrong film and nothing anywhere would report a fault.
+  //
+  // uint64 makes the illegal value REPRESENTABLE, which is the only way a bound can
+  // refuse it. The varint costs the same bytes for every id that fits, so a real
+  // key is not a byte larger. The cost is in the clients: protobuf-es gives
+  // TypeScript a `bigint` and protoc-gen-kotlin a `Long` where uint32 gave `number`
+  // and `Int`. If that is unwelcome, `[jstype = JS_STRING]` is the standard
+  // mitigation; it is left off until note 204's P5 says which it wants.
+  uint64 id = 2 [(contract.constraints.v1.field) = {min: 1, max: 2147483647}];
+}
+
+// One episode of a series. A film has none. Both parts are optional today.
+message EpisodeRef {
+  optional uint32 season = 1;
+  optional uint32 episode = 2;
+}
+
+// A day of the calendar as a packed decimal: 2026-11-05 is 20261105.
+//
+// Why packed and not {year, month, day}: order is one integer comparison rather
+// than a hand written one in four languages; one field is one check, because
+// month 13 and day 32 are representable in both shapes and parts only spread the
+// same single predicate over three fields; and the project already packs an
+// identity into one u32 for indexes (title.rs `packed`).
+//
+// Two of today's refusals change here, and both are deliberate. CalendarDay.day_32
+// and CalendarDay.month_13 are refused by the predicate below. CalendarDay.no_dashes
+// ("20261120") STOPS being refused, because it was a refusal about text punctuation
+// and there is no text: packed, it is 2026-11-20, a day the project accepts.
+message CalendarDay {
+  // uint64 for the reason given on TitleKey.id: a uint32 would truncate an
+  // over-range varint into a plausible day instead of refusing it. The predicate
+  // bounds the year at 9999, so no separate ceiling is needed.
+  optional uint64 ymd = 1 [(contract.constraints.v1.field) = {
+    required: true,
+    value: VALUE_RULE_CALENDAR_DAY
+  }];
+}
+
+// The wire version axis, same packing, a separate message so the generated type
+// differs from CalendarDay's the way WireDate and CalendarDay are different
+// newtypes today.
+//
+// No calendar-day rule here, and that is not an omission. WireDate::parse
+// (platform/contract/src/version.rs:1132-1144) checks eight digits in YYYY-MM-DD
+// shape and nothing else: it accepts "2026-13-01" and "9999-99-99". The WIRE_MIN
+// floor lives in `VersionRange::fit`, a comparison the core makes, not a refusal
+// the boundary makes. Putting either rule here would add a refusal the contract
+// does not have, which the owner rule forbids.
+//
+// Field 1 is a varint, so "soon" cannot be put in it: refused/CoreIn.bad_date.json
+// carries `"contract": "soon"` and a sender that writes a length-delimited string
+// here produces bytes that fail to decode.
+message ContractDate {
+  // `max` is WireDate::parse's whole rule, said as a number: eight digits. Today
+  // "123456789" is refused for having nine, and without this ceiling a nine digit
+  // packed date would be accepted - a refusal lost by the reshape. uint64 for the
+  // truncation reason given on TitleKey.id.
+  optional uint64 ymd = 1 [(contract.constraints.v1.field) = {
+    required: true,
+    max: 99999999
+  }];
+}
+
+// The wire dates a server answers. Never compared for equality.
+message VersionRange {
+  ContractDate min = 1 [(contract.constraints.v1.field) = {required: true}];
+  ContractDate max = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// A map that is required even when empty needs a message of its own, because proto3
+// forbids `optional` on a map field and a map has no presence. This is the whole
+// answer to refused/Attempt.no_headers.json, which on a JSON-shaped schema was
+// byte-identical to its valid twin: here the absence of the message is visible and
+// `required` refuses it, for two bytes on the wire when it is present and empty.
+message Headers {
+  map<string, string> values = 1;
+}
+
+// The same, for the required text table of `/v1/strings/{lang}`.
+message TextMap {
+  map<string, string> values = 1;
+}
+
+// Text a client can draw with no other knowledge, including a client below the
+// floor. platform/contract/src/error.rs.
+message Notice {
+  // Label key, for clients with the strings.
+  optional string label = 1 [(contract.constraints.v1.field) = {required: true}];
+  // Plain text in the viewer's language.
+  optional string text = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string action_label = 3;
+  optional string action_address = 4;
+}

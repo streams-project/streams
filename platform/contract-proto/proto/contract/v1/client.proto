@@ -1,0 +1,50 @@
+// Who is calling. platform/contract/src/client.rs.
+syntax = "proto3";
+
+package contract.v1;
+
+import "contract/constraints/v1/constraints.proto";
+import "contract/v1/common.proto";
+
+// What a device can do. The server filters attempts and sections by this card.
+//
+// Eight of its fields are repeated and required today: serde refuses the message
+// when the key is absent, and proto3 has no presence for a repeated field, so
+// absent and empty become the same bytes. `presence_lost` declares each one so the
+// loss is counted (tools/check_proto_tie.py) instead of found later. The reader
+// cannot tell "this build draws no section kinds" from "this build forgot to say",
+// and for a card that filters what a device is offered, the two mean opposite
+// things.
+message CapabilityCard {
+  optional string app = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string version = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional DeviceClass class = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional Form form = 4 [(contract.constraints.v1.field) = {required: true}];
+  optional string os = 5 [(contract.constraints.v1.field) = {required: true}];
+  optional string os_version = 6 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 screen_width = 7 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 screen_height = 8 [(contract.constraints.v1.field) = {required: true}];
+  // Section kinds this build draws. Others fall back to a plain row.
+  repeated SectionKind section_kinds = 9 [(contract.constraints.v1.field) = {presence_lost: true}];
+  // Attempt kinds this player opens. An embed appears only when listed here.
+  repeated AttemptKind attempt_kinds = 10 [(contract.constraints.v1.field) = {presence_lost: true}];
+  // Containers this player opens, such as ts, fmp4, mp4.
+  repeated string containers = 11 [(contract.constraints.v1.field) = {presence_lost: true}];
+  // Codecs this player opens, such as avc1, hvc1, mp4a.
+  repeated string codecs = 12 [(contract.constraints.v1.field) = {presence_lost: true}];
+  optional uint32 max_height = 13 [(contract.constraints.v1.field) = {required: true}];
+  // True when the player switches variants during play.
+  optional bool adaptive = 14 [(contract.constraints.v1.field) = {required: true}];
+  // Request headers the player can set on media, such as Referer.
+  repeated string media_headers = 15 [(contract.constraints.v1.field) = {presence_lost: true}];
+  // True when the driver reports video width or has_picture.
+  optional bool reports_picture = 16 [(contract.constraints.v1.field) = {required: true}];
+  // True when the player can load a side subtitle file.
+  optional bool side_subtitles = 17 [(contract.constraints.v1.field) = {required: true}];
+  // True when the device has a durable secret store.
+  optional bool secret_store = 18 [(contract.constraints.v1.field) = {required: true}];
+  // Bytes this device gives to kept commands and screens. 0 means none.
+  optional uint64 storage_bytes = 19 [(contract.constraints.v1.field) = {required: true}];
+  repeated InputKind input = 20 [(contract.constraints.v1.field) = {presence_lost: true}];
+  repeated string languages = 21 [(contract.constraints.v1.field) = {presence_lost: true}];
+}

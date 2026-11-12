@@ -36,8 +36,11 @@ cargo test --workspace --locked
 # Every app family is its own hexagon.
 python3 platform/tools/check_rings.py
 
-# The core still fits a browser and a television.
-cargo build --locked -p core -p contract -p offline --target wasm32v1-none
+# The core still fits a browser and a television. contract-proto is in this line and not only in
+# the workspace build because the whole size case for a binary wire rests on prost being no_std:
+# the crate is `#![no_std]` with `alloc`, which is the shape the core is in, and this is what
+# notices the day a std dependency arrives in it.
+cargo build --locked -p core -p contract -p offline -p contract-proto --target wasm32v1-none
 cargo clippy --locked -p bridge-wasm --target wasm32v1-none -- -D warnings
 cargo test --locked -p bridge-c --no-default-features
 
@@ -49,6 +52,23 @@ cargo test --locked -p bridge-c --no-default-features
   cargo run --locked -p contract-gen -- write
   git diff --exit-code -- contract/generated
   test -z "$(git status --porcelain -- contract/generated)"
+  # The same contract as a protobuf schema, which arrives BESIDE the JSON one and not instead of
+  # it. Every value rule is declared once, as a field option, and this program writes all 185
+  # validators out of the descriptor - so a rule cannot be stated twice and disagree with itself,
+  # which is what the title id rule does today: a comparison in contract/src/title.rs and a hand
+  # expanded regular expression beside it, agreeing only because check_patterns.py compares them.
+  # `-- check` writes nothing and exits 1 on drift, and the git lines cover the types and the
+  # descriptor, which contract-proto/build.rs writes.
+  cargo run --locked -p contract-validate-gen -- check
+  git diff --exit-code -- contract-proto/generated
+  test -z "$(git status --porcelain -- contract-proto/generated)"
+  # The ledger and the schema, tied in both directions: every row that names a path finds it, and
+  # every message is reachable from a row or a fixture. The tie is a sidecar and not an eighth
+  # ledger column because `ledger.py generate` rewrites ledger.csv from its plan; running it here
+  # is what stops the two drifting. The second line breaks each of its rules on purpose, so this
+  # check cannot go quiet without a red run.
+  python3 -I tools/check_proto_tie.py
+  python3 -I tools/check_proto_tie.py --selftest
   python3 tools/test_fake_server.py
   python3 tools/test_port_help.py
   # The expression every generated client compiles into itself refuses exactly what the core

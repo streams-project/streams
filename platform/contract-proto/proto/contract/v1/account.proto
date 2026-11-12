@@ -1,0 +1,265 @@
+// Sign in, devices, account and profiles. Tokens are opaque and the server alone
+// reads them. platform/contract/src/account.rs.
+syntax = "proto3";
+
+package contract.v1;
+
+import "contract/constraints/v1/constraints.proto";
+import "contract/v1/client.proto";
+import "contract/v1/common.proto";
+
+// Answer with no data.
+message Done {
+  optional bool done = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+message PasswordSignIn {
+  optional string email = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string password = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+message CodeSend {
+  optional string email = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// A code was sent, or would have been. The answer never says whether the account
+// exists.
+message CodeSent {
+  optional uint32 expires_in = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+message CodeSignIn {
+  optional string email = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string code = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+message SignUp {
+  optional string email = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string password = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string first_name = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional string last_name = 4 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Opaque tokens. `expires_in` is seconds, so no device clock decides anything.
+message SignedIn {
+  optional string user_id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string email = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string access_token = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional string refresh_token = 4 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 expires_in = 5 [(contract.constraints.v1.field) = {required: true}];
+}
+
+message RefreshRequest {
+  optional string refresh_token = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+message SignOut {
+  // True ends every session of this account.
+  optional bool everywhere = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Step up. Send a password or an emailed code.
+message Confirm {
+  optional string password = 1;
+  optional string code = 2;
+}
+
+// A step up holds for this many seconds and a refresh never renews it.
+message Confirmed {
+  optional uint32 valid_s = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+message RecoveryStart {
+  optional string email = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+message RecoveryFinish {
+  optional string email = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string code = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string new_password = 3 [(contract.constraints.v1.field) = {required: true}];
+}
+
+message DeviceCodeRequest {
+  optional string device_name = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Device sign in. The screen shows `user_code` even when it shows a QR code.
+message DeviceCode {
+  optional string device_code = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string user_code = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string verification_uri = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional string verification_uri_complete = 4 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 expires_in = 5 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 interval = 6 [(contract.constraints.v1.field) = {required: true}];
+}
+
+message DeviceTokenRequest {
+  optional string device_code = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Either tokens or a word saying to wait or stop. Both optional today, so the
+// schema does not make them a oneof: "neither" is a shape the Rust accepts.
+message DeviceTokenAnswer {
+  optional SignedIn signed_in = 1;
+  optional DevicePoll poll = 2;
+}
+
+message DeviceDecision {
+  optional string user_code = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Sent at each start. The card travels only when the server asks or the app or OS
+// changed.
+message DeviceCardRequest {
+  optional string device_key = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string card_hash = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional CapabilityCard card = 3;
+}
+
+// True when the server wants the whole card.
+message DeviceCardAnswer {
+  optional bool send_card = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// One signed in device.
+message DeviceSession {
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string name = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional DeviceClass class = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional uint64 last_seen_ms = 4 [(contract.constraints.v1.field) = {required: true}];
+  optional bool current = 5 [(contract.constraints.v1.field) = {required: true}];
+}
+
+message DeviceList {
+  repeated DeviceSession devices = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+message Account {
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string email = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string first_name = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional string last_name = 4 [(contract.constraints.v1.field) = {required: true}];
+  optional string phone = 5;
+}
+
+message AccountUpdate {
+  optional string first_name = 1;
+  optional string last_name = 2;
+}
+
+message PasswordChange {
+  optional string new_password = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+message EmailChange {
+  optional string email = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+message PhoneChange {
+  optional string phone = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Consent for personal rows.
+message Consent {
+  optional bool personal = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// One profile.
+message Profile {
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string name = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional bool kids = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional bool main = 4 [(contract.constraints.v1.field) = {required: true}];
+  optional bool has_pin = 5 [(contract.constraints.v1.field) = {required: true}];
+  optional string avatar = 6;
+  // A language code from `/v1/languages`, absent until one is chosen.
+  optional string language = 7;
+}
+
+message ProfileList {
+  repeated Profile profiles = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+message ProfileCreate {
+  optional string name = 1 [(contract.constraints.v1.field) = {required: true}];
+  bool kids = 2;
+}
+
+message ProfileUpdate {
+  optional string name = 1;
+  optional bool kids = 2;
+  optional string avatar = 3;
+  optional string language = 4;
+}
+
+// One picture a profile can wear.
+message AvatarPicture {
+  optional string name = 1 [(contract.constraints.v1.field) = {required: true}];
+  // Where the picture sits on this server.
+  optional string path = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// A row of pictures on one theme. `kids` says a Kids profile may wear them.
+message AvatarSet {
+  optional string name = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional bool kids = 2 [(contract.constraints.v1.field) = {required: true}];
+  repeated AvatarPicture pictures = 3 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+message AvatarSets {
+  repeated AvatarSet sets = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+message ProfileEnter {
+  optional string pin = 1;
+}
+
+// The profile answer names its home, so the core can map it to a target.
+message ProfileEntered {
+  Profile profile = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional ScreenName home = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Absent clears the PIN.
+message PinSet {
+  optional string pin = 1;
+}
+
+message ProfileTransfer {
+  optional string to_account_email = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Needs a step up. Never reachable through a queued command.
+//
+// `blocked_titles` stays `repeated string` and does NOT become `repeated TitleKey`,
+// which is the one place this package keeps text that has a grammar. The reason is
+// behaviour, not laziness: `TitleKey::parse_list`
+// (platform/contract/src/title.rs:133-146) deliberately skips junk and keeps going,
+// and a stored list may already hold an entry this build cannot parse. `repeated
+// TitleKey` turns such an entry into a kind-unset key, which the closed rule then
+// refuses, so a profile with one bad stored entry would stop being readable.
+// Assumed, not verified: the server's storage was not inspected. Marked for P6.
+message ProfileLimits {
+  optional string age_rating = 1 [(contract.constraints.v1.field) = {required: true}];
+  repeated string blocked_titles = 2 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+message ProfileSettings {
+  optional bool autoplay_next = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional bool autoplay_previews = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string audio_language = 3;
+  optional string subtitle_language = 4;
+  // Optional today (serde default, skipped when empty), so a bare map is right and
+  // no wrapper is needed: absent and empty mean the same thing here.
+  map<string, string> subtitle_style = 5;
+  optional string ui_language = 6;
+  optional string handle = 7;
+  optional string gender = 8;
+}
+
+// Everything held about an account.
+message AccountExport {
+  Account account = 1 [(contract.constraints.v1.field) = {required: true}];
+  repeated Profile profiles = 2 [(contract.constraints.v1.field) = {presence_lost: true}];
+  repeated DeviceSession devices = 3 [(contract.constraints.v1.field) = {presence_lost: true}];
+}

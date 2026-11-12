@@ -1,0 +1,35 @@
+// Notifications and reminders: a feed of arrival, coming, season and reminder
+// notices for one profile. platform/contract/src/notification.rs. N13.
+syntax = "proto3";
+
+package contract.v1;
+
+import "contract/constraints/v1/constraints.proto";
+import "contract/v1/common.proto";
+import "contract/v1/screen.proto";
+
+// One item in the notification feed.
+message NoticeItem {
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional NoticeKind kind = 2 [(contract.constraints.v1.field) = {required: true}];
+  Tile tile = 3 [(contract.constraints.v1.field) = {required: true}];
+  CalendarDay date = 4 [(contract.constraints.v1.field) = {required: true}];
+  optional bool unread = 5 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// `GET /v1/notifications`.
+message Notifications {
+  repeated NoticeItem items = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+  optional string cursor = 2;
+  optional bool has_more = 3 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// `GET /v1/notifications/count`.
+message NotificationCount {
+  optional uint32 unread = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// `POST /v1/notifications/read`.
+message NotificationRead {
+  optional string up_to = 1 [(contract.constraints.v1.field) = {required: true}];
+}

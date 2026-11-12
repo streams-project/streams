@@ -3,6 +3,10 @@ resolver = "3"
 members = [
     "platform/contract",
     "platform/contract/gen",
+    # The contract as a protobuf schema, beside the JSON contract and not instead of
+    # it, and the program that writes every validator from the field options.
+    "platform/contract-proto",
+    "platform/contract-proto/gen",
     "platform/core",
     "platform/offline",
     "platform/bridges/c",
@@ -18,6 +22,12 @@ members = [
     "apps/web",
     "tests/wired",
 ]
+
+# A byte-cost harness, not code anything ships. It is a `cdylib` with its own
+# `#[panic_handler]` and its own `wasm` profile, built by hand for one target to
+# answer one question, so it stays out of what `./check` builds. The numbers it
+# produced are in platform/contract-proto/README.md with the command beside each.
+exclude = ["platform/contract-proto/size"]
 
 [workspace.package]
 version = "0.0.0"
@@ -48,6 +58,15 @@ half = "2.4"
 hmac = "0.12"
 moka = { version = "0.12", features = ["future", "sync"] }
 pathfinding = "4.12"
+# The protobuf side of the contract. `default-features = false` keeps prost no_std:
+# platform/contract-proto is the shape the core is in, and it compiles for
+# wasm32v1-none. prost-build and protox are build and tool only, std, and reach
+# nothing that ships. protox is a protobuf front end written in Rust, which is why
+# the schema compiles with no `protoc` installed.
+prost = { version = "0.13", default-features = false, features = ["derive"] }
+prost-build = "0.13"
+prost-reflect = { version = "0.14", default-features = false }
+protox = "0.7"
 rand = "0.9"
 regex = "1"
 rayon = "1"

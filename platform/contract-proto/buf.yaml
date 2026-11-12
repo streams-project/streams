@@ -1,0 +1,33 @@
+# buf configuration for the contract schema.
+#
+# NOT RUN HERE. buf is not installed on this machine and installing it needs a
+# network download of a release binary, which this environment refuses. Everything
+# that could be checked without buf was checked with protox, which is the same
+# protobuf front end written in Rust: the schema compiles, the options resolve, and
+# the generator reads them back. `buf lint` and `buf breaking` are the two things
+# only buf can answer, and they are the half of this move that JSON has no
+# equivalent for.
+#
+# STANDARD with NO EXCEPTIONS, which is the point worth noticing. The spike's
+# buf.yaml needed three (ENUM_VALUE_PREFIX, ENUM_VALUE_UPPER_SNAKE_CASE,
+# ENUM_ZERO_VALUE_SUFFIX) because its enum VALUE NAMES were the contract's JSON
+# words - `row`, `unknown` - so that a proto3 JSON decoder could match them. Drawn
+# for a binary wire the names never travel, so the values are
+# SECTION_KIND_ROW and SECTION_KIND_UNSPECIFIED and the exceptions disappear. The
+# wire words live in the clients' labels, where they always belonged.
+#
+# What `buf breaking` with FILE buys, concretely, against this schema: a renamed
+# field, a changed field number, a changed type, a deleted message, a reordered
+# enum value and a field moved in or out of a oneof are all refused at commit time.
+# Those are the six ways the JSON contract could drift silently, and
+# platform/tools/check_types.py has never once run past Swift, so nothing catches
+# them today.
+version: v2
+modules:
+  - path: proto
+lint:
+  use:
+    - STANDARD
+breaking:
+  use:
+    - FILE

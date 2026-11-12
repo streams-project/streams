@@ -1,0 +1,17 @@
+# Every file of the schema, in dependency order. Read by build.rs (which compiles
+# the types) and by gen/ (which compiles the validator) so the two cannot drift:
+# a file that joins the contract joins it once, here. Paths are relative to this
+# folder. Lines starting with # are comments.
+contract/v1/common.proto
+contract/v1/error.proto
+contract/v1/client.proto
+contract/v1/screen.proto
+contract/v1/play.proto
+contract/v1/driver.proto
+contract/v1/command.proto
+contract/v1/account.proto
+contract/v1/hello.proto
+contract/v1/help.proto
+contract/v1/finder.proto
+contract/v1/notification.proto
+contract/v1/core.proto

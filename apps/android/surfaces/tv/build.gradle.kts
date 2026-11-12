@@ -31,9 +31,12 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
+    // The fetcher and the decoders moved to `:adapters` with the `Pictures` port: they reach
+    // the network and the disk, which is not a surface's business, and `coil-network-okhttp`
+    // was linking okhttp3 into this module. They register through `META-INF/services`, so the
+    // APK still has both. What is left here is the drawing binding, until these screens are
+    // rewritten in Java and ask the port instead.
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
-    implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
-    implementation("io.coil-kt.coil3:coil-svg:3.3.0")
     implementation("com.google.zxing:core:3.5.3")
     testImplementation("junit:junit:4.13.2")
 }

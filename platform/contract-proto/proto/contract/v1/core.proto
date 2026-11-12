@@ -1,0 +1,371 @@
+// Messages in and out of the core. platform/contract/src/core_msg.rs.
+//
+// The `type` tag is GONE, from all three of CoreConfig, CoreIn and CoreOut. Which
+// message is being read comes from which of the six C boundary functions was
+// called, not from a word inside the body. Two consequences, both measured in the
+// spike: refused/CoreIn.wrong_type.json and refused/CoreOut.wrong_type.json stop
+// being refused by a tag and start being refused by the shape (field 2 is a varint
+// in CoreIn and length-delimited in CoreOut, so a CoreOut carrying any effect fails
+// to decode as a CoreIn, and an empty one is caught by `required` on now_ms); and
+// `ABI_VERSION` must go to 2, because protobuf has no magic number and a JSON
+// payload fed to a protobuf decoder decodes to plausible nonsense rather than
+// returning BAD_MESSAGE. That bump is note 204's P3, not this package.
+syntax = "proto3";
+
+package contract.v1;
+
+import "contract/constraints/v1/constraints.proto";
+import "contract/v1/account.proto";
+import "contract/v1/client.proto";
+import "contract/v1/command.proto";
+import "contract/v1/common.proto";
+import "contract/v1/driver.proto";
+import "contract/v1/hello.proto";
+import "contract/v1/play.proto";
+
+// Given to `core_open`, once. The seed is the only random input the core ever gets.
+message CoreConfig {
+  ContractDate contract = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional DeviceClass class = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional Form form = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional CoreMode mode = 4 [(contract.constraints.v1.field) = {required: true}];
+  optional string app = 5 [(contract.constraints.v1.field) = {required: true}];
+  optional string version = 6 [(contract.constraints.v1.field) = {required: true}];
+  optional string os = 7 [(contract.constraints.v1.field) = {required: true}];
+  // Hex digits, at least 32. Not a rule here: nothing in the contract refuses a
+  // short seed today, and the owner rule forbids inventing a refusal.
+  optional string seed = 8 [(contract.constraints.v1.field) = {required: true}];
+  // What this device can do. The core sends its hash after sign in.
+  optional CapabilityCard card = 9;
+}
+
+// Asks `core_open` for the offline layer.
+message LayerConfig {
+  // Names this boot. It changes when monotonic time restarts.
+  optional string boot_id = 1 [(contract.constraints.v1.field) = {required: true}];
+  // The byte cap from the capability card. 0 means nothing is kept across a
+  // restart.
+  optional uint64 storage_bytes = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// What a screen asks for.
+message Action {
+  message SignIn {
+    optional string email = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional string password = 2 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message SendCode {
+    optional string email = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message SignInCode {
+    optional string email = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional string code = 2 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // Start device sign in. The core asks for a code, polls and renews it, and the
+  // screen draws `View.device_sign_in`. While a code is live this changes nothing.
+  message DeviceSignIn {
+    optional string device_name = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message DeviceSignInStop {}
+  message SignOut {
+    optional bool everywhere = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message EnterProfile {
+    optional string profile = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional string pin = 2;
+  }
+  message Play {
+    TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional EpisodeRef episode = 2;
+  }
+  message Pause {}
+  message Unpause {}
+  message Seek {
+    optional uint64 to_ms = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message SelectAudio {
+    optional string track = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message SelectText {
+    optional string track = 1;
+  }
+  message NextSubtitleFile {}
+  message Stop {}
+  // Named `CommandAction` and not `Command`, because a nested `Command` would
+  // shadow the top level `Command` message inside this scope and the field below
+  // would resolve to its own parent. A real trap, worth the longer name.
+  message CommandAction {
+    Command command = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // Send a prepared request with this session's token. The http effect takes the id
+  // of this event and its class is always plain, so whoever prepared it gets the
+  // answer under that id. Tokens stay in the core.
+  message Request {
+    optional HttpMethod method = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional string path = 2 [(contract.constraints.v1.field) = {required: true}];
+    optional string body = 3;
+  }
+
+  oneof action {
+    SignIn sign_in = 1;
+    SendCode send_code = 2;
+    SignInCode sign_in_code = 3;
+    DeviceSignIn device_sign_in = 4;
+    DeviceSignInStop device_sign_in_stop = 5;
+    SignOut sign_out = 6;
+    EnterProfile enter_profile = 7;
+    Play play = 8;
+    Pause pause = 9;
+    Unpause unpause = 10;
+    Seek seek = 11;
+    SelectAudio select_audio = 12;
+    SelectText select_text = 13;
+    NextSubtitleFile next_subtitle_file = 14;
+    Stop stop = 15;
+    CommandAction command = 16;
+    Request request = 17;
+  }
+}
+
+// One event. `id` is the id of the effect it answers, when it answers one.
+message Event {
+  // An http effect got an answer. Every status is data.
+  message HttpDone {
+    optional uint32 status = 1 [(contract.constraints.v1.field) = {required: true}];
+    // Optional today, so a bare map rather than the wrapper.
+    map<string, string> headers = 2;
+    // Absent when the body went to the screen.
+    optional string body = 3;
+  }
+  // An http effect got no answer at all.
+  message HttpFailed {
+    optional NoAnswerReason reason = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message StoreDone {
+    optional string value = 1;
+    repeated string keys = 2;
+  }
+  message SecretDone {
+    optional string value = 1;
+  }
+  message TimerFired {}
+  // The host cannot perform this effect.
+  message Unsupported {}
+  // The effect with this id was dropped.
+  message Cancelled {}
+  message Suspend {}
+  message Resume {}
+  message Visibility {
+    optional bool visible = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message Network {
+    optional bool online = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // Touch, key, wheel or playing video in view.
+  message Activity {}
+  // Another tab of this browser ended the session. The server has heard already.
+  message EndedElsewhere {}
+  // An address or deep link to open.
+  message Address {
+    optional string address = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // `ActionEvent`, not `Action`, for the shadowing reason given above.
+  message ActionEvent {
+    Action action = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // A driver event, stamped with the generation of the open that made it.
+  message Driver {
+    optional uint32 generation = 1 [(contract.constraints.v1.field) = {required: true}];
+    DriverEvent event = 2 [(contract.constraints.v1.field) = {required: true}];
+  }
+
+  optional string id = 1;
+  oneof body {
+    HttpDone http_done = 2;
+    HttpFailed http_failed = 3;
+    StoreDone store_done = 4;
+    SecretDone secret_done = 5;
+    TimerFired timer_fired = 6;
+    Unsupported unsupported = 7;
+    Cancelled cancelled = 8;
+    Suspend suspend = 9;
+    Resume resume = 10;
+    Visibility visibility = 11;
+    Network network = 12;
+    Activity activity = 13;
+    EndedElsewhere ended_elsewhere = 14;
+    Address address = 15;
+    ActionEvent action = 16;
+    Driver driver = 17;
+  }
+}
+
+// One step of input. Every input carries wall time and monotonic time.
+// refused/CoreIn.no_contract.json and refused/CoreIn.no_mono_ms.json are refused by
+// `required`.
+message CoreIn {
+  ContractDate contract = 1 [(contract.constraints.v1.field) = {required: true}];
+  // Wall time, ms since 1970.
+  optional uint64 now_ms = 2 [(contract.constraints.v1.field) = {required: true}];
+  // Monotonic time, ms. Restarts at boot.
+  optional uint64 mono_ms = 3 [(contract.constraints.v1.field) = {required: true}];
+  repeated Event events = 4 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+// A page body handed to a screen. It stands in for the answer to an http effect
+// whose body was going to the screen.
+message ScreenBody {
+  // Id of the http effect this answers.
+  optional string request = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string body = 2 [(contract.constraints.v1.field) = {required: true}];
+  // True when this copy is past its ttl and was kept for when the network is gone.
+  bool stale = 3;
+}
+
+// What an address opens.
+message RouteTarget {
+  optional Target target = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional ScreenName screen = 2;
+  // The genre, for the genre screen.
+  optional string genre = 3;
+  optional TitleKey title = 4;
+  optional EpisodeRef episode = 5;
+  // A safe address to return to after sign in.
+  optional string next = 6;
+  // The code an approve address carried, as it stood in the address.
+  optional string code = 7;
+}
+
+// One effect. The result comes back as an event with this id. Exactly eight kinds.
+message Effect {
+  // A path, never an address. The host holds the base address.
+  message Http {
+    optional HttpMethod method = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional string path = 2 [(contract.constraints.v1.field) = {required: true}];
+    map<string, string> headers = 3;
+    optional string body = 4;
+    optional uint32 deadline_ms = 5 [(contract.constraints.v1.field) = {required: true}];
+    optional HttpClass class = 6 [(contract.constraints.v1.field) = {required: true}];
+    optional BodyTarget to = 7 [(contract.constraints.v1.field) = {required: true}];
+    // Opaque scope of an account and profile, for kept copies.
+    optional string scope = 8;
+  }
+  message Store {
+    optional StoreOp op = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional string key = 2;
+    optional string value = 3;
+  }
+  message Secret {
+    optional SecretOp op = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional string name = 2 [(contract.constraints.v1.field) = {required: true}];
+    optional string value = 3;
+  }
+  message Timer {
+    optional TimerOp op = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional uint64 after_ms = 2;
+  }
+  message Player {
+    DriverCommand command = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // A one time notice or a kept page. Lasting state travels in `view`. Named
+  // `ViewEffect` so a reader never wonders whether `Effect.View` is the top level
+  // `View`; they are different shapes with the same word.
+  message ViewEffect {
+    optional Notice notice = 1;
+    optional ScreenBody body = 2;
+  }
+  message Open {
+    RouteTarget target = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message Log {
+    optional LogLevel level = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional string code = 2 [(contract.constraints.v1.field) = {required: true}];
+    optional string detail = 3;
+  }
+
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  oneof body {
+    Http http = 2;
+    Store store = 3;
+    Secret secret = 4;
+    Timer timer = 5;
+    Player player = 6;
+    ViewEffect view = 7;
+    Open open = 8;
+    Log log = 9;
+  }
+}
+
+// Sign in state for screens. Tokens never appear here.
+message SessionView {
+  optional SessionState state = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string user_id = 2;
+  optional string email = 3;
+  optional uint64 expires_at_ms = 4;
+  optional string profile = 5;
+  // Opaque scope of this account and profile, the same value http effects carry.
+  optional string scope = 6;
+  optional EndReason ended = 7;
+}
+
+// Device sign in state for screens. A dead code is left out, so no screen can show
+// one, and the device code has no field here.
+message DeviceSignInView {
+  optional DeviceSignInState state = 1 [(contract.constraints.v1.field) = {required: true}];
+  // The screen shows this even when it shows a QR code.
+  optional string user_code = 2;
+  optional string verification_uri = 3;
+  // The same address with the code in it, for a QR code.
+  optional string verification_uri_complete = 4;
+  // Seconds this code lives, counted from when it reached this view.
+  optional uint32 expires_in = 5;
+}
+
+// True while the who is watching prompt should show.
+message GateView {
+  optional bool ask = 1 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Play session state for screens.
+message PlayView {
+  optional PlayState state = 1 [(contract.constraints.v1.field) = {required: true}];
+  TitleKey title = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional EpisodeRef episode = 3;
+  optional string attempt = 4;
+  repeated TimeWindow windows = 5;
+  // Absent on the last episode, so no screen offers one that does not exist.
+  optional EpisodeRef next_episode = 6;
+  // Several episodes started by themselves with nobody touching anything, so the
+  // next one waits until the viewer says they are still there.
+  bool still_asking = 7;
+}
+
+// Changed screen state. A part that is absent did not change.
+message View {
+  optional SessionView session = 1;
+  optional DeviceSignInView device_sign_in = 2;
+  optional RouteTarget route = 3;
+  optional GateView gate = 4;
+  optional PlayView play = 5;
+  // The account's profiles, for the picker. No PIN is ever held here.
+  optional ProfileList profiles = 6;
+  // The last hello read, so a screen takes limits and features from one place.
+  optional Hello hello = 7;
+}
+
+// One step of output.
+message CoreOut {
+  ContractDate contract = 1 [(contract.constraints.v1.field) = {required: true}];
+  repeated Effect effects = 2 [(contract.constraints.v1.field) = {presence_lost: true}];
+  optional View view = 3;
+  // Monotonic time at which the host steps the core again. Absent means no wake.
+  optional uint64 next_wake_ms = 4;
+  // Ids of in events of a type this core does not know.
+  repeated string unsupported = 5;
+}
+
+// `POST /v1/core/step`. `config` is sent on the first step of a hosted session.
+message HostedStep {
+  optional CoreConfig config = 1;
+  CoreIn input = 2 [(contract.constraints.v1.field) = {required: true}];
+}

@@ -1,0 +1,54 @@
+# Generation for the three client languages. NOT RUN HERE: buf, protoc,
+# protoc-gen-swift, protoc-gen-kotlin, protoc-gen-es, node, npm, tsc and kotlinc are
+# all absent from this machine, and the sandbox refuses the protoc release download.
+# swiftc exists (`xcrun -f swiftc`) but the generated Swift needs the SwiftProtobuf
+# runtime, which is also a download.
+#
+# Rust does not appear in this file and never will. prost-build is driven from
+# build.rs and compiles the schema with protox, so Rust needs neither buf nor protoc
+# nor a plugin. That is why the Rust half of this package is proven and the rest is
+# written and waiting.
+#
+# The CHECKS are not in this file either, and that is the design. These plugins
+# write types. The rules on those types are written by
+# `cargo run -p contract-validate-gen -- write`, from the field options, for every
+# language - so no client can be born more forgiving than the core, which is exactly
+# what the JSON contract needed a 230 line checker to guarantee: the id rule is
+# carried once as a comparison in title.rs and once as a hand expanded regular
+# expression beside it, and before 5db018f the two disagreed.
+version: v2
+managed:
+  enabled: true
+plugins:
+  # Swift, which the owner's 2026-11-12 decision keeps: appropriate native Apple
+  # technologies alongside Rust, and Objective-C was considered and rejected. The
+  # generated code needs the SwiftProtobuf runtime at build time, where today
+  # apps/apple/Sources/.../Contract.swift needs nothing but Foundation. That is a
+  # real cost of the move and it belongs to note 204's P5.
+  - remote: buf.build/apple/swift:v1.28.2
+    out: generated/swift
+    opt:
+      - Visibility=Public
+
+  # Java, and no Kotlin. The owner's decision of 2026-11-12 is Java with native
+  # Android Views, keeping the Rust core and avoiding unnecessary Kotlin
+  # dependencies. protoc's Kotlin output is a DSL layered on this same Java runtime
+  # - there is no Kotlin-only generator - so it would add kotlin-stdlib to the APK
+  # to wrap classes the Java plugin already wrote. The plugin was in this file while
+  # the toolkit question was open; it is out now that it is answered.
+  - remote: buf.build/protocolbuffers/java:v29.3
+    out: generated/java
+
+  # TypeScript. protobuf-es v2 output is ESM and imports @bufbuild/protobuf.
+  # platform/kit/core/tests/boundary.rs:295 asserts that no line of
+  # platform/bridges/ts/core.ts begins with `import`, so this output is for the
+  # server's clients and not for that bridge. The television DOM page at apps/tv is
+  # no longer a reason for the caveat note 204 wrote here: the owner stopped it
+  # (note 179) in favour of a binary on every platform, so there is no plain-ES5
+  # surface left to keep on a JSON core. apps/web is Rust to wasm and reads the
+  # schema through platform/contract-proto, not through this plugin.
+  - remote: buf.build/bufbuild/es:v2.2.3
+    out: generated/ts
+    opt:
+      - target=ts
+      - json_types=true

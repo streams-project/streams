@@ -12,6 +12,7 @@ use launcher::data::{self, Data, Found};
 use launcher::films;
 use launcher::postgres::{self, Postgres};
 use launcher::running;
+use launcher::site;
 use launcher::supervise::{Program, answers, keep, log_path};
 use rand::Rng;
 use serde_json::{Value, json};
@@ -142,38 +143,6 @@ fn secrets(stack: &Stack) -> Result<Value> {
     Ok(made)
 }
 
-fn copy_folder(from: &Path, to: &Path) -> Result<()> {
-    std::fs::create_dir_all(to)?;
-    for entry in std::fs::read_dir(from)? {
-        let entry = entry?;
-        let target = to.join(entry.file_name());
-        if entry.file_type()?.is_dir() {
-            copy_folder(&entry.path(), &target)?;
-        } else {
-            std::fs::copy(entry.path(), target)?;
-        }
-    }
-    Ok(())
-}
-
-/// The showreel and the peek hold title art, so they are kept out of the repository with the
-/// opening's two sounds. A brand puts its own in `media/`, and the apps run without them. The
-/// opening itself is drawn by each app.
-fn copy_tv_media(assets: &Path, tv: &Path) -> Result<()> {
-    for name in [
-        "showreel.mp4",
-        "peek.jpg",
-        "opening-chime.m4a",
-        "opening-swell.m4a",
-    ] {
-        let from = assets.join("media").join(name);
-        if from.exists() {
-            std::fs::copy(from, tv.join(name))?;
-        }
-    }
-    Ok(())
-}
-
 /// The core for a television: next to this program in `bin/`, or where cargo left it.
 fn core_wasm(stack: &Stack) -> Option<PathBuf> {
     [
@@ -184,42 +153,6 @@ fn core_wasm(stack: &Stack) -> Option<PathBuf> {
     ]
     .into_iter()
     .find(|path| path.exists())
-}
-
-/// The built site, with this brand's look and mark laid over it.
-fn publish_site(stack: &Stack) -> Result<PathBuf> {
-    let built = stack.root.join("apps/web/dist");
-    if !built.join("index.html").exists() {
-        bail!("the website is not built, run ./up from the repository root");
-    }
-    let site = stack.home.join("site");
-    let _ = std::fs::remove_dir_all(&site);
-    copy_folder(&built, &site)?;
-    std::fs::write(site.join("brand.css"), stack.brand.css())?;
-    copy_folder(&stack.root.join("apps/tv/page"), &site.join("tv"))?;
-    // Without it the website still runs, and the TV page says what is missing.
-    match core_wasm(stack) {
-        // Written fresh, because a copy can keep the build's time. A browser that once got the
-        // website's page at this address asks if it changed since that page's date, and a file
-        // dated before it gets a 304, which keeps the page in place of the core for good.
-        Some(core) => std::fs::write(site.join("tv/core.wasm"), std::fs::read(core)?)?,
-        None => println!("The TV core is not built, run ./up from the repository root."),
-    }
-    let assets = stack.root.join(&stack.brand.assets);
-    copy_tv_media(&assets, &site.join("tv"))?;
-    // A brand's profile pictures. Optional: with none, profiles show a letter.
-    let avatars = assets.join("avatars");
-    if avatars.is_dir() {
-        copy_folder(&avatars, &site.join("avatars"))?;
-    }
-    for (from, to) in [
-        ("mark.svg", "mark.svg"),
-        ("lockup-on-dark.svg", "lockup.svg"),
-    ] {
-        std::fs::copy(assets.join(from), site.join(to))
-            .with_context(|| format!("{from} is missing from {}", assets.display()))?;
-    }
-    Ok(site)
 }
 
 /// The data set in use: this install's own, or a generated sample until one is built.
@@ -437,7 +370,7 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
         .as_str()
         .context("the secrets file has no finder token")?
         .to_owned();
-    let site = publish_site(stack)?;
+    let site = site::publish(&stack.root, &stack.home, &stack.brand)?;
     let data = data_set(stack)?;
     println!("Preparing the database...");
     let bin = postgres::install(&stack.home.join("postgres")).await?;
@@ -732,7 +665,7 @@ fn build(stack: &Stack, words: &[String]) -> Result<()> {
             if !status.success() {
                 bail!("the website did not build");
             }
-            publish_site(stack)?;
+            site::publish(&stack.root, &stack.home, &stack.brand)?;
             Ok(())
         }
         Some(other) => bail!("{other} cannot be built yet. Ready now: web"),

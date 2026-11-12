@@ -1,0 +1,107 @@
+// The player driver contract, about ten commands and six events.
+// platform/contract/src/driver.rs.
+//
+// Arm messages are NESTED inside their union. Nesting is not a style choice: the
+// contract has a top level `SignOut` and an `Action::SignOut`, a `Command::Rate`
+// and a `Rating`, and five unions with an arm called `Setting` or `Position`. Flat
+// arm messages collide in one proto package, and the spike worked around that by
+// renaming arms (`PlayAction`, `CommandAction`, `ActionEvent`), which changes the
+// generated type name in four languages for no reason. Nested arms keep the
+// contract's own words.
+syntax = "proto3";
+
+package contract.v1;
+
+import "contract/constraints/v1/constraints.proto";
+import "contract/v1/common.proto";
+
+// One audio or text track, with the tag the manifest gave it.
+message Track {
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string lang = 2;
+  optional string label = 3;
+  // True for the track playing now.
+  bool selected = 4;
+}
+
+// A command to the player. Attempts carry their headers here.
+message DriverCommand {
+  message Open {
+    optional string url = 1 [(contract.constraints.v1.field) = {required: true}];
+    Headers headers = 2 [(contract.constraints.v1.field) = {required: true}];
+    optional uint64 start_at_ms = 3 [(contract.constraints.v1.field) = {required: true}];
+    optional uint32 generation = 4 [(contract.constraints.v1.field) = {required: true}];
+    optional uint32 max_height = 5;
+    optional uint32 max_bitrate = 6;
+  }
+  message Play {}
+  message Pause {}
+  message Seek {
+    optional uint64 to_ms = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message Rate {
+    optional uint32 percent = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message Volume {
+    optional uint32 percent = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message SelectAudio {
+    optional string track = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message SelectText {
+    optional string track = 1;
+  }
+  message Close {}
+
+  // A oneof cannot tell "no arm set" from "an arm this build does not know", and
+  // there is no unknown arm to put the word in. Today `#[serde(other)] Unknown`
+  // carries the word and the reader carries on; here the reader sees `op: None` and
+  // has to choose. That choice belongs to the conversion layer (note 204 P2), not
+  // to the schema, and it is the same for all four unions below.
+  oneof op {
+    Open open = 1;
+    Play play = 2;
+    Pause pause = 3;
+    Seek seek = 4;
+    Rate rate = 5;
+    Volume volume = 6;
+    SelectAudio select_audio = 7;
+    SelectText select_text = 8;
+    Close close = 9;
+  }
+}
+
+// What the driver reports. No driver decides failover or no picture by itself.
+message DriverEvent {
+  message FirstFrame {}
+  message Position {
+    optional uint64 time_ms = 1 [(contract.constraints.v1.field) = {required: true}];
+    // 0 or absent when not known.
+    optional uint64 duration_ms = 2;
+    optional uint32 video_width = 3;
+    // Absent means unknown, and the no picture rule stays off.
+    optional bool has_picture = 4;
+  }
+  message Stalled {}
+  message Ended {}
+  message Tracks {
+    repeated Track audio = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+    repeated Track text = 2 [(contract.constraints.v1.field) = {presence_lost: true}];
+  }
+  // Named `ErrorEvent` and not `Error`: Swift's standard library has an `Error`
+  // protocol and protoc-gen-swift nests generated types inside their parent, so a
+  // nested `Error` is a name the Swift half would have to fight. The wire name is
+  // the oneof field `error`, which is unchanged.
+  message ErrorEvent {
+    optional ErrorClass class = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+
+  oneof kind {
+    FirstFrame first_frame = 1;
+    Position position = 2;
+    Stalled stalled = 3;
+    Ended ended = 4;
+    Tracks tracks = 5;
+    ErrorEvent error = 6;
+  }
+}

@@ -1,0 +1,131 @@
+// `/v1/hello`, `/v1/ready`, strings and values that arrive at run time.
+// platform/contract/src/hello.rs.
+syntax = "proto3";
+
+package contract.v1;
+
+import "contract/constraints/v1/constraints.proto";
+import "contract/v1/common.proto";
+
+// Feature values.
+//
+// `accounts_required` is the one field in this contract whose default is not the
+// zero value: `#[serde(default = "yes")]` at platform/contract/src/hello.rs:489
+// means an absent key reads TRUE. proto3 refuses field defaults (proved by the
+// compiler in the spike), and implicit presence would read it FALSE - turning the
+// safe default into the unsafe one, silently, for every server that leaves it out.
+// So it carries explicit presence and the reader must apply `unwrap_or(true)`.
+// That reader is generated too: `required` would be wrong here, because absence is
+// legal, so the default lives in the conversion layer (note 204 P2) and
+// tools/check_proto_tie.py asserts this field is the only one of its kind.
+message Features {
+  // Absent means TRUE. See above.
+  optional bool accounts_required = 1;
+  bool games = 2;
+  bool clips = 3;
+  bool original_audio = 4;
+  // Tier for visitors. Present only when accounts are not required.
+  optional string visitor_tier = 5;
+}
+
+// Limits served from one place, so no client holds a copy.
+message Limits {
+  optional uint32 profiles_max = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 profile_name_max = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 pin_digits = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 password_min = 4 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 step_up_s = 5 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 phone_digits_min = 6 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 phone_digits_max = 7 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 blocked_title_max = 8 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 blocked_titles_max = 9 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 name_max = 10 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 handle_min = 11 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 handle_max = 12 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 code_digits = 13 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 code_valid_s = 14 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 command_batch_max = 15 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Lowest app version a class may run.
+message ClientFloor {
+  optional DeviceClass class = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string version = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// One value per client class.
+message ClassValue {
+  optional DeviceClass class = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 value = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// A staged rollout. The bucket comes from the household, so a home moves together.
+message Rollout {
+  optional string name = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 percent = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// One row of the moved address table.
+message MovedAddress {
+  optional string from = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string to = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Name and contact, filled into text at render time.
+message BrandValues {
+  optional string name = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string support_email = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// First answer a client reads. refused/Hello.no_range.json is refused by
+// `required` on `contract`: a message field has presence, so a missing range is
+// absent rather than an all-default VersionRange.
+message Hello {
+  // Wire dates this server answers.
+  VersionRange contract = 1 [(contract.constraints.v1.field) = {required: true}];
+  repeated ClientFloor client_min = 2 [(contract.constraints.v1.field) = {presence_lost: true}];
+  Features features = 3 [(contract.constraints.v1.field) = {required: true}];
+  Limits limits = 4 [(contract.constraints.v1.field) = {required: true}];
+  // False stops playback everywhere with a notice.
+  optional bool playback = 5 [(contract.constraints.v1.field) = {required: true}];
+  // Builds refused by name.
+  repeated string killed_builds = 6;
+  repeated Rollout rollouts = 7;
+  repeated MovedAddress moved = 8;
+  repeated ClassValue start_deadline_ms = 9 [(contract.constraints.v1.field) = {presence_lost: true}];
+  BrandValues brand = 10 [(contract.constraints.v1.field) = {required: true}];
+  // Seconds this answer stays good.
+  optional uint32 ttl_s = 11 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// `/v1/ready`, for outside checks.
+message Ready {
+  optional string build = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string data_hash = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional uint64 data_age_s = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional ServiceState index = 4 [(contract.constraints.v1.field) = {required: true}];
+  optional ServiceState finder = 5 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// `/v1/strings/{lang}`. Text holds the brand and support placeholders.
+message Strings {
+  optional string lang = 1 [(contract.constraints.v1.field) = {required: true}];
+  // Which way this language runs. Absent from older servers, which only spoke left
+  // to right, so absent means LTR and not UNSPECIFIED. Same shape as
+  // Features.accounts_required: presence, and the default applied by the reader.
+  optional TextDirection dir = 2;
+  // Required even when empty, so it takes the wrapper.
+  TextMap texts = 3 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// A language this server has text for, named in itself.
+message Language {
+  optional string code = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string name = 2 [(contract.constraints.v1.field) = {required: true}];
+  // Absent means LTR. See Strings.dir.
+  optional TextDirection dir = 3;
+}
+
+message LanguageList {
+  repeated Language languages = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+}

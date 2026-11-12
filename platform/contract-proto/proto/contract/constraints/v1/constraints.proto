@@ -1,0 +1,91 @@
+// The one place a value rule of this contract is written.
+//
+// Why this file exists at all, and why it is ours rather than protovalidate's:
+//
+//   The defect this whole package closes is a rule written twice. The generated
+//   Kotlin accepts movie:2147483648 and movie:9999999999 (fixtures
+//   refused/TitleKey.id_over_max.json and refused/TitleKey.id_ten_digits.json)
+//   because platform/contract/src/title.rs:100-110 states the rule in Rust and
+//   platform/contract/gen/src/kotlin.rs emits a regular expression that states it
+//   again. Two statements, one of them wrong.
+//
+//   So every rule is declared once, here, as a field option, and EVERY language's
+//   check is generated from it. Nothing downstream states a rule in its own words.
+//
+//   protovalidate was the obvious candidate and is rejected for one measured reason:
+//   it evaluates CEL at run time and is std only, so it cannot reach the core
+//   (platform/core builds for wasm32v1-none, #![no_std]; note 204, verified). The
+//   core's rules are generated whichever option set is used. With a THIRD PARTY
+//   option set the generator has to implement a subset of someone else's rule
+//   language and ignore the rest, so a rule somebody adds that the generator does
+//   not implement becomes a rule the core silently does not enforce - which is the
+//   same defect in a new costume. With this closed set, the generator fails the
+//   build on an option it cannot emit. That property is what makes "one
+//   declaration" true rather than aspirational.
+//
+//   What the three client languages get: the generator writes their checks too, from
+//   this file. It can emit buf.validate annotations for a protovalidate runtime, or
+//   the check itself; either way the generator is the only writer, so a client
+//   cannot be born more forgiving than the core again.
+//
+// Extension numbers come from 50000-99999, which protobuf documents as free for
+// internal use and never allocated to a public extension.
+syntax = "proto3";
+
+package contract.constraints.v1;
+
+import "google/protobuf/descriptor.proto";
+
+// A rule on one field. Everything the generator knows how to enforce is in here,
+// and an option the generator cannot enforce does not exist.
+message FieldRule {
+  // Absence of this field is refused. Legal only on a field that has presence: an
+  // `optional` scalar, a message field, or a oneof member. On a repeated or map
+  // field proto3 has no presence at all, so the generator refuses this option and
+  // `presence_lost` is the honest declaration instead.
+  bool required = 1;
+
+  // Inclusive lower bound on a numeric field.
+  optional uint64 min = 2;
+
+  // Inclusive upper bound on a numeric field.
+  optional uint64 max = 3;
+
+  // An enum field this build refuses to carry a word for. proto3 enums are open
+  // over numbers by design, and that openness is what the tolerated corpus needs
+  // from the other 38 enums, so closing one is a decision and not a schema
+  // property: `closed` refuses the zero value and any number the schema does not
+  // declare. Exactly one field in this contract is closed, TitleKey.kind
+  // (platform/contract/src/title.rs:23).
+  bool closed = 4;
+
+  // A rule that needs code. One name, one generated call, one hand written
+  // predicate per name, in every language.
+  ValueRule value = 5;
+
+  // A declared loss, not a rule. The Rust field it replaces refuses absence today
+  // and this wire cannot carry presence for it: proto3 forbids `optional` on a
+  // repeated field, so "the key was missing" and "the list was empty" are the same
+  // bytes. Marking it says the loss was seen and counted
+  // (tools/check_proto_tie.py prints the count) rather than discovered later.
+  bool presence_lost = 6;
+}
+
+// Rules that cannot be stated as a bound or a presence flag. Each name has exactly
+// one implementation per language and the generator emits the call, never the body.
+//
+// There is one. That is the headline of this package: drawn for a binary wire, the
+// value half of this contract is three bounds and a single predicate.
+enum ValueRule {
+  VALUE_RULE_UNSPECIFIED = 0;
+
+  // A packed decimal YYYYMMDD naming a day of the calendar: year at most 9999,
+  // month 1 to 12, day 1 to 31. The bounds are the project's own
+  // (platform/contract/src/screen.rs:106-112), which do not count the days of a
+  // month, so this refuses exactly what the project refuses and no more.
+  VALUE_RULE_CALENDAR_DAY = 1;
+}
+
+extend google.protobuf.FieldOptions {
+  optional FieldRule field = 50001;
+}

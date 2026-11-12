@@ -6,4 +6,5 @@ pub mod data;
 pub mod films;
 pub mod postgres;
 pub mod running;
+pub mod site;
 pub mod supervise;

@@ -88,6 +88,89 @@ interface Reel {
     fun hold(still: Boolean)
 }
 
+/** One picture wanted. `done` gets a [Painted] or an [Unpainted]. */
+data class Want(
+    val url: String,
+    /**
+     * The box it will fill, in pixels, or 0 for the picture's own size. The size is asked for here
+     * and not left to the layout for two reasons: the read starts before the first measure instead
+     * of a frame after it, and a picture read ahead of the viewer lands under the same key as the
+     * one that is drawn, so reading ahead is worth something. The nearest sample size is taken, so
+     * a w342 poster is not re-encoded to fit a box exactly.
+     */
+    val wide: Int = 0,
+    val high: Int = 0,
+    /**
+     * True when the caller will read the pixels back, which is what taking a tint off a billboard
+     * or a profile gate does. The picture then has to be decoded into ordinary memory: the pixels
+     * of one handed to the graphics card cannot be read, and asking for them throws.
+     */
+    val pixels: Boolean = false,
+)
+
+sealed interface Picture
+
+/**
+ * A picture, as an object only the surface's own toolkit understands -- the bargain
+ * [Player.picture] already makes, and for the same reason: this file may not name a type that
+ * belongs to one device. The family's adapter documents which object it hands over.
+ */
+data class Painted(val picture: Any) : Picture
+
+/** Why there is no picture. The caller draws something else; it never waits for one that is not coming. */
+data class Unpainted(val reason: String) : Picture
+
+/** The right to stop one read. Letting it go stops nothing. */
+fun interface Stop {
+    fun stop()
+}
+
+/**
+ * Pictures from the network: artwork, logos and the brand's mark.
+ *
+ * This was the one device capability of this family with no port. The network, the secrets, the
+ * store, the player and the reel are all above; image loading went from a surface straight into a
+ * library, and that library brought a second HTTP client in with it -- 78 `okhttp3` and 89 `okio`
+ * classes ship in the APK -- under a ring check whose ban on the word `okhttp3` passed every time,
+ * because no surface ever typed it.
+ *
+ * What is here is what the surfaces' own call sites ask for and nothing more: a url, the box it
+ * will fill, whether the caller means to read the pixels back, a way to stop, and a read ahead of
+ * the viewer. Drawing is not here, because drawing is what a surface is for.
+ */
+interface Pictures {
+    /**
+     * Reads one picture. `done` runs once, on the thread that asked, with a [Painted] or an
+     * [Unpainted]. A read that was stopped answers neither.
+     */
+    fun fetch(want: Want, done: (Picture) -> Unit): Stop
+
+    /**
+     * Reads a picture into the cache before anything draws it, at the size the box will ask for, so
+     * a row is already painted when the viewer reaches it.
+     *
+     * `done` runs whether the picture arrived or not: the one call site that passes it uses it to
+     * stop waiting, and a failed read has to stop the wait as surely as a good one.
+     */
+    fun warm(want: Want, done: () -> Unit = {})
+}
+
+/**
+ * What [Shell.pictures] answers while no picture adapter is plugged in.
+ *
+ * It refuses in the open and at once, because the alternative is worse: a port that quietly never
+ * answers leaves a screen waiting on a read that cannot finish, and that reads to a person as a
+ * slow network rather than as an app that was wired wrong.
+ */
+object NoPictures : Pictures {
+    override fun fetch(want: Want, done: (Picture) -> Unit): Stop {
+        done(Unpainted("no picture adapter is plugged into this app"))
+        return Stop {}
+    }
+
+    override fun warm(want: Want, done: () -> Unit) = done()
+}
+
 /** All a surface knows. It reads state and hands back what the viewer asked for. */
 data class Seen(
     val route: RouteTarget? = null,
@@ -131,6 +214,17 @@ interface Shell {
     val seen: StateFlow<Seen>
     val player: Player
     val reel: Reel
+
+    /**
+     * Where a surface's pictures come from.
+     *
+     * It carries a default because the family's picture adapter is not plugged in yet: `app/Main.kt`
+     * builds the other five ports and `core/Host.kt` carries them, and both are one line short of
+     * carrying this one. Until that line lands every call is refused in the open rather than
+     * answered with a blank that reads as a slow network.
+     */
+    val pictures: Pictures get() = NoPictures
+
     fun connect(server: String)
     fun go(address: String)
     /** Goes to this address in place of the one here, so Back passes over it. */

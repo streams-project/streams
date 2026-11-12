@@ -64,6 +64,22 @@ dependencies {
     implementation(bom)
     implementation("androidx.compose.ui:ui")
     implementation("androidx.activity:activity-compose:1.13.0")
-    // Compiles the toolkit's profile on the device, so a fresh install scrolls smoothly.
+    // Hands ART the profile this build already ships in `assets/dexopt/baseline.prof`. It needs
+    // no call: its own manifest merges a `ProfileInstallerInitializer` into
+    // `androidx.startup.InitializationProvider`, which about six seconds after the first frame
+    // copies the profile to ART's folder for this app on a background thread.
+    //
+    // Handing it over is not compiling it. ART compiles what it was handed at its next background
+    // dexopt, which waits for an idle device on a charger, so a person who installs this APK and
+    // opens it stays at ART's `verify` filter until then, and so does every measurement taken
+    // that way. What compiles the profile at install time is the metadata file beside the APK:
+    //
+    //     adb install-multiple -r -d app-release.apk app-release.dm
+    //
+    // with the `.dm` from `build/outputs/apk/release/baselineProfiles/`, whose folder per API
+    // range `output-metadata.json` names, kept under the APK's own basename. A Play install gets
+    // the same effect from the store's profile; a sideloaded one never does, and this app is
+    // handed to people directly. Worth 46 to 65 ms of cold start on a Pixel 8 and nothing on a
+    // Google TV Streamer, where compiling more makes it slower.
     implementation("androidx.profileinstaller:profileinstaller:1.4.1")
 }

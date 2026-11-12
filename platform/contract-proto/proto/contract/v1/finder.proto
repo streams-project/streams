@@ -1,0 +1,45 @@
+// The private route between server and finder. The finder returns facts and no
+// order. platform/contract/src/finder.rs.
+syntax = "proto3";
+
+package contract.v1;
+
+import "contract/constraints/v1/constraints.proto";
+import "contract/v1/common.proto";
+
+// Title facts come from the server, so a finder never looks them up.
+message FindRequest {
+  TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional EpisodeRef episode = 2;
+  optional string name = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 year = 4;
+  // Total time this search may take.
+  optional uint32 budget_ms = 5 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// One source as facts. The server turns these into ranked attempts.
+message FoundSource {
+  optional string url = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional AttemptKind kind = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string group = 3 [(contract.constraints.v1.field) = {required: true}];
+  // Required even when empty, like Attempt.headers.
+  Headers headers = 4 [(contract.constraints.v1.field) = {required: true}];
+  optional bool verified = 5 [(contract.constraints.v1.field) = {required: true}];
+  optional string container = 6;
+  optional uint32 height = 7;
+  repeated string audio = 8;
+}
+
+// Answer, possibly partial when the budget ran out.
+message FindAnswer {
+  optional FindOutcome outcome = 1 [(contract.constraints.v1.field) = {required: true}];
+  repeated FoundSource sources = 2 [(contract.constraints.v1.field) = {presence_lost: true}];
+  // Read the rest through `/v1/find/{job}`.
+  optional string job = 3;
+}
+
+// `/v1/health` of a finder.
+message FinderHealth {
+  optional string build = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional ServiceState state = 2 [(contract.constraints.v1.field) = {required: true}];
+}

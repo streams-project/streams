@@ -1,0 +1,22 @@
+# The validator generator. std, runs on a developer's machine and in `./check`,
+# never in the core and never in the dependency tree of anything shipped.
+#
+# A workspace member, like the crate above it: `./check` runs
+# `cargo run --locked -p contract-validate-gen -- check`, which writes nothing and
+# fails on drift.
+[package]
+name = "contract-validate-gen"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "contract-validate-gen"
+path = "src/main.rs"
+
+[dependencies]
+# protox compiles the schema with no protoc, and prost-reflect is the only way to
+# read a custom option back out of a descriptor.
+protox.workspace = true
+prost-reflect = { workspace = true }

@@ -1,0 +1,40 @@
+# The byte cost of this package, measured the way the spike measured its own:
+# same profile, same target, same allocator, same round trip, so a difference
+# between two builds is the thing that changed and nothing else.
+#
+#   --features codec-prost             the whole contract's generated structs,
+#                                      sixteen of them round tripped
+#   --features codec-prost,validate    the same, plus every generated validator
+#                                      linked and reachable
+#
+# The second minus the first is what the constraints half of this package costs in
+# bytes. Comparable with the spike's size/wire, which round tripped the same sixteen
+# types against serde_json at 228,543 and prost at 96,193.
+[workspace]
+
+[package]
+name = "size-contract-proto"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[features]
+default = ["codec-prost"]
+codec-prost = []
+validate = []
+
+[dependencies]
+contract-proto = { path = ".." }
+prost = { version = "0.13", default-features = false, features = ["derive"] }
+
+[profile.wasm]
+inherits = "release"
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

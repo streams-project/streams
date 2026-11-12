@@ -1,0 +1,35 @@
+# The contract as a schema: generated types for the whole contract, and the
+# validator generated from the field options.
+#
+# A workspace member, so `./check` builds it, formats it, lints it and tests it with
+# everything else. It was written in a worktree with its own `[workspace]` to keep it
+# out of three other leads' trees; that line is gone and this is note 204's P1.
+#
+# This crate arrives BESIDE the JSON contract, not instead of it. platform/contract
+# is still the live contract: the server speaks it, the four client emitters generate
+# from it and the fixtures are JSON. Nothing here changes any of that.
+[package]
+name = "contract-proto"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+# default-features = false keeps prost no_std. The core already has an allocator
+# (platform/bridges/wasm/src/heap.rs), so `alloc` costs nothing here.
+prost = { workspace = true }
+
+[dev-dependencies]
+# Text format for the fixture corpus, and reading the custom options back out of
+# the checked in descriptor. std, and a dev dependency only: nothing shipped links
+# it, and platform/contract/tests/deps.rs reads `cargo tree --edges normal`, which
+# does not see a dev dependency.
+prost-reflect = { workspace = true, features = ["text-format"] }
+
+[build-dependencies]
+prost-build.workspace = true
+protox.workspace = true

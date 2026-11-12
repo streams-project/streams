@@ -1,0 +1,166 @@
+// Commands a device sends and changes it reads back.
+// platform/contract/src/command.rs.
+syntax = "proto3";
+
+package contract.v1;
+
+import "contract/constraints/v1/constraints.proto";
+import "contract/v1/common.proto";
+
+// One change to a profile's facts.
+//
+// refused/Command.list_bare_id.json and refused/Command.remind_bare_id.json are
+// refused inside the arms, by the options on TitleKey.
+message Command {
+  // Add to or remove from the saved list. Leaves the rating alone.
+  message List {
+    TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional bool in_list = 2 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // Set or clear a rating. Leaves the list entry alone.
+  message Rate {
+    TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional Rating rating = 2;
+  }
+  // Hide a title from history. For a series this covers every episode.
+  message Hide {
+    TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // Clear all history of this profile, as one operation.
+  message ClearHistory {}
+  // Save a position, in whole seconds.
+  message Position {
+    TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional EpisodeRef episode = 2;
+    optional uint32 position_s = 3 [(contract.constraints.v1.field) = {required: true}];
+    optional uint32 duration_s = 4 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // Change one profile setting. Booleans as true or false, style as JSON text.
+  message Setting {
+    optional SettingKey key = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional string value = 2 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // A viewer signal. Discarded by the server when consent is off.
+  message Feedback {
+    TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional FeedbackEvent event = 2 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // A trailer failed to play for this title.
+  message TrailerRefused {
+    TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // Set or clear a reminder on a coming title.
+  message Remind {
+    TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional bool on = 2 [(contract.constraints.v1.field) = {required: true}];
+  }
+
+  oneof command {
+    List list = 1;
+    Rate rate = 2;
+    Hide hide = 3;
+    ClearHistory clear_history = 4;
+    Position position = 5;
+    Setting setting = 6;
+    Feedback feedback = 7;
+    TrailerRefused trailer_refused = 8;
+    Remind remind = 9;
+  }
+}
+
+// One queued op. A missing `age_ms` means age unknown, and the server orders by
+// arrival (S1). The Rust flattens `Command` into this struct; on a binary wire a
+// nested message is the same thing said properly, and the flattening was only ever
+// a JSON shape.
+message CommandOp {
+  optional string op_id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional uint64 age_ms = 2;
+  Command command = 3 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// `POST /v1/commands`. Idempotent by op id.
+message CommandBatch {
+  repeated CommandOp ops = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+// Answer for one op.
+message OpAnswer {
+  optional string op_id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional Outcome outcome = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Answer for a batch, one entry per op.
+message CommandAnswer {
+  repeated OpAnswer answers = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+// List state of a title, versioned apart from its rating.
+message ListState {
+  optional bool in_list = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional uint64 version = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional uint64 changed_at_ms = 3 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Rating state of a title, versioned apart from its list state.
+message RatingState {
+  // Absent when no rating is set.
+  optional Rating rating = 1;
+  optional uint64 version = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional uint64 changed_at_ms = 3 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// A position, keyed by title and episode.
+message ProgressState {
+  TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional EpisodeRef episode = 2;
+  optional uint32 position_s = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 duration_s = 4 [(contract.constraints.v1.field) = {required: true}];
+  optional bool completed = 5 [(contract.constraints.v1.field) = {required: true}];
+  optional bool hidden = 6 [(contract.constraints.v1.field) = {required: true}];
+  optional uint64 version = 7 [(contract.constraints.v1.field) = {required: true}];
+  optional uint64 changed_at_ms = 8 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// One change a device reads.
+message Change {
+  message Title {
+    TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+    ListState list = 2 [(contract.constraints.v1.field) = {required: true}];
+    RatingState rating = 3 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message Progress {
+    ProgressState state = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // Hidden as a whole, every episode of a series included.
+  message Hidden {
+    TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message HistoryCleared {
+    optional uint64 changed_at_ms = 1 [(contract.constraints.v1.field) = {required: true}];
+  }
+  message Setting {
+    optional SettingKey key = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional string value = 2 [(contract.constraints.v1.field) = {required: true}];
+  }
+  // Reminder set or cleared on a coming title.
+  message Remind {
+    TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+    optional bool on = 2 [(contract.constraints.v1.field) = {required: true}];
+  }
+
+  oneof change {
+    Title title = 1;
+    Progress progress = 2;
+    Hidden hidden = 3;
+    HistoryCleared history_cleared = 4;
+    Setting setting = 5;
+    Remind remind = 6;
+  }
+}
+
+// `GET /v1/changes`.
+message Changes {
+  repeated Change changes = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+  optional string cursor = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional bool has_more = 3 [(contract.constraints.v1.field) = {required: true}];
+}

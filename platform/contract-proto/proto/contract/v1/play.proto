@@ -1,0 +1,151 @@
+// Play: attempts, subtitles, skip marks and play reports.
+// platform/contract/src/play.rs. The server answers addresses only.
+syntax = "proto3";
+
+package contract.v1;
+
+import "contract/constraints/v1/constraints.proto";
+import "contract/v1/common.proto";
+
+// Ask to play a title. refused/PlayRequest.bare_id_number.json (title 1001) and
+// .bare_id_text.json ("550") are both refused by `closed` on TitleKey.kind: a bare
+// id arrives with no kind, and no kind is the zero value.
+message PlayRequest {
+  TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional EpisodeRef episode = 2;
+}
+
+// One way to play. Attempts arrive in the order to try, ranked once on the server.
+// `headers` is required even when empty, and no provider name is carried (C16).
+message Attempt {
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string url = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional AttemptKind kind = 3 [(contract.constraints.v1.field) = {required: true}];
+  // Opaque group. After a failure the core skips other attempts of this group.
+  optional string group = 4 [(contract.constraints.v1.field) = {required: true}];
+  // Headers the player must send, such as Referer, Origin, User-Agent. The wrapper
+  // is what makes refused/Attempt.no_headers.json refusable at all: as a bare map
+  // it was byte-identical to its valid twin.
+  Headers headers = 5 [(contract.constraints.v1.field) = {required: true}];
+  // True when the finder fetched and read this address.
+  optional bool verified = 6 [(contract.constraints.v1.field) = {required: true}];
+  optional string container = 7;
+  repeated string codecs = 8;
+  optional uint32 height = 9;
+  repeated string audio = 10;
+  // Wall time, ms since 1970, after which the address stops working.
+  optional uint64 expires_at_ms = 11;
+}
+
+// Age card shown once at the start of play.
+message AgeCard {
+  optional string label = 1 [(contract.constraints.v1.field) = {required: true}];
+  repeated string reasons = 2;
+}
+
+// Answer to a play request.
+message PlayAnswer {
+  optional string play_id = 1 [(contract.constraints.v1.field) = {required: true}];
+  repeated Attempt attempts = 2 [(contract.constraints.v1.field) = {presence_lost: true}];
+  // Where to start.
+  optional uint64 start_at_ms = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional AgeCard age_card = 4;
+  optional string audio_default = 5;
+  optional string subtitle_default = 6;
+  // The next episode in the server's order, across seasons. Absent on the last one.
+  optional EpisodeRef next_episode = 7;
+  // This profile's setting: the next episode starts by itself at the end of play.
+  bool autoplay_next = 8;
+  // Attempts removed by the capability card.
+  optional uint32 dropped = 9 [(contract.constraints.v1.field) = {required: true}];
+  // True when more attempts may arrive through `/v1/play/{id}/more`.
+  optional bool more = 10 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Late attempts.
+message MoreAttempts {
+  repeated Attempt attempts = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+  optional bool more = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// One subtitle file of a language, in the order to try.
+message SubtitleFile {
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  bool hearing_impaired = 2;
+}
+
+// One language.
+message SubtitleLanguage {
+  optional string lang = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string label = 2 [(contract.constraints.v1.field) = {required: true}];
+  repeated SubtitleFile files = 3 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+// `/v1/subtitles`.
+message SubtitleList {
+  repeated SubtitleLanguage languages = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+// One cue.
+message Cue {
+  optional uint64 start_ms = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional uint64 end_ms = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string text = 3 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// `/v1/subtitles/{file}`. The core checks `last_end_ms` against the driver's
+// duration.
+message SubtitleBody {
+  repeated Cue cues = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+  optional uint64 last_end_ms = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// A span of a video the host compares to player time. Nothing ticks across the
+// boundary.
+message TimeWindow {
+  optional WindowKind kind = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional uint64 start_ms = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional uint64 end_ms = 3 [(contract.constraints.v1.field) = {required: true}];
+  // Where a skip button moves to.
+  optional uint64 seek_to_ms = 4;
+  optional string text = 5;
+}
+
+// Ask for skip marks, after first frame, series only.
+message MarksRequest {
+  optional string attempt = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string file = 2;
+  optional uint64 duration_ms = 3 [(contract.constraints.v1.field) = {required: true}];
+  // Signed, and it defaults to 0 today, so implicit presence is right. `int32`
+  // rather than `sint32`: a negative delay is rare and the one-byte common case
+  // matters more than the ten-byte rare one.
+  int32 delay_ms = 4;
+}
+
+// Skip marks.
+message Marks {
+  repeated TimeWindow windows = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+// One thing that happened during play.
+message PlayEvent {
+  optional PlayEventName name = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional uint64 at_ms = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string attempt = 3;
+  optional uint64 first_frame_ms = 4;
+  optional ErrorClass failure = 5;
+  optional string host = 6;
+  optional CoreMode rung = 7;
+}
+
+// `/v1/play/{id}/events`.
+message PlayEvents {
+  repeated PlayEvent events = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+// `/v1/reports`.
+message Report {
+  optional string code = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string build = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string detail = 3;
+}

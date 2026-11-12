@@ -1,0 +1,198 @@
+// Pages. The server decides what appears and in what order; the device decides how
+// it looks. platform/contract/src/screen.rs.
+syntax = "proto3";
+
+package contract.v1;
+
+import "contract/constraints/v1/constraints.proto";
+import "contract/v1/common.proto";
+
+// One image address. Images go straight from the host to the viewer.
+message Image {
+  optional ImageRole role = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string url = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 width = 3;
+}
+
+// A mark on a tile.
+message Badge {
+  optional BadgeKind kind = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 rank = 2;
+}
+
+// One title in a section. refused/Tile.bare_id.json and
+// refused/Screen.bare_id_in_a_tile.json are refused here, three messages deep, by
+// the options on TitleKey: the generated validator walks into every message field
+// and every repeated message, so a bad key cannot hide in a nested shape.
+message Tile {
+  TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string name = 2 [(contract.constraints.v1.field) = {required: true}];
+  repeated Image images = 3;
+  repeated Badge badges = 4;
+  repeated string tags = 5;
+  optional EpisodeRef episode = 6;
+  // Whole percent watched.
+  optional uint32 percent = 7;
+}
+
+// One row, hero, grid or notice of a screen.
+message Section {
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional SectionKind kind = 2 [(contract.constraints.v1.field) = {required: true}];
+  // Translated title.
+  optional string title = 3;
+  repeated Tile tiles = 4;
+  // Reads more of this section through `/v1/more/{cursor}`. An opaque position:
+  // clients hand it back and never read it, which is why it stays a plain string
+  // and not a message.
+  optional string cursor = 5;
+  optional Notice notice = 6;
+}
+
+// A built page.
+message Screen {
+  optional ScreenName name = 1 [(contract.constraints.v1.field) = {required: true}];
+  repeated Section sections = 2 [(contract.constraints.v1.field) = {presence_lost: true}];
+  // Seconds this answer stays good.
+  optional uint32 ttl_s = 3 [(contract.constraints.v1.field) = {required: true}];
+  repeated RefreshTrigger refresh_on = 4;
+  // Reads more sections through `/v1/more/{cursor}`.
+  optional string cursor = 5;
+}
+
+// The next part of a screen or a section.
+//
+// Both lists stay repeated rather than becoming a oneof. A oneof would make "one
+// route, two shapes" unambiguous, and it would also refuse an answer carrying
+// neither list, which the Rust accepts today (both fields default to empty). That
+// is a visible change to what the server may send, so it is a decision for the
+// owner and not a tidy-up: note 204's P4 owns the corpus that would prove it safe.
+message More {
+  repeated Section sections = 1;
+  repeated Tile tiles = 2;
+  optional string cursor = 3;
+}
+
+// One entry of the menu.
+message NavItem {
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string label = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional ScreenName screen = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional string genre = 4;
+}
+
+// The menu for this class and profile.
+message Nav {
+  repeated NavItem items = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+  optional uint32 ttl_s = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// One episode.
+message Episode {
+  optional uint32 number = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string name = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string overview = 3;
+  optional uint32 runtime_min = 4;
+  repeated Image images = 5;
+  // Whole percent watched.
+  optional uint32 percent = 6;
+}
+
+// One season with its episodes.
+message Season {
+  optional uint32 number = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string name = 2;
+  repeated Episode episodes = 3 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+// A season named on a title page.
+message SeasonSummary {
+  optional uint32 number = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 episode_count = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// An age mark, as this viewer reads it. Each screen picks its shape.
+message AgeMark {
+  optional string label = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional AgeTone tone = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Where play picks up: the episode of a series, and 0 for one not started yet.
+message Resume {
+  optional EpisodeRef episode = 1;
+  optional uint32 position_s = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Facts of one title.
+message TitleDetail {
+  TitleKey title = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string name = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string overview = 3;
+  optional uint32 year = 4;
+  optional uint32 runtime_min = 5;
+  repeated string genres = 6;
+  // Absent when the title has no rating in either system.
+  optional AgeMark age = 7;
+  repeated Image images = 8;
+  repeated SeasonSummary seasons = 9;
+  // Hidden when empty.
+  repeated Tile more_like_this = 10;
+  // True when this profile has saved the title. Implicit presence: absent is false
+  // today too, so no `optional` and no rule.
+  bool in_list = 11;
+  // What this profile said about the title. Presence keeps three states: no rating,
+  // a rating this build knows, and a number it does not.
+  optional Rating rating = 12;
+  // Where this profile left off. Absent when there is nothing to go back to.
+  optional Resume resume = 13;
+  // When this title becomes available to watch. Absent when already available.
+  optional CalendarDay available_from = 14;
+  // True when this profile set a reminder for when this title arrives.
+  bool reminder_set = 15;
+}
+
+// Search suggestions.
+message Suggestions {
+  repeated string items = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+// Titles a visitor may look at before signing in, most watched first.
+message PublicTitles {
+  repeated TitleDetail titles = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+// The facts of the line under a title's logo on the profile chooser. Never words:
+// the app writes them in the viewer's language, with the date in its own month
+// names and digits.
+//
+// `date` means something only when `kind` is coming or seasons_coming, and `rank`
+// and `media` only when it is ranked. proto3 cannot say that in either shape, and
+// neither can this option set: a rule that reads one field to decide another is a
+// message rule, and no message rule is declared here because the contract refuses
+// nothing on that ground today. refused/GateLine.bad_date.json is refused by the
+// wire type of CalendarDay.ymd, not by a rule.
+message GateLine {
+  optional GateLineKind kind = 1 [(contract.constraints.v1.field) = {required: true}];
+  // The day, for `coming` and `seasons_coming`.
+  optional CalendarDay date = 2;
+  // The place from 1, for `ranked`.
+  optional uint32 rank = 3;
+  // Films or series, for `ranked`. Closed, like every other field that names a
+  // kind: Option<TitleKind> in Rust refuses an unknown kind word today.
+  optional TitleKind media = 4 [(contract.constraints.v1.field) = {closed: true}];
+}
+
+// One title shown over the profile chooser: its tile, with art, logo and poster,
+// and its line.
+message GateTitle {
+  Tile tile = 1 [(contract.constraints.v1.field) = {required: true}];
+  GateLine line = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// Titles shown over the profile chooser before anyone has chosen a profile, at most
+// three, in order.
+message ProfileGate {
+  repeated GateTitle titles = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+  // Seconds this answer stays good.
+  optional uint32 ttl_s = 2 [(contract.constraints.v1.field) = {required: true}];
+}

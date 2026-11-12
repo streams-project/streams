@@ -1,0 +1,87 @@
+// Help. The text lives once on the server, and every app draws the same articles
+// from these. platform/contract/src/help.rs.
+syntax = "proto3";
+
+package contract.v1;
+
+import "contract/constraints/v1/constraints.proto";
+import "contract/v1/common.proto";
+
+// Some words of a line, with how they are marked.
+message HelpRun {
+  optional string text = 1 [(contract.constraints.v1.field) = {required: true}];
+  bool bold = 2;
+  // Where the words lead: an address in the app, a web page or a mail address.
+  optional string link = 3;
+}
+
+// One line of a block. A paragraph has one, a list has one per item.
+message HelpLine {
+  repeated HelpRun runs = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+message HelpBlock {
+  optional HelpBlockKind kind = 1 [(contract.constraints.v1.field) = {required: true}];
+  repeated HelpLine lines = 2;
+  // The action of a tool block.
+  optional string tool = 3;
+}
+
+// A part of a page. A folded one starts closed where the app can open and close it.
+message HelpSection {
+  optional string title = 1;
+  bool folded = 2;
+  repeated HelpBlock blocks = 3 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+// An article as a list shows it.
+message HelpLink {
+  optional string slug = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string title = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string summary = 3;
+}
+
+message HelpGroup {
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string title = 2 [(contract.constraints.v1.field) = {required: true}];
+  repeated HelpLink articles = 3 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+message HelpTopic {
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string title = 2 [(contract.constraints.v1.field) = {required: true}];
+  repeated HelpGroup groups = 3 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+message HelpPolicyLink {
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string title = 2 [(contract.constraints.v1.field) = {required: true}];
+}
+
+// `/v1/help`.
+message HelpHome {
+  repeated HelpTopic topics = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+  repeated HelpLink popular = 2 [(contract.constraints.v1.field) = {presence_lost: true}];
+  repeated HelpPolicyLink policies = 3 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+// `/v1/help/articles/{slug}`.
+message HelpArticle {
+  optional string slug = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string title = 2 [(contract.constraints.v1.field) = {required: true}];
+  repeated HelpSection sections = 3 [(contract.constraints.v1.field) = {presence_lost: true}];
+  repeated HelpLink related = 4;
+}
+
+// `/v1/help/policies/{id}`.
+message HelpPolicy {
+  optional string id = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional string title = 2 [(contract.constraints.v1.field) = {required: true}];
+  optional string updated = 3;
+  repeated HelpSection sections = 4 [(contract.constraints.v1.field) = {presence_lost: true}];
+}
+
+// `/v1/help/search`.
+message HelpResults {
+  repeated HelpLink articles = 1 [(contract.constraints.v1.field) = {presence_lost: true}];
+}

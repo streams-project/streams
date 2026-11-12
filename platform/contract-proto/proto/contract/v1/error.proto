@@ -1,0 +1,20 @@
+// Error answers. platform/contract/src/error.rs.
+syntax = "proto3";
+
+package contract.v1;
+
+import "contract/constraints/v1/constraints.proto";
+import "contract/v1/common.proto";
+
+// Body of every error answer. `code` is open: a code this build does not know keeps
+// its number, which is what the `Unknown` arm does with the word today, and is why
+// tolerated/ErrorBody.unknown_code.json keeps working.
+message ErrorBody {
+  optional ErrorCode code = 1 [(contract.constraints.v1.field) = {required: true}];
+  // Label key for this error.
+  optional string label = 2 [(contract.constraints.v1.field) = {required: true}];
+  // The build that answered.
+  optional string build = 3 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 retry_after_s = 4;
+  optional Notice notice = 5;
+}

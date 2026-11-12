@@ -1,0 +1,12 @@
+id,proto
+C16,contract.v1.Attempt
+H57,contract.v1.TitleKey.kind
+H91,contract.v1.TitleKey.kind
+N7,contract.v1.ScreenName.SCREEN_NAME_CLIPS
+N8,contract.v1.ScreenName.SCREEN_NAME_LANGUAGE
+N13,contract.v1.NoticeItem
+N13,contract.v1.Notifications
+N13,contract.v1.NotificationCount
+N13,contract.v1.NotificationRead
+N13,contract.v1.Command.Remind
+N13,contract.v1.Change.Remind
