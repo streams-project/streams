@@ -1,0 +1,18 @@
+{
+  // Ties `index.d.ts` to `libstreamscore.so`, which is how ArkTS resolves
+  // `import { abi, close, open, step } from 'libstreamscore.so'`.
+  //
+  // THIS FILE WAS MISSING, and OPEN QUESTION Q1 asked whether it was needed. It is: the Node-API
+  // development guide shows exactly this file at `entry/src/main/cpp/types/libentry/
+  // oh-package.json5`, with these two fields, and says in so many words "Associate index.d.ts with
+  // .cpp in the oh-package.json5 file".
+  //
+  // `name` is the shared library's file name, not a package name: the module name in
+  // `napi_bridge.c` (`nm_modname = "streamscore"`), the library CMake builds
+  // (`add_library(streamscore SHARED ...)` -> `libstreamscore.so`) and this field have to agree,
+  // and the guide warns that "The module names must be of the same case".
+  "name": "libstreamscore.so",
+  "types": "./index.d.ts",
+  "version": "1.0.0",
+  "description": "The four calls of the Streams core, as ArkTS sees them.",
+}

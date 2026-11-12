@@ -58,9 +58,8 @@ wrong a day after they were written. What each row rests on is a check anybody c
 | Server, core, contract, offline layer, bridges, launcher, finder | Runs | `./check` builds, lints and tests every crate on every push |
 | Data builder (`data`) | Runs | its own checks run inside `./check`, and they cross check the contract and the server |
 | Website (`apps/web`) | Runs | Rust behind the family's ports. It is a workspace crate, so `./check` builds, lints and tests it |
-| Television (`apps/tv`) | Runs, work stopped | ES5, from the code a phone approves to a playing film. `tests/tv/press_through.py` drives it by key presses through a real browser, which `./check` does not do. Work on it stopped on 2026-11-07 |
-| Android (`apps/android`) | Written, built by hand | Compose screens in Kotlin behind the family's ports. It builds with gradle on a machine that has it, and `./check` neither builds it nor has unit tests for it |
-| Apple (`apps/apple`) | Written, built by hand | A phone surface and a television surface in Swift behind the family's ports. It builds with Swift Package Manager after `build-core.sh`, and `./check` neither builds it nor has unit tests for it |
+| Android (`apps/android`) | Runs on real devices, built by hand | Screens behind the family's ports: the television's `browse` is Java and native Views, the rest is still Compose in Kotlin. It builds with gradle on a machine that has it. `./check` does not run gradle, so its unit tests — 152 in the television module alone — are run by a person or by CI, not by `./check` |
+| Apple (`apps/apple`) | Compiles and tests, never run on a device | A phone surface and a television surface in Swift behind the family's ports. `xcodebuild test -scheme AppleFamily-Package` runs its tests on the iOS simulator and the television half on the tvOS one. `./check` does not run xcodebuild, so nothing automated reaches them |
 | Desktop (`apps/desktop`) | Started, built nowhere | ports, adapters, a host and two test files in Rust. It is not a workspace member, so `./check` does not build it |
 | Harmony (`apps/harmony`), Xbox (`apps/xbox`) | Started, built nowhere | ports and a native bridge each, no screens, and no build this repository runs |
 | Roku (`apps/roku`) | Empty | a README and a `.gitignore`, and no code |

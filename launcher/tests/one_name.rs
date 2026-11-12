@@ -15,7 +15,7 @@ const ABOUT_THE_BRAND: [&str; 8] = [
     "REUSE.toml",
     "TRADEMARKS.md",
     "README.md",
-    "apps/tv/README.md",
+    "pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md",
     "apps/web/vendor/",
 ];
 

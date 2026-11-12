@@ -8,27 +8,36 @@
 // HarmonyOS call for each is unverified: monotonic time and a random seed. See [Machine] and
 // OPEN QUESTION Q3.
 //
-// NOT COMPILED, NOT RUN, NOT TESTED. No HarmonyOS SDK or device was available. Reading JSON into the
-// generated contract types is OPEN QUESTION Q2, and it may force a change in this file's shape.
-import { ABI_VERSION, WIRE_VERSION } from '../contract/contract';
+// NOT COMPILED, NOT RUN, NOT TESTED. No HarmonyOS SDK or device was available.
+//
+// OPEN QUESTION Q2 is answered below, and the shape of this file did change because of it: every
+// contract literal this host used to write, and every typed read of a body, now goes through
+// `../contract/effects.ts` and `../contract/read.ts`, which are TypeScript and may say things ArkTS
+// cannot.
+import { ABI_VERSION } from '../contract/contract';
 import {
   Action,
-  CoreIn,
   CoreOut,
+  DeviceClass,
   DriverEvent,
   Effect,
   Event,
-  DeviceClass,
   Form,
-  NotificationCount,
   Profile,
-  Nav,
-  Screen,
-  Strings,
-  TitleDetail,
 } from '../contract/contract';
 import { abi, close, open, step } from './NativeCore';
-import { Answer, Call, Network, Player, Reel, Secrets, Seen, Shell, Store } from '../ports/Ports';
+import { Answer, Call, Network, Pictures, Player, Reel, Secrets, Seen, Shell, Store } from '../ports/Ports';
+// The seam. Everything ArkTS refuses about the generated contract lives there, in TypeScript.
+import {
+  EffectHttp, EffectSecret, EffectStore,
+  actionEvent, activityEvent, addressEvent, asHttp, asPlayer, asSecret, asStore, asView,
+  coreConfigText, coreInText, driverEvent, httpDoneEvent, httpFailedEvent, networkEvent,
+  pauseAction, readCoreOut, requestAction, secretDoneEvent, storeDoneEvent, unsupportedEvent,
+  visibilityEvent,
+} from '../contract/effects';
+import {
+  readNav, readNotificationCount, readScreen, readStrings, readTitle,
+} from '../contract/read';
 
 const SERVER = 'app:server';
 const DEFAULT_LANGUAGE = 'en';
@@ -36,24 +45,98 @@ const WAKE_CAP_MS = 60000;
 const TOUCH_EVERY_MS = 10000;
 const ROUNDS = 64;
 
-// Each of these names one member of the contract's `Effect` union, which the generator writes as an
-// anonymous shape. `Extract` is a TypeScript utility type; if the ArkTS linter refuses it the
-// generator emits a named interface per member instead and these three lines go. OPEN QUESTION Q2.
-type HttpEffect = Extract<Effect, { kind: 'http' }>;
-type StoreEffect = Extract<Effect, { kind: 'store' }>;
-type SecretEffect = Extract<Effect, { kind: 'secret' }>;
+// OPEN QUESTION Q2 IS ANSWERED, AND THE ANSWER IS BETTER THAN THE QUESTION EXPECTED.
+//
+// The question was whether the generated contract types pass the ArkTS linter. Three of the four
+// constructs it asked about are hard compile errors in ArkTS -- `(string & {})` is
+// `arkts-no-intersection-types` (10605019), an anonymous object type in a union is
+// `arkts-no-obj-literals-as-types` (10605040), `Extract<...>` is `arkts-no-utility-types` (10605138),
+// and all three are severity `error`, which the cookbook defines as "the program will fail to
+// compile". Counted in the generated file on 2026-11-12: forty intersections, eighty anonymous union
+// members, three template literal types and one `as const`.
+//
+// And none of it has to change, because the rules are scoped by FILE EXTENSION. `arkts-no-ts-deps`
+// (10605147) states the direction outright -- "An .ets file can import source code of an
+// .ets/.ts/.js file, but a .ts/.js file cannot import source code of an .ets file" -- and the
+// migration background page scopes the check itself: "the SDK adds the ArkTS syntax validation **for
+// .ets files** to the compilation process".
+//
+// So the generated contract stays TypeScript, and everything it does that ArkTS refuses stays on
+// that side of the seam. `../contract/effects.ts` is that seam: it narrows the unions with `Extract`
+// where `Extract` is legal, and hands this file ordinary named types. What used to be here -- three
+// `Extract` aliases and three casts between unrelated nominal types, which ArkTS would have refused
+// for having no structural typing (`arkts-no-structural-typing`, 10605030) -- is gone, and no change
+// to `platform/contract/gen` is needed for this family.
+//
+// The price is stated in the reference and is paid knowingly: "when data and objects of TS/JS are
+// used as those of ArkTS, the static type check of ArkTS may be bypassed, causing unexpected
+// behavior or extra overhead". Which is why the seam names every shape it exports rather than
+// widening anything, and why this host reads only tagged members of tagged unions.
 
 // Said to the viewer, not logged: the only words this host has of its own. The same sentence the
 // Android host says, so the two families refuse an address in the same words.
 const PLAIN_REFUSED =
   'This address must start with https://. Plain http reaches only a server on your own network.';
 
-/** The two device facts the host needs that are not ports. The app wiring supplies both. */
+/**
+ * The device facts the host needs that are not ports. The app wiring supplies all three.
+ *
+ * They stay behind this interface rather than being read here, so that this file names no HarmonyOS
+ * module at all and reads the same as `Host.kt`. What each one is on HarmonyOS was open on
+ * 2026-11-11 and is now read off the reference, so the wiring has no searching to do:
+ *
+ *   monoMs     `systemDateTime.getUptime(systemDateTime.TimeType.STARTUP, false)` from
+ *              `@kit.BasicServicesKit`, API 10, no permission. STARTUP is "milliseconds elapsed
+ *              since system startup, INCLUDING the deep sleep time", which is what Android's
+ *              `SystemClock.elapsedRealtime()` counts. `TimeType.ACTIVE` excludes sleep and is
+ *              Android's `uptimeMillis()`, so it is the wrong one of the two.
+ *   seedHex    `cryptoFramework.createRandom().generateRandomSync(16)` from
+ *              `@kit.CryptoArchitectureKit`, API 10, returning a `DataBlob` whose `data` is a
+ *              `Uint8Array`; the wiring writes those 16 bytes as 32 hex digits.
+ *   language   `i18n.System.getSystemLanguage()` from `@kit.LocalizationKit`, API 9, no
+ *              permission. It answers with a script subtag ("zh-Hans"), not a bare language.
+ */
 export interface Machine {
   /** Monotonic milliseconds. Restarts at boot. */
   monoMs(): number;
   /** At least 32 hex digits from a cryptographic source. */
   seedHex(): string;
+  /**
+   * The language the device is set to, or null when the wiring cannot read one.
+   *
+   * The Android host speaks this before any profile when the server has it. It was handed in here
+   * rather than read here for the same reason as the other two, and the host falls back to English
+   * when it is null, which is what this file did unconditionally while the call was unknown.
+   */
+  language(): string | null;
+}
+
+/** Whether every character of a string is a Western digit, and how many there are. */
+function digitsOnly(text: string, least: number, most: number): boolean {
+  // Not `/^[0-9]{1,3}$/`: ArkTS refuses a regular expression LITERAL (`arkts-no-regexp-literals`,
+  // which is recorded only in the Adaptation Cases page and not in the migration cookbook, so it
+  // is easy to miss). `new RegExp('^[0-9]{1,3}$')` would be legal, and this is cheaper than either:
+  // one pass, no engine, and it says what it tests.
+  if (text.length < least || text.length > most) {
+    return false;
+  }
+  for (let at = 0; at < text.length; at++) {
+    const code = text.charCodeAt(at);
+    if (code < 0x30 || code > 0x39) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/** This address with every trailing slash taken off. */
+function trimmedEnd(address: string): string {
+  // Not `.replace(/\/+$/, '')`, for the same reason as above.
+  let end = address.length;
+  while (end > 0 && address.charAt(end - 1) === '/') {
+    end--;
+  }
+  return address.substring(0, end);
 }
 
 /** The host of an address, with the port, the path and an IPv6 address's brackets taken off. */
@@ -82,7 +165,7 @@ function ownNetwork(host: string): boolean {
     // Digits only, then parse. Kotlin's `toIntOrNull` refuses "1abc" where JS `Number.parseInt`
     // reads 1, and accepts a zero padded "010" where comparing the parsed value back to the text
     // would refuse it. This accepts and refuses exactly what the Android gate does.
-    if (!/^[0-9]{1,3}$/.test(part)) {
+    if (!digitsOnly(part, 1, 3)) {
       return false;
     }
     const value = Number.parseInt(part, 10);
@@ -139,12 +222,17 @@ export class Host implements Shell {
     private readonly store: Store,
     readonly player: Player,
     readonly reel: Reel,
+    // Carried, never called from here. The host performs no drawing and reads no picture; it holds
+    // this only so that a screen reaches it through the one object it already has, which is what
+    // `Host.kt` does with its own `pictures`. There is no default: a family that forgets to plug an
+    // adapter in fails to compile, which is where that mistake belongs.
+    readonly pictures: Pictures,
     private readonly machine: Machine,
     private readonly deviceClass: DeviceClass,
     private readonly form: Form,
     private readonly version: string,
   ) {
-    this.network.watch((online: boolean) => this.step([{ type: 'network', online } as Event]));
+    this.network.watch((online: boolean) => this.step([networkEvent(online)]));
     this.player.listen((generation: number, event: DriverEvent) => {
       // The four driver sourced fields of [Seen], written where Host.kt's init block writes them: a
       // position event carries the scrubber, a tracks event carries the sound and subtitle pickers.
@@ -162,7 +250,7 @@ export class Host implements Shell {
         this.seen.text = event.text;
         this.changed();
       }
-      this.step([{ type: 'driver', event, generation } as Event]);
+      this.step([driverEvent(generation, event)]);
     });
     const kept = this.secrets.get(SERVER);
     if (kept !== null) {
@@ -174,9 +262,26 @@ export class Host implements Shell {
     this.watchers.push(changed);
   }
 
+  /**
+   * Every watcher, each handed a fresh [Seen].
+   *
+   * The copy is the whole of how a screen redraws, and leaving it out was a bug this file carried
+   * from the day it was written. `Host.kt` holds `MutableStateFlow<Seen>` and writes
+   * `_seen.value = _seen.value.copy(...)`, so a collector is handed a new object per change; this
+   * file wrote fields into one `Seen` and handed the same object out. Under Compose that would
+   * still redraw, because a `StateFlow` emission is the signal and the object's identity is not;
+   * under ArkUI a `@Local` field notices that the variable was ASSIGNED and nothing else, so every
+   * screen would have held an object it had no reason to draw again and the app would have looked
+   * frozen from the first step. Nothing about that is visible without a device, and nothing about
+   * it needed one.
+   */
   private changed(): void {
+    if (this.watchers.length === 0) {
+      return;
+    }
+    const sent = this.seen.copy();
     for (const watcher of this.watchers) {
-      watcher(this.seen);
+      watcher(sent);
     }
   }
 
@@ -195,7 +300,7 @@ export class Host implements Shell {
    * else must be https. A refused address is said, not swallowed.
    */
   connect(server: string): void {
-    const typed = server.trim().replace(/\/+$/, '');
+    const typed = trimmedEnd(server.trim());
     const plain = encryptionOf(typed);
     if (plain === null) {
       this.say(PLAIN_REFUSED);
@@ -218,22 +323,19 @@ export class Host implements Shell {
     if (abi() !== ABI_VERSION) {
       throw new Error('this core has another ABI');
     }
-    const config: string = JSON.stringify({
-      app: 'harmony',
-      class: this.deviceClass,
-      contract: WIRE_VERSION,
-      form: this.form,
-      mode: 'local',
-      os: 'harmony',
-      seed: this.machine.seedHex(),
-      type: 'core_config',
-      version: this.version,
-    });
+    const config: string = coreConfigText(
+      'harmony',
+      this.deviceClass,
+      this.form,
+      'harmony',
+      this.machine.seedHex(),
+      this.version,
+    );
     this.handle = open(config);
     if (this.handle === 0) {
       throw new Error('the core did not open');
     }
-    this.step([{ type: 'address', address: '/' } as Event]);
+    this.step([addressEvent('/')]);
   }
 
   stop(): void {
@@ -246,17 +348,17 @@ export class Host implements Shell {
   go(address: string): void {
     this.trail.push(this.here);
     this.here = address;
-    this.step([{ type: 'address', address } as Event]);
+    this.step([addressEvent(address)]);
   }
 
   swap(address: string): void {
     this.here = address;
-    this.step([{ type: 'address', address } as Event]);
+    this.step([addressEvent(address)]);
   }
 
   back(): void {
     this.here = this.trail.pop() ?? '/';
-    this.step([{ type: 'address', address: this.here } as Event]);
+    this.step([addressEvent(this.here)]);
   }
 
   /** The app left the screen or came back. Nobody can see a film off screen, so it pauses. */
@@ -264,9 +366,9 @@ export class Host implements Shell {
     this.reel.hold(!visible);
     const events: Event[] = [];
     if (!visible) {
-      events.push({ type: 'action', action: { action: 'pause' } } as Event);
+      events.push(actionEvent(pauseAction()));
     }
-    events.push({ type: 'visibility', visible } as Event);
+    events.push(visibilityEvent(visible));
     this.step(events);
   }
 
@@ -277,21 +379,21 @@ export class Host implements Shell {
       return;
     }
     this.lastTouch = now;
-    this.step([{ type: 'activity' } as Event]);
+    this.step([activityEvent()]);
   }
 
   act(action: Action): void {
-    this.step([{ type: 'action', action } as Event]);
+    this.step([actionEvent(action)]);
   }
 
   ask(path: string, reply: (status: number, text: string) => void): void {
     const id = this.awaited(reply);
-    this.step([{ type: 'action', id, action: { action: 'request', method: 'GET', path } } as Event]);
+    this.step([actionEvent(requestAction('GET', path), id)]);
   }
 
   send(method: string, path: string, body: string, reply: (status: number, text: string) => void): void {
     const id = this.awaited(reply);
-    this.step([{ type: 'action', id, action: { action: 'request', method, path, body } } as Event]);
+    this.step([actionEvent(requestAction(method, path, body), id)]);
   }
 
   /** Names the answer a screen is waiting for. The http effect the core makes carries this id. */
@@ -322,9 +424,11 @@ export class Host implements Shell {
     }
     this.ask('/v1/notifications/count', (status: number, text: string) => {
       if (status >= 200 && status <= 299) {
-        const count = JSON.parse(text) as NotificationCount;
-        this.seen.unreadNotifications = count.unread;
-        this.changed();
+        const count = readNotificationCount(text);
+        if (count !== null) {
+          this.seen.unreadNotifications = count.unread;
+          this.changed();
+        }
       }
     });
   }
@@ -352,14 +456,14 @@ export class Host implements Shell {
       do {
         const batch = this.queue;
         this.queue = [];
-        const input: string = JSON.stringify({
-          contract: WIRE_VERSION,
-          events: batch,
-          mono_ms: this.machine.monoMs(),
-          now_ms: Date.now(),
-          type: 'core_in',
-        } as CoreIn);
-        this.apply(JSON.parse(step(this.handle, input)) as CoreOut);
+        const input: string = coreInText(batch, this.machine.monoMs(), Date.now());
+        const out = readCoreOut(step(this.handle, input));
+        if (out === null) {
+          // The core answered something that is not JSON. There is nothing to perform and nothing
+          // to say, and going round again would ask the same question of the same handle.
+          break;
+        }
+        this.apply(out);
         rounds += 1;
       } while (this.queue.length > 0 && rounds < ROUNDS);
     } finally {
@@ -374,10 +478,12 @@ export class Host implements Shell {
     if (view !== undefined) {
       const hello = view.hello;
       // Before any profile, the Android host speaks the device's language when the server has it.
-      // The HarmonyOS call that gives the device's language is unverified here (OPEN QUESTION Q3),
-      // so this asks for English and the first profile's own language replaces it.
+      // The call that gives it is `i18n.System.getSystemLanguage()`, which the app wiring reads and
+      // hands over as [Machine.language] -- this file names no HarmonyOS module. A null falls back
+      // to English, and `readWords` falls back again if the server does not have the language, so a
+      // screen always has words. (This was the readable half of OPEN QUESTION Q3.)
       if (hello !== undefined && Object.keys(this.seen.words).length === 0) {
-        this.readWords(DEFAULT_LANGUAGE, hello.brand.name);
+        this.readWords(this.machine.language() ?? DEFAULT_LANGUAGE, hello.brand.name);
       }
       const wasActive = this.seen.active;
       this.seen.route = view.route ?? this.seen.route;
@@ -430,9 +536,13 @@ export class Host implements Shell {
         return;
       }
       if (good) {
-        const read = JSON.parse(text) as Strings;
+        const read = readStrings(text);
+        if (read === null) {
+          return;
+        }
         const words: Record<string, string> = {};
         for (const key of Object.keys(read.texts)) {
+          // One place each, so `replace` taking the first occurrence alone is the whole of it.
           words[key] = read.texts[key].replace('{brand}', brand);
         }
         this.seen.words = words;
@@ -445,68 +555,70 @@ export class Host implements Shell {
 
   private perform(effect: Effect): void {
     switch (effect.kind) {
+      // Narrowed on the TypeScript side of the seam, so nothing here casts.
       case 'http':
-        this.http(effect);
+        this.http(asHttp(effect));
         break;
       case 'secret':
-        this.queue.push(this.secret(effect));
+        this.queue.push(this.secret(asSecret(effect)));
         break;
       case 'store':
-        this.queue.push(this.kept(effect));
+        this.queue.push(this.kept(asStore(effect)));
         break;
       case 'player':
-        this.player.command(effect.command);
+        this.player.command(asPlayer(effect).command);
         break;
-      case 'view':
-        if (effect.notice !== undefined) {
-          const label = effect.notice.label;
-          this.say(effect.notice.text.length > 0 ? effect.notice.text : (this.seen.words[label] ?? null));
+      case 'view': {
+        const notice = asView(effect).notice;
+        if (notice !== undefined) {
+          this.say(notice.text.length > 0 ? notice.text : (this.seen.words[notice.label] ?? null));
         }
         break;
+      }
       case 'open':
       case 'log':
         break;
       default:
-        this.queue.push({ type: 'unsupported', id: effect.id } as Event);
+        this.queue.push(unsupportedEvent(effect.id));
     }
   }
 
-  private kept(effect: StoreEffect): Event {
+  private kept(effect: EffectStore): Event {
     const key = effect.key ?? '';
     switch (effect.op) {
       case 'get':
-        return { type: 'store_done', id: effect.id, value: this.store.get(key) ?? undefined } as Event;
+        return storeDoneEvent(effect.id, this.store.get(key) ?? undefined);
       case 'put':
         this.store.put(key, effect.value ?? '');
-        return { type: 'store_done', id: effect.id } as Event;
+        return storeDoneEvent(effect.id);
       case 'delete':
         this.store.delete(key);
-        return { type: 'store_done', id: effect.id } as Event;
+        return storeDoneEvent(effect.id);
       case 'list':
-        return { type: 'store_done', id: effect.id, keys: this.store.keys(key) } as Event;
+        return storeDoneEvent(effect.id, undefined, this.store.keys(key));
       default:
-        return { type: 'unsupported', id: effect.id } as Event;
+        return unsupportedEvent(effect.id);
     }
   }
 
-  private secret(effect: SecretEffect): Event {
+  private secret(effect: EffectSecret): Event {
     const name = `core:${effect.name}`;
     if (effect.op === 'get') {
-      return { type: 'secret_done', id: effect.id, value: this.secrets.get(name) ?? undefined } as Event;
+      return secretDoneEvent(effect.id, this.secrets.get(name) ?? undefined);
     }
     if (effect.op === 'put') {
       // A refused write is not a write. Saying it was done would sign the viewer out at the next
       // launch with no signal, where the core keeps the tokens in memory instead.
       if (this.secrets.put(name, effect.value ?? '')) {
-        return { type: 'secret_done', id: effect.id } as Event;
+        return secretDoneEvent(effect.id);
       }
-      return { type: 'unsupported', id: effect.id } as Event;
+      return unsupportedEvent(effect.id);
     }
     this.secrets.drop(name);
-    return { type: 'secret_done', id: effect.id } as Event;
+    return secretDoneEvent(effect.id);
   }
 
-  private http(effect: HttpEffect): void {
+  private http(effect: EffectHttp): void {
     const call: Call = {
       method: effect.method,
       url: this.base + effect.path,
@@ -519,7 +631,7 @@ export class Host implements Shell {
       this.waiting.delete(effect.id);
       if (answer.kind === 'no_reply') {
         reply?.(0, '');
-        this.step([{ type: 'http_failed', id: effect.id, reason: answer.reason } as Event]);
+        this.step([httpFailedEvent(effect.id, answer.reason)]);
         return;
       }
       const good = answer.status >= 200 && answer.status <= 299;
@@ -529,13 +641,12 @@ export class Host implements Shell {
       }
       reply?.(answer.status, answer.text);
       this.step([
-        {
-          type: 'http_done',
-          id: effect.id,
-          body: !toScreen && answer.text.length > 0 ? answer.text : undefined,
-          headers: answer.etag !== undefined ? { etag: answer.etag } : undefined,
-          status: answer.status,
-        } as Event,
+        httpDoneEvent(
+          effect.id,
+          answer.status,
+          !toScreen && answer.text.length > 0 ? answer.text : undefined,
+          answer.etag !== undefined ? { etag: answer.etag } : undefined,
+        ),
       ]);
     });
   }
@@ -543,13 +654,25 @@ export class Host implements Shell {
   /** A body the core sent to the screen. The host keeps it; it reads nothing out of it. */
   private read(path: string, text: string): void {
     if (path.startsWith('/v1/nav')) {
-      this.seen.nav = (JSON.parse(text) as Nav).items;
+      const read = readNav(text);
+      if (read !== null) {
+        this.seen.nav = read.items;
+      }
     } else if (path.startsWith('/v1/screens/')) {
-      this.seen.screen = JSON.parse(text) as Screen;
+      const read = readScreen(text);
+      if (read !== null) {
+        this.seen.screen = read;
+      }
     } else if (path.startsWith('/v1/notifications/count')) {
-      this.seen.unreadNotifications = (JSON.parse(text) as NotificationCount).unread;
+      const read = readNotificationCount(text);
+      if (read !== null) {
+        this.seen.unreadNotifications = read.unread;
+      }
     } else if (path.includes('/titles/') && !path.includes('/seasons/')) {
-      this.seen.detail = JSON.parse(text) as TitleDetail;
+      const read = readTitle(text);
+      if (read !== null) {
+        this.seen.detail = read;
+      }
     }
     this.changed();
   }

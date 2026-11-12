@@ -4,13 +4,17 @@ ArkUI app for Huawei phones and tablets. **Touch** surface, **native** core.
 
 Part of an open video platform.
 
-Status: **a skeleton, not an app.** Nothing here draws a screen, and nothing here has been compiled
-except the C glue's syntax and the core it links, which were both run on 2026-11-11 on a machine with
-no HarmonyOS SDK, no DevEco Studio and no Huawei device. [What cannot be done
-here](#what-cannot-be-done-without-the-sdk-and-a-device) says exactly what that leaves undone, and
-`OPEN-QUESTIONS.md` holds the six questions a device and an SDK would answer. The root README's status
-table carries a line for every platform; this folder is no longer only a README, and that table is not
-owned here.
+Status: **an app that has never been compiled.** 37 files and 7,350 lines as of 2026-11-12, of which
+`surfaces/touch` is 20 files and 5,382 lines: the route switch, Home with its billboard and rows, the
+title page, the profile gate and search, laid out against the measured reference. Nothing here has
+been compiled — no HarmonyOS SDK, no DevEco Studio and no Huawei device were on the machine it was
+written on — and [what cannot be done here](#what-cannot-be-done-without-the-sdk-and-a-device) says
+exactly what that leaves.
+
+Four of the six questions in `OPEN-QUESTIONS.md` are now answered, from Huawei's own reference rather
+than from a device, and the code changed where the answers changed it. The two that are left want a
+device and a sign-in, and both are named precisely. The root README's status table carries a line for
+every platform, and that table is not owned here.
 
 ## What this folder is
 
@@ -70,9 +74,10 @@ where CMake links `libstreamscore.so` against the archive, exactly as the Androi
 |---|---|
 | `core/cpp/` | written. `napi_bridge.c`, its `CMakeLists.txt` and the type declaration ArkTS reads. Syntax checked, never built against a real SDK |
 | `core/` | written, never compiled. `NativeCore.ets` declares the four calls; `Host.ets` steps the core and performs its effects |
-| `ports/` | written, never compiled. The five ports every family names: network, secrets, store, player, reel |
+| `ports/` | written, never compiled. The six ports every native family names: network, secrets, store, player, reel, pictures |
 | `adapters/` | not written. `adapters/README.md` names the expected API per port and how sure each one is |
-| `surfaces/touch/` | not written. `surfaces/touch/README.md` holds the measured shape a screen here has to meet |
+| `surfaces/touch/` | **written, never compiled.** 20 files. `surfaces/touch/README.md` lists them and holds the measured shape they meet |
+| `contract/` | `effects.ts` and `read.ts`, written: the TypeScript seam that holds everything ArkTS refuses about the generated contract. `contract.ts` is copied by `build-core.sh` |
 
 `core/Host.ets` is a line by line port of `apps/android/core/src/main/kotlin/streams/core/Host.kt`,
 which is the written and shipped version of this host. Nothing in it is a second opinion about what a
@@ -83,30 +88,53 @@ rather than swallowed.
 
 ## What cannot be done without the SDK and a device
 
-So that nobody later mistakes this for an app:
+So that nobody later mistakes this for a finished app:
 
-1. **Nothing draws.** There is no screen, no navigation, no player view. `surfaces/touch` holds a
-   README and no code.
-2. **No adapter exists.** All five ports are declared and none is implemented, so the host cannot make
-   a request, keep a token, keep a page, or play one frame.
-3. **No ArkTS was compiled.** Not one line. This machine has no HarmonyOS SDK and no TypeScript
-   compiler either — `node`, `npx` and `tsc` are all absent — so `Ports.ets`, `NativeCore.ets` and
-   `Host.ets` have been read and never checked by a tool. `cmake` is absent too, so
-   `core/cpp/CMakeLists.txt` has not even been parsed.
-4. **The generated contract types may not be legal ArkTS.** They use 40 `(string & {})` intersections,
-   80 anonymous union members and a template literal type. This is the one unknown that could change the
-   shape of `Host.ets`, and the fix would be in `platform/contract/gen`, not here (`OPEN-QUESTIONS.md`
-   Q2).
-5. **No project file.** `build-profile.json5`, `oh-package.json5`, `module.json5` and `hvigorfile.ts` are
-   versioned with the SDK, and writing them from memory would most likely produce a project that does
-   not open. DevEco Studio generates them (Q6).
-6. **The NAPI module registration is unverified.** Everything in `napi_bridge.c` is plain Node-API
-   except its last block, which is OpenHarmony's own (Q1).
-7. **No test, and no harness to write one in.** This family has none. The C glue was syntax checked
+1. **Nothing has been compiled.** Not one line of ArkTS. `node`, `npx`, `tsc`, `cmake`, `ohpm`,
+   `hvigorw` and `codelinter` are all absent from the machine this was written on, so every file here
+   has been read and never checked by a tool, and `core/cpp/CMakeLists.txt` has not been parsed.
+   **This is now a download and not a device**: the Command Line Tools package carries `hvigorw` and
+   `codelinter` and neither wants a phone (`OPEN-QUESTIONS.md`, the section after Q6).
+2. **No adapter exists.** All six ports are declared and none is implemented, so the host cannot make
+   a request, keep a token, keep a page, show a picture or play one frame. The screens draw, and what
+   they draw is whatever the ports answer — which today is nothing.
+3. **No project file.** `build-profile.json5`, `oh-package.json5`, `module.json5`, `AppScope/app.json5`
+   and `hvigorfile.ts` are versioned with the SDK. Where they go and what they must contain is now
+   known (Q6); the files themselves still want the SDK that stamps today's version numbers into them.
+4. **Five routes draw nothing.** The server address screen, `start`, `sign_in`, `watch` and the
+   notifications screen have no screen in this folder, and `surfaces/touch/Root.ets` names each one
+   with the Kotlin that specifies it rather than sending the viewer somewhere that looks like it
+   worked.
+5. **The icons do not exist.** `surfaces/touch/Icons.ets` names all 23 as `$r('app.media.*')`
+   references; what they resolve against is a module `resources/base/media` folder, which is part of
+   Q6.
+6. **No test, and no harness to write one in.** This family has none. The C glue was syntax checked
    with `clang -fsyntax-only -Wall -Wextra` against a hand written stub of the Node-API surface, which
    catches a typo and proves nothing about the real SDK. There is no equivalent of the Xbox family's
-   `smoke_test.cpp` here, because the thing to test is a module loaded by a runtime that is not on this
-   machine.
+   `smoke_test.cpp` here, because the thing to test is a module loaded by a runtime that is not on
+   this machine.
+7. **Six ArkUI calls are marked `ASSUMED` where they are used**, and no more than six: the alpha order
+   of a hex colour string, `bindMenu`'s one-argument form, the six canvas text methods the Top 10
+   numeral is drawn with, `effectKit`'s colour picker, whether `direction` is inherited down a
+   subtree, and whether a vp equals a dp. Each one says, where it is written, what it costs if it is
+   wrong.
+
+## The contract seam
+
+The one thing in this folder that no other family has, and it is the answer to Q2.
+
+ArkTS is a narrower language than TypeScript, and the generated contract uses three constructs that
+are hard compile errors in it — 40 `(string & {})` intersections, 80 anonymous union members and
+`Extract<...>`. The rules are scoped by file extension (`arkts-no-ts-deps`, 10605147: "An .ets file
+can import source code of an .ets/.ts/.js file, but a .ts/.js file cannot import source code of an
+.ets file"), so the contract stays TypeScript and everything ArkTS refuses stays on that side:
+
+* `contract/effects.ts` narrows the unions and builds every `Event`, `Action` and `Command`, so no
+  `.ets` file in this family writes a contract literal.
+* `contract/read.ts` reads a body into its type, because ArkTS bans `any` and `JSON.parse` is `any`.
+
+No change to `platform/contract/gen` is needed, which matters because `apps/web` and `apps/tv` read
+the same generated file.
 
 ## What is still open
 

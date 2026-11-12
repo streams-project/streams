@@ -8,17 +8,25 @@ project(streamscore C)
 
 # Stops here rather than guessing: a wrong archive links and then crashes on a device, which is a
 # worse hour than a build that says what it wanted. Whether this is the variable the HarmonyOS SDK's
-# toolchain file sets is OPEN QUESTION Q1.
+# toolchain file sets is still OPEN QUESTION Q1 -- what the SDK calls the architecture it is building
+# for was not read off the reference, only which architectures it will build for at all.
 if(NOT OHOS_ARCH)
   message(FATAL_ERROR "OHOS_ARCH is not set, so this cannot tell which core archive to link")
 endif()
 
-if(OHOS_ARCH STREQUAL "armeabi-v7a")
-  set(CORE_TARGET armv7-unknown-linux-ohos)
-elseif(OHOS_ARCH STREQUAL "x86_64")
+# Two architectures, and there is no third. Read off the reference on 2026-11-12: the
+# `externalNativeOptions.abiFilters` field of `build-profile.json5` takes exactly `arm64-v8a` and
+# `x86_64`, and defaults to `arm64-v8a` alone when it is not set. There is NO 32-bit ARM value, so
+# the `armeabi-v7a` branch this used to carry could never have been reached, and the
+# `armv7-unknown-linux-ohos` core `build-core.sh` used to build had nothing to link into. Both are
+# gone. An x86_64 emulator needs `x86_64` named in `abiFilters` explicitly, because the default does
+# not include it.
+if(OHOS_ARCH STREQUAL "x86_64")
   set(CORE_TARGET x86_64-unknown-linux-ohos)
-else()
+elseif(OHOS_ARCH STREQUAL "arm64-v8a")
   set(CORE_TARGET aarch64-unknown-linux-ohos)
+else()
+  message(FATAL_ERROR "OHOS_ARCH is '${OHOS_ARCH}', which is neither arm64-v8a nor x86_64")
 endif()
 
 add_library(bridge_c STATIC IMPORTED)

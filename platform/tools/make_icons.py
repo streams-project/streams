@@ -17,14 +17,11 @@ def grid(icon: dict) -> int:
     return GRIDS.get(icon["source"].split(":")[0], 24)
 
 
-def television() -> None:
-    bodies = {name: {"body": icon["body"], "grid": grid(icon)} for name, icon in sorted(ICONS.items())}
-    text = json.dumps(bodies, ensure_ascii=False, separators=(",", ":"), indent=0)
-    (ROOT / "apps/tv/page/surfaces/parts/icon-data.js").write_text(
-        "// Written by platform/tools/make_icons.py. Change platform/icons/icons.json instead.\n"
-        f"window.tvIcons = {text};\n",
-        "utf-8",
-    )
+# `television()` wrote the icon set for the television DOM page at `apps/tv/page`. The owner stopped
+# that page on 2026-11-07 (note 179) and it was deleted on 2026-11-12, so the emitter went with it:
+# it was writing into a folder that no longer exists, which would have made a stray directory on the
+# next run rather than failing. Roku will need its own emitter when it gets that far, and it cannot
+# reuse this one - Roku draws bitmaps, so that emitter has to rasterise rather than emit a path.
 
 
 def android_shape(tag: str, seen: dict) -> str:
@@ -115,6 +112,5 @@ def apple() -> None:
 
 
 if __name__ == "__main__":
-    television()
     android()
     apple()

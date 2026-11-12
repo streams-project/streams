@@ -13,7 +13,7 @@
 //
 // OPEN: the mark. Every other surface draws `{server}/mark.svg`
 // (`apps/android/surfaces/phone/src/main/kotlin/streams/phone/browse/Header.kt:87`,
-// `apps/tv/page/surfaces/parts/topbar.js:33`) and the brand ships SVG
+// the deleted television page's `topbar.js` (gone 2026-11-12; `apps/android/surfaces/tv/.../TopBar.kt:37-39` holds these numbers)) and the brand ships SVG
 // (`brand/streams/README.md:8-9`). Whether a Roku Poster reads SVG at all was not established, so
 // the address below asks for PNG. Either the server grows one or the package carries it.
 //

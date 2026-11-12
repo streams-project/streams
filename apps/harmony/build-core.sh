@@ -10,11 +10,17 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
 OUT="${CARGO_TARGET_DIR:-$ROOT/target}"
 
-# Each HarmonyOS CPU and the Rust target that builds for it. Phones and tablets are 64 bit arm, and
-# aarch64 is the one target note 151 (line 275) names for CI. armv7 and x86_64 are not from any note:
-# they are here on the guess that older HarmonyOS hardware and the emulator want them, and either can
-# be dropped by passing the targets as arguments. Only aarch64 is required by anything written down.
-TARGETS="aarch64-unknown-linux-ohos armv7-unknown-linux-ohos x86_64-unknown-linux-ohos"
+# Each HarmonyOS CPU and the Rust target that builds for it.
+#
+# Two, and there is no third. The `externalNativeOptions.abiFilters` field of a module's
+# `build-profile.json5` takes exactly `arm64-v8a` and `x86_64` (read off the reference on
+# 2026-11-12, "Configuring for C++ Builds"), and defaults to `arm64-v8a` alone. So a 32-bit ARM core
+# has nothing to link into, and the `armv7-unknown-linux-ohos` this script used to build on
+# 2026-11-11 -- "here on the guess that older HarmonyOS hardware wants them" -- was 31 MB of archive
+# for an architecture the toolchain will not package. It is gone. aarch64 is the one target note 151
+# (line 275) names for CI; x86_64 is the emulator, which has to be named in `abiFilters` explicitly
+# because the default leaves it out.
+TARGETS="aarch64-unknown-linux-ohos x86_64-unknown-linux-ohos"
 if [ "$#" -gt 0 ]; then
     TARGETS="$*"
 fi

@@ -47,7 +47,6 @@ pub struct Shape {
 #[serde(deny_unknown_fields)]
 pub struct Spacing {
     pub unit: u32,
-    pub gutter: u32,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -162,7 +161,7 @@ impl Brand {
              --muted: {};\n  --accent: {};\n  --accent-text: {};\n  --join: {};\n  \
              --join-text: {};\n  --font-body: \"{}\";\n  --font-display: \"{}\";\n{arabic}{hebrew}  \
              --radius-button: {}px;\n  --radius-card: {}px;\n  --radius-field: {}px;\n  \
-             --radius-panel: {}px;\n  --unit: {}px;\n  --gutter: {}px;\n}}\n",
+             --radius-panel: {}px;\n  --unit: {}px;\n}}\n",
             c.background,
             c.surface,
             c.raised,
@@ -179,7 +178,6 @@ impl Brand {
             s.field_radius,
             s.panel_radius,
             g.unit,
-            g.gutter,
         )
     }
 }

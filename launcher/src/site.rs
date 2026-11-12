@@ -4,7 +4,7 @@
 //!
 //! Until 2026-11-12 this also published the television page from `apps/tv/page` under `/tv/`.
 //! Work on that page stopped on 2026-11-07, because a television gets an app of its own and not a
-//! page served by the server (`README.md`, `apps/tv/README.md`). A deployment was still copying it
+//! page served by the server (`README.md`, `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md`). A deployment was still copying it
 //! on every start, so every address had a surface nothing opens. Its media stayed, because the
 //! television apps read it from here.
 

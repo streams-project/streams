@@ -30,7 +30,6 @@
     "panel_radius": 24
   },
   "spacing": {
-    "unit": 4,
-    "gutter": 48
+    "unit": 4
   }
 }

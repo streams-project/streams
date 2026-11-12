@@ -23,7 +23,7 @@ import streams.shared.ref
  *    gutter, the card's text width from the card and its inset, the hero from the page and its
  *    margins -- or
  *  * holds a raw captured measurement against the capture that recorded it, which for this surface
- *    is `apps/tv/README.md`'s reference table and the citation comments in `browse/Rows.kt`.
+ *    is `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md`'s reference table and the citation comments in `browse/Rows.kt`.
  *
  * Each test says which of the two it is and why. `Sources.kt` says why they read the source as
  * text and what that costs a rewrite.
@@ -35,7 +35,7 @@ class NumbersTest {
     private val hero = withoutComments(File(root, "$MAIN/browse/HeroCard.kt").readText())
     private val reference = File(root, REFERENCE).readText()
 
-    /** The reference table's own row for the row screen, as `apps/tv/README.md:123` records it. */
+    /** The reference table's own row for the row screen, as `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:206` records it. */
     private val captured = theOne(
         Regex("""Closed tile (\d+) x (\d+), focused (\d+) x (\d+), gutter (\d+), pitch (\d+)"""),
         reference,
@@ -56,7 +56,7 @@ class NumbersTest {
      * The closed tile is the size the capture recorded, to the 2 px the reference table claims.
      *
      * A raw measurement with no derivation, so this is the citation half of the rule: the numbers in
-     * `Rows.kt`'s `Poster` have to equal the numbers `apps/tv/README.md:123` says this project
+     * `Rows.kt`'s `Poster` have to equal the numbers `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:206` says this project
      * draws, and those have to stay within the 2 px of the capture that the same line claims. A
      * tile edited in the code and not in the table fails. A table edited to excuse a tile fails the
      * 2 px claim it makes in its own sentence.
@@ -127,7 +127,7 @@ class NumbersTest {
      * them together. A card widened to 920 with the sum left at 904 would overlap the poster by 16
      * reference pixels, which looks like a drawing bug and is a transcription one.
      *
-     * The gutter here is 19, not the 17 the closed row uses. `apps/tv/README.md:123` records 19 as
+     * The gutter here is 19, not the 17 the closed row uses. `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:206` records 19 as
      * what the television page used before 2026-11-11 and 17 as what it uses now, so this surface
      * is the one that did not move. That is held as the recorded fact rather than quietly corrected
      * -- it is a drawing change on a surface nobody ran today, and it belongs to whoever owns the
@@ -194,7 +194,7 @@ class NumbersTest {
      *
      * The card's 904 x 508 is a raw measurement, so this is the citation half of the rule. The
      * comment cites `row_screen.focused_tile` at 906 x 510 and says it was matched to 904 x 508 in
-     * gap 9; `apps/tv/README.md:123` has to record the same 906 x 510. A comment rewritten to point
+     * gap 9; `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:206` has to record the same 906 x 510. A comment rewritten to point
      * at a different capture, or a capture quoted with different numbers, fails here.
      */
     @Test
@@ -216,7 +216,7 @@ class NumbersTest {
     /**
      * The open card sits in the band the reference pins the focused row to.
      *
-     * A raw measurement held against its capture: `apps/tv/README.md:121` records the band as
+     * A raw measurement held against its capture: `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:219` records the band as
      * y 199 to 708 and claims this page holds it within 2 px. The card's own y and height are in
      * `Rows.kt:87` and `:88`, so the claim is checkable rather than remembered.
      */
@@ -235,7 +235,7 @@ class NumbersTest {
      * The page margin is the number the reference table records this project deciding on, and every
      * page reaches it through the constant.
      *
-     * 72 is a decision and not a measurement: `apps/tv/README.md:127` records the reference's own
+     * 72 is a decision and not a measurement: `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:191` records the reference's own
      * safe margin as 68 px at 1920 and this project choosing 72 in note 188. So this is the
      * citation half of the rule for the number, and for the constant it is the relationship the
      * number participates in -- no page writes the margin as a literal, which is what makes the
@@ -296,6 +296,6 @@ class NumbersTest {
          * numbers taken from it are written down. Read rather than copied: a test that copied them
          * would be two transcriptions of one measurement, which is the thing being guarded against.
          */
-        const val REFERENCE = "apps/tv/README.md"
+        const val REFERENCE = "pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md"
     }
 }

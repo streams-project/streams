@@ -10,7 +10,8 @@ an id too large for the core could be built on a device and only the server woul
 This proves the two agree, three ways:
 
   one copy      every patterned type's expression is the same text in the standalone schema, in
-                the OpenAPI document, in Contract.java, in Contract.kt and in Contract.swift
+                the OpenAPI document, in Contract.java, in Contract.kt, in Contract.swift and in
+                Contract.hpp
   one corpus    every fixture of a patterned type, which Rust reads in `contract`'s own tests, gets
                 the same verdict from the expression as the folder it sits in
   one bound     the expression accepts the largest id the Rust constant allows and refuses the next
@@ -120,6 +121,11 @@ def one_copy(name: str, pattern: str) -> list[str]:
         "generated/types/Contract.java": pattern.replace("\\", "\\\\"),
         "generated/types/Contract.kt": pattern.replace("$", "\\$"),
         "generated/types/Contract.swift": pattern,
+        # C++ has no interpolation either, so `$` stays exactly as the schema writes it and the
+        # backslash doubles, which is the Java line again. The two differ nowhere today; they are
+        # written out separately because the day a pattern carries a double quote they stop being
+        # the same line, and a shared one would have to be split under pressure instead.
+        "generated/types/Contract.hpp": pattern.replace("\\", "\\\\"),
     }
     standalone = GENERATED / "schemas" / f"{name}.json"
     if standalone.is_file():

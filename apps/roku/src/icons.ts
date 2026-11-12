@@ -2,7 +2,7 @@
 //
 // `platform/icons/icons.json` holds 50 icons (counted 2026-11-12) and
 // `platform/tools/make_icons.py` writes them out per family: `television()` emits
-// `apps/tv/page/surfaces/parts/icon-data.js`, `android()` emits Android vector XML, `apple()` emits
+// the deleted television page's `icon-data.js` (gone 2026-11-12), `android()` emits Android vector XML, `apple()` emits
 // an asset catalog. **There is no `roku()`**, so nothing produces the files the paths below name.
 // That is the finding, not a thing to work around here: the names come from the shared set, and the
 // generator has to grow a Roku emitter. Roku draws a Poster from a bitmap, so that emitter has to

@@ -1,7 +1,7 @@
 // The hexagon of the Roku family. The rules sit in the middle, and everything a surface needs from
 // a Roku goes through one of these ports.
 //
-// The shape follows `apps/tv/page/ports.js:6-20`, which is the same idea for the three web
+// The shape follows the deleted television page's `ports.js` (gone 2026-11-12; `apps/web/src/ports.rs` is the living twin), which is the same idea for the three web
 // televisions, and `apps/android/ports/src/main/kotlin/streams/ports/Ports.kt:175-243`, which is
 // the same idea for Android. A screen in `src/screens/` may use a port and never a Roku feature
 // behind one, so the screens can be read and checked without a Roku.

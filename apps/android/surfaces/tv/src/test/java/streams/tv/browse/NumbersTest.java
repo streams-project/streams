@@ -16,7 +16,7 @@ import streams.tv.views.Round;
  * <h2>Why this shape and not {@code assertEquals(328, STEP)}</h2>
  * {@code src/test/kotlin/streams/tv/NumbersTest.kt}'s own rule, which is the owner's: "a number is
  * never asserted against itself. {@code assertEquals(328, STEP)} passes forever." Its ten tests hold
- * the Kotlin against {@code apps/tv/README.md}'s reference table and against the derivations written
+ * the Kotlin against {@code pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md}'s reference table and against the derivations written
  * beside each number, and they still pass, because the Kotlin they read is still there.
  *
  * What they cannot see is whether the number came across. {@code Sources.kt:18-22} predicted exactly
@@ -91,7 +91,7 @@ public class NumbersTest {
      * The page margin is 72 in both, and the Java reaches it through a constant as every Kotlin page
      * does.
      *
-     * 72 is a decision and not a measurement -- {@code apps/tv/README.md:127} records the reference's
+     * 72 is a decision and not a measurement -- {@code pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:191} records the reference's
      * own safe margin as 68 px at 1920 and this project choosing 72 in note 188 -- so what is worth
      * checking is the relationship: no page writes it again, which is what makes it changeable at
      * all. {@code NumbersTest.kt}'s last test scans the Kotlin for a bare margin literal;
@@ -155,7 +155,7 @@ public class NumbersTest {
      * overlap the poster by 16 reference pixels, which looks like a drawing bug and is a
      * transcription one."
      *
-     * The gutter here is 19 and not the 17 the closed row uses. {@code apps/tv/README.md:123} records
+     * The gutter here is 19 and not the 17 the closed row uses. {@code pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:206} records
      * 19 as what the television page used before 2026-11-11 and 17 as what it uses now, so this
      * surface is the one that did not move. Carried as the recorded fact rather than quietly
      * corrected: it is a drawing change on a surface nobody ran, and it belongs to whoever owns the

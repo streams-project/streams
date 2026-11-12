@@ -15,13 +15,15 @@ to. These name one elsewhere, because machines differ:
   KOTLIN_STDLIB        the kotlin-stdlib jar
   JAVAC                javac
   JAVA                 java
+  CXX                  a C++ compiler, which needs no library at all
 
 A language whose compiler is nowhere is printed as not run, with what is missing, and counted in a
 last line. That line is why this can be run everywhere: on a machine with no Swift and no Kotlin the
 languages it could not prove are named out loud, never passed over in silence.
 
-Java is the arm with no dependency to install: the generated Java carries its own JSON reader and
-writer, so a JDK alone proves it. It is also the one arm that cannot trust `which`; see `jdk`.
+Java and C++ are the arms with no dependency to install: the generated Java and the generated
+header each carry their own JSON reader and writer, so a JDK alone proves one and a C++ compiler
+alone proves the other. They are also the two arms that cannot trust `which`; see `jdk` and `cxx`.
 
 The exit code is 1 when a language that did run failed, and 1 when none of them ran: a guard that
 proved nothing is a failure, not a pass. CI therefore installs a TypeScript compiler, so at least
@@ -75,10 +77,15 @@ JBR = os.environ.get(
 )
 
 
-def answers(tool):
-    """Whether the tool runs at all, asked by running it."""
+def answers(tool, flag="-version"):
+    """Whether the tool runs at all, asked by running it.
+
+    The flag is a parameter because the JDK tools and clang disagree about it: `javac -version` is
+    right and `clang++ -version` exits 1 with "unknown argument; did you mean '--version'?", so a
+    probe that asked every tool the same way would call a working compiler broken.
+    """
     try:
-        done = subprocess.run([tool, "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        done = subprocess.run([tool, flag], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except OSError:
         return False
     return done.returncode == 0
@@ -106,6 +113,26 @@ def jdk(variable, program):
     return None, (
         f"no {program} that runs, on the PATH or in Android Studio's JDK, and {variable} is not set"
     )
+
+
+def cxx(variable, program):
+    """A C++ compiler, believed only once it has answered `--version`.
+
+    The same rule as `jdk` above, for the same shape of reason. /usr/bin/clang++ is on every mac
+    and is not a compiler: it is a shim that asks xcrun for the active developer directory. With no
+    Command Line Tools and no Xcode it satisfies `shutil.which`, then exits 1. Measured on this
+    machine on 2026-11-12: `/usr/bin/clang++ --version` exits 0, and with DEVELOPER_DIR pointed at
+    a path that does not exist it exits 1 with "xcrun: error: missing DEVELOPER_DIR path".
+
+    A tool named by CXX is taken as given, because naming one is a deliberate act.
+    """
+    named = os.environ.get(variable)
+    if named:
+        return named, None
+    found = shutil.which(program)
+    if found and answers(found, "--version"):
+        return found, None
+    return None, f"no {program} that runs on the PATH and {variable} is not set"
 
 
 def missing_vars(*variables):
@@ -254,6 +281,124 @@ def check_java(work):
     return (done.returncode, counted + "\n" + done.stdout[-3000:]), None
 
 
+def check_cpp(work):
+    """Compile the generated header and run every fixture through the codec it carries.
+
+    The same three verdicts as Java: a valid fixture must read and write back the same document, a
+    tolerated one must read, and a refused one must throw. The fixture list is read from the folder
+    and never counted here.
+
+    Two things this proves that no other arm can. The header is included twice in one translation
+    unit, so the include guard is held down rather than assumed. And it is compiled with
+    -Wall -Wextra -Wpedantic -Werror, which is the Xbox surface's own bar (note 220), so a doc
+    comment that closed itself early or a parameter the emitter left unused fails here.
+
+    There is no `Wire` interface to hand a reader through, the way check_java does: the generated
+    types are unrelated aggregates and C++ has no common base to put them under. Each fixture is
+    therefore a template instantiation named with its type, which is also how a C++ surface will
+    read a message.
+    """
+    tool, why = cxx("CXX", "clang++")
+    if why:
+        return None, why
+    shutil.copy(os.path.join(TYPES, "Contract.hpp"), work)
+    lines = [
+        "// Twice on purpose: the second include must add nothing, which is what the guard is for.",
+        "#include \"Contract.hpp\"",
+        "#include \"Contract.hpp\"",
+        "",
+        "#include <exception>",
+        "#include <fstream>",
+        "#include <iostream>",
+        "#include <sstream>",
+        "#include <stdexcept>",
+        "#include <string>",
+        "",
+        "namespace {",
+        "",
+        "int failures = 0;",
+        "std::string root;",
+        "",
+        "std::string file(const std::string& kind, const std::string& name) {",
+        "    std::ifstream handle(root + \"/\" + kind + \"/\" + name);",
+        "    if (!handle) {",
+        "        throw std::runtime_error(\"cannot read \" + name);",
+        "    }",
+        "    std::ostringstream held;",
+        "    held << handle.rdbuf();",
+        "    return held.str();",
+        "}",
+        "",
+        "template <class T>",
+        "void valid(const char* name) {",
+        "    try {",
+        "        const contract::Json::Value before = contract::Json::parse(file(\"valid\", name));",
+        "        const std::string back = contract::Json::render(T::read(before));",
+        "        if (!contract::Json::same(before, contract::Json::parse(back))) {",
+        "            failures++;",
+        "            std::cout << \"differs \" << name << \" \" << back << \"\\n\";",
+        "        }",
+        "    } catch (const std::exception& error) {",
+        "        failures++;",
+        "        std::cout << \"valid failed \" << name << \" \" << error.what() << \"\\n\";",
+        "    }",
+        "}",
+        "",
+        "template <class T>",
+        "void tolerated(const char* name) {",
+        "    try {",
+        "        T::read(contract::Json::parse(file(\"tolerated\", name)));",
+        "    } catch (const std::exception& error) {",
+        "        failures++;",
+        "        std::cout << \"tolerated failed \" << name << \" \" << error.what() << \"\\n\";",
+        "    }",
+        "}",
+        "",
+        "template <class T>",
+        "void refused(const char* name) {",
+        "    bool parsed = false;",
+        "    try {",
+        "        T::read(contract::Json::parse(file(\"refused\", name)));",
+        "        parsed = true;",
+        "    } catch (const std::exception&) {",
+        "        parsed = false;",
+        "    }",
+        "    if (parsed) {",
+        "        failures++;",
+        "        std::cout << \"parsed \" << name << \"\\n\";",
+        "    }",
+        "}",
+        "",
+        "}  // namespace",
+        "",
+        "int main(int count, char** given) {",
+        "    if (count < 2) {",
+        "        std::cout << \"no fixture folder\\n\";",
+        "        return 1;",
+        "    }",
+        "    root = given[1];",
+    ]
+    for kind in ("valid", "tolerated", "refused"):
+        for name in names(kind):
+            lines.append("    %s<contract::%s>(\"%s\");" % (kind, type_of(name), name))
+    lines += [
+        "    std::cout << \"failures \" << failures << \"\\n\";",
+        "    return failures == 0 ? 0 : 1;",
+        "}",
+    ]
+    with open(os.path.join(work, "check.cpp"), "w") as handle:
+        handle.write("\n".join(lines) + "\n")
+    out = os.path.join(work, "check_cpp")
+    built = run([tool, "-std=c++17", "-Wall", "-Wextra", "-Wpedantic", "-Werror", "check.cpp", "-o", out], cwd=work)
+    if built.returncode != 0:
+        return (built.returncode, built.stdout[-3000:]), None
+    done = run([out, FIXTURES])
+    counted = "%d valid, %d tolerated, %d refused" % (
+        len(names("valid")), len(names("tolerated")), len(names("refused")),
+    )
+    return (done.returncode, counted + "\n" + done.stdout[-3000:]), None
+
+
 def check_swift(work):
     tool, why = compiler("SWIFTC", "swiftc")
     if why:
@@ -383,7 +528,14 @@ def main():
     worst = 0
     ran = []
     skipped = []
-    for label, step in (("typescript", check_typescript), ("java", check_java), ("swift", check_swift), ("kotlin", check_kotlin)):
+    steps = (
+        ("typescript", check_typescript),
+        ("java", check_java),
+        ("swift", check_swift),
+        ("kotlin", check_kotlin),
+        ("cpp", check_cpp),
+    )
+    for label, step in steps:
         folder = os.path.join(work, label)
         os.makedirs(folder)
         result, why = step(folder)
@@ -398,8 +550,11 @@ def main():
     shutil.rmtree(work, ignore_errors=True)
     # The last line is the whole point of running this where a compiler may be absent: it says how
     # much of the contract was proved, so a run that proved none of it cannot read as a pass.
-    print("types: %d of 4 languages compiled (%s)%s" % (
+    # The total is read from the table above and not written down here: an arm added without the
+    # count moving would read as a full run that proved one language less.
+    print("types: %d of %d languages compiled (%s)%s" % (
         len(ran),
+        len(steps),
         ", ".join(ran) or "none",
         "; NOT RUN: " + ", ".join(skipped) if skipped else "",
     ))
