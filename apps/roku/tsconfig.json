@@ -1,0 +1,34 @@
+{
+  // `rk create` writes its own tsconfig for a new project (verified 2026-11-12 on Roku's getting
+  // started page, though its contents were not published there). This file holds the three things
+  // this folder needs on top of whatever that is, and a merge keeps them:
+  //
+  //   1. `include` carries the generated contract types, which live outside this folder. They are
+  //      generated output: never edited here, and a gap in them is a finding about the emitter.
+  //   2. `resolveJsonModule`, because `src/numbers.ts` and `roku-config.ts` read `brand.json` so no
+  //      colour, corner or brand name is written twice.
+  //   3. every strictness flag, because this is the only check this folder has until it can be
+  //      built: there is no `node` on the machine it was written on.
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "roku-config.ts",
+    "../../platform/contract/generated/types/contract.ts"
+  ]
+}
