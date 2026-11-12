@@ -70,7 +70,7 @@ struct PinPanel: View {
 
         return VStack(spacing: 0) {
             // The face is decoration: the name is drawn under it and says whose profile this is.
-            Face(person, faceLarge, seen.server)
+            Face(shell.pictures, person, faceLarge, seen.server)
             Spacer().frame(height: 24.ref)
             Text(person.name).brand(56, 800).foregroundStyle(.white)
                 .accessibilityAddTraits(.isHeader)

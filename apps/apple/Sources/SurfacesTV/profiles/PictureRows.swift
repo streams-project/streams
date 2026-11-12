@@ -1,4 +1,5 @@
 import Observation
+import Ports
 import SwiftUI
 
 private let tile: CGFloat = 243
@@ -42,6 +43,7 @@ final class PictureFocus {
 }
 
 private struct OneRow: View {
+    let pictures: Pictures
     let row: PictureRow
     let index: Int
     let focus: PictureFocus
@@ -67,6 +69,7 @@ private struct OneRow: View {
                 // a grid of stops that all read as nothing. `say.avatar_in_set` is the words this
                 // project already has for the case - its place in the set, and which set.
                 Art(
+                    pictures,
                     server + row.pictures[picture],
                     says: pattern.isEmpty
                         ? ""
@@ -89,6 +92,7 @@ private struct OneRow: View {
 /// clearest case on the television of a control with no words available anywhere, since neither the
 /// picture nor the answer that lists it carries a name.
 struct PictureRows: View {
+    let pictures: Pictures
     let rows: [PictureRow]
     let focus: PictureFocus
     let server: String
@@ -103,7 +107,7 @@ struct PictureRows: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
-                OneRow(row: row, index: index, focus: focus, server: server, pattern: pattern)
+                OneRow(pictures: pictures, row: row, index: index, focus: focus, server: server, pattern: pattern)
             }
         }
         .offset(y: (firstY - CGFloat(focus.row) * down).ref)

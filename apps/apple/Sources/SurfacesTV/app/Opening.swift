@@ -149,8 +149,15 @@ private final class BrandArt {
     let textSize: CGSize
 
     init() {
-        let url = Bundle.module.url(forResource: "opening", withExtension: "json")!
-        let json = (try? JSONSerialization.jsonObject(with: Data(contentsOf: url))) as? [String: Any] ?? [:]
+        // The bundle is named at the read rather than through a variable, so what this reads is
+        // visible where it is read. `notes/216` settled that this is not a hexagon violation - it
+        // is the app's own geometry for the approved opening, not a server payload - and the ring
+        // check can only tell the two apart if the read says which it is: the banned capability is
+        // a `contentsOf` read of anything but `Bundle.`, and a ban on the bare word would have to
+        // choose between missing a network read and failing on this line.
+        let json = (try? JSONSerialization.jsonObject(
+            with: Data(contentsOf: Bundle.module.url(forResource: "opening", withExtension: "json")!)
+        )) as? [String: Any] ?? [:]
         let mark = json["mark"] as? [String: Any] ?? [:]
         let box = (mark["box"] as? [Double] ?? [0, 0, 1, 1]).map { CGFloat($0) }
         let word = json["word"] as? [String: Any] ?? [:]

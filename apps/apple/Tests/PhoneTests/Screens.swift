@@ -4,6 +4,8 @@ import Foundation
 import Ports
 import SwiftUI
 
+import Stand
+
 @testable import SurfacesPhone
 
 /// A whole screen, built from the parts the app builds it from, so a test reads Home rather than a
@@ -16,6 +18,11 @@ import SwiftUI
 @MainActor
 final class NoShell: Shell {
     let seen = Seen()
+    /// The pictures this screen asked for, which a test may read, and which answer nothing drawn
+    /// by default: every address in these fixtures is on `example.invalid`, so a refusal is what a
+    /// real read of one would come to anyway.
+    let shown = ToldPictures()
+    var pictures: Pictures { shown }
     var player: Player { fatalError("no screen under test plays") }
     var reel: Reel { fatalError("no screen under test reels") }
     func connect(_ server: String) {}
@@ -31,7 +38,6 @@ final class NoShell: Shell {
     // decode, which is the "gets nothing" this stub is for.
     func ask(_ path: String, reply: @escaping (Int, String) -> Void) { reply(0, "") }
     func send(_ method: String, _ path: String, _ body: String, reply: @escaping (Int, String) -> Void) { reply(0, "") }
-    func bytes(_ url: String, reply: @escaping @Sendable (Data?) -> Void) { reply(nil) }
     func keep(_ profile: Profile) {}
     func keepAll(_ profiles: [Profile]) {}
     func speak(_ language: String?) {}

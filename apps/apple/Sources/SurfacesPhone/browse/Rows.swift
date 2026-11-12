@@ -20,6 +20,7 @@ private let rowStart: CGFloat = 12
 /// Top 10 row shows large outlined rank numerals beside each tile. Continue Watching shows progress
 /// and action buttons. Row title tap opens the row as a full page grid when it has more tiles.
 public struct SectionRow: View {
+    public let pictures: Pictures
     public let section: Contract.Section
     public let words: [String: String]
     public let open: (Tile) -> Void
@@ -32,6 +33,7 @@ public struct SectionRow: View {
     @Environment(\.layoutDirection) private var layoutDirection
 
     public init(
+        pictures: Pictures,
         section: Contract.Section,
         words: [String: String],
         open: @escaping (Tile) -> Void,
@@ -39,6 +41,7 @@ public struct SectionRow: View {
         onRemove: ((Tile) -> Void)? = nil,
         openGrid: ((Contract.Section) -> Void)? = nil
     ) {
+        self.pictures = pictures
         self.section = section
         self.words = words
         self.open = open
@@ -96,6 +99,7 @@ public struct SectionRow: View {
                             case .ranked:
                                 let rank = tile.badges?.first(where: { $0.rank != nil })?.rank ?? (index + 1)
                                 RankedTileCard(
+                                    pictures: pictures,
                                     rank: rank,
                                     tile: tile,
                                     words: words,
@@ -103,6 +107,7 @@ public struct SectionRow: View {
                                 )
                             case .continue:
                                 ContinueCard(
+                                    pictures: pictures,
                                     tile: tile,
                                     words: words,
                                     open: { open(tile) },
@@ -115,6 +120,7 @@ public struct SectionRow: View {
                             default:
                                 let rank = tile.badges?.first(where: { $0.rank != nil })?.rank
                                 TileCard(
+                                    pictures: pictures,
                                     tile: tile,
                                     wide: tileWide,
                                     high: tileHigh,
@@ -132,6 +138,7 @@ public struct SectionRow: View {
             .padding(.bottom, 12)
             .fullScreenCover(isPresented: $gridOpen) {
                 FullPageGrid(
+                    pictures: pictures,
                     title: section.title ?? "",
                     tiles: tiles,
                     words: words,
@@ -163,6 +170,7 @@ private struct RowTitleSays: ViewModifier {
 /// reaches the accessibility tree in a test process with no scene (measured 2026-11-12), and every
 /// tile on this surface is drawn inside one.
 struct RankedTileCard: View {
+    let pictures: Pictures
     let rank: Int
     let tile: Tile
     let words: [String: String]
@@ -186,6 +194,7 @@ struct RankedTileCard: View {
             HStack {
                 Spacer()
                 TileCard(
+                    pictures: pictures,
                     tile: tile,
                     wide: tileWide,
                     high: tileHigh,
@@ -234,6 +243,7 @@ private struct RankNumeral: View {
 ///
 /// Internal rather than private for the same reason as `RankedTileCard`.
 struct ContinueCard: View {
+    let pictures: Pictures
     let tile: Tile
     let words: [String: String]
     let open: () -> Void
@@ -249,7 +259,7 @@ struct ContinueCard: View {
             // Artwork with progress bar
             Button(action: open) {
                 ZStack(alignment: .bottomLeading) {
-                    Art(tall(tile.images))
+                    Art(pictures, tall(tile.images))
                         .frame(width: tileWide, height: 138)
                         .clipped()
 
@@ -313,6 +323,7 @@ struct ContinueCard: View {
 ///
 /// Internal rather than private for the same reason as `RankedTileCard`.
 struct TileCard: View {
+    let pictures: Pictures
     let tile: Tile
     let wide: CGFloat
     let high: CGFloat
@@ -327,7 +338,7 @@ struct TileCard: View {
 
         Button(action: open) {
             ZStack(alignment: .topLeading) {
-                Art(SurfacesShared.tall(tile.images))
+                Art(pictures, SurfacesShared.tall(tile.images))
                     .frame(width: wide, height: high)
                     .clipped()
 
@@ -378,6 +389,7 @@ struct TileCard: View {
 
 /// Full-page grid opened when row title is tapped.
 private struct FullPageGrid: View {
+    let pictures: Pictures
     let title: String
     let tiles: [Tile]
     let words: [String: String]
@@ -426,7 +438,7 @@ private struct FullPageGrid: View {
                                 ZStack {
                                     Raised
                                     if let url = tall(tile.images) {
-                                        Art(url)
+                                        Art(pictures, url)
                                     }
                                 }
                                 .aspectRatio(tileWide / tileHigh, contentMode: .fit)

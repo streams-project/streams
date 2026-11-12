@@ -1,4 +1,5 @@
 import Contract
+import Ports
 import SwiftUI
 
 let faceLarge: CGFloat = 194
@@ -13,6 +14,7 @@ private let grow = 0.2
 /// `pencilWord` is the pencil, which means this press edits rather than enters. Both come from
 /// `strings/` and are given by the screen, which is the part that holds the words.
 struct ProfileRow: View {
+    let pictures: Pictures
     let person: Profile
     let on: Bool
     let pencil: Bool
@@ -30,7 +32,7 @@ struct ProfileRow: View {
                     .overlay(Icon("icon_pencil", 30, tint: pencil ? Back : Muted))
                     .offset(x: 111.ref, y: 67.ref)
             }
-            Face(person, size, server)
+            Face(pictures, person, size, server)
                 .overlay(shapeOf(Round.face(size)).stroke(.white, lineWidth: on && !pencil ? 4.ref : 0))
                 .offset(x: (on ? 193 : 225).ref)
             if on {

@@ -67,19 +67,19 @@ struct EditProfile: View {
             switch step {
             case .menu, .delete:
                 EditMenu(
-                    seen: seen, person: person, limit: limit,
+                    pictures: shell.pictures, seen: seen, person: person, limit: limit,
                     language: languages.first { $0.code == (person.language ?? seen.language) }?.name,
-                    pictures: !(sets?.sets ?? []).isEmpty, at: menuAt,
+                    sets: !(sets?.sets ?? []).isEmpty, at: menuAt,
                     move: { menuAt = $0 },
                     open: { chosen in if chosen == .delete { remove() } else { step = chosen } },
                     leave: leave
                 )
             case .name:
-                EditName(seen: seen, person: person, refused: refused) { name in
+                EditName(pictures: shell.pictures, seen: seen, person: person, refused: refused) { name in
                     if let name { save(ProfileUpdate(name: name)) } else { step = .menu }
                 }
             case .icon:
-                EditIcon(seen: seen, person: person, rows: rowsOf(sets, seen.say("profile.icon.history"), person)) { chosen in
+                EditIcon(pictures: shell.pictures, seen: seen, person: person, rows: rowsOf(sets, seen.say("profile.icon.history"), person)) { chosen in
                     if let chosen { save(ProfileUpdate(avatar: chosen)) } else { step = .menu }
                 }
             case .language:

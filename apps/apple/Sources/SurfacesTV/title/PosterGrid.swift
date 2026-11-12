@@ -1,4 +1,5 @@
 import Contract
+import Ports
 import SwiftUI
 
 /// Posters in one line of the grid.
@@ -23,6 +24,7 @@ func gridMove(_ at: Int, _ word: Word, _ last: Int) -> Int {
 
 /// Portrait posters, four across. `focus` is -1 when the grid has no focus.
 struct PosterGrid: View {
+    let pictures: Pictures
     let tiles: [Tile]
     let focus: Int
     let left: CGFloat
@@ -38,7 +40,7 @@ struct PosterGrid: View {
                 if row >= line - 1 && row <= line + 2 {
                     ZStack(alignment: .bottomLeading) {
                         Raised
-                        Art(tall(tile.images))
+                        Art(pictures, tall(tile.images))
                         TileBadges(tile, words).padding(12.ref)
                     }
                     .frame(width: wide.ref, height: high.ref)

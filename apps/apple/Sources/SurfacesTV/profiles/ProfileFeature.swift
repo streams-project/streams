@@ -26,7 +26,7 @@ struct ProfileFeature: View {
             if let shown {
                 ZStack(alignment: .bottomTrailing) {
                     ZStack {
-                        Art(wide(shown.images))
+                        Art(shell.pictures, wide(shown.images))
                         fromLeft
                         fromFoot
                     }

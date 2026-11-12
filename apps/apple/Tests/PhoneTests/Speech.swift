@@ -1,6 +1,8 @@
 #if canImport(UIKit)
 import Contract
 import Heard
+import Ports
+import Stand
 import SurfacesShared
 import SwiftUI
 import XCTest
@@ -128,7 +130,7 @@ final class SpeechTests: XCTestCase {
                 server: "", go: {}
             ),
         ]
-        let found = heard(BottomBar(items: items), size: phone)
+        let found = heard(BottomBar(pictures: ToldPictures(), items: items), size: phone)
         XCTAssertEqual(words(found), items.map(\.word), "each place reads as one word, in order")
         XCTAssertEqual(
             found.filter { $0.kinds.contains("selected") }.count,
@@ -252,8 +254,8 @@ final class SpeechTests: XCTestCase {
         let tile = (seen.screen?.sections ?? []).first { $0.kind == .row }!.tiles!.first!
         let found = heard(
             TileCard(
-                tile: tile, wide: tileWide, high: tileHigh, rank: nil, percent: nil,
-                words: seen.words, open: {}
+                pictures: ToldPictures(), tile: tile, wide: tileWide, high: tileHigh, rank: nil,
+                percent: nil, words: seen.words, open: {}
             ),
             size: phone
         )
@@ -270,7 +272,7 @@ final class SpeechTests: XCTestCase {
         let tile = row.tiles![1]
         let rank = tile.badges!.first!.rank!
         let found = heard(
-            RankedTileCard(rank: rank, tile: tile, words: seen.words, open: {}),
+            RankedTileCard(pictures: ToldPictures(), rank: rank, tile: tile, words: seen.words, open: {}),
             size: phone
         )
         XCTAssertEqual(
@@ -286,7 +288,10 @@ final class SpeechTests: XCTestCase {
         let (_, seen) = homeSeen()
         let tile = (seen.screen?.sections ?? []).first { $0.kind == .continue }!.tiles!.first!
         let found = heard(
-            ContinueCard(tile: tile, words: seen.words, open: {}, openInfo: {}, onRemove: {}),
+            ContinueCard(
+                pictures: ToldPictures(), tile: tile, words: seen.words, open: {}, openInfo: {},
+                onRemove: {}
+            ),
             size: phone
         )
         XCTAssertEqual(silent(found), [], "a control on a continue tile says nothing")
@@ -308,8 +313,14 @@ final class SpeechTests: XCTestCase {
         let short = (seen.screen?.sections ?? []).first { $0.kind == .row }!
         var long = short
         long.cursor = "more"
-        let shortHeard = heard(SectionRow(section: short, words: seen.words, open: { _ in }), size: phone)
-        let longHeard = heard(SectionRow(section: long, words: seen.words, open: { _ in }), size: phone)
+        let shortHeard = heard(
+            SectionRow(pictures: ToldPictures(), section: short, words: seen.words, open: { _ in }),
+            size: phone
+        )
+        let longHeard = heard(
+            SectionRow(pictures: ToldPictures(), section: long, words: seen.words, open: { _ in }),
+            size: phone
+        )
         XCTAssertEqual(words(shortHeard), [short.title!], "a row that opens nothing is its own name")
         XCTAssertEqual(
             words(longHeard),
@@ -394,7 +405,7 @@ final class SpeechTests: XCTestCase {
         let silentOnes: [(String, AnyView)] = [
             ("Icon", AnyView(Icon("icon_search", 34))),
             ("Mark", AnyView(Mark(60))),
-            ("Art", AnyView(Art("https://example.invalid/a.jpg"))),
+            ("Art", AnyView(Art(ToldPictures(), "https://example.invalid/a.jpg"))),
         ]
         for (name, view) in silentOnes {
             XCTAssertEqual(heard(view, size: phone), [], "\(name) is read although nothing gave it words")

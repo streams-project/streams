@@ -1,6 +1,7 @@
 #if canImport(UIKit)
 import Heard
 import Ports
+import Stand
 import SurfacesShared
 import SwiftUI
 import XCTest
@@ -164,14 +165,15 @@ final class SpeechTests: XCTestCase {
         )
     }
 
-    /// The keyboard that signs in draws sixty keys, three of them pictures. `say.shift` is not in
-    /// `strings/` yet, so the shift key is the one that stays silent until it lands - which is why
-    /// this test names the two it can check rather than asserting nothing is silent.
+    /// The keyboard that signs in draws sixty keys, three of them pictures, and all three speak:
+    /// `say.shift` landed on 2026-11-12, so the key that stayed silent while this test could name
+    /// only the other two is checked with them now, and nothing on the keyboard is reached silently.
     func testTheSignInKeyboardsPictureKeysSpeak() {
         let state = KeyboardState("")
         let found = heard(Keyboard(state: state, cancel: "Back", done: "Next", words: tvWords), size: tv)
         XCTAssertEqual(assetNames(found), [], "a key is read as the name of its picture file")
-        for word in ["say.space", "say.delete"] {
+        XCTAssertEqual(silent(found), [], "a key on the keyboard is reached and says nothing")
+        for word in ["say.space", "say.delete", "say.shift"] {
             XCTAssertTrue(
                 words(found).contains(tvWords[word]!),
                 "the keyboard has no key saying what the strings call \(word)"
@@ -246,7 +248,7 @@ final class SpeechTests: XCTestCase {
         let locked = person("Noor", "p2", hasPin: true)
         let away = heard(
             ProfileRow(
-                person: person("Ibrahim", "p1"), on: false, pencil: false, server: "",
+                pictures: ToldPictures(), person: person("Ibrahim", "p1"), on: false, pencil: false, server: "",
                 pencilWord: tvWords["profile.edit"]!,
                 lockedWord: tvWords["say.profile_locked"]!.fill("name", "Ibrahim")
             ),
@@ -254,7 +256,7 @@ final class SpeechTests: XCTestCase {
         )
         let here = heard(
             ProfileRow(
-                person: locked, on: true, pencil: false, server: "",
+                pictures: ToldPictures(), person: locked, on: true, pencil: false, server: "",
                 pencilWord: tvWords["profile.edit"]!,
                 lockedWord: tvWords["say.profile_locked"]!.fill("name", locked.name)
             ),
@@ -275,7 +277,8 @@ final class SpeechTests: XCTestCase {
         func row(_ pencil: Bool) -> [Heard] {
             heard(
                 ProfileRow(
-                    person: person("Ibrahim", "p1"), on: true, pencil: pencil, server: "",
+                    pictures: ToldPictures(), person: person("Ibrahim", "p1"), on: true, pencil: pencil,
+                    server: "",
                     pencilWord: tvWords["profile.edit"]!, lockedWord: ""
                 ),
                 size: tv
@@ -296,7 +299,7 @@ final class SpeechTests: XCTestCase {
         let focus = PictureFocus()
         let found = heard(
             PictureRows(
-                rows: rows, focus: focus, server: "https://example.invalid",
+                pictures: ToldPictures(), rows: rows, focus: focus, server: "https://example.invalid",
                 pattern: tvWords["say.avatar_in_set"]!
             ),
             size: tv
@@ -324,7 +327,10 @@ final class SpeechTests: XCTestCase {
     func testProfilePicturesWithNoWordsAreNotSilentStops() {
         let rows = [PictureRow(label: "Cats", pictures: ["/a.jpg", "/b.jpg"])]
         let found = heard(
-            PictureRows(rows: rows, focus: PictureFocus(), server: "https://example.invalid"),
+            PictureRows(
+                pictures: ToldPictures(), rows: rows, focus: PictureFocus(),
+                server: "https://example.invalid"
+            ),
             size: tv
         )
         XCTAssertEqual(silent(found), [], "an unworded picture is reached and says nothing")

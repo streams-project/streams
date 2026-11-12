@@ -16,14 +16,13 @@ struct MainApp: App {
             store: FileStore(),
             player: AvPlayer(),
             reel: AvReel(),
+            pictures: UrlPictures(),
             deviceClass: ThisDevice.deviceClass,
             form: ThisDevice.form,
             version: ThisDevice.version,
             os: ThisDevice.os
         )
         RemoteUIView.heard = { host.touched() }
-        // Pictures come through the system's shared cache; rows of posters need more than its default.
-        URLCache.shared = URLCache(memoryCapacity: 64 << 20, diskCapacity: 512 << 20)
         _host = State(initialValue: host)
     }
 

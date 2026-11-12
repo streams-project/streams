@@ -1,4 +1,5 @@
 import Contract
+import Ports
 import SwiftUI
 
 /// A profile's picture, or its first letter when it has none. Every screen draws this one part.
@@ -10,12 +11,20 @@ import SwiftUI
 /// reader would say "N" and stop - and because a face is almost always drawn inside a control that
 /// already says whose it is. Mirrors `says` on android's `tv/parts/Face.kt` and `shared/Face.kt`.
 public struct Face: View {
+    public let pictures: Pictures
     public let person: Profile?
     public let size: CGFloat
     public let server: String
     public var says: String = ""
 
-    public init(_ person: Profile?, _ size: CGFloat, _ server: String, says: String = "") {
+    public init(
+        _ pictures: Pictures,
+        _ person: Profile?,
+        _ size: CGFloat,
+        _ server: String,
+        says: String = ""
+    ) {
+        self.pictures = pictures
         self.person = person
         self.size = size
         self.server = server
@@ -28,7 +37,7 @@ public struct Face: View {
         ZStack {
             plate
             if let avatar {
-                Art(avatar.hasPrefix("/") ? server + avatar : avatar)
+                Art(pictures, avatar.hasPrefix("/") ? server + avatar : avatar)
             } else {
                 Text((person?.name.prefix(1) ?? "").uppercased())
                     .brand(size * 46 / 100, 800)

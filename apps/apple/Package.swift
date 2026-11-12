@@ -74,14 +74,21 @@ let package = Package(
             name: "Heard",
             path: "Tests/Heard"
         ),
+        // The ports a view needs before it can draw, as stand-ins a test can look into. Test
+        // support only, the same way `Heard` is: no product carries it, so no app links it.
+        .target(
+            name: "Stand",
+            dependencies: ["Contract", "Ports"],
+            path: "Tests/Stand"
+        ),
         .testTarget(
             name: "TelevisionTests",
-            dependencies: ["Heard", "Contract", "Ports", "SurfacesShared", "SurfacesTV"],
+            dependencies: ["Heard", "Stand", "Contract", "Ports", "SurfacesShared", "SurfacesTV"],
             path: "Tests/TelevisionTests"
         ),
         .testTarget(
             name: "PhoneTests",
-            dependencies: ["Heard", "Contract", "SurfacesShared", "SurfacesPhone"],
+            dependencies: ["Heard", "Stand", "Adapters", "Contract", "Ports", "SurfacesShared", "SurfacesPhone"],
             path: "Tests/PhoneTests"
         ),
     ]

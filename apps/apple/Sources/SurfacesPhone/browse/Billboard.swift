@@ -47,7 +47,7 @@ struct Billboard: View {
 
             ZStack(alignment: .bottom) {
                 if let picture {
-                    Art(picture)
+                    Art(shell.pictures, picture)
                         .frame(width: wide, height: cardHeight)
                         .clipped()
                 }
@@ -60,7 +60,7 @@ struct Billboard: View {
                     // naming the title and would say nothing. Where the catalogue has no treatment
                     // the name is already drawn as text below and the picture does not arise.
                     if let logoUrl = logo(tile.images) {
-                        Art(logoUrl, fit: true, says: tile.name)
+                        Art(shell.pictures, logoUrl, fit: true, says: tile.name)
                             .frame(maxWidth: wide * 0.7, maxHeight: 108)
                     } else {
                         Text(tile.name)
@@ -107,11 +107,13 @@ struct Billboard: View {
             .accessibilityLabel(tile.name)
             .task(id: picture) {
                 guard let picture else { return }
-                if let data = await shell.bytes(picture),
-                   let uiImage = UIImage(data: data) {
-                    if let darkColor = extractDarkColor(from: uiImage) {
-                        tint(darkColor)
-                    }
+                // `pixels: true` says what this is for: the tint is read out of the artwork's own
+                // pixels. The card draws the same address through `Art` just above, so both take
+                // one fetch and one cache entry rather than two.
+                if case .painted(let held) = await shell.pictures.picture(Want(url: picture, pixels: true)),
+                   let uiImage = held as? UIImage,
+                   let darkColor = extractDarkColor(from: uiImage) {
+                    tint(darkColor)
                 }
             }
         }

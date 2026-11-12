@@ -15,6 +15,7 @@ private let cardFoot = LinearGradient(
 )
 
 private struct EpisodeCard: View {
+    let pictures: Pictures
     let episode: Episode
     let label: String
     let runtime: String?
@@ -25,7 +26,7 @@ private struct EpisodeCard: View {
         ZStack(alignment: .topLeading) {
             ZStack(alignment: .bottomLeading) {
                 Raised
-                Art(wide(episode.images))
+                Art(pictures, wide(episode.images))
                 cardFoot
                 Text(label).brand(24, 500).foregroundStyle(.white).padding(.leading, 20.ref).padding(.bottom, 14.ref)
             }
@@ -158,6 +159,7 @@ struct Episodes: View {
                 ForEach(Array(episodes.enumerated()), id: \.element.number) { index, episode in
                     if index >= card - 1 && index <= card + near {
                         EpisodeCard(
+                            pictures: shell.pictures,
                             episode: episode,
                             label: seen.say("title.episode").fill("n", episode.number),
                             runtime: episode.runtimeMin.map { seen.words.counted("title.length.minutes", $0) },

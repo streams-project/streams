@@ -80,7 +80,7 @@ struct AddProfile: View {
                     PageHead(title: seen.say("profile.add"), help: seen.say("profile.add.help"))
                     Keyboard(state: keys, cancel: cancel, done: done, words: seen.words)
                         .offset(x: subEdge.ref, y: 302.ref)
-                    ProfileCard(person: preview, server: seen.server, name: {
+                    ProfileCard(pictures: shell.pictures, person: preview, server: seen.server, name: {
                         HStack(spacing: 3.ref) {
                             CardName(name: keys.text)
                             Rectangle().fill(.white).frame(width: 3.ref, height: 44.ref)
@@ -108,7 +108,7 @@ struct AddProfile: View {
                 ZStack(alignment: .topLeading) {
                     PageHead(title: seen.say("profile.add"), help: seen.say("profile.add.kids"))
                     Menu(lines: lines, focus: kidsAt, width: 460).offset(x: (subEdge - menuWords).ref, y: 397.ref)
-                    ProfileCard(person: preview, server: seen.server, name: { CardName(name: keys.text) }, under: nil)
+                    ProfileCard(pictures: shell.pictures, person: preview, server: seen.server, name: { CardName(name: keys.text) }, under: nil)
                 }
                 // What the remote is on: one of the two answers to the Kids question.
                 .remote(says: lines[safe: kidsAt]?.word ?? "") { word in

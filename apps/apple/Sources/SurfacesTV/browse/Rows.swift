@@ -70,13 +70,14 @@ private let cardFoot = LinearGradient(colors: [.clear, .black.opacity(0.7)], sta
 /// the title's name is the poster, it comes from the answer, and it needs no key. The badges drawn
 /// on top say the rest themselves, inside the same node.
 struct Poster: View {
+    let pictures: Pictures
     let tile: Tile
     let words: [String: String]
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             Raised
-            if let url = tall(tile.images) { Art(url) }
+            if let url = tall(tile.images) { Art(pictures, url) }
             TileBadges(tile, words).padding(12.ref)
         }
         .frame(width: 311.ref, height: 504.ref)
@@ -87,6 +88,7 @@ struct Poster: View {
 
 /// The card stays still and its art crossfades.
 private struct OpenCard: View {
+    let pictures: Pictures
     let tile: Tile
     let words: [String: String]
     /// The title's own treatment, when the catalogue has one for it.
@@ -97,7 +99,7 @@ private struct OpenCard: View {
         let shape = shapeOf(Round.card)
         ZStack(alignment: .bottomLeading) {
             Raised
-            Art(wide(tile.images))
+            Art(pictures, wide(tile.images))
                 .id(tile.title)
                 .transition(.opacity.animation(.linear(duration: slide)))
             cardFoot.frame(height: 200.ref)
@@ -111,7 +113,7 @@ private struct OpenCard: View {
             if let mark {
                 // The card itself is given the title's name, so the treatment inside it would be a
                 // second reading of the same words.
-                Logo(url: mark, width: openMarkWide, height: openMarkHigh)
+                Logo(pictures: pictures, url: mark, width: openMarkWide, height: openMarkHigh)
                     .padding(.leading, 24.ref)
                     .padding(.bottom, 24.ref)
             } else {
@@ -237,16 +239,17 @@ struct OpenRow: View {
                 }
             }
             if at > 0 {
-                Poster(tile: ranked ? unranked(tiles[at - 1]) : tiles[at - 1], words: words)
+                Poster(pictures: shell.pictures, tile: ranked ? unranked(tiles[at - 1]) : tiles[at - 1], words: words)
                     .opacity(0.55)
                     .offset(x: (lead - pitch - 8).ref, y: 202.ref)
             }
             // The poster under the card is drawn too, so a title leaving the card slides out from it.
             ForEach(at..<min(at + ahead + 1, tiles.count), id: \.self) { index in
-                Poster(tile: ranked ? unranked(tiles[index]) : tiles[index], words: words)
+                Poster(pictures: shell.pictures, tile: ranked ? unranked(tiles[index]) : tiles[index], words: words)
                     .offset(x: placeOf(index).ref, y: 202.ref)
             }
             OpenCard(
+                pictures: shell.pictures,
                 tile: ranked ? unranked(tile) : tile,
                 words: words,
                 mark: logo((tile.images ?? []) + (detail?.images ?? [])),
@@ -277,6 +280,7 @@ struct OpenRow: View {
 /// The next row, dim, cut by the screen's edge.
 /// It shows where the viewer left it: the kept tile first, the one before it at the edge, as the open row does.
 struct NextRow: View {
+    let pictures: Pictures
     let section: Contract.Section
     let high: Bool
     let words: [String: String]
@@ -307,11 +311,11 @@ struct NextRow: View {
                 }
             }
             if at > 0, let before = tiles[safe: at - 1] {
-                Poster(tile: ranked ? unranked(before) : before, words: words)
+                Poster(pictures: pictures, tile: ranked ? unranked(before) : before, words: words)
                     .offset(x: (lead - pitch).ref, y: top.ref)
             }
             ForEach(Array(tiles.dropFirst(at).prefix(nextPosters).enumerated()), id: \.offset) { index, tile in
-                Poster(tile: ranked ? unranked(tile) : tile, words: words)
+                Poster(pictures: pictures, tile: ranked ? unranked(tile) : tile, words: words)
                     .offset(x: (lead + CGFloat(index) * pitch).ref, y: top.ref)
             }
         }

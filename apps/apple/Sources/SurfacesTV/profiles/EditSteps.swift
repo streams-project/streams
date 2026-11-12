@@ -46,11 +46,13 @@ struct AgeNote: View {
 
 /// The first page: what can be changed.
 struct EditMenu: View {
+    let pictures: Pictures
     let seen: Seen
     let person: Profile
     let limit: String
     let language: String?
-    let pictures: Bool
+    /// Whether the server offers sets of pictures to choose a face from.
+    let sets: Bool
     let at: Int
     let move: (Int) -> Void
     let open: (EditStep) -> Void
@@ -60,7 +62,7 @@ struct EditMenu: View {
 
     var body: some View {
         var lines: [(EditStep, MenuLine)] = [(.name, MenuLine(word: seen.say("profile.name"), icon: "icon_person"))]
-        if pictures { lines.append((.icon, MenuLine(word: seen.say("profile.icon"), icon: "icon_face"))) }
+        if sets { lines.append((.icon, MenuLine(word: seen.say("profile.icon"), icon: "icon_face"))) }
         lines.append((.language, MenuLine(word: seen.say("profile.language"), icon: "icon_language")))
         lines.append((.lock, MenuLine(
             word: seen.say(person.hasPin ? "profile.lock.remove" : "profile.lock"),
@@ -78,7 +80,7 @@ struct EditMenu: View {
                 AgeNote(seen: seen, person: person, limit: limit, top: lines.count > 4 ? 750 : 690)
                 LowPill(word: seen.say("common.done"), on: at == lines.count, top: 897)
             }
-            ProfileCard(person: person, server: seen.server, name: { CardName(name: person.name) }, under: language)
+            ProfileCard(pictures: pictures, person: person, server: seen.server, name: { CardName(name: person.name) }, under: language)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         // What the remote is on: a line of the menu, the Done pill past its end, or one of the two
@@ -118,13 +120,21 @@ struct EditMenu: View {
 
 /// The keyboard, with the name growing under the picture.
 struct EditName: View {
+    let pictures: Pictures
     let seen: Seen
     let person: Profile
     let refused: Bool
     let finish: (String?) -> Void
     @State private var keys: KeyboardState
 
-    init(seen: Seen, person: Profile, refused: Bool, finish: @escaping (String?) -> Void) {
+    init(
+        pictures: Pictures,
+        seen: Seen,
+        person: Profile,
+        refused: Bool,
+        finish: @escaping (String?) -> Void
+    ) {
+        self.pictures = pictures
         self.seen = seen
         self.person = person
         self.refused = refused
@@ -139,7 +149,7 @@ struct EditName: View {
             PageHead(title: seen.say("profile.edit"), help: seen.say("profile.name.help"))
             Keyboard(state: keys, cancel: cancel, done: done, words: seen.words)
                 .offset(x: subEdge.ref, y: 302.ref)
-            ProfileCard(person: person, server: seen.server, name: {
+            ProfileCard(pictures: pictures, person: person, server: seen.server, name: {
                 // The name as it is being typed, with a caret after it. The caret is a bar three
                 // points wide and draws nothing, so the name is read on its own.
                 HStack(spacing: 3.ref) {
@@ -156,6 +166,7 @@ struct EditName: View {
 
 /// Rows of pictures by theme.
 struct EditIcon: View {
+    let pictures: Pictures
     let seen: Seen
     let person: Profile
     let rows: [PictureRow]
@@ -163,17 +174,18 @@ struct EditIcon: View {
     @State private var focus = PictureFocus()
 
     var body: some View {
-        let pictures = PictureRows(
-            rows: rows, focus: focus, server: seen.server, pattern: seen.say("say.avatar_in_set")
+        let grid = PictureRows(
+            pictures: pictures, rows: rows, focus: focus, server: seen.server,
+            pattern: seen.say("say.avatar_in_set")
         )
         return ZStack(alignment: .topLeading) {
-            pictures
+            grid
             PageHead(title: seen.say("profile.edit"), help: seen.say("profile.icon.help"))
-            ProfileCorner(person: person, server: seen.server)
+            ProfileCorner(pictures: pictures, person: person, server: seen.server)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         // The rows work out which picture the remote is on; they are the part that knows.
-        .remote(says: pictures.hereIs()) { word in
+        .remote(says: grid.hereIs()) { word in
             switch word {
             case .ok: finish(focus.chosen(rows))
             case .back: finish(nil)

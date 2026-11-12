@@ -131,6 +131,7 @@ struct Home: View {
 
                             ForEach(Array(rows.enumerated()), id: \.element.id) { index, section in
                                 SectionRow(
+                                    pictures: shell.pictures,
                                     section: section,
                                     words: words,
                                     open: { tile in
@@ -201,7 +202,7 @@ struct Home: View {
                 // Floating bottom bar
                 VStack {
                     Spacer()
-                    BottomBar(items: makeBarItems(shell: shell, seen: seen, onHome: onHome))
+                    BottomBar(pictures: shell.pictures, items: makeBarItems(shell: shell, seen: seen, onHome: onHome))
                         .padding(.bottom, 9)
                 }
 

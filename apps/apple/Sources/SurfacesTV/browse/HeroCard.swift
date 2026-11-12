@@ -25,19 +25,32 @@ let heroMark = CGSize(width: 600, height: 200)
 /// only thing naming the title and it has to carry the words. Where it is left out the picture is
 /// decoration, which is right for a logo drawn inside a part that already says the name.
 struct Logo: View {
+    let pictures: Pictures
     let url: String
     let width: CGFloat
     let height: CGFloat
     var says: String = ""
 
+    /// The treatment this view read, and the address it is of, for the same reason `Art` keeps
+    /// both: a row hands one of these views to a second title as the viewer moves along it.
+    @State private var shown: SwiftUI.Image?
+    @State private var shownFor: String?
+
     var body: some View {
-        if let kept = Pictures.now(url) {
-            shaped(kept)
-        } else if let address = URL(string: url) {
-            AsyncImage(url: address) { phase in
-                if case .success(let image) = phase {
-                    shaped(image).onAppear { Pictures.keep(url, image) }
-                }
+        // Read in the draw, not in the task: a task runs after the first frame, and a treatment
+        // the port is already holding would otherwise appear a frame after the card it sits on.
+        let now = (shownFor == url ? shown : nil) ?? drawn(pictures.kept(Want(url: url)))
+        return Group {
+            if let now {
+                shaped(now)
+            }
+        }
+        .task(id: url) {
+            if shownFor == url && shown != nil { return }
+            if drawn(pictures.kept(Want(url: url))) != nil { return }
+            if let picture = drawn(await pictures.picture(Want(url: url))) {
+                shown = picture
+                shownFor = url
             }
         }
     }
@@ -77,12 +90,12 @@ struct HeroCard: View {
         let logoUrl = logo((lead.images ?? []) + (detail?.images ?? []))
         ZStack(alignment: .bottomLeading) {
             Plate
-            Art(wide(lead.images))
+            Art(shell.pictures, wide(lead.images))
             side
             foot
             VStack(alignment: .leading, spacing: 0) {
                 if let logoUrl {
-                    Logo(url: logoUrl, width: heroMark.width, height: heroMark.height, says: lead.name)
+                    Logo(pictures: shell.pictures, url: logoUrl, width: heroMark.width, height: heroMark.height, says: lead.name)
                 } else {
                     Text(lead.name).brand(76, 800).lines(76, 80).foregroundStyle(.white)
                 }

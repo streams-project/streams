@@ -49,6 +49,7 @@ public final class Host: Shell, @unchecked Sendable {
     private let store: Store
     public let player: Player
     public let reel: Reel
+    public let pictures: Pictures
     private let deviceClass: DeviceClass
     private let form: Form
     private let version: String
@@ -71,7 +72,9 @@ public final class Host: Shell, @unchecked Sendable {
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
-    /// Nothing here has a default. Three core policies key on the class, the form and the version,
+    /// Nothing here has a default, `pictures` included: a port with a stand-in behind it lets an
+    /// entry point ship without an adapter and fail at run time, and this one draws every screen.
+    /// Three core policies key on the class, the form and the version,
     /// and one on the operating system, so an entry point that left any of them out would inherit
     /// another device's rules in silence: a phone that called itself a television was never asked
     /// who is watching after time away.
@@ -81,6 +84,7 @@ public final class Host: Shell, @unchecked Sendable {
         store: Store,
         player: Player,
         reel: Reel,
+        pictures: Pictures,
         deviceClass: DeviceClass,
         form: Form,
         version: String,
@@ -91,6 +95,7 @@ public final class Host: Shell, @unchecked Sendable {
         self.store = store
         self.player = player
         self.reel = reel
+        self.pictures = pictures
         self.deviceClass = deviceClass
         self.form = form
         self.version = version
@@ -283,10 +288,6 @@ public final class Host: Shell, @unchecked Sendable {
             let action = ActionRequest(body: body, method: HttpMethod(rawValue: method), path: path)
             self.sendEvents([Event(id: id, body: .action(EventAction(action: .request(action))))])
         }
-    }
-
-    public func bytes(_ url: String, reply: @escaping @Sendable (Data?) -> Void) {
-        network.bytes(url, done: reply)
     }
 
     /// The one place a notice is said. Every notice moves `notices`, so a screen that acted can

@@ -171,7 +171,7 @@ public struct Browse: View {
         let person = seen.profiles.first(where: { $0.id == seen.active }) ?? seen.profiles.first
         return ZStack(alignment: .topLeading) {
             Color.black
-            TopBar(tabs: tabs, active: active, focus: active, person: person, server: seen.server, words: seen.words)
+            TopBar(pictures: shell.pictures, tabs: tabs, active: active, focus: active, person: person, server: seen.server, words: seen.words)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         // A screen that is not here yet answers no key. This is a choice, and it is stated as one:
@@ -260,6 +260,7 @@ public struct Browse: View {
         let way = focus.way
         return ZStack(alignment: .topLeading) {
             TopBar(
+                pictures: shell.pictures,
                 tabs: tabs, active: active, focus: focus.place == .top ? focus.tab : -1,
                 person: person, server: seen.server, words: seen.words
             )
@@ -288,7 +289,7 @@ public struct Browse: View {
             }
             let below = inRow ? focus.row + rowsBelowFocus : 0
             if let next = rows[safe: below] {
-                NextRow(section: next, high: !inRow, words: seen.words, at: focus.columnOf(below))
+                NextRow(pictures: shell.pictures, section: next, high: !inRow, words: seen.words, at: focus.columnOf(below))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

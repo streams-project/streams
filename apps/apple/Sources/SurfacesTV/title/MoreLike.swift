@@ -14,7 +14,7 @@ struct MoreLike: View {
         let tiles = data.moreLikeThis ?? []
         ZStack(alignment: .topLeading) {
             Color.black
-            PosterGrid(tiles: tiles, focus: at, left: 566, top: 232, words: seen.words)
+            PosterGrid(pictures: shell.pictures, tiles: tiles, focus: at, left: 566, top: 232, words: seen.words)
             // The facts follow the name, however many lines it takes.
             VStack(alignment: .leading, spacing: 20.ref) {
                 Text(data.name).brand(56, 800).lines(56, 62).foregroundStyle(.white).lineLimit(3)

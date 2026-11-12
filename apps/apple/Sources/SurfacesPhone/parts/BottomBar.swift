@@ -1,4 +1,5 @@
 import Contract
+import Ports
 import SurfacesShared
 import SwiftUI
 
@@ -23,6 +24,7 @@ private let idleInk = Color(red: 0xC0 / 255, green: 0xC0 / 255, blue: 0xC0 / 255
 /// direction, so it turns with a right to left language. All shapes and corners come from brand.json
 /// (`Corner.button`), never hardcoded Capsule.
 struct BottomBar: View {
+    let pictures: Pictures
     let items: [BarItem]
 
     var body: some View {
@@ -35,7 +37,7 @@ struct BottomBar: View {
                 Button(action: item.go) {
                     VStack(spacing: 2) {
                         if let face = item.face {
-                            BarFace(person: face, server: item.server)
+                            BarFace(pictures: pictures, person: face, server: item.server)
                         } else {
                             Icon(item.icon, 24, tint: item.here ? .white : idleInk)
                         }
@@ -74,6 +76,7 @@ struct BottomBar: View {
 
 /// The profile's face at the bar's icon size: its picture, or its first letter on its colour.
 private struct BarFace: View {
+    let pictures: Pictures
     let person: Profile
     let server: String
 
@@ -86,7 +89,7 @@ private struct BarFace: View {
 
         ZStack {
             if let fullUrl {
-                Art(fullUrl)
+                Art(pictures, fullUrl)
                     .frame(width: 24, height: 24)
                     .clipped()
             } else {

@@ -85,7 +85,7 @@ struct EditLock: View {
                 )
                 Keyboard(state: keys, cancel: cancel, done: next, words: seen.words)
                     .offset(x: subEdge.ref, y: 302.ref)
-                ProfileCard(person: person, server: seen.server, name: {
+                ProfileCard(pictures: shell.pictures, person: person, server: seen.server, name: {
                     // The password as it is typed, drawn and heard as bullets: the characters are
                     // not read out, and the count still tells a person their presses are landing.
                     HStack(spacing: 3.ref) {
@@ -120,7 +120,7 @@ struct EditLock: View {
                 )
                 VStack(spacing: 0) {
                     // The face is decoration: the name under it says whose profile this is.
-                    Face(person, faceLarge, seen.server)
+                    Face(shell.pictures, person, faceLarge, seen.server)
                     Spacer().frame(height: 24.ref)
                     Text(person.name).brand(56, 800).foregroundStyle(.white)
                         .accessibilityAddTraits(.isHeader)

@@ -53,7 +53,9 @@ public enum ThisDevice {
     }
 }
 
-/// The network port, using URLSession and NWPathMonitor.
+/// The network port, using URLSession and NWPathMonitor. It carries the contract, which is text;
+/// pictures have a port of their own (`Pictures.swift`), because a picture is bytes with a cache, a
+/// decode and a size behind it and none of that belongs to a surface either.
 public final class UrlNetwork: Network, @unchecked Sendable {
     private let session: URLSession
     private let monitor = NWPathMonitor()
@@ -112,23 +114,6 @@ public final class UrlNetwork: Network, @unchecked Sendable {
         task.resume()
     }
 
-    public func bytes(_ url: String, done: @escaping @Sendable (Data?) -> Void) {
-        guard let address = URL(string: url) else {
-            done(nil)
-            return
-        }
-        let task = session.dataTask(with: address) { data, response, error in
-            guard error == nil,
-                  let http = response as? HTTPURLResponse,
-                  (200...299).contains(http.statusCode),
-                  let data else {
-                done(nil)
-                return
-            }
-            done(data)
-        }
-        task.resume()
-    }
 }
 
 /// The secrets port, using the system Keychain.

@@ -1,4 +1,5 @@
 import Contract
+import Ports
 import SwiftUI
 
 /// The bar's centre line and the height of its round parts: face, search, tabs and mark share them.
@@ -39,6 +40,7 @@ private struct Tab: View {
 
 /// Who is watching, search, the tabs and the mark, at the top of every signed in page.
 struct TopBar: View {
+    let pictures: Pictures
     let tabs: [NavItem]
     let active: Int
     let focus: Int
@@ -56,7 +58,7 @@ struct TopBar: View {
             // menu it opens. The profile's own name is the only words there are for it, and it
             // comes from the answer rather than from `strings/`.
             HStack(spacing: 0) {
-                Face(person, barFace, server)
+                Face(pictures, person, barFace, server)
                     .overlay(shapeOf(Round.face(barFace)).stroke(.white, lineWidth: whoOn ? 3.ref : 0))
                 Icon("icon_caret_down", 22)
             }

@@ -4,6 +4,8 @@ import Foundation
 import Ports
 import SwiftUI
 
+import Stand
+
 @testable import SurfacesTV
 
 /// The words the television screens are given. These are the real English values out of
@@ -12,8 +14,11 @@ import SwiftUI
 /// label instead of passing on an English literal written here.
 ///
 /// A key added to a label and left out of this list reads as "" and the silence tests catch it.
-/// `say.shift` is deliberately absent: the keyboard's shift key is wired to it and `strings/` does
-/// not hold it yet, so nothing here can give it a value without inventing English.
+///
+/// `say.shift` landed on 2026-11-12 and is here now. It reads "Shift" in English and names capital
+/// letters in all eighteen languages - "Grossbuchstaben", "حروف كبيرة" - because not one of them
+/// names that key for switching: `say.letters` already carries the switch verb and sits one key
+/// away on the same page, so two switch-shaped labels would have been on adjacent keys.
 @MainActor
 let tvWords: [String: String] = [
     "common.back": "Back",
@@ -46,6 +51,7 @@ let tvWords: [String: String] = [
     "say.pause": "Pause",
     "say.position": "{at} of {length}",
     "say.profile_locked": "{name}, locked with a PIN",
+    "say.shift": "Shift",
     "say.space": "Space",
     "settings.autoplay_next": "Autoplay next episode",
     "settings.intro": "Change playback, language, subtitles and account options for this TV.",
@@ -73,6 +79,11 @@ func person(_ name: String, _ id: String, hasPin: Bool = false, kids: Bool = fal
 @MainActor
 final class NoTellShell: Shell {
     let seen: Seen
+    /// The pictures this screen asked for, which a test may read, and which answer nothing drawn
+    /// by default: every address in these fixtures is on `example.invalid`, so a refusal is what a
+    /// real read of one would come to anyway.
+    let shown = ToldPictures()
+    var pictures: Pictures { shown }
 
     init(seen: Seen) {
         self.seen = seen
@@ -87,7 +98,6 @@ final class NoTellShell: Shell {
     func act(_ action: Action) {}
     func ask(_ path: String, reply: @escaping (Int, String) -> Void) { reply(0, "") }
     func send(_ method: String, _ path: String, _ body: String, reply: @escaping (Int, String) -> Void) { reply(0, "") }
-    func bytes(_ url: String, reply: @escaping @Sendable (Data?) -> Void) { reply(nil) }
     func keep(_ profile: Profile) {}
     func keepAll(_ profiles: [Profile]) {}
     func speak(_ language: String?) {}

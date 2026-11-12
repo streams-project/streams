@@ -8,8 +8,8 @@ import SwiftUI
 /// A spinner's words, or the spinner gone from the tree. The same answer `Art`, `Icon` and `Face`
 /// give: words a person hears, or nothing at all, never an element that is reached and silent. Of
 /// the two silences, a reader that skips the ring is better than one that stops on it and says
-/// nothing - and `words[...]` is empty for as long as a run has not read its language yet, so this
-/// is the state every run starts in and not only the state before `say.loading` lands.
+/// nothing - and `words[...]` is empty for as long as a run has not read its language yet, which is
+/// the state every run starts in, whatever `strings/` holds.
 private struct Turning: ViewModifier {
     let words: String
 
@@ -75,9 +75,9 @@ public struct NotificationsView: View {
                     // with the `updatesFrequently` trait and no label at all, so a reader stops on
                     // it and says nothing - and a page that is loading becomes indistinguishable
                     // from a page that is empty, which is the one question the ring exists to
-                    // answer. `say.loading` is not in `strings/` yet, so it reads empty until it
-                    // lands; the label is wired rather than left out so that landing the key is all
-                    // it takes.
+                    // answer. `say.loading` landed in all eighteen languages on 2026-11-12, so the
+                    // ring reads "Loading" in English and is silent only in the moment before a run
+                    // has read its words.
                     ProgressView()
                         .tint(Accent)
                         .modifier(Turning(words: words["say.loading"] ?? ""))
@@ -168,14 +168,11 @@ public struct NotificationsView: View {
             // Poster thumbnail
             ZStack {
                 Plate
-                if let urlString = poster?.url, let url = URL(string: urlString) {
-                    AsyncImage(url: url) { phase in
-                        if let image = phase.image {
-                            image.resizable().scaledToFill()
-                        } else {
-                            Plate
-                        }
-                    }
+                // The one shared view, so this row's poster takes the same path as every other
+                // picture in the app: the port, the port's cache, and the plate underneath for as
+                // long as there is nothing to draw over it.
+                if let urlString = poster?.url {
+                    Art(shell.pictures, urlString)
                 }
             }
             .frame(width: 72, height: 104)

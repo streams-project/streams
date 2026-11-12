@@ -154,7 +154,7 @@ public struct Title: View {
                             // say the same thing twice. `Art` marks itself.
                             ZStack {
                                 Plate
-                                Art(wide(data.images))
+                                Art(shell.pictures, wide(data.images))
                             }
                             .aspectRatio(16 / 9, contentMode: .fit)
                             .frame(maxWidth: .infinity)
@@ -167,7 +167,7 @@ public struct Title: View {
                                 // words; where there is none the name is drawn as text instead.
                                 // Either way it is the page's heading, so a reader can jump to it.
                                 if let logoUrl = logo(data.images) {
-                                    Art(logoUrl, fit: true, says: data.name)
+                                    Art(shell.pictures, logoUrl, fit: true, says: data.name)
                                         .frame(maxWidth: 260, maxHeight: 80, alignment: .leading)
                                         .accessibilityAddTraits(.isHeader)
                                 } else {
@@ -673,7 +673,7 @@ private struct PhoneEpisodeRow: View {
                     // 130x80 pt still thumbnail
                     ZStack {
                         Plate
-                        Art(wide(episode.images))
+                        Art(shell.pictures, wide(episode.images))
 
                         // Play circle overlay
                         ZStack {
@@ -743,13 +743,14 @@ private struct PhoneEpisodeRow: View {
 /// How far through an episode the viewer is, in words, or nothing for one not started. Read after
 /// the row's own words.
 ///
-/// This wants `say.watched_percent` - "{percent}% watched" - which `strings/` does not hold yet, so
-/// it reads empty until it lands. The key that does exist, `say.watched`, is "{title}, {percent}%
-/// watched" and names the title as well: on a row that already draws the episode's number and name
-/// that would say the name twice. Emptying its `{title}` and trimming what is left over is not an
-/// option - the order of the two parts and the punctuation between them differ by language, so
-/// cutting a translated pattern apart in code produces a different sentence in Arabic than in
-/// English. A key is the only answer that works in eighteen languages.
+/// `say.watched_percent` - "{percent}% watched" - landed in all eighteen languages on 2026-11-12
+/// and is what this reads. The key that already existed, `say.watched`, is "{title}, {percent}%
+/// watched" and names the title as well: on a row that already draws the episode's number and its
+/// name that would say the name twice. Emptying its `{title}` and trimming what was left was
+/// rejected, and the Arabic is why: there `say.watched` ends in منه, "of it", masculine, while an
+/// episode is الحلقة, feminine, so a trimmed pattern would have produced a sentence that does not
+/// agree. The new key carries no pronoun at all. Cutting a translated pattern apart in code is
+/// never the answer; a key of its own is.
 @MainActor
 private func watchedWord(_ percent: Int?, _ words: [String: String]) -> String {
     guard let percent, percent > 0 else { return "" }
@@ -840,7 +841,7 @@ struct PhoneMoreLike: View {
                 } label: {
                     ZStack {
                         Plate
-                        Art(tall(tile.images))
+                        Art(shell.pictures, tall(tile.images))
                     }
                     .aspectRatio(119 / 166.6, contentMode: .fill)
                     .clipShape(RoundedRectangle(cornerRadius: Corner.card))

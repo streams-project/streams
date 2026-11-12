@@ -92,10 +92,10 @@ struct ProfileMenu: View {
                     switch pick {
                     case .switchProfiles:
                         Line(on: on, word: person?.name ?? "", under: seen.say("menu.switch")) { _ in
-                            Face(person, menuFace, seen.server)
+                            Face(shell.pictures, person, menuFace, seen.server)
                         }
                     case .other(let other):
-                        Line(on: on, word: other.name) { _ in Face(other, menuFace, seen.server) }
+                        Line(on: on, word: other.name) { _ in Face(shell.pictures, other, menuFace, seen.server) }
                     case .help:
                         Line(on: on, word: seen.say("menu.help")) { Icon("icon_question", 38, tint: $0) }
                     }

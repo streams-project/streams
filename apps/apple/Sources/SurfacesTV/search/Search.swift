@@ -151,8 +151,9 @@ public struct Search: View {
         }
 
         return ZStack(alignment: .topLeading) {
-            PosterGrid(tiles: shown, focus: state.zone == .results ? state.result : -1, left: 566, top: 232, words: seen.words)
+            PosterGrid(pictures: shell.pictures, tiles: shown, focus: state.zone == .results ? state.result : -1, left: 566, top: 232, words: seen.words)
             TopBar(
+                pictures: shell.pictures,
                 tabs: tabs, active: searchTab, focus: state.zone == .top ? state.tab : -1,
                 person: person, server: seen.server, words: seen.words
             )

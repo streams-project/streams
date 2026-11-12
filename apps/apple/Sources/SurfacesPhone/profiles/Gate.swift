@@ -237,7 +237,7 @@ public struct GateView: View {
                 .frame(width: width, height: height)
 
             if let artUrl {
-                Art(artUrl)
+                Art(shell.pictures, artUrl)
                     .scaleEffect(zoomScale, anchor: UnitPoint(x: 0.5, y: 0.51))
                     .frame(width: width, height: height)
                     .clipped()
@@ -273,7 +273,7 @@ public struct GateView: View {
 
         VStack(spacing: 8.2) {
             if let logoUrl {
-                Art(logoUrl, fit: true, says: activeTitle?.tile.name ?? "")
+                Art(shell.pictures, logoUrl, fit: true, says: activeTitle?.tile.name ?? "")
                     .frame(maxWidth: 167.4, maxHeight: 72.2)
             } else if let titleName = activeTitle?.tile.name {
                 // The gate's art carousel behind this is decoration: the title it shows is named
@@ -380,15 +380,13 @@ public struct GateView: View {
                 ZStack(alignment: .bottomTrailing) {
                     // Avatar box
                     ZStack {
-                        if let avatarUrl = profile.avatar, let url = URL(string: avatarUrl) {
-                            AsyncImage(url: url) { phase in
-                                switch phase {
-                                case .success(let image):
-                                    image.resizable().aspectRatio(contentMode: .fill).decoration()
-                                default:
-                                    fallbackAvatarLetter(profile)
-                                }
-                            }
+                        if let avatarUrl = profile.avatar {
+                            // The letter sits under the picture rather than in place of it. It is
+                            // what was drawn while the old fetch was in flight and what was left
+                            // if it failed, and both of those still have to be true of a face
+                            // whose picture is slow or missing.
+                            fallbackAvatarLetter(profile)
+                            Art(shell.pictures, avatarUrl)
                         } else {
                             fallbackAvatarLetter(profile)
                         }
@@ -566,9 +564,12 @@ public struct GateView: View {
     }
 
     private func updateTint(for title: GateTitle) async {
+        // `pixels: true` says what this is for: the tint is taken by reading the artwork's own
+        // pixels back rather than by drawing it. It is also the same read the gate draws through
+        // (`Art`), so the two share one fetch and one cache entry instead of asking twice.
         guard let urlString = gateArtUrl(title.tile),
-              let data = await shell.bytes(urlString),
-              let image = UIImage(data: data),
+              case .painted(let held) = await shell.pictures.picture(Want(url: urlString, pixels: true)),
+              let image = held as? UIImage,
               let extracted = extractTintFromImage(image) else {
             return
         }

@@ -60,6 +60,7 @@ private func slidesOf(_ title: TitleDetail?) -> [String] {
 
 /// One title's pictures in turn while its card is the one in view, each fading into the next.
 private struct Slideshow: View {
+    let pictures: Pictures
     let slides: [String]
     let running: Bool
     @State private var at = 0
@@ -67,7 +68,7 @@ private struct Slideshow: View {
     var body: some View {
         ZStack {
             ForEach(Array(slides.enumerated()), id: \.offset) { index, url in
-                if index == at { Art(url).transition(.opacity) }
+                if index == at { Art(pictures, url).transition(.opacity) }
             }
         }
         .animation(.linear(duration: slideFade), value: at)
@@ -84,6 +85,7 @@ private struct Slideshow: View {
 
 /// A trending title as a card: its pictures, logo, facts, story and a way in.
 private struct TitleCard: View {
+    let pictures: Pictures
     let title: TitleDetail
     let seen: Seen
     let current: Bool
@@ -94,12 +96,12 @@ private struct TitleCard: View {
         let logoUrl = (title.images ?? []).first { $0.role == .logo }?.url
         ZStack(alignment: .topLeading) {
             Raised
-            Slideshow(slides: slidesOf(title), running: current)
+            Slideshow(pictures: pictures, slides: slidesOf(title), running: current)
             titleSide
             titleFoot
             ZStack(alignment: .bottomLeading) {
                 if let logoUrl {
-                    Logo(url: logoUrl, width: 520, height: 180)
+                    Logo(pictures: pictures, url: logoUrl, width: 520, height: 180)
                 } else {
                     Text(title.name).brand(64, 800).lines(64, 70).foregroundStyle(.white).lineLimit(2)
                 }
@@ -391,7 +393,7 @@ private struct Landing: View {
             ForEach(Array(titles.enumerated()), id: \.element.title) { index, title in
                 let card = index + 1
                 if card >= page - 1 && card <= page + 2 {
-                    TitleCard(title: title, seen: seen, current: card == page, on: card == page && at == .watch)
+                    TitleCard(pictures: shell.pictures, title: title, seen: seen, current: card == page, on: card == page && at == .watch)
                         .offset(x: (pageEdge + CGFloat(card - page) * cardStep).ref, y: cardTop.ref)
                         .opacity(card < page ? 0 : 1)
                 }
@@ -400,7 +402,7 @@ private struct Landing: View {
             ZStack {
                 ForEach(Array(titles.enumerated()), id: \.offset) { index, title in
                     ForEach(Array(slidesOf(title).enumerated()), id: \.offset) { which, url in
-                        Art(url) {
+                        Art(shell.pictures, url) {
                             if index == 0 && which == 0 && !peekReady {
                                 peekReady = true
                                 tell()

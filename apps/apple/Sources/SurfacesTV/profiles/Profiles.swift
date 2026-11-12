@@ -133,6 +133,7 @@ public struct Profiles: View {
             VStack(alignment: .leading, spacing: 26.ref) {
                 ForEach(Array(list.enumerated()), id: \.element.id) { index, profile in
                     ProfileRow(
+                        pictures: shell.pictures,
                         person: profile, on: index == at, pencil: pencil && index == at,
                         server: seen.server,
                         pencilWord: seen.say("profile.edit"),

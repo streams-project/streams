@@ -1,5 +1,7 @@
 import Contract
+import Ports
 import SwiftUI
+import UIKit
 
 private func find(_ images: [Contract.Image]?, _ role: ImageRole) -> String? {
     images?.first(where: { $0.role == role })?.url
@@ -20,23 +22,14 @@ public func logo(_ images: [Contract.Image]?) -> String? {
     find(images, .logo)
 }
 
-/// Pictures already drawn once, kept so a row scrolled back draws at once.
-@MainActor
-/// Pictures already shown, kept so a page that comes back draws them at once.
-public enum Pictures {
-    private static var kept: [String: SwiftUI.Image] = [:]
-    private static var order: [String] = []
-    private static let most = 400
-
-    public static func now(_ url: String) -> SwiftUI.Image? { kept[url] }
-
-    public static func keep(_ url: String, _ image: SwiftUI.Image) {
-        if kept[url] == nil {
-            order.append(url)
-            if order.count > most { kept.removeValue(forKey: order.removeFirst()) }
-        }
-        kept[url] = image
-    }
+/// The picture at an address, drawn, with nothing of how it was fetched in here.
+///
+/// The port answers with whatever its adapter decoded. This family's adapter hands over a `UIImage`
+/// (`Adapters/Pictures.swift`), which is a fact about the adapter and not about the port, so a
+/// picture that is anything else is read as no picture at all rather than as a crash.
+public func drawn(_ picture: Ports.Picture?) -> SwiftUI.Image? {
+    guard case .painted(let held) = picture, let image = held as? UIImage else { return nil }
+    return SwiftUI.Image(uiImage: image)
 }
 
 /// A picture filling its box, or fitting it.
@@ -46,51 +39,75 @@ public enum Pictures {
 /// the picture repeats what is said beside it. `says` is for the one case that does not: a picture
 /// that is the only thing on screen saying what it is. Leaving it out hides the picture from a
 /// screen reader, which is the right answer for the rest and is why it is the default.
+///
+/// The picture comes through the ``Ports/Pictures`` port, which is taken by value and has no
+/// default: a draw site that has no port to hand does not compile, which is the only way a seam
+/// like this stays plugged in. What is left here is what a surface is for - a box, a shape, words
+/// for a reader, and a picture drawn once the port answers.
 public struct Art: SwiftUI.View {
     public let url: String?
     public var fit: Bool
-    /// Runs once the picture is there, from the network or from memory.
+    /// Runs once the picture is there, or once it is certain there will not be one. Both answers
+    /// end a wait, and a screen that waits on a picture that is not coming never draws.
     public var loaded: (() -> Void)?
     /// Words for a picture that carries meaning of its own. From `strings/` or the catalogue.
     public var says: String = ""
 
-    public init(_ url: String?, fit: Bool = false, says: String = "") {
+    private let pictures: Ports.Pictures
+    /// The picture this view read, and the address it is of. Both, because a lazy row hands one of
+    /// these views to a second address as the viewer scrolls, and a picture kept without its
+    /// address would be drawn under the wrong title until the next read landed.
+    @State private var shown: SwiftUI.Image?
+    @State private var shownFor: String?
+
+    public init(_ pictures: Ports.Pictures, _ url: String?, fit: Bool = false, says: String = "") {
+        self.pictures = pictures
         self.url = url
         self.fit = fit
         self.says = says
     }
 
-    public init(_ url: String?, loaded: @escaping () -> Void) {
+    public init(_ pictures: Ports.Pictures, _ url: String?, loaded: @escaping () -> Void) {
+        self.pictures = pictures
         self.url = url
         self.fit = false
         self.loaded = loaded
     }
 
+    /// A picture the port is already holding for this address, or nothing.
+    private func inHand() -> SwiftUI.Image? {
+        guard let url, !url.isEmpty else { return nil }
+        return drawn(pictures.kept(Want(url: url)))
+    }
+
     public var body: some SwiftUI.View {
-        Color.clear
+        // Asked for in the draw and not in the task below, because a task runs after this view's
+        // first frame is on screen: a row scrolled back over pictures the port is still holding
+        // would blink once per tile if this waited for it.
+        let now = (shownFor == url ? shown : nil) ?? inHand()
+        return Color.clear
             .overlay {
-                if let url, let kept = Pictures.now(url) {
-                    kept.resizable().aspectRatio(contentMode: fit ? .fit : .fill)
-                        .onAppear { loaded?() }
-                } else if let url, let address = URL(string: url) {
-                    AsyncImage(url: address) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image.resizable().aspectRatio(contentMode: fit ? .fit : .fill)
-                                .onAppear {
-                                    Pictures.keep(url, image)
-                                    loaded?()
-                                }
-                        case .failure:
-                            Color.clear.onAppear { loaded?() }
-                        default:
-                            Color.clear
-                        }
-                    }
+                if let now {
+                    now.resizable().aspectRatio(contentMode: fit ? .fit : .fill)
                 }
             }
             .clipped()
             .modifier(Says(words: says))
+            .task(id: url) { await read() }
+    }
+
+    private func read() async {
+        guard let url, !url.isEmpty else { return }
+        if (shownFor == url && shown != nil) || inHand() != nil {
+            loaded?()
+            return
+        }
+        let answer = await pictures.picture(Want(url: url))
+        if let picture = drawn(answer) {
+            shown = picture
+            shownFor = url
+        }
+        loaded?()
     }
 }
 

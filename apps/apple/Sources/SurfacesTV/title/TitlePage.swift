@@ -24,11 +24,12 @@ extension TitleDetail {
 /// and listed on top of it, so a screen reader that announced the picture as well would say it
 /// twice. `Art` marks itself; the two shades are nothing at all.
 struct TitleBackdrop: View {
+    let pictures: Pictures
     let data: TitleDetail
 
     var body: some View {
         ZStack {
-            Art(wide(data.images))
+            Art(pictures, wide(data.images))
             side
             foot
         }
@@ -177,10 +178,10 @@ private struct Summary: View {
             : sayBoth(menuLines[safe: row]?.word, data.name)
 
         return ZStack(alignment: .topLeading) {
-            TitleBackdrop(data: data)
+            TitleBackdrop(pictures: shell.pictures, data: data)
             ZStack(alignment: .bottomLeading) {
                 if let logoUrl {
-                    Logo(url: logoUrl, width: 600, height: 200, says: data.name)
+                    Logo(pictures: shell.pictures, url: logoUrl, width: 600, height: 200, says: data.name)
                 } else {
                     Text(data.name).brand(76, 800).lines(76, 84).foregroundStyle(.white).lineLimit(2)
                         .accessibilityAddTraits(.isHeader)
