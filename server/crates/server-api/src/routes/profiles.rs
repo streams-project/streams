@@ -15,6 +15,7 @@ use server_rules::{Tier, Viewer};
 
 use crate::answer::{Body, Keep, send, send_cleared};
 use crate::caller::Caller;
+use crate::deadline;
 use crate::error::{ApiError, ApiResult};
 use crate::routes::start::has_language;
 use crate::routes::titles::data;
@@ -42,7 +43,9 @@ pub fn view(row: &Profile) -> ProfileView {
 pub(crate) async fn shown(state: &Shared, row: &Profile) -> ApiResult<ProfileView> {
     let mut answer = view(row);
     if let Some(library) = &state.library {
-        answer.language = library.store().settings(row.id).await?.ui_language;
+        answer.language = deadline::store(library.store().settings(row.id))
+            .await?
+            .ui_language;
     }
     Ok(answer)
 }
@@ -53,12 +56,11 @@ async fn keep_language(state: &Shared, profile: ProfileId, code: &str) -> ApiRes
         .library
         .as_ref()
         .ok_or_else(|| ApiError::off("accounts"))?;
-    let mut tx = library.store().begin(profile).await?;
-    let seq = tx.next_seq().await?;
+    let mut tx = deadline::store(library.store().begin(profile)).await?;
+    let seq = deadline::store(tx.next_seq()).await?;
     let at = state.clock.now_ms();
-    tx.put_setting(SettingKey::UiLanguage, code, at, seq)
-        .await?;
-    tx.commit().await?;
+    deadline::store(tx.put_setting(SettingKey::UiLanguage, code, at, seq)).await?;
+    deadline::store(tx.commit()).await?;
     Ok(())
 }
 
@@ -72,7 +74,7 @@ pub async fn list(
     Caller(member): Caller,
     headers: HeaderMap,
 ) -> ApiResult<Response> {
-    let rows = door(&state)?.profiles(&member).await?;
+    let rows = deadline::store(door(&state)?.profiles(&member)).await?;
     let mut profiles = Vec::with_capacity(rows.len());
     for row in &rows {
         profiles.push(shown(&state, row).await?);
@@ -87,7 +89,7 @@ pub async fn feature(
     Path(id): Path<String>,
     headers: HeaderMap,
 ) -> ApiResult<Response> {
-    let rows = door(&state)?.profiles(&member).await?;
+    let rows = deadline::store(door(&state)?.profiles(&member)).await?;
     let row = rows
         .iter()
         .find(|row| row.id.to_string() == id)
@@ -112,7 +114,7 @@ pub async fn gate(
     Caller(member): Caller,
     headers: HeaderMap,
 ) -> ApiResult<Response> {
-    let rows = door(&state)?.profiles(&member).await?;
+    let rows = deadline::store(door(&state)?.profiles(&member)).await?;
     let tier = Tier::of_account(&rows).ok_or_else(|| ApiError::off("gate"))?;
     let set = data(&state)?;
     let answer = state.pages.gate(&set, tier, state.clock.now_ms());
@@ -126,9 +128,7 @@ pub async fn avatars(
     Path(id): Path<String>,
     headers: HeaderMap,
 ) -> ApiResult<Response> {
-    let row = door(&state)?
-        .profile(&member, ProfileId::parse(&id)?)
-        .await?;
+    let row = deadline::store(door(&state)?.profile(&member, ProfileId::parse(&id)?)).await?;
     let mut sets = published_avatars(&state).sets;
     if row.kind == ProfileKind::Kids {
         sets.retain(|set| set.kids);
@@ -171,9 +171,8 @@ pub async fn create(
     headers: HeaderMap,
     Body(asked): Body<ProfileCreate>,
 ) -> ApiResult<Response> {
-    let row = door(&state)?
-        .create_profile(&member, &asked.name, asked.kids)
-        .await?;
+    let row =
+        deadline::store(door(&state)?.create_profile(&member, &asked.name, asked.kids)).await?;
     send(&headers, &view(&row), Keep::Never)
 }
 
@@ -192,7 +191,7 @@ pub async fn update(
         return Err(ApiError::refused("language_refused"));
     }
     if let Some(avatar) = &asked.avatar {
-        let row = door(&state)?.profile(&member, profile).await?;
+        let row = deadline::store(door(&state)?.profile(&member, profile)).await?;
         let kids = asked.kids.unwrap_or(row.kind == ProfileKind::Kids);
         if !avatar_published(&state, kids, avatar) {
             return Err(ApiError::bad("avatar"));
@@ -209,9 +208,7 @@ pub async fn update(
             }
         }),
     };
-    let row = door(&state)?
-        .update_profile(&member, profile, patch)
-        .await?;
+    let row = deadline::store(door(&state)?.update_profile(&member, profile, patch)).await?;
     if let Some(code) = &asked.language {
         keep_language(&state, profile, code).await?;
     }
@@ -237,9 +234,12 @@ pub async fn enter(
     headers: HeaderMap,
     Body(asked): Body<ProfileEnter>,
 ) -> ApiResult<Response> {
-    let row = door(&state)?
-        .enter_profile(&member, ProfileId::parse(&id)?, asked.pin.as_deref())
-        .await?;
+    let row = deadline::store(door(&state)?.enter_profile(
+        &member,
+        ProfileId::parse(&id)?,
+        asked.pin.as_deref(),
+    ))
+    .await?;
     let home = if row.kind == ProfileKind::Kids {
         ScreenName::Kids
     } else {
@@ -260,8 +260,7 @@ pub async fn set_pin(
     headers: HeaderMap,
     Body(asked): Body<PinSet>,
 ) -> ApiResult<Response> {
-    door(&state)?
-        .set_pin(&member, ProfileId::parse(&id)?, asked.pin.as_deref())
+    deadline::store(door(&state)?.set_pin(&member, ProfileId::parse(&id)?, asked.pin.as_deref()))
         .await?;
     send(&headers, &done(), Keep::Never)
 }
@@ -273,9 +272,7 @@ pub async fn set_main(
     Path(id): Path<String>,
     headers: HeaderMap,
 ) -> ApiResult<Response> {
-    door(&state)?
-        .set_main_profile(&member, ProfileId::parse(&id)?)
-        .await?;
+    deadline::store(door(&state)?.set_main_profile(&member, ProfileId::parse(&id)?)).await?;
     send(&headers, &done(), Keep::Never)
 }
 
@@ -287,9 +284,12 @@ pub async fn transfer(
     headers: HeaderMap,
     Body(asked): Body<ProfileTransfer>,
 ) -> ApiResult<Response> {
-    door(&state)?
-        .transfer_profile(&member, ProfileId::parse(&id)?, &asked.to_account_email)
-        .await?;
+    deadline::store(door(&state)?.transfer_profile(
+        &member,
+        ProfileId::parse(&id)?,
+        &asked.to_account_email,
+    ))
+    .await?;
     send(&headers, &done(), Keep::Never)
 }
 
@@ -300,9 +300,7 @@ pub async fn limits(
     Path(id): Path<String>,
     headers: HeaderMap,
 ) -> ApiResult<Response> {
-    let row = door(&state)?
-        .profile(&member, ProfileId::parse(&id)?)
-        .await?;
+    let row = deadline::store(door(&state)?.profile(&member, ProfileId::parse(&id)?)).await?;
     let answer = ProfileLimits {
         age_rating: row.age_limit,
         blocked_titles: row.blocked_names,
@@ -329,8 +327,6 @@ pub async fn set_limits(
         age_limit: asked.age_rating.clone(),
         blocked_names: asked.blocked_titles.clone(),
     };
-    door(&state)?
-        .set_limits(&member, ProfileId::parse(&id)?, row)
-        .await?;
+    deadline::store(door(&state)?.set_limits(&member, ProfileId::parse(&id)?, row)).await?;
     send(&headers, &asked, Keep::Never)
 }

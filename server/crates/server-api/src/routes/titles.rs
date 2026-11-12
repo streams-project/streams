@@ -18,6 +18,7 @@ use server_rules::answer::{SafePublicTitles, SafeSeason, SafeTitleDetail, title_
 
 use crate::answer::{Keep, send_cleared};
 use crate::caller::Reader;
+use crate::deadline;
 use crate::error::{ApiError, ApiResult};
 use crate::state::{AppState, Shared};
 
@@ -182,20 +183,22 @@ pub async fn title(
         page = page.coming(Some(day));
     }
     if let (Some(watching), Some(library)) = (&reader.watching, &state.library) {
-        let saved = library
-            .store()
-            .list(watching.scope.profile(), MAX_KEYS_PER_LIST)
-            .await?;
-        let rated = library
-            .store()
-            .rated(watching.scope.profile(), MAX_KEYS_PER_LIST)
-            .await?;
+        let saved = deadline::store(
+            library
+                .store()
+                .list(watching.scope.profile(), MAX_KEYS_PER_LIST),
+        )
+        .await?;
+        let rated = deadline::store(
+            library
+                .store()
+                .rated(watching.scope.profile(), MAX_KEYS_PER_LIST),
+        )
+        .await?;
         let said = rated.iter().find(|(title, _)| *title == key);
-        let reached = library.last_watched(watching.scope.profile(), key).await?;
-        let reminded = library
-            .store()
-            .is_reminded(watching.scope.profile(), key)
-            .await?;
+        let reached = deadline::store(library.last_watched(watching.scope.profile(), key)).await?;
+        let reminded =
+            deadline::store(library.store().is_reminded(watching.scope.profile(), key)).await?;
         page = page
             .saved(saved.contains(&key))
             .rated(said.map(|(_, rating)| *rating))

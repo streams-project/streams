@@ -13,6 +13,7 @@ use server_accounts::{Consent, Door, SessionId};
 
 use crate::answer::{Body, Keep, send};
 use crate::caller::Caller;
+use crate::deadline;
 use crate::error::{ApiError, ApiResult};
 use crate::state::Shared;
 
@@ -73,9 +74,13 @@ pub async fn register(
         .map(serde_json::to_value)
         .transpose()
         .map_err(|_| ApiError::bad("card"))?;
-    let send_card = door(&state)?
-        .save_card(&member, &asked.device_key, &asked.card_hash, card.as_ref())
-        .await?;
+    let send_card = deadline::store(door(&state)?.save_card(
+        &member,
+        &asked.device_key,
+        &asked.card_hash,
+        card.as_ref(),
+    ))
+    .await?;
     send(&headers, &DeviceCardAnswer { send_card }, Keep::Never)
 }
 
@@ -85,7 +90,7 @@ pub async fn list(
     Caller(member): Caller,
     headers: HeaderMap,
 ) -> ApiResult<Response> {
-    let sessions = door(&state)?.devices(&member).await?;
+    let sessions = deadline::store(door(&state)?.devices(&member)).await?;
     let devices = sessions
         .iter()
         .map(|session| session_view(session, member.session_id()))
@@ -108,8 +113,8 @@ pub async fn remove(
 ) -> ApiResult<Response> {
     let door = door(&state)?;
     match which.id {
-        Some(id) => door.remove_device(&member, SessionId::parse(&id)?).await?,
-        None => door.remove_other_devices(&member).await?,
+        Some(id) => deadline::store(door.remove_device(&member, SessionId::parse(&id)?)).await?,
+        None => deadline::store(door.remove_other_devices(&member)).await?,
     }
     send(&headers, &Done { done: true }, Keep::Never)
 }
@@ -124,7 +129,7 @@ pub async fn set_consent(
     let consent = Consent {
         personal: asked.personal,
     };
-    door(&state)?.set_consent(&member, consent).await?;
+    deadline::store(door(&state)?.set_consent(&member, consent)).await?;
     // withdrawal deletes what was learned for the profile on this session
     if let (false, Some(library), Some(profile)) =
         (asked.personal, &state.library, member.active_profile())
@@ -145,6 +150,6 @@ pub async fn sign_out(
     headers: HeaderMap,
     Body(asked): Body<SignOut>,
 ) -> ApiResult<Response> {
-    door(&state)?.sign_out(&member, asked.everywhere).await?;
+    deadline::store(door(&state)?.sign_out(&member, asked.everywhere)).await?;
     send(&headers, &Done { done: true }, Keep::Never)
 }

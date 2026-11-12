@@ -5,4 +5,5 @@ pub mod brand;
 pub mod data;
 pub mod films;
 pub mod postgres;
+pub mod running;
 pub mod supervise;

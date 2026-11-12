@@ -32,7 +32,9 @@ tower-http.workspace = true
 tracing.workspace = true
 
 [dev-dependencies]
+async-trait.workspace = true
 http-body-util = "0.1"
 server-catalog = { workspace = true, features = ["sample"] }
-tokio.workspace = true
+# Paused time, so the tests of the store deadline do not sit through it.
+tokio = { workspace = true, features = ["test-util"] }
 tower.workspace = true

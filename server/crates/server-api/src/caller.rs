@@ -7,6 +7,7 @@ use contract::client::DeviceClass;
 use server_accounts::{Door, Member, ProfileScope};
 use server_rules::Viewer;
 
+use crate::deadline;
 use crate::error::{ApiError, ApiResult};
 use crate::state::Shared;
 
@@ -109,7 +110,7 @@ impl FromRequestParts<Shared> for Caller {
     async fn from_request_parts(parts: &mut Parts, state: &Shared) -> ApiResult<Self> {
         let door = door(state)?;
         let token = bearer(&parts.headers).ok_or(server_accounts::DoorError::Unauthorized)?;
-        Ok(Self(door.member(token).await?))
+        Ok(Self(deadline::store(door.member(token)).await?))
     }
 }
 
@@ -125,7 +126,7 @@ impl FromRequestParts<Shared> for Watching {
 
     async fn from_request_parts(parts: &mut Parts, state: &Shared) -> ApiResult<Self> {
         let Caller(member) = Caller::from_request_parts(parts, state).await?;
-        let scope = door(state)?.scope(&member).await?;
+        let scope = deadline::store(door(state)?.scope(&member)).await?;
         Ok(Self { member, scope })
     }
 }

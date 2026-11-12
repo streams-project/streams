@@ -18,6 +18,7 @@
 
 use server_accounts::{Member, Profile, ProfileId};
 
+use crate::deadline;
 use crate::error::{ApiError, ApiResult};
 use crate::state::Shared;
 
@@ -31,8 +32,10 @@ fn door(state: &Shared) -> ApiResult<&server_accounts::Door> {
 /// # Errors
 /// The door's refusal, which for this route is a missing step up.
 pub async fn account(state: &Shared, member: &Member) -> ApiResult<()> {
-    let profiles: Vec<Profile> = door(state)?.profiles(member).await.unwrap_or_default();
-    door(state)?.delete_account(member).await?;
+    let profiles: Vec<Profile> = deadline::store(door(state)?.profiles(member))
+        .await
+        .unwrap_or_default();
+    deadline::store(door(state)?.delete_account(member)).await?;
     for row in &profiles {
         library_of(state, row.id).await;
     }
@@ -45,7 +48,7 @@ pub async fn account(state: &Shared, member: &Member) -> ApiResult<()> {
 /// The door's refusal: another account's profile is not found, and the main or last profile is
 /// refused.
 pub async fn profile(state: &Shared, member: &Member, id: ProfileId) -> ApiResult<()> {
-    door(state)?.delete_profile(member, id).await?;
+    deadline::store(door(state)?.delete_profile(member, id)).await?;
     library_of(state, id).await;
     Ok(())
 }
@@ -55,8 +58,11 @@ pub async fn profile(state: &Shared, member: &Member, id: ProfileId) -> ApiResul
 /// in the log and not a failure handed to a person who has just been told their account is gone.
 async fn library_of(state: &Shared, profile: ProfileId) {
     if let Some(library) = &state.library
-        && let Err(error) = library.store().delete_profile(profile).await
+        && let Err(error) = deadline::store(library.store().delete_profile(profile)).await
     {
-        tracing::warn!("the library rows of a deleted profile are still there: {error}");
+        tracing::warn!(
+            "the library rows of a deleted profile are still there: {}",
+            error.label
+        );
     }
 }

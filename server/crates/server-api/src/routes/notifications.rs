@@ -14,6 +14,7 @@ use server_rules::Viewer;
 
 use crate::answer::{Body, Keep, send};
 use crate::caller::Watching;
+use crate::deadline;
 use crate::error::{ApiError, ApiResult};
 use crate::state::Shared;
 
@@ -52,10 +53,10 @@ pub async fn list(
     let viewer = Viewer::of(&watching.scope)?;
     let now_ms = state.clock.now_ms();
 
-    let reminded = store.reminders(profile, 100).await?;
-    let in_list = store.list(profile, 100).await?;
-    let in_progress = store.seen(profile, 100).await?;
-    let read_state = store.notification_reads(profile).await?;
+    let reminded = deadline::store(store.reminders(profile, 100)).await?;
+    let in_list = deadline::store(store.list(profile, 100)).await?;
+    let in_progress = deadline::store(store.seen(profile, 100)).await?;
+    let read_state = deadline::store(store.notification_reads(profile)).await?;
 
     let answer = state.pages.notifications(
         &set,
@@ -84,10 +85,10 @@ pub async fn count(
     let viewer = Viewer::of(&watching.scope)?;
     let now_ms = state.clock.now_ms();
 
-    let reminded = store.reminders(profile, 100).await?;
-    let in_list = store.list(profile, 100).await?;
-    let in_progress = store.seen(profile, 100).await?;
-    let read_state = store.notification_reads(profile).await?;
+    let reminded = deadline::store(store.reminders(profile, 100)).await?;
+    let in_list = deadline::store(store.list(profile, 100)).await?;
+    let in_progress = deadline::store(store.seen(profile, 100)).await?;
+    let read_state = deadline::store(store.notification_reads(profile)).await?;
 
     let answer = state.pages.notification_count(
         &set,
@@ -109,9 +110,9 @@ pub async fn mark_read(
     Body(body): Body<NotificationRead>,
 ) -> ApiResult<Response> {
     let lib = library(&state)?;
-    let mut tx = lib.store().begin(watching.scope.profile()).await?;
+    let mut tx = deadline::store(lib.store().begin(watching.scope.profile())).await?;
     let now_ms = state.clock.now_ms();
-    tx.mark_notifications_read(&body.up_to, now_ms).await?;
-    tx.commit().await?;
+    deadline::store(tx.mark_notifications_read(&body.up_to, now_ms)).await?;
+    deadline::store(tx.commit()).await?;
     send(&headers, &Done { done: true }, Keep::Never)
 }

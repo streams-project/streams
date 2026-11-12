@@ -3127,6 +3127,7 @@ dependencies = [
 name = "server-api"
 version = "0.0.0"
 dependencies = [
+ "async-trait",
  "axum",
  "contract",
  "http-body-util",

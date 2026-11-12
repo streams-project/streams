@@ -3,6 +3,7 @@
 pub mod answer;
 pub mod caller;
 pub mod config;
+pub mod deadline;
 pub mod erase;
 pub mod error;
 pub mod guard;

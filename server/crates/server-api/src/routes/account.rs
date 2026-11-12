@@ -10,6 +10,7 @@ use server_accounts::{AccountView, Door};
 
 use crate::answer::{Body, Keep, send};
 use crate::caller::Caller;
+use crate::deadline;
 use crate::error::{ApiError, ApiResult};
 use crate::routes::devices::session_view_with_card;
 use crate::routes::profiles::shown;
@@ -39,7 +40,7 @@ pub async fn account(
     Caller(member): Caller,
     headers: HeaderMap,
 ) -> ApiResult<Response> {
-    let found = door(&state)?.account(&member).await?;
+    let found = deadline::store(door(&state)?.account(&member)).await?;
     send(&headers, &wire(found), Keep::Never)
 }
 
@@ -50,13 +51,12 @@ pub async fn update(
     headers: HeaderMap,
     Body(asked): Body<AccountUpdate>,
 ) -> ApiResult<Response> {
-    let found = door(&state)?
-        .update_names(
-            &member,
-            asked.first_name.as_deref(),
-            asked.last_name.as_deref(),
-        )
-        .await?;
+    let found = deadline::store(door(&state)?.update_names(
+        &member,
+        asked.first_name.as_deref(),
+        asked.last_name.as_deref(),
+    ))
+    .await?;
     send(&headers, &wire(found), Keep::Never)
 }
 
@@ -94,12 +94,12 @@ pub async fn export(
 ) -> ApiResult<Response> {
     let door = door(&state)?;
     door.require_step_up(&member)?;
-    let profiles = door.profiles(&member).await?;
-    let sessions = door.devices(&member).await?;
+    let profiles = deadline::store(door.profiles(&member)).await?;
+    let sessions = deadline::store(door.devices(&member)).await?;
     let mut shape = serde_json::Map::new();
     // The three the contract already declares, so an old client reads this body as it did before.
     let known = AccountExport {
-        account: wire(door.account(&member).await?),
+        account: wire(deadline::store(door.account(&member)).await?),
         profiles: {
             let mut rows = Vec::with_capacity(profiles.len());
             for row in &profiles {
@@ -110,7 +110,7 @@ pub async fn export(
         devices: {
             let mut rows = Vec::with_capacity(sessions.len());
             for row in sessions {
-                let card = door.card(row.id).await?;
+                let card = deadline::store(door.card(row.id)).await?;
                 rows.push(session_view_with_card(
                     &row,
                     member.session_id(),
@@ -143,7 +143,7 @@ pub async fn export(
     );
     shape.insert(
         String::from("account_events"),
-        serde_json::json!(door.whole_audit_log(&member).await?),
+        serde_json::json!(deadline::store(door.whole_audit_log(&member)).await?),
     );
     for (name, value) in library_sections(&state, &profiles).await? {
         shape.insert(name, value);
@@ -182,8 +182,8 @@ async fn library_sections(
         for row in profiles {
             let id = row.id;
             let at = id.to_string();
-            let list = store.list(id, PER_PROFILE_MAX).await?;
-            let rated = store.rated(id, PER_PROFILE_MAX).await?;
+            let list = deadline::store(store.list(id, PER_PROFILE_MAX)).await?;
+            let rated = deadline::store(store.rated(id, PER_PROFILE_MAX)).await?;
             library_rows.push(serde_json::json!({
                 "profile": at,
                 "list": list.iter().map(ToString::to_string).collect::<Vec<_>>(),
@@ -224,7 +224,7 @@ async fn library_sections(
                     }))
                     .collect::<Vec<_>>(),
             }));
-            let settings = store.settings(id).await?;
+            let settings = deadline::store(store.settings(id)).await?;
             settings_rows.push(serde_json::json!({
                 "profile": at,
                 "autoplay_next": settings.autoplay_next,
@@ -236,7 +236,7 @@ async fn library_sections(
                 "handle": settings.handle,
                 "gender": settings.gender,
             }));
-            let taste = store.taste_of(id).await?;
+            let taste = deadline::store(store.taste_of(id)).await?;
             taste_rows.push(serde_json::json!({
                 "profile": at,
                 "genre_weights": taste.weights,
@@ -251,7 +251,7 @@ async fn library_sections(
                     .map(ToString::to_string)
                     .collect::<Vec<_>>(),
             }));
-            let reads = store.notification_reads(id).await?;
+            let reads = deadline::store(store.notification_reads(id)).await?;
             read_rows.push(serde_json::json!({
                 "profile": at,
                 "read_up_to_ms": reads.read_up_to_ms,
@@ -277,9 +277,7 @@ pub async fn password(
     headers: HeaderMap,
     Body(asked): Body<PasswordChange>,
 ) -> ApiResult<Response> {
-    door(&state)?
-        .change_password(&member, &asked.new_password)
-        .await?;
+    deadline::store(door(&state)?.change_password(&member, &asked.new_password)).await?;
     send(&headers, &done(), Keep::Never)
 }
 
@@ -290,7 +288,7 @@ pub async fn email(
     headers: HeaderMap,
     Body(asked): Body<EmailChange>,
 ) -> ApiResult<Response> {
-    door(&state)?.change_email(&member, &asked.email).await?;
+    deadline::store(door(&state)?.change_email(&member, &asked.email)).await?;
     send(&headers, &done(), Keep::Never)
 }
 
@@ -301,6 +299,6 @@ pub async fn phone(
     headers: HeaderMap,
     Body(asked): Body<PhoneChange>,
 ) -> ApiResult<Response> {
-    door(&state)?.change_phone(&member, &asked.phone).await?;
+    deadline::store(door(&state)?.change_phone(&member, &asked.phone)).await?;
     send(&headers, &done(), Keep::Never)
 }

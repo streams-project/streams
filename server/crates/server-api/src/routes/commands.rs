@@ -15,6 +15,7 @@ use server_rules::answer::SafeChanges;
 
 use crate::answer::{Body, Keep, send, send_cleared};
 use crate::caller::Watching;
+use crate::deadline;
 use crate::error::{ApiError, ApiResult};
 use crate::routes::titles::data;
 use crate::state::Shared;
@@ -56,9 +57,7 @@ pub async fn commands(
     Body(batch): Body<CommandBatch>,
 ) -> ApiResult<Response> {
     let facts = CatalogFacts(state.data.as_ref().map(|slot| slot.load()));
-    let answer = library(&state)?
-        .apply(&watching.scope, &facts, &batch)
-        .await?;
+    let answer = deadline::store(library(&state)?.apply(&watching.scope, &facts, &batch)).await?;
     send(&headers, &answer, Keep::Never)
 }
 
@@ -77,9 +76,8 @@ pub async fn changes(
     headers: HeaderMap,
 ) -> ApiResult<Response> {
     let scope = &watching.scope;
-    let found = library(&state)?
-        .changes(scope.profile(), query.cursor.as_deref())
-        .await?;
+    let found =
+        deadline::store(library(&state)?.changes(scope.profile(), query.cursor.as_deref())).await?;
     let set = data(&state)?;
     let viewer = Viewer::of(scope)?;
     let keep = |title: &TitleKey| viewer.see(&set, packed(*title)).is_some();
@@ -105,9 +103,6 @@ pub async fn settings(
     watching: Watching,
     headers: HeaderMap,
 ) -> ApiResult<Response> {
-    let view = library(&state)?
-        .store()
-        .settings(watching.scope.profile())
-        .await?;
+    let view = deadline::store(library(&state)?.store().settings(watching.scope.profile())).await?;
     send(&headers, &settings_view(view), Keep::Never)
 }

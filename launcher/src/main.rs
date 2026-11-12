@@ -11,6 +11,7 @@ use launcher::brand::Brand;
 use launcher::data::{self, Data, Found};
 use launcher::films;
 use launcher::postgres::{self, Postgres};
+use launcher::running;
 use launcher::supervise::{Program, answers, keep, log_path};
 use rand::Rng;
 use serde_json::{Value, json};
@@ -427,6 +428,11 @@ fn up_options(words: &[String]) -> Result<UpOptions> {
 
 async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
     std::fs::create_dir_all(&stack.home)?;
+    // First of all, before a file is written or a program is started: one launcher at a time on
+    // one home folder. A second run takes over from the first instead of starting beside it, and
+    // a handover that cannot finish stops here, with the running copy untouched. Nothing else is
+    // running in this process yet, so the wait inside blocks nothing.
+    let _claim = running::claim(&stack.home, &mut |line| println!("{line}"))?;
     let token = secrets(stack)?["finder_token"]
         .as_str()
         .context("the secrets file has no finder token")?
@@ -532,11 +538,16 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
 
     // The children take the ports from here on, so the holder lets go of them first.
     ports.release();
-    let mut running = tokio::task::JoinSet::new();
+    let mut children = tokio::task::JoinSet::new();
     for program in programs {
-        running.spawn(keep(program));
+        children.spawn(keep(program));
     }
-    running.spawn(keep(server));
+    // The server is kept apart from the finders because the service is nothing without it: when
+    // `keep` gives up on it, this run ends and says why. Before that it sat here with the line
+    // below on the screen and a dead server behind it, which is how a second launcher that could
+    // not take the port stayed invisible for three hours on 2026-11-11.
+    let server_log = log_path(&stack.home, "server");
+    let mut server_gave_up = tokio::task::spawn(keep(server));
     // A finder that never came up used to show as nothing at all: play simply found no sources.
     //
     // All of them at once, and alongside the server's own wait: asked one after another, every
@@ -568,6 +579,17 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
             log_path(&stack.home, "server").display()
         );
     }
+    // Said before the line below and not after it: a server `keep` has already given up on is a
+    // run with nothing to answer, and claiming it is running at an address is the sentence that
+    // hid this for three hours.
+    if server_gave_up.is_finished() {
+        children.shutdown().await;
+        drop(database);
+        bail!(
+            "the server could not be started, so there is nothing at {local}. See {}",
+            server_log.display()
+        );
+    }
     println!("{} is running at {local}", stack.brand.name);
     if site_address != local {
         println!("Other devices reach it at {site_address}");
@@ -577,10 +599,25 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
         println!("Name one with --site-address.");
     }
     println!("Press Ctrl-C to stop.");
-    stop_asked().await?;
+    let server_went = tokio::select! {
+        asked = stop_asked() => {
+            asked?;
+            false
+        }
+        _ = &mut server_gave_up => true,
+    };
     println!("Stopping...");
-    running.shutdown().await;
+    // The server goes first, so nothing is answering while its sources are taken away.
+    server_gave_up.abort();
+    let _ = (&mut server_gave_up).await;
+    children.shutdown().await;
     drop(database);
+    if server_went {
+        bail!(
+            "the server could not be kept running, so nothing was left to answer. See {}",
+            server_log.display()
+        );
+    }
     Ok(())
 }
 

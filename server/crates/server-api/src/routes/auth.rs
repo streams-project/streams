@@ -14,6 +14,7 @@ use server_accounts::{DevicePollState, Door, IssuedTokens, SignUpAsk, SignedIn};
 
 use crate::answer::{Body, Keep, send};
 use crate::caller::{Caller, ClientOrigin};
+use crate::deadline;
 use crate::error::{ApiError, ApiResult};
 use crate::state::Shared;
 
@@ -46,9 +47,12 @@ pub async fn password(
     headers: HeaderMap,
     Body(asked): Body<PasswordSignIn>,
 ) -> ApiResult<Response> {
-    let found = door(&state)?
-        .password_sign_in(&asked.email, &asked.password, from.as_origin())
-        .await?;
+    let found = deadline::store(door(&state)?.password_sign_in(
+        &asked.email,
+        &asked.password,
+        from.as_origin(),
+    ))
+    .await?;
     send(&headers, &wire(found), Keep::Never)
 }
 
@@ -59,7 +63,7 @@ pub async fn send_code(
     headers: HeaderMap,
     Body(asked): Body<CodeSend>,
 ) -> ApiResult<Response> {
-    let expires_in = door(&state)?.send_code(&asked.email, &from.address).await?;
+    let expires_in = deadline::store(door(&state)?.send_code(&asked.email, &from.address)).await?;
     send(&headers, &CodeSent { expires_in }, Keep::Never)
 }
 
@@ -70,9 +74,9 @@ pub async fn verify_code(
     headers: HeaderMap,
     Body(asked): Body<CodeSignIn>,
 ) -> ApiResult<Response> {
-    let found = door(&state)?
-        .code_sign_in(&asked.email, &asked.code, from.as_origin())
-        .await?;
+    let found =
+        deadline::store(door(&state)?.code_sign_in(&asked.email, &asked.code, from.as_origin()))
+            .await?;
     send(&headers, &wire(found), Keep::Never)
 }
 
@@ -90,7 +94,7 @@ pub async fn sign_up(
         first_name: &asked.first_name,
         last_name: &asked.last_name,
     };
-    door(&state)?.sign_up(&new, from.as_origin()).await?;
+    deadline::store(door(&state)?.sign_up(&new, from.as_origin())).await?;
     send(&headers, &Done { done: true }, Keep::Never)
 }
 
@@ -100,7 +104,8 @@ pub async fn refresh(
     headers: HeaderMap,
     Body(asked): Body<RefreshRequest>,
 ) -> ApiResult<Response> {
-    let (account, tokens) = door(&state)?.refresh_for(&asked.refresh_token).await?;
+    let (account, tokens) =
+        deadline::store(door(&state)?.refresh_for(&asked.refresh_token)).await?;
     let answer = SignedInWire {
         user_id: account.to_string(),
         email: String::new(),
@@ -119,14 +124,13 @@ pub async fn confirm(
     headers: HeaderMap,
     Body(asked): Body<Confirm>,
 ) -> ApiResult<Response> {
-    let valid_s = door(&state)?
-        .confirm(
-            &member,
-            asked.password.as_deref(),
-            asked.code.as_deref(),
-            &from.address,
-        )
-        .await?;
+    let valid_s = deadline::store(door(&state)?.confirm(
+        &member,
+        asked.password.as_deref(),
+        asked.code.as_deref(),
+        &from.address,
+    ))
+    .await?;
     send(&headers, &Confirmed { valid_s }, Keep::Never)
 }
 
@@ -137,9 +141,7 @@ pub async fn recovery_start(
     headers: HeaderMap,
     Body(asked): Body<RecoveryStart>,
 ) -> ApiResult<Response> {
-    door(&state)?
-        .recovery_start(&asked.email, &from.address)
-        .await?;
+    deadline::store(door(&state)?.recovery_start(&asked.email, &from.address)).await?;
     send(&headers, &Done { done: true }, Keep::Never)
 }
 
@@ -150,14 +152,13 @@ pub async fn recovery_finish(
     headers: HeaderMap,
     Body(asked): Body<RecoveryFinish>,
 ) -> ApiResult<Response> {
-    door(&state)?
-        .recovery_finish(
-            &asked.email,
-            &asked.code,
-            &asked.new_password,
-            &from.address,
-        )
-        .await?;
+    deadline::store(door(&state)?.recovery_finish(
+        &asked.email,
+        &asked.code,
+        &asked.new_password,
+        &from.address,
+    ))
+    .await?;
     send(&headers, &Done { done: true }, Keep::Never)
 }
 
@@ -172,7 +173,7 @@ pub async fn device_code(
         .site_address
         .as_deref()
         .ok_or_else(|| ApiError::off("device_sign_in"))?;
-    let started = door(&state)?.device_start(&asked.device_name).await?;
+    let started = deadline::store(door(&state)?.device_start(&asked.device_name)).await?;
     let verification_uri = format!("{}/activate", site.trim_end_matches('/'));
     let answer = DeviceCode {
         verification_uri_complete: format!("{verification_uri}?code={}", started.user_code),
@@ -195,7 +196,7 @@ pub async fn device_token(
         signed_in: None,
         poll: Some(word),
     };
-    let answer = match door(&state)?.device_poll(&asked.device_code).await? {
+    let answer = match deadline::store(door(&state)?.device_poll(&asked.device_code)).await? {
         DevicePollState::Pending => poll(DevicePoll::AuthorizationPending),
         DevicePollState::SlowDown => poll(DevicePoll::SlowDown),
         DevicePollState::Denied => poll(DevicePoll::AccessDenied),
@@ -216,9 +217,7 @@ pub async fn device_approve(
     headers: HeaderMap,
     Body(asked): Body<DeviceDecision>,
 ) -> ApiResult<Response> {
-    door(&state)?
-        .device_approve(&member, &asked.user_code, &from.address)
-        .await?;
+    deadline::store(door(&state)?.device_approve(&member, &asked.user_code, &from.address)).await?;
     send(&headers, &Done { done: true }, Keep::Never)
 }
 
@@ -230,8 +229,6 @@ pub async fn device_deny(
     headers: HeaderMap,
     Body(asked): Body<DeviceDecision>,
 ) -> ApiResult<Response> {
-    door(&state)?
-        .device_deny(&member, &asked.user_code, &from.address)
-        .await?;
+    deadline::store(door(&state)?.device_deny(&member, &asked.user_code, &from.address)).await?;
     send(&headers, &Done { done: true }, Keep::Never)
 }
