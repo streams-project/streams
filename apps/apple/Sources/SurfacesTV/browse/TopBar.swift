@@ -30,6 +30,10 @@ private struct Tab: View {
             .padding(.horizontal, 32.ref)
             .frame(height: barHigh.ref)
             .background(back, in: Capsule())
+            // A tab draws its own name. `on` is where the remote is, which is drawn as a white
+            // pill; `active` is the page in view, drawn as a dim one. Only the first is said,
+            // because that is the one a person pressing keys needs to follow.
+            .saysItsWords(on: on)
     }
 }
 
@@ -40,22 +44,29 @@ struct TopBar: View {
     let focus: Int
     let person: Profile?
     let server: String
+    /// The words for the two controls here that draw no text: who is watching, and search.
+    var words: [String: String] = [:]
 
     var body: some View {
         let searchOn = focus == searchTab
         let whoOn = focus == whoTab
         let searchHere = active == searchTab
         ZStack(alignment: .topLeading) {
+            // Who is watching: a face, which is a picture, and a caret, which is a picture of the
+            // menu it opens. The profile's own name is the only words there are for it, and it
+            // comes from the answer rather than from `strings/`.
             HStack(spacing: 0) {
                 Face(person, barFace, server)
                     .overlay(shapeOf(Round.face(barFace)).stroke(.white, lineWidth: whoOn ? 3.ref : 0))
                 Icon("icon_caret_down", 22)
             }
+            .says(person?.name ?? "", on: whoOn)
             .offset(x: pageEdge.ref, y: (barMid - barFace / 2).ref)
             Circle()
                 .fill(searchOn ? Color.white : searchHere ? Color.white.opacity(0.16) : .clear)
                 .frame(width: barHigh.ref, height: barHigh.ref)
                 .overlay(Icon("icon_search", 34, tint: searchOn ? Back : .white))
+                .says(words["nav.search"] ?? "", on: searchOn)
                 .offset(x: 539.ref, y: (barMid - barHigh / 2).ref)
             HStack(spacing: 8.ref) {
                 ForEach(Array(tabs.enumerated()), id: \.offset) { index, item in

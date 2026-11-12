@@ -76,7 +76,7 @@ let package = Package(
         ),
         .testTarget(
             name: "TelevisionTests",
-            dependencies: ["Heard", "Contract", "SurfacesShared", "SurfacesTV"],
+            dependencies: ["Heard", "Contract", "Ports", "SurfacesShared", "SurfacesTV"],
             path: "Tests/TelevisionTests"
         ),
         .testTarget(

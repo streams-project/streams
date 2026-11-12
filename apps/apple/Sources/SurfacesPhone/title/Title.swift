@@ -4,6 +4,23 @@ import SurfacesShared
 import SwiftUI
 import UserNotifications
 
+// A reminder, set for the morning a title arrives.
+//
+// Guarded by platform because `UNMutableNotificationContent`'s `title`, `body` and `sound` are not
+// on tvOS, while `Package.swift:8` declares tvOS for the whole package - SwiftPM has no per-target
+// platform list, so every target is offered to every platform the package names. Unguarded, this
+// one file stopped the package compiling for tvOS at all, which is why no television test in this
+// project had ever been run on a television (measured 2026-11-12: three errors, `'title' is
+// unavailable in tvOS`, `'body'` and `'sound'`, all from the function below).
+//
+// The television keeps the two names and does nothing with them, rather than the call sites
+// learning about platforms: a television does not set reminders, and no television screen reaches
+// this file at all. Nothing about the phone changes.
+#if os(tvOS)
+private func scheduleNotification(titleKey: TitleKey, titleName: String, dateYmd: String) {}
+
+private func cancelNotification(titleKey: TitleKey) {}
+#else
 private func scheduleNotification(titleKey: TitleKey, titleName: String, dateYmd: String) {
     let center = UNUserNotificationCenter.current()
     center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
@@ -31,6 +48,7 @@ private func scheduleNotification(titleKey: TitleKey, titleName: String, dateYmd
 private func cancelNotification(titleKey: TitleKey) {
     UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [titleKey.rawValue])
 }
+#endif
 
 private enum TitleTab {
     case episodes
@@ -89,7 +107,10 @@ public struct Title: View {
                 Back.ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    // Pinned 52 pt top bar with back arrow and cast/close buttons
+                    // Pinned 52 pt top bar with back arrow and cast/close buttons. All three draw a
+                    // picture and no text, so all three need words of their own: read as they stood
+                    // the first two were the names of their own asset files and the third, which is
+                    // two lines on a canvas, was a stop with nothing to read at all.
                     HStack(spacing: 0) {
                         Button {
                             shell.back()
@@ -99,6 +120,7 @@ public struct Title: View {
                         }
                         .buttonStyle(.plain)
                         .padding(.leading, 4)
+                        .says(words["common.back"] ?? "")
 
                         Spacer()
 
@@ -109,6 +131,7 @@ public struct Title: View {
                                 .frame(width: 44, height: 44)
                         }
                         .buttonStyle(.plain)
+                        .says(words["say.cast"] ?? "")
 
                         Button {
                             shell.back()
@@ -118,6 +141,7 @@ public struct Title: View {
                         }
                         .buttonStyle(.plain)
                         .padding(.trailing, 4)
+                        .says(words["say.close"] ?? "")
                     }
                     .frame(height: 52)
                     .background(Back)
@@ -125,7 +149,9 @@ public struct Title: View {
                     // Scrollable content
                     ScrollView(.vertical, showsIndicators: false) {
                         VStack(alignment: .leading, spacing: 0) {
-                            // Top: 16:9 backdrop art
+                            // Top: 16:9 backdrop art. Decoration: the title is named, described and
+                            // listed below it, so a reader that announced the picture as well would
+                            // say the same thing twice. `Art` marks itself.
                             ZStack {
                                 Plate
                                 Art(wide(data.images))
@@ -136,15 +162,20 @@ public struct Title: View {
 
                             // Body content with 10 pt margins
                             VStack(alignment: .leading, spacing: 10) {
-                                // Title / logo
+                                // Title / logo. The treatment is a picture of the title's name, so where
+                                // one is drawn it is the only thing naming the title and carries the
+                                // words; where there is none the name is drawn as text instead.
+                                // Either way it is the page's heading, so a reader can jump to it.
                                 if let logoUrl = logo(data.images) {
-                                    Art(logoUrl, fit: true)
+                                    Art(logoUrl, fit: true, says: data.name)
                                         .frame(maxWidth: 260, maxHeight: 80, alignment: .leading)
+                                        .accessibilityAddTraits(.isHeader)
                                 } else {
                                     Text(data.name)
                                         .brand(24, 700)
                                         .foregroundStyle(.white)
                                         .lineLimit(2)
+                                        .accessibilityAddTraits(.isHeader)
                                 }
 
                                 // Meta line: year, age badge, seasons/length, HD badge
@@ -214,6 +245,10 @@ public struct Title: View {
                                     }
                                     .buttonStyle(.plain)
                                     .padding(.top, 8)
+                                    // The button draws "Remind Me" or "Reminder Set", and which of
+                                    // the two it says is the whole of what a person needs: the tick
+                                    // that replaces the bell says the same thing in a picture.
+                                    .saysItsWords()
                                 } else {
                                     // Play button: white, full width (10 pt margins), 48 pt high, Corner.button radius
                                     Button {
@@ -230,6 +265,9 @@ public struct Title: View {
                                         .background(Color.white, in: RoundedRectangle(cornerRadius: min(Corner.button, 24)))
                                     }
                                     .buttonStyle(.plain)
+                                    // The word is drawn in the button and the triangle beside it
+                                    // repeats it, so the button gathers what it draws.
+                                    .saysItsWords()
                                 }
 
                                 // Synopsis: 16 sp, expandable (3 lines with "more")
@@ -251,6 +289,17 @@ public struct Title: View {
                                     .onTapGesture {
                                         synopsisExpanded.toggle()
                                     }
+                                    // The synopsis is prose and is read as it stands, but the tap
+                                    // that opens it out is drawn as "… more" and nothing says the
+                                    // whole block answers a tap. So the block is one control whose
+                                    // words are the synopsis and whose state is what a tap does -
+                                    // and when there is nothing more to show, it is not a control.
+                                    .modifier(TapsForMore(
+                                        label: overview,
+                                        state: overview.count > 120
+                                            ? (words[synopsisExpanded ? "say.show_less" : "say.show_more"] ?? "")
+                                            : ""
+                                    ))
                                 }
 
                                 // Cast / director line: muted color with "more" expandable
@@ -272,6 +321,14 @@ public struct Title: View {
                                     .onTapGesture {
                                         if genres.count > 3 { castExpanded.toggle() }
                                     }
+                                    // The same: a line of genres that answers a tap only when there
+                                    // are more than three of them to show.
+                                    .modifier(TapsForMore(
+                                        label: displayGenres.joined(separator: ", "),
+                                        state: genres.count > 3
+                                            ? (words[castExpanded ? "say.show_less" : "say.show_more"] ?? "")
+                                            : ""
+                                    ))
                                 }
 
                                 // Action buttons: My List, Rate, Share in a row (about 96 pt wide, 8 pt apart)
@@ -292,6 +349,10 @@ public struct Title: View {
                                         .padding(.vertical, 4)
                                     }
                                     .buttonStyle(.plain)
+                                    // "My List" or "In My List" is drawn under the icon, and which
+                                    // of the two it says is what tells a person whether the title is
+                                    // saved. The tick that replaces the plus says it in a picture.
+                                    .saysItsWords()
 
                                     // Rate
                                     VStack(spacing: 6) {
@@ -311,8 +372,17 @@ public struct Title: View {
                                     .onTapGesture {
                                         rateMenuOpen.toggle()
                                     }
+                                    // The control draws its own word, and the thumb above it changes
+                                    // to show the rating already given - which says nothing a person
+                                    // listening can hear, so the rating is read as the state.
+                                    .saysItsWords(state: rateWord(rating, words))
                                     .overlay(alignment: .top) {
                                         if rateMenuOpen {
+                                            // Three thumbs with no words anywhere near them: the
+                                            // clearest case on this page of a control a person
+                                            // cannot hear. Each is given its own name, and the one
+                                            // already chosen says so, because the only thing
+                                            // marking it is that its picture is filled in.
                                             HStack(spacing: 4) {
                                                 Button {
                                                     let next: Rating? = rating == .down ? nil : .down
@@ -324,6 +394,10 @@ public struct Title: View {
                                                         .frame(width: 36, height: 36)
                                                 }
                                                 .buttonStyle(.plain)
+                                                .says(
+                                                    words["player.down"] ?? "",
+                                                    state: rating == .down ? (words["say.chosen"] ?? "") : ""
+                                                )
 
                                                 Button {
                                                     let next: Rating? = rating == .up ? nil : .up
@@ -335,6 +409,10 @@ public struct Title: View {
                                                         .frame(width: 36, height: 36)
                                                 }
                                                 .buttonStyle(.plain)
+                                                .says(
+                                                    words["player.up"] ?? "",
+                                                    state: rating == .up ? (words["say.chosen"] ?? "") : ""
+                                                )
 
                                                 Button {
                                                     let next: Rating? = rating == .love ? nil : .love
@@ -346,6 +424,10 @@ public struct Title: View {
                                                         .frame(width: 36, height: 36)
                                                 }
                                                 .buttonStyle(.plain)
+                                                .says(
+                                                    words["player.love"] ?? "",
+                                                    state: rating == .love ? (words["say.chosen"] ?? "") : ""
+                                                )
                                             }
                                             .padding(.horizontal, 8)
                                             .padding(.vertical, 4)
@@ -369,6 +451,8 @@ public struct Title: View {
                                         .padding(.vertical, 4)
                                     }
                                     .buttonStyle(.plain)
+                                    // Draws its own word under the icon.
+                                    .saysItsWords()
                                 }
                                 .padding(.top, 6)
                             }
@@ -401,6 +485,10 @@ public struct Title: View {
                                         .padding(.horizontal, 12)
                                     }
                                     .buttonStyle(.plain)
+                                    // The tab draws its own word. The chosen one is drawn whiter
+                                    // with a four point accent line over it, and neither of those
+                                    // is something a person listening can see.
+                                    .saysItsWords(on: epChosen)
                                 }
 
                                 let moreChosen = selectedTab == .moreLikeThis
@@ -420,6 +508,7 @@ public struct Title: View {
                                     .padding(.horizontal, 12)
                                 }
                                 .buttonStyle(.plain)
+                                .saysItsWords(on: moreChosen)
 
                                 Spacer()
                             }
@@ -443,6 +532,35 @@ public struct Title: View {
                 rating = data.rating
                 selectedTab = isSeries ? .episodes : .moreLikeThis
             }
+        }
+    }
+}
+
+/// What a rating already given is heard as, after the Rate control's own word. The three names are
+/// the player's, so the phone and the television call a rating the same thing.
+///
+/// `Rating` is a `RawRepresentable` struct on the wire, not a closed set, so this is a lookup and
+/// not a switch: a rating the contract gains later reads as nothing here rather than failing to
+/// build, and the gap shows up as a silent state in the tests.
+@MainActor
+private func rateWord(_ rating: Rating?, _ words: [String: String]) -> String {
+    guard let rating else { return "" }
+    let keys: [Rating: String] = [.down: "player.down", .up: "player.up", .love: "player.love"]
+    return keys[rating].flatMap { words[$0] } ?? ""
+}
+
+/// A block of prose that opens out when it is tapped, and is only prose when there is nothing more
+/// to show. `state` is what a tap would do, from `strings/` (`say.show_more`, `say.show_less`); an
+/// empty one leaves the block as text a reader walks rather than a button that does nothing.
+private struct TapsForMore: ViewModifier {
+    let label: String
+    let state: String
+
+    func body(content: Content) -> some View {
+        if state.isEmpty {
+            content
+        } else {
+            content.says(label, state: state)
         }
     }
 }
@@ -495,6 +613,14 @@ struct PhoneEpisodes: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.top, 6)
+                // The chip draws the season it is showing, and the caret beside it is the only
+                // thing saying there are others to pick from - so the chip says what it opens.
+                .says(
+                    (words["say.season_pick"] ?? "").isEmpty
+                        ? seen.say("title.season.number").fill("n", seasonNumber)
+                        : (words["say.season_pick"] ?? ""),
+                    state: seen.say("title.season.number").fill("n", seasonNumber)
+                )
             } else if seasons.count == 1 {
                 Text(seen.say("title.season.number").fill("n", seasonNumber))
                     .brand(14, 700)
@@ -605,7 +731,29 @@ private struct PhoneEpisodeRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        // The row draws the episode's number, its name, how long it runs and what it is about: all
+        // of it words already, so the row gathers them. The still behind them and the play circle
+        // over it are decoration (`Art` and `Icon` mark themselves). The bar across the bottom of
+        // the still is how far through the episode the viewer is, and it is the one thing on the row
+        // a person listening cannot see at all, so it is read as the row's state.
+        .saysItsWords(state: watchedWord(episode.percent, shell.seen.words))
     }
+}
+
+/// How far through an episode the viewer is, in words, or nothing for one not started. Read after
+/// the row's own words.
+///
+/// This wants `say.watched_percent` - "{percent}% watched" - which `strings/` does not hold yet, so
+/// it reads empty until it lands. The key that does exist, `say.watched`, is "{title}, {percent}%
+/// watched" and names the title as well: on a row that already draws the episode's number and name
+/// that would say the name twice. Emptying its `{title}` and trimming what is left over is not an
+/// option - the order of the two parts and the punctuation between them differ by language, so
+/// cutting a translated pattern apart in code produces a different sentence in Arabic than in
+/// English. A key is the only answer that works in eighteen languages.
+@MainActor
+private func watchedWord(_ percent: Int?, _ words: [String: String]) -> String {
+    guard let percent, percent > 0 else { return "" }
+    return (words["say.watched_percent"] ?? "").fill("percent", percent)
 }
 
 private struct SeasonPickerSheet: View {
@@ -633,6 +781,10 @@ private struct SeasonPickerSheet: View {
                                 .frame(width: 248, height: 52)
                         }
                         .buttonStyle(.plain)
+                        // Each line draws its own season. The one showing is drawn larger, bolder
+                        // and whiter, which is three ways of saying the same thing and none of them
+                        // audible, so the line says it is the chosen one.
+                        .saysItsWords(on: isChosen)
                     }
                     Spacer(minLength: 110)
                 }
@@ -660,6 +812,9 @@ private struct SeasonPickerSheet: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.bottom, 20)
+                // Two lines drawn on a canvas: nothing here for a reader to gather, and it is the
+                // only way out of a sheet that fills the screen.
+                .says(words["say.close"] ?? "")
             }
         }
     }
@@ -691,6 +846,9 @@ struct PhoneMoreLike: View {
                     .clipShape(RoundedRectangle(cornerRadius: Corner.card))
                 }
                 .buttonStyle(.plain)
+                // A tile is a picture and nothing else. The title's name is the tile, and it comes
+                // from the answer already in the viewer's language, so it needs no key.
+                .says(tile.name)
             }
         }
         .padding(.horizontal, 10)

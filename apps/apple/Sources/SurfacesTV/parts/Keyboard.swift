@@ -17,6 +17,10 @@ private struct Cap {
     let span: Int
     var word: String? = nil
     var icon: String? = nil
+    /// Words for a key that draws a picture instead of a word: shift, space, erase. Nothing for a
+    /// key that draws its own, which gathers it and so can never drift from what is seen. From
+    /// `strings/`, handed down from the screen.
+    var says: String? = nil
 }
 
 let letterKeys = ["1234567890", "qwertyuiop", "asdfghjkl-", "zxcvbnm'"]
@@ -30,17 +34,21 @@ private func line(_ letters: String, _ from: Int, _ upper: Bool) -> [Cap] {
     }
 }
 
-private func caps(_ page: [String], _ upper: Bool, _ cancel: String, _ done: String) -> [[Cap]] {
+/// The keys of a page. `words` names only the three that draw a picture; every other key draws its
+/// own text and is heard as that.
+private func caps(
+    _ page: [String], _ upper: Bool, _ cancel: String, _ done: String, _ words: [String: String] = [:]
+) -> [[Cap]] {
     [
         line(page[0], 0, upper),
         line(page[1], 0, upper),
         line(page[2], 0, upper),
-        [Cap(press: .shift, column: 0, span: 2, icon: "icon_shift")] + line(page[3], 2, upper),
+        [Cap(press: .shift, column: 0, span: 2, icon: "icon_shift", says: words["say.shift"] ?? "")] + line(page[3], 2, upper),
         [
             Cap(press: .marks, column: 0, span: 2, word: "!#$"),
             Cap(press: .accents, column: 2, span: 2, word: "àáâ"),
-            Cap(press: .space, column: 4, span: 3, icon: "icon_space"),
-            Cap(press: .erase, column: 7, span: 3, icon: "icon_erase"),
+            Cap(press: .space, column: 4, span: 3, icon: "icon_space", says: words["say.space"] ?? ""),
+            Cap(press: .erase, column: 7, span: 3, icon: "icon_erase", says: words["say.delete"] ?? ""),
         ],
         [Cap(press: .cancel, column: 0, span: buttons, word: cancel), Cap(press: .done, column: buttons, span: buttons, word: done)],
     ]
@@ -58,6 +66,18 @@ public final class KeyboardState {
 
     public init(_ start: String) {
         text = start
+    }
+
+    /// What the key the remote is on is heard as: the words of a picture key, or the text a key
+    /// draws. The state is what knows where the remote is, so it is what answers, and a screen can
+    /// ask without holding on to the view it drew.
+    func hereIs(_ cancel: String, _ done: String, _ words: [String: String]) -> String {
+        let rows = caps(page, upper, cancel, done, words)
+        guard let line = rows[safe: row],
+              let here = line.first(where: { column >= $0.column && column < $0.column + $0.span })
+        else { return "" }
+        let said = here.says ?? ""
+        return said.isEmpty ? (here.word ?? "") : said
     }
 
     /// Answers a word from the remote. `finish` gets the text on Done, or nothing on Cancel.
@@ -107,18 +127,27 @@ private struct CapView: View {
             if let icon = cap.icon { Icon(icon, 34, tint: ink) }
         }
         .frame(width: CGFloat(wide).ref, height: CGFloat(high).ref)
+        // A picture key takes the words it was given; a key that draws its own text falls through to
+        // gathering it, which `says("")` does itself. `on` is the white cap, which is the only thing
+        // saying where the remote is on a keyboard of sixty keys.
+        .says(cap.says ?? "", on: on)
         .offset(x: CGFloat(left).ref, y: CGFloat(top).ref)
     }
 }
 
 /// A letter grid for a remote. Search and sign in share it as it stands.
+///
+/// `words` is for the three keys that draw a picture: shift, space and erase. Without them a person
+/// signing in with a remote reaches three keys that read as nothing at all, and two of those are
+/// the ones they need most.
 struct Keyboard: View {
     let state: KeyboardState
     let cancel: String
     let done: String
+    var words: [String: String] = [:]
 
     var body: some View {
-        let rows = caps(state.page, state.upper, cancel, done)
+        let rows = caps(state.page, state.upper, cancel, done, words)
         let shape = shapeOf(Round.panel)
         ZStack(alignment: .topLeading) {
             ForEach(Array(rows.enumerated()), id: \.offset) { row, line in

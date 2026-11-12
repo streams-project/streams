@@ -20,10 +20,15 @@ let heroWide = pageWide - 2 * pageEdge
 let heroMark = CGSize(width: 600, height: 200)
 
 /// A logo at its own shape, no larger than its box, sitting on the box's bottom left.
+///
+/// `says` is the title's name: a treatment is a picture of a name, so where one is drawn it is the
+/// only thing naming the title and it has to carry the words. Where it is left out the picture is
+/// decoration, which is right for a logo drawn inside a part that already says the name.
 struct Logo: View {
     let url: String
     let width: CGFloat
     let height: CGFloat
+    var says: String = ""
 
     var body: some View {
         if let kept = Pictures.now(url) {
@@ -41,6 +46,20 @@ struct Logo: View {
         image.resizable()
             .aspectRatio(contentMode: .fit)
             .frame(maxWidth: width.ref, maxHeight: height.ref, alignment: .bottomLeading)
+            .modifier(LogoSays(words: says))
+    }
+}
+
+/// A treatment's words, or none, so a logo is never read out as the name of its own file.
+private struct LogoSays: ViewModifier {
+    let words: String
+
+    func body(content: Content) -> some View {
+        if words.isEmpty {
+            content.accessibilityHidden(true)
+        } else {
+            content.accessibilityLabel(words)
+        }
     }
 }
 
@@ -63,7 +82,7 @@ struct HeroCard: View {
             foot
             VStack(alignment: .leading, spacing: 0) {
                 if let logoUrl {
-                    Logo(url: logoUrl, width: heroMark.width, height: heroMark.height)
+                    Logo(url: logoUrl, width: heroMark.width, height: heroMark.height, says: lead.name)
                 } else {
                     Text(lead.name).brand(76, 800).lines(76, 80).foregroundStyle(.white)
                 }

@@ -26,6 +26,10 @@ struct MomentPill: View {
             .padding(.trailing, 124.ref)
             .padding(.bottom, (raised ? 230 : 96).ref)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+            // The pill draws its own word - skip this part, or go on to the next episode - so it
+            // gathers it. `on` is the white plate that says Ok will take this offer rather than
+            // pause, and it is the only thing that says so.
+            .saysItsWords(on: on)
     }
 }
 
@@ -41,6 +45,9 @@ struct AgeCard: View {
         .frame(height: 84.ref)
         .offset(x: 96.ref, y: 260.ref)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        // The card shows once as play starts and nothing presses it, so it is read as it stands: the
+        // age rating, and the bar beside it is a line with no words in it.
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -53,7 +60,10 @@ struct StillAsking: View {
         ZStack {
             Color.black.opacity(0.8)
             VStack(spacing: 48.ref) {
+                // The question the two buttons under it answer, so a reader can jump to it. The
+                // buttons draw their own words and carry them themselves (`parts/Pill.swift`).
                 Text(seen.say("player.still")).brand(56, 700).foregroundStyle(.white)
+                    .accessibilityAddTraits(.isHeader)
                 HStack(spacing: 24.ref) {
                     Pill(seen.say("player.still.yes"), on: focus == 0)
                     Pill(seen.say("player.still.no"), on: focus == 1)

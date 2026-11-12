@@ -27,6 +27,9 @@ struct AddProfileRow: View {
         }
         .frame(width: 720.ref, height: size.ref, alignment: .topLeading)
         .animation(glide(addGrow), value: on)
+        // Only the row in focus draws "Add Profile": off it there is a plus and nothing else, so
+        // the row is given the word it would draw rather than gathering what is there now.
+        .says(word, on: on)
     }
 }
 
@@ -75,7 +78,8 @@ struct AddProfile: View {
                 let done = seen.say("common.next")
                 ZStack(alignment: .topLeading) {
                     PageHead(title: seen.say("profile.add"), help: seen.say("profile.add.help"))
-                    Keyboard(state: keys, cancel: cancel, done: done).offset(x: subEdge.ref, y: 302.ref)
+                    Keyboard(state: keys, cancel: cancel, done: done, words: seen.words)
+                        .offset(x: subEdge.ref, y: 302.ref)
                     ProfileCard(person: preview, server: seen.server, name: {
                         HStack(spacing: 3.ref) {
                             CardName(name: keys.text)
@@ -83,7 +87,8 @@ struct AddProfile: View {
                         }
                     }, under: refused ? seen.say("error.name") : nil)
                 }
-                .remote { word in
+                // The keyboard says which of its keys the remote is on; it is the part that knows.
+                .remote(says: keys.hereIs(cancel, done, seen.words)) { word in
                     let handled = keys.press(word, cancel, done) { chosen in
                         guard let chosen else { return finish(nil) }
                         let trimmed = chosen.trimmingCharacters(in: .whitespaces)
@@ -105,7 +110,8 @@ struct AddProfile: View {
                     Menu(lines: lines, focus: kidsAt, width: 460).offset(x: (subEdge - menuWords).ref, y: 397.ref)
                     ProfileCard(person: preview, server: seen.server, name: { CardName(name: keys.text) }, under: nil)
                 }
-                .remote { word in
+                // What the remote is on: one of the two answers to the Kids question.
+                .remote(says: lines[safe: kidsAt]?.word ?? "") { word in
                     switch word {
                     case .up: if kidsAt > 0 { kidsAt -= 1 }
                     case .down: if kidsAt < lines.count - 1 { kidsAt += 1 }

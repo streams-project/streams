@@ -178,6 +178,9 @@ private struct Ask: View {
             .frame(width: 268.ref, height: 80.ref)
             .background(on ? lit : Color.white.opacity(0.22), in: Capsule())
             .scaleEffect(on ? 1.04 : 1)
+            // The button draws its own word, so it gathers it. In focus it is lit and a little
+            // larger, neither of which a person listening can see.
+            .saysItsWords(on: on)
     }
 }
 
@@ -227,6 +230,21 @@ private struct Landing: View {
         if !told && filmReady && cards != nil && peekReady {
             told = true
             ready()
+        }
+    }
+
+    /// What the remote is on, for the screen box that says it aloud (`app/Remote.swift`). Every word
+    /// is one the screen already draws, out of `strings/` or out of the title's own name; the one
+    /// stop with no word drawn on it is the house, which borrows `nav.home` from the bar inside.
+    private func hereIs(_ titles: [TitleDetail]) -> String {
+        switch at {
+        case .home: return seen.say("nav.home")
+        case .tab: return seen.say("door.trending")
+        case .topSignIn, .signIn: return seen.say("door.sign_in")
+        case .help: return seen.say("door.help")
+        case .join: return seen.say("door.join")
+        // On a title's card Ok signs in, so the viewer hears the title and what the press does.
+        case .watch: return sayBoth(titles[safe: page - 1]?.name, seen.say("door.watch"))
         }
     }
 
@@ -294,10 +312,13 @@ private struct Landing: View {
                 BrandLockup(high: lockupHigh).offset(x: pageEdge.ref, y: (rowMid - lockupHigh / 2).ref).transition(.opacity)
             } else {
                 HStack(spacing: 16.ref) {
+                    // A house, and nothing else: the one control on this row with no word drawn on
+                    // it, so it is the one that needs words of its own.
                     Circle()
                         .fill(at == .home ? Color.white : Color.white.opacity(0.12))
                         .frame(width: rowHigh.ref, height: rowHigh.ref)
                         .overlay(Icon("icon_home", 34, tint: at == .home ? Back : .white))
+                        .says(seen.say("nav.home"), on: at == .home)
                     if !titles.isEmpty {
                         // The tab of the titles: grey while a title card is in view, white in focus.
                         Text(seen.say("door.trending"))
@@ -306,6 +327,7 @@ private struct Landing: View {
                             .padding(.horizontal, 32.ref)
                             .frame(height: rowHigh.ref)
                             .background(at == .tab ? Color.white : page > 0 ? Color.white.opacity(0.16) : .clear, in: Capsule())
+                            .saysItsWords(on: at == .tab)
                     }
                 }
                 .offset(x: pageEdge.ref, y: (rowMid - rowHigh / 2).ref)
@@ -323,6 +345,7 @@ private struct Landing: View {
                             .frame(height: rowHigh.ref)
                             .background(on ? Color.white : .clear, in: Capsule())
                             .overlay(Capsule().stroke(on ? .clear : Color.white.opacity(0.5), lineWidth: 3.ref))
+                            .saysItsWords(on: on)
                     }
                     .frame(width: (1920 - pageEdge).ref)
                     .offset(y: (rowMid - rowHigh / 2).ref)
@@ -348,6 +371,7 @@ private struct Landing: View {
                     .padding(.horizontal, 24.ref)
                     .frame(height: 56.ref)
                     .background(at == .help ? Color.white : .clear, in: Capsule())
+                    .saysItsWords(on: at == .help)
                     .offset(x: (inset - 24).ref, y: 732.ref)
                 HStack(spacing: 32.ref) {
                     Spacer(minLength: 0)
@@ -390,7 +414,10 @@ private struct Landing: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .animation(glide(cardMove), value: page)
-        .remote { press($0) }
+        // What the remote is on. This is the first screen of the app on a television, before anyone
+        // has signed in, so it is the one screen where a person who cannot see it has had no chance
+        // to learn the shape of anything: without this there is no way in at all.
+        .remote(says: hereIs(titles)) { press($0) }
         .task {
             // The titles load under the opening when there is one, and the opening waits for the
             // showreel and the next card, so nothing comes in late.

@@ -83,8 +83,11 @@ struct EditLock: View {
                     title: seen.say(person.hasPin ? "profile.lock.remove" : "profile.lock"),
                     help: seen.say("profile.lock.password.help")
                 )
-                Keyboard(state: keys, cancel: cancel, done: next).offset(x: subEdge.ref, y: 302.ref)
+                Keyboard(state: keys, cancel: cancel, done: next, words: seen.words)
+                    .offset(x: subEdge.ref, y: 302.ref)
                 ProfileCard(person: person, server: seen.server, name: {
+                    // The password as it is typed, drawn and heard as bullets: the characters are
+                    // not read out, and the count still tells a person their presses are landing.
                     HStack(spacing: 3.ref) {
                         CardName(name: String(repeating: "•", count: keys.text.count))
                         Rectangle().fill(.white).frame(width: 3.ref, height: 44.ref)
@@ -92,7 +95,8 @@ struct EditLock: View {
                 }, under: refused ? seen.say("error.sign_in") : nil)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .remote { word in
+            // The keyboard says which of its keys the remote is on; it is the part that knows.
+            .remote(says: keys.hereIs(cancel, next, seen.words)) { word in
                 keys.press(word, cancel, next) { chosen in
                     guard let chosen else {
                         keys.text = ""
@@ -108,17 +112,20 @@ struct EditLock: View {
             }
         case .first, .second:
             let count = max(1, pinDigits)
+            let shown = digits.count == count ? digits : Array(repeating: 0, count: count)
             ZStack(alignment: .topLeading) {
                 PageHead(
                     title: seen.say("profile.lock"),
                     help: seen.say(step == .first ? "profile.lock.pin.help" : "profile.lock.confirm.help")
                 )
                 VStack(spacing: 0) {
+                    // The face is decoration: the name under it says whose profile this is.
                     Face(person, faceLarge, seen.server)
                     Spacer().frame(height: 24.ref)
                     Text(person.name).brand(56, 800).foregroundStyle(.white)
+                        .accessibilityAddTraits(.isHeader)
                     Spacer().frame(height: 40.ref)
-                    PinBoxes(digits: digits.count == count ? digits : Array(repeating: 0, count: count), at: at)
+                    PinBoxes(digits: shown, at: at)
                     if mismatch {
                         Spacer().frame(height: 28.ref)
                         Text(seen.say("profile.lock.mismatch")).brand(30).foregroundStyle(Muted)
@@ -128,7 +135,15 @@ struct EditLock: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .remote { word in
+            // What the remote is on: one of the digit boxes. The page says what it is asking for as
+            // well, because a row of figures does not explain itself, and a mismatch is said over
+            // the top of it - a viewer whose two PINs did not match hears why they are back at the
+            // first box instead of being returned to it in silence.
+            .remote(
+                says: mismatch
+                    ? seen.say("profile.lock.mismatch")
+                    : sayBoth(seen.say("say.pin"), shown[safe: at].map { number($0) })
+            ) { word in
                 if digits.count != count { digits = Array(repeating: 0, count: count) }
                 switch word {
                 case .left: if at > 0 { at -= 1 }

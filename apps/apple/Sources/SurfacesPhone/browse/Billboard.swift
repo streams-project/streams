@@ -55,8 +55,12 @@ struct Billboard: View {
                 fade.frame(width: wide, height: cardHeight)
 
                 VStack(spacing: 0) {
+                    // The title's own treatment is a picture of its name, so it is the one picture
+                    // on this card that carries meaning: with no words it would be the only thing
+                    // naming the title and would say nothing. Where the catalogue has no treatment
+                    // the name is already drawn as text below and the picture does not arise.
                     if let logoUrl = logo(tile.images) {
-                        Art(logoUrl, fit: true)
+                        Art(logoUrl, fit: true, says: tile.name)
                             .frame(maxWidth: wide * 0.7, maxHeight: 108)
                     } else {
                         Text(tile.name)
@@ -96,6 +100,11 @@ struct Billboard: View {
             .overlay(shape.stroke(Color.white.opacity(0.28), lineWidth: 1))
             .contentShape(shape)
             .onTapGesture(perform: open)
+            // The whole card opens the title as well as its two buttons, and that tap is the one
+            // affordance here a person listening cannot find: `children: .contain` leaves the two
+            // buttons and the tag line reachable on their own while giving the card itself a name.
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(tile.name)
             .task(id: picture) {
                 guard let picture else { return }
                 if let data = await shell.bytes(picture),
@@ -129,7 +138,7 @@ private struct Tags: View {
 }
 
 /// One of the billboard's two buttons: 48 pt high, cornered by brand.json `button_radius`.
-private struct WideButton: View {
+struct WideButton: View {
     let word: String
     let icon: String
     let fill: Color
@@ -151,6 +160,9 @@ private struct WideButton: View {
             .background(fill, in: RoundedRectangle(cornerRadius: min(Corner.button, 24)))
         }
         .buttonStyle(.plain)
+        // The word is drawn in the button, so the button gathers it rather than being given a
+        // second copy from a key of its own. The icon beside it repeats the word.
+        .saysItsWords()
     }
 }
 

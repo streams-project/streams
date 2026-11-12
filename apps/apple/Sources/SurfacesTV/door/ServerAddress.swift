@@ -14,9 +14,14 @@ public struct ServerAddress: View {
         ZStack {
             Back.ignoresSafeArea()
             VStack(spacing: 32.ref) {
+                // This screen runs before any server has answered, so there are no words from
+                // `strings/` to be had and its two English literals are what is drawn. They are a
+                // defect of their own, recorded, and not changed here: changing visible text is
+                // outside this work. A reader reaches them as text either way.
                 Text("Your server")
                     .font(.system(size: 48.refType, weight: .bold))
                     .foregroundStyle(.white)
+                    .accessibilityAddTraits(.isHeader)
 
                 Text(address)
                     .font(.system(size: 32.refType, weight: .medium))
@@ -48,9 +53,12 @@ public struct ServerAddress: View {
                         .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
+                // The button draws its own word and is the only control on the screen, so the
+                // remote is always on it: it says so always, which is true here and nowhere else.
+                .saysItsWords(on: focused)
             }
         }
-        .remote { word in
+        .remote(says: address) { word in
             switch word {
             case .ok:
                 shell.connect(address)

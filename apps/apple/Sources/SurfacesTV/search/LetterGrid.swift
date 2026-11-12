@@ -131,15 +131,32 @@ private struct Cell<Content: View>: View {
 }
 
 /// Letters seven across under the top line. `focus` is nil when the grid has no focus.
+///
+/// `words` is for the top line's three picture keys, which are the only keys here that draw no word
+/// of their own: a reader landing on them had nothing to read, and a keyboard whose space and
+/// delete cannot be found is a keyboard nobody can type on. The letters themselves are drawn and
+/// need no key. The words come from `strings/`, never from here.
 struct LetterGrid: View {
     let focus: LetterPlace?
     let keys: LetterKeys
+    var words: [String: String] = [:]
+
+    /// What a top line key is heard as. A picture key gets words; the 123 key draws its own.
+    private func wordOf(_ top: TopKey) -> String {
+        switch top {
+        case .space: return words["say.space"] ?? ""
+        case .globe: return words["say.letters"] ?? ""
+        case .delete: return words["say.delete"] ?? ""
+        case .digits: return ""
+        }
+    }
 
     var body: some View {
         ZStack(alignment: .topLeading) {
             ForEach(Array(keys.parts.enumerated()), id: \.offset) { part, columns in
+                let here = focus?.line == 0 && columns.contains(focus?.column ?? -1)
                 Cell(left: columns.lowerBound * step, top: 0, wide: columns.count * step - 4,
-                     on: focus?.line == 0 && columns.contains(focus?.column ?? -1)) { ink in
+                     on: here) { ink in
                     switch keys.tops[part] {
                     case .space: Icon("icon_space", 34, tint: ink)
                     case .digits: Text(keys.switchWord).brand(26).foregroundStyle(ink).lineLimit(1)
@@ -147,13 +164,20 @@ struct LetterGrid: View {
                     case .delete: Icon("icon_erase", 34, tint: ink)
                     }
                 }
+                // A key with words takes them; the 123 key falls through to the word it draws.
+                // `says("")` does that fall-through itself, so one call answers both.
+                .says(wordOf(keys.tops[part]), on: here)
             }
             ForEach(1..<keys.lines, id: \.self) { line in
                 ForEach(0..<across, id: \.self) { column in
                     if let letter = keys.at(line, column) {
-                        Cell(left: column * step, top: line * step, wide: cell, on: focus == LetterPlace(line: line, column: column)) {
+                        let here = focus == LetterPlace(line: line, column: column)
+                        Cell(left: column * step, top: line * step, wide: cell, on: here) {
                             Text(number(letter)).brand(30).foregroundStyle($0)
                         }
+                        // One letter, drawn: the key gathers it. A letter is not a word, and that
+                        // is right here - it is what pressing the key types.
+                        .saysItsWords(on: here)
                     }
                 }
             }

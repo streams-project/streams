@@ -126,20 +126,51 @@ public struct Search: View {
             return true
         }
 
+        // What the remote is on: a tab, a key of the grid, a genre, or a poster. A key is the one
+        // that matters most here - a person typing with a remote has no other way to know where on
+        // the keyboard they are, and the picture keys draw nothing to read at all.
+        func hereIs() -> String {
+            switch state.zone {
+            case .top:
+                if state.tab == searchTab { return seen.say("nav.search") }
+                if state.tab == whoTab { return person?.name ?? "" }
+                return tabs[safe: state.tab]?.label ?? ""
+            case .letters:
+                switch state.place.top(keys) {
+                case .space: return seen.say("say.space")
+                case .delete: return seen.say("say.delete")
+                case .globe: return seen.say("say.letters")
+                case .digits: return keys.switchWord
+                case nil: return keys.at(state.place.line, state.place.column).map { number($0) } ?? ""
+                }
+            case .genres:
+                return genres[safe: state.genre]?.label ?? ""
+            case .results:
+                return shown[safe: state.result]?.name ?? ""
+            }
+        }
+
         return ZStack(alignment: .topLeading) {
             PosterGrid(tiles: shown, focus: state.zone == .results ? state.result : -1, left: 566, top: 232, words: seen.words)
-            TopBar(tabs: tabs, active: searchTab, focus: state.zone == .top ? state.tab : -1, person: person, server: seen.server)
-            LetterGrid(focus: state.zone == .letters ? state.place : nil, keys: keys).offset(x: pageEdge.ref, y: 160.ref)
+            TopBar(
+                tabs: tabs, active: searchTab, focus: state.zone == .top ? state.tab : -1,
+                person: person, server: seen.server, words: seen.words
+            )
+            LetterGrid(focus: state.zone == .letters ? state.place : nil, keys: keys, words: seen.words)
+                .offset(x: pageEdge.ref, y: 160.ref)
             Menu(lines: genres.map { MenuLine(word: $0.label) }, focus: state.zone == .genres ? state.genre : -1, width: 440)
                 // The genres sit under the grid, however many lines its letters take.
                 .offset(x: (pageEdge - menuWords).ref, y: CGFloat(160 + keys.high + 14).ref)
+            // Either what has been typed so far, or the name of the row of offers standing in for
+            // it. Both are read as they stand; the typed text is the one thing on this screen a
+            // person cannot otherwise check, so a reader that can reach it matters.
             Text(state.text.trimmingCharacters(in: .whitespaces).isEmpty ? seen.say("search.recommended") : state.text)
                 .brand(40).foregroundStyle(.white).lineLimit(1)
                 .frame(width: 1280.ref, alignment: .leading)
                 .offset(x: 566.ref, y: 150.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { press($0) }
+        .remote(says: hereIs()) { press($0) }
         .task {
             if state.offered.isEmpty { state.offered = tilesOf(await shell.read("/v1/screens/home"), offeredCount) }
         }

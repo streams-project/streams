@@ -502,6 +502,11 @@ public struct Opening: View {
             }
         }
         .ignoresSafeArea()
+        // No words. The opening is the brand's own animation playing itself out, and any key at all
+        // skips it: there is no control to be on and nothing a person could choose. It draws no text
+        // either, so there is nothing for a reader to walk. Announcing something here would talk
+        // over the music for a screen with no choices on it, and the screen it skips to announces
+        // itself the moment it arrives.
         .remote { _ in
             if !clock.over {
                 clock.over = true

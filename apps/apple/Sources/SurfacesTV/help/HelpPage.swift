@@ -39,7 +39,10 @@ private struct Reading: View {
         ZStack(alignment: .topLeading) {
             Color.black
             VStack(alignment: .leading, spacing: 36.ref) {
+                // The article's own title, from the server, and a heading so a reader can jump to
+                // it. The body under it is prose and is read as it stands.
                 Text(title).brand(56, 800).foregroundStyle(.white)
+                    .accessibilityAddTraits(.isHeader)
                 HelpBody(sections: sections)
             }
             .frame(width: 1500.ref, alignment: .leading)
@@ -51,6 +54,10 @@ private struct Reading: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .clipped()
         .onPreferenceChange(Tall.self) { high = $0 }
+        // An article has no controls at all: Up and Down move the page under a fixed window, so
+        // there is nothing for the remote to be "on" and nothing to announce. A reader walks the
+        // prose itself, which is what the window is showing. Announcing the title on every press
+        // would say the same words over and over while the words a person wants went unread.
         .remote { word in
             switch word {
             case .up: moved = max(0, moved - page.ref)
@@ -74,6 +81,8 @@ private struct ArticlePage: View {
     var body: some View {
         ZStack {
             if let page { Reading(title: page.title, sections: page.sections, leave: leave) }
+            // Black while the article is on its way: nothing drawn, nothing to be on, and only
+            // Back does anything. A reader finds an empty screen, which is what it is.
             else { Color.black.remote { if $0 == .back { leave() }; return true } }
         }
         .task(id: slug + seen.language) {
@@ -92,6 +101,8 @@ private struct PolicyPage: View {
     var body: some View {
         ZStack {
             if let page { Reading(title: page.title, sections: page.sections, leave: leave) }
+            // Black while the article is on its way: nothing drawn, nothing to be on, and only
+            // Back does anything. A reader finds an empty screen, which is what it is.
             else { Color.black.remote { if $0 == .back { leave() }; return true } }
         }
         .task(id: id + seen.language) {
@@ -104,6 +115,21 @@ private struct PolicyPage: View {
 private struct Entry {
     let word: String
     let open: Open?
+}
+
+/// A line of the list said as what it is: a control the remote can stop on, or a heading over the
+/// controls under it. Calling every line a button would promise sixty presses that do nothing.
+private struct EntrySays: ViewModifier {
+    let control: Bool
+    let on: Bool
+
+    func body(content: Content) -> some View {
+        if control {
+            content.saysItsWords(on: on)
+        } else {
+            content.accessibilityAddTraits(.isHeader)
+        }
+    }
 }
 
 private func entries(_ home: HelpHome, _ topic: Int, _ policiesWord: String) -> [Entry] {
@@ -189,6 +215,11 @@ struct HelpCentre: View {
                             .padding(.vertical, 12.ref)
                             .frame(width: 1080.ref, alignment: .leading)
                             .background(on ? Color.white : .clear, in: Capsule())
+                            // An entry that opens something is a control and draws its own word. A
+                            // group's name opens nothing and takes no focus, so it stays plain text
+                            // rather than becoming a button nobody can press: the only thing
+                            // separating the two on screen is the weight they are drawn in.
+                            .modifier(EntrySays(control: entry.open != nil, on: on))
                     }
                 }
                 .offset(y: -scrolled * lineStep.ref)
@@ -199,6 +230,8 @@ struct HelpCentre: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { press($0) }
+        // What the remote is on: a topic in the column on the left, or an article in the list on the
+        // right. Both words come from the server, already in the viewer's language.
+        .remote(says: right ? (list[safe: at]?.word ?? "") : (topics[safe: topic]?.word ?? "")) { press($0) }
     }
 }

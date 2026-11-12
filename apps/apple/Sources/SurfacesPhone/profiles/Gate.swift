@@ -273,9 +273,11 @@ public struct GateView: View {
 
         VStack(spacing: 8.2) {
             if let logoUrl {
-                Art(logoUrl, fit: true)
+                Art(logoUrl, fit: true, says: activeTitle?.tile.name ?? "")
                     .frame(maxWidth: 167.4, maxHeight: 72.2)
             } else if let titleName = activeTitle?.tile.name {
+                // The gate's art carousel behind this is decoration: the title it shows is named
+                // here, by its treatment or by these words.
                 Text(titleName)
                     .brand(20, 700)
                     .foregroundStyle(.white)
@@ -309,6 +311,8 @@ public struct GateView: View {
             .foregroundStyle(Color.white.opacity(0.70))
             .lineLimit(1)
             .position(x: width / 2.0, y: row1Top - 25.0)
+            // This line is what the whole page is for, so a reader can jump to it.
+            .accessibilityAddTraits(.isHeader)
     }
 
     // MARK: - Arc Sheet
@@ -380,7 +384,7 @@ public struct GateView: View {
                             AsyncImage(url: url) { phase in
                                 switch phase {
                                 case .success(let image):
-                                    image.resizable().aspectRatio(contentMode: .fill)
+                                    image.resizable().aspectRatio(contentMode: .fill).decoration()
                                 default:
                                     fallbackAvatarLetter(profile)
                                 }
@@ -428,6 +432,14 @@ public struct GateView: View {
             }
         }
         .buttonStyle(.plain)
+        // The padlock drawn under a locked profile's name, and the pencil drawn over its picture in
+        // manage mode, are pictures: a person listening gets the name and nothing else unless the
+        // cell says which it is. The locked form is the one `strings/` has words for.
+        .says(
+            profile.hasPin
+                ? (seen.say("say.profile_locked")).fill("name", profile.name)
+                : profile.name
+        )
     }
 
     @ViewBuilder
@@ -463,6 +475,8 @@ public struct GateView: View {
             }
         }
         .buttonStyle(.plain)
+        // "Add Profile" is drawn under the plus, so the cell gathers it.
+        .saysItsWords()
     }
 
     @ViewBuilder
@@ -500,6 +514,9 @@ public struct GateView: View {
             }
         }
         .buttonStyle(.plain)
+        // "Edit" or "Done" is drawn under the pencil or the tick, so the cell gathers it, and which
+        // of the two it says is what tells a person listening which way the gate stands.
+        .saysItsWords()
     }
 
     // MARK: - Carousel & Data Loading
@@ -639,6 +656,7 @@ public struct PinSheet: View {
                     Icon("icon_back", 18, tint: .white.opacity(0.70))
                         .padding(8)
                 }
+                .says(seen.say("say.close"))
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
@@ -650,8 +668,10 @@ public struct PinSheet: View {
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
+                .accessibilityAddTraits(.isHeader)
 
-            // Profile preview
+            // Profile preview. The plate carries the profile's first letter when it has no picture,
+            // and a letter is not a word: the name is drawn beside it and says the whole of it.
             HStack(spacing: 10) {
                 RoundedRectangle(cornerRadius: Corner.card * 100.0 / 130.0)
                     .fill(profile.kids ? Join : Accent)
@@ -661,12 +681,22 @@ public struct PinSheet: View {
                             .brand(16, 700)
                             .foregroundStyle(.white)
                     )
+                    .decoration()
                 Text(profile.name)
                     .brand(15, 700)
                     .foregroundStyle(.white)
             }
 
-            // 4 masked boxes
+            // 4 masked boxes over a field one point across. The field is what takes the digits and
+            // the boxes are a drawing of what it holds, so there is one control here and it has to
+            // be named: nothing about it can be seen, and without words a reader has no way into
+            // the sheet at all.
+            //
+            // Android names the field (`PinSheet.kt`). Here the words go on the boxes instead,
+            // because on this toolkit the field is not in the tree to name: measured on iPhone 17
+            // on 2026-11-12, a `TextField` of one point at 1 % opacity reaches no accessibility
+            // element whatever label it is given. The boxes are what a person sees, so they are
+            // what a person hears, and the field inside is read as part of them.
             HStack(spacing: 16) {
                 ForEach(0..<4, id: \.self) { index in
                     let isFilled = index < pin.count
@@ -706,6 +736,7 @@ public struct PinSheet: View {
                         }
                     }
             }
+            .says(seen.say("say.pin"))
 
             // Error notice
             let wrongPinStr = seen.say("error.pin_wrong")

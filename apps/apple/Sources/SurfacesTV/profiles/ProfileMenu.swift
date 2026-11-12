@@ -39,6 +39,11 @@ private struct Line<Lead: View>: View {
         .padding(.horizontal, linePad.ref)
         .frame(height: lineHigh.ref)
         .background(on ? Color.white : .clear, in: shapeOf(Round.inside(Round.panel, menuInset)))
+        // The line draws its own word, and the line under it where there is one, so it gathers both
+        // rather than being given a copy. The face or icon at its head is decoration: the word
+        // beside it says the same thing. `on` is the white plate, which a person listening cannot
+        // see. Mirrors `saysItsWords(on)` in android's `tv/profiles/ProfileMenu.kt`.
+        .saysItsWords(on: on)
     }
 }
 
@@ -50,6 +55,17 @@ struct ProfileMenu: View {
     let person: Profile?
     let leave: () -> Void
     @State private var at = 0
+
+    /// The words of a line of the card, for what the remote is on. The words themselves are the
+    /// same ones the line draws, so nothing here is written in English.
+    private func wordOf(_ pick: Pick?) -> String {
+        switch pick {
+        case .switchProfiles: return sayBoth(person?.name, seen.say("menu.switch"))
+        case .other(let other): return other.name
+        case .help: return seen.say("menu.help")
+        case nil: return ""
+        }
+    }
 
     var body: some View {
         let others = seen.profiles.filter { $0.id != person?.id }
@@ -91,7 +107,9 @@ struct ProfileMenu: View {
             .offset(x: menuX.ref, y: menuY.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { word in
+        // What the remote is on: a line of the card. The first line is who is watching and opens the
+        // chooser, the last is help, and the ones between are the other profiles.
+        .remote(says: wordOf(picks[safe: at])) { word in
             switch word {
             case .up: if at > 0 { at -= 1 }
             case .down: if at < picks.count - 1 { at += 1 }

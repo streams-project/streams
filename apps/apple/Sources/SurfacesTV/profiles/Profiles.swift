@@ -108,17 +108,36 @@ public struct Profiles: View {
             return true
         }
 
+        // What the remote is on: a profile, or the row that makes a new one. This screen paints its
+        // own focus, so this is what a person using a screen reader hears as they press keys
+        // (`app/Remote.swift`). Left puts the pencil on the profile, which changes what Ok does
+        // rather than where the remote is, so it is said too.
+        let hereIs = person.map { who in
+            sayBoth(
+                who.hasPin ? seen.say("say.profile_locked").fill("name", who.name) : who.name,
+                pencil ? seen.say("profile.edit") : nil
+            )
+        } ?? seen.say("profile.add")
+
         return ZStack(alignment: .topLeading) {
             ProfileFeature(shell: shell, id: feature.id)
             VStack(spacing: 8.ref) {
+                // The brand's mark is decoration (`Mark` marks itself): the page's own line is
+                // drawn under it and says what the page is for.
                 Mark(68)
                 Text(seen.say("profiles.choose")).brand(24, 500).foregroundStyle(.white).fixedSize()
+                    .accessibilityAddTraits(.isHeader)
             }
             .frame(width: 200.ref)
             .offset(x: 190.ref, y: 44.ref)
             VStack(alignment: .leading, spacing: 26.ref) {
                 ForEach(Array(list.enumerated()), id: \.element.id) { index, profile in
-                    ProfileRow(person: profile, on: index == at, pencil: pencil && index == at, server: seen.server)
+                    ProfileRow(
+                        person: profile, on: index == at, pencil: pencil && index == at,
+                        server: seen.server,
+                        pencilWord: seen.say("profile.edit"),
+                        lockedWord: seen.say("say.profile_locked").fill("name", profile.name)
+                    )
                 }
                 if canAdd { AddProfileRow(word: seen.say("profile.add"), on: at == list.count) }
             }
@@ -126,6 +145,6 @@ public struct Profiles: View {
             .offset(y: 168.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { press($0) }
+        .remote(says: hereIs) { press($0) }
     }
 }

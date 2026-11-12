@@ -44,6 +44,9 @@ struct PosterGrid: View {
                     .frame(width: wide.ref, height: high.ref)
                     .clipShape(shape)
                     .overlay(shape.stroke(.white, lineWidth: index == focus ? 4.ref : 0))
+                    // The focus is drawn as a white outline, which says nothing to a person
+                    // listening, so the poster the remote is on says it is the selected one.
+                    .says(tile.name, on: index == focus)
                     .offset(
                         x: (left + CGFloat(index % postersAcross) * (wide + gapX)).ref,
                         y: (CGFloat(row) * (high + gapY)).ref

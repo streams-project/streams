@@ -178,7 +178,8 @@ struct Home: View {
                         name: title,
                         back: onHome ? nil : { shell.back() },
                         bell: { shell.go(Address.notifications) },
-                        unreadCount: seen.unreadNotifications
+                        unreadCount: seen.unreadNotifications,
+                        words: words
                     )
                     .padding(.top, topInset)
 
@@ -245,6 +246,10 @@ struct Home: View {
                                             .padding(.horizontal, 24)
                                     }
                                     .buttonStyle(.plain)
+                                    // The genre's own name is drawn in it, and the chosen one is
+                                    // drawn bolder and whiter, which says nothing to a person
+                                    // listening.
+                                    .saysItsWords(on: isChosen)
                                 }
 
                                 Spacer().frame(height: 120)
@@ -269,6 +274,9 @@ struct Home: View {
                         }
                         .buttonStyle(.plain)
                         .padding(.bottom, 24)
+                        // The cross is two lines on a canvas: there is nothing here for a reader to
+                        // gather, so this control is given words.
+                        .says(words["say.close"] ?? "")
                     }
                     .transition(.opacity)
                     .zIndex(10)

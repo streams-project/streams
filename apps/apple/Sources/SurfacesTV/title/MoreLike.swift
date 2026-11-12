@@ -23,9 +23,12 @@ struct MoreLike: View {
             .frame(width: 440.ref, alignment: .leading)
             .offset(x: pageEdge.ref, y: 70.ref)
             Text(seen.say("title.more_like")).brand(40).foregroundStyle(.white).offset(x: 566.ref, y: 150.ref)
+                .accessibilityAddTraits(.isHeader)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { word in
+        // What the remote is on: a poster in the grid, said with the row it sits in so a person
+        // knows which of the title's pages they are on.
+        .remote(says: sayBoth(tiles[safe: at]?.name, seen.say("title.more_like"))) { word in
             switch word {
             case .ok: if let tile = tiles[safe: at] { shell.go(titleAddress(tile.title)) }
             case .back: leave()

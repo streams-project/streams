@@ -66,6 +66,9 @@ public func glide(_ seconds: Double) -> Animation {
 
 private let cardFoot = LinearGradient(colors: [.clear, .black.opacity(0.7)], startPoint: .top, endPoint: .bottom)
 
+/// One poster in a row. It draws a picture and sometimes a badge over it, and no words of its own:
+/// the title's name is the poster, it comes from the answer, and it needs no key. The badges drawn
+/// on top say the rest themselves, inside the same node.
 struct Poster: View {
     let tile: Tile
     let words: [String: String]
@@ -78,6 +81,7 @@ struct Poster: View {
         }
         .frame(width: 311.ref, height: 504.ref)
         .clipShape(shapeOf(Round.card))
+        .says(tile.name)
     }
 }
 
@@ -105,6 +109,8 @@ private struct OpenCard: View {
             // app's own hero box scaled down in one ratio both ways (`openMarkWide`). An earlier 132
             // scaled the height by the height ratio instead, which stretched the box.
             if let mark {
+                // The card itself is given the title's name, so the treatment inside it would be a
+                // second reading of the same words.
                 Logo(url: mark, width: openMarkWide, height: openMarkHigh)
                     .padding(.leading, 24.ref)
                     .padding(.bottom, 24.ref)
@@ -125,6 +131,10 @@ private struct OpenCard: View {
         }
         .clipShape(shape)
         .overlay(shape.stroke(.white, lineWidth: 3.ref))
+        // The open card is always where the remote is in a row, so it always says it is selected.
+        // Its treatment is a picture of the title's name, and when the catalogue has none the name
+        // is drawn as text instead; either way the words are the title's, from the answer.
+        .says(tile.name, on: true)
         .offset(x: lead.ref, y: 200.ref)
     }
 }
@@ -153,6 +163,10 @@ private struct RankMark: View {
         return RankShape(text: number(rank))
             .stroke(.white.opacity(0.5), lineWidth: rankLine.ref)
             .frame(width: rankedGutter.ref, height: rankHigh.ref)
+            // The numeral is an outline of a figure drawn in the gutter beside the tile it counts.
+            // The place is part of what the tile says, through its ranked badge, so the numeral
+            // itself is decoration rather than a second reading of the same number.
+            .decoration()
     }
 }
 
@@ -214,6 +228,7 @@ struct OpenRow: View {
         func placeOf(_ index: Int) -> CGFloat { open + CGFloat(index - 1 - at) * pitch }
         return ZStack(alignment: .topLeading) {
             Text(section.title ?? "").brand(32, 700).foregroundStyle(.white).offset(x: pageEdge.ref, y: 146.ref)
+                .accessibilityAddTraits(.isHeader)
             if ranked {
                 ForEach(at..<min(at + ahead + 1, tiles.count), id: \.self) { index in
                     let edge = index == at ? lead : placeOf(index)
@@ -278,6 +293,7 @@ struct NextRow: View {
         let pitch = ranked ? rankedStep : step
         return ZStack(alignment: .topLeading) {
             Text(section.title ?? "").brand(32, 700).foregroundStyle(.white)
+                .accessibilityAddTraits(.isHeader)
                 .offset(x: pageEdge.ref, y: (high ? 946 : 944).ref)
             if ranked {
                 ForEach(Array(tiles.dropFirst(at).prefix(nextPosters).enumerated()), id: \.offset) { index, tile in

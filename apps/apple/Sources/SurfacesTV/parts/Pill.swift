@@ -4,6 +4,10 @@ private let changeMs = 0.12
 private let quiet = Color.white.opacity(0.16)
 
 /// A large button. In focus it turns white.
+///
+/// Its word is its label (`saysItsWords`), and the icon beside it repeats the word, so the icon is
+/// decoration (`Icon` marks it). `on` is what a screen reader says as "selected": this surface
+/// paints its own focus from plain state, so without it nothing tells a person where the remote is.
 public struct Pill: View {
     public let word: String
     public let on: Bool
@@ -25,5 +29,6 @@ public struct Pill: View {
         .frame(height: 84.ref)
         .background(on ? Color.white : quiet, in: Capsule())
         .animation(.linear(duration: changeMs), value: on)
+        .saysItsWords(on: on)
     }
 }

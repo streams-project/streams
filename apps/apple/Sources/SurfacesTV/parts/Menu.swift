@@ -31,6 +31,10 @@ struct Menu: View {
                     Text(line.word).brand(30).foregroundStyle(ink).offset(x: wordsAt.ref)
                 }
                 .frame(width: width.ref, height: 63.ref)
+                // A line of a menu is one thing with one word, not a pile of pictures and text, and
+                // the line the remote is on says it is the chosen one: this surface draws its focus
+                // as a white pill, which a person listening cannot see.
+                .saysItsWords(on: index == focus)
             }
         }
     }

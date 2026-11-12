@@ -14,6 +14,8 @@ struct LowPill: View {
             .foregroundStyle(on ? Back : .white)
             .frame(width: 224.ref, height: 61.ref)
             .background(on ? Color.white : Color.white.opacity(0.16), in: Capsule())
+            // Draws its own word, and the white plate that says the remote is on it cannot be seen.
+            .saysItsWords(on: on)
             .offset(x: subEdge.ref, y: top.ref)
     }
 }
@@ -79,7 +81,13 @@ struct EditMenu: View {
             ProfileCard(person: person, server: seen.server, name: { CardName(name: person.name) }, under: language)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { word in
+        // What the remote is on: a line of the menu, the Done pill past its end, or one of the two
+        // answers to the delete question. Every word is one the screen already draws.
+        .remote(
+            says: asking
+                ? (askLines[safe: askAt]?.word ?? "")
+                : (lines[safe: at]?.1.word ?? seen.say("common.done"))
+        ) { word in
             if asking {
                 switch word {
                 case .up: if askAt > 0 { askAt -= 1 }
@@ -127,10 +135,13 @@ struct EditName: View {
     var body: some View {
         let cancel = seen.say("common.cancel")
         let done = seen.say("common.done")
-        ZStack(alignment: .topLeading) {
+        return ZStack(alignment: .topLeading) {
             PageHead(title: seen.say("profile.edit"), help: seen.say("profile.name.help"))
-            Keyboard(state: keys, cancel: cancel, done: done).offset(x: subEdge.ref, y: 302.ref)
+            Keyboard(state: keys, cancel: cancel, done: done, words: seen.words)
+                .offset(x: subEdge.ref, y: 302.ref)
             ProfileCard(person: person, server: seen.server, name: {
+                // The name as it is being typed, with a caret after it. The caret is a bar three
+                // points wide and draws nothing, so the name is read on its own.
                 HStack(spacing: 3.ref) {
                     CardName(name: keys.text)
                     Rectangle().fill(.white).frame(width: 3.ref, height: 44.ref)
@@ -138,7 +149,8 @@ struct EditName: View {
             }, under: refused ? seen.say("error.name") : nil)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { keys.press($0, cancel, done, finish) }
+        // The keyboard says which of its keys the remote is on; it is the part that knows.
+        .remote(says: keys.hereIs(cancel, done, seen.words)) { keys.press($0, cancel, done, finish) }
     }
 }
 
@@ -151,13 +163,17 @@ struct EditIcon: View {
     @State private var focus = PictureFocus()
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            PictureRows(rows: rows, focus: focus, server: seen.server)
+        let pictures = PictureRows(
+            rows: rows, focus: focus, server: seen.server, pattern: seen.say("say.avatar_in_set")
+        )
+        return ZStack(alignment: .topLeading) {
+            pictures
             PageHead(title: seen.say("profile.edit"), help: seen.say("profile.icon.help"))
             ProfileCorner(person: person, server: seen.server)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { word in
+        // The rows work out which picture the remote is on; they are the part that knows.
+        .remote(says: pictures.hereIs()) { word in
             switch word {
             case .ok: finish(focus.chosen(rows))
             case .back: finish(nil)
@@ -182,11 +198,18 @@ struct EditLanguage: View {
         let cancelAt = list.count
         ZStack(alignment: .topLeading) {
             PageHead(title: seen.say("profile.edit"), help: seen.say("profile.language.help"))
-            TickGrid(words: list.map(\.name), ticked: ticked, focus: at)
+            TickGrid(words: list.map(\.name), ticked: ticked, focus: at, chosenWord: seen.say("say.chosen"))
             LowPill(word: seen.say("common.cancel"), on: at == cancelAt, top: 900)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { word in
+        // What the remote is on: a language in the grid, or Cancel past its end. A language's name
+        // is written in its own language and comes from the server, so it needs no key; the grid
+        // also says which one is ticked now, which is a different thing from where the remote is.
+        .remote(
+            says: at == cancelAt
+                ? seen.say("common.cancel")
+                : sayBoth(list[safe: at]?.name, at == ticked ? seen.say("say.chosen") : nil)
+        ) { word in
             var next = at
             switch word {
             case .up:

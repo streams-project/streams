@@ -24,6 +24,11 @@ private func decode<T: Decodable>(_ type: T.Type, _ text: String?) -> T? {
     text.flatMap { try? JSONDecoder().decode(type, from: Data($0.utf8)) }
 }
 
+/// A thing about this device or account: what it is, and what it says.
+///
+/// Read as one stop rather than two, because the second line alone means nothing - an email address,
+/// a version number or a server's address with no word saying which it is. The panel is not a
+/// control and takes no focus, so there is nothing here to call a button.
 private struct Fact: View {
     let head: String
     let value: String
@@ -34,6 +39,9 @@ private struct Fact: View {
             Text(value).brand(28).foregroundStyle(Muted)
         }
         .padding(.bottom, 22.ref)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(head)
+        .accessibilityValue(value)
     }
 }
 
@@ -138,7 +146,9 @@ public struct GetHelp: View {
 
         return ZStack(alignment: .topLeading) {
             Color.black
-            Text(seen.say("menu.help")).brand(44, 700).foregroundStyle(.white).offset(x: subEdge.ref, y: 60.ref)
+            Text(seen.say("menu.help")).brand(44, 700).foregroundStyle(.white)
+                .accessibilityAddTraits(.isHeader)
+                .offset(x: subEdge.ref, y: 60.ref)
             Menu(lines: lines.map { MenuLine(word: seen.say($0.rawValue)) }, focus: asking ? -1 : at, width: 560, kept: asking ? at : -1)
                 .offset(x: (subEdge - menuWords).ref, y: 136.ref)
             VStack(alignment: .leading, spacing: 0) {
@@ -176,6 +186,13 @@ public struct GetHelp: View {
             .offset(x: 720.ref, y: 136.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { press($0) }
+        // What the remote is on: a line of the menu, or one of the two answers to the sign out
+        // question. The panel on the right follows the line and is read on its own; it is the line
+        // that moves, so it is the line that is said.
+        .remote(
+            says: asking
+                ? seen.say(answer == 0 ? "menu.sign_out" : "common.cancel")
+                : seen.say(lines[safe: at]?.rawValue ?? "")
+        ) { press($0) }
     }
 }

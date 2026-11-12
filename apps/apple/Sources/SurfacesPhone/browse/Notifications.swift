@@ -5,6 +5,23 @@ import SwiftUI
 
 /// The phone notifications feed: unread count in TopBar, notifications feed with kind tags, title poster, title
 /// name, localized date and unread indicator dot. Tapping marks read and navigates to title.
+/// A spinner's words, or the spinner gone from the tree. The same answer `Art`, `Icon` and `Face`
+/// give: words a person hears, or nothing at all, never an element that is reached and silent. Of
+/// the two silences, a reader that skips the ring is better than one that stops on it and says
+/// nothing - and `words[...]` is empty for as long as a run has not read its language yet, so this
+/// is the state every run starts in and not only the state before `say.loading` lands.
+private struct Turning: ViewModifier {
+    let words: String
+
+    func body(content: Content) -> some View {
+        if words.isEmpty {
+            content.accessibilityHidden(true)
+        } else {
+            content.accessibilityLabel(words)
+        }
+    }
+}
+
 public struct NotificationsView: View {
     let shell: Shell
     let seen: Seen
@@ -29,6 +46,7 @@ public struct NotificationsView: View {
             VStack(spacing: 0) {
                 // TopBar with back button and screen title
                 HStack(spacing: 0) {
+                    // An arrow and no text: the one control in the bar that needs words.
                     Button {
                         shell.back()
                     } label: {
@@ -37,11 +55,13 @@ public struct NotificationsView: View {
                     }
                     .buttonStyle(.plain)
                     .padding(.leading, 4)
+                    .says(words["common.back"] ?? "")
 
                     Text(words["notifications.title"] ?? "Notifications")
                         .brand(22, 700)
                         .foregroundStyle(.white)
                         .lineLimit(1)
+                        .accessibilityAddTraits(.isHeader)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.leading, 8)
                 }
@@ -50,11 +70,22 @@ public struct NotificationsView: View {
 
                 if loading && items.isEmpty {
                     Spacer()
+                    // A turning ring, and the only thing on the page while it turns. Measured on
+                    // iPhone 17 on 2026-11-12: a bare `ProgressView` reaches the tree as an element
+                    // with the `updatesFrequently` trait and no label at all, so a reader stops on
+                    // it and says nothing - and a page that is loading becomes indistinguishable
+                    // from a page that is empty, which is the one question the ring exists to
+                    // answer. `say.loading` is not in `strings/` yet, so it reads empty until it
+                    // lands; the label is wired rather than left out so that landing the key is all
+                    // it takes.
                     ProgressView()
                         .tint(Accent)
+                        .modifier(Turning(words: words["say.loading"] ?? ""))
                     Spacer()
                 } else if items.isEmpty {
                     Spacer()
+                    // An empty page: the bell is decoration (`Icon` marks itself) and the line under
+                    // it says the whole of it.
                     VStack(spacing: 16) {
                         Icon("icon_bell", 48, tint: Muted)
                         Text(words["notifications.empty"] ?? "No notifications yet.")
@@ -183,6 +214,11 @@ public struct NotificationsView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
+        // The row answers a tap and draws four things, three of them words: what kind of notice it
+        // is, the title's name and the date. Those are gathered. The fourth is an eight point dot
+        // that means the notice has not been read, and it is the one thing here a person listening
+        // cannot see at all, so it is read as the row's state.
+        .saysItsWords(state: item.unread ? (words["say.unread"] ?? "") : "")
     }
 
     private func labelFor(_ kind: NoticeKind, words: [String: String]) -> String {

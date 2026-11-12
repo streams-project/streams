@@ -171,7 +171,7 @@ public struct Browse: View {
         let person = seen.profiles.first(where: { $0.id == seen.active }) ?? seen.profiles.first
         return ZStack(alignment: .topLeading) {
             Color.black
-            TopBar(tabs: tabs, active: active, focus: active, person: person, server: seen.server)
+            TopBar(tabs: tabs, active: active, focus: active, person: person, server: seen.server, words: seen.words)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         // A screen that is not here yet answers no key. This is a choice, and it is stated as one:
@@ -180,6 +180,11 @@ public struct Browse: View {
         // do in that window. On tvOS a Back this app does not answer reaches the system and leaves
         // the app, so holding every key here costs the viewer a dead Back for as long as the body is
         // black, and letting Back through would drop them out of the app mid load.
+        //
+        // No words either, and for the same reason: no key moves anything, so there is nothing for
+        // the remote to be on. The bar above is drawn and carries its own labels, so a reader can
+        // still walk the tabs; what it cannot do is hear an announcement, because nothing is
+        // happening to announce. The page says where the remote is the moment the screen arrives.
         .remote { _ in true }
     }
 
@@ -234,9 +239,30 @@ public struct Browse: View {
             return false
         }
 
+        // What the remote is on: a tab, the search button, who is watching, a hero button, or a
+        // title in a row. This screen paints its own focus, so this is what a person using a
+        // screen reader hears as they press keys (`app/Remote.swift`).
+        func hereIs() -> String {
+            switch focus.place {
+            case .top:
+                if focus.tab == whoTab { return person?.name ?? "" }
+                if focus.tab == searchTab { return seen.say("nav.search") }
+                return tabs[safe: focus.tab]?.label ?? ""
+            case .hero:
+                guard let lead else { return "" }
+                return sayBoth(seen.say(focus.button == 1 ? "common.more_info" : "common.play"), lead.name)
+            case .row:
+                guard let row = rows[safe: focus.row] else { return "" }
+                return sayBoth(row.tiles?[safe: focus.column]?.name, row.title)
+            }
+        }
+
         let way = focus.way
         return ZStack(alignment: .topLeading) {
-            TopBar(tabs: tabs, active: active, focus: focus.place == .top ? focus.tab : -1, person: person, server: seen.server)
+            TopBar(
+                tabs: tabs, active: active, focus: focus.place == .top ? focus.tab : -1,
+                person: person, server: seen.server, words: seen.words
+            )
             if inRow {
                 ZStack {
                     if rows.indices.contains(shownRow) {
@@ -266,7 +292,7 @@ public struct Browse: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote(on: !menu) { press($0) }
+        .remote(on: !menu, says: hereIs()) { press($0) }
         .overlay {
             if menu { ProfileMenu(shell: shell, seen: seen, person: person) { menu = false } }
         }

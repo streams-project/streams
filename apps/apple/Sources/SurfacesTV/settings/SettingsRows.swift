@@ -173,6 +173,18 @@ public struct SettingsRowItem: View {
         .padding(.vertical, 14.ref)
         .background(on ? Color.white : Color.clear, in: Capsule())
         .padding(.bottom, 6.ref)
+        // A row draws two things that mean two different things: what the setting is, on the left,
+        // and how it stands now, on the right. Both are already words from `strings/`, and the row
+        // is handed the very strings it draws, so naming it from them cannot drift from what is
+        // seen.
+        //
+        // Gathering them with `saysItsWords()` instead folds the value into the name and drops the
+        // value: measured on 2026-11-12 by doing exactly that, the row came back as
+        // `label: "Autoplay next episode, On", value: ""`. That reads as one long name, so a reader
+        // offering to change the setting cannot say what it would change to, and nothing answers a
+        // viewer who asks only for the value. Hence the two apart.
+        .says(row.label, state: row.value)
+        .accessibilityAddTraits(on ? [.isSelected] : [])
     }
 }
 
@@ -216,5 +228,10 @@ public struct SubtitlePreview: View {
         }
         .padding(.top, 28.ref)
         .padding(.leading, 16.ref)
+        // Decoration, although it is words: the sample is a picture of what the three rows above it
+        // are set to, and those rows say their values out loud. Read as it stands it would say
+        // "Sample subtitle text" and tell a person who cannot see it nothing about the size, the
+        // colour or the plate behind it, which is the whole of what it shows.
+        .decoration()
     }
 }

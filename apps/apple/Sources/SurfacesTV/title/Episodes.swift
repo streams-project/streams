@@ -42,6 +42,11 @@ private struct EpisodeCard: View {
             .offset(x: wordsX.ref, y: 44.ref)
         }
         .frame(width: 1920.ref, height: 256.ref, alignment: .topLeading)
+        // The card draws its number, its name, what it is about and how long it runs: all of it is
+        // words already, so the card gathers them rather than being given a label of its own. The
+        // still behind them is decoration (`Art` marks itself) and the white outline that says
+        // where the remote is cannot be seen, so `on` says it.
+        .saysItsWords(on: on)
     }
 }
 
@@ -50,6 +55,8 @@ private struct SeasonLine: View {
     let season: SeasonSummary
     let chosen: Bool
     let on: Bool
+    /// What the season whose episodes are shown is heard as, after its own words. From `strings/`.
+    var chosenWord: String = ""
 
     var body: some View {
         let ink = on ? Back : Color.white
@@ -63,6 +70,12 @@ private struct SeasonLine: View {
         .padding(.horizontal, 32.ref)
         .frame(width: 546.ref, height: 62.ref)
         .background(on ? Color.white : chosen ? Color.white.opacity(0.16) : .clear, in: Capsule())
+        // The line draws the season's number and how many episodes it holds, so it gathers them.
+        // Two plates are drawn here and they mean different things: a white one is where the remote
+        // is (`on`), a dim one is the season whose episodes are shown (`chosen`). A person listening
+        // sees neither, so the first is the selected trait and the second is read after the words.
+        .saysItsWords(state: chosen ? chosenWord : "")
+        .accessibilityAddTraits(on ? [.isSelected] : [])
     }
 }
 
@@ -109,18 +122,35 @@ struct Episodes: View {
             return true
         }
 
+        // What the remote is on: a season in the column on the left, or an episode card on the
+        // right. A season line says how many episodes it holds, which is what a person choosing one
+        // needs; an episode card says its number, its name and what it is about.
+        let hereIs = inList
+            ? sayBoth(
+                seasons[safe: line].map { seen.say("title.season.number").fill("n", $0.number) },
+                seasons[safe: line].map { seen.say("title.episodes.count").fill("n", $0.episodeCount) }
+            )
+            : sayBoth(
+                episodes[safe: card].map { seen.say("title.episode").fill("n", $0.number) },
+                episodes[safe: card]?.name
+            )
+
         return ZStack(alignment: .topLeading) {
             Color.black
             // The facts follow the name, however many lines it takes; the seasons keep their place.
             VStack(alignment: .leading, spacing: 20.ref) {
                 Text(data.name).brand(56, 800).lines(56, 62).foregroundStyle(.white).lineLimit(2)
+                    .accessibilityAddTraits(.isHeader)
                 Facts(data, seen.words)
             }
             .frame(width: 640.ref, alignment: .leading)
             .offset(x: pageEdge.ref, y: 70.ref)
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(seasons.enumerated()), id: \.offset) { index, season in
-                    SeasonLine(seen: seen, season: season, chosen: index == chosen, on: inList && index == line)
+                    SeasonLine(
+                        seen: seen, season: season, chosen: index == chosen,
+                        on: inList && index == line, chosenWord: seen.say("say.chosen")
+                    )
                 }
             }
             .offset(x: pageEdge.ref, y: 346.ref)
@@ -141,7 +171,7 @@ struct Episodes: View {
             .animation(glide(move), value: card)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { press($0) }
+        .remote(says: hereIs) { press($0) }
         .onAppear {
             if let now = data.resume?.episode, let at = seasons.firstIndex(where: { $0.number == now.season }) {
                 chosen = at

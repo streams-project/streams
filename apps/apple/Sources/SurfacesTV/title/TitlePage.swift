@@ -20,7 +20,9 @@ extension TitleDetail {
     var path: String { title.rawValue.replacingOccurrences(of: ":", with: "/") }
 }
 
-/// The artwork and its shades, behind a title's pages.
+/// The artwork and its shades, behind a title's pages. Decoration: the title is named, described
+/// and listed on top of it, so a screen reader that announced the picture as well would say it
+/// twice. `Art` marks itself; the two shades are nothing at all.
 struct TitleBackdrop: View {
     let data: TitleDetail
 
@@ -30,6 +32,7 @@ struct TitleBackdrop: View {
             side
             foot
         }
+        .accessibilityHidden(true)
     }
 }
 
@@ -166,14 +169,21 @@ private struct Summary: View {
             }
         }
         let logoUrl = (data.images ?? []).first { $0.role == .logo }?.url
+        // What the remote is on: a line of the menu, or one of the three reactions. The screen box
+        // is the one thing the system really focuses here, so this is what a person hears as they
+        // press keys.
+        let here = part == .reactions
+            ? reactionWord(reaction, seen.words)
+            : sayBoth(menuLines[safe: row]?.word, data.name)
 
         return ZStack(alignment: .topLeading) {
             TitleBackdrop(data: data)
             ZStack(alignment: .bottomLeading) {
                 if let logoUrl {
-                    Logo(url: logoUrl, width: 600, height: 200)
+                    Logo(url: logoUrl, width: 600, height: 200, says: data.name)
                 } else {
                     Text(data.name).brand(76, 800).lines(76, 84).foregroundStyle(.white).lineLimit(2)
+                        .accessibilityAddTraits(.isHeader)
                 }
             }
             .frame(width: 900.ref, height: 200.ref, alignment: .bottomLeading)
@@ -186,11 +196,14 @@ private struct Summary: View {
                 .frame(width: 820.ref, alignment: .leading)
                 .offset(x: pageEdge.ref, y: 300.ref)
             // The reactions sit over the menu icons: both centre on 122.
-            Reactions(chosen: rating, focus: part == .reactions ? reaction : -1, left: pageEdge + 18, top: 504)
+            Reactions(
+                chosen: rating, focus: part == .reactions ? reaction : -1,
+                left: pageEdge + 18, top: 504, words: seen.words
+            )
             Menu(lines: menuLines, focus: part == .menu ? row : -1, width: 570).offset(x: pageEdge.ref, y: 581.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { press($0) }
+        .remote(says: here) { press($0) }
         .onChange(of: data.title, initial: true) { _, _ in
             rating = data.rating
             saved = data.inList == true

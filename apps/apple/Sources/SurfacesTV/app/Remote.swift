@@ -22,12 +22,15 @@ extension EnvironmentValues {
 public struct RemoteReceiver: UIViewRepresentable {
     public let on: Bool
     public let press: (Word) -> Bool
+    /// What the remote is on now - a tab's name, a title's name, a button's word. See `remote`.
+    public var says: String = ""
     @Environment(\.covered) private var covered
 
     public func makeUIView(context: Context) -> RemoteUIView {
         let view = RemoteUIView()
         view.handler = press
         view.on = on && !covered
+        view.says(says)
         return view
     }
 
@@ -36,6 +39,7 @@ public struct RemoteReceiver: UIViewRepresentable {
         view.handler = press
         // Under the opening a screen keeps its place but takes no keys, and takes them back after.
         view.on = on && !covered
+        view.says(says)
     }
 }
 
@@ -48,6 +52,30 @@ public final class RemoteUIView: UIView {
     var handler: ((Word) -> Bool)?
     var on = true {
         didSet { if on != oldValue { claim() } }
+    }
+
+    /// What this screen says the remote is on.
+    ///
+    /// This box is the one thing on a television screen the system really focuses: the screen
+    /// paints its own focus from plain state, so there is no per-control focus for a screen reader
+    /// to follow and nothing to announce when the viewer presses a key. Without this a person using
+    /// VoiceOver hears one thing when a screen opens and nothing ever again.
+    ///
+    /// So the box carries the words as its own label, and says them again each time they change,
+    /// which is each time the remote moves. The announcement is only posted while VoiceOver is
+    /// running, so a run with no screen reader does no work at all, and only on a change, so a key
+    /// that moves nothing says nothing. The parts themselves still carry their own words
+    /// (`SurfacesShared/Says.swift`), so the tree can be read and checked; this is what is heard
+    /// without reading it.
+    private var spoken = ""
+
+    func says(_ words: String) {
+        if words == spoken { return }
+        spoken = words
+        isAccessibilityElement = !words.isEmpty
+        accessibilityLabel = words
+        guard !words.isEmpty, UIAccessibility.isVoiceOverRunning else { return }
+        UIAccessibility.post(notification: .announcement, argument: words)
     }
 
     /// The presses a screen has already answered. A press arrives in three parts, and only the first
@@ -167,6 +195,16 @@ extension View {
     public func remote(on: Bool, _ press: @escaping (Word) -> Bool) -> some View {
         modifier(RemoteHold(on: on, press: press))
     }
+
+    /// The remote, with what it is on now said aloud. See `RemoteUIView.says`.
+    public func remote(says: String, _ press: @escaping (Word) -> Bool) -> some View {
+        modifier(RemoteHold(on: true, says: says, press: press))
+    }
+
+    /// Both: the remote held or given up, and what it is on said aloud.
+    public func remote(on: Bool, says: String, _ press: @escaping (Word) -> Bool) -> some View {
+        modifier(RemoteHold(on: on, says: says, press: press))
+    }
 }
 
 /// Pages say Left for towards the start of a line. In a right to left language the start is on the
@@ -174,6 +212,7 @@ extension View {
 /// right way, so its arrows stay as they are.
 private struct RemoteHold: ViewModifier {
     let on: Bool
+    var says: String = ""
     let press: (Word) -> Bool
     @Environment(\.layoutDirection) private var way
 
@@ -181,7 +220,7 @@ private struct RemoteHold: ViewModifier {
         let turned = way == .rightToLeft
         content.overlay(RemoteReceiver(on: on, press: { word in
             press(turned ? word.turned : word)
-        }))
+        }, says: says))
     }
 }
 

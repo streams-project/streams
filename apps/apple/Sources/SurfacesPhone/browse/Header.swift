@@ -18,9 +18,16 @@ struct TopBar: View {
     let back: (() -> Void)?
     let bell: (() -> Void)?
     var unreadCount: Int = 0
+    /// The words this bar's two icon-only controls are heard as. They draw no text of their own, so
+    /// unlike every other control here they cannot borrow a label from what they show.
+    var words: [String: String] = [:]
 
     var body: some View {
         HStack(spacing: 0) {
+            // Either a back arrow, which is a control and needs words, or the brand's mark, which
+            // is decoration: the page's own name is drawn next to it and says the same thing. Left
+            // unmarked the mark was read out as "mark", the name of its own asset file, inside a
+            // button that cannot be pressed (measured 2026-11-12).
             Button {
                 back?()
             } label: {
@@ -36,6 +43,7 @@ struct TopBar: View {
             .buttonStyle(.plain)
             .disabled(back == nil)
             .padding(.leading, 4)
+            .modifier(BackOrMark(back: back, says: words["common.back"] ?? ""))
 
             Text(name)
                 .brand(24, 700)
@@ -46,6 +54,13 @@ struct TopBar: View {
                 .padding(.trailing, bell == nil ? 8 : 0)
 
             if let bell {
+                // The bell says how many notices are waiting, because the count is drawn on it.
+                // Without this the whole control was heard as the bare numeral - "3" - because
+                // SwiftUI took the badge's text for the button's name and dropped the bell
+                // (measured 2026-11-12).
+                let bellSays = unreadCount > 0
+                    ? (words["say.notifications_unread"] ?? "").fill("n", unreadCount)
+                    : (words["notifications.title"] ?? "")
                 Button(action: bell) {
                     ZStack(alignment: .topTrailing) {
                         Icon("icon_bell", 24, tint: .white)
@@ -64,9 +79,24 @@ struct TopBar: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.trailing, 4)
+                .says(bellSays)
             }
         }
         .frame(height: topBarHeight)
+    }
+}
+
+/// The bar's first control: words when it goes back, gone when it is the brand's mark.
+private struct BackOrMark: ViewModifier {
+    let back: (() -> Void)?
+    let says: String
+
+    func body(content: Content) -> some View {
+        if back != nil {
+            content.says(says)
+        } else {
+            content.decoration()
+        }
     }
 }
 
@@ -112,33 +142,51 @@ struct ChipRow: View {
                         bottomTrailingRadius: trailRadius,
                         topTrailingRadius: trailRadius
                     )
-                    let fill = chip.chosen ? Color.white : outline ? Color.clear : Color.white.opacity(0.10)
-                    let edge = chip.chosen ? Color.clear : outline ? Color.white.opacity(0.40) : Color.white.opacity(0.10)
-                    let ink = chip.chosen ? Color.black : chipInk
-
-                    Button(action: chip.go) {
-                        HStack(spacing: 4) {
-                            Text(chip.word)
-                                .brand(15, 500)
-                                .foregroundStyle(ink)
-                                .lineLimit(1)
-                            if chip.drops {
-                                Icon("icon_caret_down", 18, tint: ink)
-                            }
-                        }
-                        .fixedSize(horizontal: true, vertical: false)
-                        .padding(.horizontal, 16)
-                        .frame(height: high)
-                        .background(fill, in: shape)
-                        .overlay(shape.stroke(edge, lineWidth: 1))
-                    }
-                    .buttonStyle(.plain)
+                    ChipButton(chip: chip, shape: shape, high: high, outline: outline)
                 }
             }
             .padding(.horizontal, 16)
         }
         .frame(height: chipRowHeight)
         .opacity(Double(shown))
+    }
+}
+
+/// One chip, drawn. It stands apart from `ChipRow` because a chip cannot be read inside one:
+/// measured on iPhone 17 on 2026-11-12, nothing inside a SwiftUI `ScrollView` reaches the
+/// accessibility tree in a test process with no scene, lazy container or not, so a test that has to
+/// hear a chip hosts this. The shape and the height are worked out by the row, which is the only
+/// part that knows a chip's place in the group, and handed over unchanged.
+struct ChipButton: View {
+    let chip: Chip
+    let shape: UnevenRoundedRectangle
+    let high: CGFloat
+    let outline: Bool
+
+    var body: some View {
+        let fill = chip.chosen ? Color.white : outline ? Color.clear : Color.white.opacity(0.10)
+        let edge = chip.chosen ? Color.clear : outline ? Color.white.opacity(0.40) : Color.white.opacity(0.10)
+        let ink = chip.chosen ? Color.black : chipInk
+
+        // A chip draws its own word, and the caret beside it is decoration inside this one node.
+        Button(action: chip.go) {
+            HStack(spacing: 4) {
+                Text(chip.word)
+                    .brand(15, 500)
+                    .foregroundStyle(ink)
+                    .lineLimit(1)
+                if chip.drops {
+                    Icon("icon_caret_down", 18, tint: ink)
+                }
+            }
+            .fixedSize(horizontal: true, vertical: false)
+            .padding(.horizontal, 16)
+            .frame(height: high)
+            .background(fill, in: shape)
+            .overlay(shape.stroke(edge, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .saysItsWords(on: chip.chosen)
     }
 }
 
@@ -149,12 +197,13 @@ struct Header: View {
     let back: (() -> Void)?
     let bell: (() -> Void)?
     var unreadCount: Int = 0
+    var words: [String: String] = [:]
     let chips: [Chip]
     let chipShift: CGFloat
 
     var body: some View {
         VStack(spacing: 0) {
-            TopBar(server: server, name: name, back: back, bell: bell, unreadCount: unreadCount)
+            TopBar(server: server, name: name, back: back, bell: bell, unreadCount: unreadCount, words: words)
             ChipRow(chips: chips, shown: 1.0 - chipShift)
                 .frame(height: chipRowHeight * max(0, 1.0 - chipShift))
                 .clipped()

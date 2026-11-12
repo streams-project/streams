@@ -25,6 +25,11 @@ private struct Pills: View {
                     .foregroundStyle(here && on ? Back : .white)
                     .frame(width: 240.ref, height: 54.ref)
                     .background(here && on ? Color.white : here ? Color.white.opacity(0.3) : .clear, in: Capsule())
+                    // Each pill draws its own word. Three plates mean two things here: white is
+                    // where the remote is, dim is the way already chosen, and once the remote has
+                    // moved down into the keyboard only the dim one is left.
+                    .saysItsWords(on: here && on)
+                    .accessibilityValue(here && !on ? seen.say("say.chosen") : "")
             }
         }
         .padding(4.ref)
@@ -44,6 +49,10 @@ private struct Step: View {
             .foregroundStyle(.white)
             .frame(width: 52.ref, height: 52.ref)
             .background(Color.white.opacity(0.2), in: Circle())
+            // A numeral in a circle beside the words of the step it counts. Decoration: the order is
+            // the order a reader meets the two steps in, so a bare "1" and "2" add a stop each and
+            // say nothing the reading order has not already said.
+            .decoration()
             .offset(x: left.ref, y: 214.ref)
     }
 }
@@ -64,7 +73,12 @@ private struct UsePhone: View {
                 .frame(width: 680.ref, alignment: .leading)
                 .offset(x: 240.ref, y: 214.ref)
             if let link = device?.verificationUriComplete {
-                QrCode(text: link).frame(width: 440.ref, height: 440.ref).offset(x: 240.ref, y: 410.ref)
+                // The square is the same address the step above it writes out in words, drawn for a
+                // camera. Decoration: a reader cannot read a QR code, and the address it holds has
+                // already been said.
+                QrCode(text: link).frame(width: 440.ref, height: 440.ref)
+                    .decoration()
+                    .offset(x: 240.ref, y: 410.ref)
             }
             Step(number: 2, left: 1030)
             Text(seen.say("signin.step2"))
@@ -81,6 +95,16 @@ private struct UsePhone: View {
     }
 }
 
+/// What has been typed, under the keyboard that types it.
+///
+/// The box shows its own name while it is empty and the text once there is some, so read as it
+/// stands it says one or the other and never both: a person who has typed four letters of an email
+/// address can no longer find out that it is the email address. So the name is the label and the
+/// text is the value, which is also the order a reader says them in.
+///
+/// A password is drawn as bullets and is heard as bullets. That is deliberate: the characters are
+/// not read out, which is what every platform does with a password field, and the count still tells
+/// the person their presses are landing.
 private struct Field: View {
     let label: String
     let value: String
@@ -88,13 +112,17 @@ private struct Field: View {
 
     var body: some View {
         let shape = shapeOf(Round.field)
-        Text(value.isEmpty ? label : hidden ? String(repeating: "•", count: value.count) : value)
+        let shown = hidden ? String(repeating: "•", count: value.count) : value
+        Text(value.isEmpty ? label : shown)
             .brand(32)
             .foregroundStyle(value.isEmpty ? Muted : .white)
             .lineLimit(1)
             .padding(.horizontal, 26.ref)
             .frame(width: 800.ref, height: 76.ref, alignment: .leading)
             .overlay(shape.stroke(Color.white.opacity(0.5), lineWidth: 2.ref))
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(label)
+            .accessibilityValue(shown)
             .offset(x: 960.ref, y: 280.ref)
     }
 }
@@ -150,19 +178,28 @@ public struct SignIn: View {
             return true
         }
 
+        // What the remote is on: one of the two ways to sign in, or a key of the keyboard once it
+        // has gone down into it. The keyboard works out its own answer, because it is the part that
+        // knows which of its sixty keys the remote is on.
+        let hereIs = onPills
+            ? seen.say(way == .phone ? "signin.phone" : "signin.remote")
+            : keys.hereIs(back, next, seen.words)
+
         return ZStack(alignment: .topLeading) {
             wash
             Mark(64).offset(x: 1796.ref, y: 40.ref)
             Text(seen.say("signin.choose"))
                 .brand(44, 700)
                 .foregroundStyle(.white)
+                .accessibilityAddTraits(.isHeader)
                 .frame(maxWidth: .infinity)
                 .padding(.top, 48.ref)
             Pills(seen: seen, way: way, on: onPills)
             if way == .phone {
                 UsePhone(seen: seen)
             } else {
-                Keyboard(state: keys, cancel: back, done: next).offset(x: 160.ref, y: 250.ref)
+                Keyboard(state: keys, cancel: back, done: next, words: seen.words)
+                    .offset(x: 160.ref, y: 250.ref)
                 Field(label: seen.say(ask == .email ? "signin.email" : "signin.password"), value: keys.text, hidden: ask == .password)
                 if let notice = seen.notice {
                     Text(notice).brand(28).foregroundStyle(Muted)
@@ -172,7 +209,7 @@ public struct SignIn: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { press($0) }
+        .remote(says: hereIs) { press($0) }
         .onAppear { shell.act(.deviceSignIn(ActionDeviceSignIn(deviceName: UIDevice.current.model))) }
     }
 }

@@ -31,9 +31,12 @@ private struct ProblemView: View {
         ZStack {
             Color.black
             VStack(spacing: 0) {
+                // What went wrong, then what to do about it. The heading is a heading so a reader
+                // can jump to it; the line under it is read as it stands.
                 Text(heading)
                     .brand(52, 700)
                     .foregroundStyle(.white)
+                    .accessibilityAddTraits(.isHeader)
                     .multilineTextAlignment(.center)
                 Spacer().frame(height: 20.ref)
                 Text(line)
@@ -48,7 +51,9 @@ private struct ProblemView: View {
             .frame(width: 1000.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .remote { press($0) }
+        // The only stop on the screen is the one button, where there is one. A screen with no button
+        // takes Ok and does nothing, so it announces nothing and a reader simply reads the two lines.
+        .remote(says: buttonWord ?? "") { press($0) }
     }
 }
 

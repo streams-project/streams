@@ -56,6 +56,16 @@ private struct Picture: UIViewRepresentable {
     func updateUIView(_ view: UIView, context: Context) {}
 }
 
+/// What a control at the top of the picture is called, in the viewer's language.
+@MainActor
+private func controlWord(_ control: Control, _ seen: Seen) -> String {
+    switch control {
+    case .back: return seen.say("player.back")
+    case .restart: return seen.say("player.restart")
+    case .next: return seen.say("player.next")
+    }
+}
+
 private struct TopIcons: View {
     let controls: [Control]
     let focus: Int
@@ -71,11 +81,18 @@ private struct TopIcons: View {
                     .frame(width: 72.ref, height: 72.ref)
                     .overlay(Icon(control == .back ? "icon_back" : control == .restart ? "icon_restart" : "icon_next", 46, tint: on ? Back : .white))
                     .offset(x: x.ref, y: 112.ref)
+                    // The word under the icon is drawn only for the one in focus, so two of the
+                    // three are pictures with nothing beside them at any moment: each is given its
+                    // own word instead of gathering one that may not be there.
+                    .says(controlWord(control, seen), on: on)
                 if on {
+                    // The word for the control above, drawn once it is in focus. The control says
+                    // it already, so a reader that stopped here would say it twice.
                     Text(seen.say(control == .back ? "player.back" : control == .restart ? "player.restart" : "player.next"))
                         .brand(28).foregroundStyle(.white).multilineTextAlignment(.center)
                         .frame(width: 252.ref)
                         .offset(x: (x - 90).ref, y: 202.ref)
+                        .decoration()
                 }
             }
         }
@@ -101,6 +118,12 @@ private struct RatePills: View {
                     .padding(.horizontal, 22.ref)
                     .frame(height: 62.ref)
                     .background(on ? Color.white : Color.white.opacity(chosen == rate.rating ? 0.4 : 0.2), in: Capsule())
+                    // Each pill draws its own word, so it gathers it and the thumb beside it is
+                    // decoration. Three plates are drawn and they mean two different things: white
+                    // is where the remote is, half lit is the rating already given. A person
+                    // listening sees neither.
+                    .saysItsWords(state: chosen == rate.rating ? seen.say("say.chosen") : "")
+                    .accessibilityAddTraits(on ? [.isSelected] : [])
                 }
             }
             .offset(x: 122.ref, y: 596.ref)
@@ -110,7 +133,17 @@ private struct RatePills: View {
     }
 }
 
-private struct Bar: View {
+/// The bar: one control, named by what Ok does to it and valued by where the film is.
+///
+/// This is the one part of the player a person listening cannot read any other way. The two clocks
+/// are drawn as text and a reader could stop on each, but it would then read "12:30" and "1:45:00"
+/// as two unrelated numbers with the bar between them saying nothing at all, and the bar is where
+/// the whole of the information is. So the four pieces are one node: its name is play or pause,
+/// because that is what pressing it does, and its value is how far through the film it is, from
+/// `say.position`.
+/// Internal rather than private so a test can host one: the player draws itself from a live `Play`
+/// state no test process has, so the bar is read as the part it is.
+struct Bar: View {
     let seen: Seen
     let at: Int64
     let playing: Bool
@@ -118,6 +151,9 @@ private struct Bar: View {
 
     var body: some View {
         let done = seen.lengthMs > 0 ? min(max(Double(at) / Double(seen.lengthMs), 0), 1) : 0
+        let where_ = seen.lengthMs > 0
+            ? seen.say("say.position").fill("at", clock(at)).fill("length", clock(seen.lengthMs))
+            : clock(at)
         ZStack(alignment: .topLeading) {
             Circle()
                 .fill(on ? Color.white : .clear)
@@ -136,6 +172,8 @@ private struct Bar: View {
             Text(clock(seen.lengthMs)).brand(30).foregroundStyle(.white).offset(x: 1548.ref, y: 894.ref)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .says(seen.say(playing ? "say.pause" : "common.play"), on: on)
+        .accessibilityValue(where_)
     }
 }
 
@@ -292,9 +330,35 @@ public struct Watch: View {
             return true
         }
 
+        // What the remote is on. The controls rise over the picture and fall away again after three
+        // seconds, and the picture itself takes no focus, so with the controls down the bar is
+        // where Ok lands: that is what is said. This screen has no system control on it at all, so
+        // without this a person using a screen reader hears nothing from the moment play starts.
+        func hereIs() -> String {
+            if asking { return seen.say(stay == 0 ? "player.still.yes" : "player.still.no") }
+            if failed { return seen.notice ?? seen.say("error.no_source") }
+            if panel.open { return "" }
+            switch zone {
+            case .top: return controls[safe: top].map { controlWord($0, seen) } ?? ""
+            case .rate: return seen.say(rateChoices[safe: rate]?.word ?? "")
+            case .tracks: return choices[safe: track]?.word ?? ""
+            case .bar: return sayBoth(
+                seen.say(paused ? "common.play" : "say.pause"),
+                seen.lengthMs > 0
+                    ? seen.say("say.position")
+                        .fill("at", clock(aim ?? seen.positionMs))
+                        .fill("length", clock(seen.lengthMs))
+                    : nil
+            )
+            }
+        }
+
         return ZStack(alignment: .topLeading) {
             Color.black
-            Picture(shell: shell)
+            // The film. Decoration: it is the thing being watched, not a thing to be read, and it
+            // carries no words of its own at any moment. The subtitles are drawn by the player
+            // itself and reach no accessibility tree on this surface - see the report's open items.
+            Picture(shell: shell).decoration()
             switch play?.state {
             case nil, .resolving?, .starting?, .stalled?, .switching?:
                 ProgressView().progressViewStyle(.circular).tint(.white).scaleEffect(2)
@@ -310,18 +374,26 @@ public struct Watch: View {
             } else if shown {
                 shade
                 TopIcons(controls: controls, focus: zone == .top ? top : -1, seen: seen)
+                // What is playing: the title's name, and which episode under it. Read as one thing,
+                // because the two lines are one answer to one question and the second is a
+                // shorthand - "S2: E4" - that means nothing read on its own.
                 VStack(alignment: .trailing, spacing: 0) {
                     Text(detail?.name ?? "").brand(34, 700).foregroundStyle(.white)
                     if let episode = play?.episode {
                         Text("S\(episode.season): E\(episode.episode)").brand(30).foregroundStyle(.white.opacity(0.75))
                     }
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(.isHeader)
                 .padding(.top, 96.ref)
                 .padding(.trailing, 124.ref)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 if paused { RatePills(focus: zone == .rate ? rate : -1, chosen: rated, seen: seen) }
                 Bar(seen: seen, at: aim ?? seen.positionMs, playing: !paused, on: zone == .bar)
-                TrackStrip(choices: choices, focus: zone == .tracks ? track : -1)
+                TrackStrip(
+                    choices: choices, focus: zone == .tracks ? track : -1,
+                    chosenWord: seen.say("say.chosen")
+                )
             }
             if !failed {
                 if let age { AgeCard(label: age) }
@@ -335,7 +407,7 @@ public struct Watch: View {
             if asking { StillAsking(seen: seen, focus: stay) }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .remote { press($0) }
+        .remote(says: hereIs()) { press($0) }
         .task(id: "\(awake) \(paused)") {
             shown = true
             guard !paused else { return }

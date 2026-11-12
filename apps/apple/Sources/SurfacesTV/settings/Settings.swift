@@ -162,6 +162,32 @@ public struct Settings: View {
         return true
     }
 
+    /// What the remote is on, for the screen box that says it aloud (`app/Remote.swift`). Every
+    /// word here is one the screen already draws, out of `strings/`.
+    private func hereIs(sections: [SettingsSection], rows: [SettingsRow]) -> String {
+        if pendingConfirm != nil {
+            // The question's two lines are its own word and Cancel; the question itself is read
+            // from the tree above them.
+            return confirmAt == 0 ? askedWord() : (seen.words["common.cancel"] ?? "")
+        }
+        if right {
+            guard let row = rows[safe: line] else { return "" }
+            return sayBoth(row.label, row.value)
+        }
+        return seen.words[sections[safe: sectionIndex]?.key ?? ""] ?? ""
+    }
+
+    /// The word on the line that answers a question with yes.
+    private func askedWord() -> String {
+        switch pendingConfirm {
+        case .askClearHistory: return seen.words["settings.clear_history"] ?? ""
+        case .askRemoveDevice: return seen.words["settings.device_remove"] ?? ""
+        case .askRemoveOtherDevices: return seen.words["settings.devices_sign_out_others"] ?? ""
+        case .askSignOutEverywhere: return seen.words["settings.sign_out_everywhere"] ?? ""
+        default: return ""
+        }
+    }
+
     private func currentRows() -> [SettingsRow] {
         let section = SettingsSection.allCases[sectionIndex]
         return buildSettingsRows(
@@ -239,9 +265,12 @@ public struct Settings: View {
                         }
 
                         VStack(alignment: .leading, spacing: 0) {
+                            // The question itself. A reader can jump to it, because it is what the
+                            // two lines under it answer.
                             Text(askPrompt)
                                 .brand(32)
                                 .foregroundStyle(.white)
+                                .accessibilityAddTraits(.isHeader)
                                 .padding(.leading, menuWords.ref)
                             Spacer().frame(height: 24.ref)
                             Menu(
@@ -270,7 +299,10 @@ public struct Settings: View {
                 .offset(x: 700.ref, y: firstLine.ref)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .remote { press($0, rowsCount: rows.count) }
+            // What the remote is on: a section in the column on the left, a row of that section on
+            // the right, or a line of the question a row asked. A row is said with how it stands,
+            // because on this screen the value is the point of stopping on the row at all.
+            .remote(says: hereIs(sections: sections, rows: rows)) { press($0, rowsCount: rows.count) }
             .task {
                 if let text = await shell.read("/v1/languages"),
                    let list = try? JSONDecoder().decode(LanguageList.self, from: Data(text.utf8)) {

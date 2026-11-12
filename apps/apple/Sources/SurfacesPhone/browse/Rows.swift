@@ -81,6 +81,12 @@ public struct SectionRow: View {
                     }
                     .buttonStyle(.plain)
                     .disabled(!hasMore)
+                    // A row whose name opens the whole row is a control, and the chevron beside the
+                    // name is the only thing on screen saying so, so it is given words that say it.
+                    // A row that opens nothing keeps its own name and nothing more.
+                    .modifier(RowTitleSays(
+                        says: hasMore ? (words["say.see_all"] ?? "").fill("row", title) : ""
+                    ))
                 }
 
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -137,9 +143,26 @@ public struct SectionRow: View {
     }
 }
 
+/// Words for a row's name when it opens the row, and nothing added when it does not.
+private struct RowTitleSays: ViewModifier {
+    let says: String
+
+    func body(content: Content) -> some View {
+        if says.isEmpty {
+            content.saysItsWords()
+        } else {
+            content.says(says)
+        }
+    }
+}
+
 /// Top 10 row item: draws a large outlined rank numeral (80-100 pt high) beside the tile,
 /// with the poster tile overlapping the numeral on top. Digits follow the language.
-private struct RankedTileCard: View {
+///
+/// Internal rather than private so a test can host one: nothing inside a SwiftUI `ScrollView`
+/// reaches the accessibility tree in a test process with no scene (measured 2026-11-12), and every
+/// tile on this surface is drawn inside one.
+struct RankedTileCard: View {
     let rank: Int
     let tile: Tile
     let words: [String: String]
@@ -153,8 +176,11 @@ private struct RankedTileCard: View {
         let rankText = number(rank)
 
         ZStack(alignment: .bottomLeading) {
-            // Large outlined numeral at leading
+            // The numeral is drawn as nine offset copies of the same figure plus a tenth over them,
+            // so read as it stands it would be said ten times. It is decoration: the place is part
+            // of what the tile itself says, through `say.ranked`.
             RankNumeral(text: rankText, width: numeralWide, height: numeralHigh)
+                .decoration()
 
             // Poster tile at trailing, on top of numeral
             HStack {
@@ -166,6 +192,7 @@ private struct RankedTileCard: View {
                     rank: nil,
                     percent: nil,
                     words: words,
+                    says: (words["say.ranked"] ?? "").fill("rank", rank).fill("title", tile.name),
                     open: open
                 )
             }
@@ -204,7 +231,9 @@ private struct RankNumeral: View {
 }
 
 /// Continue Watching tile: art with progress bar, plus info and menu buttons under the art.
-private struct ContinueCard: View {
+///
+/// Internal rather than private for the same reason as `RankedTileCard`.
+struct ContinueCard: View {
     let tile: Tile
     let words: [String: String]
     let open: () -> Void
@@ -236,6 +265,13 @@ private struct ContinueCard: View {
                 }
             }
             .buttonStyle(.plain)
+            // The bar drawn across the picture is how far through the title the viewer is, and it
+            // is the one thing on this tile a person listening cannot see at all.
+            .says(
+                percent > 0
+                    ? (words["say.watched"] ?? "").fill("title", tile.name).fill("percent", percent)
+                    : tile.name
+            )
 
             // Control strip under the art
             HStack {
@@ -244,6 +280,7 @@ private struct ContinueCard: View {
                         .frame(width: 34, height: 34)
                 }
                 .buttonStyle(.plain)
+                .says(words["common.more_info"] ?? "")
 
                 Spacer()
 
@@ -255,6 +292,7 @@ private struct ContinueCard: View {
                     Icon("icon_more", 20, tint: .white)
                         .frame(width: 34, height: 34)
                 }
+                .says(words["say.more_options"] ?? "")
             }
             .padding(.horizontal, 4)
             .frame(width: tileWide, height: 38)
@@ -267,13 +305,21 @@ private struct ContinueCard: View {
 }
 
 /// One tile: the title's tall picture, rounded by the brand.
-private struct TileCard: View {
+///
+/// A tile draws a picture and sometimes a badge over it, and no words of its own. The title's name
+/// is the tile: it is the one thing a reader has to hear, and it comes from the answer, so it needs
+/// no key. `says` is for a row that has more to say about the tile than its name - its place in a
+/// Top 10, how much of it has been watched - and those words do come from `strings/`.
+///
+/// Internal rather than private for the same reason as `RankedTileCard`.
+struct TileCard: View {
     let tile: Tile
     let wide: CGFloat
     let high: CGFloat
     let rank: Int?
     let percent: Int?
     let words: [String: String]
+    var says: String = ""
     let open: () -> Void
 
     var body: some View {
@@ -326,6 +372,7 @@ private struct TileCard: View {
             .clipShape(shape)
         }
         .buttonStyle(.plain)
+        .says(says.isEmpty ? tile.name : says)
     }
 }
 
@@ -355,11 +402,13 @@ private struct FullPageGrid: View {
                             .frame(width: 48, height: 44)
                     }
                     .buttonStyle(.plain)
+                    .says(words["say.close"] ?? "")
 
                     Text(title)
                         .brand(20, 700)
                         .foregroundStyle(.white)
                         .lineLimit(1)
+                        .accessibilityAddTraits(.isHeader)
 
                     Spacer()
                 }
@@ -384,6 +433,7 @@ private struct FullPageGrid: View {
                                 .clipShape(RoundedRectangle(cornerRadius: Corner.card))
                             }
                             .buttonStyle(.plain)
+                            .says(tile.name)
                         }
                     }
                     .padding(.horizontal, rowStart)

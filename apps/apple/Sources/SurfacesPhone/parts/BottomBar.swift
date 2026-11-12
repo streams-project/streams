@@ -53,6 +53,16 @@ struct BottomBar: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal, 2)
+                // Each place draws its own word under its icon, so the word is gathered rather than
+                // given a second copy from a key. The face shown in place of an icon is decoration
+                // (`BarFace` marks it): without that the place was heard as the profile's first
+                // letter, a comma, and then its word - "I," ahead of the word for `nav.mine`
+                // (measured 2026-11-12 with a profile named Ibrahim).
+                //
+                // `on` is where this family parts from the android one, which labels this bar with
+                // the words alone. The bar draws the page in view on a plate of its own, and a plate
+                // is not something a person listening can see, so the chosen place says it is chosen.
+                .saysItsWords(on: item.here)
             }
         }
         .padding(.horizontal, 7)
@@ -88,5 +98,8 @@ private struct BarFace: View {
         .frame(width: 24, height: 24)
         .background(backColor)
         .clipShape(RoundedRectangle(cornerRadius: 6))
+        // The face stands where the other places draw an icon, and the word beside it already names
+        // the place. Its fallback is the profile's first letter, which is a letter and not a word.
+        .decoration()
     }
 }
