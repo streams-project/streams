@@ -64,7 +64,13 @@ FAMILIES = {
     },
     "android": {
         "code": "apps/android",
-        "ends": {".kt"},
+        # Java as well as Kotlin, and not because any Java is here: with `.kt` alone a `.java` file
+        # was in no ring and in no `rest`, and both the stray read and the banned-word read skipped
+        # it on its suffix, so the hexagon simply stopped being enforced for it. The same shape as
+        # the apple family's nineteen unscanned files, one suffix earlier. `apple` keeps `.swift`
+        # alone for now; if Objective-C is ever admitted there, `.m` and `.h` belong in it the same
+        # day, for the same reason.
+        "ends": {".kt", ".java"},
         "surfaces": ("surfaces",),
         "least": 78,
         # The one activity that plugs adapters into ports, and the core in its JNI shell.
