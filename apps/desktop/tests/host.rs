@@ -24,10 +24,40 @@ impl Seen {
     }
 }
 
+/// The header names the core itself wrote, per request, in the order the requests were made.
+/// `Seen` records what this crate asked a port to do; this records what the core put on the wire,
+/// which is a different thing and the only thing the last test in this file will accept.
+#[derive(Clone)]
+struct Wire {
+    path: String,
+    /// The header names, as the core spelled them.
+    names: Vec<String>,
+}
+
+#[derive(Clone, Default)]
+struct Wrote(Arc<Mutex<Vec<Wire>>>);
+
+impl Wrote {
+    fn add(&self, path: String, names: Vec<String>) {
+        self.0.lock().expect("the list").push(Wire { path, names });
+    }
+
+    fn count(&self) -> usize {
+        self.0.lock().expect("the list").len()
+    }
+
+    /// The requests made after `from`, which is how one step's requests are told apart from the
+    /// ones the core made before it.
+    fn since(&self, from: usize) -> Vec<Wire> {
+        self.0.lock().expect("the list")[from..].to_vec()
+    }
+}
+
 /// A network that answers from a short script and records every path. A path with no line in the
 /// script is answered 503, which is an answer the core knows how to carry.
 struct Scripted {
     seen: Seen,
+    wrote: Wrote,
     lines: Vec<(&'static str, u32, &'static str)>,
 }
 
@@ -39,6 +69,8 @@ impl Network for Scripted {
             .unwrap_or(&call.url)
             .to_owned();
         self.seen.add(format!("net {path}"));
+        self.wrote
+            .add(path.clone(), call.headers.keys().cloned().collect());
         let found = self.lines.iter().find(|(at, _, _)| *at == path);
         let (status, text) = found.map_or((503, "{}"), |(_, status, text)| (*status, *text));
         done(Answer::Reply {
@@ -134,6 +166,7 @@ fn host(network: Box<dyn Network>, seen: &Seen, writes: bool) -> Host {
 fn scripted(lines: Vec<(&'static str, u32, &'static str)>, seen: &Seen) -> Box<dyn Network> {
     Box::new(Scripted {
         seen: seen.clone(),
+        wrote: Wrote::default(),
         lines,
     })
 }
@@ -310,5 +343,83 @@ fn an_unanswerable_server_leaves_a_wake_for_the_surface_to_honour() {
     assert!(
         wake <= Duration::from_secs(60),
         "a wake no surface would sit through: {wake:?}"
+    );
+}
+
+/// A 401 is kept from a surface only when the request carried a token, and the host decides that
+/// by looking for one header name (`src/host.rs`). The name is not this crate's: the core writes
+/// it in one place, `platform/core/src/net.rs`, and nothing here can stop it changing. The unit
+/// test of that rule hands the decision in as a `bool` of its own choosing, so it would still
+/// pass the day the core stopped sending the header. This one reads the header off the request
+/// the core really made.
+///
+/// Both assertions are here because they fail for different changes. Drop the header or rename it
+/// and the first fails. Re-case it to `authorization` and the first still holds while the second
+/// fails, because the host's own match is exact. Either way a signed in viewer is shown a refusal
+/// the core was about to refresh away, which is the whole defect this guards.
+///
+/// Both were made to fail on purpose on 2026-11-12, from this side, because `platform/core` is
+/// not this package's to edit. Asked for a name the core does not send, the first went red on the
+/// names it had really recorded: `["Api-Version", "Authorization", "Client-App", "Client-Class",
+/// "Client-Os", "Client-Version"]`. With the sign in taken out, which is the world where the core
+/// writes no bearer header, the second went red by itself and printed what a viewer would have
+/// been shown: `Reply { request: "ask-401", status: 401, body: "{\"code\":\"token_expired\"}" }`.
+/// Not demonstrated: a core that really sends the name in another case, which needs an edit to
+/// the core. That middle case is reasoned from the host's exact match and no further.
+///
+/// The turn examined is the one the first answer arrived in. What a later refresh does with the
+/// same id is the core's own rule, and `platform/kit/core`'s to prove.
+#[test]
+fn the_401_a_surface_never_sees_is_decided_by_the_header_the_core_really_wrote() {
+    let seen = Seen::default();
+    let wrote = Wrote::default();
+    let mut host = host(
+        Box::new(Scripted {
+            seen: seen.clone(),
+            wrote: wrote.clone(),
+            lines: vec![
+                ("/v1/auth/password", 200, SIGNED_IN),
+                // The answer a token that was just accepted should never get, and the one the
+                // core answers by refreshing rather than by giving up.
+                ("/v1/screens/home", 401, r#"{"code":"token_expired"}"#),
+            ],
+        }),
+        &seen,
+        true,
+    );
+    signs_in(&mut host);
+    let before = wrote.count();
+    host.step(vec![Event {
+        id: Some(String::from("ask-401")),
+        body: EventBody::Action {
+            action: Action::Request {
+                method: HttpMethod::Get,
+                path: String::from("/v1/screens/home"),
+                body: None,
+            },
+        },
+    }]);
+    let turn = host.drain();
+
+    let names: Vec<String> = wrote
+        .since(before)
+        .into_iter()
+        .filter(|wire| wire.path == "/v1/screens/home")
+        .flat_map(|wire| wire.names)
+        .collect();
+    assert!(
+        !names.is_empty(),
+        "the core made no request to that path, so nothing was proved either way"
+    );
+    assert!(
+        names
+            .iter()
+            .any(|name| name.eq_ignore_ascii_case("authorization")),
+        "the core wrote no bearer header on a request made while signed in: {names:?}"
+    );
+    assert!(
+        !turn.replies.iter().any(|reply| reply.request == "ask-401"),
+        "a signed in viewer was shown a 401 the core was about to refresh away: {:?}",
+        turn.replies
     );
 }

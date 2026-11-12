@@ -193,9 +193,19 @@ the server crates in the same invocation, so neither costs a byte here, and the 
 with `alloc` alone for the no_std core and this host is std, which is what every std member in this
 repository does.
 
-Status: verified. 29 tests run under `cargo test --workspace --locked`: 11 in the library, 7 in
-`tests/host.rs`, 11 in `tests/ports.rs`. Two of the 29 are `#[cfg(unix)]`, so a machine that is not
-unix runs 27, and nobody should read that as a regression.
+Status: verified. 30 tests run under `cargo test --workspace --locked`: 11 in the library, 8 in
+`tests/host.rs`, 11 in `tests/ports.rs`. Two of the 30 are `#[cfg(unix)]`, so a machine that is not
+unix runs 28, and nobody should read that as a regression.
+
+The thirtieth is `the_401_a_surface_never_sees_is_decided_by_the_header_the_core_really_wrote`,
+added the same day. The host decides whether to keep a 401 from a surface by looking for the
+`Authorization` header (`src/host.rs`), which the core writes in one place
+(`platform/core/src/net.rs`), and the unit test of that rule hands the decision in as a `bool` of
+its own choosing, so it would have passed the day the core stopped sending the header. The new one
+reads the header off the request the core really made, and asserts both that it is there and that
+the 401 was kept back. Its own comment records which change each assertion catches, how each was
+made to fail on purpose, and the one case that cannot be shown from this side, a core that sends
+the name in another case, because `platform/core` is not this package's to edit.
 
 ## Open items
 
