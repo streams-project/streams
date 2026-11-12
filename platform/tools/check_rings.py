@@ -50,23 +50,10 @@ ROOT = Path(__file__).resolve().parents[2]
 # NOT caught here. That hole is the smaller one of the two: a declaration is a line somebody chose
 # to type, and this read now sees every one of them.
 FAMILIES = {
-    "tv": {
-        "code": "apps/tv/page",
-        "ends": {".js"},
-        "surfaces": ("surfaces",),
-        "least": 17,
-        "rest": ("host.js",),
-        "skip": set(),
-        "builds": (),
-        "banned_deps": {},
-        "allowed_deps": frozenset(),
-        "banned": {
-            "the keys port": r"\bkeyCode\b|\baddEventListener\(\"keydown\"",
-            "the network port": r"\bXMLHttpRequest\b|\bfetch\(",
-            "the secrets port": r"\blocalStorage\b|\bsessionStorage\b",
-            "the player port": r"\bHls\b|\bcreateElement\(\"video\"\)",
-        },
-    },
+    # The television page was deleted on 2026-11-12. The owner stopped it on 2026-11-07 (note 179):
+    # it was a DOM page served by the server, and every television now gets a native app. Its
+    # measurements survive in `apps/tv/README.md`, which other families cite, until they are
+    # rehoused in a note. There is no family here because there is no code here.
     "web": {
         "code": "apps/web/src",
         "ends": {".rs"},
