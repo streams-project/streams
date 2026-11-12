@@ -35,6 +35,15 @@ pub struct Shared {
     pub text: RwSignal<Vec<Track>>,
     /// Interface text by label, from the server.
     pub strings: RwSignal<BTreeMap<String, String>>,
+    /// The language the words above are in, as the server named it. It decides plural forms, so a
+    /// screen reads it rather than guessing from the browser: the two differ as soon as a viewer
+    /// asks for a language this server does not have and the words fall back to English.
+    pub lang: RwSignal<String>,
+    /// Which digits this language writes, from its own `language.digits`.
+    pub digits: RwSignal<String>,
+    /// How many notices are waiting, for the bell. The phone's `seen.unreadNotifications`
+    /// (`apps/android/surfaces/phone/.../browse/Home.kt:231`).
+    pub unread: RwSignal<u32>,
 }
 
 impl Shared {
@@ -54,6 +63,9 @@ impl Shared {
             audio: RwSignal::new(Vec::new()),
             text: RwSignal::new(Vec::new()),
             strings: RwSignal::new(BTreeMap::new()),
+            lang: RwSignal::new(String::new()),
+            digits: RwSignal::new(String::new()),
+            unread: RwSignal::new(0),
         }
     }
 }

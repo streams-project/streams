@@ -8,8 +8,22 @@
 :root {
   --glass: rgb(255 255 255 / 16%);
   --glass-strong: rgb(255 255 255 / 30%);
-  --edge: var(--gutter);
+  /* A tile's floor and how many fill a row. One home for both: src/surfaces/empty.rs counts how
+     many tiles a placeholder row holds from these same two numbers, and the test there holds the
+     two copies together. */
+  --tile-least: 190px; --tile-across: 6;
 }
+
+/* The page edge by width class: 12, 24 and 40 at 600 and 840, which are the three margins and the
+   two breakpoints of apps/android/surfaces/phone/src/main/kotlin/streams/phone/app/Sizes.kt:18-19
+   and :26-30. Note 215's preservation table names them as a thing that must not be lost, and
+   src/surfaces/sizes.rs holds these three lines to that file, number for number. What was here
+   until 2026-11-12 was the brand's 48 px gutter with a 16 px case under 720, and neither of those
+   is a measurement of anything. The three blocks sit together, in this order, because that is the
+   shape the test reads. */
+:root { --edge: 12px; }
+@media (min-width: 600px) { :root { --edge: 24px; } }
+@media (min-width: 840px) { :root { --edge: 40px; } }
 
 * { box-sizing: border-box; }
 
@@ -47,7 +61,23 @@ button { cursor: pointer; border: 0; background: none; }
 .plain:hover, .plain:focus-visible { color: var(--text); }
 .row-of-buttons { display: flex; gap: calc(var(--unit) * 3); margin-top: calc(var(--unit) * 5); }
 
-.wait { display: grid; place-items: center; min-height: 60vh; }
+/* A page with nothing in it yet: the row's own name box as a plain bar and the row's own tiles,
+   flat, at their final size. Nothing moves, as nothing moves on the reference. src/surfaces/empty.rs
+   carries the measurements and says what crosses over from the phone and what does not. The 96 px is
+   the same allowance for the fixed header that `.search` makes. */
+.waiting { padding-top: 96px; }
+.waiting-said { padding: 0 var(--edge); color: var(--muted); font-size: 14px; }
+.bar-name .bar {
+  display: inline-block;
+  vertical-align: middle;
+  width: 100%;
+  height: 1em;
+  border-radius: var(--radius-card);
+  background: var(--raised);
+}
+.strip-flat { overflow-x: hidden; }
+.strip-flat .card { transition: none; }
+
 .ring {
   width: 44px;
   height: 44px;
@@ -62,9 +92,10 @@ button { cursor: pointer; border: 0; background: none; }
 .notice {
   position: fixed;
   z-index: 50;
-  left: 50%;
+  inset-inline: calc(var(--unit) * 4);
   bottom: calc(var(--unit) * 8);
-  transform: translateX(-50%);
+  margin-inline: auto;
+  width: fit-content;
   display: flex;
   gap: calc(var(--unit) * 4);
   align-items: center;
@@ -96,10 +127,10 @@ button { cursor: pointer; border: 0; background: none; }
 .pin { display: flex; gap: calc(var(--unit) * 3); }
 .pin input { width: 120px; padding: calc(var(--unit) * 3); border-radius: var(--radius-field); border: 1px solid var(--glass-strong); background: var(--surface); text-align: center; }
 
-.top { position: fixed; z-index: 20; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: calc(var(--unit) * 8); padding: calc(var(--unit) * 3) var(--edge); background: linear-gradient(rgb(0 0 0 / 70%), transparent); transition: background-color 200ms linear; }
+.top { position: fixed; z-index: 20; top: 0; inset-inline: 0; display: flex; align-items: center; gap: calc(var(--unit) * 8); padding: calc(var(--unit) * 3) var(--edge); background: linear-gradient(rgb(0 0 0 / 70%), transparent); transition: background-color 200ms linear; }
 .top.solid-top { background: var(--background); }
 .top nav { display: flex; gap: calc(var(--unit) * 5); overflow-x: auto; scrollbar-width: none; }
-.top-end { margin-left: auto; display: flex; gap: calc(var(--unit) * 4); flex: none; }
+.top-end { margin-inline-start: auto; display: flex; gap: calc(var(--unit) * 4); flex: none; }
 .link { color: var(--text); opacity: 0.85; white-space: nowrap; font-size: 16px; padding: 0; }
 .link.here { font-weight: 500; opacity: 1; }
 .link:hover, .link:focus-visible { opacity: 1; }
@@ -125,13 +156,14 @@ button { cursor: pointer; border: 0; background: none; }
 .row { padding: calc(var(--unit) * 4) 0; }
 .row h2 { padding: 0 var(--edge); margin-bottom: calc(var(--unit) * 1.5); font-size: 24px; font-weight: 500; }
 .strip { display: flex; gap: calc(var(--unit) * 2); overflow-x: auto; padding: calc(var(--unit) * 2) var(--edge); scroll-padding: var(--edge); scroll-snap-type: x proximity; scrollbar-width: none; }
-.strip .card { flex: 0 0 max(190px, calc((100% - var(--unit) * 10) / 6)); scroll-snap-align: start; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: calc(var(--unit) * 2); padding: calc(var(--unit) * 2) var(--edge); }
+.strip { --tile-wide: max(var(--tile-least), calc((100% - var(--unit) * 10) / var(--tile-across))); }
+.strip .card, .strip .going { flex: 0 0 var(--tile-wide); scroll-snap-align: start; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--tile-least), 1fr)); gap: calc(var(--unit) * 2); padding: calc(var(--unit) * 2) var(--edge); }
 .card { position: relative; aspect-ratio: 16 / 9; padding: 0; overflow: hidden; border-radius: var(--radius-card); background: var(--raised) center / cover no-repeat; transition: transform 160ms ease-out; }
 .card:hover, .card:focus-visible { transform: scale(1.06); z-index: 2; outline: 2px solid var(--text); }
 .card-name { position: absolute; inset: 0; display: grid; place-items: center; padding: var(--unit); font-weight: 600; text-align: center; }
-.rank { position: absolute; left: 8px; bottom: 0; font-size: 56px; font-weight: 800; -webkit-text-stroke: 2px var(--text); color: var(--background); line-height: 1; }
-.progress { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--glass); }
+.rank { position: absolute; inset-inline-start: 8px; bottom: 0; font-size: 56px; font-weight: 800; -webkit-text-stroke: 2px var(--text); color: var(--background); line-height: 1; }
+.progress { position: absolute; inset-inline: 0; bottom: 0; height: 4px; background: var(--glass); }
 .progress span { display: block; height: 100%; background: var(--join); }
 
 .search { display: flex; gap: calc(var(--unit) * 3); padding: 96px var(--edge) calc(var(--unit) * 4); }
@@ -145,11 +177,11 @@ button { cursor: pointer; border: 0; background: none; }
    690 against the block's 650). The capture records no top padding, so there is none. */
 .empty { display: grid; gap: 16px; width: min(437px, 100% - var(--edge) * 2); margin-inline: auto; }
 .empty p, .empty li { line-height: 20px; }
-.empty ul { display: grid; gap: 0; margin: 0; padding-left: calc(var(--unit) * 10); }
+.empty ul { display: grid; gap: 0; margin: 0; padding-inline-start: calc(var(--unit) * 10); }
 
 .scrim { position: fixed; inset: 0; z-index: 30; overflow-y: auto; padding: calc(var(--unit) * 8) calc(var(--unit) * 4); background: rgb(0 0 0 / 70%); }
 .panel { position: relative; margin: 0 auto; width: min(860px, 100%); border-radius: var(--radius-panel); overflow: hidden; background: var(--surface); }
-.close { position: absolute; z-index: 2; top: 8px; right: 8px; font-size: 26px; color: var(--text); }
+.close { position: absolute; z-index: 2; top: 8px; inset-inline-end: 8px; font-size: 26px; color: var(--text); }
 .panel-art { position: relative; aspect-ratio: 16 / 9; display: flex; align-items: flex-end; background: var(--raised) center / cover no-repeat; }
 .panel-art::before { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 50%, var(--surface)); }
 .panel-title { position: relative; padding: calc(var(--unit) * 8); }
@@ -161,7 +193,7 @@ button { cursor: pointer; border: 0; background: none; }
 .panel-body h2 { font-size: 24px; font-weight: 500; line-height: normal; margin-top: calc(var(--unit) * 3); }
 .episodes { display: grid; gap: var(--unit); }
 .episodes select { justify-self: end; padding: var(--unit) calc(var(--unit) * 3); background: var(--raised); border: 0; border-radius: var(--radius-field); }
-.episode { display: flex; gap: calc(var(--unit) * 4); padding: calc(var(--unit) * 3); text-align: left; border-radius: var(--radius-field); }
+.episode { display: flex; gap: calc(var(--unit) * 4); padding: calc(var(--unit) * 3); text-align: start; border-radius: var(--radius-field); }
 .episode:hover, .episode:focus-visible { background: var(--raised); }
 .episode-number { color: var(--muted); font-size: 22px; }
 .episode-text { display: grid; gap: var(--unit); }
@@ -172,7 +204,7 @@ button { cursor: pointer; border: 0; background: none; }
 .stage, .stage video { position: absolute; inset: 0; width: 100%; height: 100%; }
 .watch .ring { position: relative; }
 .watch-fail { position: relative; }
-.watch-top, .watch-bottom { position: absolute; left: 0; right: 0; padding: calc(var(--unit) * 5) var(--edge); transition: opacity 200ms linear; }
+.watch-top, .watch-bottom { position: absolute; inset-inline: 0; padding: calc(var(--unit) * 5) var(--edge); transition: opacity 200ms linear; }
 .watch-top { top: 0; background: linear-gradient(rgb(0 0 0 / 60%), transparent); }
 .watch-bottom { bottom: 0; background: linear-gradient(transparent, rgb(0 0 0 / 70%)); }
 .watch.bare .watch-top, .watch.bare .watch-bottom { opacity: 0; }
@@ -183,9 +215,79 @@ button { cursor: pointer; border: 0; background: none; }
 .grow { flex: 1; }
 
 @media (max-width: 720px) {
-  :root { --edge: 16px; }
   .top { gap: calc(var(--unit) * 3); }
   .face { width: 88px; height: 88px; font-size: 36px; }
   .hero { aspect-ratio: auto; min-height: 76vh; }
   .watch-row { flex-wrap: wrap; }
 }
+
+/* A label a reader reaches and a seeing viewer barely notices. A placeholder is not a label, so
+   every field on the door has one of these; it stays in the document rather than being clipped to
+   nothing, because a label a browser cannot lay out is a label a reader cannot be given. */
+.said {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.field { display: grid; gap: var(--unit); margin: 0; }
+.field-name { color: var(--muted); font-size: 13px; }
+.field input { padding: calc(var(--unit) * 3); border-radius: var(--radius-field); border: 1px solid var(--glass-strong); background: var(--surface); width: 100%; }
+.pin-said { color: var(--muted); font-size: 14px; flex-basis: 100%; }
+.pin { flex-wrap: wrap; justify-content: center; }
+.message a.glass { justify-self: center; padding: calc(var(--unit) * 2.5) calc(var(--unit) * 7); border-radius: var(--radius-button); }
+
+/* Every control a keyboard can reach says so. A focus ring removed and not replaced is the one
+   accessibility defect a sighted keyboard user meets on every single press. */
+:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+/* A page over the page: the notices feed and a row opened whole. */
+.sheet { min-height: 100vh; padding: 0 0 calc(var(--unit) * 16); background: var(--background); }
+.whole-row { position: fixed; inset: 0; z-index: 30; overflow-y: auto; }
+.sheet-top { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: calc(var(--unit) * 3); padding: calc(var(--unit) * 3) var(--edge); background: var(--background); }
+.sheet-top h1 { font-size: 22px; font-weight: 700; }
+.sheet-empty { padding: calc(var(--unit) * 10) var(--edge); color: var(--muted); text-align: center; }
+.whole-row-more { display: block; margin: calc(var(--unit) * 4) auto; }
+
+.notice-row { display: flex; width: 100%; align-items: center; gap: calc(var(--unit) * 4); padding: calc(var(--unit) * 2.5) var(--edge); text-align: start; }
+.notice-row:hover, .notice-row:focus-visible { background: var(--surface); }
+.notice-art { flex: none; width: 72px; aspect-ratio: 72 / 104; border-radius: var(--radius-card); overflow: hidden; background: var(--surface); }
+.notice-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.notice-text { display: grid; gap: calc(var(--unit) * 1.5); justify-items: start; flex: 1; }
+.notice-text small { color: var(--muted); font-size: 13px; }
+.chip { padding: 2px calc(var(--unit) * 2); border-radius: var(--radius-field); background: var(--surface); font-size: 11px; font-weight: 600; }
+.chip-now { background: var(--accent); color: var(--accent-text); }
+.dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+/* The bell, and how many notices are waiting on it. */
+.bell { position: relative; display: inline-flex; }
+.bell svg { width: 24px; height: 24px; }
+.bell .count { position: absolute; top: -4px; inset-inline-end: -6px; padding: 0 4px; border-radius: var(--radius-button); background: var(--accent); color: var(--accent-text); font-size: 10px; font-weight: 700; }
+
+/* A mark on a tile, and the mark on a kids' profile. */
+.badge { padding: 2px calc(var(--unit) * 1.5); border-radius: var(--radius-field); background: var(--accent); color: var(--accent-text); font-size: 10px; font-weight: 700; }
+.card .badge { position: absolute; top: 6px; inset-inline-start: 6px; }
+
+/* A Continue Watching tile, which carries its two controls under the art (browse/Rows.kt:306-410). */
+.going { position: relative; display: grid; background: var(--raised); border-radius: var(--radius-card); overflow: visible; }
+.going .card { border-end-start-radius: 0; border-end-end-radius: 0; }
+.going-row { display: flex; justify-content: space-between; align-items: center; padding: 0 var(--unit); }
+.going-menu { position: absolute; z-index: 3; top: 100%; inset-inline-end: 0; padding: var(--unit); background: var(--surface); border-radius: var(--radius-field); box-shadow: 0 8px 24px rgb(0 0 0 / 50%); white-space: nowrap; }
+
+/* A row's name, when the row holds more than it shows. */
+.see-all { display: inline-flex; align-items: center; gap: var(--unit); padding: 0; font: inherit; color: inherit; }
+
+/* An age mark, painted from the tone the server picked. */
+.age { padding: 1px calc(var(--unit) * 1.5); border-radius: 3px; border: 1px solid currentcolor; font-size: 12px; font-weight: 500; margin-inline-end: var(--unit); }
+.age-green { color: #6ac46a; }
+.age-yellow { color: #e4c04a; }
+.age-orange { color: #e49a4a; }
+.age-pink { color: #e47ab0; }
+.age-red { color: #e4584a; }
+.age-dark-red { color: #b23228; }
+.age-blue { color: #5aa8e4; }
+.age-grey { color: var(--muted); }

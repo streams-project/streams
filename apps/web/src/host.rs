@@ -16,7 +16,7 @@ use wasm_bindgen::JsCast;
 use wasm_bindgen::prelude::Closure;
 use wasm_bindgen_futures::spawn_local;
 
-use crate::adapters::{address, network, player, secrets, timers};
+use crate::adapters::{address, language, network, player, secrets, timers};
 use crate::state::Shared;
 
 /// A form's answer: the status, then the body.
@@ -25,9 +25,9 @@ type Reply = Box<dyn FnOnce(u32, String)>;
 /// Activity counts at most this often, the same rate as the other three hosts.
 const TOUCH_EVERY_MS: u64 = 10_000;
 
-/// Where a viewport stops being a phone, and where it stops being a tablet.
-const PHONE_WIDEST_PX: f64 = 600.0;
-const TABLET_WIDEST_PX: f64 = 1024.0;
+// Where a viewport stops being a phone, and where it stops being a tablet, come from
+// `surfaces::sizes`: the core keys the profile gate's idle limit on the form, every page keys its
+// margin on the class, and they are one pair of breakpoints rather than two that can drift.
 
 pub struct Host {
     machine: Core,
@@ -37,6 +37,9 @@ pub struct Host {
     replies: HashMap<String, Reply>,
     next_ask: u64,
     last_touch_ms: Option<u64>,
+    /// The profile language this run has already asked for, so a view that arrives again does not
+    /// ask for the same words a second time. The phone's `matched` (`Host.kt:334-338`).
+    matched: Option<String>,
 }
 
 thread_local! {
@@ -68,13 +71,7 @@ fn seed() -> String {
 /// The form this browser draws in. The contract says a browser on a phone is class web, form
 /// phone, and the core's idle limit before the profile gate asks again keys on the form.
 fn form_of(width_px: f64) -> &'static str {
-    if width_px <= PHONE_WIDEST_PX {
-        "phone"
-    } else if width_px <= TABLET_WIDEST_PX {
-        "tablet"
-    } else {
-        "desktop"
-    }
+    crate::surfaces::sizes::WidthClass::of(width_px).form()
 }
 
 /// A width a browser will not give reads as a desktop, which is the shortest idle limit of the
@@ -106,6 +103,7 @@ pub fn start(shared: Shared) {
             replies: HashMap::new(),
             next_ask: 0,
             last_touch_ms: None,
+            matched: None,
         });
     });
     let back = Closure::<dyn FnMut()>::new(go_silently);
@@ -116,16 +114,104 @@ pub fn start(shared: Shared) {
     let opened_at = address::current();
     step(Vec::new());
     go(&opened_at);
+    read_words(shared, &language::preferred());
+    count_notices(shared);
+}
+
+/// The words of the interface, in a language, with the page told which way that language runs.
+///
+/// A language this server has no file for falls back to English, so a screen always has words. The
+/// phone does exactly this at `apps/android/core/src/main/kotlin/streams/core/Host.kt:312-330`;
+/// before today this host asked for `/v1/strings/en` and nothing else, so seventeen of the
+/// eighteen languages the server carries were unreachable from a browser.
+pub fn read_words(shared: Shared, lang: &str) {
+    let path = format!("/v1/strings/{lang}");
+    let asked = lang.to_owned();
+    ask(HttpMethod::Get, &path, None, move |status, text| {
+        if !(200..300).contains(&status) {
+            if asked != language::DEFAULT {
+                read_words(shared, language::DEFAULT);
+            }
+            return;
+        }
+        let Ok(strings) = serde_json::from_str::<contract::hello::Strings>(&text) else {
+            return;
+        };
+        let rtl = strings.dir == contract::hello::TextDirection::Rtl;
+        // Read before the texts are handed over, because `digits` is one of the texts and a screen
+        // that drew between the two writes would write this language's words in the last one's
+        // digits.
+        let digits = strings
+            .texts
+            .get("language.digits")
+            .cloned()
+            .unwrap_or_default();
+        shared.digits.set(digits);
+        shared.lang.set(strings.lang.clone());
+        shared.strings.set(strings.texts);
+        language::speak(&strings.lang, rtl);
+    });
+}
+
+/// A profile speaks its own language. `Host.kt:332-339`.
+///
+/// Only when the profile names one: `Profile.language` is absent until a viewer chooses, and a
+/// profile with no choice keeps the language the browser asked for rather than being moved to
+/// English.
+///
+/// Every read here is untracked, on purpose. `show` runs inside the one effect that starts the
+/// core, so a tracked read in it would put the core's own start downstream of the state the core
+/// had just written, and nothing else in `show` reads a signal at all - it only writes.
+///
+/// Measured rather than assumed, both ways, in Safari on 2026-11-12 against the contract's own fake
+/// server: one page load makes five requests (hello, refresh, the words, the profiles, the notice
+/// count), an idle page makes none, and `start` logs once. A build with these three reads tracking
+/// behaves the same, so this is correctness by construction and not the fix for anything that was
+/// seen to happen.
+fn match_language(shared: Shared) {
+    let active = shared
+        .session
+        .with_untracked(|session| session.as_ref().and_then(|session| session.profile.clone()));
+    let Some(active) = active else { return };
+    let wanted = shared.profiles.with_untracked(|profiles| {
+        profiles
+            .iter()
+            .find(|profile| profile.id == active)
+            .and_then(|profile| profile.language.clone())
+    });
+    let Some(wanted) = wanted else { return };
+    if shared.lang.with_untracked(|lang| *lang == wanted) {
+        return;
+    }
+    let again = HOST.with_borrow_mut(|host| match host.as_mut() {
+        Some(host) => {
+            let again = host.matched.as_deref() != Some(wanted.as_str());
+            if again {
+                host.matched = Some(wanted.clone());
+            }
+            again
+        }
+        None => false,
+    });
+    if again {
+        read_words(shared, &wanted);
+    }
+}
+
+/// How many notices are waiting, for the bell on the top bar. `GET /v1/notifications/count`.
+pub fn count_notices(shared: Shared) {
     ask(
         HttpMethod::Get,
-        "/v1/strings/en",
+        "/v1/notifications/count",
         None,
         move |status, text| {
             if !(200..300).contains(&status) {
                 return;
             }
-            if let Ok(strings) = serde_json::from_str::<contract::hello::Strings>(&text) {
-                shared.strings.set(strings.texts);
+            if let Ok(count) =
+                serde_json::from_str::<contract::notification::NotificationCount>(&text)
+            {
+                shared.unread.set(count.unread);
             }
         },
     );
@@ -286,6 +372,7 @@ fn apply(out: CoreOut) -> Vec<Event> {
 }
 
 fn show(view: View, shared: Shared) {
+    let moved = view.session.is_some() || view.profiles.is_some();
     if let Some(session) = view.session {
         shared.session.set(Some(session));
     }
@@ -311,6 +398,10 @@ fn show(view: View, shared: Shared) {
             document.set_title(&hello.brand.name);
         }
         shared.hello.set(Some(hello));
+    }
+    // Last, because it reads the session and the profiles this view may just have written.
+    if moved {
+        match_language(shared);
     }
 }
 
@@ -399,9 +490,13 @@ mod tests {
     #[test]
     fn a_browser_on_a_phone_draws_in_a_phone_s_form() {
         assert_eq!(form_of(390.0), "phone");
-        assert_eq!(form_of(600.0), "phone");
-        assert_eq!(form_of(601.0), "tablet");
-        assert_eq!(form_of(1024.0), "tablet");
+        assert_eq!(form_of(599.0), "phone");
+        // Exactly 600 is a tablet, as `wide < 600` makes it on the phone surface. It was a phone
+        // here until 2026-11-12, which gave a window of exactly that width two hours of idle
+        // instead of forty minutes (`platform/core/src/gate.rs:15-16`).
+        assert_eq!(form_of(600.0), "tablet");
+        assert_eq!(form_of(839.0), "tablet");
+        assert_eq!(form_of(840.0), "desktop");
         assert_eq!(form_of(1440.0), "desktop");
         // A width a browser would not give reads as the form with the shortest idle limit.
         assert_eq!(form_of(f64::INFINITY), "desktop");
