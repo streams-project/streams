@@ -123,26 +123,89 @@ fn h26_only_the_binary_reads_the_process_environment() {
     }
 }
 
-#[test]
-fn a_project_that_takes_only_accounts_gets_no_video_word() {
-    let folder = Path::new(env!("CARGO_MANIFEST_DIR")).join("../server-accounts/src");
-    let words = ["movie", "episode", "season", "trailer", "catalog"];
-    let mut stack = vec![folder];
+/// The one file of `server-accounts` that may write a video word, and why.
+///
+/// `holdings.rs` names every table of `server/migrations` exactly once, by the name the table
+/// really has, and two of those tables are called `episode_progress` and `refused_trailers`. A
+/// register of what is held about a person cannot name a table by a word the table does not use:
+/// the person is entitled to be told we keep how far through an episode they were, and its own
+/// test reads the migration files, so a softer word would fail there instead. The exemption is
+/// therefore on the register and on nothing else, and `the_register_only_names_tables_and_says
+/// _what_they_are_for` below holds it to naming and describing rather than to doing video work.
+const REGISTER: &str = "holdings.rs";
+
+/// The words that belong to the catalogue and not to accounts.
+const VIDEO_WORDS: [&str; 5] = ["movie", "episode", "season", "trailer", "catalog"];
+
+fn accounts_sources() -> Vec<std::path::PathBuf> {
+    let mut found = Vec::new();
+    let mut stack = vec![Path::new(env!("CARGO_MANIFEST_DIR")).join("../server-accounts/src")];
     while let Some(folder) = stack.pop() {
         for entry in std::fs::read_dir(folder).expect("folder") {
             let path = entry.expect("entry").path();
             if path.is_dir() {
                 stack.push(path);
             } else if path.extension().is_some_and(|ext| ext == "rs") {
-                let text = std::fs::read_to_string(&path)
-                    .expect("source")
-                    .to_lowercase();
-                for word in words {
-                    assert!(!text.contains(word), "{} holds {word}", path.display());
-                }
+                found.push(path);
             }
         }
     }
+    found
+}
+
+#[test]
+fn a_project_that_takes_only_accounts_gets_no_video_word() {
+    for path in accounts_sources() {
+        if path.file_name().is_some_and(|name| name == REGISTER) {
+            continue;
+        }
+        let text = std::fs::read_to_string(&path)
+            .expect("source")
+            .to_lowercase();
+        for word in VIDEO_WORDS {
+            assert!(!text.contains(word), "{} holds {word}", path.display());
+        }
+    }
+}
+
+/// The register's exemption, bounded: every video word in it names a table or says what the table
+/// is for. A `fn`, a `match`, an `if` or a call carrying one of these words would be video work
+/// living in the accounts crate, which is what the test above exists to stop, and the exemption
+/// must not become the hole that lets it in.
+#[test]
+fn the_register_only_names_tables_and_says_what_they_are_for() {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../server-accounts/src")
+        .join(REGISTER);
+    let text = std::fs::read_to_string(&path).expect("the register");
+    let mut checked = 0usize;
+    for (number, line) in text.lines().enumerate() {
+        let lower = line.to_lowercase();
+        if !VIDEO_WORDS.iter().any(|word| lower.contains(word)) {
+            continue;
+        }
+        checked += 1;
+        let trimmed = lower.trim_start();
+        let naming = trimmed.starts_with("table:")
+            || trimmed.starts_with("purpose:")
+            || trimmed.starts_with("//")
+            || trimmed.starts_with("///");
+        assert!(
+            naming,
+            "{}:{}: a video word outside a table name, a purpose or a comment: {}",
+            path.display(),
+            number + 1,
+            line.trim()
+        );
+    }
+    // If the register stops naming those tables at all, this test has stopped reading anything and
+    // the exemption above is no longer carrying its weight.
+    assert!(
+        checked >= 2,
+        "the register named a video word on {checked} lines: \
+         `episode_progress` and `refused_trailers` are tables of server/migrations and the register \
+         names every table once, so if they have gone the exemption should go with them"
+    );
 }
 
 #[test]
