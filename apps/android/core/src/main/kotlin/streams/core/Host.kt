@@ -60,6 +60,7 @@ import kotlinx.coroutines.flow.update
 import streams.ports.Call
 import streams.ports.Network
 import streams.ports.NoReply
+import streams.ports.Pictures
 import streams.ports.Player
 import streams.ports.Reel
 import streams.ports.Reply
@@ -78,6 +79,7 @@ class Host(
     private val store: Store,
     override val player: Player,
     override val reel: Reel,
+    override val pictures: Pictures,
     private val deviceClass: DeviceClass,
     private val form: Form,
     private val version: String,

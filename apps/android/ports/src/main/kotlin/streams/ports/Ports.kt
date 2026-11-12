@@ -218,12 +218,12 @@ interface Shell {
     /**
      * Where a surface's pictures come from.
      *
-     * It carries a default because the family's picture adapter is not plugged in yet: `app/Main.kt`
-     * builds the other five ports and `core/Host.kt` carries them, and both are one line short of
-     * carrying this one. Until that line lands every call is refused in the open rather than
-     * answered with a blank that reads as a slow network.
+     * No default. It had one while the adapter was unplugged, and a defaulted port is a seam that
+     * rots: a surface compiles against it and gets refusals at runtime instead of pictures.
+     * `app/Main.kt` now builds `CoilPictures` and `core/Host.kt` carries it, so a family that
+     * forgets to plug one in fails to compile, which is where that mistake belongs.
      */
-    val pictures: Pictures get() = NoPictures
+    val pictures: Pictures
 
     fun connect(server: String)
     fun go(address: String)

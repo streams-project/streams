@@ -232,14 +232,25 @@ def dependencies(code: Path, family: dict) -> list[str]:
     return found
 
 
+# Folders a build writes into. `tracked_code` below reads from git and so never sees these; this
+# read walks the disk, because a family may reach its surfaces through a link that git does not
+# follow, and so it has to refuse them by name. It went wrong the moment `.java` was admitted to the
+# android family: two generated `BuildConfig.java` counted toward `least` and were scanned for
+# banned words, which is a check reading its own build output and calling it the app.
+BUILT = frozenset({"build", ".gradle", "target", "dist", "node_modules", "DerivedData", ".build"})
+
+
 def surface_files(code: Path, family: dict) -> list[Path]:
-    """Every surface file of a family, each one once."""
+    """Every surface file of a family, each one once, and nothing a build wrote."""
     folders, _ = surface_folders(code, family)
     files = {
         path.resolve()
         for folder in folders
         for path in folder.rglob("*")
-        if path.is_file() and path.suffix in family["ends"] and path.name not in family["skip"]
+        if path.is_file()
+        and path.suffix in family["ends"]
+        and path.name not in family["skip"]
+        and not BUILT.intersection(path.relative_to(folder).parts[:-1])
     }
     return sorted(files)
 

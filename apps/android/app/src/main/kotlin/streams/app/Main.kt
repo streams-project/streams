@@ -11,6 +11,7 @@ import androidx.activity.compose.setContent
 import contract.Form
 import streams.adapters.FileStore
 import streams.adapters.HttpNetwork
+import streams.adapters.CoilPictures
 import streams.adapters.Media3Player
 import streams.adapters.Media3Reel
 import streams.adapters.PrefsSecrets
@@ -33,6 +34,7 @@ class Main : ComponentActivity() {
             store = FileStore(this),
             player = Media3Player(this),
             reel = Media3Reel(),
+            pictures = CoilPictures(this),
             deviceClass = ThisDevice.deviceClass(this),
             form = if (tv) Form.TV else Form.PHONE,
             version = "0.1.0",

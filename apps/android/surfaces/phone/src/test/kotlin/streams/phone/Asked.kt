@@ -4,6 +4,7 @@ import contract.Action
 import contract.Profile
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import streams.ports.Pictures
 import streams.ports.Player
 import streams.ports.Reel
 import streams.ports.Seen
@@ -42,6 +43,7 @@ internal class Asked : Shell {
     override val seen: StateFlow<Seen> = MutableStateFlow(Seen())
     override val player: Player get() = error("a paging test does not play")
     override val reel: Reel get() = error("a paging test has no brand film")
+    override val pictures: Pictures get() = error("a paging test draws no pictures")
     override fun connect(server: String) = error("not asked for by paging")
     override fun go(address: String) = error("not asked for by paging")
     override fun swap(address: String) = error("not asked for by paging")
