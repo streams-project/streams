@@ -41,7 +41,13 @@ class Tracked(unittest.TestCase):
                 self.assertTrue(where, f"{name}: nothing declares it, so the rule would miss it")
 
     def test_a_scratch_file_nobody_declares_is_not_a_failure(self):
-        self.assertEqual(check.references("platform/tools/unreferenced_scratch_zz.py"), [])
+        # The probe's stem is assembled here rather than written out whole. `references` is a
+        # `git grep` over tracked files and this file is tracked, so a stem written as one literal
+        # finds this very line and the test asserting that nothing declares the file becomes the
+        # thing that declares it. That is how this test failed from the day it was added: the
+        # failure was hidden behind an earlier one in `./check` and only showed when that was fixed.
+        stem = "unreferenced" + "_scratch_" + "zz"
+        self.assertEqual(check.references(f"platform/tools/{stem}.py"), [])
 
     def test_the_paths_check_names_must_be_held_by_git(self):
         found, named = check.named_in_check(set())
