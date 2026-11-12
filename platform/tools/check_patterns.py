@@ -10,7 +10,7 @@ an id too large for the core could be built on a device and only the server woul
 This proves the two agree, three ways:
 
   one copy      every patterned type's expression is the same text in the standalone schema, in
-                the OpenAPI document, in Contract.kt and in Contract.swift
+                the OpenAPI document, in Contract.java, in Contract.kt and in Contract.swift
   one corpus    every fixture of a patterned type, which Rust reads in `contract`'s own tests, gets
                 the same verdict from the expression as the folder it sits in
   one bound     the expression accepts the largest id the Rust constant allows and refuses the next
@@ -113,6 +113,11 @@ def one_copy(name: str, pattern: str) -> list[str]:
     found = []
     places = {
         "generated/openapi.json": pattern,
+        # Java has no string interpolation, so `$` is left exactly as the schema writes it, which
+        # is the opposite of Kotlin below. A backslash doubles, as it does in any Java literal.
+        # No pattern carries a double quote today; one that did would need `"` escaped here too,
+        # and the generated file already does it, so this line would be what went stale.
+        "generated/types/Contract.java": pattern.replace("\\", "\\\\"),
         "generated/types/Contract.kt": pattern.replace("$", "\\$"),
         "generated/types/Contract.swift": pattern,
     }

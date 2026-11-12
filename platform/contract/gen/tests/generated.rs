@@ -344,11 +344,12 @@ fn h119_h4_the_version_is_a_date_and_hello_publishes_a_range() {
 }
 
 #[test]
-fn the_three_type_files_name_every_definition() {
+fn the_four_type_files_name_every_definition() {
     let all = files();
     for name in schemas().as_object().unwrap().keys() {
         for path in [
             "types/contract.ts",
+            "types/Contract.java",
             "types/Contract.kt",
             "types/Contract.swift",
         ] {
@@ -358,10 +359,20 @@ fn the_three_type_files_name_every_definition() {
 }
 
 #[test]
-fn h57_h91_a_bare_id_is_refused_in_the_three_client_languages() {
+fn h57_h91_a_bare_id_is_refused_in_the_four_client_languages() {
     let all = files();
     assert!(all["types/contract.ts"].contains("`movie:${number}` | `tv:${number}`"));
     assert!(all["types/Contract.kt"].contains("value class TitleKey(val value: String)"));
+    // Java holds the expression with the backslash doubled and the `$` left alone, and throws from
+    // the constructor, so a bare id cannot be built on a device.
+    assert!(all["types/Contract.java"].contains(&format!(
+        "Pattern.compile(\"^(movie|tv):{}$\")",
+        contract::TITLE_ID_PATTERN
+    )));
+    assert!(
+        all["types/Contract.java"]
+            .contains("throw new IllegalArgumentException(\"not a TitleKey\")")
+    );
     assert!(
         all["types/Contract.kt"]
             .contains(&format!("^(movie|tv):{}\\$", contract::TITLE_ID_PATTERN))

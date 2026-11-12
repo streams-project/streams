@@ -1,5 +1,6 @@
 //! Writes the files generated from the contract. Same input, same bytes.
 
+pub mod java;
 pub mod kotlin;
 pub mod openapi;
 pub mod schemas;
@@ -115,6 +116,7 @@ pub fn generate(fixtures: &[String]) -> BTreeMap<String, String> {
         );
     }
     files.insert("types/contract.ts".into(), typescript::write(&items));
+    files.insert("types/Contract.java".into(), java::write(&items));
     files.insert("types/Contract.kt".into(), kotlin::write(&items));
     files.insert("types/Contract.swift".into(), swift::write(&items));
     files
