@@ -344,7 +344,7 @@ fn h119_h4_the_version_is_a_date_and_hello_publishes_a_range() {
 }
 
 #[test]
-fn the_four_type_files_name_every_definition() {
+fn the_five_type_files_name_every_definition() {
     let all = files();
     for name in schemas().as_object().unwrap().keys() {
         for path in [
@@ -352,6 +352,7 @@ fn the_four_type_files_name_every_definition() {
             "types/Contract.java",
             "types/Contract.kt",
             "types/Contract.swift",
+            "types/Contract.hpp",
         ] {
             assert!(all[path].contains(name.as_str()), "{path}: {name}");
         }
@@ -359,7 +360,7 @@ fn the_four_type_files_name_every_definition() {
 }
 
 #[test]
-fn h57_h91_a_bare_id_is_refused_in_the_four_client_languages() {
+fn h57_h91_a_bare_id_is_refused_in_the_five_client_languages() {
     let all = files();
     assert!(all["types/contract.ts"].contains("`movie:${number}` | `tv:${number}`"));
     assert!(all["types/Contract.kt"].contains("value class TitleKey(val value: String)"));
@@ -378,6 +379,14 @@ fn h57_h91_a_bare_id_is_refused_in_the_four_client_languages() {
             .contains(&format!("^(movie|tv):{}\\$", contract::TITLE_ID_PATTERN))
     );
     assert!(all["types/Contract.swift"].contains("ContractError.refused(\"TitleKey\")"));
+    // C++ holds it the way Java does and compiles it once into a function local static. The
+    // constructor is the only way to make one, so a bare id cannot be built on a device here
+    // either; check_types.py proves that by compiling this and running the fixtures through it.
+    assert!(all["types/Contract.hpp"].contains(&format!(
+        "static const std::regex compiled(\"^(movie|tv):{}$\", std::regex::ECMAScript)",
+        contract::TITLE_ID_PATTERN
+    )));
+    assert!(all["types/Contract.hpp"].contains("throw Refused(\"not a TitleKey\")"));
     assert!(!all["types/Contract.swift"].contains("typealias TitleKey"));
     assert!(!all["types/Contract.kt"].contains("typealias TitleKey"));
 }

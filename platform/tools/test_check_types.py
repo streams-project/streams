@@ -49,7 +49,7 @@ class Types(unittest.TestCase):
     def test_a_run_that_compiled_nothing_fails(self):
         code, output = run_with_no_compiler()
         self.assertEqual(code, 1, output)
-        self.assertIn("0 of 4 languages compiled (none)", output)
+        self.assertIn("0 of 5 languages compiled (none)", output)
         self.assertIn("nothing about the generated types was proved", output)
 
     def test_it_still_names_every_language_it_could_not_run(self):
