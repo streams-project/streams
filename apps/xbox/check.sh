@@ -1,10 +1,11 @@
 #!/bin/sh
 # Builds and runs everything in this folder that can run without an Xbox.
 #
-# Two tests: the core boundary (`host/`), which needs the C bridge built as a static library for
-# whatever machine this is, and the input grammar (`surfaces/remote/`), which needs nothing but a
-# C++ compiler. Both are plain programs that print a line per check and return non-zero on a
-# failure.
+# Three tests: the core boundary (`host/`), which needs the C bridge built as a static library for
+# whatever machine this is, and the input grammar and the drawing numbers (`surfaces/remote/`),
+# which need nothing but a C++ compiler. All three are plain programs that print a line per check
+# and return non-zero on a failure. The drawing numbers read `brand.json` from the repository root,
+# which is why this script runs from there.
 #
 # The root `./check` is the whole of CI and it does not call this: it carries no C++ compiler and
 # `platform/tools/check_rings.py` has no `xbox` family. So this runs when a person types it, and the
@@ -35,6 +36,12 @@ $cxx $flags apps/xbox/surfaces/remote/remote.cpp apps/xbox/surfaces/remote/remot
 "$out/remote"
 
 echo
+echo "== the drawing numbers, held against brand.json itself"
+$cxx $flags apps/xbox/surfaces/remote/paint.cpp apps/xbox/surfaces/remote/paint_test.cpp \
+    -o "$out/paint"
+"$out/paint" brand.json
+
+echo
 echo "== the core boundary, against a real static library built for $host"
 CARGO_INCREMENTAL=0 cargo build --locked --profile native -p bridge-c --target "$host"
 $cxx $flags -I platform/bridges/c apps/xbox/host/core_host.cpp apps/xbox/host/smoke_test.cpp \
@@ -42,4 +49,4 @@ $cxx $flags -I platform/bridges/c apps/xbox/host/core_host.cpp apps/xbox/host/sm
 "$out/smoke"
 
 echo
-echo "both held. Neither test touches an Xbox, WinRT, a screen or a controller."
+echo "all three held. No test here touches an Xbox, WinRT, a screen or a controller."

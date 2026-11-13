@@ -197,7 +197,10 @@ functions carrying UTF-8 JSON, described in `platform/bridges/README.md` - writt
 | `surfaces/remote/remote.h` | the six words, the button mapping, the stick's dead zone, the repeat clock |
 | `surfaces/remote/remote.cpp` | that grammar. No WinRT, no core, no screen: a mask and two axes in, words out |
 | `surfaces/remote/remote_test.cpp` | 39 checks over all of it. Not run by CI |
-| `check.sh` | builds and runs both tests on whatever machine this is |
+| `surfaces/remote/paint.h` | the drawing numbers: the reference scale, the brand's colours and corners, Microsoft's TV-safe band, the easing curve and the 320 ms rise |
+| `surfaces/remote/paint.cpp` | that arithmetic. No WinRT, no Win2D, no screen |
+| `surfaces/remote/paint_test.cpp` | 61 checks, six of them held against `brand.json` itself. Not run by CI |
+| `check.sh` | builds and runs all three tests on whatever machine this is |
 
 It holds no rules, exactly as `apps/android/core/src/main/cpp/bridge.c` holds none for Java.
 
@@ -205,9 +208,10 @@ Ran on this machine, 2026-11-12, x86_64 macOS 25.6.0, rustc 1.98.1:
 
     ./apps/xbox/check.sh
 
-39 of 39 held for the input grammar and 11 of 11 for the boundary, no compiler warnings under
-`-Wall -Wextra`. That proves the C++ side of the boundary, the config shape a console sends
-(`"class":"box"`, `"form":"tv"`) and the whole input grammar. It proves nothing about Xbox.
+39 of 39 held for the input grammar, 61 of 61 for the drawing numbers and 11 of 11 for the
+boundary, no compiler warnings under `-Wall -Wextra -Wpedantic`. That proves the C++ side of the
+boundary, the config shape a console sends (`"class":"box"`, `"form":"tv"`), the whole input grammar
+and every number a painter needs before Windows is involved. It proves nothing about Xbox.
 
 **CI never runs it.** The root `./check` is the whole of CI and it carries no C++ compiler and no C++
 test runner, and `platform/tools/check_rings.py` has no `xbox` family, so these tests run only when
@@ -297,7 +301,7 @@ So the honest line is between 4 and 5, and it is a Windows machine rather than a
 | Folder | State |
 |---|---|
 | `host/` | written. The core boundary and its test |
-| `surfaces/remote/` | the input grammar, written and tested. **No screens**, and none can be written yet: see below |
+| `surfaces/remote/` | the input grammar and the drawing numbers, written and tested. **No screens**, and none can be written yet: see below. Note 223 settles how a screen will draw once it can be written: a UWP C++/WinRT app, one swap chain, Win2D over Direct2D |
 | `ports/` | not written. The five ports every family names: network, secrets, store, player, reel |
 | `adapters/` | not written. What each port does on Xbox, through WinRT |
 
@@ -350,8 +354,9 @@ surface's own, and entirely testable without a core.
    This decision is the lead's to confirm - it is recorded here as the only route the evidence
    leaves standing, not as permission to spend money.
 2. **Where the remote surface lives.** Surfaces split by input grammar (owner, 2026-11-11), and
-   there are already three remote surfaces: `apps/tv/page/surfaces` (stopped), `apps/android/surfaces/tv`
-   and `apps/apple/Sources/SurfacesTV`. Xbox would be the fourth copy of one grammar. Unblocked by
+   there are already two remote surfaces: `apps/android/surfaces/tv` and
+   `apps/apple/Sources/SurfacesTV`. A third, `apps/tv/page/surfaces`, was deleted on 2026-11-12.
+   Xbox would be the third copy of one grammar. Unblocked by
    the owner saying whether a remote surface is one code base or one per family.
 3. **Which `DeviceClass` an Xbox reports**, `box` or `tv`. It changes the per class floors the core
    picks (`platform/core/src/config.rs:81`). `host/smoke_test.cpp` uses `box` so the test has a
