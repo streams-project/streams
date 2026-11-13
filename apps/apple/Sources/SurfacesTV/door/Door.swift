@@ -29,7 +29,12 @@ private enum Stop { case home, tab, topSignIn, help, signIn, join, watch }
 
 /// A card's own box. Its pictures are read in it, so the slideshow behind the card and the read
 /// ahead that fills it before it is in view land on one cache entry rather than two.
-private let cardBox = CGSize(width: 1542, height: 864)
+///
+/// Not private, so a test can say what that box is. The two sites naming one constant is the whole
+/// of why a read ahead is worth making - a read ahead in a box of its own is a second entry that no
+/// card ever looks for - and a constant two sites share is only worth something if something checks
+/// that they still share it.
+let cardBox = CGSize(width: 1542, height: 864)
 
 /// Cards sit this far apart: 1542 wide and 39 between, so the next one shows at 1636.
 private let cardStep: CGFloat = 1581
@@ -221,6 +226,10 @@ private struct Landing: View {
     @State private var raised = false
     @State private var film: Bool
     @State private var slide: CGFloat
+    /// How many pixels a point is on this screen, so the read ahead asks in the same box the card's
+    /// own picture asks in. Read from the environment for the reason `Art` reads it there: a view
+    /// knows which screen it is on and `UIScreen.main` does not.
+    @Environment(\.displayScale) private var scale
 
     init(shell: Shell, seen: Seen, opening: Bool, roll: Bool, ready: @escaping () -> Void) {
         self.shell = shell
@@ -236,6 +245,46 @@ private struct Landing: View {
         if !told && filmReady && cards != nil && peekReady {
             told = true
             ready()
+        }
+    }
+
+    /// Every card's pictures, read before any card is in view.
+    ///
+    /// This is what the port's ``Ports/Pictures/warm(_:done:)`` is for, and until 2026-11-13 the
+    /// same job was done by drawing all of them into a four point corner of the screen at no
+    /// opacity: real views, with real layout and a real `task` each, kept alive for the life of the
+    /// landing so that nothing threw their pictures away. A read ahead says what it is instead, and
+    /// it holds no views.
+    ///
+    /// The box is the card's own and not a box of this reader's choosing. The adapter files a
+    /// picture under the rung its box falls on (`Adapters/Pictures.swift`), so a read ahead in any
+    /// other box is a second entry that no card ever asks for: it would cost the whole of what it
+    /// read and warm nothing.
+    ///
+    /// The first picture's answer is what the opening waits on, whether it arrived or not, because
+    /// a landing that waits for a picture that is not coming never shows.
+    ///
+    /// What this holds, measured (`TelevisionTests.ReadAheadTests`, three titles of three pictures
+    /// each, decoded from a 1920 by 1080 backdrop): 74,649,600 bytes. The card is 1542 points wide
+    /// on a screen whose point is a pixel, so its box lands on the ladder's top rung, 2048, which
+    /// is above a 1920 picture: nothing is sampled away and every backdrop is held whole. Decoded
+    /// at the box itself it would be 48,191,328. The box stays as it is - the card really is drawn
+    /// 1542 wide, and a box asked smaller than that is soft on a television.
+    ///
+    /// Open, for the owner and not for this file: this reads **every** picture of every trending
+    /// title, so it grows with titles times slides and holds all of it from launch. Reading only
+    /// each title's first picture - the one a card shows when it comes into view - would hold
+    /// 24,883,200 of the same 74,649,600, and the slideshow's later stills would be read when their
+    /// card is the one in view, 4.5 seconds before the first of them is shown. That is a change to
+    /// what the landing does on a slow link, so it is not made here.
+    private func readAhead(_ titles: [TitleDetail]) {
+        for (which, url) in titles.flatMap(slidesOf).enumerated() {
+            shell.pictures.warm(wanted(url, cardBox, scale)) {
+                if which == 0 && !peekReady {
+                    peekReady = true
+                    tell()
+                }
+            }
         }
     }
 
@@ -402,24 +451,6 @@ private struct Landing: View {
                         .opacity(card < page ? 0 : 1)
                 }
             }
-            // Every title's pictures load at once, so each card has them when it comes into view.
-            ZStack {
-                ForEach(Array(titles.enumerated()), id: \.offset) { index, title in
-                    ForEach(Array(slidesOf(title).enumerated()), id: \.offset) { which, url in
-                        // The box is the card's and not this four point hiding place: this read is
-                        // here to fill the cache for the card, and a picture read in another box is
-                        // another entry, so a box of its own would warm nothing the cards can use.
-                        Art(shell.pictures, url, box: cardBox) {
-                            if index == 0 && which == 0 && !peekReady {
-                                peekReady = true
-                                tell()
-                            }
-                        }
-                    }
-                }
-            }
-            .frame(width: 4, height: 4)
-            .opacity(0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .animation(glide(cardMove), value: page)
@@ -434,6 +465,9 @@ private struct Landing: View {
                 .flatMap { try? JSONDecoder().decode(PublicTitles.self, from: Data($0.utf8)).titles } ?? []
             cards = list
             if slidesOf(list.first).isEmpty { peekReady = true }
+            // Read ahead from here and not from the body: the reads are started once, by the answer
+            // that brought the titles, rather than once per rebuild of the screen.
+            readAhead(list)
             tell()
         }
         .task {

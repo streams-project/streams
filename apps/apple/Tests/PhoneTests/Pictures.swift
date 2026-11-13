@@ -232,6 +232,74 @@ final class PicturesTests: XCTestCase {
         )
     }
 
+    /// The more like this grid asks for each poster in the cell it really draws it in, on a page of
+    /// any width.
+    ///
+    /// This is the one grid in this surface whose cell has no size of its own: three `.flexible()`
+    /// columns, so a cell is a share of the page. Until 2026-11-13 the box was written down as the
+    /// phone's own tile, 119 by 166.6, and on anything wider than a phone the poster was decoded for
+    /// a phone and drawn soft (`notes/245`). The page reads its own width now and the grid divides
+    /// it.
+    ///
+    /// Both halves are measured rather than worked out here: the cell comes from the drawn
+    /// accessibility frame of the tile itself, and the box from what the port was handed. A test
+    /// that computed the share for itself would agree with a draw site that computed the same share
+    /// wrongly.
+    func testTheMoreLikeGridAsksForItsPostersInTheCellItDrawsThemIn() {
+        // The grid alone and not the page around it, because what is read here is where a tile was
+        // drawn, and an accessibility tree is only built for what is on the screen: at the foot of
+        // the title page the grid is below it. The page's half of this - that it hands its own
+        // width down - is the test below.
+        for pageWide in [phone.width, 1024] {
+            let (shell, seen) = titleSeen()
+            let tile = seen.detail!.moreLikeThis!.first!
+            let found = heard(
+                PhoneMoreLike(shell: shell, data: seen.detail!, pageWide: pageWide),
+                size: CGSize(width: pageWide, height: 800)
+            )
+            guard let drawn = saying(found, tile.name) else {
+                return XCTFail("the more like this grid drew no tile for \(tile.name) on a \(pageWide) point page: \(words(found))")
+            }
+            guard let asked = shell.shown.asked.first(where: { $0.url == tall(tile.images)! }) else {
+                return XCTFail("the tile's poster never reached the port on a \(pageWide) point page")
+            }
+            XCTAssertEqual(
+                Double(asked.wide), Double(drawn.frame.width * scale), accuracy: Double(scale),
+                "the poster was asked for in a box of \(asked.wide) pixels and drawn in a cell of "
+                    + "\(drawn.frame.width * scale) on a \(pageWide) point page"
+            )
+            XCTAssertEqual(
+                Double(asked.high), Double(drawn.frame.height * scale), accuracy: Double(scale),
+                "the poster's box is not as tall as the cell it is drawn in on a \(pageWide) point page"
+            )
+        }
+    }
+
+    /// A page wider than a phone asks for a bigger picture than a phone does, and the two are not
+    /// the same entry in the cache.
+    ///
+    /// The test above would pass if every page were somehow one width. This one says the box
+    /// follows the page: a tablet's cell is 316 points against a phone's 119, which is rung 1024
+    /// against rung 360, and the whole of the open item in `notes/245` was that the tablet asked for
+    /// the phone's rung.
+    func testAWiderPageAsksForABiggerPictureThanAPhone() {
+        func rungAsked(_ pageWide: CGFloat) -> Int {
+            let (shell, seen) = titleSeen()
+            let tile = seen.detail!.moreLikeThis!.first!
+            _ = heard(Title(shell: shell, seen: seen), size: CGSize(width: pageWide, height: 2000), settle: 0.6)
+            let asked = shell.shown.asked.first { $0.url == tall(tile.images)! }
+            return UrlPictures.key(asked ?? Want(url: "")).wide
+        }
+        let onAPhone = rungAsked(phone.width)
+        let onATablet = rungAsked(1024)
+        XCTAssertGreaterThan(onAPhone, 0, "a phone's more like this tile asked for no box at all")
+        XCTAssertGreaterThan(
+            onATablet, onAPhone,
+            "a tablet's cell is wider than a phone's and asked for the same rung, \(onATablet): "
+                + "the poster in it is decoded for a phone and drawn soft"
+        )
+    }
+
     /// A notification's poster takes the same path, which is the whole point of there being one
     /// path: this row fetched its own picture through `AsyncImage` before this, and it is the
     /// fourth of the four sites `notes/216` found.

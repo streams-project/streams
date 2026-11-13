@@ -22,6 +22,14 @@ public struct Heard: Sendable, Equatable {
     /// `switch`.
     public let kinds: [String]
     public let depth: Int
+    /// Where the element was really drawn, in the window's own points.
+    ///
+    /// Read from the accessibility tree because that tree is the only place a test can ask a laid
+    /// out SwiftUI view what size it ended up: `LazyVGrid`'s cells are a share of whatever the page
+    /// is drawn in, and a test that worked that share out for itself would be asserting its own
+    /// arithmetic rather than the layout's. The window is made at the origin, so these are the
+    /// window's points as well as the screen's.
+    public let frame: CGRect
 
     public var isButton: Bool { kinds.contains("button") }
     public var isImage: Bool { kinds.contains("image") }
@@ -121,7 +129,8 @@ private func walk(_ node: AnyObject, _ depth: Int, _ found: inout [Heard]) {
                 label: node.accessibilityLabel ?? "",
                 value: node.accessibilityValue ?? "",
                 kinds: names(node.accessibilityTraits),
-                depth: depth
+                depth: depth,
+                frame: node.accessibilityFrame
             )
         )
         return

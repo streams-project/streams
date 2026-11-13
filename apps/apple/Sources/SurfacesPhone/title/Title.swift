@@ -106,6 +106,23 @@ public struct Title: View {
     }
 
     public var body: some View {
+        // The page's own width, read at its root and handed to the one part of it whose pictures
+        // are drawn in a share of that width rather than in a box of their own - the more like this
+        // grid, whose cell is a third of the page.
+        //
+        // A reader here and not a measure around the grid, because the two are a frame apart: a
+        // reader's content is built inside the same layout pass that sized the reader, so the grid's
+        // cells ask the port for their posters in the box they will really fill on their first
+        // draw. A measure taken from the grid's own background arrives after that draw, which asks
+        // twice and holds both answers (`Adapters/Pictures.swift` files a picture under its box's
+        // rung).
+        GeometryReader { page in
+            body(page.size.width)
+        }
+    }
+
+    @ViewBuilder
+    private func body(_ pageWide: CGFloat) -> some View {
         if let data = seen.detail, data.title == seen.route?.title {
             let isSeries = data.isSeries
             let words = seen.words
@@ -525,7 +542,7 @@ public struct Title: View {
                             if isSeries && selectedTab == .episodes {
                                 PhoneEpisodes(shell: shell, seen: seen, data: data)
                             } else {
-                                PhoneMoreLike(shell: shell, data: data)
+                                PhoneMoreLike(shell: shell, data: data, pageWide: pageWide)
                             }
 
                             Spacer(minLength: 96)
@@ -828,32 +845,56 @@ private struct SeasonPickerSheet: View {
     }
 }
 
+/// How many tiles a row of the more like this grid holds, and how far apart they sit.
+private let moreLikeColumns = 3
+private let moreLikeGap: CGFloat = 8
+private let moreLikeEdge: CGFloat = 10
+
+/// The box one cell of that grid is drawn in, worked out from the page's width.
+///
+/// The columns are `.flexible()`, so a cell is what is left of the page after its two margins and
+/// the two gaps, divided three ways - this is that division written down, and it is written here
+/// rather than guessed at the draw site because the picture inside the cell has to ask the port for
+/// the box it will really fill. On the reference phone of 393 points it gives 119 by 166.6, which is
+/// the tile size the rest of this surface draws, so the phone is unchanged.
+///
+/// A page of no width is a view not yet in a window. The phone's own tile is the answer there: it is
+/// the smallest the cell is ever drawn, and a box asked too small is the one mistake with no second
+/// chance, so the one case it can be wrong in is the one that costs memory rather than sharpness.
+private func moreLikeCell(_ pageWide: CGFloat) -> CGSize {
+    let gaps = 2 * moreLikeEdge + CGFloat(moreLikeColumns - 1) * moreLikeGap
+    let wide = (pageWide - gaps) / CGFloat(moreLikeColumns)
+    guard pageWide.isFinite, wide >= tileWide else { return CGSize(width: tileWide, height: tileHigh) }
+    return CGSize(width: wide, height: wide * tileHigh / tileWide)
+}
+
 /// More Like This tab on phones: 3-column grid of tall tiles.
 struct PhoneMoreLike: View {
     let shell: Shell
     let data: TitleDetail
+    /// What the page around this grid is drawn in, from the reader at `Title`'s root. A cell is a
+    /// share of it, and the share is what each poster is asked for.
+    let pageWide: CGFloat
 
     var body: some View {
         let tiles = data.moreLikeThis ?? []
+        let cell = moreLikeCell(pageWide)
         let columns = [
-            GridItem(.flexible(), spacing: 8),
-            GridItem(.flexible(), spacing: 8),
-            GridItem(.flexible(), spacing: 8),
+            GridItem(.flexible(), spacing: moreLikeGap),
+            GridItem(.flexible(), spacing: moreLikeGap),
+            GridItem(.flexible(), spacing: moreLikeGap),
         ]
 
-        LazyVGrid(columns: columns, spacing: 8) {
+        LazyVGrid(columns: columns, spacing: moreLikeGap) {
             ForEach(tiles, id: \.title.rawValue) { tile in
                 Button {
                     shell.go(titleAddress(tile.title))
                 } label: {
                     ZStack {
                         Plate
-                        // The cell is a third of whatever this page is drawn in, which no measure
-                        // here fixes, so the box is the phone's own tile. Open: on a tablet the
-                        // cell is wider than this and the poster is decoded for a phone.
-                        Art(shell.pictures, tall(tile.images), box: CGSize(width: tileWide, height: tileHigh))
+                        Art(shell.pictures, tall(tile.images), box: cell)
                     }
-                    .aspectRatio(119 / 166.6, contentMode: .fill)
+                    .aspectRatio(tileWide / tileHigh, contentMode: .fill)
                     .clipShape(RoundedRectangle(cornerRadius: Corner.card))
                 }
                 .buttonStyle(.plain)
@@ -862,7 +903,7 @@ struct PhoneMoreLike: View {
                 .says(tile.name)
             }
         }
-        .padding(.horizontal, 10)
+        .padding(.horizontal, moreLikeEdge)
         .padding(.vertical, 12)
     }
 }
