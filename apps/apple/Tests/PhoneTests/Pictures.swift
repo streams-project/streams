@@ -25,6 +25,11 @@ import XCTest
 final class PicturesTests: XCTestCase {
     private let phone = CGSize(width: 393, height: 852)
     private let address = "https://example.invalid/poster.jpg"
+    /// A tile's box, which is the box most of the pictures in this app are drawn in.
+    private let tileBox = CGSize(width: tileWide, height: tileHigh)
+    /// How many pixels a point is here. Read rather than written down: a test that assumed 3 and
+    /// ran on a screen at 2 would assert about a box no view ever asked for.
+    private var scale: CGFloat { UIScreen.main.scale }
 
     // MARK: - The port
 
@@ -117,6 +122,44 @@ final class PicturesTests: XCTestCase {
         )
     }
 
+    /// Two boxes a few pixels apart are one picture, because a picture is filed under the rung its
+    /// box falls on and not under the box itself.
+    ///
+    /// Without this a row of tiles measured at 357 pixels and a grid of the same posters measured
+    /// at 360 would hold every poster twice, and nothing on screen would say so.
+    func testTheAdapterHoldsTwoNearBoxesAsOnePicture() {
+        let pictures = UrlPictures()
+        pictures.remember(Want(url: address, wide: 357, high: 500), aPicture(8))
+        XCTAssertNotNil(
+            pictures.kept(Want(url: address, wide: 360, high: 504)),
+            "two boxes a few pixels apart were held as two pictures"
+        )
+        XCTAssertNil(
+            pictures.kept(Want(url: address)),
+            "a picture read in a box answered for a read of the whole frame, which asks for more"
+        )
+        XCTAssertNil(
+            pictures.kept(Want(url: address, wide: 1024, high: 1024)),
+            "a small picture answered for a box it cannot fill"
+        )
+    }
+
+    /// Reading a picture's pixels back is not a second picture.
+    ///
+    /// `pixels` says what the caller means to do and nothing about the bytes this adapter produces,
+    /// so it is not part of what a picture is filed under. Until 2026-11-13 it was, and the two
+    /// places that take a tint off their artwork - the gate and the billboard - decoded the same
+    /// picture twice and held both, each believing in a comment that it shared one entry with the
+    /// drawing beside it.
+    func testReadingAPicturesPixelsBackIsNotASecondCopyOfIt() {
+        let pictures = UrlPictures()
+        pictures.remember(Want(url: address, wide: 320, high: 320), aPicture(8))
+        XCTAssertNotNil(
+            pictures.kept(Want(url: address, wide: 320, high: 320, pixels: true)),
+            "asking to read a picture's pixels back made a second copy of one already in hand"
+        )
+    }
+
     /// The cache has a limit and the picture longest unasked for is the one that goes.
     func testTheAdapterForgetsTheOldestPictureOverItsLimit() {
         let pictures = UrlPictures(most: 2)
@@ -146,7 +189,7 @@ final class PicturesTests: XCTestCase {
     /// the fetch happened inside SwiftUI and no stand-in could see it.
     func testArtAsksThePortForTheAddressItWasGiven() {
         let told = ToldPictures(.paint(aPicture()))
-        _ = heard(Art(told, address), size: phone)
+        _ = heard(Art(told, address, box: tileBox), size: phone)
         XCTAssertEqual(told.addresses, [address], "the shared picture view did not go through the port")
     }
 
@@ -155,7 +198,7 @@ final class PicturesTests: XCTestCase {
     func testArtSaysThePictureIsSettledEvenWhenThePortRefuses() {
         let told = ToldPictures(.refuse("offline"))
         let box = Settled()
-        _ = heard(Art(told, address) { box.settled = true }, size: phone)
+        _ = heard(Art(told, address, box: tileBox) { box.settled = true }, size: phone)
         XCTAssertEqual(told.addresses, [address], "the view did not ask the port at all")
         XCTAssertTrue(box.settled, "a refused picture left the screen waiting for one that is not coming")
     }
@@ -163,8 +206,10 @@ final class PicturesTests: XCTestCase {
     /// A picture the port already holds is drawn without a second read.
     func testArtDrawsAPictureAlreadyInHandWithoutAskingForItAgain() {
         let told = ToldPictures(.silence)
-        told.hold(Want(url: address), aPicture())
-        _ = heard(Art(told, address), size: phone)
+        // Held under the want the view will ask with, box and all. If the two ever came apart the
+        // look in the cache would miss and the view would read again, which is what this asserts.
+        told.hold(wanted(address, tileBox, scale), aPicture())
+        _ = heard(Art(told, address, box: tileBox), size: phone)
         XCTAssertEqual(told.asked, [], "a picture already in hand was read a second time")
     }
 
@@ -214,6 +259,86 @@ final class PicturesTests: XCTestCase {
             "the poster on a notification did not come through the port at the address it was given"
         )
     }
+}
+
+// MARK: - What a screen's pictures cost
+
+/// What a whole screen asks the port for, and what holding those answers costs.
+///
+/// Home is the screen to ask it of: it has the most pictures on it, and it draws every kind this
+/// app has - a billboard, rows of posters, a ranked row, a continue row, a face on the bar.
+@MainActor
+final class PictureCostTests: XCTestCase {
+    private let phone = CGSize(width: 393, height: 852)
+
+    /// Every want Home hands the port names the box it will be drawn in.
+    ///
+    /// This is the test that fails if a draw site goes back to a box of nothing. Nothing on screen
+    /// would look wrong if one did - the picture would simply be held at its own size behind a tile
+    /// a tenth of it - so this is the only place that failure is visible.
+    func testEveryPictureHomeAsksForNamesTheBoxItWillFill() {
+        let asked = homesWants()
+        XCTAssertFalse(asked.isEmpty, "Home asked the port for no pictures at all")
+        let boxless = asked.filter { $0.wide <= 0 || $0.high <= 0 }.map(\.url).sorted()
+        XCTAssertEqual(
+            boxless, [],
+            "a draw site on Home asked for a picture without naming its box, so the whole frame is decoded and held"
+        )
+    }
+
+    /// What those boxes are worth, in bytes, against holding the same screen's pictures whole.
+    ///
+    /// Both sides are the same screen's own wants, decoded from the same poster: the left is what
+    /// the cache holds now, one entry per box rung; the right is what it held before 2026-11-13,
+    /// one entry per address and per `pixels`, each at the poster's full size. The numbers are
+    /// printed because a measurement nobody can read is a measurement nobody can check.
+    func testHomesPicturesAreHeldForAFractionOfTheirWholeFrames() {
+        let asked = homesWants()
+        let poster = aPosterBytes(1000, 1500)
+        let now = Set(asked.map { UrlPictures.key($0) })
+        let before = Set(asked.map { Want(url: $0.url, pixels: $0.pixels) })
+        let heldNow = now.reduce(0) { $0 + bytesOf(UrlPictures.decode(poster, $1)) }
+        let heldBefore = before.reduce(0) { $0 + bytesOf(UrlPictures.decode(poster, $1)) }
+        let each = asked.map { "\($0.url) \($0.wide)x\($0.high) -> rung \(UrlPictures.key($0).wide)" }
+        print("""
+        HOME PICTURES, decoded from a 1000 by 1500 poster:
+          wants asked: \(asked.count)
+        \(each.map { "    " + $0 }.joined(separator: "\n"))
+          entries now: \(now.count), held: \(heldNow) bytes
+          entries before: \(before.count), held: \(heldBefore) bytes
+        """)
+        XCTAssertGreaterThan(heldBefore, 0, "nothing decoded at all, so neither number means anything")
+        XCTAssertLessThan(
+            heldNow * 2, heldBefore,
+            "the boxes Home asks for save less than half of what holding its pictures whole costs"
+        )
+    }
+
+    /// Every want a drawn Home handed the port, reads and reads ahead alike.
+    private func homesWants() -> [Want] {
+        let (shell, seen) = homeSeen()
+        _ = heard(Home(shell: shell, seen: seen), size: phone, settle: 0.6)
+        return shell.shown.asked + shell.shown.warmed
+    }
+}
+
+/// What a decoded picture occupies, which is the thing a tile's box is there to make smaller.
+private func bytesOf(_ picture: UIImage?) -> Int {
+    guard let image = picture?.cgImage else { return 0 }
+    return image.bytesPerRow * image.height
+}
+
+/// A poster of one colour at a poster's shape, as bytes. `aPicturesBytes` is square, and a square
+/// one would hide what the decode does with the longer side.
+@MainActor
+private func aPosterBytes(_ wide: CGFloat, _ high: CGFloat) -> Data {
+    let format = UIGraphicsImageRendererFormat.default()
+    format.scale = 1
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: wide, height: high), format: format)
+    return renderer.image { context in
+        UIColor.red.setFill()
+        context.fill(CGRect(x: 0, y: 0, width: wide, height: high))
+    }.pngData()!
 }
 
 /// Whether a picture settled, held by reference so a view's closure can say so.

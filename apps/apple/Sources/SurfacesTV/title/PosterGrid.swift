@@ -40,7 +40,7 @@ struct PosterGrid: View {
                 if row >= line - 1 && row <= line + 2 {
                     ZStack(alignment: .bottomLeading) {
                         Raised
-                        Art(pictures, tall(tile.images))
+                        Art(pictures, tall(tile.images), box: CGSize(width: wide, height: high))
                         TileBadges(tile, words).padding(12.ref)
                     }
                     .frame(width: wide.ref, height: high.ref)

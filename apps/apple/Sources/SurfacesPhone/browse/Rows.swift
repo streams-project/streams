@@ -259,7 +259,7 @@ struct ContinueCard: View {
             // Artwork with progress bar
             Button(action: open) {
                 ZStack(alignment: .bottomLeading) {
-                    Art(pictures, tall(tile.images))
+                    Art(pictures, tall(tile.images), box: CGSize(width: tileWide, height: 138))
                         .frame(width: tileWide, height: 138)
                         .clipped()
 
@@ -338,7 +338,7 @@ struct TileCard: View {
 
         Button(action: open) {
             ZStack(alignment: .topLeading) {
-                Art(pictures, SurfacesShared.tall(tile.images))
+                Art(pictures, SurfacesShared.tall(tile.images), box: CGSize(width: wide, height: high))
                     .frame(width: wide, height: high)
                     .clipped()
 
@@ -438,7 +438,7 @@ private struct FullPageGrid: View {
                                 ZStack {
                                     Raised
                                     if let url = tall(tile.images) {
-                                        Art(pictures, url)
+                                        Art(pictures, url, box: CGSize(width: tileWide, height: tileHigh))
                                     }
                                 }
                                 .aspectRatio(tileWide / tileHigh, contentMode: .fit)

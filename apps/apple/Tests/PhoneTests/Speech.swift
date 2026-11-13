@@ -405,7 +405,7 @@ final class SpeechTests: XCTestCase {
         let silentOnes: [(String, AnyView)] = [
             ("Icon", AnyView(Icon("icon_search", 34))),
             ("Mark", AnyView(Mark(60))),
-            ("Art", AnyView(Art(ToldPictures(), "https://example.invalid/a.jpg"))),
+            ("Art", AnyView(Art(ToldPictures(), "https://example.invalid/a.jpg", box: CGSize(width: 119, height: 166.6)))),
         ]
         for (name, view) in silentOnes {
             XCTAssertEqual(heard(view, size: phone), [], "\(name) is read although nothing gave it words")

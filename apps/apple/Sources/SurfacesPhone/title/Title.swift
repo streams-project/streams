@@ -81,6 +81,13 @@ private func playTitle(_ shell: Shell, _ data: TitleDetail) {
 /// The phone title page: 16:9 art under a 52 pt bar, title or logo, facts, white play button,
 /// expandable synopsis, cast/directors line, action buttons row, divider, and Episodes / More Like
 /// This tabs.
+/// The page's backdrop fills the width of whatever it is drawn on, and no measure on this page
+/// fixes that width. The box declared is the widest it can ever be drawn - a tablet on its side -
+/// because a box declared too small decodes a picture that cannot be made sharp again. At a
+/// phone's scale that is past the top of the adapter's ladder, so the backdrop is kept whole,
+/// which is what it did before any of this.
+private let backdropBox = CGSize(width: 1024, height: 576)
+
 public struct Title: View {
     let shell: Shell
     let seen: Seen
@@ -154,7 +161,7 @@ public struct Title: View {
                             // say the same thing twice. `Art` marks itself.
                             ZStack {
                                 Plate
-                                Art(shell.pictures, wide(data.images))
+                                Art(shell.pictures, wide(data.images), box: backdropBox)
                             }
                             .aspectRatio(16 / 9, contentMode: .fit)
                             .frame(maxWidth: .infinity)
@@ -167,7 +174,7 @@ public struct Title: View {
                                 // words; where there is none the name is drawn as text instead.
                                 // Either way it is the page's heading, so a reader can jump to it.
                                 if let logoUrl = logo(data.images) {
-                                    Art(shell.pictures, logoUrl, fit: true, says: data.name)
+                                    Art(shell.pictures, logoUrl, box: CGSize(width: 260, height: 80), fit: true, says: data.name)
                                         .frame(maxWidth: 260, maxHeight: 80, alignment: .leading)
                                         .accessibilityAddTraits(.isHeader)
                                 } else {
@@ -673,7 +680,7 @@ private struct PhoneEpisodeRow: View {
                     // 130x80 pt still thumbnail
                     ZStack {
                         Plate
-                        Art(shell.pictures, wide(episode.images))
+                        Art(shell.pictures, wide(episode.images), box: CGSize(width: 130, height: 80))
 
                         // Play circle overlay
                         ZStack {
@@ -841,7 +848,10 @@ struct PhoneMoreLike: View {
                 } label: {
                     ZStack {
                         Plate
-                        Art(shell.pictures, tall(tile.images))
+                        // The cell is a third of whatever this page is drawn in, which no measure
+                        // here fixes, so the box is the phone's own tile. Open: on a tablet the
+                        // cell is wider than this and the poster is decoded for a phone.
+                        Art(shell.pictures, tall(tile.images), box: CGSize(width: tileWide, height: tileHigh))
                     }
                     .aspectRatio(119 / 166.6, contentMode: .fill)
                     .clipShape(RoundedRectangle(cornerRadius: Corner.card))

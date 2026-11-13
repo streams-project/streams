@@ -22,6 +22,31 @@ public func logo(_ images: [Contract.Image]?) -> String? {
     find(images, .logo)
 }
 
+/// The box a picture will fill, as the pixels it covers on this screen.
+///
+/// Points times the screen's scale, because the port's box is in pixels and a 120 point tile on a
+/// phone is 360 of them. A side that is not a number, or is not positive - a layout that says
+/// `maxWidth: .infinity`, a measure that has not happened yet - is 0, which the port reads as the
+/// picture's own size: no box is the one safe answer, because a box guessed too small decodes a
+/// picture too blurry to draw and there is no second chance at it.
+public func inPixels(_ box: CGSize, _ scale: CGFloat) -> (wide: Int, high: Int) {
+    func side(_ length: CGFloat) -> Int {
+        guard length.isFinite, length > 0, length < 100_000 else { return 0 }
+        return Int((length * max(scale, 1)).rounded())
+    }
+    return (side(box.width), side(box.height))
+}
+
+/// One picture wanted, in the box the drawing will fill.
+///
+/// Written once because every draw site has to ask the same way: a warm read and the draw that
+/// follows it land on one cache entry only while both name the same box (`Adapters/Pictures.swift`
+/// files a picture under the rung its box falls on).
+public func wanted(_ url: String, _ box: CGSize, _ scale: CGFloat, pixels: Bool = false) -> Want {
+    let (wide, high) = inPixels(box, scale)
+    return Want(url: url, wide: wide, high: high, pixels: pixels)
+}
+
 /// The picture at an address, drawn, with nothing of how it was fetched in here.
 ///
 /// The port answers with whatever its adapter decoded. This family's adapter hands over a `UIImage`
@@ -46,6 +71,14 @@ public func drawn(_ picture: Ports.Picture?) -> SwiftUI.Image? {
 /// for a reader, and a picture drawn once the port answers.
 public struct Art: SwiftUI.View {
     public let url: String?
+    /// The box this picture will fill, in points, as the layout around it sets it.
+    ///
+    /// No default. A box that could be left out would be left out - it is the same seam the port
+    /// itself refuses to default (`Ports/Pictures`), and the cost of forgetting it is invisible:
+    /// nothing on screen looks wrong when a 1000 by 1500 poster is held whole behind a 119 point
+    /// tile. A site with no fixed box of its own passes the widest it can be drawn at; a side of 0
+    /// says the picture's own size and is read as a mistake by `PicturesTests`.
+    public var box: CGSize
     public var fit: Bool
     /// Runs once the picture is there, or once it is certain there will not be one. Both answers
     /// end a wait, and a screen that waits on a picture that is not coming never draws.
@@ -59,25 +92,36 @@ public struct Art: SwiftUI.View {
     /// address would be drawn under the wrong title until the next read landed.
     @State private var shown: SwiftUI.Image?
     @State private var shownFor: String?
+    /// How many pixels a point is on the screen this is drawn on, so the box reaches the port in
+    /// the unit the port asks for. Read from the environment rather than from the screen, because
+    /// a view knows which screen it is on and `UIScreen.main` does not.
+    @Environment(\.displayScale) private var scale
 
-    public init(_ pictures: Ports.Pictures, _ url: String?, fit: Bool = false, says: String = "") {
+    public init(_ pictures: Ports.Pictures, _ url: String?, box: CGSize, fit: Bool = false, says: String = "") {
         self.pictures = pictures
         self.url = url
+        self.box = box
         self.fit = fit
         self.says = says
     }
 
-    public init(_ pictures: Ports.Pictures, _ url: String?, loaded: @escaping () -> Void) {
+    public init(_ pictures: Ports.Pictures, _ url: String?, box: CGSize, loaded: @escaping () -> Void) {
         self.pictures = pictures
         self.url = url
+        self.box = box
         self.fit = false
         self.loaded = loaded
+    }
+
+    /// What this view asks the port for: the address and the box it will fill.
+    private func want(_ url: String) -> Want {
+        wanted(url, box, scale)
     }
 
     /// A picture the port is already holding for this address, or nothing.
     private func inHand() -> SwiftUI.Image? {
         guard let url, !url.isEmpty else { return nil }
-        return drawn(pictures.kept(Want(url: url)))
+        return drawn(pictures.kept(want(url)))
     }
 
     public var body: some SwiftUI.View {
@@ -102,7 +146,7 @@ public struct Art: SwiftUI.View {
             loaded?()
             return
         }
-        let answer = await pictures.picture(Want(url: url))
+        let answer = await pictures.picture(want(url))
         if let picture = drawn(answer) {
             shown = picture
             shownFor = url

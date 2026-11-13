@@ -37,7 +37,7 @@ public struct Face: View {
         ZStack {
             plate
             if let avatar {
-                Art(pictures, avatar.hasPrefix("/") ? server + avatar : avatar)
+                Art(pictures, avatar.hasPrefix("/") ? server + avatar : avatar, box: CGSize(width: size, height: size))
             } else {
                 Text((person?.name.prefix(1) ?? "").uppercased())
                     .brand(size * 46 / 100, 800)

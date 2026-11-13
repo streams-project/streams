@@ -49,6 +49,42 @@ public final class UrlPictures: Pictures, @unchecked Sendable {
         remembered(want).map { .painted($0) }
     }
 
+    /// The sizes a picture is ever held at.
+    ///
+    /// Every box a draw site asks for is taken up to the next rung and the picture is held under
+    /// that rung, so two tiles eight points apart share one entry instead of holding the same
+    /// poster twice. The steps go up by about a half each time, which is the whole of what the
+    /// ladder costs: a box one pixel over a rung decodes at the next one, which is at most twice
+    /// the pixels it needed. A ladder of doubling steps would have cost four times that.
+    ///
+    /// Above the top rung there is nothing left to sample away, so the picture is kept whole.
+    static let rungs = [128, 180, 256, 360, 512, 720, 1024, 1440, 2048]
+
+    /// The rung a box is held at. 0 is the picture's own size, and it stays its own largest entry.
+    static func rung(_ box: Int) -> Int {
+        guard box > 0 else { return 0 }
+        return rungs.first { box <= $0 } ?? 0
+    }
+
+    /// The one want a picture is filed under.
+    ///
+    /// Two things are folded out of the key here, and both are facts about this adapter rather than
+    /// about the port:
+    ///
+    /// * The box becomes its rung, so near sizes share an entry (above).
+    /// * `pixels` goes, because it does not change the bytes this adapter produces: every picture
+    ///   it hands over is already backed by pixels a caller may read. Before this, a billboard read
+    ///   for its tint (`pixels: true`) and the same billboard drawn beside it (`pixels: false`)
+    ///   were two keys, so the card decoded its artwork twice and held both - the opposite of what
+    ///   the comment at each of those two call sites claimed.
+    ///
+    /// The shorter side goes with them: the decode takes the longer side (``decode(_:_:)``), so a
+    /// box of 360 by 200 and one of 360 by 300 are one picture, and it is this one.
+    static func key(_ want: Want) -> Want {
+        let side = rung(max(want.wide, want.high))
+        return Want(url: want.url, wide: side, high: side)
+    }
+
     public func fetch(_ want: Want, done: @escaping (Picture) -> Void) -> Stop {
         if let picture = remembered(want) {
             answer(.painted(picture), done)
@@ -66,7 +102,7 @@ public final class UrlPictures: Pictures, @unchecked Sendable {
                 answered = .unpainted(reason: (error as? URLError)?.code == .timedOut ? "timeout" : "offline")
             } else if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
                 answered = .unpainted(reason: "status_\(http.statusCode)")
-            } else if let data, let picture = Self.decode(data, want) {
+            } else if let data, let picture = Self.decode(data, Self.key(want)) {
                 self?.remember(want, picture)
                 answered = .painted(picture)
             } else {
@@ -89,9 +125,9 @@ public final class UrlPictures: Pictures, @unchecked Sendable {
 
     /// Bytes into a picture.
     ///
-    /// A box of 0 by 0 is the picture's own size, which is what every draw site asks for today.
-    /// Given a box, ImageIO decodes the nearest sample size down to it instead of the whole frame,
-    /// so a poster drawn in a 120 pt tile does not sit in memory at 1000 by 1500. The largest side
+    /// A box of 0 by 0 is the picture's own size. Given a box, ImageIO decodes the nearest sample
+    /// size down to it instead of the whole frame, so a poster drawn in a 120 pt tile does not sit
+    /// in memory at 1000 by 1500. The largest side
     /// of the box is what is asked for: the shape is the picture's and the box's shorter side would
     /// decode a picture too small to fill it.
     static func decode(_ data: Data, _ want: Want) -> UIImage? {
@@ -113,18 +149,19 @@ public final class UrlPictures: Pictures, @unchecked Sendable {
     func remembered(_ want: Want) -> UIImage? {
         lock.lock()
         defer { lock.unlock() }
-        return pictures[want]
+        return pictures[Self.key(want)]
     }
 
     /// Keeps a picture, and forgets the one longest unasked for once there are more than `most`.
     func remember(_ want: Want, _ picture: UIImage) {
+        let key = Self.key(want)
         lock.lock()
         defer { lock.unlock() }
-        if pictures[want] == nil {
-            order.append(want)
+        if pictures[key] == nil {
+            order.append(key)
             if order.count > most { pictures.removeValue(forKey: order.removeFirst()) }
         }
-        pictures[want] = picture
+        pictures[key] = picture
     }
 
     /// Every answer reaches the caller the same way, on the main queue, whether it came from the

@@ -172,7 +172,7 @@ public struct NotificationsView: View {
                 // picture in the app: the port, the port's cache, and the plate underneath for as
                 // long as there is nothing to draw over it.
                 if let urlString = poster?.url {
-                    Art(shell.pictures, urlString)
+                    Art(shell.pictures, urlString, box: CGSize(width: 72, height: 104))
                 }
             }
             .frame(width: 72, height: 104)

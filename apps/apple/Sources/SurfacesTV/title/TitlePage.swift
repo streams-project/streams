@@ -29,7 +29,7 @@ struct TitleBackdrop: View {
 
     var body: some View {
         ZStack {
-            Art(pictures, wide(data.images))
+            Art(pictures, wide(data.images), box: CGSize(width: pageWide, height: pageHigh))
             side
             foot
         }

@@ -15,6 +15,10 @@ private let foot = LinearGradient(
 /// here rather than repeating the arithmetic.
 let heroWide = pageWide - 2 * pageEdge
 
+/// The hero card's height, the one number its own frame below is drawn at. Named so the picture
+/// inside it can be read in the box it will fill rather than at whatever size the catalogue sends.
+let heroHigh: CGFloat = 767
+
 /// The box the title's own treatment is fitted into on the hero. No measurement sets it; it is this
 /// surface's own, and the focused row card scales it (`Rows.swift`).
 let heroMark = CGSize(width: 600, height: 200)
@@ -35,11 +39,21 @@ struct Logo: View {
     /// both: a row hands one of these views to a second title as the viewer moves along it.
     @State private var shown: SwiftUI.Image?
     @State private var shownFor: String?
+    @Environment(\.displayScale) private var scale
+
+    /// The one want this view uses, for the look in the cache and for the read alike.
+    ///
+    /// One place, because the two have to agree: a treatment stored under the box it is drawn in
+    /// and looked for without one is a miss on every card, and a miss here does not look like a
+    /// bug - it looks like a slow network.
+    private var want: Want {
+        wanted(url, CGSize(width: width, height: height), scale)
+    }
 
     var body: some View {
         // Read in the draw, not in the task: a task runs after the first frame, and a treatment
         // the port is already holding would otherwise appear a frame after the card it sits on.
-        let now = (shownFor == url ? shown : nil) ?? drawn(pictures.kept(Want(url: url)))
+        let now = (shownFor == url ? shown : nil) ?? drawn(pictures.kept(want))
         return Group {
             if let now {
                 shaped(now)
@@ -47,8 +61,8 @@ struct Logo: View {
         }
         .task(id: url) {
             if shownFor == url && shown != nil { return }
-            if drawn(pictures.kept(Want(url: url))) != nil { return }
-            if let picture = drawn(await pictures.picture(Want(url: url))) {
+            if drawn(pictures.kept(want)) != nil { return }
+            if let picture = drawn(await pictures.picture(want)) {
                 shown = picture
                 shownFor = url
             }
@@ -90,7 +104,7 @@ struct HeroCard: View {
         let logoUrl = logo((lead.images ?? []) + (detail?.images ?? []))
         ZStack(alignment: .bottomLeading) {
             Plate
-            Art(shell.pictures, wide(lead.images))
+            Art(shell.pictures, wide(lead.images), box: CGSize(width: heroWide, height: heroHigh))
             side
             foot
             VStack(alignment: .leading, spacing: 0) {
@@ -118,7 +132,7 @@ struct HeroCard: View {
             .padding(.leading, 30.ref)
             .padding(.bottom, 34.ref)
         }
-        .frame(width: heroWide.ref, height: 767.ref)
+        .frame(width: heroWide.ref, height: heroHigh.ref)
         .clipShape(shape)
         .overlay(shape.stroke(.white.opacity(0.28), lineWidth: 2.ref))
         .offset(x: pageEdge.ref, y: 143.ref)

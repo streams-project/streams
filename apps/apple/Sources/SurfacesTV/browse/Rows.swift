@@ -77,7 +77,7 @@ struct Poster: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             Raised
-            if let url = tall(tile.images) { Art(pictures, url) }
+            if let url = tall(tile.images) { Art(pictures, url, box: CGSize(width: 311, height: 504)) }
             TileBadges(tile, words).padding(12.ref)
         }
         .frame(width: 311.ref, height: 504.ref)
@@ -99,7 +99,7 @@ private struct OpenCard: View {
         let shape = shapeOf(Round.card)
         ZStack(alignment: .bottomLeading) {
             Raised
-            Art(pictures, wide(tile.images))
+            Art(pictures, wide(tile.images), box: CGSize(width: openWide, height: openHigh))
                 .id(tile.title)
                 .transition(.opacity.animation(.linear(duration: slide)))
             cardFoot.frame(height: 200.ref)

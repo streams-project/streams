@@ -71,6 +71,7 @@ private struct OneRow: View {
                 Art(
                     pictures,
                     server + row.pictures[picture],
+                    box: CGSize(width: tile, height: tile),
                     says: pattern.isEmpty
                         ? ""
                         : pattern.fill("n", picture + 1).fill("set", row.label)

@@ -83,7 +83,10 @@ let package = Package(
         ),
         .testTarget(
             name: "TelevisionTests",
-            dependencies: ["Heard", "Stand", "Contract", "Ports", "SurfacesShared", "SurfacesTV"],
+            // `Adapters` is here for one thing: what a television screen's pictures cost in bytes
+            // is a question about the real decode, and a test that asked it of a stand-in would be
+            // measuring the stand-in.
+            dependencies: ["Heard", "Stand", "Adapters", "Contract", "Ports", "SurfacesShared", "SurfacesTV"],
             path: "Tests/TelevisionTests"
         ),
         .testTarget(

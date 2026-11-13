@@ -89,7 +89,7 @@ private struct BarFace: View {
 
         ZStack {
             if let fullUrl {
-                Art(pictures, fullUrl)
+                Art(pictures, fullUrl, box: CGSize(width: 24, height: 24))
                     .frame(width: 24, height: 24)
                     .clipped()
             } else {

@@ -26,7 +26,7 @@ private struct EpisodeCard: View {
         ZStack(alignment: .topLeading) {
             ZStack(alignment: .bottomLeading) {
                 Raised
-                Art(pictures, wide(episode.images))
+                Art(pictures, wide(episode.images), box: CGSize(width: 456, height: 256))
                 cardFoot
                 Text(label).brand(24, 500).foregroundStyle(.white).padding(.leading, 20.ref).padding(.bottom, 14.ref)
             }

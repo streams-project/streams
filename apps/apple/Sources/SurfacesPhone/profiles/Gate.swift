@@ -237,7 +237,10 @@ public struct GateView: View {
                 .frame(width: width, height: height)
 
             if let artUrl {
-                Art(shell.pictures, artUrl)
+                // The art fills the page, so its box is the page's: measured here, where the
+                // geometry is, rather than guessed. `updateTint` reads the same address in a box of
+                // its own and that is on purpose - see there.
+                Art(shell.pictures, artUrl, box: CGSize(width: width, height: height))
                     .scaleEffect(zoomScale, anchor: UnitPoint(x: 0.5, y: 0.51))
                     .frame(width: width, height: height)
                     .clipped()
@@ -273,7 +276,7 @@ public struct GateView: View {
 
         VStack(spacing: 8.2) {
             if let logoUrl {
-                Art(shell.pictures, logoUrl, fit: true, says: activeTitle?.tile.name ?? "")
+                Art(shell.pictures, logoUrl, box: CGSize(width: 167.4, height: 72.2), fit: true, says: activeTitle?.tile.name ?? "")
                     .frame(maxWidth: 167.4, maxHeight: 72.2)
             } else if let titleName = activeTitle?.tile.name {
                 // The gate's art carousel behind this is decoration: the title it shows is named
@@ -386,7 +389,7 @@ public struct GateView: View {
                             // if it failed, and both of those still have to be true of a face
                             // whose picture is slow or missing.
                             fallbackAvatarLetter(profile)
-                            Art(shell.pictures, avatarUrl)
+                            Art(shell.pictures, avatarUrl, box: CGSize(width: 72, height: 72))
                         } else {
                             fallbackAvatarLetter(profile)
                         }
@@ -565,10 +568,17 @@ public struct GateView: View {
 
     private func updateTint(for title: GateTitle) async {
         // `pixels: true` says what this is for: the tint is taken by reading the artwork's own
-        // pixels back rather than by drawing it. It is also the same read the gate draws through
-        // (`Art`), so the two share one fetch and one cache entry instead of asking twice.
+        // pixels back rather than by drawing it.
+        //
+        // It asks for a small box, and not for the box the gate draws the same address in. The
+        // tint is one average colour over the lower half of the picture (`extractTintFromImage`),
+        // which the width below is already more than enough to read; asking for the drawn box
+        // would hand a full page of artwork to a filter that reduces it to four bytes. The two
+        // reads were claimed here to be one fetch and one cache entry, and they never were: until
+        // 2026-11-13 the key carried `pixels`, so this read and the drawing were two full-frame
+        // decodes of the same artwork held side by side.
         guard let urlString = gateArtUrl(title.tile),
-              case .painted(let held) = await shell.pictures.picture(Want(url: urlString, pixels: true)),
+              case .painted(let held) = await shell.pictures.picture(wanted(urlString, tintBox, 1, pixels: true)),
               let image = held as? UIImage,
               let extracted = extractTintFromImage(image) else {
             return
@@ -583,6 +593,10 @@ public struct GateView: View {
 }
 
 // MARK: - Image & Line Helpers
+
+/// The box a picture is read in when all that is wanted from it is its average colour. Already in
+/// pixels - a tint does not scale with the screen the way a drawing does.
+let tintBox = CGSize(width: 320, height: 320)
 
 private func gateArtUrl(_ tile: Tile) -> String? {
     if let artUrl = tile.images?.first(where: { $0.role == .art })?.url {

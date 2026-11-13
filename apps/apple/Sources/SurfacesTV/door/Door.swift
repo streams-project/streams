@@ -27,6 +27,10 @@ private let cardEdge = Color(red: 0xC4 / 255.0, green: 0xE4 / 255.0, blue: 0xFB 
 /// Where the focus can be on the landing: the top row, the showreel card's buttons, a title card's button.
 private enum Stop { case home, tab, topSignIn, help, signIn, join, watch }
 
+/// A card's own box. Its pictures are read in it, so the slideshow behind the card and the read
+/// ahead that fills it before it is in view land on one cache entry rather than two.
+private let cardBox = CGSize(width: 1542, height: 864)
+
 /// Cards sit this far apart: 1542 wide and 39 between, so the next one shows at 1636.
 private let cardStep: CGFloat = 1581
 
@@ -68,7 +72,7 @@ private struct Slideshow: View {
     var body: some View {
         ZStack {
             ForEach(Array(slides.enumerated()), id: \.offset) { index, url in
-                if index == at { Art(pictures, url).transition(.opacity) }
+                if index == at { Art(pictures, url, box: cardBox).transition(.opacity) }
             }
         }
         .animation(.linear(duration: slideFade), value: at)
@@ -402,7 +406,10 @@ private struct Landing: View {
             ZStack {
                 ForEach(Array(titles.enumerated()), id: \.offset) { index, title in
                     ForEach(Array(slidesOf(title).enumerated()), id: \.offset) { which, url in
-                        Art(shell.pictures, url) {
+                        // The box is the card's and not this four point hiding place: this read is
+                        // here to fill the cache for the card, and a picture read in another box is
+                        // another entry, so a box of its own would warm nothing the cards can use.
+                        Art(shell.pictures, url, box: cardBox) {
                             if index == 0 && which == 0 && !peekReady {
                                 peekReady = true
                                 tell()

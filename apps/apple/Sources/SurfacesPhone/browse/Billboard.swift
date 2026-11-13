@@ -47,7 +47,7 @@ struct Billboard: View {
 
             ZStack(alignment: .bottom) {
                 if let picture {
-                    Art(shell.pictures, picture)
+                    Art(shell.pictures, picture, box: CGSize(width: wide, height: cardHeight))
                         .frame(width: wide, height: cardHeight)
                         .clipped()
                 }
@@ -60,7 +60,7 @@ struct Billboard: View {
                     // naming the title and would say nothing. Where the catalogue has no treatment
                     // the name is already drawn as text below and the picture does not arise.
                     if let logoUrl = logo(tile.images) {
-                        Art(shell.pictures, logoUrl, fit: true, says: tile.name)
+                        Art(shell.pictures, logoUrl, box: CGSize(width: wide * 0.7, height: 108), fit: true, says: tile.name)
                             .frame(maxWidth: wide * 0.7, maxHeight: 108)
                     } else {
                         Text(tile.name)
@@ -108,9 +108,12 @@ struct Billboard: View {
             .task(id: picture) {
                 guard let picture else { return }
                 // `pixels: true` says what this is for: the tint is read out of the artwork's own
-                // pixels. The card draws the same address through `Art` just above, so both take
-                // one fetch and one cache entry rather than two.
-                if case .painted(let held) = await shell.pictures.picture(Want(url: picture, pixels: true)),
+                // pixels. It asks for a small box of its own and not for the card's: the answer is
+                // one dark colour over the whole picture (`extractDarkColor`), which needs no more
+                // than this. Both reads were claimed here to be one cache entry and neither was -
+                // until 2026-11-13 the key carried `pixels`, so this and the drawing above were
+                // two full-frame decodes of one artwork, held at once.
+                if case .painted(let held) = await shell.pictures.picture(wanted(picture, tintBox, 1, pixels: true)),
                    let uiImage = held as? UIImage,
                    let darkColor = extractDarkColor(from: uiImage) {
                     tint(darkColor)
