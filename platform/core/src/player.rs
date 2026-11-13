@@ -6,9 +6,10 @@ use alloc::string::String;
 use alloc::vec::Vec;
 use contract::command::{Command, FeedbackEvent, SettingKey};
 use contract::core_msg::{PlayState, PlayView};
-use contract::driver::{DriverCommand, DriverEvent, Track};
+use contract::driver::{DriverCommand, DriverEvent, ErrorClass, Track};
 use contract::play::{
-    AgeCard, Attempt, AttemptKind, MarksRequest, MoreAttempts, PlayAnswer, TimeWindow, WindowKind,
+    AgeCard, Attempt, AttemptKind, MarksRequest, MoreAttempts, PlayAnswer, PlayEvent,
+    PlayEventName, PlayEvents, TimeWindow, WindowKind,
 };
 use contract::{EpisodeRef, TitleKey};
 
@@ -105,6 +106,42 @@ pub fn next_attempt(attempts: &[Attempt], failed: usize) -> Option<usize> {
     })
 }
 
+/// What one attempt of a play did, as this device saw it. Nothing in here is about the viewer:
+/// the attempt index points at an address and a host, and the three numbers are how long the
+/// picture took, how often it stopped, and what broke.
+///
+/// A rebuffer keeps a count and not a length. The Android driver reports position at 1 Hz and
+/// only while playing, so a measured rebuffer is quantised to a second and biased upward; a count
+/// is not. There is nowhere here to put a duration, which is the point.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+struct Moment {
+    /// Index into `Play::attempts`.
+    attempt: usize,
+    /// Where the video was asked to start.
+    start_at_ms: u64,
+    /// Where the video was when this attempt was left.
+    at_ms: u64,
+    /// From the open of this attempt to its first frame.
+    first_frame_ms: Option<u64>,
+    rebuffers: u32,
+    /// Where the video was at the last rebuffer of this attempt.
+    rebuffer_at_ms: u64,
+    failure: Option<ErrorClass>,
+}
+
+/// The most attempts one play reports on. A play that walks further reports its first ones, so
+/// what this holds is bounded by a constant and not by how long a device is left running.
+const MOMENTS_MAX: usize = 16;
+
+/// The most rebuffers one attempt reports. Past this the count is a floor, and the server holds
+/// the same limit, so a long night of a bad connection costs the same as a short one.
+const REBUFFERS_MAX: u32 = 64;
+
+/// The most events one report carries, so the request has a size a reader can predict. The end
+/// is always the last of them, because the server reads an end with no first frame beside it as
+/// an exit before the picture ever came.
+const EVENTS_MAX: usize = 96;
+
 /// What a player call asks the rest of the core to do.
 #[derive(Default)]
 pub(crate) struct Tick {
@@ -114,6 +151,8 @@ pub(crate) struct Tick {
     pub more: Option<String>,
     /// Ask for skip marks of this play id.
     pub marks: Option<(String, MarksRequest)>,
+    /// Report what happened during this play id. Sent once, when the session closes.
+    pub events: Option<(String, PlayEvents)>,
     /// The next episode starts by itself.
     pub next: Option<(TitleKey, EpisodeRef)>,
     pub view: bool,
@@ -153,6 +192,12 @@ struct Play {
     heartbeat_mono: Option<u64>,
     no_picture_since: Option<(u64, u64)>,
     windows: Vec<TimeWindow>,
+    /// What each attempt did, oldest first. Emptied into one report when the session closes.
+    moments: Vec<Moment>,
+    /// The clock at the open of the attempt in use, for the first-frame delay.
+    opened_mono: Option<u64>,
+    /// True once the report for this play has gone, so leaving twice reports once.
+    reported: bool,
 }
 
 /// One play session at a time.
@@ -266,6 +311,9 @@ impl Player {
             heartbeat_mono: None,
             no_picture_since: None,
             windows: Vec::new(),
+            moments: Vec::new(),
+            opened_mono: None,
+            reported: false,
         });
         tick.view = true;
         self.serial
@@ -279,6 +327,9 @@ impl Player {
             .filter(|play| play.state != PlayState::Ended)
         {
             save(play, tick);
+        }
+        if let Some(play) = self.play.as_mut() {
+            tick.events = play.report();
         }
         self.close(tick);
         self.play = None;
@@ -401,6 +452,15 @@ impl Player {
             max_bitrate: None,
         });
         let paused = play.paused;
+        if play.moments.len() < MOMENTS_MAX {
+            play.moments.push(Moment {
+                attempt: index,
+                start_at_ms: play.position_ms,
+                at_ms: play.position_ms,
+                ..Moment::default()
+            });
+        }
+        play.opened_mono = Some(mono_ms);
         play.active = Some(index);
         play.state = state;
         play.frame_seen = false;
@@ -500,6 +560,11 @@ impl Player {
             DriverEvent::Stalled => {
                 // Paused time does not move, so a stall reported then could only run out.
                 if play.frame_seen && !play.paused {
+                    let at = play.position_ms;
+                    if let Some(moment) = play.moments.last_mut() {
+                        moment.rebuffers = moment.rebuffers.saturating_add(1).min(REBUFFERS_MAX);
+                        moment.rebuffer_at_ms = at;
+                    }
                     play.state = PlayState::Stalled;
                     play.heartbeat_mono = None;
                     play.deadline_mono = Some(mono_ms + u64::from(deadline_ms));
@@ -531,7 +596,14 @@ impl Player {
                 play.audio = audio;
                 play.text = text;
             }
-            DriverEvent::Error { .. } => self.failover(mono_ms, deadline_ms, tick),
+            DriverEvent::Error { class } => {
+                let at = play.position_ms;
+                if let Some(moment) = play.moments.last_mut() {
+                    moment.failure = Some(class);
+                    moment.at_ms = at;
+                }
+                self.failover(mono_ms, deadline_ms, tick);
+            }
             _ => {}
         }
     }
@@ -676,6 +748,7 @@ impl Player {
             play.state = PlayState::Ended;
             play.deadline_mono = None;
             play.heartbeat_mono = None;
+            tick.events = play.report();
             tick.view = true;
         }
     }
@@ -701,6 +774,19 @@ impl Player {
             play.heartbeat_mono = None;
             tick.view = true;
         }
+    }
+}
+
+/// One reported moment, named with the host and attempt it is about and nothing else.
+fn about(name: PlayEventName, at_ms: u64, attempt: &Attempt) -> PlayEvent {
+    PlayEvent {
+        name,
+        at_ms,
+        attempt: Some(attempt.id.clone()),
+        first_frame_ms: None,
+        failure: None,
+        host: Some(host_of(&attempt.url)),
+        rung: None,
     }
 }
 
@@ -739,8 +825,65 @@ fn seconds(ms: u64) -> u32 {
 }
 
 impl Play {
+    /// What this play will report, once, as the session closes. `None` when there is nothing to
+    /// say or no play id to say it against.
+    ///
+    /// Every event names a host and an attempt and nothing else. There is no viewer in it, no
+    /// title and no episode: the server folds it into counts under (client class, host, day,
+    /// error class), and a title would make the row a record of what someone watched.
+    ///
+    /// An exit before the picture ever came needs no word of its own. The report carries an end
+    /// and no first frame, and that absence is the fact.
+    fn report(&mut self) -> Option<(String, PlayEvents)> {
+        if self.reported {
+            return None;
+        }
+        let play_id = self.play_id.clone()?;
+        let mut events: Vec<PlayEvent> = Vec::new();
+        for moment in &self.moments {
+            let Some(attempt) = self.attempts.get(moment.attempt) else {
+                continue;
+            };
+            let about = |name: PlayEventName, at_ms: u64| about(name, at_ms, attempt);
+            if let Some(delay) = moment.first_frame_ms {
+                let mut event = about(PlayEventName::FirstFrame, moment.start_at_ms);
+                event.first_frame_ms = Some(delay);
+                events.push(event);
+            }
+            for _ in 0..moment.rebuffers {
+                events.push(about(PlayEventName::Rebuffer, moment.rebuffer_at_ms));
+            }
+            if let Some(failure) = moment.failure {
+                let mut event = about(PlayEventName::Failure, moment.at_ms);
+                event.failure = Some(failure);
+                events.push(event);
+            }
+        }
+        // The end goes last whatever else was dropped, because the server reads an end with no
+        // first frame beside it as an exit before the picture ever came.
+        let end = self
+            .moments
+            .last()
+            .and_then(|moment| Some((moment, self.attempts.get(moment.attempt)?)));
+        if let Some((moment, attempt)) = end {
+            events.truncate(EVENTS_MAX - 1);
+            events.push(about(PlayEventName::Ended, moment.at_ms, attempt));
+        }
+        if events.is_empty() {
+            return None;
+        }
+        self.reported = true;
+        Some((play_id, PlayEvents { events }))
+    }
+
     fn first_frame(&mut self, mono_ms: u64, tick: &mut Tick) {
         let first_of_play = !self.started;
+        let since_open = self
+            .opened_mono
+            .map(|opened| mono_ms.saturating_sub(opened));
+        if let (Some(delay), Some(moment)) = (since_open, self.moments.last_mut()) {
+            moment.first_frame_ms.get_or_insert(delay);
+        }
         self.frame_seen = true;
         self.started = true;
         self.deadline_mono = None;
@@ -781,6 +924,9 @@ impl Play {
             tick.view = true;
         }
         self.position_ms = time_ms;
+        if let Some(moment) = self.moments.last_mut() {
+            moment.at_ms = time_ms;
+        }
         if let Some(duration) = duration_ms.filter(|duration| *duration > 0) {
             self.duration_ms = duration;
             self.ask_marks(tick);

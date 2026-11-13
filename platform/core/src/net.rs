@@ -177,6 +177,8 @@ pub(crate) enum Purpose {
     Play(u32),
     More(u32),
     Marks(u32),
+    /// What a finished play did at its hosts. Nothing comes back but `done`.
+    Events,
     Command,
     /// Prepared by whoever sent `Action::Request`. The answer is theirs.
     Passed,

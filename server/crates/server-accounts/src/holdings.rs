@@ -317,7 +317,9 @@ pub const HELD: &[Held] = &[
     // ---- 0110_play.sql
     Held {
         table: "reachability",
-        purpose: "how often playback reached a host, by client class",
+        purpose: "how often playback reached a host and how it went there, by client class and \
+                  day: tries, starts, the sum of the first-frame delays behind them, rebuffers, \
+                  failures by error class, and sessions that ended without a picture",
         keyed_by: Keyed::NoOne,
         lives: Lives::WithTheBuild,
         consent: Asked::Working,
@@ -326,14 +328,18 @@ pub const HELD: &[Held] = &[
     },
     Held {
         table: "play_events",
-        purpose: "what happened during a play: the event, its time, the attempt, how long the \
-                  first frame took, any failure, and the host it came from",
+        purpose: "nothing: this held what happened during a play, keyed to the profile. Nothing \
+                  ever wrote a row, because no client called the route that fed it, and the \
+                  writer is gone: playback health is a fact about a host and now goes to \
+                  `reachability`, which has no profile column. The table and its thirty day \
+                  prune stay until the policy text that describes them is settled, which is the \
+                  owner's call and not this file's",
         keyed_by: Keyed::Profile,
         lives: Lives::Days(30),
         consent: Asked::Consent,
         export: Export::NotYet(
-            "timing and failure samples keyed to the profile; the log lives in server-play, \
-             which this package does not own, so the read is a handoff",
+            "nothing is held: no row was ever written and nothing writes one now. The entry \
+             stays while the table does, and goes with it",
         ),
         removal: Removal::Cascade,
     },

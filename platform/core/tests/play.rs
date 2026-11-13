@@ -221,7 +221,11 @@ fn c103_p35_entering_a_profile_stops_what_plays() {
         "nothing plays on into another profile"
     );
     assert_eq!(moved["view"]["play"]["state"], "ended");
-    assert_eq!(http_paths(&moved), ["/v1/profiles/p1/enter"]);
+    assert_eq!(
+        http_paths(&moved),
+        ["/v1/play/p1/events", "/v1/profiles/p1/enter"],
+        "the play that was cut off still says what it saw at its host"
+    );
 }
 
 #[test]
@@ -250,10 +254,17 @@ fn c32_c68_h42_nothing_is_saved_before_the_first_frame() {
     // the viewer leaves before any frame, so this device saw nothing to save
     let out = step(&mut core, 8, &action("a2", json!({"action": "stop"})));
     assert_eq!(player_ops(&out), [json!({"op": "close"})]);
-    assert!(
-        http_paths(&out).is_empty(),
+    assert_eq!(
+        http_paths(&out),
+        ["/v1/play/p1/events"],
         "no position may go out, or the server's own value would be written back: {out}"
     );
+    // The one thing that does go out is the play report, and this is the shape that says the
+    // viewer left before the picture ever came: an end, and no first frame beside it.
+    let events = reported(&out, "p1");
+    assert_eq!(events.len(), 1);
+    assert_eq!(events[0]["name"], "ended");
+    assert_eq!(events[0]["host"], "media1.example");
 }
 
 #[test]
@@ -474,5 +485,135 @@ fn a_choice_in_the_player_is_kept_for_the_profile() {
     assert!(
         body.contains("audio_language") && body.contains("\"de\""),
         "{body}"
+    );
+}
+
+/// The body of the one request the core sent to `path`, as JSON.
+fn request_body(out: &Value, path: &str) -> Value {
+    let effect = out["effects"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|effect| effect["kind"] == "http" && effect["path"] == path)
+        .unwrap_or_else(|| panic!("no request for {path} in {out}"));
+    serde_json::from_str(effect["body"].as_str().expect("a body")).expect("a body of JSON")
+}
+
+/// Every event of a play report, as (name, host) with the numbers that matter beside them.
+fn reported(out: &Value, play_id: &str) -> Vec<Value> {
+    request_body(out, &format!("/v1/play/{play_id}/events"))["events"]
+        .as_array()
+        .expect("events")
+        .clone()
+}
+
+/// A finished play reports what it saw at its host and nothing about who watched it.
+///
+/// `POST /v1/play/{id}/events` has been in the contract since `0110_play.sql` and no client ever
+/// called it, so until now every number on this page was a number nobody had. The report goes
+/// once, as the session closes.
+#[test]
+fn a_finished_play_reports_its_start_delay_its_rebuffers_and_its_host() {
+    let mut core = playing();
+    // the picture stops twice and comes back, which is what a rebuffer is
+    step(&mut core, 20_000, &driver(1, &json!({"kind": "stalled"})));
+    step(&mut core, 22_000, &driver(1, &position(11_000, 1_920)));
+    step(&mut core, 40_000, &driver(1, &json!({"kind": "stalled"})));
+    step(&mut core, 42_000, &driver(1, &position(12_000, 1_920)));
+    let out = step(&mut core, 50_000, &action("a9", json!({"action": "stop"})));
+    let events = reported(&out, "p1");
+    let names: Vec<&str> = events
+        .iter()
+        .map(|event| event["name"].as_str().unwrap())
+        .collect();
+    assert_eq!(names, ["first_frame", "rebuffer", "rebuffer", "ended"]);
+    assert!(
+        events
+            .iter()
+            .all(|event| event["host"] == "media1.example" && event["attempt"] == "one"),
+        "every event names the host it is about: {events:?}"
+    );
+    // the frame came one step after the open, and the open is what the delay is measured from
+    assert_eq!(events[0]["first_frame_ms"], 1);
+    assert!(
+        events.iter().all(|event| event.get("title").is_none()
+            && event.get("episode").is_none()
+            && event.get("profile").is_none()),
+        "a report about a host is not a record of what anyone watched: {events:?}"
+    );
+    assert!(
+        events
+            .iter()
+            .all(|event| event.get("rebuffer_ms").is_none() && event.get("duration_ms").is_none()),
+        "a rebuffer is counted and never timed: the Android driver ticks position at 1 Hz and \
+         only while playing, so a measured length is quantised and biased upward"
+    );
+}
+
+/// Leaving twice reports once.
+#[test]
+fn a_play_reports_once_however_many_times_it_is_left() {
+    let mut core = playing();
+    let first = step(&mut core, 50_000, &action("a9", json!({"action": "stop"})));
+    assert!(
+        http_paths(&first).contains(&"/v1/play/p1/events".to_owned()),
+        "{first}"
+    );
+    let again = step(&mut core, 51_000, &action("a10", json!({"action": "stop"})));
+    assert!(
+        !http_paths(&again).contains(&"/v1/play/p1/events".to_owned()),
+        "a second stop must not report the same play twice: {again}"
+    );
+}
+
+/// A failover keeps the error class of the host that broke, and an exit before the picture ever
+/// came needs no word of its own: the report carries an end and no first frame.
+#[test]
+fn a_report_keeps_the_error_class_of_the_host_that_broke() {
+    let mut core = Core::open_json(CONFIG).unwrap();
+    step(&mut core, 0, &json!([]));
+    let out = step(
+        &mut core,
+        1,
+        &action("a1", json!({"action": "play", "title": "movie:7"})),
+    );
+    let play = effect_id(&out, "/v1/play");
+    let answer = json!({
+        "play_id": "p9",
+        "attempts": [attempt("one", FIRST, "g1"), attempt("two", SECOND, "g2")],
+        "start_at_ms": 0,
+        "dropped": 0,
+        "more": false,
+    });
+    step(
+        &mut core,
+        2,
+        &json!([{"id": play, "type": "http_done", "status": 200, "body": answer.to_string()}]),
+    );
+    // the first host breaks, the second is opened, and the viewer leaves before any frame
+    step(
+        &mut core,
+        3,
+        &driver(1, &json!({"kind": "error", "class": "segment"})),
+    );
+    let out = step(&mut core, 9_000, &action("a2", json!({"action": "stop"})));
+    let events = reported(&out, "p9");
+    let failure = events
+        .iter()
+        .find(|event| event["name"] == "failure")
+        .expect("the host that broke");
+    assert_eq!(failure["failure"], "segment");
+    assert_eq!(failure["host"], "media1.example");
+    assert!(
+        !events.iter().any(|event| event["name"] == "first_frame"),
+        "no frame ever came: {events:?}"
+    );
+    let ended = events
+        .iter()
+        .find(|event| event["name"] == "ended")
+        .expect("an end");
+    assert_eq!(
+        ended["host"], "media2.example",
+        "it ended at the host it had moved to, which is where it gave up"
     );
 }

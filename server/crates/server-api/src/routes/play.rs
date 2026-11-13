@@ -6,11 +6,12 @@ use axum::http::header::{ACCEPT, CONTENT_TYPE};
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::{IntoResponse, Response};
 use contract::account::Done;
-use contract::client::CapabilityCard;
+use contract::client::{CapabilityCard, DeviceClass};
 use contract::error::ErrorCode;
 use contract::play::{Marks, MarksRequest, PlayEvents, PlayRequest, Report};
 use contract::{EpisodeRef, TitleKey, TitleKind};
 use serde::Deserialize;
+use server_play::health::{fold, today};
 use server_play::subtitles::detect::detect_marks_from_cues;
 use server_play::{Play, PlayAsk, SubtitleError, Subtitles, marks_of, pick_marks, windows_of};
 use server_rules::Viewer;
@@ -225,7 +226,17 @@ pub async fn subtitle_file(
     send(&headers, &service.body(&file).await?, Keep::Never)
 }
 
-/// `POST /v1/play/{id}/events`.
+/// `POST /v1/play/{id}/events`: what happened during a play, folded into counts per host.
+///
+/// The report is about hosts, a network and a build, so nothing here reaches a person. The play
+/// id still has to belong to this session, because an id that is not yours is not a thing you may
+/// report on; what the report becomes is a set of counts under (client class, host, day, error
+/// class), written through [`crate::state::AppState::log_of_no_one`], the path whose rows have no
+/// account or profile column at all. It is not that consent is read and found to be on: there is
+/// no profile in the row to consent to, and no parameter on the write to put one in.
+///
+/// The class is the one the server read from the request's own header, not a word the client may
+/// put in a body, so a client cannot file its counts under someone else's class.
 pub async fn events(
     State(state): State<Shared>,
     watching: Watching,
@@ -234,13 +245,28 @@ pub async fn events(
     Body(asked): Body<PlayEvents>,
 ) -> ApiResult<Response> {
     gate(&state)?.check(&id, &watching.scope)?;
-    // Playback telemetry is a write that exists to learn from this person, so it is reached only
-    // through the writer that took their answer. With consent off nothing is written and the call
-    // still answers done, as the feed path does for a discarded signal.
-    if let Some(learned) = state.learned(&watching.scope) {
-        learned.play_events(&asked.events).await;
+    if let Some(log) = state.log_of_no_one() {
+        let class = client_class(&headers);
+        let rows = fold(class_word(class), today(), &asked.events);
+        if !rows.is_empty() {
+            log.health(&rows).await;
+        }
     }
     send(&headers, &Done { done: true }, Keep::Never)
+}
+
+/// The wire word of a client class, which is how the table spells it.
+fn class_word(class: DeviceClass) -> &'static str {
+    match class {
+        DeviceClass::Web => "web",
+        DeviceClass::Phone => "phone",
+        DeviceClass::Tablet => "tablet",
+        DeviceClass::Desktop => "desktop",
+        DeviceClass::Tv => "tv",
+        DeviceClass::Box => "box",
+        DeviceClass::Car => "car",
+        _ => "unknown",
+    }
 }
 
 /// `POST /v1/reports`: a build, a code and the client's own words about a failure. It carries no

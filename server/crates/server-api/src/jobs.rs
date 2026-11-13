@@ -48,6 +48,25 @@ pub async fn reload_data(state: &Shared) {
     }
 }
 
+/// How many days of playback health are printed each hour.
+const HEALTH_DAYS: u16 = 2;
+
+/// Print playback health per client class, host and day.
+///
+/// A table nobody reads is how `reachability` sat empty in the schema from `0110_play.sql` and
+/// how `play_events` kept a writer no client ever called. A number that has to be queried by
+/// hand is a number nobody looks at, so this runs on the prune's timer and the counts land in
+/// the log beside everything else. Nothing here names a person; there is no column that could.
+pub async fn report_health(state: &Shared) {
+    let Some(log) = state.log_of_no_one() else {
+        return;
+    };
+    let since = server_play::health::days_back(HEALTH_DAYS);
+    for line in server_play::health::lines(&log.health_since(since).await) {
+        info!("Playback: {line}");
+    }
+}
+
 /// Delete lapsed sessions, audit rows, device codes, viewing signals and reports.
 pub async fn prune(state: &Shared) -> u64 {
     let now = state.clock.now_ms();
@@ -85,6 +104,7 @@ pub fn start(state: &Shared) {
             if gone > 0 {
                 info!("Deleted {gone} lapsed rows");
             }
+            report_health(&pruning).await;
         }
     });
 }

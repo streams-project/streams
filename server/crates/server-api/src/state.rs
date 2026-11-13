@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use server_accounts::mail::MailSender;
-use server_accounts::{Clock, Door, Meter, ProfileScope, SystemClock};
+use server_accounts::{Clock, Door, Meter, SystemClock};
 use server_catalog::DataSlot;
 use server_help::Help;
 use server_library::Library;
@@ -13,7 +13,6 @@ use server_rules::answer::Images;
 use tokio::sync::Semaphore;
 
 use crate::config::Config;
-use crate::learned::Learned;
 use crate::live::LiveFile;
 
 /// Calls per minute from one address, before any token lookup.
@@ -38,10 +37,9 @@ pub struct AppState {
     pub help: Option<Help>,
     /// Off with no finder.
     pub play: Option<Play>,
-    /// Off with no database. Private on purpose: playback telemetry is a write that exists to
-    /// learn from a person, so the only way to it from a handler is [`AppState::learned`], which
-    /// cannot be built without that person's answer about personal rows. Set it with
-    /// [`AppState::keep_play_log`].
+    /// Off with no database. Private on purpose: the only way to it from a handler is
+    /// [`AppState::log_of_no_one`], and nothing it reaches takes a profile, an account or a
+    /// session. Set it with [`AppState::keep_play_log`].
     play_log: Option<Arc<dyn PlayLog>>,
     /// Off with no subtitle source.
     pub subtitles: Option<Subtitles>,
@@ -131,21 +129,14 @@ impl AppState {
 }
 
 impl AppState {
-    /// Keep playback telemetry in this log. Nothing else writes the field, so every write of a
-    /// person's playback in this crate passes the consent test in [`AppState::learned`].
+    /// Keep playback telemetry in this log.
     pub fn keep_play_log(&mut self, log: Arc<dyn PlayLog>) {
         self.play_log = Some(log);
     }
 
-    /// The telemetry writer for this scope, or `None` when the person said no to personal rows or
-    /// this deployment keeps no log.
-    #[must_use]
-    pub(crate) fn learned(&self, scope: &ProfileScope) -> Option<Learned<'_>> {
-        Learned::of(self.play_log.as_ref(), scope)
-    }
-
-    /// The log for what names no person: a client's fault report, which carries no profile and no
-    /// account column, and the hourly prune. A row keyed to a profile never goes through here.
+    /// The log for what names no person: playback health by client class and host, a client's
+    /// fault report, and the hourly prune. There is no other way to the log, and nothing it
+    /// reaches has a parameter a profile, an account or a session could be passed through.
     #[must_use]
     pub(crate) fn log_of_no_one(&self) -> Option<&Arc<dyn PlayLog>> {
         self.play_log.as_ref()

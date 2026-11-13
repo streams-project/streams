@@ -12,7 +12,7 @@ use contract::finder::{FindAnswer, FindOutcome, FoundSource};
 use contract::play::{AttemptKind, PlayAnswer};
 use serde_json::json;
 use server_catalog::sample::special;
-use server_play::{FoundFile, MemoryFinder, MemorySubtitles, Subtitles};
+use server_play::{FoundFile, MemoryFinder, MemorySubtitles, PlayLog, Subtitles};
 
 fn source(url: &str) -> FoundSource {
     FoundSource {
@@ -481,15 +481,18 @@ async fn c54_a_film_gets_no_marks() {
     assert_eq!(marks.body["windows"], json!([]));
 }
 
-/// Playback telemetry is kept only for a viewer who said yes to personal rows, which is the rule
-/// the feed path beside it already followed (`server-library/src/apply.rs`, ledger C36: the server
-/// discards feedback when consent is off). Before this the events handler wrote every row
-/// whatever the answer on the session was, while the page path one file over tested it.
+/// What a play did at its hosts reaches the table, and the read path gives it back.
 ///
-/// The write is not reachable from a handler any other way: the log is private to `AppState` and
-/// the only way to it is `AppState::learned`, which cannot be built without the consent fact.
+/// This is the pair that was missing. `POST /v1/play/{id}/events` has been in the contract and
+/// mounted since `0110_play.sql`, and no client ever called it; `reachability` has been in the
+/// schema just as long with no insert, update or select anywhere in the tree. A write with no
+/// reader is how both of those happened, so the write and the read are tested together or not at
+/// all.
+///
+/// The report names a host, an attempt and three numbers. It names no profile, and there is
+/// nowhere in `reachability` to put one.
 #[tokio::test]
-async fn c36_c104_with_consent_off_a_play_writes_no_event() {
+async fn c36_c104_a_play_report_reaches_the_table_and_reads_back_by_class_host_and_day() {
     let finder = Arc::new(MemoryFinder::answering(found(&[
         "https://host.example/one.m3u8",
     ])));
@@ -507,7 +510,99 @@ async fn c36_c104_with_consent_off_a_play_writes_no_event() {
         .to_owned();
     let events = format!("/v1/play/{id}/events");
     let body = json!({
-        "events": [{ "name": "first_frame", "at_ms": 1, "first_frame_ms": 900 }]
+        "events": [
+            { "name": "failure", "at_ms": 0, "host": "bad.example", "failure": "segment" },
+            { "name": "first_frame", "at_ms": 0, "host": "host.example", "first_frame_ms": 1_200 },
+            { "name": "rebuffer", "at_ms": 30_000, "host": "host.example" },
+            { "name": "rebuffer", "at_ms": 61_000, "host": "host.example" },
+            { "name": "ended", "at_ms": 90_000, "host": "host.example" }
+        ]
+    });
+    let sent = call(Method::POST, &events)
+        .token(&token)
+        .header("client-class", "tv")
+        .json(body)
+        .on(&server.state)
+        .await;
+    assert_eq!(sent.status, StatusCode::OK, "{}", sent.body);
+    assert_eq!(sent.body["done"], true);
+
+    let rows = log.rows();
+    assert!(!rows.is_empty(), "the report reached the table");
+    assert!(
+        rows.iter().all(|row| row.class == "tv"),
+        "the class is the one the server read from the header: {rows:?}"
+    );
+
+    let read = log.health_since(server_play::health::today()).await;
+    let host = read
+        .iter()
+        .find(|day| day.host == "host.example")
+        .expect("the host that played");
+    assert_eq!(host.tries, 1);
+    assert_eq!(host.starts, 1);
+    assert_eq!(host.mean_start_ms(), Some(1_200));
+    assert_eq!(host.rebuffers, 2, "a count of rebuffers, never a length");
+    assert_eq!(host.gave_up, 0);
+    assert!(host.failures.is_empty());
+    let bad = read
+        .iter()
+        .find(|day| day.host == "bad.example")
+        .expect("the host that broke");
+    assert_eq!(bad.failures, vec![("segment".to_owned(), 1)]);
+    assert_eq!(bad.tries, 1, "it was tried");
+    assert_eq!(bad.starts, 0, "and it never showed a frame");
+    assert_eq!(
+        bad.gave_up, 0,
+        "the play did not end here, it moved on, which is a failure and not a walk away"
+    );
+
+    // And the shape an operator sees on the hourly timer, which is what stops this being a third
+    // table nobody reads.
+    let lines = server_play::health::lines(&read);
+    let line = lines
+        .iter()
+        .find(|line| line.contains("host.example"))
+        .expect("a line per class, host and day");
+    assert!(line.contains("tv"), "{line}");
+    assert!(line.contains("first frame 1200ms"), "{line}");
+    assert!(line.contains("rebuffers 2"), "{line}");
+    let broke = lines
+        .iter()
+        .find(|line| line.contains("bad.example"))
+        .expect("the host that broke");
+    assert!(broke.contains("[segment 1]"), "{broke}");
+}
+
+/// Playback health is not a record of a person, so the personal-rows answer does not govern it.
+///
+/// It used to. `play_events` keyed every row to `profile_id` and the handler could only write
+/// through a writer that had taken the viewer's answer, which made a count about a streaming host
+/// into a row about a viewer and let one viewer's answer decide whether anyone could see that a
+/// host had stopped working. The rows moved to `reachability`, which has no profile column, and
+/// the write that takes them has no parameter a person could be passed through, so this holds
+/// whatever the answer on the session is.
+#[tokio::test]
+async fn c36_c104_playback_health_is_kept_whatever_the_consent_answer() {
+    let finder = Arc::new(MemoryFinder::answering(found(&[
+        "https://host.example/one.m3u8",
+    ])));
+    let mut server = harness_play(finder);
+    let log = Arc::new(server_play::MemoryPlayLog::default());
+    Arc::get_mut(&mut server.state)
+        .expect("one owner")
+        .keep_play_log(log.clone());
+    let token = enter(&server, false).await;
+    let answer = play("movie:100").token(&token).on(&server.state).await;
+    let id = answer.body["play_id"]
+        .as_str()
+        .expect("a play id")
+        .to_owned();
+    let events = format!("/v1/play/{id}/events");
+    let body = json!({
+        "events": [
+            { "name": "first_frame", "at_ms": 0, "host": "host.example", "first_frame_ms": 900 }
+        ]
     });
 
     // Consent is off until it is given, which is where every session starts.
@@ -517,11 +612,9 @@ async fn c36_c104_with_consent_off_a_play_writes_no_event() {
         .on(&server.state)
         .await;
     assert_eq!(off.status, StatusCode::OK, "{}", off.body);
-    assert_eq!(off.body["done"], true, "the call answers as it did before");
-    assert!(
-        log.events.lock().expect("the log").is_empty(),
-        "a viewer who said nothing about personal rows is not recorded"
-    );
+    let after_off = log.health_since(server_play::health::today()).await;
+    assert_eq!(after_off.len(), 1, "a host said nothing about a person");
+    assert_eq!(after_off[0].starts, 1);
 
     let given = call(Method::PUT, "/v1/consent")
         .token(&token)
@@ -535,10 +628,10 @@ async fn c36_c104_with_consent_off_a_play_writes_no_event() {
         .on(&server.state)
         .await;
     assert_eq!(on.status, StatusCode::OK, "{}", on.body);
+    let after_on = log.health_since(server_play::health::today()).await;
     assert_eq!(
-        log.events.lock().expect("the log").len(),
-        1,
-        "with consent on the event is kept"
+        after_on[0].starts, 2,
+        "the same answer either way: the row has no person in it to consent to"
     );
 }
 

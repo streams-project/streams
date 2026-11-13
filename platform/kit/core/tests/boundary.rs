@@ -18,7 +18,13 @@ use serde_json::{Value, json};
 
 /// The target for the linked module is 400 KB, which it misses. This ceiling stops it growing
 /// unseen until the size work lands.
-const SIZE_CEILING: u64 = 700_000;
+///
+/// Raised once, on 2026-11-13, when the core began reporting what a play did at its hosts. The
+/// two numbers, from this test on this machine: 699_954 bytes with that report dead, 700_840 with
+/// it live, so the report costs 886 bytes and the ceiling had 46 bytes of room left before it.
+/// Any addition to the core at all would have hit this, which is the thing worth knowing: the
+/// headroom is gone, not spent.
+const SIZE_CEILING: u64 = 701_000;
 
 /// One run of one session: its name, its tape and the bytes the native run wrote.
 struct Run {

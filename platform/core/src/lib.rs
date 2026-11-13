@@ -519,6 +519,17 @@ impl Core {
             let request = Request::new(HttpMethod::Post, path, purpose).with_body(body);
             self.send(now, request, out);
         }
+        // What the play did at its hosts, sent once as the session closes. It names a host, an
+        // attempt and three numbers, and no title, episode or viewer, because the server folds it
+        // into counts per host and a title would make that a record of what someone watched.
+        if let Some((play_id, Ok(body))) = tick
+            .events
+            .map(|(play_id, events)| (play_id, serde_json::to_string(&events)))
+        {
+            let path = format!("/v1/play/{play_id}/events");
+            let request = Request::new(HttpMethod::Post, path, Purpose::Events).with_body(body);
+            self.send(now, request, out);
+        }
         if tick.failed {
             self.label_notice("play-failed", out);
         }
@@ -1056,6 +1067,7 @@ impl Core {
             | Purpose::SignOut
             | Purpose::Page
             | Purpose::Command
+            | Purpose::Events
             | Purpose::Passed => {}
         }
     }
@@ -1177,7 +1189,11 @@ impl Core {
             Purpose::SignIn | Purpose::CodeSent | Purpose::Enter | Purpose::Profiles => {
                 self.problem(problem, error, out);
             }
-            Purpose::SignOut | Purpose::Card | Purpose::Marks(_) | Purpose::Passed => {}
+            Purpose::SignOut
+            | Purpose::Card
+            | Purpose::Marks(_)
+            | Purpose::Events
+            | Purpose::Passed => {}
         }
     }
 

@@ -317,6 +317,13 @@
    },
    "method": "POST",
    "path": "/v1/play"
+  },
+  {
+   "body": {
+    "done": true
+   },
+   "method": "POST",
+   "path": "/v1/play/pl1/events"
   }
  ]
 }
