@@ -8,9 +8,9 @@ sits outside this repository; paths like `netflix-reference/tv/...` are inside t
 
 Status: no app, and one native route left standing. This folder holds a README, a `.gitignore`,
 `host/` (the C++ side of the core boundary, with a test that drives it) and `surfaces/remote/` (the
-input grammar, the drawing numbers, where the remote is on a page, and the reading of the contract
-into that page, each with a test). Nothing draws a screen, because drawing needs a Windows machine
-and this is not one. What does not need Windows is written and run here: every test runs on a
+input grammar, the drawing numbers, the reading of the contract into a page, and three key maps --
+a page of rows, a title's own three pages, and the profile gate -- each with a test). Nothing draws
+a screen, because drawing needs a Windows machine and this is not one. What does not need Windows is written and run here: every test runs on a
 developer's own machine with no Xbox, with `./apps/xbox/check.sh`.
 
 The C++ contract that earlier versions of this file called the blocker is not one any more.
@@ -204,14 +204,20 @@ functions carrying UTF-8 JSON, described in `platform/bridges/README.md` - writt
 | `surfaces/remote/remote_test.cpp` | 39 checks over all of it. Not run by CI |
 | `surfaces/remote/paint.h` | the drawing numbers: the reference scale, the brand's colours and corners, Microsoft's TV-safe band, the easing curve and the 320 ms rise |
 | `surfaces/remote/paint.cpp` | that arithmetic. No WinRT, no Win2D, no screen |
-| `surfaces/remote/paint_test.cpp` | 61 checks, six of them held against `brand.json` itself. Not run by CI |
+| `surfaces/remote/paint_test.cpp` | 68 checks: six held against `brand.json` itself, four against `reference/netflix-on-the-tv.md`. Not run by CI |
 | `surfaces/remote/place.h` | a page of rows flattened, where the remote is on it, and the tile each row was left on |
 | `surfaces/remote/place.cpp` | that state machine. The key map branch for branch, and in the same order |
 | `surfaces/remote/place_test.cpp` | 82 checks, scripted key sequences. Not run by CI |
 | `surfaces/remote/reading.h` | reading `Contract.hpp` into that page: which rows a page may draw, which picture goes where, the flattening |
 | `surfaces/remote/reading.cpp` | that reading. No seam, because C++ needs none |
 | `surfaces/remote/reading_test.cpp` | 40 checks, held against the contract's own fixtures. Not run by CI |
-| `check.sh` | builds and runs all five tests on whatever machine this is |
+| `surfaces/remote/title.h` | a title's three pages: the menu and the reactions, the seasons and their episodes, the grid of titles like it |
+| `surfaces/remote/title.cpp` | that state machine, and what Play asks for on each of its three branches |
+| `surfaces/remote/title_test.cpp` | 92 checks, scripted key sequences. Not run by CI |
+| `surfaces/remote/gate.h` | the profile gate: the column, the pencil, and the panel in front of a locked profile |
+| `surfaces/remote/gate.cpp` | that state machine. The digits are held only until they have been read once |
+| `surfaces/remote/gate_test.cpp` | 67 checks, scripted key sequences. Not run by CI |
+| `check.sh` | builds and runs all seven tests on whatever machine this is |
 
 It holds no rules, exactly as `apps/android/core/src/main/cpp/bridge.c` holds none for Java.
 
@@ -219,13 +225,14 @@ Ran on this machine, 2026-11-13, x86_64 macOS 25.6.0, rustc 1.98.1:
 
     ./apps/xbox/check.sh
 
-Five suites held, with no compiler warnings under `-Wall -Wextra -Wpedantic`: the input grammar, the
-drawing numbers against `brand.json`, where the remote goes on a page and where a row opens when it
-comes back, the reading of the contract's own fixtures into that page, and the core boundary. That
-proves the C++ side of the boundary, the config shape a console sends (`"class":"box"`,
-`"form":"tv"`), the whole input grammar, every number a painter needs before Windows is involved,
-the key map, and that a C++ surface reads the contract with nothing between it and the generated
-header. It proves nothing about Xbox.
+Seven suites held, with no compiler warnings under `-Wall -Wextra -Wpedantic`: the input grammar,
+the drawing numbers against `brand.json` and the television reference, where the remote goes on a
+page of rows and where a row opens when it comes back, the reading of the contract's own fixtures
+into that page, where the remote goes on a title's own three pages, the profile gate and its PIN
+panel, and the core boundary. That proves the C++ side of the boundary, the config shape a console
+sends (`"class":"box"`, `"form":"tv"`), the whole input grammar, every number a painter needs
+before Windows is involved, three key maps, and that a C++ surface reads the contract with nothing
+between it and the generated header. It proves nothing about Xbox.
 
 **CI never runs it.** The root `./check` is the whole of CI and it carries no C++ compiler and no C++
 test runner, and `platform/tools/check_rings.py` has no `xbox` family, so these tests run only when
@@ -303,7 +310,7 @@ Xbox at all:
 | 1. The core as a Windows x64 static library | nothing but this Mac | **done**, 2026-11-12 |
 | 2. The remote's input grammar | nothing but a C++ compiler | **done**, 39 checks |
 | 3. The contract as C++ types | a `cpp.rs` in `platform/contract/gen` | **done**: `cpp.rs` is in the generator and `Contract.hpp` is on disk |
-| 4. What a screen decides before it draws: which rows a page may draw, where the remote is, what OK chooses, what the contract says | nothing but a C++ compiler | **done**, 2026-11-13, 122 checks |
+| 4. What a screen decides before it draws: which rows a page may draw, where the remote is on a page, on a title and on the gate, what OK chooses, what the contract says | nothing but a C++ compiler | **done**, 2026-11-13. Run `./apps/xbox/check.sh` for the count |
 | 4b. The drawing itself: every Win2D call | **a Windows machine** | blocked, no console needed |
 | 5. The five ports as WinRT adapters: network, secrets, store, player, reel | **a Windows machine** with Visual Studio, the Windows SDK and the C++/WinRT projection. Not a console - the headers do not exist on macOS and cannot be installed here | hardware wall 1 |
 | 6. Run it, see it, measure it | **a retail Xbox** in Developer Mode, plus a free developer account with identity verification. One activation of a limited number | hardware wall 2 |
@@ -318,7 +325,7 @@ done as of 2026-11-13 and the largest piece left is the drawing, which cannot st
 | Folder | State |
 |---|---|
 | `host/` | written. The core boundary and its test |
-| `surfaces/remote/` | the input grammar, the drawing numbers, the page the remote moves on and the reading of the contract into it, all written and tested. **No screens**: what is missing is the drawing, which needs a Windows machine. Note 223 settles its shape -- a UWP C++/WinRT app, one swap chain, Win2D over Direct2D |
+| `surfaces/remote/` | the input grammar, the drawing numbers, the reading of the contract into a page, and the key maps of three screens -- a page of rows, a title, the profile gate -- all written and tested. **No screens**: what is missing is the drawing, which needs a Windows machine. Note 223 settles its shape -- a UWP C++/WinRT app, one swap chain, Win2D over Direct2D |
 | `ports/` | not written. The five ports every family names: network, secrets, store, player, reel |
 | `adapters/` | not written. What each port does on Xbox, through WinRT |
 
@@ -342,9 +349,13 @@ surface has no seam and needs none.
 
 What is left before a screen is the drawing, and that needs a Windows machine: every Win2D call, the
 swap chain, the font, the picture decode. Note 223 settles the shape of it and names every API. What
-a screen *decides* before it draws does not need Windows and is written: `surfaces/remote/place.h`
-is where the remote is on a page and `surfaces/remote/reading.h` is what the contract says is on
-it.
+a screen *decides* before it draws does not need Windows and is written:
+`surfaces/remote/reading.h` is what the contract says is on a page, and `place.h`, `title.h` and
+`gate.h` are where the remote is on one: a page of rows, a title's summary with its episodes and
+its grid of titles like it, and the profile gate with the panel in front of a locked profile. Note
+187's rule is that navigation is designed per screen and not inherited, so each of the three
+carries its own key map, its own answer for Left at an edge, its own Back, and its own rule about
+what is remembered on the way back.
 
 The input grammar does not wait on that, which is why it exists: a key press never crosses the C
 boundary. `EventBody` in `platform/contract/src/core_msg.rs:279` has sixteen kinds and not one of
@@ -406,8 +417,29 @@ surface's own, and entirely testable without a core.
    archived API Sets list for UWP apps read against those four, which can be done from here, and
    settled for certain by one link on a Windows machine. This is the cheapest open item left and the
    next one worth doing.
-8. **A C++ emitter in `platform/contract/gen`.** The one thing between this folder and a screen, and
-   it needs no Xbox and no Windows. Unblocked by the contract's owner adding `cpp.rs` beside
-   `kotlin.rs` and `swift.rs`. Do not hand-write the types here instead.
+8. ~~**A C++ emitter in `platform/contract/gen`.**~~ **Answered on 2026-11-13**, and it was already
+   answered when this item was last written. `platform/contract/gen/src/cpp.rs` is in the generator
+   and `platform/contract/generated/types/Contract.hpp` is on disk; `surfaces/remote/reading.cpp`
+   reads it and `surfaces/remote/reading_test.cpp` holds that reading against the contract's own
+   fixtures. Nothing was hand-written.
+9. **Which Back a television app should answer, and whether it should offer a way out at all.** Three
+   screens disagree today. `profiles/Profiles.kt:146` answers Back at the start of a run and does
+   nothing, so the Android app stays open; `Profiles.swift:103` answers `false`, which hands the
+   press to tvOS, which leaves the app; note 187's own table says the first profile chooser leaves.
+   Note 239 section 4 then pressed Back five times on our own television's Home and the app never
+   exited, so the table is not what the build does either. Netflix never leaves on Back and offers
+   an Exit line in the profile menu instead. `surfaces/remote/gate.h` follows the Kotlin and stays,
+   because on Xbox there is no system behaviour to fall back on -- when an app answers neither
+   `KeyDown` nor `KeyUp` for B, `SystemNavigationManager::BackRequested` fires and the app must
+   implement it. Unblocked by the owner deciding, and note 187 wants a dated correction either way.
+10. **The screens with no key map yet.** `place.h` is a page of rows, `title.h` is a title's three
+   pages and `gate.h` is the profile gate. What has none: the door and its keyboard, search, the
+   player and its panels, settings, get help and the help centre, and the editor and adder the gate
+   opens. Each is the same kind of work and none of it needs Windows. Nothing is blocked on this;
+   it is a list, so that nobody reads three key maps as all of them.
+11. **What a screen reader is handed, on any of these screens.** `Place.java` has `says` and this
+   port has nothing, because there is no automation provider to hand a sentence to without XAML
+   (note 223 open item 7). Both new files answer *what* the remote is on and neither says a word;
+   the word belongs above them. Unblocked by the drawing, which is a Windows machine.
 
 Licensed under either of MIT or Apache 2.0, at your option.

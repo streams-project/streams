@@ -1,11 +1,12 @@
 #!/bin/sh
 # Builds and runs everything in this folder that can run without an Xbox.
 #
-# Five tests. The core boundary (`host/`) needs the C bridge built as a static library for whatever
-# machine this is; the other four (`surfaces/remote/`) need nothing but a C++ compiler. All five are
+# Seven tests. The core boundary (`host/`) needs the C bridge built as a static library for whatever
+# machine this is; the other six (`surfaces/remote/`) need nothing but a C++ compiler. All seven are
 # plain programs that print a line per check and return non-zero on a failure, and three of them are
-# held against a file nobody here owns: the drawing numbers read `brand.json` and the contract
-# reading reads the contract's own fixtures, which is why this script runs from the repository root.
+# held against a file nobody here owns: the drawing numbers read `brand.json` and
+# `reference/netflix-on-the-tv.md`, and the contract reading reads the contract's own fixtures,
+# which is why this script runs from the repository root.
 #
 # The root `./check` is the whole of CI and it does not call this: it carries no C++ compiler and
 # `platform/tools/check_rings.py` has no `xbox` family. So this runs when a person types it, and the
@@ -14,8 +15,9 @@
 #
 # It proves nothing about an Xbox. What it proves is that the pieces that do not need one are
 # correct: bytes cross the boundary, a controller speaks the six words of a remote, the drawn
-# numbers are the brand's, the remote reaches the stop it should, and a C++ surface reads the
-# contract with nothing between it and the generated header.
+# numbers are the brand's and the reference's, the remote reaches the stop it should on a page of
+# rows, on a title's own three pages and on the profile gate, and a C++ surface reads the contract
+# with nothing between it and the generated header.
 set -eu
 
 root=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
@@ -46,16 +48,29 @@ $cxx $flags apps/xbox/surfaces/remote/remote.cpp apps/xbox/surfaces/remote/remot
 "$out/remote"
 
 echo
-echo "== the drawing numbers, held against brand.json itself"
+echo "== the drawing numbers, held against brand.json and the television reference"
 $cxx $flags apps/xbox/surfaces/remote/paint.cpp apps/xbox/surfaces/remote/paint_test.cpp \
     -o "$out/paint"
-"$out/paint" brand.json
+"$out/paint" brand.json reference/netflix-on-the-tv.md
 
 echo
 echo "== where the remote is on a page, and where a row opens when it comes back"
 $cxx $flags apps/xbox/surfaces/remote/remote.cpp apps/xbox/surfaces/remote/place.cpp \
     apps/xbox/surfaces/remote/place_test.cpp -o "$out/place"
 "$out/place"
+
+echo
+echo "== where the remote is on a title's own pages, and what Play asks for"
+$cxx $flags apps/xbox/surfaces/remote/remote.cpp apps/xbox/surfaces/remote/place.cpp \
+    apps/xbox/surfaces/remote/paint.cpp apps/xbox/surfaces/remote/title.cpp \
+    apps/xbox/surfaces/remote/title_test.cpp -o "$out/title"
+"$out/title"
+
+echo
+echo "== the profile gate, the pencil, and the panel in front of a locked profile"
+$cxx $flags apps/xbox/surfaces/remote/remote.cpp apps/xbox/surfaces/remote/gate.cpp \
+    apps/xbox/surfaces/remote/gate_test.cpp -o "$out/gate"
+"$out/gate"
 
 echo
 echo "== reading the contract into a page, held against the contract's own $wire fixtures"
@@ -72,4 +87,4 @@ $cxx $flags -I platform/bridges/c apps/xbox/host/core_host.cpp apps/xbox/host/sm
 "$out/smoke"
 
 echo
-echo "all five held. No test here touches an Xbox, WinRT, a screen or a controller."
+echo "all seven held. No test here touches an Xbox, WinRT, a screen or a controller."

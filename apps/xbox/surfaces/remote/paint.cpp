@@ -64,6 +64,23 @@ int inside(int outer, int inset) {
 
 } // namespace Corner
 
+namespace Grid {
+
+int across(int left) {
+    // The room from `left` to the page's right margin, which is the one margin a grid keeps: it is
+    // drawn inside the page, not to the edge of the panel.
+    int room = (Ref::W - Corner::PAGE_EDGE) - left;
+    int count = 0;
+    // One more poster is one more box and one more gap, except the first, which has no gap before
+    // it.
+    while ((count + 1) * WIDE + count * GAP_X <= room) {
+        count += 1;
+    }
+    return count;
+}
+
+} // namespace Grid
+
 namespace Safe {
 
 int over(int x, int y, int wide, int high) {

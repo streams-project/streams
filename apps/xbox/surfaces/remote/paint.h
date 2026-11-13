@@ -169,6 +169,37 @@ constexpr int SUB_EDGE = 130;
 
 } // namespace Corner
 
+// A grid of portrait posters: More Like This, and the rows a profile picture is chosen from.
+//
+// The twin is `title/PosterGrid.kt:27-32`. These are the only numbers on this surface that are
+// neither the brand's nor the Netflix reference's: `reference/netflix-on-the-tv.md` measures rows,
+// tiles and the episodes screen and never a poster grid, so what a line holds is our own layout
+// and is written here once. The brand file has nothing to say about it either.
+//
+// What the test can hold them to is that they fit: `across` is the arithmetic that decides how
+// many posters a line takes, and ACROSS is the answer it gives for the page below. A poster box
+// changed without the count changing fails there rather than at a torn edge on a television.
+namespace Grid {
+
+// The poster box and the gaps between them, in reference pixels. `PosterGrid.kt:29-32`.
+constexpr int WIDE = 296;
+constexpr int HIGH = 414;
+constexpr int GAP_X = 10;
+constexpr int GAP_Y = 10;
+
+// Where the More Like This grid starts, to the right of the title's own name.
+// `title/MoreLike.kt:47` and `MoreLike.swift:18`.
+constexpr int LEFT = 566;
+
+// How many posters a line holds. `PosterGrid.kt:27`, and the number `title.h`'s grid is given.
+constexpr int ACROSS = 4;
+
+// How many posters fit in a line that starts at `left`, keeping the page's right margin. The last
+// poster in a line has no gap after it, so n posters are n boxes and n-1 gaps.
+int across(int left);
+
+} // namespace Grid
+
 // Microsoft's TV-safe band, in reference pixels, and whether a part is inside it.
 //
 // This is the one part of the drawing that Android handed us and an Xbox will not. On a television

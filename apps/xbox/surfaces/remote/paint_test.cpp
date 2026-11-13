@@ -30,8 +30,9 @@ void ok(bool held, const char *what) {
     }
 }
 
-// `brand.json`, read whole. It is 33 lines; there is no reason to stream it.
-std::string readBrand(const char *path) {
+// A whole file. `brand.json` is 33 lines and `reference/netflix-on-the-tv.md` is 92; there is no
+// reason to stream either.
+std::string readWhole(const char *path) {
     std::string text;
     std::FILE *file = std::fopen(path, "rb");
     if (file == nullptr) {
@@ -99,6 +100,30 @@ int numberAfter(const std::string &brand, const char *key) {
     return value;
 }
 
+// The first whole number written after a phrase, or -1 when the phrase is not there.
+//
+// For `reference/netflix-on-the-tv.md`, which is prose with the measurements in it rather than a
+// file with keys. The same deliberate crudeness as `colourAfter`: a phrase, then digits, and a
+// missing one answers -1 so the check that asked for it fails rather than passes quietly. The file
+// is the one the television surfaces are held to and it is tracked beside the code, so a sentence
+// reworded here is a failure a person reads, not a number that silently stops meaning anything.
+int numberAfterPhrase(const std::string &text, const char *phrase) {
+    std::size_t at = text.find(phrase);
+    if (at == std::string::npos) {
+        return -1;
+    }
+    std::size_t digit = text.find_first_of("0123456789", at + std::string(phrase).size());
+    if (digit == std::string::npos) {
+        return -1;
+    }
+    int value = 0;
+    while (digit < text.size() && text[digit] >= '0' && text[digit] <= '9') {
+        value = value * 10 + (text[digit] - '0');
+        digit += 1;
+    }
+    return value;
+}
+
 bool near(float got, float want, float by) {
     float off = got - want;
     return (off < 0 ? -off : off) <= by;
@@ -108,6 +133,7 @@ bool near(float got, float want, float by) {
 
 int main(int argc, char **argv) {
     const char *brandPath = argc > 1 ? argv[1] : "brand.json";
+    const char *referencePath = argc > 2 ? argv[2] : "reference/netflix-on-the-tv.md";
 
     // The reference scale.
     {
@@ -145,7 +171,7 @@ int main(int argc, char **argv) {
 
     // The brand, held against brand.json and not against a copy of it.
     {
-        std::string brand = readBrand(brandPath);
+        std::string brand = readWhole(brandPath);
         ok(!brand.empty(), "brand.json was found and read");
 
         ok(paint::Ink::BACK == colourAfter(brand, "background"), "BACK is colors.background");
@@ -209,16 +235,47 @@ int main(int argc, char **argv) {
         ok(paint::Safe::over(0, 0, 1920, 1080) == 96,
            "a part drawn to the panel edges is 96 reference pixels over on its worst side");
 
-        // The finding this check exists to record. The page margin was measured off the Netflix
+        // The finding these checks exist to record. The page margin was measured off the Netflix
         // reference and is 72 reference pixels, which is 36 effective pixels: inside Microsoft's
         // 48. It is asserted rather than fixed, because the measurement is the measurement and
         // whether to move it is the owner's call -- note 223 open item 2.
-        ok(paint::Corner::PAGE_EDGE == 72, "the page margin is the measured 72 reference pixels");
+        //
+        // Both numbers are read out of `reference/netflix-on-the-tv.md` rather than written here.
+        // They were literals until 2026-11-13 and a literal in a test is the same promise as a
+        // literal in the code: it says 72 is the margin and proves only that two files agree about
+        // a number neither of them owns.
+        std::string tv = readWhole(referencePath);
+        ok(tv.size() > 1000, "the television reference is there to be read");
+        int ours = numberAfterPhrase(tv, "This project uses");
+        int netflix = numberAfterPhrase(tv, "## Safe margin");
+        int inside = numberAfterPhrase(tv, "TV-unsafe band for Xbox by");
+        ok(ours == 72 && netflix == 68 && inside == 24,
+           "and it still says what this surface was built from: 72 ours, 68 Netflix's, 24 inside");
+        ok(paint::Corner::PAGE_EDGE == ours,
+           "the page margin is the one that file names as this project's");
+        ok(paint::Corner::PAGE_EDGE - netflix == 4,
+           "four reference pixels wider than the margin measured off Netflix itself");
         ok(paint::Corner::PAGE_EDGE < paint::Safe::LEFT,
-           "which sits 24 reference pixels inside Microsoft's TV-unsafe band, recorded not fixed");
-        ok(paint::Safe::LEFT - paint::Corner::PAGE_EDGE == 24, "and the gap is exactly 24");
+           "and inside Microsoft's TV-unsafe band, recorded not fixed");
+        ok(paint::Safe::LEFT - paint::Corner::PAGE_EDGE == inside,
+           "by the number the reference states, so neither can move alone");
         ok(paint::Corner::SUB_EDGE > paint::Safe::LEFT,
            "the sub-page column at 130 is clear of the band");
+    }
+
+    // The grid of posters, which is the one layout on this surface the reference does not measure.
+    {
+        namespace Grid = paint::Grid;
+        const int room = paint::Ref::W - paint::Corner::PAGE_EDGE;
+        ok(Grid::across(Grid::LEFT) == Grid::ACROSS,
+           "four posters are what fits beside a title's name, which is what the page draws");
+        ok(Grid::LEFT + Grid::ACROSS * Grid::WIDE + (Grid::ACROSS - 1) * Grid::GAP_X <= room,
+           "four keep the page's right margin");
+        ok(Grid::LEFT + (Grid::ACROSS + 1) * Grid::WIDE + Grid::ACROSS * Grid::GAP_X > room,
+           "and five do not");
+        ok(Grid::across(0) == 6,
+           "a grid drawn from the page's own edge would hold six, which is what the arithmetic is "
+           "for: the count follows the box rather than being written beside it");
     }
 
     // The easing curve and the rise it drives.
