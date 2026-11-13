@@ -17,7 +17,9 @@ android {
     // The module's own tests, on this machine's JVM: `./gradlew :surfaces:tv:testDebugUnitTest`.
     // What they cover is what can be checked without a screen - which rows a page may draw
     // (browse/Page.kt) - because everything else here is drawing, and a drawing test needs a
-    // device. `./check` does not run gradle at all, so nothing runs these but a person or CI.
+    // device. `./check` has run these since 2026-11-13, through `platform/tools/check_android.py`,
+    // which probes for a JDK and an SDK and announces loudly when it has neither rather than
+    // passing quietly -- a step that proved nothing is not a pass.
     testOptions {
         unitTests.isReturnDefaultValues = true
         // Robolectric needs the real resource table, not the stubbed one.

@@ -11,9 +11,9 @@ import streams.shared.ref
  * The television surface's measured numbers, each held against the derivation or the capture it
  * came from. The Android twin of `apps/apple/Tests/TelevisionTests/Numbers.swift`.
  *
- * Note 215 records "no test" against every number below. `./check` runs no gradle
- * (`build.gradle.kts:20`), so until a person or CI runs this module any of them could move by a
- * hundred reference pixels and every check in the repository would stay green.
+ * Note 215 recorded "no test" against every number below, because `./check` ran no gradle and
+ * any of them could move by a hundred reference pixels with every check still green. Since
+ * 2026-11-13 `./check` runs these through `platform/tools/check_android.py`.
  *
  * The rule these follow, from that note and from a defect a reviewer caught on 2026-11-11 (a
  * focused logo box whose stated derivation gave a different number from the one the code used):

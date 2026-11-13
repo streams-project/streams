@@ -57,7 +57,12 @@ class Claims(unittest.TestCase):
         with redirect_stdout(text):
             code = claims.main()
         self.assertEqual(code, 0, text.getvalue())
-        self.assertIn("read 2 public files", text.getvalue())
+        # Read the count from the rule rather than restating it. This line said "read 2" and
+        # went red on 2026-11-13 when the two READMEs that had been exempt joined the rule --
+        # a test asserting a number against a copy of itself, which is the thing this repository
+        # keeps finding. Against PUBLIC_FILES it cannot drift, and it still fails if the check
+        # silently stops reading one.
+        self.assertIn(f"read {len(claims.PUBLIC_FILES)} public files", text.getvalue())
 
     def test_a_file_in_the_list_that_git_does_not_hold_is_a_failure(self):
         held = claims.PUBLIC_FILES
