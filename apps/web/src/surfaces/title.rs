@@ -339,6 +339,29 @@ mod tests {
     use contract::Rating;
     use contract::screen::{AgeTone, TitleDetail};
 
+    /// The same text with every `/* ... */` as one space, so a scan for a rule cannot match the
+    /// prose about the rule.
+    ///
+    /// Not tidiness. On 2026-11-13 a comment written above the age block spelled a tone's class,
+    /// and the scan below went on passing after the rule itself was renamed, because `contains`
+    /// cannot tell a rule from a sentence about one. `mod.rs::flat` strips line comments for the
+    /// same reason; CSS has only the block form. An unterminated comment swallows the rest, which
+    /// is what a browser does with it too.
+    fn without_comments(text: &str) -> String {
+        let mut out = String::with_capacity(text.len());
+        let mut rest = text;
+        while let Some(at) = rest.find("/*") {
+            out.push_str(&rest[..at]);
+            out.push(' ');
+            match rest[at + 2..].find("*/") {
+                Some(end) => rest = &rest[at + 2 + end + 2..],
+                None => return out,
+            }
+        }
+        out.push_str(rest);
+        out
+    }
+
     /// Every rating the contract has, so a build cannot quietly stop offering one.
     const RATINGS: [Rating; 3] = [Rating::Down, Rating::Up, Rating::Love];
 
@@ -386,8 +409,8 @@ mod tests {
         assert_eq!(classes.len(), held, "two tones share a class");
         // A tone this build does not know falls on the plainest of them rather than on nothing.
         assert_eq!(age_tone(AgeTone::Unknown), age_tone(AgeTone::Grey));
-        // And the style sheet draws every one of them.
-        let css = crate::surfaces::tests_support::source("apps/web/style.css");
+        // And the style sheet draws every one of them, in a rule and not in a comment.
+        let css = without_comments(&crate::surfaces::tests_support::source("apps/web/style.css"));
         for tone in tones {
             let class = age_tone(tone);
             assert!(
