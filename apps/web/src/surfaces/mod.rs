@@ -334,6 +334,26 @@ pub mod tests_support {
     pub fn one_number(parts: &[&str], text: &str, what: &str) -> f64 {
         numbers(parts, text, what)[0]
     }
+
+    /// One section of a reference: from its heading to the next heading of the same depth.
+    ///
+    /// A shape has to match exactly once, and `reference/netflix-on-the-web.md` states the same
+    /// kind of row twice over - once for the wide widths and once for the phone ones, under
+    /// headings that differ only in the width they name. A row title's size, a tile at 570, a
+    /// paging distance: each is read out of the section it is being asked about rather than out of
+    /// the whole file, or the two readings collide and `numbers` refuses both.
+    pub fn section(reference: &str, heading: &str) -> String {
+        let at = reference
+            .find(heading)
+            .unwrap_or_else(|| panic!("{heading} has gone from the reference"));
+        let rest = &reference[at + heading.len()..];
+        let depth = heading
+            .split(' ')
+            .next()
+            .expect("a heading opens with its hashes");
+        let end = rest.find(&format!("\n{depth} ")).unwrap_or(rest.len());
+        rest[..end].to_owned()
+    }
 }
 
 #[cfg(test)]

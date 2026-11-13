@@ -189,7 +189,24 @@ button { cursor: pointer; border: 0; background: none; }
 .page { padding-bottom: calc(var(--unit) * 16); }
 .page-notice { padding: calc(var(--unit) * 5) var(--edge); color: var(--muted); }
 
-.hero { position: relative; display: flex; align-items: flex-end; aspect-ratio: 1616 / 741; margin: 0 var(--edge); overflow: hidden; border-radius: var(--radius-panel); padding: 0 var(--edge) calc(var(--unit) * 16); background: var(--surface) center 20% / cover no-repeat;
+/* The billboard is a ratio of its own width at every width measured, and the ratio steps twice.
+   reference/netflix-on-the-web.md measured 1.4925 x its width from 160 to 599, 1.2048 x from 600
+   to 768, and 0.4587 x from 1024 to 1920. The three blocks below are those three bands, and the
+   wide one is written as the 1616 x 741 billboard of this project's own earlier capture, which
+   reproduces every one of that file's seven wide heights inside its own 1 px tolerance - two
+   captures of the same page, taken apart, agreeing.
+   What was here until 2026-11-13 was `aspect-ratio: auto; min-height: 76vh` under 720, from that
+   file's since-corrected claim that the height below 1024 is set by the content. It is not: the
+   correction in that file states both narrow ratios and the two readings each is reproduced from.
+   The step from the middle band to the wide one sits at 840 for the reason the count of tiles
+   across does: the reference measures 1.2048 at 768 and 0.4587 at 1024 and brackets nothing in
+   between, so it sits on a boundary this page already has rather than on a number nothing
+   measured. src/surfaces/browse.rs reads all three out of that file's own tables.
+   The content's inset is the card's own and not the page margin: the reference measures 40 inside
+   a 60 px margin at 1920 and 16 inside a 24 px one at 390, so the two are different numbers at
+   every width. 16 is four of the brand's units; `--edge` draws it from 600 up, where it is the 40
+   the reference measured at 1920. */
+.hero { position: relative; display: flex; align-items: flex-end; aspect-ratio: 1 / 1.4925; margin: 0 var(--edge); overflow: hidden; border-radius: var(--radius-panel); padding: 0 calc(var(--unit) * 4) calc(var(--unit) * 16); background: var(--surface) center 20% / cover no-repeat;
   /* The second gradient fades the billboard's foot into the page colour. It was drawn for a full-bleed
      hero and now runs inside a 24 px rounded card, so the bottom 40% dissolves while the corners stay.
      Nothing in the reference measures a billboard scrim, so it is left exactly as it was rather than
@@ -204,13 +221,60 @@ button { cursor: pointer; border: 0; background: none; }
 .hero-text { position: relative; max-width: 620px; }
 .tags { color: var(--muted); margin-top: calc(var(--unit) * 3); }
 
-.row { padding: calc(var(--unit) * 4) 0;
-  & h2 { padding: 0 var(--edge); margin-bottom: calc(var(--unit) * 1.5); font-size: 24px; font-weight: 500; }
+/* The billboard's two controls stand one above the other under 600 and side by side above it. The
+   reference measures them at 390 as two pills of the full content width, 310 x 40, one white and
+   one grey, stacked with an 8 px gap; at 1920 they are a 108 wide white pill, a 12 px gap and a
+   120.2 wide grey one, side by side. 8 and 12 are two and three of the brand's units, which is
+   what `.row-of-buttons` already writes the wider gap as. A column of flex items stretches, so
+   "the full content width" is the default and not a width stated twice.
+   Only the billboard's row stacks. The same class carries the pairs on the door and in the title
+   panel, which no width of the reference measures. */
+.hero .row-of-buttons { flex-direction: column; gap: calc(var(--unit) * 2); }
+@media (min-width: 600px) {
+  .hero { aspect-ratio: 1 / 1.2048; padding-inline: var(--edge); }
+  .hero .row-of-buttons { flex-direction: row; gap: calc(var(--unit) * 3); }
 }
+@media (min-width: 840px) { .hero { aspect-ratio: 1616 / 741; } }
+
+/* A row's name, by width class. reference/netflix-on-the-web.md read it at three widths: 16 px /
+   500 in a 20.5 px box at 390, 18 px / 500 at 600, and 24 px / 500 in a 30.5 px box at 1920. The
+   weight is one number at all three; the size is a step, and 600 is the step it bracketed to 1 px -
+   16 at 599 and 18 at 600 - which is also where this page's margin changes class.
+   Nothing brackets where 18 becomes 24: the reference states 18 at 600 and 24 at 1920 and measures
+   no width between. So that step sits at 840, the other boundary this page already has, for the
+   same reason the count of tiles across steps there.
+   The box is written out where the reference measured one and left to the browser at 18, where it
+   measured none: 20.5 / 16 and 30.5 / 24 are not the same multiple, so there is no ratio to carry
+   to a size nothing was measured at. A waiting row's bar is one em of whichever of the three the
+   window is at, so it follows this without a second number. */
+.row { padding: calc(var(--unit) * 4) 0;
+  & h2 { padding: 0 var(--edge); margin-bottom: calc(var(--unit) * 1.5); font-size: 16px; line-height: 20.5px; font-weight: 500; }
+}
+@media (min-width: 600px) { .row h2 { font-size: 18px; line-height: normal; } }
+@media (min-width: 840px) { .row h2 { font-size: 24px; line-height: 30.5px; } }
 .strip { display: flex; gap: calc(var(--unit) * 2); overflow-x: auto; padding: calc(var(--unit) * 2) var(--edge); scroll-padding: var(--edge); scroll-snap-type: x proximity; scrollbar-width: none;
   --tile-wide: calc((100% - var(--unit) * 2 * (var(--tile-across) - 1)) / var(--tile-across));
   & .card, & .going { flex: 0 0 var(--tile-wide); scroll-snap-align: start; }
 }
+/* The control that moves a row, and the band it stands in.
+   A scrolling row overflows under its own side padding - a browser clips a scroller at its padding
+   box, not its content box - so a long row showed a sliver of the next tile through the page
+   margin, the margin less the one gutter that lands there first. The reference's answer is not to
+   clip that away: it draws a scrim exactly the page margin wide over it, carrying the arrow that
+   pages the row. Measured at both of its widths, 60 px at 1920 and 24 at 390, and stated there as
+   the rule this draws - the scrim is the page margin, so it is `--edge` here and steps with it.
+   The arrow is 28 x 56 at both widths measured, which is wider than the 24 px scrim it stands in
+   at 390: it overflows its own band on the page this was read from, and it does the same here.
+   Clipping the row instead - `clip-path: inset(0 var(--edge))` on the strip - was the other way
+   and is not taken: it cuts the first and last tile's hover scale flat against the margin, and
+   with them the focus ring, which is painted outside the tile's own box. A keyboard user would
+   meet a ring with one side missing on the first tile of every row, and a ring removed is the one
+   defect this sheet refuses further down.
+   The band sits over the scroller and not inside it, so it does not travel with the tiles. */
+.strip-page { position: relative; }
+.strip-step { position: absolute; z-index: 2; top: 0; bottom: 0; width: var(--edge); display: grid; place-items: center; font-size: 28px; line-height: 56px; color: var(--text); background: rgb(from var(--background) r g b / 50%); }
+.strip-back { inset-inline-start: 0; }
+.strip-on { inset-inline-end: 0; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--tile-least), 1fr)); gap: calc(var(--unit) * 2); padding: calc(var(--unit) * 2) var(--edge); }
 .card { position: relative; aspect-ratio: 16 / 9; padding: 0; overflow: hidden; border-radius: var(--radius-card); background: var(--raised) center / cover no-repeat; transition: transform 160ms ease-out;
   &:hover, &:focus-visible { transform: scale(1.06); z-index: 2; outline: 2px solid var(--text); }
@@ -283,7 +347,6 @@ button { cursor: pointer; border: 0; background: none; }
 @media (max-width: 720px) {
   .top { gap: calc(var(--unit) * 3); }
   .face { width: 88px; height: 88px; font-size: 36px; }
-  .hero { aspect-ratio: auto; min-height: 76vh; }
   .watch-row { flex-wrap: wrap; }
 }
 

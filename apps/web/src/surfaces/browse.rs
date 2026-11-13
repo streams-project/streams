@@ -506,6 +506,36 @@ fn WholeRow(section: Section, depth: Depth, close: Callback<()>) -> impl IntoVie
     }
 }
 
+/// How far one press of a row's control moves it: a whole page of tiles.
+///
+/// `reference/netflix-on-the-web.md` measures the distance at two widths and states the same
+/// derivation for both - 1808 px at 1920, which is "one full page of 7 tiles", and 350 at 390,
+/// "the content width 342 plus one gutter, and also exactly 2 x the 175 pitch". The second form is
+/// the one written here, because this surface already knows both of its numbers: the count across
+/// is `empty::tiles_across`, which the style sheet draws the row with, and the pitch is the row's
+/// own length over the tiles in it. The first form would need the page margin, which this crate
+/// deliberately does not carry at run time (`sizes.rs`).
+///
+/// The two forms are the same number only because a row's tiles fill its content box exactly,
+/// which is the one rule that produces a row; the test below holds this to both of the
+/// reference's readings.
+fn page_step(across: usize, pitch: f64) -> f64 {
+    across as f64 * pitch
+}
+
+/// Which of a row's two controls stand, from where the row is scrolled to: (the one that goes
+/// back, the one that goes on).
+///
+/// The reference states the first half - "the left arrow has zero width on page 1" - and measures
+/// no row that runs out, because the rows it measured never do. This surface's do, so the control
+/// that goes on stands only while there is somewhere to go: an arrow that moves nothing is a
+/// control that lies about the row.
+fn controls(scrolled: f64, seen: f64, whole: f64) -> (bool, bool) {
+    // A pixel of slack at the far end: a scroller's own arithmetic lands fractionally short of
+    // its length, and an arrow left standing on a row with nothing behind it is the defect above.
+    (scrolled > 0.0, scrolled + seen < whole - 1.0)
+}
+
 #[component]
 fn Row(section: Section, depth: Depth) -> impl IntoView {
     let shared = expect_context::<Shared>();
@@ -517,6 +547,31 @@ fn Row(section: Section, depth: Depth) -> impl IntoView {
     let read = section.clone();
     let opened = section.clone();
     let scrolled = section.clone();
+    let strip = NodeRef::<leptos::html::Div>::new();
+    // Nothing is scrolled yet and a row almost always holds more than it shows, so the control
+    // that goes on stands from the start and the one that goes back does not. A row too short to
+    // scroll corrects the second of these on its first scroll event, which is also the only way
+    // a viewer can learn it is short.
+    let stand = RwSignal::new((false, true));
+    let page = move |back: bool| {
+        let Some(strip) = strip.get() else {
+            return;
+        };
+        // The tiles in the document, counted off the row itself rather than off the answer it
+        // was built from: the control moves what is drawn, and the two are the same count only
+        // while the row is not mid-read. The reference counts them the same way, before a press
+        // and after it.
+        let held = f64::from(strip.child_element_count());
+        let length = f64::from(strip.scroll_width());
+        if held <= 0.0 || length <= 0.0 {
+            return;
+        }
+        // The strip spans the page, so its own box is the window the style sheet's queries are
+        // matched against, and the count it draws is the count this moves by.
+        let across = super::empty::tiles_across(f64::from(strip.client_width()));
+        let step = page_step(across, length / held);
+        strip.scroll_by_with_x_and_y(if back { -step } else { step }, 0.0);
+    };
     let heading = move || {
         let name = name.clone();
         if !more {
@@ -539,8 +594,10 @@ fn Row(section: Section, depth: Depth) -> impl IntoView {
     view! {
         <section class="row">
             {heading}
+            <div class="strip-page">
             <div
                 class="strip"
+                node_ref=strip
                 on:scroll=move |event| {
                     let Some(strip) = event.target().and_then(|target| {
                         wasm_bindgen::JsCast::dyn_into::<web_sys::Element>(target).ok()
@@ -557,7 +614,9 @@ fn Row(section: Section, depth: Depth) -> impl IntoView {
                     }
                     let pitch = whole / held;
                     let seen = f64::from(strip.client_width());
-                    let left = (whole - f64::from(strip.scroll_left()) - seen) / pitch;
+                    let at = f64::from(strip.scroll_left());
+                    stand.set(controls(at, seen, whole));
+                    let left = (whole - at - seen) / pitch;
                     if left <= tiles_ahead(seen / pitch) as f64 {
                         depth.reach(&scrolled);
                     }
@@ -576,6 +635,28 @@ fn Row(section: Section, depth: Depth) -> impl IntoView {
                         view! { <Card tile=tile rank=rank/> }.into_any()
                     }
                 }).collect_view()}
+            </div>
+            // The two controls stand over the page margin, outside the scroller, so they do not
+            // travel with the tiles. The mark inside each is a decoration: the words that say
+            // where it goes are its own label.
+            {move || stand.get().0.then(|| view! {
+                <button
+                    class="strip-step strip-back"
+                    aria-label=move || label_text(shared, "common.back")
+                    on:click=move |_| page(true)
+                >
+                    <span aria-hidden="true">"‹"</span>
+                </button>
+            })}
+            {move || stand.get().1.then(|| view! {
+                <button
+                    class="strip-step strip-on"
+                    aria-label=move || label_text(shared, "common.next")
+                    on:click=move |_| page(false)
+                >
+                    <span aria-hidden="true">"›"</span>
+                </button>
+            })}
             </div>
             {move || whole.get().then(|| view! {
                 <WholeRow
@@ -858,10 +939,12 @@ pub fn Browse() -> impl IntoView {
 #[cfg(test)]
 mod tests {
     use super::{
-        AHEAD_VIEWPORTS, ROW_KINDS, drawable, here, lines_of, near_end, nothing_found, stamp_of,
-        tiles_ahead,
+        AHEAD_VIEWPORTS, ROW_KINDS, controls, drawable, here, lines_of, near_end, nothing_found,
+        page_step, stamp_of, tiles_ahead,
     };
-    use crate::surfaces::tests_support::{english, numbers, source};
+    use crate::surfaces::sizes::WidthClass;
+    use crate::surfaces::tests_support::section as reference_section;
+    use crate::surfaces::tests_support::{english, flat, numbers, one_number, source};
     use contract::core_msg::Target;
     use contract::screen::{NavItem, Screen, ScreenName, Section, SectionKind};
 
@@ -1196,5 +1279,537 @@ mod tests {
             "{} is in strings/en.json now: move it to the list above",
             super::NOTHING_FOUND
         );
+    }
+
+    /// What this page is drawn to, measured live on 2026-11-13.
+    const WEB_REFERENCE: &str = "reference/netflix-on-the-web.md";
+
+    /// The style sheet, which is where every size on this page lives: the browser is what draws
+    /// them and nothing in this crate reads one while the page runs.
+    const SITE: &str = "apps/web/style.css";
+
+    /// How close a size has to be, as that file sets it for itself.
+    fn tolerance(reference: &str) -> f64 {
+        one_number(
+            &["within **", " px** of the number"],
+            reference,
+            "the reference's tolerance",
+        )
+    }
+
+    /// The brand's spacing unit, which is what every gap in the style sheet is written in.
+    fn unit() -> f64 {
+        one_number(
+            &["\"unit\": ", ""],
+            &source("brand.json"),
+            "the brand's unit",
+        )
+    }
+
+    /// Every billboard one of the reference's tables states, as (viewport, its width, its
+    /// height). Its rows read `| 1920 | 60 | 7 | 250.3 x 140.5 | 258.29 | 1800 x 825.7 |`, and a
+    /// row whose last cell is not a width by a height - the phone table's, which states a width
+    /// alone - is not one of them.
+    fn table_billboards(table: &str) -> Vec<(f64, f64, f64)> {
+        let mut read = Vec::new();
+        for line in table.lines() {
+            let cells: Vec<&str> = line
+                .trim()
+                .trim_matches('|')
+                .split('|')
+                .map(str::trim)
+                .collect();
+            let Some(last) = cells.last() else { continue };
+            let (Ok(wide), Some((billboard, tall))) =
+                (cells[0].parse::<f64>(), last.split_once(" x "))
+            else {
+                continue;
+            };
+            let (Ok(billboard), Ok(tall)) = (billboard.parse::<f64>(), tall.parse::<f64>()) else {
+                continue;
+            };
+            read.push((wide, billboard, tall));
+        }
+        assert!(!read.is_empty(), "no table row reads as a billboard");
+        read
+    }
+
+    /// The three ratios the style sheet draws the billboard at, narrowest band first, each with
+    /// the width its band starts at: (from, height over width).
+    fn billboard_bands() -> [(f64, f64); 3] {
+        let css = source(SITE);
+        let narrow = numbers(
+            &[
+                ".hero { position: relative; display: flex; align-items: flex-end; aspect-ratio: ",
+                " / ",
+                "; margin: 0 var(--edge);",
+            ],
+            &css,
+            "the billboard's ratio under the first step",
+        );
+        let middle = numbers(
+            &[
+                "@media (min-width: ",
+                "px) { .hero { aspect-ratio: ",
+                " / ",
+                "; padding-inline: var(--edge); }",
+            ],
+            &css,
+            "the billboard's ratio from the first step",
+        );
+        let wide = numbers(
+            &[
+                "@media (min-width: ",
+                "px) { .hero { aspect-ratio: ",
+                " / ",
+                "; } }",
+            ],
+            &css,
+            "the billboard's ratio from the second step",
+        );
+        // `aspect-ratio` is written width over height and the reference states height over width.
+        [
+            (0.0, narrow[1] / narrow[0]),
+            (middle[0], middle[2] / middle[1]),
+            (wide[0], wide[2] / wide[1]),
+        ]
+    }
+
+    /// The billboard is a ratio of its own width at every width the reference measured, and this
+    /// page's three bands give the height that file read at each of them.
+    ///
+    /// The correction of 2026-11-13 is what this is for. That file first said the height below
+    /// 1024 is set by the content, and this page carried that claim as `aspect-ratio: auto` with a
+    /// 76vh floor under 720. It is a ratio there too, in two further bands, and both are
+    /// reproduced from two readings each that the file quotes - so every number this test holds is
+    /// read out of it rather than restated here.
+    ///
+    /// Fed the reference's own billboard width, not this page's: the margins differ, so what is
+    /// under test is the ratio and not a width this page never draws.
+    #[test]
+    fn the_billboard_keeps_the_reference_s_ratio_at_every_width_it_measured() {
+        let reference = source(WEB_REFERENCE);
+        let close = tolerance(&reference);
+        let bands = billboard_bands();
+        // Every row of the wide table, read as a table rather than width by width, so a width
+        // measured into it later is held too and none can be quietly skipped.
+        let table = reference_section(&reference, "## The one rule that produces a row");
+        let mut read = table_billboards(&table);
+        assert_eq!(
+            read.len(),
+            9,
+            "that table has stated nine widths since it was written; a tenth is a new \
+             measurement and wants reading before it is held to"
+        );
+        // And the readings the two narrow bands are each derived from, quoted in that file's own
+        // "Hero" section as height over width at a stated viewport.
+        let heroes = reference_section(&reference, "### Hero");
+        let narrow = numbers(
+            &[
+                "hero height = ",
+                " x hero width** at every width from 160 to 599 (",
+                "/",
+                " at 390, ",
+                "/",
+                " at 570, ",
+                "/",
+                " at 320)",
+            ],
+            &heroes,
+            "the narrow band's own readings",
+        );
+        let middle = numbers(
+            &[
+                "hero height = ",
+                " x hero width** from 600 to 768 (",
+                "/",
+                " at 600, ",
+                "/",
+                " at 768)",
+            ],
+            &heroes,
+            "the middle band's own readings",
+        );
+        for (at, pair) in [(390.0, 1), (570.0, 3), (320.0, 5)] {
+            read.push((at, narrow[pair + 1], narrow[pair]));
+        }
+        for (at, pair) in [(600.0, 1), (768.0, 3)] {
+            read.push((at, middle[pair + 1], middle[pair]));
+        }
+        for (wide, billboard, tall) in read {
+            let ratio = bands
+                .iter()
+                .filter(|(from, _)| wide >= *from)
+                .map(|(_, ratio)| *ratio)
+                .next_back()
+                .expect("a band for every width");
+            let drawn = billboard * ratio;
+            assert!(
+                (drawn - tall).abs() <= close,
+                "at {wide} this page draws a {billboard} x {drawn} billboard against the \
+                 measured {billboard} x {tall}"
+            );
+        }
+        // And the ratio each narrow band is stated as is the one this page draws, to the four
+        // digits that file carries it to.
+        for (said, drawn) in [(narrow[0], bands[0].1), (middle[0], bands[1].1)] {
+            assert_eq!((drawn * 10_000.0).round() / 10_000.0, said);
+        }
+    }
+
+    /// Where the billboard's ratio steps: the first is the width the reference bracketed to 1 px,
+    /// and the second is the boundary this page already has, inside the bounds that file leaves
+    /// open.
+    #[test]
+    fn the_billboard_steps_where_something_measured_or_where_this_page_already_steps() {
+        let reference = source(WEB_REFERENCE);
+        let bands = billboard_bands();
+        let first = one_number(
+            &["### The first step is at exactly ", " Bracketed"],
+            &reference,
+            "the reference's first step",
+        );
+        assert_eq!(bands[1].0, first);
+        // The second is unbracketed: 1.2048 is measured at 768 and 0.4587 at 1024, so it may sit
+        // anywhere in between. It sits where this page's margin changes class.
+        let heroes = reference_section(&reference, "### Hero");
+        let widest_narrow = one_number(
+            &[" x hero width** from 600 to ", " ("],
+            &heroes,
+            "the widest width measured at the middle ratio",
+        );
+        let narrowest_wide = one_number(
+            &[
+                "constant to four decimals at seven widths from ",
+                " to 1920",
+            ],
+            &reference,
+            "the narrowest width measured at the wide ratio",
+        );
+        let step = bands[2].0;
+        assert!(
+            widest_narrow < step && step <= narrowest_wide,
+            "the billboard steps at {step}, outside the {widest_narrow} to {narrowest_wide} the \
+             reference leaves open"
+        );
+        assert_ne!(
+            WidthClass::of(step - 1.0),
+            WidthClass::of(step),
+            "{step} is not a boundary this page has"
+        );
+        // The three bands rise, and each is flatter than the one below it.
+        for pair in bands.windows(2) {
+            assert!(pair[0].0 < pair[1].0 && pair[0].1 > pair[1].1);
+        }
+    }
+
+    /// A row's name is the size the reference read at that width, in all three bands.
+    ///
+    /// Each size is read out of the section it was measured in: that file states a row's rhythm
+    /// twice, at 1920 and at 390, in two sections whose sentences differ only in their numbers.
+    #[test]
+    fn a_row_s_name_is_the_size_the_reference_read_at_that_width() {
+        let reference = source(WEB_REFERENCE);
+        let css = source(SITE);
+        // Each shape stops before the bold that closes the reading rather than naming it: a piece
+        // of a shape is flattened the way a line of source is, so a piece that opened with the
+        // `*` of that bold would lose it and match nothing. The empty piece at the end is the
+        // "and then anything" `numbers` documents.
+        let phone = numbers(
+            &["Row title y ", "-", " (**", " tall, ", " px / ", ""],
+            &reference_section(&reference, "### Vertical rhythm of the rows, at 390"),
+            "the row's name at 390",
+        );
+        let desk = numbers(
+            &["Row title y ", "-", " (**", " tall, ", " px / ", ""],
+            &reference_section(&reference, "## Vertical rhythm of the rows, at 1920"),
+            "the row's name at 1920",
+        );
+        let stepped = numbers(
+            &[
+                "At **600** the page margin is ",
+                ", the count across is ",
+                ", row titles are ",
+                " px / ",
+                " and the hero",
+            ],
+            &reference,
+            "the row's name at the first step",
+        );
+        // Under the first step: the size and the box that file measured, and the weight.
+        assert_eq!(
+            numbers(
+                &[
+                    "& h2 { padding: 0 var(--edge); margin-bottom: calc(var(--unit) * 1.5); \
+                     font-size: ",
+                    "px; line-height: ",
+                    "px; font-weight: ",
+                    "; }",
+                ],
+                &css,
+                "the row's name under the first step",
+            ),
+            vec![phone[3], phone[2], phone[4]]
+        );
+        // From the first step: the size that file read at exactly 600, and no box, because it
+        // measured none there.
+        assert_eq!(
+            numbers(
+                &[
+                    "@media (min-width: ",
+                    "px) { .row h2 { font-size: ",
+                    "px; line-height: normal; } }",
+                ],
+                &css,
+                "the row's name from the first step",
+            ),
+            vec![600.0, stepped[2]]
+        );
+        // From the second step: the size and the box measured at 1920.
+        assert_eq!(
+            numbers(
+                &[
+                    "@media (min-width: ",
+                    "px) { .row h2 { font-size: ",
+                    "px; line-height: ",
+                    "px; } }",
+                ],
+                &css,
+                "the row's name from the second step",
+            ),
+            vec![840.0, desk[3], desk[2]]
+        );
+        // One weight at all three widths, which is why it is written once.
+        assert_eq!(phone[4], desk[4]);
+        assert_eq!(phone[4], stepped[3]);
+        // The three sizes rise with the window, and the two the reference brackets to 1 px differ.
+        assert!(phone[3] < stepped[2] && stepped[2] < desk[3]);
+    }
+
+    /// The billboard's two controls stand one above the other under the first step and side by
+    /// side above it, at the gap the reference measured on each side of it.
+    #[test]
+    fn the_billboard_s_controls_stack_under_the_first_step() {
+        let reference = source(WEB_REFERENCE);
+        let css = source(SITE);
+        let unit = unit();
+        let stacked = one_number(
+            &["310 x 40**, stacked with an ", " px gap"],
+            &reference,
+            "the gap between the stacked controls",
+        );
+        let beside = one_number(
+            &["with a white pill 108 wide, a ", " px gap, then a grey"],
+            &reference,
+            "the gap between the controls side by side",
+        );
+        let column = one_number(
+            &[
+                ".hero .row-of-buttons { flex-direction: column; gap: calc(var(--unit) * ",
+                "); }",
+            ],
+            &css,
+            "the stacked controls' gap",
+        );
+        let row = one_number(
+            &[
+                ".hero .row-of-buttons { flex-direction: row; gap: calc(var(--unit) * ",
+                "); }",
+            ],
+            &css,
+            "the side by side controls' gap",
+        );
+        assert_eq!(column * unit, stacked);
+        assert_eq!(row * unit, beside);
+        // The row of them turns back at the width the reference bracketed the step to.
+        assert!(
+            flat(&css).contains(
+                "@media (min-width: 600px) { .hero { aspect-ratio: 1 / 1.2048; padding-inline: \
+                 var(--edge); } .hero .row-of-buttons { flex-direction: row;"
+            ),
+            "the controls stand side by side from some other width"
+        );
+        // Stacked, each is the full content width, which is what a column of flex items is
+        // without a width stated: nothing here may state one.
+        assert!(
+            !flat(&css).contains(
+                ".hero .row-of-buttons { flex-direction: column; gap: \
+                 calc(var(--unit) * 2); width"
+            ),
+            "a stacked control states a width of its own"
+        );
+    }
+
+    /// One press of a row's control moves it the distance the reference measured, at both of the
+    /// widths it measured one.
+    ///
+    /// Both readings are held, and so is the derivation behind them: that file states the 390
+    /// distance twice over - as the content width plus a gutter and as the count across times the
+    /// pitch - and this surface computes the second, so the test reads the first out of the file
+    /// and checks the two agree there before holding this code to either.
+    #[test]
+    fn a_row_pages_by_the_reference_s_own_distance() {
+        let reference = source(WEB_REFERENCE);
+        let close = tolerance(&reference);
+        // At 390: the distance, the content width, the count across and the pitch, all in one
+        // sentence of that file.
+        let phone = numbers(
+            &[
+                "moves the row **",
+                " px at 390**, which is the content width ",
+                " plus one gutter, and also exactly ",
+                " x the ",
+                " pitch",
+            ],
+            &reference,
+            "the paging distance at 390",
+        );
+        let (moved, content, across, pitch) = (phone[0], phone[1], phone[2], phone[3]);
+        // The file's own two forms of the same distance: the content box plus one gutter, and a
+        // whole page of tiles. The gutter is that file's 8.
+        let gutter = one_number(
+            &["The gutter is **", " px at every width measured"],
+            &reference,
+            "the reference's gutter",
+        );
+        assert_eq!(content + gutter, moved, "the file's two forms disagree");
+        assert!((page_step(across as usize, pitch) - moved).abs() <= close);
+        // And at 1920, where the file states the page in tiles and the table states the pitch.
+        let wide = numbers(
+            &["one full page of ", " tiles = ", " px at 1920"],
+            &reference,
+            "the paging distance at 1920",
+        );
+        let table = reference_section(&reference, "## The one rule that produces a row");
+        let wide_pitch = numbers(
+            &["| 1920 | ", " | ", " | ", " x ", " | ", " | "],
+            &table,
+            "the row at 1920",
+        )[4];
+        assert!((page_step(wide[0] as usize, wide_pitch) - wide[1]).abs() <= close);
+        // The count the file pages by at each width is the count this page draws there, which is
+        // what makes `tiles_across` the right number to move by.
+        assert_eq!(super::super::empty::tiles_across(390.0) as f64, across);
+        assert_eq!(super::super::empty::tiles_across(1920.0) as f64, wide[0]);
+        // A row with nothing in it moves nothing, rather than dividing by it.
+        assert_eq!(page_step(0, 175.0), 0.0);
+    }
+
+    /// The band a row's control stands in is the page margin wide, which is the rule the
+    /// reference states, and the arrow in it is the size that file measured.
+    #[test]
+    fn a_row_s_control_stands_in_a_band_the_page_margin_wide() {
+        let reference = source(WEB_REFERENCE);
+        let css = source(SITE);
+        // The rule, and the two readings it was drawn from.
+        let scrims = numbers(
+            &[
+                "scrim width equals the page margin** at both widths measured (",
+                " at 1920, ",
+                " at 390)",
+            ],
+            &reference,
+            "the scrim at both widths",
+        );
+        let margins = reference_section(&reference, "## The one rule that produces a row");
+        // Each is that width's own page margin in the table, which is what makes it a rule and
+        // not two numbers.
+        for (wide, scrim) in [(1920.0, scrims[0]), (390.0, scrims[1])] {
+            let table = if wide > 599.0 {
+                &margins
+            } else {
+                &reference_section(&reference, "### The one rule still holds")
+            };
+            let margin = numbers(
+                &[&format!("| {wide} | "), " | "],
+                table,
+                "the page margin at this width",
+            )[0];
+            assert_eq!(scrim, margin, "the scrim at {wide} is not the page margin");
+        }
+        // So this page draws it from the one place its own margin lives.
+        assert!(
+            flat(&css).contains("width: var(--edge); display: grid; place-items: center;"),
+            "the band is not the page margin wide"
+        );
+        // The arrow: 28 x 56 at both widths that file measured one.
+        let arrow = numbers(
+            &["The control is an arrow **", " x ", ""],
+            &reference,
+            "the arrow at 390",
+        );
+        let wide_arrow = numbers(
+            &["The control is an arrow ", " x ", " inside a **"],
+            &reference,
+            "the arrow at 1920",
+        );
+        assert_eq!(arrow, wide_arrow, "the arrow is one size at both widths");
+        assert_eq!(
+            numbers(
+                &[
+                    "font-size: ",
+                    "px; line-height: ",
+                    "px; color: var(--text);"
+                ],
+                &css,
+                "the arrow this page draws",
+            ),
+            arrow
+        );
+    }
+
+    /// Which of a row's controls stand, and when.
+    #[test]
+    fn a_row_offers_no_control_that_would_move_nothing() {
+        // Page 1: nothing behind, a page ahead. The reference states the first half of this.
+        assert_eq!(controls(0.0, 390.0, 1200.0), (false, true));
+        // Part way along: both.
+        assert_eq!(controls(350.0, 390.0, 1200.0), (true, true));
+        // At the end: nothing ahead.
+        assert_eq!(controls(810.0, 390.0, 1200.0), (true, false));
+        // A scroller that lands a fraction short of its own length is at the end.
+        assert_eq!(controls(809.5, 390.0, 1200.0), (true, false));
+        // A row shorter than the window has neither.
+        assert_eq!(controls(0.0, 390.0, 300.0), (false, false));
+    }
+
+    /// The billboard's content sits the reference's own inset inside the card, which is not the
+    /// page margin: that file measures 16 inside a 24 px margin at 390 and 40 inside a 60 px one
+    /// at 1920.
+    ///
+    /// The wide half of it is held to `sizes.rs`'s own margin rather than to a second number here:
+    /// this page draws 40 there, which is the inset the reference measured at 1920, and it draws
+    /// it out of `--edge`.
+    #[test]
+    fn the_billboard_s_content_sits_the_reference_s_inset_inside_it() {
+        let reference = source(WEB_REFERENCE);
+        let css = source(SITE);
+        let phone = one_number(
+            &["Content sits **", " px** inside the card (x 40), against "],
+            &reference_section(&reference, "### Hero"),
+            "the inset at 390",
+        );
+        let desk = one_number(
+            &["Content sits ", " px inside the card (x 100)"],
+            &reference,
+            "the inset at 1920",
+        );
+        let drawn = one_number(
+            &[
+                "border-radius: var(--radius-panel); padding: 0 calc(var(--unit) * ",
+                ") calc(var(--unit) * 16);",
+            ],
+            &css,
+            "the billboard's own inset",
+        );
+        assert_eq!(drawn * unit(), phone);
+        // Above the first step the inset is the page margin, and in the widest class that margin
+        // is the number the reference measured at 1920.
+        assert!(
+            flat(&css).contains(".hero { aspect-ratio: 1 / 1.2048; padding-inline: var(--edge); }"),
+            "the billboard's inset stops being the page margin above the first step"
+        );
+        assert_eq!(f64::from(WidthClass::Expanded.page_edge()), desk);
+        assert!(phone < desk, "the inset grows with the window");
     }
 }

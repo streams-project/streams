@@ -130,7 +130,7 @@ pub fn WaitingRows() -> impl IntoView {
 mod tests {
     use super::{ACROSS_STEPS, WAITING_ROWS, tiles_across};
     use crate::surfaces::sizes::WidthClass;
-    use crate::surfaces::tests_support::{english, flat, numbers, one_number, source};
+    use crate::surfaces::tests_support::{english, flat, numbers, one_number, section, source};
 
     const PHONE_EMPTY: &str =
         "apps/android/surfaces/phone/src/main/kotlin/streams/phone/browse/Empty.kt";
@@ -172,20 +172,6 @@ mod tests {
     fn tile_wide(wide: f64) -> f64 {
         let across = tiles_across(wide) as f64;
         (row_wide(wide) - (across - 1.0) * TILE_GAP) / across
-    }
-
-    /// One section of the reference: from its heading to the next heading of the same depth.
-    fn section(reference: &str, heading: &str) -> String {
-        let at = reference
-            .find(heading)
-            .unwrap_or_else(|| panic!("{heading} has gone from the reference"));
-        let rest = &reference[at + heading.len()..];
-        let depth = heading
-            .split(' ')
-            .next()
-            .expect("a heading opens with its hashes");
-        let end = rest.find(&format!("\n{depth} ")).unwrap_or(rest.len());
-        rest[..end].to_owned()
     }
 
     /// The page margin, the count across and the tile width one table states at this width. Its
