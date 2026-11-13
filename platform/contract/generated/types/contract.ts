@@ -142,6 +142,8 @@ export type AgeTone = "green" | "yellow" | "orange" | "pink" | "red" | "dark_red
 /** One way to play. Attempts arrive in the order to try, ranked once on the server. `headers` is required, even when empty, and no provider name is carried. */
 export interface Attempt {
   audio?: string[];
+  /** Bits per second the source declares. Absent when nothing read one. */
+  bitrate?: number;
   codecs?: string[];
   container?: string;
   /** Wall time, ms since 1970, after which the address stops working. */
@@ -159,7 +161,7 @@ export interface Attempt {
 }
 
 /** How an attempt is played. */
-export type AttemptKind = "hls" | "file" | "embed" | (string & {});
+export type AttemptKind = "hls" | "dash" | "file" | "embed" | (string & {});
 
 /** One picture a profile can wear. */
 export interface AvatarPicture {
@@ -214,6 +216,8 @@ export interface CapabilityCard {
   containers: string[];
   form: Form;
   input: InputKind[];
+  /** Key systems this player opens. Empty means none, and a protected attempt is dropped for this device. */
+  key_systems?: KeySystem[];
   languages: string[];
   max_height: number;
   /** Request headers the player can set on media, such as Referer. */
@@ -228,6 +232,8 @@ export interface CapabilityCard {
   secret_store: boolean;
   /** Section kinds this build draws. Others fall back to a plain row. */
   section_kinds: SectionKind[];
+  /** Tallest picture this device plays with a secure path. Absent means not known. */
+  secure_max_height?: number;
   /** True when the player can load a side subtitle file. */
   side_subtitles: boolean;
   /** Bytes this device gives to kept commands and screens. 0 means none. */
@@ -604,6 +610,8 @@ export type DriverCommand =
       op: "open";
       generation: number;
       headers: Record<string, string>;
+      /** Absent for a stream that needs no key, which is every stream today. */
+      key?: KeyDelivery;
       max_bitrate?: number;
       max_height?: number;
       start_at_ms: number;
@@ -1069,6 +1077,20 @@ export type ImageRole = "poster" | "backdrop" | "logo" | "still" | "avatar" | "a
 
 /** Input a device has. */
 export type InputKind = "touch" | "pointer" | "keyboard" | "remote" | "gamepad" | "rotary" | (string & {});
+
+/** Where a protected stream's keys come from.  A path, never an address, as an http effect is. The host holds the base address, so the licence server is the same server the core already talks to, and there is nowhere in this type to name another one. */
+export interface KeyDelivery {
+  /** Where the key system's server certificate is read, for the systems that ask for one before the first request. A path, never an address. */
+  certificate_path?: string;
+  /** Headers the player must send with the licence request. */
+  headers?: Record<string, string>;
+  /** A path, never an address. */
+  path: string;
+  system: KeySystem;
+}
+
+/** A key system a player can open a protected stream with. The word is the contract's own; each adapter maps it to the name its platform uses. */
+export type KeySystem = "widevine" | "play_ready" | "fair_play" | "clear_key" | (string & {});
 
 /** A language this server has text for, named in itself. */
 export interface Language {

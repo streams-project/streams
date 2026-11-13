@@ -159,6 +159,8 @@ pub fn rank(
             container: source.container,
             codecs: Vec::new(),
             height: source.height,
+            // Nothing fills this yet: a finder reports a `FoundSource`, which carries no bitrate.
+            bitrate: None,
             audio: source.audio,
             expires_at_ms: None,
         })

@@ -2,7 +2,7 @@
 
 use contract::command::{Command, CommandBatch, Outcome, SettingKey};
 use contract::core_msg::{CoreIn, CoreOut, Effect, EffectBody, Event, EventBody};
-use contract::driver::DriverEvent;
+use contract::driver::{DriverCommand, DriverEvent, KeySystem};
 use contract::error::{ErrorBody, ErrorCode};
 use contract::hello::{BrandValues, Features};
 use contract::play::{Attempt, AttemptKind};
@@ -412,4 +412,80 @@ fn only_a_profile_read_of_a_page_is_open_to_visitors_and_the_list_is_the_one_fro
             route.name
         );
     }
+}
+
+/// An `Open` as the core builds it today: no key, because no stream needs one yet.
+fn open() -> serde_json::Value {
+    json!({
+        "op": "open",
+        "url": "https://media.example/a/master.m3u8",
+        "headers": {},
+        "start_at_ms": 0,
+        "generation": 1
+    })
+}
+
+#[test]
+fn a_key_is_optional_on_open_and_an_open_without_one_reads_and_writes_back_the_same() {
+    let read: DriverCommand = serde_json::from_value(open()).unwrap();
+    let DriverCommand::Open { ref key, .. } = read else {
+        panic!("not an open")
+    };
+    assert!(key.is_none());
+    assert_eq!(serde_json::to_value(&read).unwrap(), open());
+}
+
+#[test]
+fn a_key_delivery_names_a_path_and_the_type_has_nowhere_to_put_a_host() {
+    let mut value = open();
+    value["key"] = json!({
+        "system": "widevine",
+        "path": "/v1/key/widevine",
+        "host": "https://licence.example",
+        "url": "https://licence.example/v1/key"
+    });
+    let read: DriverCommand = serde_json::from_value(value).unwrap();
+    let DriverCommand::Open { key: Some(key), .. } = read else {
+        panic!("no key")
+    };
+    assert_eq!(key.system, KeySystem::Widevine);
+    assert_eq!(key.path, "/v1/key/widevine");
+    let back = serde_json::to_value(&key).unwrap();
+    let fields: Vec<&str> = back
+        .as_object()
+        .unwrap()
+        .keys()
+        .map(String::as_str)
+        .collect();
+    assert_eq!(fields, ["path", "system"]);
+}
+
+#[test]
+fn an_unknown_key_system_reads_as_unknown_and_never_fails() {
+    let mut value = open();
+    value["key"] = json!({"system": "system_from_the_future", "path": "/v1/key/later"});
+    let read: DriverCommand = serde_json::from_value(value).unwrap();
+    let DriverCommand::Open { key: Some(key), .. } = read else {
+        panic!("no key")
+    };
+    assert_eq!(key.system, KeySystem::Unknown);
+}
+
+#[test]
+fn dash_is_a_word_this_build_knows() {
+    let mut value = attempt();
+    value["kind"] = json!("dash");
+    let read: Attempt = serde_json::from_value(value).unwrap();
+    assert_eq!(read.kind, AttemptKind::Dash);
+}
+
+#[test]
+fn an_attempt_bitrate_is_optional_and_is_bits_per_second() {
+    let read: Attempt = serde_json::from_value(attempt()).unwrap();
+    assert!(read.bitrate.is_none());
+    let mut value = attempt();
+    value["bitrate"] = json!(4_500_000);
+    let read: Attempt = serde_json::from_value(value.clone()).unwrap();
+    assert_eq!(read.bitrate, Some(4_500_000));
+    assert_eq!(serde_json::to_value(&read).unwrap(), value);
 }

@@ -1,4 +1,44 @@
 {
+  "$defs": {
+    "KeyDelivery": {
+      "description": "Where a protected stream's keys come from.\n\nA path, never an address, as an http effect is. The host holds the base address, so the\nlicence server is the same server the core already talks to, and there is nowhere in this\ntype to name another one.",
+      "properties": {
+        "certificate_path": {
+          "description": "Where the key system's server certificate is read, for the systems that ask for one\nbefore the first request. A path, never an address.",
+          "type": "string"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Headers the player must send with the licence request.",
+          "type": "object"
+        },
+        "path": {
+          "description": "A path, never an address.",
+          "type": "string"
+        },
+        "system": {
+          "$ref": "#/$defs/KeySystem"
+        }
+      },
+      "required": [
+        "system",
+        "path"
+      ],
+      "type": "object"
+    },
+    "KeySystem": {
+      "description": "A key system a player can open a protected stream with. The word is the contract's own;\neach adapter maps it to the name its platform uses.",
+      "enum": [
+        "widevine",
+        "play_ready",
+        "fair_play",
+        "clear_key"
+      ],
+      "type": "string"
+    }
+  },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "A command to the player. Attempts carry their headers here.",
   "oneOf": [
@@ -14,6 +54,10 @@
             "type": "string"
           },
           "type": "object"
+        },
+        "key": {
+          "$ref": "#/$defs/KeyDelivery",
+          "description": "Absent for a stream that needs no key, which is every stream today."
         },
         "max_bitrate": {
           "maximum": 4294967295,

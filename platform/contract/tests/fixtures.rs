@@ -18,7 +18,7 @@ use contract::command::{Change, Changes, Command, CommandAnswer, CommandBatch};
 use contract::core_msg::{
     Action, CoreConfig, CoreIn, CoreOut, Effect, Event, HostedStep, LayerConfig, View,
 };
-use contract::driver::{DriverCommand, DriverEvent};
+use contract::driver::{DriverCommand, DriverEvent, KeySystem};
 use contract::error::{ErrorBody, ErrorCode, Notice};
 use contract::finder::{FindAnswer, FindRequest, FinderHealth};
 use contract::hello::{Hello, LanguageList, Ready, Strings};
@@ -399,4 +399,21 @@ fn s36_s175_u8_every_attempt_address_is_an_outside_host() {
             assert!(line.contains(".example/"), "{path:?}: {line}");
         }
     }
+}
+
+#[test]
+fn a_card_that_predates_key_systems_reads_and_says_it_has_none() {
+    let card: CapabilityCard =
+        serde_json::from_value(load(&folder("valid").join("CapabilityCard.web.json"))).unwrap();
+    assert!(card.key_systems.is_empty());
+    assert_eq!(card.secure_max_height, None);
+    let protected: CapabilityCard = serde_json::from_value(load(
+        &folder("valid").join("CapabilityCard.tv_protected.json"),
+    ))
+    .unwrap();
+    assert_eq!(
+        protected.key_systems,
+        vec![KeySystem::Widevine, KeySystem::PlayReady]
+    );
+    assert_eq!(protected.secure_max_height, Some(1080));
 }

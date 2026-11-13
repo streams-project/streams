@@ -243,6 +243,8 @@ value class AgeTone(val value: String) {
 @Serializable
 data class Attempt(
     @SerialName("audio") val audio: List<String>? = null,
+    /** Bits per second the source declares. Absent when nothing read one. */
+    @SerialName("bitrate") val bitrate: Long? = null,
     @SerialName("codecs") val codecs: List<String>? = null,
     @SerialName("container") val container: String? = null,
     /** Wall time, ms since 1970, after which the address stops working. */
@@ -265,6 +267,7 @@ data class Attempt(
 value class AttemptKind(val value: String) {
     companion object {
         val HLS = AttemptKind("hls")
+        val DASH = AttemptKind("dash")
         val FILE = AttemptKind("file")
         val EMBED = AttemptKind("embed")
     }
@@ -349,6 +352,8 @@ data class CapabilityCard(
     @SerialName("containers") val containers: List<String>,
     @SerialName("form") val form: Form,
     @SerialName("input") val input: List<InputKind>,
+    /** Key systems this player opens. Empty means none, and a protected attempt is dropped for this device. */
+    @SerialName("key_systems") val keySystems: List<KeySystem>? = null,
     @SerialName("languages") val languages: List<String>,
     @SerialName("max_height") val maxHeight: Long,
     /** Request headers the player can set on media, such as Referer. */
@@ -363,6 +368,8 @@ data class CapabilityCard(
     @SerialName("secret_store") val secretStore: Boolean,
     /** Section kinds this build draws. Others fall back to a plain row. */
     @SerialName("section_kinds") val sectionKinds: List<SectionKind>,
+    /** Tallest picture this device plays with a secure path. Absent means not known. */
+    @SerialName("secure_max_height") val secureMaxHeight: Long? = null,
     /** True when the player can load a side subtitle file. */
     @SerialName("side_subtitles") val sideSubtitles: Boolean,
     /** Bytes this device gives to kept commands and screens. 0 means none. */
@@ -890,6 +897,8 @@ sealed interface DriverCommand
 data class DriverCommandOpen(
     @SerialName("generation") val generation: Long,
     @SerialName("headers") val headers: Map<String, String>,
+    /** Absent for a stream that needs no key, which is every stream today. */
+    @SerialName("key") val key: KeyDelivery? = null,
     @SerialName("max_bitrate") val maxBitrate: Long? = null,
     @SerialName("max_height") val maxHeight: Long? = null,
     @SerialName("start_at_ms") val startAtMs: Long,
@@ -1612,6 +1621,30 @@ value class InputKind(val value: String) {
         val REMOTE = InputKind("remote")
         val GAMEPAD = InputKind("gamepad")
         val ROTARY = InputKind("rotary")
+    }
+}
+
+/** Where a protected stream's keys come from.  A path, never an address, as an http effect is. The host holds the base address, so the licence server is the same server the core already talks to, and there is nowhere in this type to name another one. */
+@Serializable
+data class KeyDelivery(
+    /** Where the key system's server certificate is read, for the systems that ask for one before the first request. A path, never an address. */
+    @SerialName("certificate_path") val certificatePath: String? = null,
+    /** Headers the player must send with the licence request. */
+    @SerialName("headers") val headers: Map<String, String>? = null,
+    /** A path, never an address. */
+    @SerialName("path") val path: String,
+    @SerialName("system") val system: KeySystem,
+)
+
+/** A key system a player can open a protected stream with. The word is the contract's own; each adapter maps it to the name its platform uses. */
+@Serializable
+@JvmInline
+value class KeySystem(val value: String) {
+    companion object {
+        val WIDEVINE = KeySystem("widevine")
+        val PLAY_READY = KeySystem("play_ready")
+        val FAIR_PLAY = KeySystem("fair_play")
+        val CLEAR_KEY = KeySystem("clear_key")
     }
 }
 

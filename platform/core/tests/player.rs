@@ -16,6 +16,7 @@ fn attempt(url: &str, group: &str, kind: AttemptKind) -> Attempt {
         container: None,
         codecs: Vec::new(),
         height: None,
+        bitrate: None,
         audio: Vec::new(),
         expires_at_ms: None,
     }

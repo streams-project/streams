@@ -450,6 +450,7 @@ impl Player {
             generation,
             max_height: None,
             max_bitrate: None,
+            key: None,
         });
         let paused = play.paused;
         if play.moments.len() < MOMENTS_MAX {

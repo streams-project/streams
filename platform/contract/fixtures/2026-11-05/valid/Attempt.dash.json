@@ -1,0 +1,20 @@
+{
+  "audio": [
+    "en"
+  ],
+  "bitrate": 4500000,
+  "codecs": [
+    "avc1",
+    "mp4a"
+  ],
+  "container": "fmp4",
+  "group": "g3",
+  "headers": {
+    "Referer": "https://site.example/"
+  },
+  "height": 1080,
+  "id": "a3",
+  "kind": "dash",
+  "url": "https://media.example/a/manifest.mpd",
+  "verified": true
+}

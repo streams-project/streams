@@ -7,6 +7,7 @@ pub mod health;
 mod log;
 mod marks;
 mod rank;
+pub mod streams;
 pub mod subtitles;
 
 pub use finder::{Finder, FinderError, HttpFinder, MemoryFinder};
@@ -15,6 +16,9 @@ pub use health::{Health, Tally};
 pub use log::{MemoryPlayLog, PgPlayLog, PlayLog};
 pub use marks::{marks_of, pick_marks, pick_reasons, windows_of};
 pub use rank::{Viewing, audio_score, keep_for, rank, usable_headers};
+pub use streams::{
+    Claim, MemoryStreams, PgStreams, STREAM_STALE_S, STREAMS_MAX_DEFAULT, StreamKey, StreamStore,
+};
 pub use subtitles::{
     FoundFile, HttpSubtitles, MemorySubtitles, SubtitleError, SubtitleSource, Subtitles,
 };

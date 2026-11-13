@@ -228,7 +228,14 @@ fn c16_no_wire_type_carries_a_provider_name() {
     for field in ["url", "kind", "group", "headers", "verified"] {
         assert!(required.contains(&field), "{field}");
     }
-    for field in ["container", "codecs", "height", "audio", "expires_at_ms"] {
+    for field in [
+        "container",
+        "codecs",
+        "height",
+        "bitrate",
+        "audio",
+        "expires_at_ms",
+    ] {
         assert!(!required.contains(&field), "{field}");
         assert!(attempt["properties"].get(field).is_some(), "{field}");
     }
@@ -389,4 +396,50 @@ fn h57_h91_a_bare_id_is_refused_in_the_five_client_languages() {
     assert!(all["types/Contract.hpp"].contains("throw Refused(\"not a TitleKey\")"));
     assert!(!all["types/Contract.swift"].contains("typealias TitleKey"));
     assert!(!all["types/Contract.kt"].contains("typealias TitleKey"));
+}
+
+#[test]
+fn a_key_delivery_holds_a_path_only_and_an_open_is_the_only_place_a_key_is_named() {
+    let all = schemas();
+    let key = &all["KeyDelivery"];
+    let properties = key["properties"].as_object().unwrap();
+    let names: BTreeSet<&str> = properties.keys().map(String::as_str).collect();
+    assert_eq!(
+        names,
+        BTreeSet::from(["system", "path", "headers", "certificate_path"]),
+        "a licence server is named by a path and the host holds the address"
+    );
+    for forbidden in ["url", "host", "address", "server", "origin"] {
+        assert!(properties.get(forbidden).is_none(), "{forbidden}");
+    }
+    let required: BTreeSet<&str> = key["required"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter_map(Value::as_str)
+        .collect();
+    assert_eq!(required, BTreeSet::from(["system", "path"]));
+    let open = all["DriverCommand"]["oneOf"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|option| option["properties"]["op"]["const"] == "open")
+        .unwrap();
+    assert!(
+        !open["required"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|field| field == "key"),
+        "a key is never required of an open"
+    );
+    let mut carriers = Vec::new();
+    walk(&all, &mut |map| {
+        if let Some(Value::String(target)) = map.get("$ref")
+            && target.ends_with("/KeyDelivery")
+        {
+            carriers.push(());
+        }
+    });
+    assert_eq!(carriers.len(), 1, "only an open carries a key delivery");
 }

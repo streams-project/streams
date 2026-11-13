@@ -1724,6 +1724,7 @@ struct AttemptKind {
     std::string value;
 
     static constexpr std::string_view hls = "hls";
+    static constexpr std::string_view dash = "dash";
     static constexpr std::string_view file = "file";
     static constexpr std::string_view embed = "embed";
 
@@ -1739,6 +1740,8 @@ struct AttemptKind {
 /// One way to play. Attempts arrive in the order to try, ranked once on the server. `headers` is required, even when empty, and no provider name is carried.
 struct Attempt {
     std::optional<std::vector<std::string>> audio;
+    /// Bits per second the source declares. Absent when nothing read one.
+    std::optional<std::int64_t> bitrate;
     std::optional<std::vector<std::string>> codecs;
     std::optional<std::string> container;
     /// Wall time, ms since 1970, after which the address stops working.
@@ -1757,28 +1760,30 @@ struct Attempt {
     static Attempt read(const Json::Value& document) {
         const Json::Value& fields = Json::object(document);
         const Json::Value* raw0 = Json::at(fields, "audio");
-        const Json::Value* raw1 = Json::at(fields, "codecs");
-        const Json::Value* raw2 = Json::at(fields, "container");
-        const Json::Value* raw3 = Json::at(fields, "expires_at_ms");
-        const Json::Value* raw4 = Json::need(fields, "group", "Attempt");
-        const Json::Value* raw5 = Json::need(fields, "headers", "Attempt");
-        const Json::Value* raw6 = Json::at(fields, "height");
-        const Json::Value* raw7 = Json::need(fields, "id", "Attempt");
-        const Json::Value* raw8 = Json::need(fields, "kind", "Attempt");
-        const Json::Value* raw9 = Json::need(fields, "url", "Attempt");
-        const Json::Value* raw10 = Json::need(fields, "verified", "Attempt");
+        const Json::Value* raw1 = Json::at(fields, "bitrate");
+        const Json::Value* raw2 = Json::at(fields, "codecs");
+        const Json::Value* raw3 = Json::at(fields, "container");
+        const Json::Value* raw4 = Json::at(fields, "expires_at_ms");
+        const Json::Value* raw5 = Json::need(fields, "group", "Attempt");
+        const Json::Value* raw6 = Json::need(fields, "headers", "Attempt");
+        const Json::Value* raw7 = Json::at(fields, "height");
+        const Json::Value* raw8 = Json::need(fields, "id", "Attempt");
+        const Json::Value* raw9 = Json::need(fields, "kind", "Attempt");
+        const Json::Value* raw10 = Json::need(fields, "url", "Attempt");
+        const Json::Value* raw11 = Json::need(fields, "verified", "Attempt");
         return Attempt{
                 raw0 == nullptr ? std::optional<std::vector<std::string>>() : std::optional<std::vector<std::string>>(Json::list<std::string>(*raw0, [](const Json::Value& x0) { return Json::as_text(x0); })),
-                raw1 == nullptr ? std::optional<std::vector<std::string>>() : std::optional<std::vector<std::string>>(Json::list<std::string>(*raw1, [](const Json::Value& x0) { return Json::as_text(x0); })),
-                raw2 == nullptr ? std::optional<std::string>() : std::optional<std::string>(Json::as_text(*raw2)),
-                raw3 == nullptr ? std::optional<std::int64_t>() : std::optional<std::int64_t>(Json::as_long(*raw3)),
-                Json::as_text(*raw4),
-                Json::map<std::string>(*raw5, [](const Json::Value& x0) { return Json::as_text(x0); }),
-                raw6 == nullptr ? std::optional<std::int64_t>() : std::optional<std::int64_t>(Json::as_long(*raw6)),
-                Json::as_text(*raw7),
-                AttemptKind::read(*raw8),
-                Json::as_text(*raw9),
-                Json::as_bool(*raw10)};
+                raw1 == nullptr ? std::optional<std::int64_t>() : std::optional<std::int64_t>(Json::as_long(*raw1)),
+                raw2 == nullptr ? std::optional<std::vector<std::string>>() : std::optional<std::vector<std::string>>(Json::list<std::string>(*raw2, [](const Json::Value& x0) { return Json::as_text(x0); })),
+                raw3 == nullptr ? std::optional<std::string>() : std::optional<std::string>(Json::as_text(*raw3)),
+                raw4 == nullptr ? std::optional<std::int64_t>() : std::optional<std::int64_t>(Json::as_long(*raw4)),
+                Json::as_text(*raw5),
+                Json::map<std::string>(*raw6, [](const Json::Value& x0) { return Json::as_text(x0); }),
+                raw7 == nullptr ? std::optional<std::int64_t>() : std::optional<std::int64_t>(Json::as_long(*raw7)),
+                Json::as_text(*raw8),
+                AttemptKind::read(*raw9),
+                Json::as_text(*raw10),
+                Json::as_bool(*raw11)};
     }
 
     void write(std::string& out) const {
@@ -1794,6 +1799,10 @@ struct Attempt {
                 Json::text(out, (*this->audio)[index0]);
             }
             out += ']';
+        }
+        if (this->bitrate.has_value()) {
+            count = Json::key(out, count, "bitrate");
+            out += std::to_string((*this->bitrate));
         }
         if (this->codecs.has_value()) {
             count = Json::key(out, count, "codecs");
@@ -2076,6 +2085,24 @@ struct InputKind {
     }
 };
 
+/// A key system a player can open a protected stream with. The word is the contract's own; each adapter maps it to the name its platform uses.
+struct KeySystem {
+    std::string value;
+
+    static constexpr std::string_view widevine = "widevine";
+    static constexpr std::string_view play_ready = "play_ready";
+    static constexpr std::string_view fair_play = "fair_play";
+    static constexpr std::string_view clear_key = "clear_key";
+
+    static KeySystem read(const Json::Value& document) {
+        return KeySystem{Json::as_text(document)};
+    }
+
+    void write(std::string& out) const {
+        Json::text(out, this->value);
+    }
+};
+
 /// Section kinds. A kind this build does not draw falls back to a plain row.
 struct SectionKind {
     std::string value;
@@ -2110,6 +2137,8 @@ struct CapabilityCard {
     std::vector<std::string> containers;
     Form form;
     std::vector<InputKind> input;
+    /// Key systems this player opens. Empty means none, and a protected attempt is dropped for this device.
+    std::optional<std::vector<KeySystem>> key_systems;
     std::vector<std::string> languages;
     std::int64_t max_height = 0;
     /// Request headers the player can set on media, such as Referer.
@@ -2124,6 +2153,8 @@ struct CapabilityCard {
     bool secret_store = false;
     /// Section kinds this build draws. Others fall back to a plain row.
     std::vector<SectionKind> section_kinds;
+    /// Tallest picture this device plays with a secure path. Absent means not known.
+    std::optional<std::int64_t> secure_max_height;
     /// True when the player can load a side subtitle file.
     bool side_subtitles = false;
     /// Bytes this device gives to kept commands and screens. 0 means none.
@@ -2140,19 +2171,21 @@ struct CapabilityCard {
         const Json::Value* raw5 = Json::need(fields, "containers", "CapabilityCard");
         const Json::Value* raw6 = Json::need(fields, "form", "CapabilityCard");
         const Json::Value* raw7 = Json::need(fields, "input", "CapabilityCard");
-        const Json::Value* raw8 = Json::need(fields, "languages", "CapabilityCard");
-        const Json::Value* raw9 = Json::need(fields, "max_height", "CapabilityCard");
-        const Json::Value* raw10 = Json::need(fields, "media_headers", "CapabilityCard");
-        const Json::Value* raw11 = Json::need(fields, "os", "CapabilityCard");
-        const Json::Value* raw12 = Json::need(fields, "os_version", "CapabilityCard");
-        const Json::Value* raw13 = Json::need(fields, "reports_picture", "CapabilityCard");
-        const Json::Value* raw14 = Json::need(fields, "screen_height", "CapabilityCard");
-        const Json::Value* raw15 = Json::need(fields, "screen_width", "CapabilityCard");
-        const Json::Value* raw16 = Json::need(fields, "secret_store", "CapabilityCard");
-        const Json::Value* raw17 = Json::need(fields, "section_kinds", "CapabilityCard");
-        const Json::Value* raw18 = Json::need(fields, "side_subtitles", "CapabilityCard");
-        const Json::Value* raw19 = Json::need(fields, "storage_bytes", "CapabilityCard");
-        const Json::Value* raw20 = Json::need(fields, "version", "CapabilityCard");
+        const Json::Value* raw8 = Json::at(fields, "key_systems");
+        const Json::Value* raw9 = Json::need(fields, "languages", "CapabilityCard");
+        const Json::Value* raw10 = Json::need(fields, "max_height", "CapabilityCard");
+        const Json::Value* raw11 = Json::need(fields, "media_headers", "CapabilityCard");
+        const Json::Value* raw12 = Json::need(fields, "os", "CapabilityCard");
+        const Json::Value* raw13 = Json::need(fields, "os_version", "CapabilityCard");
+        const Json::Value* raw14 = Json::need(fields, "reports_picture", "CapabilityCard");
+        const Json::Value* raw15 = Json::need(fields, "screen_height", "CapabilityCard");
+        const Json::Value* raw16 = Json::need(fields, "screen_width", "CapabilityCard");
+        const Json::Value* raw17 = Json::need(fields, "secret_store", "CapabilityCard");
+        const Json::Value* raw18 = Json::need(fields, "section_kinds", "CapabilityCard");
+        const Json::Value* raw19 = Json::at(fields, "secure_max_height");
+        const Json::Value* raw20 = Json::need(fields, "side_subtitles", "CapabilityCard");
+        const Json::Value* raw21 = Json::need(fields, "storage_bytes", "CapabilityCard");
+        const Json::Value* raw22 = Json::need(fields, "version", "CapabilityCard");
         return CapabilityCard{
                 Json::as_bool(*raw0),
                 Json::as_text(*raw1),
@@ -2162,19 +2195,21 @@ struct CapabilityCard {
                 Json::list<std::string>(*raw5, [](const Json::Value& x0) { return Json::as_text(x0); }),
                 Form::read(*raw6),
                 Json::list<InputKind>(*raw7, [](const Json::Value& x0) { return InputKind::read(x0); }),
-                Json::list<std::string>(*raw8, [](const Json::Value& x0) { return Json::as_text(x0); }),
-                Json::as_long(*raw9),
-                Json::list<std::string>(*raw10, [](const Json::Value& x0) { return Json::as_text(x0); }),
-                Json::as_text(*raw11),
+                raw8 == nullptr ? std::optional<std::vector<KeySystem>>() : std::optional<std::vector<KeySystem>>(Json::list<KeySystem>(*raw8, [](const Json::Value& x0) { return KeySystem::read(x0); })),
+                Json::list<std::string>(*raw9, [](const Json::Value& x0) { return Json::as_text(x0); }),
+                Json::as_long(*raw10),
+                Json::list<std::string>(*raw11, [](const Json::Value& x0) { return Json::as_text(x0); }),
                 Json::as_text(*raw12),
-                Json::as_bool(*raw13),
-                Json::as_long(*raw14),
+                Json::as_text(*raw13),
+                Json::as_bool(*raw14),
                 Json::as_long(*raw15),
-                Json::as_bool(*raw16),
-                Json::list<SectionKind>(*raw17, [](const Json::Value& x0) { return SectionKind::read(x0); }),
-                Json::as_bool(*raw18),
-                Json::as_long(*raw19),
-                Json::as_text(*raw20)};
+                Json::as_long(*raw16),
+                Json::as_bool(*raw17),
+                Json::list<SectionKind>(*raw18, [](const Json::Value& x0) { return SectionKind::read(x0); }),
+                raw19 == nullptr ? std::optional<std::int64_t>() : std::optional<std::int64_t>(Json::as_long(*raw19)),
+                Json::as_bool(*raw20),
+                Json::as_long(*raw21),
+                Json::as_text(*raw22)};
     }
 
     void write(std::string& out) const {
@@ -2224,6 +2259,17 @@ struct CapabilityCard {
             this->input[index0].write(out);
         }
         out += ']';
+        if (this->key_systems.has_value()) {
+            count = Json::key(out, count, "key_systems");
+            out += '[';
+            for (std::size_t index0 = 0; index0 < (*this->key_systems).size(); index0++) {
+                if (index0 > 0) {
+                    out += ',';
+                }
+                (*this->key_systems)[index0].write(out);
+            }
+            out += ']';
+        }
         count = Json::key(out, count, "languages");
         out += '[';
         for (std::size_t index0 = 0; index0 < this->languages.size(); index0++) {
@@ -2265,6 +2311,10 @@ struct CapabilityCard {
             this->section_kinds[index0].write(out);
         }
         out += ']';
+        if (this->secure_max_height.has_value()) {
+            count = Json::key(out, count, "secure_max_height");
+            out += std::to_string((*this->secure_max_height));
+        }
         count = Json::key(out, count, "side_subtitles");
         out += this->side_subtitles ? "true" : "false";
         count = Json::key(out, count, "storage_bytes");
@@ -4139,9 +4189,59 @@ struct CoreOutTag {
     }
 };
 
+/// Where a protected stream's keys come from.  A path, never an address, as an http effect is. The host holds the base address, so the licence server is the same server the core already talks to, and there is nowhere in this type to name another one.
+struct KeyDelivery {
+    /// Where the key system's server certificate is read, for the systems that ask for one before the first request. A path, never an address.
+    std::optional<std::string> certificate_path;
+    /// Headers the player must send with the licence request.
+    std::optional<std::map<std::string, std::string>> headers;
+    /// A path, never an address.
+    std::string path;
+    KeySystem system;
+
+    static KeyDelivery read(const Json::Value& document) {
+        const Json::Value& fields = Json::object(document);
+        const Json::Value* raw0 = Json::at(fields, "certificate_path");
+        const Json::Value* raw1 = Json::at(fields, "headers");
+        const Json::Value* raw2 = Json::need(fields, "path", "KeyDelivery");
+        const Json::Value* raw3 = Json::need(fields, "system", "KeyDelivery");
+        return KeyDelivery{
+                raw0 == nullptr ? std::optional<std::string>() : std::optional<std::string>(Json::as_text(*raw0)),
+                raw1 == nullptr ? std::optional<std::map<std::string, std::string>>() : std::optional<std::map<std::string, std::string>>(Json::map<std::string>(*raw1, [](const Json::Value& x0) { return Json::as_text(x0); })),
+                Json::as_text(*raw2),
+                KeySystem::read(*raw3)};
+    }
+
+    void write(std::string& out) const {
+        out += '{';
+        int count = 0;
+        if (this->certificate_path.has_value()) {
+            count = Json::key(out, count, "certificate_path");
+            Json::text(out, (*this->certificate_path));
+        }
+        if (this->headers.has_value()) {
+            count = Json::key(out, count, "headers");
+            out += '{';
+            int n0 = 0;
+            for (const auto& entry0 : (*this->headers)) {
+                n0 = Json::key(out, n0, entry0.first);
+                Json::text(out, entry0.second);
+            }
+            out += '}';
+        }
+        count = Json::key(out, count, "path");
+        Json::text(out, this->path);
+        count = Json::key(out, count, "system");
+        this->system.write(out);
+        out += '}';
+    }
+};
+
 struct DriverCommandOpen {
     std::int64_t generation = 0;
     std::map<std::string, std::string> headers;
+    /// Absent for a stream that needs no key, which is every stream today.
+    std::optional<KeyDelivery> key;
     std::optional<std::int64_t> max_bitrate;
     std::optional<std::int64_t> max_height;
     std::int64_t start_at_ms = 0;
@@ -4155,17 +4255,19 @@ struct DriverCommandOpen {
     static DriverCommandOpen read_fields(const Json::Value& fields) {
         const Json::Value* raw0 = Json::need(fields, "generation", "DriverCommand");
         const Json::Value* raw1 = Json::need(fields, "headers", "DriverCommand");
-        const Json::Value* raw2 = Json::at(fields, "max_bitrate");
-        const Json::Value* raw3 = Json::at(fields, "max_height");
-        const Json::Value* raw4 = Json::need(fields, "start_at_ms", "DriverCommand");
-        const Json::Value* raw5 = Json::need(fields, "url", "DriverCommand");
+        const Json::Value* raw2 = Json::at(fields, "key");
+        const Json::Value* raw3 = Json::at(fields, "max_bitrate");
+        const Json::Value* raw4 = Json::at(fields, "max_height");
+        const Json::Value* raw5 = Json::need(fields, "start_at_ms", "DriverCommand");
+        const Json::Value* raw6 = Json::need(fields, "url", "DriverCommand");
         return DriverCommandOpen{
                 Json::as_long(*raw0),
                 Json::map<std::string>(*raw1, [](const Json::Value& x0) { return Json::as_text(x0); }),
-                raw2 == nullptr ? std::optional<std::int64_t>() : std::optional<std::int64_t>(Json::as_long(*raw2)),
+                raw2 == nullptr ? std::optional<KeyDelivery>() : std::optional<KeyDelivery>(KeyDelivery::read(*raw2)),
                 raw3 == nullptr ? std::optional<std::int64_t>() : std::optional<std::int64_t>(Json::as_long(*raw3)),
-                Json::as_long(*raw4),
-                Json::as_text(*raw5)};
+                raw4 == nullptr ? std::optional<std::int64_t>() : std::optional<std::int64_t>(Json::as_long(*raw4)),
+                Json::as_long(*raw5),
+                Json::as_text(*raw6)};
     }
 
     void write_fields(std::string& out, int& count) const {
@@ -4179,6 +4281,10 @@ struct DriverCommandOpen {
             Json::text(out, entry0.second);
         }
         out += '}';
+        if (this->key.has_value()) {
+            count = Json::key(out, count, "key");
+            (*this->key).write(out);
+        }
         if (this->max_bitrate.has_value()) {
             count = Json::key(out, count, "max_bitrate");
             out += std::to_string((*this->max_bitrate));

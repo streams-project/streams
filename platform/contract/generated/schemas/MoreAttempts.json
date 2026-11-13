@@ -9,6 +9,12 @@
           },
           "type": "array"
         },
+        "bitrate": {
+          "description": "Bits per second the source declares. Absent when nothing read one.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
         "codecs": {
           "items": {
             "type": "string"
@@ -68,6 +74,7 @@
       "description": "How an attempt is played.",
       "enum": [
         "hls",
+        "dash",
         "file",
         "embed"
       ],

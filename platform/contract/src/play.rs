@@ -14,6 +14,7 @@ words! {
     /// How an attempt is played.
     pub enum AttemptKind {
         Hls,
+        Dash,
         File,
         Embed,
     }
@@ -66,6 +67,9 @@ wire! {
         pub codecs: Vec<String>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub height: Option<u32>,
+        /// Bits per second the source declares. Absent when nothing read one.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub bitrate: Option<u32>,
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         pub audio: Vec<String>,
         /// Wall time, ms since 1970, after which the address stops working.

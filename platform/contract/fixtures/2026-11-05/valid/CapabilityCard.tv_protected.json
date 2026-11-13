@@ -1,0 +1,48 @@
+{
+  "adaptive": true,
+  "app": "sample-tv-protected",
+  "attempt_kinds": [
+    "hls",
+    "dash",
+    "file"
+  ],
+  "class": "tv",
+  "codecs": [
+    "avc1",
+    "mp4a"
+  ],
+  "containers": [
+    "ts",
+    "fmp4",
+    "mp4"
+  ],
+  "form": "tv",
+  "input": [
+    "remote"
+  ],
+  "key_systems": [
+    "widevine",
+    "play_ready"
+  ],
+  "languages": [
+    "en"
+  ],
+  "max_height": 2160,
+  "media_headers": [
+    "Referer"
+  ],
+  "os": "sample-os",
+  "os_version": "1",
+  "reports_picture": false,
+  "screen_height": 2160,
+  "screen_width": 3840,
+  "secret_store": false,
+  "section_kinds": [
+    "hero",
+    "row"
+  ],
+  "secure_max_height": 1080,
+  "side_subtitles": false,
+  "storage_bytes": 0,
+  "version": "1.0.0"
+}

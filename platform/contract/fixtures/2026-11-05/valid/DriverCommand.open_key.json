@@ -1,0 +1,19 @@
+{
+  "generation": 4,
+  "headers": {
+    "Referer": "https://site.example/"
+  },
+  "key": {
+    "certificate_path": "/v1/key/fair_play/certificate",
+    "headers": {
+      "Content-Type": "application/octet-stream"
+    },
+    "path": "/v1/key/fair_play",
+    "system": "fair_play"
+  },
+  "max_bitrate": 5000000,
+  "max_height": 1080,
+  "op": "open",
+  "start_at_ms": 0,
+  "url": "https://media.example/a/protected.m3u8"
+}

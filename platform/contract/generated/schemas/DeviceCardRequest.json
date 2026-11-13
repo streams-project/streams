@@ -4,6 +4,7 @@
       "description": "How an attempt is played.",
       "enum": [
         "hls",
+        "dash",
         "file",
         "embed"
       ],
@@ -49,6 +50,13 @@
         "input": {
           "items": {
             "$ref": "#/$defs/InputKind"
+          },
+          "type": "array"
+        },
+        "key_systems": {
+          "description": "Key systems this player opens. Empty means none, and a protected attempt is dropped\nfor this device.",
+          "items": {
+            "$ref": "#/$defs/KeySystem"
           },
           "type": "array"
         },
@@ -100,6 +108,12 @@
             "$ref": "#/$defs/SectionKind"
           },
           "type": "array"
+        },
+        "secure_max_height": {
+          "description": "Tallest picture this device plays with a secure path. Absent means not known.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
         },
         "side_subtitles": {
           "description": "True when the player can load a side subtitle file.",
@@ -172,6 +186,16 @@
         "remote",
         "gamepad",
         "rotary"
+      ],
+      "type": "string"
+    },
+    "KeySystem": {
+      "description": "A key system a player can open a protected stream with. The word is the contract's own;\neach adapter maps it to the name its platform uses.",
+      "enum": [
+        "widevine",
+        "play_ready",
+        "fair_play",
+        "clear_key"
       ],
       "type": "string"
     },

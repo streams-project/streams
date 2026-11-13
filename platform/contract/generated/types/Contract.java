@@ -1412,6 +1412,7 @@ public final class Contract {
     /** One way to play. Attempts arrive in the order to try, ranked once on the server. `headers` is required, even when empty, and no provider name is carried. */
     public static final class Attempt implements Wire {
         private final List<String> audio;
+        private final Long bitrate;
         private final List<String> codecs;
         private final String container;
         private final Long expiresAtMs;
@@ -1423,8 +1424,9 @@ public final class Contract {
         private final String url;
         private final boolean verified;
 
-        public Attempt(List<String> audio, List<String> codecs, String container, Long expiresAtMs, String group, Map<String, String> headers, Long height, String id, AttemptKind kind, String url, boolean verified) {
+        public Attempt(List<String> audio, Long bitrate, List<String> codecs, String container, Long expiresAtMs, String group, Map<String, String> headers, Long height, String id, AttemptKind kind, String url, boolean verified) {
             this.audio = audio;
+            this.bitrate = bitrate;
             this.codecs = codecs;
             this.container = container;
             this.expiresAtMs = expiresAtMs;
@@ -1447,6 +1449,15 @@ public final class Contract {
 
         public String getAudio(int $index) {
             return audio.get($index);
+        }
+
+        /** Bits per second the source declares. Absent when nothing read one. */
+        public boolean hasBitrate() {
+            return bitrate != null;
+        }
+
+        public long getBitrate() {
+            return bitrate == null ? 0L : bitrate;
         }
 
         public List<String> getCodecsList() {
@@ -1520,28 +1531,30 @@ public final class Contract {
         public static Attempt read(Object $json) {
             Map<String, Object> $fields = Json.object($json);
             Object $raw0 = Json.at($fields, "audio");
-            Object $raw1 = Json.at($fields, "codecs");
-            Object $raw2 = Json.at($fields, "container");
-            Object $raw3 = Json.at($fields, "expires_at_ms");
-            Object $raw4 = Json.need($fields, "group", "Attempt");
-            Object $raw5 = Json.need($fields, "headers", "Attempt");
-            Object $raw6 = Json.at($fields, "height");
-            Object $raw7 = Json.need($fields, "id", "Attempt");
-            Object $raw8 = Json.need($fields, "kind", "Attempt");
-            Object $raw9 = Json.need($fields, "url", "Attempt");
-            Object $raw10 = Json.need($fields, "verified", "Attempt");
+            Object $raw1 = Json.at($fields, "bitrate");
+            Object $raw2 = Json.at($fields, "codecs");
+            Object $raw3 = Json.at($fields, "container");
+            Object $raw4 = Json.at($fields, "expires_at_ms");
+            Object $raw5 = Json.need($fields, "group", "Attempt");
+            Object $raw6 = Json.need($fields, "headers", "Attempt");
+            Object $raw7 = Json.at($fields, "height");
+            Object $raw8 = Json.need($fields, "id", "Attempt");
+            Object $raw9 = Json.need($fields, "kind", "Attempt");
+            Object $raw10 = Json.need($fields, "url", "Attempt");
+            Object $raw11 = Json.need($fields, "verified", "Attempt");
             return new Attempt(
                     $raw0 == null ? null : Json.list($raw0, $x0 -> Json.asText($x0)),
-                    $raw1 == null ? null : Json.list($raw1, $x0 -> Json.asText($x0)),
-                    $raw2 == null ? null : Json.asText($raw2),
-                    $raw3 == null ? null : Long.valueOf(Json.asLong($raw3)),
-                    Json.asText($raw4),
-                    Json.map($raw5, $x0 -> Json.asText($x0)),
-                    $raw6 == null ? null : Long.valueOf(Json.asLong($raw6)),
-                    Json.asText($raw7),
-                    AttemptKind.read($raw8),
-                    Json.asText($raw9),
-                    Json.asBool($raw10));
+                    $raw1 == null ? null : Long.valueOf(Json.asLong($raw1)),
+                    $raw2 == null ? null : Json.list($raw2, $x0 -> Json.asText($x0)),
+                    $raw3 == null ? null : Json.asText($raw3),
+                    $raw4 == null ? null : Long.valueOf(Json.asLong($raw4)),
+                    Json.asText($raw5),
+                    Json.map($raw6, $x0 -> Json.asText($x0)),
+                    $raw7 == null ? null : Long.valueOf(Json.asLong($raw7)),
+                    Json.asText($raw8),
+                    AttemptKind.read($raw9),
+                    Json.asText($raw10),
+                    Json.asBool($raw11));
         }
 
         @Override
@@ -1558,6 +1571,10 @@ public final class Contract {
                     Json.text($out, audio.get($i0));
                 }
                 $out.append(']');
+            }
+            if (bitrate != null) {
+                $count = Json.key($out, $count, "bitrate");
+                $out.append(bitrate);
             }
             if (codecs != null) {
                 $count = Json.key($out, $count, "codecs");
@@ -1607,6 +1624,7 @@ public final class Contract {
     /** How an attempt is played. */
     public static final class AttemptKind implements Wire {
         public static final AttemptKind HLS = new AttemptKind("hls");
+        public static final AttemptKind DASH = new AttemptKind("dash");
         public static final AttemptKind FILE = new AttemptKind("file");
         public static final AttemptKind EMBED = new AttemptKind("embed");
 
@@ -2008,6 +2026,7 @@ public final class Contract {
         private final List<String> containers;
         private final Form form;
         private final List<InputKind> input;
+        private final List<KeySystem> keySystems;
         private final List<String> languages;
         private final long maxHeight;
         private final List<String> mediaHeaders;
@@ -2018,11 +2037,12 @@ public final class Contract {
         private final long screenWidth;
         private final boolean secretStore;
         private final List<SectionKind> sectionKinds;
+        private final Long secureMaxHeight;
         private final boolean sideSubtitles;
         private final long storageBytes;
         private final String version;
 
-        public CapabilityCard(boolean adaptive, String app, List<AttemptKind> attemptKinds, DeviceClass class_, List<String> codecs, List<String> containers, Form form, List<InputKind> input, List<String> languages, long maxHeight, List<String> mediaHeaders, String os, String osVersion, boolean reportsPicture, long screenHeight, long screenWidth, boolean secretStore, List<SectionKind> sectionKinds, boolean sideSubtitles, long storageBytes, String version) {
+        public CapabilityCard(boolean adaptive, String app, List<AttemptKind> attemptKinds, DeviceClass class_, List<String> codecs, List<String> containers, Form form, List<InputKind> input, List<KeySystem> keySystems, List<String> languages, long maxHeight, List<String> mediaHeaders, String os, String osVersion, boolean reportsPicture, long screenHeight, long screenWidth, boolean secretStore, List<SectionKind> sectionKinds, Long secureMaxHeight, boolean sideSubtitles, long storageBytes, String version) {
             this.adaptive = adaptive;
             this.app = app;
             this.attemptKinds = attemptKinds;
@@ -2031,6 +2051,7 @@ public final class Contract {
             this.containers = containers;
             this.form = form;
             this.input = input;
+            this.keySystems = keySystems;
             this.languages = languages;
             this.maxHeight = maxHeight;
             this.mediaHeaders = mediaHeaders;
@@ -2041,6 +2062,7 @@ public final class Contract {
             this.screenWidth = screenWidth;
             this.secretStore = secretStore;
             this.sectionKinds = sectionKinds;
+            this.secureMaxHeight = secureMaxHeight;
             this.sideSubtitles = sideSubtitles;
             this.storageBytes = storageBytes;
             this.version = version;
@@ -2114,6 +2136,19 @@ public final class Contract {
             return input.get($index);
         }
 
+        /** Key systems this player opens. Empty means none, and a protected attempt is dropped for this device. */
+        public List<KeySystem> getKeySystemsList() {
+            return keySystems == null ? Collections.<KeySystem>emptyList() : keySystems;
+        }
+
+        public int getKeySystemsCount() {
+            return keySystems == null ? 0 : keySystems.size();
+        }
+
+        public KeySystem getKeySystems(int $index) {
+            return keySystems.get($index);
+        }
+
         public List<String> getLanguagesList() {
             return languages == null ? Collections.<String>emptyList() : languages;
         }
@@ -2182,6 +2217,15 @@ public final class Contract {
             return sectionKinds.get($index);
         }
 
+        /** Tallest picture this device plays with a secure path. Absent means not known. */
+        public boolean hasSecureMaxHeight() {
+            return secureMaxHeight != null;
+        }
+
+        public long getSecureMaxHeight() {
+            return secureMaxHeight == null ? 0L : secureMaxHeight;
+        }
+
         /** True when the player can load a side subtitle file. */
         public boolean getSideSubtitles() {
             return sideSubtitles;
@@ -2206,19 +2250,21 @@ public final class Contract {
             Object $raw5 = Json.need($fields, "containers", "CapabilityCard");
             Object $raw6 = Json.need($fields, "form", "CapabilityCard");
             Object $raw7 = Json.need($fields, "input", "CapabilityCard");
-            Object $raw8 = Json.need($fields, "languages", "CapabilityCard");
-            Object $raw9 = Json.need($fields, "max_height", "CapabilityCard");
-            Object $raw10 = Json.need($fields, "media_headers", "CapabilityCard");
-            Object $raw11 = Json.need($fields, "os", "CapabilityCard");
-            Object $raw12 = Json.need($fields, "os_version", "CapabilityCard");
-            Object $raw13 = Json.need($fields, "reports_picture", "CapabilityCard");
-            Object $raw14 = Json.need($fields, "screen_height", "CapabilityCard");
-            Object $raw15 = Json.need($fields, "screen_width", "CapabilityCard");
-            Object $raw16 = Json.need($fields, "secret_store", "CapabilityCard");
-            Object $raw17 = Json.need($fields, "section_kinds", "CapabilityCard");
-            Object $raw18 = Json.need($fields, "side_subtitles", "CapabilityCard");
-            Object $raw19 = Json.need($fields, "storage_bytes", "CapabilityCard");
-            Object $raw20 = Json.need($fields, "version", "CapabilityCard");
+            Object $raw8 = Json.at($fields, "key_systems");
+            Object $raw9 = Json.need($fields, "languages", "CapabilityCard");
+            Object $raw10 = Json.need($fields, "max_height", "CapabilityCard");
+            Object $raw11 = Json.need($fields, "media_headers", "CapabilityCard");
+            Object $raw12 = Json.need($fields, "os", "CapabilityCard");
+            Object $raw13 = Json.need($fields, "os_version", "CapabilityCard");
+            Object $raw14 = Json.need($fields, "reports_picture", "CapabilityCard");
+            Object $raw15 = Json.need($fields, "screen_height", "CapabilityCard");
+            Object $raw16 = Json.need($fields, "screen_width", "CapabilityCard");
+            Object $raw17 = Json.need($fields, "secret_store", "CapabilityCard");
+            Object $raw18 = Json.need($fields, "section_kinds", "CapabilityCard");
+            Object $raw19 = Json.at($fields, "secure_max_height");
+            Object $raw20 = Json.need($fields, "side_subtitles", "CapabilityCard");
+            Object $raw21 = Json.need($fields, "storage_bytes", "CapabilityCard");
+            Object $raw22 = Json.need($fields, "version", "CapabilityCard");
             return new CapabilityCard(
                     Json.asBool($raw0),
                     Json.asText($raw1),
@@ -2228,19 +2274,21 @@ public final class Contract {
                     Json.list($raw5, $x0 -> Json.asText($x0)),
                     Form.read($raw6),
                     Json.list($raw7, $x0 -> InputKind.read($x0)),
-                    Json.list($raw8, $x0 -> Json.asText($x0)),
-                    Json.asLong($raw9),
-                    Json.list($raw10, $x0 -> Json.asText($x0)),
-                    Json.asText($raw11),
+                    $raw8 == null ? null : Json.list($raw8, $x0 -> KeySystem.read($x0)),
+                    Json.list($raw9, $x0 -> Json.asText($x0)),
+                    Json.asLong($raw10),
+                    Json.list($raw11, $x0 -> Json.asText($x0)),
                     Json.asText($raw12),
-                    Json.asBool($raw13),
-                    Json.asLong($raw14),
+                    Json.asText($raw13),
+                    Json.asBool($raw14),
                     Json.asLong($raw15),
-                    Json.asBool($raw16),
-                    Json.list($raw17, $x0 -> SectionKind.read($x0)),
-                    Json.asBool($raw18),
-                    Json.asLong($raw19),
-                    Json.asText($raw20));
+                    Json.asLong($raw16),
+                    Json.asBool($raw17),
+                    Json.list($raw18, $x0 -> SectionKind.read($x0)),
+                    $raw19 == null ? null : Long.valueOf(Json.asLong($raw19)),
+                    Json.asBool($raw20),
+                    Json.asLong($raw21),
+                    Json.asText($raw22));
         }
 
         @Override
@@ -2291,6 +2339,17 @@ public final class Contract {
                 input.get($i0).write($out);
             }
             $out.append(']');
+            if (keySystems != null) {
+                $count = Json.key($out, $count, "key_systems");
+                $out.append('[');
+                for (int $i0 = 0; $i0 < keySystems.size(); $i0++) {
+                    if ($i0 > 0) {
+                        $out.append(',');
+                    }
+                    keySystems.get($i0).write($out);
+                }
+                $out.append(']');
+            }
             $count = Json.key($out, $count, "languages");
             $out.append('[');
             for (int $i0 = 0; $i0 < languages.size(); $i0++) {
@@ -2332,6 +2391,10 @@ public final class Contract {
                 sectionKinds.get($i0).write($out);
             }
             $out.append(']');
+            if (secureMaxHeight != null) {
+                $count = Json.key($out, $count, "secure_max_height");
+                $out.append(secureMaxHeight);
+            }
             $count = Json.key($out, $count, "side_subtitles");
             $out.append(sideSubtitles);
             $count = Json.key($out, $count, "storage_bytes");
@@ -5492,14 +5555,16 @@ public final class Contract {
     public static final class DriverCommandOpen extends DriverCommand {
         private final long generation;
         private final Map<String, String> headers;
+        private final KeyDelivery key;
         private final Long maxBitrate;
         private final Long maxHeight;
         private final long startAtMs;
         private final String url;
 
-        public DriverCommandOpen(long generation, Map<String, String> headers, Long maxBitrate, Long maxHeight, long startAtMs, String url) {
+        public DriverCommandOpen(long generation, Map<String, String> headers, KeyDelivery key, Long maxBitrate, Long maxHeight, long startAtMs, String url) {
             this.generation = generation;
             this.headers = headers;
+            this.key = key;
             this.maxBitrate = maxBitrate;
             this.maxHeight = maxHeight;
             this.startAtMs = startAtMs;
@@ -5516,6 +5581,15 @@ public final class Contract {
 
         public int getHeadersCount() {
             return headers == null ? 0 : headers.size();
+        }
+
+        /** Absent for a stream that needs no key, which is every stream today. */
+        public boolean hasKey() {
+            return key != null;
+        }
+
+        public KeyDelivery getKey() {
+            return key == null ? null : key;
         }
 
         public boolean hasMaxBitrate() {
@@ -5549,17 +5623,19 @@ public final class Contract {
             }
             Object $raw0 = Json.need($fields, "generation", "DriverCommand");
             Object $raw1 = Json.need($fields, "headers", "DriverCommand");
-            Object $raw2 = Json.at($fields, "max_bitrate");
-            Object $raw3 = Json.at($fields, "max_height");
-            Object $raw4 = Json.need($fields, "start_at_ms", "DriverCommand");
-            Object $raw5 = Json.need($fields, "url", "DriverCommand");
+            Object $raw2 = Json.at($fields, "key");
+            Object $raw3 = Json.at($fields, "max_bitrate");
+            Object $raw4 = Json.at($fields, "max_height");
+            Object $raw5 = Json.need($fields, "start_at_ms", "DriverCommand");
+            Object $raw6 = Json.need($fields, "url", "DriverCommand");
             return new DriverCommandOpen(
                     Json.asLong($raw0),
                     Json.map($raw1, $x0 -> Json.asText($x0)),
-                    $raw2 == null ? null : Long.valueOf(Json.asLong($raw2)),
+                    $raw2 == null ? null : KeyDelivery.read($raw2),
                     $raw3 == null ? null : Long.valueOf(Json.asLong($raw3)),
-                    Json.asLong($raw4),
-                    Json.asText($raw5));
+                    $raw4 == null ? null : Long.valueOf(Json.asLong($raw4)),
+                    Json.asLong($raw5),
+                    Json.asText($raw6));
         }
 
         @Override
@@ -5578,6 +5654,10 @@ public final class Contract {
                 Json.text($out, $e0.getValue());
             }
             $out.append('}');
+            if (key != null) {
+                $count = Json.key($out, $count, "key");
+                key.write($out);
+            }
             if (maxBitrate != null) {
                 $count = Json.key($out, $count, "max_bitrate");
                 $out.append(maxBitrate);
@@ -10224,6 +10304,128 @@ public final class Contract {
         @Override
         public boolean equals(Object other) {
             return other instanceof InputKind && (((InputKind) other).value).equals(value);
+        }
+
+        @Override
+        public int hashCode() {
+            return value.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    /** Where a protected stream's keys come from.  A path, never an address, as an http effect is. The host holds the base address, so the licence server is the same server the core already talks to, and there is nowhere in this type to name another one. */
+    public static final class KeyDelivery implements Wire {
+        private final String certificatePath;
+        private final Map<String, String> headers;
+        private final String path;
+        private final KeySystem system;
+
+        public KeyDelivery(String certificatePath, Map<String, String> headers, String path, KeySystem system) {
+            this.certificatePath = certificatePath;
+            this.headers = headers;
+            this.path = path;
+            this.system = system;
+        }
+
+        /** Where the key system's server certificate is read, for the systems that ask for one before the first request. A path, never an address. */
+        public boolean hasCertificatePath() {
+            return certificatePath != null;
+        }
+
+        public String getCertificatePath() {
+            return certificatePath == null ? "" : certificatePath;
+        }
+
+        /** Headers the player must send with the licence request. */
+        public Map<String, String> getHeadersMap() {
+            return headers == null ? Collections.<String, String>emptyMap() : headers;
+        }
+
+        public int getHeadersCount() {
+            return headers == null ? 0 : headers.size();
+        }
+
+        /** A path, never an address. */
+        public String getPath() {
+            return path;
+        }
+
+        public KeySystem getSystem() {
+            return system;
+        }
+
+        public static KeyDelivery read(Object $json) {
+            Map<String, Object> $fields = Json.object($json);
+            Object $raw0 = Json.at($fields, "certificate_path");
+            Object $raw1 = Json.at($fields, "headers");
+            Object $raw2 = Json.need($fields, "path", "KeyDelivery");
+            Object $raw3 = Json.need($fields, "system", "KeyDelivery");
+            return new KeyDelivery(
+                    $raw0 == null ? null : Json.asText($raw0),
+                    $raw1 == null ? null : Json.map($raw1, $x0 -> Json.asText($x0)),
+                    Json.asText($raw2),
+                    KeySystem.read($raw3));
+        }
+
+        @Override
+        public void write(StringBuilder $out) {
+            $out.append('{');
+            int $count = 0;
+            if (certificatePath != null) {
+                $count = Json.key($out, $count, "certificate_path");
+                Json.text($out, certificatePath);
+            }
+            if (headers != null) {
+                $count = Json.key($out, $count, "headers");
+                $out.append('{');
+                int $n0 = 0;
+                for (Map.Entry<String, String> $e0 : headers.entrySet()) {
+                    $n0 = Json.key($out, $n0, $e0.getKey());
+                    Json.text($out, $e0.getValue());
+                }
+                $out.append('}');
+            }
+            $count = Json.key($out, $count, "path");
+            Json.text($out, path);
+            $count = Json.key($out, $count, "system");
+            system.write($out);
+            $out.append('}');
+        }
+    }
+
+    /** A key system a player can open a protected stream with. The word is the contract's own; each adapter maps it to the name its platform uses. */
+    public static final class KeySystem implements Wire {
+        public static final KeySystem WIDEVINE = new KeySystem("widevine");
+        public static final KeySystem PLAY_READY = new KeySystem("play_ready");
+        public static final KeySystem FAIR_PLAY = new KeySystem("fair_play");
+        public static final KeySystem CLEAR_KEY = new KeySystem("clear_key");
+
+        private final String value;
+
+        public KeySystem(String value) {
+            this.value = value;
+        }
+
+        public String value() {
+            return value;
+        }
+
+        public static KeySystem read(Object $json) {
+            return new KeySystem(Json.asText($json));
+        }
+
+        @Override
+        public void write(StringBuilder $out) {
+            Json.text($out, value);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof KeySystem && (((KeySystem) other).value).equals(value);
         }
 
         @Override

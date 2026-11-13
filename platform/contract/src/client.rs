@@ -3,6 +3,7 @@
 use alloc::string::String;
 use alloc::vec::Vec;
 
+use crate::driver::KeySystem;
 use crate::play::AttemptKind;
 use crate::screen::SectionKind;
 
@@ -69,6 +70,13 @@ wire! {
         /// Codecs this player opens, such as avc1, hvc1, mp4a.
         pub codecs: Vec<String>,
         pub max_height: u32,
+        /// Key systems this player opens. Empty means none, and a protected attempt is dropped
+        /// for this device.
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        pub key_systems: Vec<KeySystem>,
+        /// Tallest picture this device plays with a secure path. Absent means not known.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub secure_max_height: Option<u32>,
         /// True when the player switches variants during play.
         pub adaptive: bool,
         /// Request headers the player can set on media, such as Referer.

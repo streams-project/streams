@@ -466,6 +466,8 @@ public struct AgeTone: RawRepresentable, Codable, Hashable, Sendable {
 /// One way to play. Attempts arrive in the order to try, ranked once on the server. `headers` is required, even when empty, and no provider name is carried.
 public struct Attempt: Codable, Equatable, Sendable {
     public var audio: [String]?
+    /// Bits per second the source declares. Absent when nothing read one.
+    public var bitrate: Int?
     public var codecs: [String]?
     public var container: String?
     /// Wall time, ms since 1970, after which the address stops working.
@@ -483,6 +485,7 @@ public struct Attempt: Codable, Equatable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case audio = "audio"
+        case bitrate = "bitrate"
         case codecs = "codecs"
         case container = "container"
         case expiresAtMs = "expires_at_ms"
@@ -495,8 +498,9 @@ public struct Attempt: Codable, Equatable, Sendable {
         case verified = "verified"
     }
 
-    public init(audio: [String]? = nil, codecs: [String]? = nil, container: String? = nil, expiresAtMs: Int? = nil, group: String, headers: [String: String], height: Int? = nil, id: String, kind: AttemptKind, url: String, verified: Bool) {
+    public init(audio: [String]? = nil, bitrate: Int? = nil, codecs: [String]? = nil, container: String? = nil, expiresAtMs: Int? = nil, group: String, headers: [String: String], height: Int? = nil, id: String, kind: AttemptKind, url: String, verified: Bool) {
         self.audio = audio
+        self.bitrate = bitrate
         self.codecs = codecs
         self.container = container
         self.expiresAtMs = expiresAtMs
@@ -515,6 +519,7 @@ public struct AttemptKind: RawRepresentable, Codable, Hashable, Sendable {
     public var rawValue: String
     public init(rawValue: String) { self.rawValue = rawValue }
     public static let hls = AttemptKind(rawValue: "hls")
+    public static let dash = AttemptKind(rawValue: "dash")
     public static let file = AttemptKind(rawValue: "file")
     public static let embed = AttemptKind(rawValue: "embed")
 }
@@ -650,6 +655,8 @@ public struct CapabilityCard: Codable, Equatable, Sendable {
     public var containers: [String]
     public var form: Form
     public var input: [InputKind]
+    /// Key systems this player opens. Empty means none, and a protected attempt is dropped for this device.
+    public var keySystems: [KeySystem]?
     public var languages: [String]
     public var maxHeight: Int
     /// Request headers the player can set on media, such as Referer.
@@ -664,6 +671,8 @@ public struct CapabilityCard: Codable, Equatable, Sendable {
     public var secretStore: Bool
     /// Section kinds this build draws. Others fall back to a plain row.
     public var sectionKinds: [SectionKind]
+    /// Tallest picture this device plays with a secure path. Absent means not known.
+    public var secureMaxHeight: Int?
     /// True when the player can load a side subtitle file.
     public var sideSubtitles: Bool
     /// Bytes this device gives to kept commands and screens. 0 means none.
@@ -679,6 +688,7 @@ public struct CapabilityCard: Codable, Equatable, Sendable {
         case containers = "containers"
         case form = "form"
         case input = "input"
+        case keySystems = "key_systems"
         case languages = "languages"
         case maxHeight = "max_height"
         case mediaHeaders = "media_headers"
@@ -689,12 +699,13 @@ public struct CapabilityCard: Codable, Equatable, Sendable {
         case screenWidth = "screen_width"
         case secretStore = "secret_store"
         case sectionKinds = "section_kinds"
+        case secureMaxHeight = "secure_max_height"
         case sideSubtitles = "side_subtitles"
         case storageBytes = "storage_bytes"
         case version = "version"
     }
 
-    public init(adaptive: Bool, app: String, attemptKinds: [AttemptKind], `class`: DeviceClass, codecs: [String], containers: [String], form: Form, input: [InputKind], languages: [String], maxHeight: Int, mediaHeaders: [String], os: String, osVersion: String, reportsPicture: Bool, screenHeight: Int, screenWidth: Int, secretStore: Bool, sectionKinds: [SectionKind], sideSubtitles: Bool, storageBytes: Int, version: String) {
+    public init(adaptive: Bool, app: String, attemptKinds: [AttemptKind], `class`: DeviceClass, codecs: [String], containers: [String], form: Form, input: [InputKind], keySystems: [KeySystem]? = nil, languages: [String], maxHeight: Int, mediaHeaders: [String], os: String, osVersion: String, reportsPicture: Bool, screenHeight: Int, screenWidth: Int, secretStore: Bool, sectionKinds: [SectionKind], secureMaxHeight: Int? = nil, sideSubtitles: Bool, storageBytes: Int, version: String) {
         self.adaptive = adaptive
         self.app = app
         self.attemptKinds = attemptKinds
@@ -703,6 +714,7 @@ public struct CapabilityCard: Codable, Equatable, Sendable {
         self.containers = containers
         self.form = form
         self.input = input
+        self.keySystems = keySystems
         self.languages = languages
         self.maxHeight = maxHeight
         self.mediaHeaders = mediaHeaders
@@ -713,6 +725,7 @@ public struct CapabilityCard: Codable, Equatable, Sendable {
         self.screenWidth = screenWidth
         self.secretStore = secretStore
         self.sectionKinds = sectionKinds
+        self.secureMaxHeight = secureMaxHeight
         self.sideSubtitles = sideSubtitles
         self.storageBytes = storageBytes
         self.version = version
@@ -1823,6 +1836,8 @@ public struct Done: Codable, Equatable, Sendable {
 public struct DriverCommandOpen: Codable, Equatable, Sendable {
     public var generation: Int
     public var headers: [String: String]
+    /// Absent for a stream that needs no key, which is every stream today.
+    public var key: KeyDelivery?
     public var maxBitrate: Int?
     public var maxHeight: Int?
     public var startAtMs: Int
@@ -1831,15 +1846,17 @@ public struct DriverCommandOpen: Codable, Equatable, Sendable {
     enum CodingKeys: String, CodingKey {
         case generation = "generation"
         case headers = "headers"
+        case key = "key"
         case maxBitrate = "max_bitrate"
         case maxHeight = "max_height"
         case startAtMs = "start_at_ms"
         case url = "url"
     }
 
-    public init(generation: Int, headers: [String: String], maxBitrate: Int? = nil, maxHeight: Int? = nil, startAtMs: Int, url: String) {
+    public init(generation: Int, headers: [String: String], key: KeyDelivery? = nil, maxBitrate: Int? = nil, maxHeight: Int? = nil, startAtMs: Int, url: String) {
         self.generation = generation
         self.headers = headers
+        self.key = key
         self.maxBitrate = maxBitrate
         self.maxHeight = maxHeight
         self.startAtMs = startAtMs
@@ -3351,6 +3368,41 @@ public struct InputKind: RawRepresentable, Codable, Hashable, Sendable {
     public static let remote = InputKind(rawValue: "remote")
     public static let gamepad = InputKind(rawValue: "gamepad")
     public static let rotary = InputKind(rawValue: "rotary")
+}
+
+/// Where a protected stream's keys come from.  A path, never an address, as an http effect is. The host holds the base address, so the licence server is the same server the core already talks to, and there is nowhere in this type to name another one.
+public struct KeyDelivery: Codable, Equatable, Sendable {
+    /// Where the key system's server certificate is read, for the systems that ask for one before the first request. A path, never an address.
+    public var certificatePath: String?
+    /// Headers the player must send with the licence request.
+    public var headers: [String: String]?
+    /// A path, never an address.
+    public var path: String
+    public var system: KeySystem
+
+    enum CodingKeys: String, CodingKey {
+        case certificatePath = "certificate_path"
+        case headers = "headers"
+        case path = "path"
+        case system = "system"
+    }
+
+    public init(certificatePath: String? = nil, headers: [String: String]? = nil, path: String, system: KeySystem) {
+        self.certificatePath = certificatePath
+        self.headers = headers
+        self.path = path
+        self.system = system
+    }
+}
+
+/// A key system a player can open a protected stream with. The word is the contract's own; each adapter maps it to the name its platform uses.
+public struct KeySystem: RawRepresentable, Codable, Hashable, Sendable {
+    public var rawValue: String
+    public init(rawValue: String) { self.rawValue = rawValue }
+    public static let widevine = KeySystem(rawValue: "widevine")
+    public static let playReady = KeySystem(rawValue: "play_ready")
+    public static let fairPlay = KeySystem(rawValue: "fair_play")
+    public static let clearKey = KeySystem(rawValue: "clear_key")
 }
 
 /// A language this server has text for, named in itself.
