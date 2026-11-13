@@ -22,8 +22,19 @@ const MEDIUM_UNDER: f64 = 840.0;
 /// derivation and no citation anywhere in this repository** - `NumbersTest.kt:285-291` says so of
 /// the same number - so it is carried across unchanged rather than reasoned about, and the test
 /// below holds it to the phone's copy and to its place in an increasing sequence.
+///
+/// Stated for the checks and not for the running page, since 2026-11-13. The browser draws this
+/// margin from `style.css`'s `--edge` and nothing in this crate reads the number while the page
+/// runs: the placeholder row's count of tiles became a step of the window's width that afternoon,
+/// and it was the last caller. The three numbers stay here, unchanged, because this file is the
+/// web's third copy of `Sizes.kt:26-30` and the tests below are the whole of what holds the three
+/// families together; the day a surface needs the number again, the `cfg` goes and nothing else
+/// does.
+#[cfg(test)]
 const EDGE_COMPACT: u32 = 12;
+#[cfg(test)]
 const EDGE_MEDIUM: u32 = 24;
+#[cfg(test)]
 const EDGE_EXPANDED: u32 = 40;
 
 /// The class of a window, as the phone names them.
@@ -47,7 +58,9 @@ impl WidthClass {
         }
     }
 
-    /// The side margin of a page in this class. `Sizes.kt:26-30`.
+    /// The side margin of a page in this class. `Sizes.kt:26-30`, and the three constants above
+    /// for why it is stated for the checks rather than for the running page.
+    #[cfg(test)]
     #[must_use]
     pub const fn page_edge(self) -> u32 {
         match self {

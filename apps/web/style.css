@@ -8,10 +8,9 @@
 :root {
   --glass: rgb(255 255 255 / 16%);
   --glass-strong: rgb(255 255 255 / 30%);
-  /* A tile's floor and how many fill a row. One home for both: src/surfaces/empty.rs counts how
-     many tiles a placeholder row holds from these same two numbers, and the test there holds the
-     two copies together. */
-  --tile-least: 190px; --tile-across: 6;
+  /* The least a column of the whole-row grid may be. A scrolling row has no floor: how many
+     tiles fill one is a step of the window's width, below, and the tile is what is left over. */
+  --tile-least: 190px;
 }
 
 /* The page edge by width class: 12, 24 and 40 at 600 and 840, which are the three margins and the
@@ -25,6 +24,30 @@
 :root { --edge: 12px; }
 @media (min-width: 600px) { :root { --edge: 24px; } }
 @media (min-width: 840px) { :root { --edge: 40px; } }
+
+/* How many tiles fill a row, by width. The tile is what is left over - the row, less the gutters
+   between the tiles, over this count - so a row of them fills the row to the margin exactly and
+   no window is left drawing part of a tile.
+   reference/netflix-on-the-web.md measured twenty-eight widths from 160 to 1920 and cuts a tile
+   at none of them: 2 across from 160 to 599, 3 from 600 to 768, 4 at 1024, 5 from 1280 to 1536,
+   6 from 1600 to 1800 and 7 at 1920. These six steps give that count at every one of the
+   twenty-eight. Three of them (1280, 1600, 1920) are the queries that reference names in the page
+   it measured, and 600 is the step it bracketed to 1 px, which is also where the margin above
+   changes class. 840 is the one step nothing has bracketed - 3 across is measured at 768 and 4 at
+   1024, so it may sit anywhere in between - and it sits on the other boundary this page already
+   has rather than on a number nothing measured.
+   What was here until 2026-11-13 was a fixed 6 with a 190 px floor under the tile, and the floor
+   is what broke the rule: at 570, 768 and 1024 it held the tile wider than the row could divide
+   and the row ended on 2.80, 3.68 and 4.81 tiles, telling a reader the row scrolls by cutting a
+   picture in half. One home for the count: src/surfaces/empty.rs counts a placeholder row's tiles
+   from these same six steps and the test there reads them out of this file. The blocks sit
+   together, in this order, because that is the shape that test reads. */
+:root { --tile-across: 2; }
+@media (min-width: 600px) { :root { --tile-across: 3; } }
+@media (min-width: 840px) { :root { --tile-across: 4; } }
+@media (min-width: 1280px) { :root { --tile-across: 5; } }
+@media (min-width: 1600px) { :root { --tile-across: 6; } }
+@media (min-width: 1920px) { :root { --tile-across: 7; } }
 
 * { box-sizing: border-box; }
 
@@ -185,7 +208,7 @@ button { cursor: pointer; border: 0; background: none; }
   & h2 { padding: 0 var(--edge); margin-bottom: calc(var(--unit) * 1.5); font-size: 24px; font-weight: 500; }
 }
 .strip { display: flex; gap: calc(var(--unit) * 2); overflow-x: auto; padding: calc(var(--unit) * 2) var(--edge); scroll-padding: var(--edge); scroll-snap-type: x proximity; scrollbar-width: none;
-  --tile-wide: max(var(--tile-least), calc((100% - var(--unit) * 10) / var(--tile-across)));
+  --tile-wide: calc((100% - var(--unit) * 2 * (var(--tile-across) - 1)) / var(--tile-across));
   & .card, & .going { flex: 0 0 var(--tile-wide); scroll-snap-align: start; }
 }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--tile-least), 1fr)); gap: calc(var(--unit) * 2); padding: calc(var(--unit) * 2) var(--edge); }

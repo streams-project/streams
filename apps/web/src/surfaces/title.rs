@@ -410,7 +410,9 @@ mod tests {
         // A tone this build does not know falls on the plainest of them rather than on nothing.
         assert_eq!(age_tone(AgeTone::Unknown), age_tone(AgeTone::Grey));
         // And the style sheet draws every one of them, in a rule and not in a comment.
-        let css = without_comments(&crate::surfaces::tests_support::source("apps/web/style.css"));
+        let css = without_comments(&crate::surfaces::tests_support::source(
+            "apps/web/style.css",
+        ));
         for tone in tones {
             let class = age_tone(tone);
             assert!(
