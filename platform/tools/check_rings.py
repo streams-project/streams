@@ -133,7 +133,14 @@ FAMILIES = {
         "allowed_deps": frozenset(),
         "banned": {
             "the address table": r'"/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)[/"?]',
-            "the network port": r"\bURLSession\b",
+            # Capability, not spelling. Until 2026-11-13 this banned the word URLSession alone,
+            # and note 216's four `AsyncImage` sites reached the network straight past it for as
+            # long as they existed. Proved on 2026-11-13 by putting one back: the check passed
+            # green on it. The `Data(contentsOf:` lookahead lets a bundled read through --
+            # `SurfacesTV/app/Opening.swift` loads its own geometry that way, which is a file and
+            # not a network. 0 false positives measured across the whole apple tree.
+            "the pictures port": r"\bAsyncImage\b",
+            "the network port": r"\bURLSession\b|\bURLRequest\b|\bdataTask\b|\bData\(contentsOf:(?!\s*Bundle\.)",
             "the secrets port": r"\bSecItem\w*\b",
             "the player port": r"\bAVPlayer\b",
         },

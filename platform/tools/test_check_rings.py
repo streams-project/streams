@@ -9,6 +9,7 @@ needed and nothing is written anywhere.
 Run from anywhere with: python3 tools/test_check_rings.py
 """
 
+import re
 import importlib.util
 import unittest
 from pathlib import Path
@@ -82,6 +83,23 @@ class Rings(unittest.TestCase):
                 for path in held:
                     self.assertFalse(path.is_symlink())
                     self.assertIn(path.suffix, one["ends"])
+
+    def test_the_apple_picture_bypass_of_2026_11_12_is_caught_now(self):
+        """`AsyncImage` fetches inside SwiftUI, so the `URLSession` ban never saw four draw sites.
+
+        notes/216. The ban reads the capability now, and the one `Data(contentsOf:` the television
+        surface really has - the app's own bundled opening geometry - is not one.
+        """
+        words = rings.FAMILIES["apple"]["banned"].values()
+        caught = lambda line: any(re.search(pattern, line) for pattern in words)
+        self.assertTrue(caught("AsyncImage(url: address) { phase in }"))
+        self.assertTrue(caught("let task = session.dataTask(with: address) { data, _, _ in }"))
+        self.assertTrue(caught("var request = URLRequest(url: url)"))
+        self.assertTrue(caught("let bytes = try Data(contentsOf: address)"))
+        self.assertFalse(
+            caught('Data(contentsOf: Bundle.module.url(forResource: "opening", withExtension: "json")!)'),
+            "the surface's own bundled asset is not a fetch",
+        )
 
 
 if __name__ == "__main__":
