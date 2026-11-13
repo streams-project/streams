@@ -1,13 +1,14 @@
 //! The finder's promises, with scripted providers and real waiting.
 
 use std::collections::BTreeMap;
-use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::{Arc, Mutex, PoisonError};
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
 use axum::body::Body;
 use axum::http::{Request, StatusCode, header};
+use contract::EpisodeRef;
 use contract::finder::{FindAnswer, FindOutcome, FindRequest, FinderHealth, FoundSource};
 use contract::hello::ServiceState;
 use contract::play::AttemptKind;
@@ -285,4 +286,221 @@ async fn with_no_token_set_finding_is_off_and_health_says_so() {
         .expect("a request");
     let health: FinderHealth = body(app.oneshot(health).await.expect("answers")).await;
     assert_eq!(health.state, ServiceState::Degraded);
+}
+
+/// The fixtures the Rust contract, the core and the Roku mirror all read. A source shape or an
+/// answer the published bytes already carry is read from them here rather than invented again.
+const FOUND: &str =
+    include_str!("../../../platform/contract/fixtures/2026-11-05/valid/FindAnswer.found.json");
+const NOT_FOUND: &str =
+    include_str!("../../../platform/contract/fixtures/2026-11-05/valid/FindAnswer.not_found.json");
+const PUBLISHED_REQUEST: &str =
+    include_str!("../../../platform/contract/fixtures/2026-11-05/valid/FindRequest.basic.json");
+const PUBLISHED_HEALTH: &str =
+    include_str!("../../../platform/contract/fixtures/2026-11-05/valid/FinderHealth.basic.json");
+
+/// A provider that answers with the sources of a published answer, whatever it is asked.
+struct Published(Vec<FoundSource>);
+
+#[async_trait]
+impl Provider for Published {
+    fn name(&self) -> &str {
+        "published"
+    }
+
+    async fn find(&self, _: &FindRequest) -> Result<Vec<FoundSource>, Failed> {
+        Ok(self.0.clone())
+    }
+}
+
+fn as_json<T: serde::Serialize>(value: &T) -> serde_json::Value {
+    serde_json::to_value(value).expect("json")
+}
+
+/// A budget wide enough that a loaded machine cannot turn a finished search into a pending one.
+/// What is being proved here is what a source looks like coming out, not how fast it got there,
+/// and the wait ends the moment the provider is done whatever this number says.
+const UNHURRIED: u32 = 10_000;
+
+#[tokio::test]
+async fn a_source_from_the_published_bytes_comes_back_as_it_went_in() {
+    let published: FindAnswer = serde_json::from_str(FOUND).expect("the fixture");
+    let finder = finder(vec![Arc::new(Published(published.sources.clone()))]);
+    let answer = finder.find(&ask(UNHURRIED)).await;
+    assert_eq!(answer.outcome, FindOutcome::Found);
+    // Every fact the fixture carries, including the headers and the height a player needs, is
+    // handed on untouched: this service adds nothing to a source and takes nothing away.
+    assert_eq!(
+        as_json(&answer),
+        serde_json::from_str::<serde_json::Value>(FOUND).expect("json")
+    );
+}
+
+#[tokio::test]
+async fn a_provider_that_holds_nothing_gives_the_published_not_found() {
+    let finder = finder(vec![Arc::new(Published(Vec::new()))]);
+    let answer = finder.find(&ask(UNHURRIED)).await;
+    assert_eq!(
+        as_json(&answer),
+        serde_json::from_str::<serde_json::Value>(NOT_FOUND).expect("json")
+    );
+}
+
+/// A provider that writes down the episode it was asked for, so a test can prove which search a
+/// request joined.
+#[derive(Default)]
+struct Asked(Mutex<Vec<Option<EpisodeRef>>>);
+
+#[async_trait]
+impl Provider for Asked {
+    fn name(&self) -> &str {
+        "asked"
+    }
+
+    async fn find(&self, request: &FindRequest) -> Result<Vec<FoundSource>, Failed> {
+        self.0
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .push(request.episode.clone());
+        tokio::time::sleep(Duration::from_millis(80)).await;
+        Ok(vec![source("https://a.test/1")])
+    }
+}
+
+/// Two viewers share one search, and an episode is part of what makes a search the same one.
+/// Keyed on the title alone, the published request below would have been handed the sources of
+/// whichever episode of that series was already running.
+#[tokio::test]
+async fn the_published_episode_request_does_not_join_another_episode_s_search() {
+    let asked = Arc::new(Asked::default());
+    let apart = finder(vec![asked.clone()]);
+    let third: FindRequest = serde_json::from_str(PUBLISHED_REQUEST).expect("the fixture");
+    assert_eq!(
+        third.episode.as_ref().map(|e| e.episode),
+        Some(3),
+        "the published request names episode three"
+    );
+    let mut first = third.clone();
+    first.episode = third
+        .episode
+        .clone()
+        .map(|e| EpisodeRef { episode: 1, ..e });
+
+    let (a, b) = tokio::join!(apart.find(&first), apart.find(&third));
+    assert_eq!(a.outcome, FindOutcome::Found);
+    assert_eq!(b.outcome, FindOutcome::Found);
+    let seen = asked
+        .0
+        .lock()
+        .unwrap_or_else(PoisonError::into_inner)
+        .clone();
+    assert_eq!(seen.len(), 2, "two episodes are two searches: {seen:?}");
+
+    // The same episode twice while one is still running is one search, which is the sharing the
+    // key is for.
+    let again = Arc::new(Asked::default());
+    let shared = finder(vec![again.clone()]);
+    let (_, _) = tokio::join!(shared.find(&third), shared.find(&third));
+    assert_eq!(
+        again.0.lock().unwrap_or_else(PoisonError::into_inner).len(),
+        1
+    );
+}
+
+/// What a viewer gets when no source answers at all. A finder that cannot look must not say the
+/// title does not exist: the server reads not found as a four hundred and four and the television
+/// draws a dead end, while nothing answering is a five hundred and three with a retry.
+#[tokio::test]
+async fn with_every_provider_resting_the_answer_is_not_a_not_found() {
+    let bad = Scripted::failing("bad");
+    let app = router(Arc::new(finder(vec![bad.clone()])));
+    let text = serde_json::to_string(&ask(300)).expect("json");
+
+    // Five failures in a row are what rests a provider, and until then it is still asked.
+    for _ in 0..5 {
+        let answer = app
+            .clone()
+            .oneshot(asking(text.clone(), Some("right")))
+            .await
+            .expect("answers");
+        assert_eq!(answer.status(), StatusCode::OK);
+        let answer: FindAnswer = body(answer).await;
+        assert_eq!(
+            answer.outcome,
+            FindOutcome::NotFound,
+            "a working provider held nothing"
+        );
+    }
+    assert_eq!(bad.calls.load(Ordering::SeqCst), 5);
+
+    let dark = app
+        .clone()
+        .oneshot(asking(text, Some("right")))
+        .await
+        .expect("answers");
+    assert_eq!(dark.status(), StatusCode::SERVICE_UNAVAILABLE);
+    let bytes = dark.into_body().collect().await.expect("a body").to_bytes();
+    let why = String::from_utf8_lossy(&bytes).into_owned();
+    assert!(
+        why.contains("resting"),
+        "the reason names what happened: {why}"
+    );
+    // Nothing was asked, which is the whole point of resting.
+    assert_eq!(bad.calls.load(Ordering::SeqCst), 5);
+
+    let health = Request::get("/v1/health")
+        .body(Body::empty())
+        .expect("a request");
+    let health: FinderHealth = body(app.oneshot(health).await.expect("answers")).await;
+    assert_eq!(health.state, ServiceState::Degraded);
+}
+
+#[tokio::test]
+async fn a_finder_with_no_providers_says_so_rather_than_not_found() {
+    let app = router(Arc::new(finder(Vec::new())));
+    let text = serde_json::to_string(&ask(300)).expect("json");
+    let answer = app
+        .clone()
+        .oneshot(asking(text, Some("right")))
+        .await
+        .expect("answers");
+    assert_eq!(answer.status(), StatusCode::SERVICE_UNAVAILABLE);
+    let bytes = answer
+        .into_body()
+        .collect()
+        .await
+        .expect("a body")
+        .to_bytes();
+    assert!(String::from_utf8_lossy(&bytes).contains("no providers"));
+
+    // The published health shape, with this build's own state.
+    let health = Request::get("/v1/health")
+        .body(Body::empty())
+        .expect("a request");
+    let health: FinderHealth = body(app.oneshot(health).await.expect("answers")).await;
+    let published: FinderHealth = serde_json::from_str(PUBLISHED_HEALTH).expect("the fixture");
+    assert_eq!(
+        published.state,
+        ServiceState::Ready,
+        "the published health is a finder that can look"
+    );
+    assert_eq!(health.state, ServiceState::Degraded);
+}
+
+/// A job names a run that already asked, so its sources outlive the providers going down. Reading
+/// one must not be refused the way a new search is, or a partial answer is lost at the moment the
+/// viewer most needs it.
+#[tokio::test]
+async fn a_job_is_read_by_its_own_rule_when_the_finder_has_gone_dark() {
+    let app = router(Arc::new(finder(Vec::new())));
+    let rest = Request::get("/v1/find/nothing-was-ever-started")
+        .header(header::AUTHORIZATION, "Bearer right")
+        .body(Body::empty())
+        .expect("a request");
+    let answer = app.oneshot(rest).await.expect("answers");
+    assert_eq!(
+        answer.status(),
+        StatusCode::NOT_FOUND,
+        "the job route answers about jobs"
+    );
 }

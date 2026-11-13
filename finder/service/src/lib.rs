@@ -120,9 +120,26 @@ impl Finder {
         run.answer()
     }
 
+    /// Why this finder cannot look at all right now, if it cannot.
+    ///
+    /// A finder with nothing able to look must not answer not found. That word means the title
+    /// does not exist, and the server turns it into a four hundred and four the viewer reads as
+    /// final; a finder that said nothing becomes a five hundred and three with a retry, which is
+    /// the truth when every source is down. The two were the same answer, so a whole install
+    /// whose only pack was resting told every viewer that nothing in the catalogue exists.
+    #[must_use]
+    pub fn dark(&self) -> Option<&'static str> {
+        if self.slots.is_empty() {
+            return Some("no source: this finder was started with no providers");
+        }
+        if self.slots.iter().any(|slot| slot.working()) {
+            return None;
+        }
+        Some("no source is answering: every provider is resting after repeated failures")
+    }
+
     fn state(&self) -> ServiceState {
-        let working = self.slots.iter().any(|slot| slot.working());
-        if self.settings.tokens.is_empty() || !working {
+        if self.settings.tokens.is_empty() || self.dark().is_some() {
             ServiceState::Degraded
         } else {
             ServiceState::Ready
@@ -169,6 +186,11 @@ async fn find(
 ) -> Response {
     if let Some(refusal) = refused(&finder, &headers) {
         return refusal;
+    }
+    // Only a new search. A job handle names a run that already asked, so its answer holds whatever
+    // was found before the sources went down, and refusing it would throw that away.
+    if let Some(why) = finder.dark() {
+        return (StatusCode::SERVICE_UNAVAILABLE, why).into_response();
     }
     Json(finder.find(&request).await).into_response()
 }

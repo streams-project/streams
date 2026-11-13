@@ -159,3 +159,88 @@ async fn a_film_that_stands_in_for_a_series_answers_an_episode() {
     .unwrap();
     assert_eq!(films.find(&request).await.unwrap().len(), 1);
 }
+
+/// The published found answer. Its one source carries exactly the facts an operator writes in a
+/// film list, so the list below is built from those bytes rather than from a shape invented here.
+const FOUND: &str =
+    include_str!("../../../platform/contract/fixtures/2026-11-05/valid/FindAnswer.found.json");
+
+/// Two addresses for one film. A second address is all a deployer can do about the first going
+/// down, so the finder has to answer with both and let the server rank them.
+const MIRRORED: &str = r#"[
+    {"title":"movie:7","url":"https://one.example.invalid/open/master.m3u8",
+     "kind":"hls","licence":"CC-BY-3.0","height":1080},
+    {"title":"movie:7","url":"https://two.example.invalid/open/b.mp4",
+     "kind":"file","licence":"CC-BY-3.0","height":720}
+]"#;
+
+#[tokio::test]
+async fn a_film_with_a_second_address_answers_with_both_of_them() {
+    let films = vec![Arc::new(OpenFilms(parse_films(MIRRORED).unwrap())) as Arc<dyn Provider>];
+    let found = answer(app(&["new"], films), LISTED).await;
+    assert_eq!(found.outcome, FindOutcome::Found);
+    assert_eq!(
+        found.sources.len(),
+        2,
+        "both addresses, so one being down is not the end"
+    );
+    let urls: Vec<&str> = found.sources.iter().map(|s| s.url.as_str()).collect();
+    assert!(urls.contains(&"https://one.example.invalid/open/master.m3u8"));
+    assert!(urls.contains(&"https://two.example.invalid/open/b.mp4"));
+}
+
+#[tokio::test]
+async fn the_facts_of_a_listed_film_reach_the_answer_unchanged() {
+    let published: FindAnswer = serde_json::from_str(FOUND).unwrap();
+    let source = &published.sources[0];
+    let list = format!(
+        r#"[{{"title":"movie:7","url":"{}","kind":"hls","licence":"CC-BY-3.0",
+            "height":{},"audio":{}}}]"#,
+        source.url,
+        source.height.unwrap(),
+        serde_json::to_string(&source.audio).unwrap()
+    );
+    let films = vec![Arc::new(OpenFilms(parse_films(&list).unwrap())) as Arc<dyn Provider>];
+    let found = answer(app(&["new"], films), LISTED).await;
+    assert_eq!(found.sources.len(), 1);
+    assert_eq!(found.sources[0].url, source.url);
+    assert_eq!(found.sources[0].height, source.height);
+    assert_eq!(found.sources[0].audio, source.audio);
+    // The published source is verified; this one may not claim that, whatever else it copies.
+    assert!(source.verified && !found.sources[0].verified);
+}
+
+#[test]
+fn an_http_address_is_refused_because_the_server_would_drop_it() {
+    // A device is sent to this address, and the server keeps nothing that is not https, so a list
+    // that took http passed its own check and then played nothing with no word to the deployer.
+    let plain = r#"[{"title":"movie:7","url":"http://media.example.invalid/a.mp4",
+        "kind":"file","licence":"CC0-1.0"}]"#;
+    assert!(matches!(parse_films(plain), Err(ListError::BadUrl(_))));
+}
+
+#[test]
+fn the_same_address_listed_twice_for_one_film_is_refused() {
+    let twice = r#"[
+        {"title":"movie:7","url":"https://one.example.invalid/a.m3u8","kind":"hls","licence":"CC0-1.0"},
+        {"title":"movie:7","url":"https://one.example.invalid/a.m3u8","kind":"hls","licence":"CC0-1.0"}
+    ]"#;
+    assert!(matches!(parse_films(twice), Err(ListError::TwiceListed(_))));
+    // The same address under a different film is a different statement and stands.
+    let shared = twice.replacen("movie:7", "movie:8", 1);
+    assert!(parse_films(&shared).is_ok());
+}
+
+/// A finder with no film list used to answer not found for every title in the catalogue, which
+/// the server reads as a four hundred and four and a television draws as a dead end. It cannot
+/// look at all, and that is a different sentence.
+#[tokio::test]
+async fn with_no_film_list_a_search_is_not_a_not_found() {
+    let response = app(&["new"], Vec::new())
+        .oneshot(find(LISTED, Some("new")))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);
+    let bytes = response.into_body().collect().await.unwrap().to_bytes();
+    assert!(String::from_utf8_lossy(&bytes).contains("no providers"));
+}

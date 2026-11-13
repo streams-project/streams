@@ -36,6 +36,7 @@ pub enum ListError {
     NoLicence(String),
     BadUrl(String),
     EmbedRefused(String),
+    TwiceListed(String),
 }
 
 impl std::fmt::Display for ListError {
@@ -43,8 +44,9 @@ impl std::fmt::Display for ListError {
         match self {
             Self::Unreadable(why) => write!(f, "the film list cannot be read: {why}"),
             Self::NoLicence(title) => write!(f, "{title} has no licence"),
-            Self::BadUrl(title) => write!(f, "{title} needs an http or https address"),
+            Self::BadUrl(title) => write!(f, "{title} needs an https address"),
             Self::EmbedRefused(title) => write!(f, "{title} must be a stream or a file"),
+            Self::TwiceListed(title) => write!(f, "{title} lists the same address twice"),
         }
     }
 }
@@ -53,22 +55,36 @@ impl std::error::Error for ListError {}
 
 /// Read and check a film list.
 ///
+/// A title may hold as many rows as the operator has addresses for it, and every one of them is
+/// answered: that is how a film gets a second place to come from, which is the whole of what a
+/// deployer can do about one address going down. The same address listed twice is not a second
+/// place, so it is refused rather than passed on as if it were.
+///
 /// # Errors
-/// Any entry with no licence, an address that is not http or https, or an embed.
+/// Any entry with no licence, an address that is not https, an embed, or a title that lists one
+/// address twice.
 pub fn parse_films(text: &str) -> Result<Vec<OpenFilm>, ListError> {
     let films: Vec<OpenFilm> =
         serde_json::from_str(text).map_err(|e| ListError::Unreadable(e.to_string()))?;
+    let mut seen: Vec<(&TitleKey, &str)> = Vec::new();
     for film in &films {
         let name = film.title.to_string();
         if film.licence.trim().is_empty() {
             return Err(ListError::NoLicence(name));
         }
-        if !(film.url.starts_with("https://") || film.url.starts_with("http://")) {
+        // The server drops a source that is not https before it reaches a device, so a list that
+        // takes http passes its start-up check and then plays nothing: a refusal here is the one
+        // place a deployer is told.
+        if !film.url.starts_with("https://") {
             return Err(ListError::BadUrl(name));
         }
         if !matches!(film.kind, AttemptKind::Hls | AttemptKind::File) {
             return Err(ListError::EmbedRefused(name));
         }
+        if seen.contains(&(&film.title, film.url.as_str())) {
+            return Err(ListError::TwiceListed(name));
+        }
+        seen.push((&film.title, film.url.as_str()));
     }
     Ok(films)
 }
