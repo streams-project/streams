@@ -142,7 +142,19 @@ FAMILIES = {
             "the pictures port": r"\bAsyncImage\b",
             "the network port": r"\bURLSession\b|\bURLRequest\b|\bdataTask\b|\bData\(contentsOf:(?!\s*Bundle\.)",
             "the secrets port": r"\bSecItem\w*\b",
-            "the player port": r"\bAVPlayer\b",
+            # Capability, not spelling. `\bAVPlayer\b` needs a non-word character after the
+            # name, so AVQueuePlayer, AVPlayerItem, AVPlayerLayer, AVPlayerLooper,
+            # AVPlayerViewController, AVAudioPlayer, AVSampleBufferDisplayLayer and SwiftUI's
+            # VideoPlayer all reached the device straight past it. Proved on 2026-11-13 by
+            # planting a looping sound written the way this family's own adapter writes one
+            # (AVQueuePlayer + AVPlayerLooper + AVPlayerItem): the old rule passed it green.
+            "the player port": r"\bAV\w*Player\w*\b|\bAVAudioEngine\b"
+            r"|\bAVSampleBufferDisplayLayer\b|\bimport\s+AV(Foundation|Kit)\b|\bVideoPlayer\b",
+            # The android family has banned `SharedPreferences` since this check existed and the
+            # apple family banned nothing, so a surface could put a session token or a page's
+            # state in `UserDefaults` and pass. A missing rule rather than a spelling; it reports
+            # 0 findings on today's tree, so it goes in clean.
+            "the store port": r"\bUserDefaults\b|\bNSUbiquitousKeyValueStore\b|\bFileManager\b",
         },
     },
 }
