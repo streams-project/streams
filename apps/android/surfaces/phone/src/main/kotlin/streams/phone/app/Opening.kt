@@ -31,6 +31,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import contract.Target
@@ -283,7 +285,7 @@ internal fun Opening(seen: Seen, run: OpeningRun) {
  * at rest with the spinner, as the opening leaves them, shown only if the wait lasts.
  */
 @Composable
-internal fun Waiting() {
+internal fun Waiting(words: Map<String, String> = emptyMap()) {
     val art = phoneArt()
     var long by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -303,7 +305,22 @@ internal fun Waiting() {
                     scale(place.k, place.k, Offset.Zero)
                 }) { lockupAtRest(art, place.stage) }
             }
-            Spinner(Modifier.align(Alignment.TopCenter).offset { IntOffset(0, place.spinTop) }.graphicsLayer { this.alpha = alpha })
+            Spinner(
+                Modifier.align(Alignment.TopCenter).offset { IntOffset(0, place.spinTop) }
+                    .graphicsLayer { this.alpha = alpha }
+                    // A whole screen of a mark drawn on a canvas and a turning ring: nothing on it
+                    // carries a word, so a screen reader was handed a blank page and the viewer
+                    // could not tell a wait from a dead app. Said here and not with `says`, which
+                    // also tells a reader this is a button, which a spinner is not. The word is
+                    // `say.loading`, which all eighteen languages already have. An empty one is
+                    // left unset for `Says.kt`'s reason: a thing described as "" is worse than one
+                    // a reader falls through, and a run that has not read its words yet has none.
+                    .then(
+                        words["say.loading"].orEmpty().let {
+                            if (it.isEmpty()) Modifier else Modifier.semantics { contentDescription = it }
+                        },
+                    ),
+            )
         }
     }
 }

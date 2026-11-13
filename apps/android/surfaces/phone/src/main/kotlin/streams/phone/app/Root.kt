@@ -60,7 +60,7 @@ fun Root(shell: Shell, tv: Boolean) {
             ) {
             when {
                 seen.server.isEmpty() -> Server(shell, seen)
-                target == null || target == Target.WAIT -> if (run.over) Waiting()
+                target == null || target == Target.WAIT -> if (run.over) Waiting(seen.words)
                 target == Target.START -> Door(shell, seen)
                 target == Target.SIGN_IN -> if (tv) Code(shell, seen) else SignIn(shell, seen)
                 target == Target.PROFILES -> Gate(shell, seen)

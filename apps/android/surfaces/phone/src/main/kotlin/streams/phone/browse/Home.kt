@@ -48,6 +48,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -227,7 +229,24 @@ fun Home(shell: Shell, seen: Seen) {
             Modifier
                 .fillMaxWidth()
                 .background(if (atTop) Color.Transparent else Back.copy(alpha = 0.97f))
-                .statusBarsPadding(),
+                .statusBarsPadding()
+                // One stop of the page for a screen reader, which is what puts it first.
+                //
+                // This header is drawn after the list on purpose, so that it draws over it. With
+                // no semantics of its own it was not a node at all: the page's name, the bell and
+                // the chip row were loose leaves, sorted for a reader against the list's subtree
+                // by where each one sits, and they lost -- the list's box is the whole window and
+                // takes the top of the page with it. A reader began on the billboard and reached
+                // the chips at stop 18 of 30 with three rows in hand, behind several hundred on a
+                // page that has grown. Two phones with two vendors' screen readers never reached
+                // them at all (note 239).
+                //
+                // As one group the header is one box at the top of the screen, and the toolkit's
+                // own sort puts it where it is drawn. Measured, not assumed: `traversalIndex` on
+                // this and on the bar, and a group around the whole page, were all tried together
+                // first and removing any of them changed no reading -- this line alone carries it,
+                // and the three tests of `HomeReachTest` fail without it.
+                .semantics { isTraversalGroup = true },
         ) {
             TopBar(
                 seen.server,
