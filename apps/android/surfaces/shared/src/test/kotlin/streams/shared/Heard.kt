@@ -13,10 +13,14 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
  *
  * This is the Android answer to `apps/apple/Tests/Heard/Heard.swift`, and it is a weaker one. Heard
  * on Apple hosts a real view in a real window and walks the accessibility tree UIKit built. This
- * reads the semantics a `Modifier` chain declares, without composing anything, because the two
- * libraries that would compose a tree in a unit test are not here: `androidx.compose.ui:ui-test`
- * and `org.robolectric` are both absent from `~/.gradle/caches/modules-2/files-2.1` and gradle runs
- * `--offline` on this machine (verified 2026-11-12, `ls ~/.gradle/caches/modules-2/files-2.1`).
+ * reads the semantics a `Modifier` chain declares, without composing anything, because the library
+ * that would compose a Compose tree in a unit test is not here: `androidx.compose.ui:ui-test` is
+ * absent from `~/.gradle/caches/modules-2/files-2.1`.
+ *
+ * `org.robolectric` was absent too when this was written on 2026-11-12. It resolved on 2026-11-13,
+ * and `surfaces/tv/src/test/java/streams/tv/views/HeardTest.java` now walks the real
+ * `AccessibilityNodeInfo` tree a Views screen builds, with four mutations of `Says.onto` proving it
+ * discriminates. So the hole below is now the Compose half of the surfaces only.
  *
  * So what these tests prove and what they do not:
  *  * proved -- what each helper in `Says.kt` puts on the node it is applied to, read off the real
@@ -26,8 +30,8 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
  *  * not proved -- the tree. Whether a screen applies the right helper to the right box, what order
  *    a reader reaches things in, and what `mergeDescendants` actually gathers from the children all
  *    need a composed tree. `apps/android/surfaces/phone/src/test/.../SpokenTest.kt` covers the
- *    "right box" half by reading the sources; nothing here covers the other two, and the
- *    accessibility rows of note 215 stay open until `ui-test` can be resolved.
+ *    "right box" half by reading the sources. For the Views surfaces the other two are covered by
+ *    `HeardTest.java`; for the Compose surfaces they stay open until `ui-test` can be resolved.
  */
 internal data class Heard(
     /** The words read out. Empty means the node is there and has no words of its own. */

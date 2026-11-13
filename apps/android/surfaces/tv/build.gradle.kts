@@ -18,7 +18,11 @@ android {
     // What they cover is what can be checked without a screen - which rows a page may draw
     // (browse/Page.kt) - because everything else here is drawing, and a drawing test needs a
     // device. `./check` does not run gradle at all, so nothing runs these but a person or CI.
-    testOptions { unitTests.isReturnDefaultValues = true }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+        // Robolectric needs the real resource table, not the stubbed one.
+        unitTests.isIncludeAndroidResources = true
+    }
 }
 
 dependencies {
@@ -39,4 +43,6 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
     implementation("com.google.zxing:core:3.5.3")
     testImplementation("junit:junit:4.13.2")
+    // PROBE 2026-11-13: can a real accessibility tree be read in a unit test here?
+    testImplementation("org.robolectric:robolectric:4.17")
 }
