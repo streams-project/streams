@@ -29,7 +29,10 @@ import { For, Show } from "@roku-sdk/solid";
 
 import { tall, wide } from "../art";
 import type { Section, Tile, TitleDetail } from "../contract";
+import { badgeHigh, black } from "../parts";
+import { FactsLine, TileBadges } from "./Parts";
 import {
+  CARD_BADGE_BOTTOM,
   CARD_FOOT_HIGH,
   CARD_HIGH,
   CARD_INSET,
@@ -39,6 +42,7 @@ import {
   CARD_X,
   CARD_Y,
   COLOUR,
+  FACTS_Y,
   FOCUS_RING,
   NEXT_POSTERS,
   NEXT_ROW_NAME_Y,
@@ -53,6 +57,7 @@ import {
   STORY_SIZE,
   STORY_WIDE,
   STORY_Y,
+  TILE_BADGE_INSET,
   TILE_HIGH,
   TILE_WIDE,
 } from "../numbers";
@@ -63,9 +68,16 @@ const BELOW = "0x808080ff";
 
 /**
  * A tile in a row. The artwork is the title, so the title's name is what a person hears in place of
- * seeing it; `audioGuideText` is the Poster field that carries it. (`Rows.kt:55-66`)
+ * seeing it; `audioGuideText` is the Poster field that carries it, and the marks drawn on top say
+ * the rest themselves. (`Rows.kt:55-66`, and `Rows.kt:64` for where the marks sit)
  */
-function Poster(props: { tile: Tile; x: number; y: number; blend?: string }) {
+function Poster(props: {
+  tile: Tile;
+  x: number;
+  y: number;
+  words: Record<string, string>;
+  blend?: string;
+}) {
   return (
     <group translation={[props.x, props.y]}>
       <rectangle width={TILE_WIDE} height={TILE_HIGH} color={COLOUR.raised} />
@@ -81,6 +93,12 @@ function Poster(props: { tile: Tile; x: number; y: number; blend?: string }) {
           />
         )}
       </Show>
+      <TileBadges
+        badges={props.tile.badges}
+        words={props.words}
+        x={TILE_BADGE_INSET}
+        y={TILE_HIGH - TILE_BADGE_INSET - badgeHigh()}
+      />
     </group>
   );
 }
@@ -89,7 +107,7 @@ function Poster(props: { tile: Tile; x: number; y: number; blend?: string }) {
  * The card stays still and its art changes under it. The name is drawn over the art, and the ring
  * says this is the one card of the row that is open. (`Rows.kt:80-112`)
  */
-function OpenCard(props: { tile: Tile }) {
+function OpenCard(props: { tile: Tile; words: Record<string, string> }) {
   return (
     <group translation={[CARD_X, CARD_Y]}>
       <rectangle width={CARD_WIDE} height={CARD_HIGH} color={COLOUR.raised} />
@@ -104,12 +122,23 @@ function OpenCard(props: { tile: Tile }) {
           />
         )}
       </Show>
-      {/* The shade the name sits on, at the foot of the card. (`Rows.kt:53,96`) */}
+      {/*
+        The shade the name sits on, at the foot of the card. The Kotlin fades it from nothing to
+        black at 0.7 of itself (`Rows.kt:53`); a Rectangle takes one flat colour, so this is the
+        strength it ends at, drawn flat over the band. (`Rows.kt:96`)
+      */}
       <rectangle
         translation={[0, CARD_HIGH - CARD_FOOT_HIGH]}
         width={CARD_WIDE}
         height={CARD_FOOT_HIGH}
-        color="0x000000b3"
+        color={black(70)}
+      />
+      {/* The marks this title carries, above its name on the card. (`Rows.kt:98`) */}
+      <TileBadges
+        badges={props.tile.badges}
+        words={props.words}
+        x={CARD_INSET}
+        y={CARD_HIGH - CARD_BADGE_BOTTOM - badgeHigh()}
       />
       <label
         text={props.tile.name}
@@ -140,6 +169,8 @@ export function OpenRow(props: {
   section: Section;
   at: number;
   detail: TitleDetail | null;
+  words: Record<string, string>;
+  language: string;
   /** 1 when lines run left to right, -1 when they run right to left. (`Round.kt:57-59`) */
   along: number;
 }) {
@@ -153,7 +184,13 @@ export function OpenRow(props: {
     <group>
       <label text={props.section.title ?? ""} translation={[PAGE_EDGE, ROW_NAME_Y]} color={COLOUR.text} />
       <Show when={props.at > 0}>
-        <Poster tile={tiles()[props.at - 1]!} x={POSTER_BEHIND_X} y={POSTER_Y} blend={PASSED} />
+        <Poster
+          tile={tiles()[props.at - 1]!}
+          x={POSTER_BEHIND_X}
+          y={POSTER_Y}
+          words={props.words}
+          blend={PASSED}
+        />
       </Show>
       {/*
         The posters after the open card. In a right to left language the row runs leftwards, so
@@ -165,19 +202,34 @@ export function OpenRow(props: {
             tile={one.tile}
             x={POSTER_AHEAD_X + (one.index - 1 - props.at) * STEP * props.along}
             y={POSTER_Y}
+            words={props.words}
           />
         )}
       </For>
-      <OpenCard tile={tile()} />
+      <OpenCard tile={tile()} words={props.words} />
+      {/*
+        The title's own facts and its story, under the card. Both arrive with the detail, after the
+        row has moved, and both are left undrawn until it does rather than drawn empty.
+        (`Rows.kt:103-114`)
+      */}
       <Show when={props.detail}>
         {(detail: TitleDetail) => (
-          <label
-            text={detail.overview ?? ""}
-            translation={[PAGE_EDGE, STORY_Y]}
-            width={STORY_WIDE}
-            color={COLOUR.muted}
-            lineSpacing={STORY_LINE - STORY_SIZE}
-          />
+          <group>
+            <FactsLine
+              detail={detail}
+              words={props.words}
+              language={props.language}
+              x={PAGE_EDGE}
+              y={FACTS_Y}
+            />
+            <label
+              text={detail.overview ?? ""}
+              translation={[PAGE_EDGE, STORY_Y]}
+              width={STORY_WIDE}
+              color={COLOUR.muted}
+              lineSpacing={STORY_LINE - STORY_SIZE}
+            />
+          </group>
         )}
       </Show>
     </group>
@@ -188,7 +240,12 @@ export function OpenRow(props: {
  * The next row, dim, cut by the screen's edge. It shows where the viewer left it: the kept tile
  * first, the one before it at the edge, as the open row does. (`Rows.kt:158-178`)
  */
-export function NextRow(props: { section: Section; high: boolean; at: number }) {
+export function NextRow(props: {
+  section: Section;
+  high: boolean;
+  at: number;
+  words: Record<string, string>;
+}) {
   const tiles = (): Tile[] => props.section.tiles ?? [];
   const top = (): number => (props.high ? NEXT_ROW_TOP.underHero : NEXT_ROW_TOP.underCard);
   const name = (): number => (props.high ? NEXT_ROW_NAME_Y.underHero : NEXT_ROW_NAME_Y.underCard);
@@ -197,11 +254,23 @@ export function NextRow(props: { section: Section; high: boolean; at: number }) 
     <group>
       <label text={props.section.title ?? ""} translation={[PAGE_EDGE, name()]} color={COLOUR.muted} />
       <Show when={props.at > 0 && tiles()[props.at - 1] !== undefined}>
-        <Poster tile={tiles()[props.at - 1]!} x={PAGE_EDGE - STEP} y={top()} blend={BELOW} />
+        <Poster
+          tile={tiles()[props.at - 1]!}
+          x={PAGE_EDGE - STEP}
+          y={top()}
+          words={props.words}
+          blend={BELOW}
+        />
       </Show>
       <For each={shown()}>
         {(tile: Tile, index: () => number) => (
-          <Poster tile={tile} x={PAGE_EDGE + index() * STEP} y={top()} blend={BELOW} />
+          <Poster
+            tile={tile}
+            x={PAGE_EDGE + index() * STEP}
+            y={top()}
+            words={props.words}
+            blend={BELOW}
+          />
         )}
       </For>
     </group>

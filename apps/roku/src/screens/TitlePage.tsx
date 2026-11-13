@@ -14,6 +14,8 @@ import type { Season, TitleDetail } from "../contract";
 import {
   COLOUR,
   PAGE_EDGE,
+  SCREEN_HIGH,
+  SCREEN_WIDE,
   TITLE_FACTS_Y,
   TITLE_LOGO,
   TITLE_MENU,
@@ -25,6 +27,7 @@ import {
 import type { Shell } from "../ports";
 import { ICON, RATING_ICONS, icon } from "../icons";
 import { FACES, REACTION_COUNT, TitleFocus, isSeries, lineWord, linesOf } from "../title";
+import { FactsLine } from "./Parts";
 import { say } from "../words";
 import type { Word } from "../keys";
 import { screenRemote } from "./remote";
@@ -124,7 +127,7 @@ export function TitlePage(props: { shell: Shell }) {
 
   return (
     <group ref={ref}>
-      <rectangle width={1920} height={1080} color={COLOUR.background} />
+      <rectangle width={SCREEN_WIDE} height={SCREEN_HIGH} color={COLOUR.background} />
       <Show when={data()}>
         {(held: TitleDetail) => (
           <group>
@@ -134,7 +137,7 @@ export function TitlePage(props: { shell: Shell }) {
             */}
             <Show when={wide(held.images)}>
               {(url: string) => (
-                <poster uri={url} width={1920} height={1080} loadDisplayMode="scaleToFill" />
+                <poster uri={url} width={SCREEN_WIDE} height={SCREEN_HIGH} loadDisplayMode="scaleToFill" />
               )}
             </Show>
             <Show when={logo(held.images)} fallback={
@@ -217,13 +220,20 @@ export function TitlePage(props: { shell: Shell }) {
                 </group>
               )}
             </For>
-            <Show when={held.runtime_min !== undefined || held.year !== undefined}>
-              <label
-                text={[held.year, held.runtime_min].filter((one) => one !== undefined).join("  ")}
-                translation={[PAGE_EDGE, TITLE_FACTS_Y]}
-                color={COLOUR.muted}
-              />
-            </Show>
+            {/*
+              The facts, in the one order every screen draws them in: genre, year, length or
+              seasons, age. This page built its own line out of the year and the running time until
+              2026-11-13, which left out the genre and the seasons, wrote the year in Latin digits
+              in every language, and was a second reading of a rule `src/facts.ts` holds against
+              the contract's own fixtures. (`tv/title/TitlePage.kt:218`)
+            */}
+            <FactsLine
+              detail={held}
+              words={seen().words}
+              language={seen().language}
+              x={PAGE_EDGE}
+              y={TITLE_FACTS_Y}
+            />
           </group>
         )}
       </Show>

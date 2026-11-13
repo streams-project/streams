@@ -39,6 +39,7 @@ import {
   TAB_SIZE,
 } from "../numbers";
 import { ICON, icon } from "../icons";
+import { textWide } from "../type";
 import { KEY, say } from "../words";
 import { SEARCH_TAB, WHO_TAB } from "../focus";
 
@@ -47,9 +48,16 @@ export function tabsOf(nav: NavItem[]): NavItem[] {
   return nav.filter((item) => item.screen !== "genre").slice(0, TAB_LIMIT);
 }
 
-/** How wide a tab's pill is: its word, with the inset on each side. An estimate until measured on a set. */
+/**
+ * How wide a tab's pill is: its word, with the inset on each side.
+ *
+ * A Roku cannot be asked how wide a word will be before it draws it, so the word's part of this is
+ * the one estimate this surface has, in `src/type.ts`. It was written twice until 2026-11-13, here
+ * and nowhere else; the facts line needs the same answer, and two estimates would have been two
+ * different wrong answers.
+ */
 function tabWide(label: string): number {
-  return Math.round(label.length * TAB_SIZE * 0.56) + TAB_INSET * 2;
+  return textWide(label, TAB_SIZE) + TAB_INSET * 2;
 }
 
 function Tab(props: { item: NavItem; active: boolean; on: boolean; x: number }) {

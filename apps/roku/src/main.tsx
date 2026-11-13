@@ -7,7 +7,7 @@
 import { RootFocusBoundary } from "@roku-sdk/navigation";
 import { Show, Switch, Match } from "@roku-sdk/solid";
 
-import { COLOUR } from "./numbers";
+import { COLOUR, SCREEN_HIGH, SCREEN_WIDE } from "./numbers";
 import type { Shell } from "./ports";
 import { Browse } from "./screens/Browse";
 import { TitlePage } from "./screens/TitlePage";
@@ -17,7 +17,7 @@ export function App(props: { shell: Shell }) {
   const target = () => seen().route?.target ?? null;
   return (
     <group>
-      <rectangle width={1920} height={1080} color={COLOUR.background} />
+      <rectangle width={SCREEN_WIDE} height={SCREEN_HIGH} color={COLOUR.background} />
       {/*
         A run with no server yet starts at the address screen (`Television.kt:74`). That screen is
         not written, so there is nothing to draw until the host is given an address.

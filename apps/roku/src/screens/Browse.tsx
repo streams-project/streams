@@ -1,36 +1,35 @@
 // A page of rows. The parts draw, and this file only knows where the focus is and what a key does.
 //
-// A port of `apps/android/surfaces/tv/src/main/kotlin/streams/tv/browse/Browse.kt:154-301`. The
-// focus itself is `src/focus.ts` and which rows a page may draw is `src/page.ts`, both apart from
-// the drawing and both checked without a Roku.
+// A port of `apps/android/surfaces/tv/src/main/kotlin/streams/tv/browse/Browse.kt:154-301` and of
+// the view that draws it today, `tv/src/main/java/streams/tv/browse/BrowseView.java:139-280`. The
+// focus itself is `src/focus.ts`, which rows a page may draw is `src/page.ts`, and how a page
+// follows its cursor is `src/growth.ts` - all three apart from the drawing and all three checked
+// without a Roku.
+//
+// **What changed on 2026-11-13.** This file carried its own `PageGrowth` class and its own reading
+// of the paging rule, written the day before `src/growth.ts` mirrored that rule from the Kotlin and
+// held it to `platform/contract/fixtures/2026-11-05/valid/More.section.json`. Two readings of one
+// rule is the drift the whole mirror exists to prevent, and the fixture-held one is the one that
+// survives: the local class is gone and this page calls `PageGrowth` and `PageFocus.wantsMore`.
+// The one case that fixture carries - a cursor with no sections behind it - is why it matters: a
+// page that followed a cursor because it was there would read that file forever.
 
 import { Show, createMemo, createSignal } from "@roku-sdk/solid";
 
 import { ROUTE, tabAddress, titleAddress, watchAddress } from "../api";
 import { ADDRESS } from "../contract";
-import type { More, Section, TitleDetail } from "../contract";
+import type { More, Section, Tile, TitleDetail } from "../contract";
 import { PageFocus, SEARCH_TAB, WHO_TAB } from "../focus";
-import { COLOUR, REACH } from "../numbers";
+import { PageGrowth } from "../growth";
+import { COLOUR, PAGE_EDGE, ROW_NAME_SIZE, SCREEN_HIGH, SCREEN_WIDE } from "../numbers";
 import { answerIsThisPage, heroOn, rowsOn, screenOf } from "../page";
 import type { Shell } from "../ports";
 import { KEY, say, sayBoth } from "../words";
 import type { Word } from "../keys";
+import { Hero } from "./Hero";
 import { NextRow, OpenRow } from "./Rows";
 import { TopBar, tabsOf } from "./TopBar";
 import { screenRemote } from "./remote";
-
-/**
- * The rows a page has past its first answer. The server builds up to 50 rows and hands a screen 12
- * with a cursor to read the rest. (`Browse.kt:60-73`)
- */
-class PageGrowth {
-  /** The cursor the first answer came with. A fresh answer carries a new one and starts the page again. */
-  from: string | null = null;
-  /** The next cursor to read, or nothing when the page has given everything it has. */
-  next: string | null = null;
-  busy = false;
-  extra: Section[] = [];
-}
 
 export function Browse(props: { shell: Shell }) {
   const seen = () => props.shell.seen();
@@ -74,44 +73,49 @@ export function Browse(props: { shell: Shell }) {
   /**
    * The page reads its next rows as the focus comes within reach of the last one it holds. A remote
    * cannot flick past twelve rows, so the rows arrive before they are wanted rather than on a
-   * gesture. (`Browse.kt:196-216`)
+   * gesture. Every branch of the rule is `src/growth.ts`; this is the part that has a network.
+   * (`Browse.kt:196-216`)
    */
   function grow(): void {
     if (!mine()) return;
     const screen = data();
     if (screen === null) return;
-    if (growth.from !== (screen.cursor ?? null)) {
-      growth.from = screen.cursor ?? null;
-      growth.next = screen.cursor ?? null;
-      growth.extra = [];
-      growth.busy = false;
-      setExtra([]);
-    }
-    const cursor = growth.next;
-    if (cursor === null || growth.busy || !focus.withinReach(REACH)) return;
-    growth.busy = true;
+    // A fresh answer is a fresh page: what was read past its first rows belongs to the answer it
+    // came from. `answered` says when that happened, and the drawn rows follow it.
+    if (growth.answered(screen.cursor)) setExtra([]);
+    const cursor = growth.reads(focus.wantsMore());
+    if (cursor === null) return;
     props.shell.ask(ROUTE.more(cursor), (status, text) => {
-      growth.busy = false;
-      if (status < 200 || status > 299) return;
+      if (status < 200 || status > 299) {
+        growth.failed();
+        return;
+      }
       let more: More;
       try {
         more = JSON.parse(text) as More;
       } catch {
+        growth.failed();
         return;
       }
-      const sections = (more.sections ?? []).filter((one) => (one.tiles ?? []).length > 0);
-      // An answer with no rows left is the end, whatever cursor came with it.
-      growth.next = (more.sections ?? []).length === 0 ? null : (more.cursor ?? null);
-      growth.extra = growth.extra.concat(sections);
+      growth.took(more);
       setExtra(growth.extra);
       again();
     });
   }
 
-  /** The open title's own facts, which arrive after the row has moved. (`Rows.kt:123`) */
+  /**
+   * The title the remote is on: the open row's tile, or the page's hero when the remote is above
+   * the rows. Its own facts arrive after the move. (`BrowseView.java:165-176`, `Browse.kt:131-137`)
+   */
+  function onTile(): Tile | null {
+    if (focus.where === "row") return (rows()[focus.row]?.tiles ?? [])[focus.column] ?? null;
+    return lead();
+  }
+
+  /** Reads what is known about that title. (`Rows.kt:123`) */
   function look(): void {
-    const tile = (rows()[focus.row]?.tiles ?? [])[focus.column];
-    if (tile === undefined) {
+    const tile = onTile();
+    if (tile === null) {
       setDetail(null);
       return;
     }
@@ -207,13 +211,18 @@ export function Browse(props: { shell: Shell }) {
     void moved();
     return rows()[inRow() ? focus.row + 1 : 0] ?? null;
   });
+  /** 0 Play, 1 More info, and -1 when the remote is elsewhere. (`BrowseView.java:140-141,256`) */
+  const onButton = createMemo(() => {
+    void moved();
+    return focus.where === "hero" ? focus.button : -1;
+  });
 
   grow();
   look();
 
   return (
     <group ref={ref}>
-      <rectangle width={1920} height={1080} color={COLOUR.background} />
+      <rectangle width={SCREEN_WIDE} height={SCREEN_HIGH} color={COLOUR.background} />
       <TopBar
         tabs={tabs()}
         active={active()}
@@ -222,26 +231,58 @@ export function Browse(props: { shell: Shell }) {
         server={seen().server}
         words={seen().words}
       />
+      {/*
+        The hero is the page's own card and the open row takes its place: a page shows one or the
+        other, never both. (`BrowseView.java:253-256`)
+      */}
+      <Show when={inRow() ? null : lead()}>
+        {(tile: Tile) => (
+          <Hero
+            lead={tile}
+            detail={detail()}
+            words={seen().words}
+            language={seen().language}
+            button={onButton()}
+          />
+        )}
+      </Show>
       <Show when={inRow() ? open() : null}>
         {(section: Section) => (
           <OpenRow
             section={section}
             at={focus.column}
             detail={detail()}
+            words={seen().words}
+            language={seen().language}
             along={seen().rtl ? -1 : 1}
           />
         )}
       </Show>
-      <Show when={!inRow() && rows().length === 0}>
+      {/*
+        A page with no hero and no rows of its own says so, in the viewer's language. Which of the
+        two words it is, is this page's business and not the screen's. (`Browse.kt:115-120`,
+        `BrowseView.java:259-260`)
+      */}
+      <Show when={!inRow() && lead() === null && rows().length === 0}>
         <label
           text={say(seen().words, current() === "games" ? KEY.gamesSoon : KEY.mineEmpty)}
-          translation={[72, 500]}
+          // `BrowseView.java:117` lays this across the whole page and centres it both ways. Of a
+          // Roku Label, only `text`, `color`, `translation`, `width` and `lineSpacing` were read,
+          // and nothing that aligns a word inside its box, so the line starts on the page margin
+          // and sits on the middle of the screen.
+          translation={[PAGE_EDGE, Math.round((SCREEN_HIGH - ROW_NAME_SIZE) / 2)]}
+          width={SCREEN_WIDE - PAGE_EDGE * 2}
           color={COLOUR.muted}
         />
       </Show>
       <Show when={below()}>
         {(section: Section) => (
-          <NextRow section={section} high={!inRow()} at={focus.columnOf(inRow() ? focus.row + 1 : 0)} />
+          <NextRow
+            section={section}
+            high={!inRow()}
+            at={focus.columnOf(inRow() ? focus.row + 1 : 0)}
+            words={seen().words}
+          />
         )}
       </Show>
     </group>
