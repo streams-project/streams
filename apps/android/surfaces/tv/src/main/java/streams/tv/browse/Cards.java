@@ -4,13 +4,13 @@ import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
 import android.widget.TextView;
-import streams.tv.views.Ink;
+import streams.shared.Ink;
+import streams.shared.Says;
+import streams.shared.Shade;
+import streams.shared.Type;
 import streams.tv.views.Ref;
 import streams.tv.views.RefLayout;
 import streams.tv.views.Round;
-import streams.tv.views.Says;
-import streams.tv.views.Shade;
-import streams.tv.views.Type;
 
 /**
  * The two cards a row is made of: the closed tile and the one the remote has opened.

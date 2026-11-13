@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import org.junit.Test;
-import streams.tv.views.Says;
+import streams.shared.Says;
 
 /**
  * What this page hands a screen reader, and whether its parts still speak at all.

@@ -17,7 +17,7 @@ import streams.shared.Corner;
  * {@code shared/build.gradle.kts:14-19} writes from {@code brand.json}. A {@code const val} is a
  * static field on the class, so Java calls it, and generated {@code BuildConfig} is Java already.
  * So the brand's shape has one home on both sides of this migration and this class only scales it.
- * The colours are not so lucky -- see {@link Ink}.
+ * The colours are not so lucky -- see {@code streams.shared.Ink}.
  *
  * <h2>Why a {@link GradientDrawable} and not a {@code Path}</h2>
  * {@code shapeOf(corner)} ({@code Round.kt:55}) is a {@code RoundedCornerShape} handed to

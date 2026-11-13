@@ -1,4 +1,4 @@
-package streams.tv.views;
+package streams.shared;
 
 import android.os.Build;
 import android.view.View;

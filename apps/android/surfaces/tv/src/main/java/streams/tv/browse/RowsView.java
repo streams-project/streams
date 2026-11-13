@@ -6,12 +6,12 @@ import android.graphics.Color;
 import android.view.View;
 import android.view.animation.PathInterpolator;
 import android.widget.TextView;
-import streams.tv.views.Ink;
+import streams.shared.Ink;
+import streams.shared.Says;
+import streams.shared.Type;
 import streams.tv.views.Ref;
 import streams.tv.views.RefLayout;
 import streams.tv.views.Round;
-import streams.tv.views.Says;
-import streams.tv.views.Type;
 
 /**
  * The two rows a browse page draws: the one that owns the screen, and the dim one below it.

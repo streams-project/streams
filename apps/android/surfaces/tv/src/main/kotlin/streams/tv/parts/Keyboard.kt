@@ -129,7 +129,13 @@ fun Keyboard(
 fun KeyboardState.press(word: Word, cancel: String, done: String, finish: (String?) -> Unit): Boolean {
     val rows = caps(page, upper, cancel, done)
     val caps = rows[row]
-    val here = caps.first { column in it.column until it.column + it.span }
+    // A row whose letters stop short of the last column has no key under a remote that came down
+    // the right hand edge: `Symbols` is `,.?/\|~` and `Accented` is `œšžćčđğ`, seven keys from column 2,
+    // so both end at 8 while the rows above them end at 9. It holds the last key of the row rather
+    // than throwing. Until 2026-11-13 this was `first`, which raised NoSuchElementException on the
+    // eleventh press from where the keyboard opens and closed the screen on a viewer mid password,
+    // on all four screens that draw one (`KeyboardReachTest`).
+    val here = caps.firstOrNull { column in it.column until it.column + it.span } ?: caps.last()
     when (word) {
         Word.UP -> if (row > 0) row -= 1 else return false
         Word.DOWN -> if (row < rows.lastIndex) row += 1

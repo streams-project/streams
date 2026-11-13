@@ -37,7 +37,11 @@ fun TrackStrip(choices: List<Choice>, focus: Int) {
                     .padding(end = 14.ref)
                     .height(54.ref)
                     .background(if (on) Color.White else Color.White.copy(alpha = 0.16f), CircleShape)
-                    .padding(horizontal = 24.ref),
+                    .padding(horizontal = 24.ref)
+                    // The chip's own word is its label, so nothing is written here and the chip
+                    // keeps saying whatever `Choices.kt` gave it to draw. The tick beside it is
+                    // drawn with no description, so a reader gets the word and not "image".
+                    .saysItsWords(on),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (choice.ticked) {

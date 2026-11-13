@@ -6,10 +6,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Every television lays out at 960 by 540 dp, and the screen references measure 1920 by 1080, so a
- * reference pixel is half a dp. These keep the numbers in the code the same as the measurements.
+ * A measurement as it was taken off the capture, in the unit Compose lays out in.
+ *
+ * The derivation is stated once, in `Scale.java` beside this file, and the divisor is read from it
+ * rather than written here: Kotlin needs a `Dp` and Java needs a float, so the two cannot be one
+ * function, but the number they divide by is one number. Until 2026-11-13 it was four.
  */
-val Int.ref: Dp get() = (this / 2f).dp
+val Int.ref: Dp get() = (this / Scale.PER_DP).dp
 
-/** A reference font size. */
-val Int.refType: TextUnit get() = (this / 2f).sp
+/** A reference font size, on the same scale: `Measure.kt`'s twin of `Scale.sp`. */
+val Int.refType: TextUnit get() = (this / Scale.PER_DP).sp

@@ -3,14 +3,14 @@ package streams.tv.browse;
 import android.content.Context;
 import android.view.Gravity;
 import java.util.Map;
-import streams.tv.views.Ink;
+import streams.shared.Ink;
+import streams.shared.WordText;
+import streams.shared.Words;
 import streams.tv.views.Ref;
 import streams.tv.views.RefLayout;
 import streams.tv.views.RemoteHost;
 import streams.tv.views.Round;
 import streams.tv.views.Word;
-import streams.tv.views.WordText;
-import streams.tv.views.Words;
 
 /**
  * A page of rows: the television's home, its genre pages and its lists.

@@ -8,13 +8,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import streams.tv.views.Ink;
+import streams.shared.Ink;
+import streams.shared.Says;
+import streams.shared.Type;
+import streams.shared.WordText;
+import streams.shared.Words;
 import streams.tv.views.Ref;
 import streams.tv.views.Round;
-import streams.tv.views.Says;
-import streams.tv.views.Type;
-import streams.tv.views.WordText;
-import streams.tv.views.Words;
 
 /**
  * The small parts the hero and the rows are built out of: a badge row, a line of facts, a large

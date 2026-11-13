@@ -1,9 +1,9 @@
 package streams.tv.browse;
 
-import streams.tv.views.RowMemory;
-import streams.tv.views.Says;
+import streams.shared.RowMemory;
+import streams.shared.Says;
+import streams.shared.Words;
 import streams.tv.views.Word;
-import streams.tv.views.Words;
 
 /**
  * Where the viewer is on a page of rows. It knows nothing about drawing.

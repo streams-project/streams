@@ -58,6 +58,20 @@ class TrackPanelState {
             }
         }
     }
+
+    /**
+     * The line the remote is on, for a screen reader.
+     *
+     * The panel takes every key while it is open, so the player's own word for what the remote is
+     * on is wrong the whole time it is up. It is read from the same two lists the drawing reads,
+     * in the same order, so the two cannot name different lines.
+     */
+    fun saying(seen: Seen, files: List<Track>): String? {
+        val words = seen.words
+        if (column == 0) return oneOfEach(seen.audio).getOrNull(line)?.let { nameOf(it, seen.language) }
+        if (line == 0) return words["player.subtitles_off"]
+        return linesOf(seen, files).getOrNull(line - 1)?.let { nameOf(it, seen.language) }
+    }
 }
 
 @Composable

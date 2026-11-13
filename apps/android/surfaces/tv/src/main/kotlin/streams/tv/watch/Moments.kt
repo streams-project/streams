@@ -42,7 +42,9 @@ fun BoxScope.MomentPill(word: String, on: Boolean, raised: Boolean) {
             .padding(end = 124.ref, bottom = (if (raised) 230 else 96).ref)
             .height(72.ref)
             .background(if (on) Color.White else Color.White.copy(alpha = 0.2f), CircleShape)
-            .padding(horizontal = 40.ref),
+            .padding(horizontal = 40.ref)
+            // Skip Intro, Skip Recap, Next Episode: the word drawn in it is its name.
+            .saysItsWords(on),
         contentAlignment = Alignment.Center,
     ) {
         Text(word, color = if (on) Back else Color.White, fontSize = 30.refType, fontWeight = FontWeight.Bold)

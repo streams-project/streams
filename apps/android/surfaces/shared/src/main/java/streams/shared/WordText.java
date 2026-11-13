@@ -1,4 +1,4 @@
-package streams.tv.views;
+package streams.shared;
 
 import android.content.Context;
 import android.util.TypedValue;
@@ -21,7 +21,7 @@ import android.widget.TextView;
  * mistake and ships.
  *
  * <h2>Text size</h2>
- * {@code setTextSize(COMPLEX_UNIT_SP, Ref.sp(44))} is the Views form of {@code 44.refType}
+ * {@code setTextSize(COMPLEX_UNIT_SP, Scale.sp(44))} is the Views form of {@code 44.refType}
  * ({@code shared/Measure.kt:15}), and 44 is the number written at {@code tv/browse/Rows.kt:104}. In
  * sp and not pixels because a language may ask for larger text ({@code tv/app/Television.kt:56}).
  */
@@ -64,7 +64,7 @@ public class WordText extends TextView implements Words.Bound {
 
     /** This line's size as it was measured off the capture, in reference pixels. */
     public final void size(int refType) {
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, Ref.sp(refType));
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, Scale.sp(refType));
     }
 
     /**

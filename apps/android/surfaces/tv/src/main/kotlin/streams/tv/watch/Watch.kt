@@ -64,6 +64,7 @@ import streams.ports.Seen
 import streams.ports.Shell
 import streams.shared.Accent
 import streams.shared.Back
+import streams.shared.fill
 import streams.shared.R
 import streams.shared.ref
 import streams.shared.refType
@@ -84,6 +85,28 @@ private const val WORDS_HIGH = 0.2f
 
 private enum class Reach { TOP, RATE, BAR, TRACKS }
 private enum class Control { BACK, RESTART, NEXT }
+
+/**
+ * The key a top control's word is under. Written once because it is asked for twice -- by the
+ * drawing and by the saying -- and a second copy is how a control comes to draw one word and say
+ * another.
+ */
+private fun wordOf(control: Control): String = when (control) {
+    Control.BACK -> "player.back"
+    Control.RESTART -> "player.restart"
+    Control.NEXT -> "player.next"
+}
+
+/**
+ * The transport control's word: what pressing it would do, which is also the only thing that tells
+ * a person whether the film is playing or paused.
+ *
+ * Measured 2026-11-13 on a Google TV Streamer: the player drew its glyph, focus moved visibly
+ * across its controls, and the focused node's `content-desc` was `''` at every stop (notes/239).
+ * The glyph says play or pause to an eye and nothing to a reader. Naming the control by its action
+ * is what a reader has instead of the glyph: "Pause" means it is playing.
+ */
+private fun transportWord(playing: Boolean): String = if (playing) "say.pause" else "common.play"
 
 private val Shade = Brush.verticalGradient(
     0f to Color.Black.copy(alpha = 0.55f),
@@ -115,7 +138,10 @@ private fun TopIcons(controls: List<Control>, focus: Int, words: Map<String, Str
             Modifier
                 .offset(x.ref, 112.ref)
                 .size(72.ref)
-                .background(if (on) Color.White else Color.Transparent, CircleShape),
+                .background(if (on) Color.White else Color.Transparent, CircleShape)
+                // The word under the glyph is drawn only for the control the remote is on; the
+                // name is carried by every one of them, so the tree can be read and explored.
+                .says(words[wordOf(control)], on),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -133,13 +159,7 @@ private fun TopIcons(controls: List<Control>, focus: Int, words: Map<String, Str
         }
         if (on) {
             Text(
-                words[
-                    when (control) {
-                        Control.BACK -> "player.back"
-                        Control.RESTART -> "player.restart"
-                        Control.NEXT -> "player.next"
-                    },
-                ].orEmpty(),
+                words[wordOf(control)].orEmpty(),
                 Modifier.offset((x - 90).ref, 202.ref).width(252.ref),
                 fontSize = 28.refType,
                 textAlign = TextAlign.Center,
@@ -159,7 +179,10 @@ private fun RatePills(focus: Int, chosen: Rating?, words: Map<String, String>) {
                     .padding(end = 22.ref)
                     .height(62.ref)
                     .background(if (on) Color.White else Color.White.copy(alpha = if (chosen == rate.rating) 0.4f else 0.2f), CircleShape)
-                    .padding(horizontal = 22.ref),
+                    .padding(horizontal = 22.ref)
+                    // A rating that is already given is drawn a shade brighter and said as chosen:
+                    // the shade is the whole of what an eye gets and none of what a reader gets.
+                    .says(sayBoth(words[rate.word], words["say.chosen"]?.takeIf { chosen == rate.rating }), on),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(painterResource(rate.icon), null, Modifier.size(34.ref), tint = ink)
@@ -172,13 +195,14 @@ private fun RatePills(focus: Int, chosen: Rating?, words: Map<String, String>) {
 }
 
 @Composable
-private fun Bar(seen: Seen, at: Long, playing: Boolean, on: Boolean) {
+private fun Bar(seen: Seen, at: Long, playing: Boolean, on: Boolean, words: Map<String, String>) {
     val done = if (seen.lengthMs > 0) (at.toFloat() / seen.lengthMs).coerceIn(0f, 1f) else 0f
     Box(
         Modifier
             .offset(262.ref, 874.ref)
             .size(78.ref)
-            .background(if (on) Color.White else Color.Transparent, CircleShape),
+            .background(if (on) Color.White else Color.Transparent, CircleShape)
+            .says(words[transportWord(playing)], on),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
@@ -189,7 +213,13 @@ private fun Bar(seen: Seen, at: Long, playing: Boolean, on: Boolean) {
         )
     }
     Text(clock(at), Modifier.offset(360.ref, 894.ref).width(100.ref), fontSize = 30.refType, textAlign = TextAlign.End)
-    Box(Modifier.offset(476.ref, 910.ref).size(1052.ref, 6.ref).background(Color.White.copy(alpha = 0.4f), CircleShape)) {
+    Box(
+        Modifier
+            .offset(476.ref, 910.ref)
+            .size(1052.ref, 6.ref)
+            .background(Color.White.copy(alpha = 0.4f), CircleShape)
+            .says(words["say.position"].orEmpty().fill("at", clock(at)).fill("length", clock(seen.lengthMs))),
+    ) {
         Box(Modifier.fillMaxWidth(done).fillMaxHeight().background(Accent, CircleShape))
     }
     Text(clock(seen.lengthMs), Modifier.offset(1548.ref, 894.ref), fontSize = 30.refType)
@@ -393,10 +423,39 @@ fun Watch(shell: Shell, seen: Seen) {
         return true
     }
 
+    /**
+     * What the remote is on now, for a screen reader.
+     *
+     * This surface paints its own focus from plain state, so the one node the toolkit really
+     * focuses is this screen's box (`app/Remote.kt`). Every other screen here passes it a word and
+     * the player did not, which is why five moves across the player's controls on a Google TV
+     * Streamer on 2026-11-13 read `content-desc=''` five times while the ring moved on screen
+     * (notes/239). The word is read again each time it changes, because the box is a live region.
+     *
+     * With the controls down there is nothing to be on, so what is said is what is playing: a
+     * reader that lands here is told the film's name rather than nothing. That name is catalogue
+     * text and already in the viewer's language, so it needs no key.
+     */
+    val saying = when {
+        panel.open -> panel.saying(seen, side.tracks)
+        asking -> words[if (stay == 0) "player.still.yes" else "player.still.no"]
+        failed -> seen.notice ?: words["error.no_source"]
+        !shown -> detail?.name
+        zone == Reach.TOP -> words[wordOf(controls[top])]
+        zone == Reach.RATE -> words[Rates[rate].word]
+        zone == Reach.TRACKS -> choices.getOrNull(track)?.word
+        else -> words[transportWord(!paused)]
+    }
+
     // The player keeps left to right in every language: its timeline and seek keys follow the film,
     // not the reading direction.
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-    Box(Modifier.fillMaxSize().background(Color.Black).remote(@DontMemoize { press(it) })) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .remote(true, saying.orEmpty(), @DontMemoize { press(it) }),
+    ) {
         AndroidView({ shell.player.picture(it) as View }, Modifier.fillMaxSize())
         when (play?.state) {
             null, PlayState.RESOLVING, PlayState.STARTING, PlayState.STALLED, PlayState.SWITCHING ->
@@ -421,7 +480,7 @@ fun Watch(shell: Shell, seen: Seen) {
                 }
             }
             if (paused) RatePills(if (zone == Reach.RATE) rate else -1, rated, words)
-            Bar(seen, aim ?: seen.positionMs, !paused, zone == Reach.BAR)
+            Bar(seen, aim ?: seen.positionMs, !paused, zone == Reach.BAR, words)
             TrackStrip(choices, if (zone == Reach.TRACKS) track else -1)
         }
         if (!failed) {

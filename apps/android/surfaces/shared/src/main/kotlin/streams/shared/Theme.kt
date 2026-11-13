@@ -136,7 +136,7 @@ fun Map<String, String>.counted(base: String, n: Int): String {
 /**
  * The brand's colours from brand.json `colors`, as the one ARGB integer both this project's
  * languages take: `Color(Int)` on the Compose side (the six values at the top of this file) and
- * `GradientDrawable.setColor` on the Views side, through `tv/views/Ink.java`.
+ * `GradientDrawable.setColor` on the Views side, through `shared/Ink.java` beside this file.
  *
  * `build.gradle.kts:30-40` writes them into `BuildConfig`, which is generated Java, and a
  * `const val` is a static field on this object, so Java calls it. That is the path `Corner` above

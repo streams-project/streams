@@ -1,4 +1,4 @@
-package streams.tv.views;
+package streams.shared;
 
 import java.util.HashMap;
 import java.util.Map;

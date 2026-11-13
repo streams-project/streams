@@ -47,4 +47,10 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     // PROBE 2026-11-13: can a real accessibility tree be read in a unit test here?
     testImplementation("org.robolectric:robolectric:4.17")
+    // A composed tree, read as a screen reader is handed it. The phone module resolved these on
+    // 2026-11-13 (note 228); this surface's `Heard.kt` still says they are absent, and that
+    // sentence is now wrong. Test only: nothing here reaches the APK.
+    testImplementation(bom)
+    testImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

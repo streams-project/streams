@@ -1,4 +1,4 @@
-package streams.tv.views;
+package streams.shared;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -6,7 +6,6 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.widget.TextView;
-import streams.shared.R;
 
 /**
  * The brand's text, in Views.
@@ -64,7 +63,7 @@ public final class Type {
      */
     public static TextView of(Context context, int refType, int weight, int color) {
         TextView text = new TextView(context);
-        text.setTextSize(TypedValue.COMPLEX_UNIT_SP, Ref.sp(refType));
+        text.setTextSize(TypedValue.COMPLEX_UNIT_SP, Scale.sp(refType));
         text.setTypeface(face(context, weight));
         text.setTextColor(color);
         text.setIncludeFontPadding(false);
@@ -94,7 +93,7 @@ public final class Type {
         TextView text = of(context, refType, BOOK, color);
         text.setMaxLines(lines);
         text.setEllipsize(TextUtils.TruncateAt.END);
-        int wanted = Ref.px(context, refLine);
+        int wanted = Scale.px(context, refLine);
         if (Build.VERSION.SDK_INT >= 28) {
             text.setLineHeight(wanted);
         } else {

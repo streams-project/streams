@@ -3,8 +3,8 @@ package streams.tv.browse;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
+import streams.shared.Says;
 import streams.tv.views.Ref;
-import streams.tv.views.Says;
 
 /**
  * A picture filling its box, read through the {@code Pictures} port.

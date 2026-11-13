@@ -43,6 +43,28 @@ final class Source {
     /** What every surface shares, for the brand's colours and the half-dp scale. */
     static final String SHARED = "apps/android/surfaces/shared/src/main/kotlin/streams/shared";
 
+    /**
+     * And the Java of it. {@code Says}, {@code Words}, {@code Ink}, {@code Shade} and
+     * {@code RowMemory} left {@code streams.tv.views} for {@code streams.shared} on 2026-11-13
+     * (note 242): they hold nothing a television owns and the phone could not name them where they
+     * were. A test that reads one of those files reads it from here.
+     */
+    static final String SHARED_JAVA = "apps/android/surfaces/shared/src/main/java/streams/shared";
+
+    /**
+     * The other television this project draws, which is the second home of every number the hero
+     * was measured onto.
+     *
+     * Read here since 2026-11-13, when {@code browse/HeroCard.kt} was deleted. Its numbers were
+     * held against the Java by {@link NumbersTest} and against nothing else, so the deletion would
+     * have left them asserted against this test's own memory of them -- the
+     * {@code assertEquals(328, STEP)} form {@code Sources.kt} calls worthless. The Apple television
+     * draws the same measured screen from the same reference, so holding the two surfaces together
+     * is a stronger check than the one that was lost, not a weaker one: a number edited on one
+     * television and not the other fails, which two files inside one port could never catch.
+     */
+    static final String APPLE = "apps/apple/Sources/SurfacesTV";
+
     private Source() {
     }
 

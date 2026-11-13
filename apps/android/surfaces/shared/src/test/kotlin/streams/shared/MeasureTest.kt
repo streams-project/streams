@@ -18,22 +18,54 @@ import org.junit.Test
  * `dimens.xml`, finds every reference number has to be halved by hand on the way in, and the first
  * rounding error is invisible on screen and permanent.
  *
- * So these tests pin the scale to the derivation stated in `Measure.kt:8-11` rather than to itself:
- * the reference screen has to land exactly on the layout the televisions use.
+ * So these tests pin the scale to the derivation stated in `Scale.java` rather than to itself: the
+ * reference screen has to land exactly on the layout the televisions use. Since 2026-11-13 that
+ * derivation is also the divisor both languages read, so what each test can still prove is called
+ * out where it changed.
  */
 class MeasureTest {
     /**
-     * The derivation itself. 1920 reference pixels across is the 960 dp the surface lays out in,
-     * and 1080 down is 540.
+     * The derivation itself: 1080 reference pixels down is the 540 dp the surface lays out in.
      *
      * `assertEquals(0.5f, scale)` would pass forever and prove nothing. This says what the scale is
      * for: a measurement taken off a 1920 x 1080 capture, written into the code as the number that
      * was measured, lands where it was measured on a 960 x 540 dp screen.
+     *
+     * **The width line that stood here is gone, deliberately.** `assertEquals(960.dp, 1920.ref)`
+     * had teeth while `Measure.kt` divided by its own 2: a wrong number in either place failed
+     * against the other. Since 2026-11-13 the divisor is `Scale.PER_DP`, which is `CANVAS_W` over
+     * `LAYOUT_W`, so that line asserts `x / (x / y) == y` and passes for any pair -- the form this
+     * file's own rule refuses. The height still has teeth because it is not in the derivation: it
+     * says the canvas is square-on, and a 1080 over 540 disagreeing with 1920 over 960 fails here.
+     * The width pair is held by the test below instead, against another family's source.
      */
     @Test
     fun `the reference screen lands exactly on the layout the televisions use`() {
-        assertEquals(960.dp, 1920.ref)
         assertEquals(540.dp, 1080.ref)
+    }
+
+    /**
+     * The two numbers the scale is derived from, held against another television of this project.
+     *
+     * This is where the width pair is pinned now that it derives the divisor. `apps/xbox` states
+     * the same canvas and the same layout in C++, written from the same captures by a different
+     * hand, and the Apple television states the canvas again where
+     * `tv/.../browse/NumbersTest.java` reads it. A derivation cannot catch a wrong 1920; a second
+     * family saying 1920 can.
+     */
+    @Test
+    fun `the canvas the scale derives from is the one the other televisions state`() {
+        val xbox = File(repoRoot(), XBOX).readText()
+        assertEquals(
+            "the canvas the Xbox surface measures off has to be ours",
+            Scale.CANVAS_W,
+            one("""constexpr int W = (\d+);""", xbox),
+        )
+        assertEquals(
+            "and the dp it lays that canvas out in",
+            Scale.LAYOUT_W,
+            one("""constexpr int LAYOUT_W = (\d+);""", xbox),
+        )
     }
 
     /**
@@ -92,10 +124,14 @@ class MeasureTest {
      * The derivation is written beside the code, and the two have to agree.
      *
      * This is the class of defect a reviewer caught on 2026-11-11: a focused logo box whose stated
-     * derivation gave a different number from the one the code used. Here the comment claims a
-     * layout of 960 x 540 against references of 1920 x 1080; the test reads those four numbers back
-     * out of the comment and puts them through the code. A comment edited to claim a different
-     * screen, or a scale changed without the comment, fails.
+     * derivation gave a different number from the one the code used. The comment in `Scale.java`
+     * claims a layout of 960 x 540 against references of 1920 x 1080; the test reads those four
+     * numbers back out of the comment and puts them through the code. A comment edited to claim a
+     * different screen, or a canvas constant changed without the comment, fails.
+     *
+     * The height conversion is the half with teeth, for the reason the first test gives. On the
+     * width, what this catches is the comment drifting from the two constants the scale is derived
+     * from -- which is why both are read, and not only the arithmetic.
      */
     @Test
     fun `the derivation written beside the scale is the scale the code uses`() {
@@ -104,8 +140,16 @@ class MeasureTest {
             .find(source)
         assertTrue("the derivation comment has gone from $SOURCE", said != null)
         val (wide, high, refWide, refHigh) = said!!.destructured.toList().map { it.toInt() }
-        assertEquals("the comment's reference width has to convert to its layout width", wide.dp, refWide.ref)
         assertEquals("and its reference height to its layout height", high.dp, refHigh.ref)
+        assertEquals("the comment's canvas is the canvas the scale derives from", refWide, Scale.CANVAS_W)
+        assertEquals("and its layout is the layout", wide, Scale.LAYOUT_W)
+    }
+
+    /** The one match of a pattern, as a number: two matches would mean the number was copied. */
+    private fun one(pattern: String, text: String): Int {
+        val all = Regex(pattern).findAll(text).map { it.groupValues[1] }.toList()
+        assertEquals("expected one `$pattern`, found ${all.size} $all", 1, all.size)
+        return all.single().toInt()
     }
 
     /** Where the repository is, found by walking up: a test's working folder is not promised. */
@@ -116,6 +160,10 @@ class MeasureTest {
     }
 
     private companion object {
-        const val SOURCE = "apps/android/surfaces/shared/src/main/kotlin/streams/shared/Measure.kt"
+        /** Where the derivation is stated, which is where the divisor is derived. */
+        const val SOURCE = "apps/android/surfaces/shared/src/main/java/streams/shared/Scale.java"
+
+        /** The other television, which states the same canvas in another language. */
+        const val XBOX = "apps/xbox/surfaces/remote/paint.h"
     }
 }

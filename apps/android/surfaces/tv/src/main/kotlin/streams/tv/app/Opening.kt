@@ -57,8 +57,13 @@ private const val MIDDLE = HIGH / 2
 private const val REST = 3.2f
 /** The shortest rest when everything is ready before the first stage ends. */
 private const val SHORT_REST = 0.6f
-/** Longest the opening waits for the landing before it goes on anyway. */
-private const val WAIT_AT_MOST = 8f
+/**
+ * Longest the opening waits for the landing before it goes on anyway.
+ *
+ * Not private any more: `Lost.kt` derives how long a screen waits for its server from it, because
+ * the two waits are the same wait seen from either side of the cover.
+ */
+const val WAIT_AT_MOST = 8f
 private const val RING_FADE = 0.35f
 private const val SECOND = OPENING_SECOND
 private const val NOTES_AT = 2.05f

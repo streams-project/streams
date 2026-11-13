@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;
+import streams.shared.Scale;
 
 /**
  * The half-dp reference scale in Java. The twin of
@@ -24,12 +24,22 @@ import org.junit.Test;
  */
 public class RefTest {
     /**
-     * The derivation itself. 1920 reference pixels across is the 960 dp the surface lays out in,
-     * and 1080 down is 540.
+     * The derivation itself: 1080 reference pixels down is the 540 dp the surface lays out in.
+     *
+     * <b>Why the width is not asserted here any more, which is a real loss and is replaced below.</b>
+     * Until 2026-11-13 this line read {@code assertEquals(Ref.LAYOUT_W, Ref.dp(Ref.W))} and had
+     * teeth, because the divisor was written independently of both numbers: a wrong 960 or a wrong
+     * 1920 failed against the 2. {@code Scale.PER_DP} is now {@code CANVAS_W / (float) LAYOUT_W}, so
+     * that line would be {@code x / (x / y) == y} -- true for any pair, which is the "pinned to
+     * itself" form this file exists to refuse. The height keeps its teeth for the same reason the
+     * width lost them: it is not in the derivation, so this says the canvas is square-on, and a
+     * 1080 over 540 that disagreed with 1920 over 960 would fail here. What now holds the width pair
+     * is {@code MeasureTest.kt}'s read of the Xbox surface's own statement of the same canvas, which
+     * is a stronger anchor than the one it replaces: another family's source rather than this one's
+     * own arithmetic.
      */
     @Test
     public void the_reference_screen_lands_exactly_on_the_layout_the_televisions_use() {
-        assertEquals(Ref.LAYOUT_W, Ref.dp(Ref.W), 0f);
         assertEquals(Ref.LAYOUT_H, Ref.dp(Ref.H), 0f);
     }
 
@@ -118,49 +128,60 @@ public class RefTest {
     }
 
     /**
-     * The derivation is written beside the code, in both languages, and all three have to agree.
+     * The derivation is written beside the code, and the two have to agree.
      *
      * This is the class of defect a reviewer caught on 2026-11-11: a focused logo box whose stated
-     * derivation gave a different number from the one the code used. The comment in each file claims
-     * a layout of 960 x 540 against references of 1920 x 1080; this reads those four numbers back
-     * out of both files and puts them through the Java. A comment edited to claim a different
-     * screen, a scale changed without the comment, or the two languages drifting apart, all fail.
+     * derivation gave a different number from the one the code used. The comment in {@code Scale}
+     * claims a layout of 960 x 540 against references of 1920 x 1080; this reads those four numbers
+     * back out of it and puts them through the Java. A comment edited to claim a different screen,
+     * or a canvas constant changed without the comment, fails.
+     *
+     * The height is the half with teeth, as above: the width pair is the derivation, so
+     * {@code dp(1920) == 960} cannot fail. What this still catches on the width is the comment
+     * drifting from {@link Scale#CANVAS_W} and {@link Scale#LAYOUT_W}, which are the numbers the
+     * other televisions are held against.
      */
     @Test
     public void the_derivation_written_beside_the_scale_is_the_scale_the_code_uses() {
-        int[] java = said(JAVA);
-        int[] kotlin = said(KOTLIN);
-        assertEquals("the two languages state the same layout width", kotlin[0], java[0]);
-        assertEquals("and the same layout height", kotlin[1], java[1]);
-        assertEquals("and the same reference width", kotlin[2], java[2]);
-        assertEquals("and the same reference height", kotlin[3], java[3]);
-        assertEquals("the comment's reference width has to convert to its layout width",
-                java[0], Ref.dp(java[2]), 0f);
-        assertEquals("and its reference height to its layout height", java[1], Ref.dp(java[3]), 0f);
-        assertEquals("the canvas the code carries is the one the comment states", java[2], Ref.W);
-        assertEquals(java[3], Ref.H);
-        assertEquals(java[0], Ref.LAYOUT_W);
-        assertEquals(java[1], Ref.LAYOUT_H);
+        int[] said = said(SCALE);
+        assertEquals("the comment's reference height has to convert to its layout height",
+                said[1], Ref.dp(said[3]), 0f);
+        assertEquals("the canvas the code carries is the one the comment states", said[2],
+                Scale.CANVAS_W);
+        assertEquals("and the layout it derives the scale against", said[0], Scale.LAYOUT_W);
+        assertEquals("the television's height is the one the comment states", said[3], Ref.H);
+        assertEquals(said[1], Ref.LAYOUT_H);
     }
 
     /**
-     * And the two scales divide by the same number, read out of both files.
+     * The scale is written in one place, and this is what stops it being written in two again.
      *
-     * The derivation test above would still pass if one language halved and the other quartered, as
-     * long as both comments were edited to match. This reads the arithmetic itself: two divisors in
-     * the Kotlin (a length and a type size) and two in the Java, and all four are the same number.
+     * Until 2026-11-13 the halving was four numbers: {@code (this / 2f)} twice in {@code Measure.kt}
+     * and {@code ref / 2f} twice in {@code Ref.java}, with the test that stood here reading all four
+     * back out of the source and holding them equal -- a second home kept level by a check instead
+     * of not existing. {@link Scale#PER_DP} is now derived from the canvas over the layout and both
+     * toolkits read it, so there is no second divisor to compare and that test has nothing left to
+     * say. This says the thing worth saying instead: neither file writes a divisor of its own, and
+     * neither restates the derivation, so the two homes cannot come back without failing here.
      */
     @Test
-    public void the_java_scale_divides_by_what_the_kotlin_scale_divides_by() {
-        List<String> kotlin = Repo.every("\\(this / (\\d+)f\\)", Repo.text(KOTLIN));
-        List<String> java = Repo.every("ref / (\\d+)f", Repo.text(JAVA));
-        assertEquals("the Kotlin states the scale twice, for a length and for a type size",
-                2, kotlin.size());
-        assertEquals("and so does the Java", 2, java.size());
-        for (String divisor : java) {
-            assertEquals("every divisor in both files is the same number", kotlin.get(0), divisor);
+    public void the_scale_is_written_once_and_neither_toolkit_keeps_a_copy() {
+        String java = Repo.text(JAVA);
+        String kotlin = Repo.text(KOTLIN);
+        assertEquals("Ref.java must not divide by anything: it delegates", 0,
+                Repo.every("(/ *\\d+(?:\\.\\d+)?f)", java).size());
+        assertEquals("Measure.kt must divide by the one value and by no number", 0,
+                Repo.every("(/ *\\d+(?:\\.\\d+)?f)", kotlin).size());
+        assertEquals("and it divides by the shared one", 2,
+                Repo.every("(this / Scale\\.PER_DP)", kotlin).size());
+        for (String path : new String[] {JAVA, KOTLIN}) {
+            assertEquals(path + " must not state the derivation a second time", 0,
+                    Repo.every("(lays out at \\d+ by \\d+ dp)", Repo.text(path)).size());
         }
-        assertEquals("and the scale is a half, which is what both comments derive", "2", kotlin.get(0));
+        assertEquals("and the one that does states it once", 1,
+                Repo.every("(lays out at \\d+ by \\d+ dp)", Repo.text(SCALE)).size());
+        assertEquals("the one divisor is derived and not typed", 1,
+                Repo.every("(PER_DP = CANVAS_W / \\(float\\) LAYOUT_W)", Repo.text(SCALE)).size());
     }
 
     /** The four numbers a file's own derivation comment states. */
@@ -182,4 +203,6 @@ public class RefTest {
             "apps/android/surfaces/tv/src/main/java/streams/tv/views/Ref.java";
     private static final String KOTLIN =
             "apps/android/surfaces/shared/src/main/kotlin/streams/shared/Measure.kt";
+    private static final String SCALE =
+            "apps/android/surfaces/shared/src/main/java/streams/shared/Scale.java";
 }

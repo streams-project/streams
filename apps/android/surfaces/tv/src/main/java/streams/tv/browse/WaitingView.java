@@ -2,10 +2,10 @@ package streams.tv.browse;
 
 import android.content.Context;
 import java.util.Map;
-import streams.tv.views.Ink;
+import streams.shared.Ink;
+import streams.shared.Words;
 import streams.tv.views.Ref;
 import streams.tv.views.RefLayout;
-import streams.tv.views.Words;
 
 /**
  * What a television page shows while it has nothing to show. {@code tv/browse/Waiting.kt:31-49}.

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import streams.shared.RowMemory;
 
 /**
  * Where a row opens when the viewer comes back to it.

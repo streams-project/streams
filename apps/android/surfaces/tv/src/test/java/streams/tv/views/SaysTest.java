@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.TreeSet;
 import org.junit.Test;
+import streams.shared.Says;
 
 /**
  * What a part says, and what it leaves unsaid.
@@ -178,5 +179,5 @@ public class SaysTest {
     private static final String SPOKEN =
             "apps/android/surfaces/tv/src/main/kotlin/streams/tv/app/Spoken.kt";
     private static final String JAVA =
-            "apps/android/surfaces/tv/src/main/java/streams/tv/views/Says.java";
+            "apps/android/surfaces/shared/src/main/java/streams/shared/Says.java";
 }

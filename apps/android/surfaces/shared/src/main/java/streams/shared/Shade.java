@@ -1,4 +1,4 @@
-package streams.tv.views;
+package streams.shared;
 
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -50,8 +50,8 @@ public final class Shade extends Drawable {
      *
      * The twin of {@code fromStart} at {@code tv/app/Round.kt:66-71}, which is one of the two places
      * Compose read the layout direction. Here the caller passes the one mirror switch the layout
-     * already has ({@link RefLayout#isMirrored()}), so there is no second reading of a direction and
-     * no composition local to provide.
+     * already has ({@code streams.tv.views.RefLayout#isMirrored()}), so there is no second reading
+     * of a direction and no composition local to provide.
      */
     public static Shade across(int[] colors, float[] stops, boolean mirrored) {
         return new Shade(colors, stops, false, mirrored);

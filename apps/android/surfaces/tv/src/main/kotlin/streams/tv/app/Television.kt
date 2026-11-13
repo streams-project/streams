@@ -74,7 +74,11 @@ fun Television(shell: Shell) {
                     seen.server.isEmpty() -> Server(shell, seen)
                     // A route with no answer behind it yet: the page waits with its destination
                     // lit, as the reference does, instead of drawing nothing at all (Waiting.kt).
-                    target == null || target == Target.WAIT -> Waiting(shell, seen)
+                    // It waits for a bounded time and then says it cannot reach the server, which
+                    // is what it used to do never: on 2026-11-13 a signed-in television whose
+                    // server had gone drew 9 nodes, 0 focusable and 0 words, for as long as anyone
+                    // looked at it (notes/239). `Reaching` is `Waiting` plus an end to the wait.
+                    target == null || target == Target.WAIT -> Reaching(shell, seen)
                     target == Target.START -> Door(shell, seen, opening)
                     target == Target.SIGN_IN -> SignIn(shell, seen)
                     target == Target.PROFILES -> Profiles(shell, seen, inside)

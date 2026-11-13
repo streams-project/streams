@@ -1,11 +1,9 @@
-package streams.tv.views;
+package streams.shared;
 
 import android.view.View;
 import android.view.ViewGroup;
 import java.util.Collections;
 import java.util.Map;
-import streams.shared.Speaking;
-import streams.shared.ThemeKt;
 
 /**
  * The words of the interface, bound to views at run time.
@@ -29,7 +27,7 @@ import streams.shared.ThemeKt;
  * itself, or with anything else. The reason is at {@code shared/Says.kt:46-52} and
  * {@code tv/app/Spoken.kt:41-42}: {@code seen.words} is empty for as long as a run has not read its
  * language, and a part labelled with a placeholder in that window is worse than one a reader falls
- * through. {@link WordText} is where that rule is applied to a view.
+ * through. {@code streams.tv.views.WordText} is where that rule is applied to a view.
  *
  * <h2>Why the plural rules are not copied in here</h2>
  * {@link #counted} is {@code shared/Theme.kt:131}'s shape, but the CLDR plural table

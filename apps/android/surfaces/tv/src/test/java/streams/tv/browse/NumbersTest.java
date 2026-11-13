@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.regex.Matcher;
 import org.junit.Test;
-import streams.tv.views.Ink;
+import streams.shared.Ink;
 import streams.tv.views.Ref;
 import streams.tv.views.Round;
 
@@ -33,11 +33,24 @@ import streams.tv.views.Round;
  *
  * When the lead deletes the dead Kotlin, every assertion in this file has to lose its Kotlin half
  * deliberately, in that diff. That is the point.
+ *
+ * <h2>2026-11-13: the hero's half was lost deliberately, and replaced</h2>
+ * {@code browse/HeroCard.kt} was deleted. Its five coordinates, its border stroke and its white
+ * share were held here against that file and against nothing else, so the deletion would have left
+ * them asserted against literals typed into this file. They are held against
+ * {@code apps/apple/Sources/SurfacesTV/browse/HeroCard.swift} now: the other television this
+ * project draws, from the same reference, at the same numbers. The two cannot both be edited by
+ * accident, which is more than the pair of files inside one port could say.
+ *
+ * {@code browse/Rows.kt} is still here and is still read below. It has no code caller either, but
+ * {@code src/test/java/streams/tv/views/RefLayoutTest.java} reads it by a hard-coded path for four
+ * fragments it has not been re-pointed off, so deleting it today would take seven passing tests
+ * with it. Its Kotlin halves stay until that file moves.
  */
 public class NumbersTest {
     private final String rowsSaid = Source.text(Source.KOTLIN + "/browse/Rows.kt");
     private final String rows = Source.bare(rowsSaid);
-    private final String hero = Source.code(Source.KOTLIN + "/browse/HeroCard.kt");
+    private final String hero = Source.code(Source.APPLE + "/browse/HeroCard.swift");
     private final String bar = Source.code(Source.KOTLIN + "/browse/TopBar.kt");
     private final String browse = Source.code(Source.KOTLIN + "/browse/Browse.kt");
     private final String round = Source.code(Source.KOTLIN + "/app/Round.kt");
@@ -51,6 +64,8 @@ public class NumbersTest {
     private final String viewJava = Source.code(Source.JAVA + "/browse/BrowseView.java");
     private final String partsJava = Source.code(Source.JAVA + "/browse/Parts.java");
     private final String roundJava = Source.code(Source.JAVA + "/views/Round.java");
+    // The canvas moved to `shared/Scale.java` on 2026-11-13, with the halving it derives (note 251).
+    private final String scaleJava = Source.code(Source.SHARED_JAVA + "/Scale.java");
 
     /** The size a named composable of {@code Rows.kt} draws itself at, as {@code .size(w, h)}. */
     private int[] kotlinSize(String part) {
@@ -212,12 +227,19 @@ public class NumbersTest {
      */
     @Test
     public void the_hero_width_came_across_as_a_derivation() {
-        assertTrue("the Kotlin has to keep the derivation",
-                hero.contains("(1920 - 2 * PAGE_EDGE).ref"));
-        assertTrue("and so does the Java",
+        assertTrue("the other television has to keep the derivation",
+                hero.contains("heroWide = pageWide - 2 * pageEdge"));
+        assertTrue("and so does this one, on the page and on the card",
                 viewJava.contains("Ref.W - 2 * Round.PAGE_EDGE")
                         && heroJava.contains("Ref.W - 2 * Round.PAGE_EDGE"));
-        assertEquals("the reference canvas is the 1920 the Kotlin writes out", 1920, Ref.W);
+        assertEquals("the canvas is the width Scale.java writes out, which NumbersTest.kt holds "
+                        + "against the width the reference measured at",
+                Source.number("CANVAS_W = (\\d+);", scaleJava, "the reference canvas in Scale.java"),
+                Ref.W);
+        assertEquals("and the width the other television lays out on",
+                Source.number("let pageWide: CGFloat = (\\d+)",
+                        Source.code(Source.APPLE + "/app/Round.swift"), "pageWide in Round.swift"),
+                Ref.W);
         assertEquals(1776, Ref.W - 2 * Round.PAGE_EDGE);
         assertEquals("which is the 888 dp it comes to", 888f, Ref.dp(Ref.W - 2 * Round.PAGE_EDGE), 0f);
     }
@@ -300,23 +322,43 @@ public class NumbersTest {
         assertEquals("0.22", said.group(1));
     }
 
-    /** The hero's own coordinates and the three gaps inside it. {@code HeroCard.kt:53-93}. */
+    /**
+     * The hero's own coordinates and the three gaps inside it, held against the other television
+     * this project draws. {@code apps/apple/Sources/SurfacesTV/browse/HeroCard.swift:16-138}.
+     *
+     * <h2>Why these moved from the Kotlin to the Swift on 2026-11-13</h2>
+     * Until today these five were read out of {@code browse/HeroCard.kt}, which had no code caller
+     * and was deleted with this diff. Five numbers with one home left would have had to be asserted
+     * against literals written here, which is the {@code assertEquals(328, STEP)} form
+     * {@code Sources.kt} calls worthless. They have a second home that is not a dead file: the
+     * Apple television draws the same measured screen, from the same reference, at the same
+     * numbers. Holding the two televisions together catches what no check inside one port could --
+     * a hero moved on Android and left where it was on Apple, or the reverse.
+     *
+     * None of these five is in {@code reference/netflix-on-the-tv.md}: the capture's hero is
+     * 1790 x 772 at y 140-911 and this project's is 1776 x 767 at y 143, which is further from the
+     * capture than the 2 px that file allows. The width is a derivation from this project's own
+     * 72 px margin ({@link #the_hero_width_came_across_as_a_derivation}); the y, the height and the
+     * three gaps are transcriptions that no file in this repository derives. That is recorded here
+     * rather than papered over with a reference pin that would not hold.
+     */
     @Test
     public void the_hero_coordinates_came_across() {
-        Matcher spot = Source.theOne("\\.offset\\(PAGE_EDGE\\.ref, (\\d+)\\.ref\\)\\s*\\.size", hero,
-                "the hero's y in HeroCard.kt");
-        assertEquals(Integer.parseInt(spot.group(1)), HeroView.Y);
-        assertEquals(Source.number("PAGE_EDGE\\)\\.ref, (\\d+)\\.ref\\)", hero, "the hero's height"),
+        assertEquals(Source.number("\\.offset\\(x: pageEdge\\.ref, y: (\\d+)\\.ref\\)", hero,
+                "the hero's y in HeroCard.swift"), HeroView.Y);
+        assertEquals(Source.number("let heroHigh: CGFloat = (\\d+)", hero, "the hero's height"),
                 HeroView.HIGH);
         assertEquals(143, HeroView.Y);
         assertEquals(767, HeroView.HIGH);
 
         Matcher column = Source.theOne(
-                "padding\\(start = (\\d+)\\.ref, bottom = (\\d+)\\.ref\\)\\.width\\((\\d+)\\.ref\\)",
-                hero, "the hero's column in HeroCard.kt");
-        assertEquals(Integer.parseInt(column.group(1)), HeroView.INSET);
-        assertEquals(Integer.parseInt(column.group(2)), HeroView.FOOT);
-        assertEquals(Integer.parseInt(column.group(3)), HeroView.COLUMN);
+                "frame\\(width: (\\d+)\\.ref, alignment: \\.leading\\)\\s*"
+                        + "\\.padding\\(\\.leading, (\\d+)\\.ref\\)\\s*"
+                        + "\\.padding\\(\\.bottom, (\\d+)\\.ref\\)",
+                hero, "the hero's column in HeroCard.swift");
+        assertEquals(Integer.parseInt(column.group(1)), HeroView.COLUMN);
+        assertEquals(Integer.parseInt(column.group(2)), HeroView.INSET);
+        assertEquals(Integer.parseInt(column.group(3)), HeroView.FOOT);
         assertEquals(30, HeroView.INSET);
         assertEquals(34, HeroView.FOOT);
         assertEquals(760, HeroView.COLUMN);
@@ -444,7 +486,7 @@ public class NumbersTest {
         assertEquals("JOIN", role("Join"));
         assertEquals("no colour in Theme.kt is a literal", 0, Source.count("Color\\(0x", theme));
         assertEquals("and none in Ink.java is either", 0,
-                Source.count("= 0x[0-9A-Fa-f]{8};", Source.code(Source.JAVA + "/views/Ink.java")));
+                Source.count("= 0x[0-9A-Fa-f]{8};", Source.code(Source.SHARED_JAVA + "/Ink.java")));
     }
 
     /**
@@ -480,15 +522,24 @@ public class NumbersTest {
                 name + " in Theme.kt").group(1);
     }
 
-    /** White and black at a share of their strength, as hundredths, read the same by both sides. */
+    /**
+     * White and black at a share of their strength, as hundredths, read the same by both
+     * televisions.
+     *
+     * The stroke and the share were read out of {@code browse/HeroCard.kt} until 2026-11-13 and are
+     * read out of the Apple television's hero now, for the reason
+     * {@link #the_hero_coordinates_came_across} states. Swift writes the share as an opacity and
+     * Java as hundredths of full strength, so the two forms are not a copy of one another and the
+     * arithmetic between them is what the rest of this test checks.
+     */
     @Test
     public void a_share_of_a_colour_is_the_share_the_kotlin_asks_for() {
         Matcher edge = Source.theOne(
-                "border\\((\\d+)\\.ref, Color\\.White\\.copy\\(alpha = 0\\.(\\d+)f\\)",
-                hero, "the hero's border in HeroCard.kt");
+                "stroke\\(\\.white\\.opacity\\(0\\.(\\d+)\\), lineWidth: (\\d+)\\.ref\\)",
+                hero, "the hero's border in HeroCard.swift");
         assertTrue("the Java asks for the same stroke and the same share",
-                heroJava.contains("Round.PANEL, Ink.PLATE, " + edge.group(1)
-                        + ", Ink.white(" + edge.group(2) + "))"));
+                heroJava.contains("Round.PANEL, Ink.PLATE, " + edge.group(2)
+                        + ", Ink.white(" + edge.group(1) + "))"));
         assertEquals("and a share in hundredths is that share of full strength",
                 Math.round(255 * 0.28f), Ink.white(28) >>> 24);
         assertEquals(255, Ink.white(100) >>> 24);

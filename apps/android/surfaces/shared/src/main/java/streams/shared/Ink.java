@@ -1,6 +1,4 @@
-package streams.tv.views;
-
-import streams.shared.Colour;
+package streams.shared;
 
 /**
  * The brand's colours, as the ARGB integers Views draws with.
@@ -10,9 +8,9 @@ import streams.shared.Colour;
  * ({@code shared/Theme.kt:155-162}) reading {@code BuildConfig} integers that
  * {@code shared/build.gradle.kts:30-40} writes from {@code brand.json}. A {@code const val} is a
  * static field on the class, so Java calls it, and generated {@code BuildConfig} is Java already.
- * That is the path {@link Round} takes for the corners, and it now carries the colours too: the
- * brand's colour has one home for both languages. This class only names the roles a television
- * screen draws and adds the shades.
+ * That is the path {@code streams.tv.views.Round} takes for the corners, and it now carries the
+ * colours too: the brand's colour has one home for both languages. This class only names the
+ * roles a screen draws and adds the shades.
  *
  * <h2>What was here until 2026-11-12, and why it is gone</h2>
  * A Compose {@code Color} is a {@code @JvmInline value class} over a {@code ULong}, so Java source
@@ -48,7 +46,7 @@ public final class Ink {
 
     /**
      * White at a share of its strength, which is what {@code Color.White.copy(alpha = f)} is at the
-     * eight call sites of this folder.
+     * eight call sites of the television's browse screens.
      *
      * The share is given as hundredths and not as a float, for the reason note 210 section 6 gives
      * for every other number here: {@code white(28)} is the 0.28 written at

@@ -7,15 +7,15 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import streams.shared.Ink;
 import streams.shared.R;
-import streams.tv.views.Ink;
+import streams.shared.Says;
+import streams.shared.Shade;
+import streams.shared.Type;
+import streams.shared.Words;
 import streams.tv.views.Ref;
 import streams.tv.views.RefLayout;
 import streams.tv.views.Round;
-import streams.tv.views.Says;
-import streams.tv.views.Shade;
-import streams.tv.views.Type;
-import streams.tv.views.Words;
 
 /**
  * The rounded card at the top of a page. {@code tv/browse/HeroCard.kt:46-99}.

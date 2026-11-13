@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import streams.shared.Speaking;
 import streams.shared.ThemeKt;
+import streams.shared.Words;
 
 /**
  * The words of the interface, bound at run time.

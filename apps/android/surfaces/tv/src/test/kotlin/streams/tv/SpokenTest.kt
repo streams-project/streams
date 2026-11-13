@@ -166,7 +166,16 @@ class SpokenTest {
      * map is a rewriter stating, in the diff, which parts stopped speaking.
      *
      * Counted 2026-11-12 at the tree these tests were written against, by this test's own scan:
-     * 22 calls across 12 files. Note 215's figure of 99 across 29 files for all three surfaces is
+     * 22 calls across 12 files. 19 across 11 since 2026-11-13, when `browse/HeroCard.kt` was
+     * deleted; **26 across 15 later the same day**, when the player and the no-server screen were
+     * given words. The seven added are the statement this map exists to make, in the other
+     * direction: `watch/` held none of the nineteen, which is the census half of what note 239
+     * measured on a Google TV Streamer -- the player drew its whole control set, focus moved
+     * across it, and every stop read `content-desc=''`. `app/Lost.kt` is new and holds the one on
+     * the screen a viewer reaches when the server is gone. The deletion: it had no code caller, the hero on screen is `browse/HeroView.java`, and its three
+     * calls were the artwork and the two shades over it going away rather than becoming silent
+     * stops. `SaidTest.java` is where the Java's twenty are counted, and its first test records
+     * those three as three of them. Note 215's figure of 99 across 29 files for all three surfaces is
      * not reproducible by this method -- the same files give 95 in 27 counting calls with comments
      * blanked, 93 or 97 or 101 counting matching lines with `rg` depending on whether the two
      * helper definition files and `sayBoth` are included. The order is right and the exact number
@@ -180,7 +189,7 @@ class SpokenTest {
             if (calls > 0) census[path] = calls
         }
         assertEquals(SPOKEN, census.toMap())
-        assertEquals(22, census.values.sum())
+        assertEquals(26, census.values.sum())
     }
 
     /** Every `.kt` file of this surface's main source, with its comments blanked out. */
@@ -203,7 +212,7 @@ class SpokenTest {
         val CALL = Regex("""\.(saysItsWords|says)\s*\(""")
 
         val SPOKEN = mapOf(
-            "browse/HeroCard.kt" to 3,
+            "app/Lost.kt" to 1,
             "browse/Rows.kt" to 2,
             "browse/TopBar.kt" to 3,
             "parts/Face.kt" to 1,
@@ -215,6 +224,9 @@ class SpokenTest {
             "title/PosterGrid.kt" to 1,
             "title/Reactions.kt" to 1,
             "title/TitlePage.kt" to 3,
+            "watch/Moments.kt" to 1,
+            "watch/TrackStrip.kt" to 1,
+            "watch/Watch.kt" to 4,
         )
     }
 }

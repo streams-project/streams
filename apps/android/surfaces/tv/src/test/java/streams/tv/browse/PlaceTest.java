@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
+import streams.shared.Words;
 import streams.tv.views.Word;
-import streams.tv.views.Words;
 
 /**
  * Every row of note 187's key map that belongs to a page of rows, pressed.
@@ -108,7 +108,7 @@ public class PlaceTest {
      *
      * Note 187's "found while checking": returning to a page fetches it again and the server may
      * reorder its rows and the tiles inside them, so a place kept by number alone opens a row on a
-     * different title. {@link streams.tv.views.RowMemory} is what answers this, and this asserts
+     * different title. {@link streams.shared.RowMemory} is what answers this, and this asserts
      * that {@link Place} really keeps the place under the row's own id so that it can.
      */
     @Test
