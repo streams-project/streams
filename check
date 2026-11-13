@@ -2,12 +2,14 @@
 # Every check this repository has, in one place. CI runs this file and nothing else.
 #
 # What it does not cover, so nobody reads a green run as more than it is: the device app builds
-# (the android APK and its lint, xcodebuild for apple, a browser for the television page), the
-# instrumented tests that need a device, the release profiles, the dependency advisories in
-# server/deny.toml, which need a network database, the tests marked ignored, and whichever
-# generated client types this machine has no compiler for, which check_types.py names as it goes.
-# The android surfaces' unit tests do run, on a machine that has a JDK and an SDK; check_android.py
-# says on every run which of them it could not run, and why. On a machine with no compiler for any
+# (the android APK and its lint, the two apple apps under apps/apple/App and apps/apple/PhoneApp,
+# a browser for the television page), the instrumented tests that need a device, the release
+# profiles, the dependency advisories in server/deny.toml, which need a network database, the tests
+# marked ignored, and whichever generated client types this machine has no compiler for, which
+# check_types.py names as it goes.
+# The android surfaces' unit tests do run, on a machine that has a JDK and an SDK, and the apple
+# surfaces' unit tests run on a machine that has Xcode; check_android.py and check_apple.py each
+# say on every run which of them they could not run, and why. On a machine with no compiler for any
 # of the three, that step fails rather than passing: CI installs TypeScript so one is always proved.
 set -eu
 cd "$(dirname "$0")"
@@ -88,6 +90,7 @@ cargo test --locked -p bridge-c --no-default-features
   python3 tools/test_check_claims.py
   python3 tools/test_check_android_native.py
   python3 tools/test_check_android.py
+  python3 tools/test_check_apple.py
 )
 
 # Every id a server test name claims must be a real ledger row.
@@ -104,3 +107,16 @@ cargo test --locked -p bridge-c --no-default-features
 # landed on, 2026-11-13: 5 seconds with nothing to do, 28 to 55 when a module must rerun its tests.
 # A machine that has never run them pays minutes more the first time, for the Robolectric jars.
 python3 platform/tools/check_android.py
+
+# And the Apple surfaces' own unit tests, 62 of them on 2026-11-13, which until today nothing here
+# ran either - and which everyone believed this family's machines could not run, because
+# `swift build` says "no such module 'UIKit'". It says that because it has no simulator SDK unless
+# it is handed one; xcodebuild takes one from the destination, and both simulator SDKs were
+# installed all along. On a machine with no Xcode - which CI is, because it runs on ubuntu-24.04 -
+# it prints what it could not check and passes, the way check_android.py does for a missing SDK.
+# It is last because it is the slowest step here, by a long way. Measured on the machine it landed
+# on, 2026-11-13: 77 seconds with the package already built, and 160 to 190 when it must be rebuilt
+# or the machine is busy. Most of that is two simulators booting, not the tests, which take 17
+# seconds between them. Nothing here keeps a simulator booted afterwards; one that a person already
+# has open is used, and saves most of its half.
+python3 platform/tools/check_apple.py

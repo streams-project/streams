@@ -7,7 +7,7 @@ television surface in Swift behind this family's ports. `./check` holds the fami
 `platform/tools/check_rings.py` and compiles the generated `Contract.swift` where swiftc is present, but it
 does not build the app. The tests under `Tests/` run with
 `xcodebuild test -scheme AppleFamily-Package`, on the iOS simulator and the television half on the tvOS one;
-`./check` does not run xcodebuild, so nothing automated reaches them. The root README's status table carries
+`./check` has run them since 2026-11-13, through `platform/tools/check_apple.py`, which resolves a simulator at run time and announces loudly when it cannot find Xcode rather than passing quietly. CI is Linux, so there it always announces. The root README's status table carries
 this line for every platform.
 
 No size claims here on purpose: `platform/tools/check_claims.py` refuses them, because a count in prose is a
