@@ -9,7 +9,7 @@ use contract::TitleKind;
 use contract::screen::{GateLineKind, ImageRole, ProfileGate};
 use serde_json::json;
 use server_accounts::{AccountId, StepUpMethod};
-use server_catalog::sample::{SEASON_COMING_BACK, sample_titles};
+use server_catalog::sample::{SEASON_COMING_BACK, sample_titles, special};
 use server_rules::{Tier, Viewer};
 
 const IMAGES: (&str, &str) = ("IMAGE_BASE", "https://images.host.example/t/w780");
@@ -41,16 +41,30 @@ fn has(gate: &ProfileGate, role: ImageRole) -> bool {
         .all(|title| title.tile.images.iter().any(|image| image.role == role))
 }
 
-/// The certificate the sample gives a title, by its key.
-fn cert_of(key: &str) -> String {
+/// The certificate the sample gives a title, by its key, or `None` where the sample leaves the
+/// title unrated. The key must name a title of the sample, so a missing title still panics.
+fn cert_of(key: &str) -> Option<String> {
     let (kind, id) = key.split_once(':').unwrap();
     let kind = if kind == "tv" { "tv" } else { "movie" };
     let title = sample_titles()
         .into_iter()
         .find(|title| title.kind == kind && title.id.to_string() == id)
         .unwrap();
-    let certs: serde_json::Value = serde_json::from_str(title.certs.as_deref().unwrap()).unwrap();
-    certs["GB"].as_str().unwrap().to_owned()
+    let certs: serde_json::Value = serde_json::from_str(title.certs.as_deref()?).unwrap();
+    Some(certs["GB"].as_str().unwrap().to_owned())
+}
+
+/// The word for a certificate in a message, for a title the sample leaves unrated too.
+fn cert_word(key: &str) -> String {
+    cert_of(key).unwrap_or_else(|| String::from("unrated"))
+}
+
+/// The one title of the sample that carries no certificate and is still meant for a children's
+/// tier: it has a children's model profile, which `server_rules::eligible` reads in a
+/// certificate's place. The sample's other unrated title, `UNRATED_NO_PROFILE`, has no model
+/// profile and is refused below 18, so it is not named here and no assertion below admits it.
+fn unrated_and_meant_for_children(key: &str) -> bool {
+    key == format!("movie:{}", special::UNRATED_KIDS_PROFILE)
 }
 
 #[tokio::test]
@@ -255,11 +269,15 @@ async fn n12_an_account_kept_to_pg_never_sees_a_title_above_it() {
             "the sample has titles for children"
         );
         for title in &answer.titles {
-            let cert = cert_of(&title.tile.title.to_string());
+            let key = title.tile.title.to_string();
+            // A PG account may be shown a U or a PG title, and the one unrated title whose model
+            // profile says children. Any other certificate, and any other unrated title, is above
+            // the account's limit.
             assert!(
-                cert == "U" || cert == "PG",
-                "{} is {cert}",
-                title.tile.title
+                matches!(cert_of(&key).as_deref(), Some("U" | "PG"))
+                    || unrated_and_meant_for_children(&key),
+                "{key} is {}",
+                cert_word(&key)
             );
             // A child's chart is no place in Today's Top 10.
             assert_ne!(title.line.kind, GateLineKind::Ranked);
@@ -322,10 +340,17 @@ async fn h27_h33_the_picker_reads_the_profiles_saved_limit() {
             given,
             at_u,
             "the profile is saved at U and was given {given}, which is the {} answer",
-            cert_of(given)
+            cert_word(given)
         );
         assert_ne!(given, at_pg, "the Kids flag alone would have given {at_pg}");
-        assert_eq!(cert_of(given), "U");
+        // The saved U limit admits a U certificate, and the one unrated title whose model profile
+        // says children. The picker draws a random profile id as its seed, so either can come up;
+        // nothing else may.
+        assert!(
+            cert_of(given).as_deref() == Some("U") || unrated_and_meant_for_children(given),
+            "a profile saved at U was given {given}, which is {}",
+            cert_word(given)
+        );
         return;
     }
     panic!("no profile in 60 tries had a different answer at U and at PG, so nothing was proved");
