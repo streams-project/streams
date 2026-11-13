@@ -47,7 +47,25 @@ internal class Showing(seen: Seen = Seen()) : Shell {
     }
 
     override val pictures: Pictures = NoPictures
-    override val player: Player get() = error("a screen reading test does not play")
+    /**
+     * A player that does nothing and refuses nothing. The screens that draw controls ask it for a
+     * picture and a position while composing, so a player that threw would stop the sweep at
+     * whichever screen reached it first, which is how a sweep comes to cover less than it claims.
+     */
+    override val player: Player = object : Player {
+        override fun command(given: contract.DriverCommand) = Unit
+        override fun listen(report: (Long, contract.DriverEvent) -> Unit) = Unit
+        // A real View, because that is what the port's contract means by "an object only the
+        // surface's own toolkit understands" on Android: `Watch.kt:85` does
+        // `AndroidView({ shell.player.picture(it) as View })`. A fake returning `Any()` compiles,
+        // satisfies the signature, and throws ClassCastException the moment a screen draws the
+        // picture -- a fake that lies about the port it stands in for.
+        override fun picture(context: Any): Any =
+            android.view.View(context as android.content.Context)
+        override fun now(): Long = 0
+        override fun lift(share: Float) = Unit
+        override fun wordsLook(size: Int, color: String, background: String) = Unit
+    }
     override val reel: Reel get() = error("a screen reading test has no brand film")
     override fun go(address: String) { went += address }
     override fun swap(address: String) { went += address }
