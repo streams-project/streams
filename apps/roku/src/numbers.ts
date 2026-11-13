@@ -26,7 +26,7 @@ export const SCREEN_HIGH = 1080;
 
 /**
  * The page margin, left and right. A decision, not a measurement: `NumbersTest.kt:238-239` records
- * the reference's own safe margin as 68 px at 1920 (`pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:191`) and this project
+ * the reference's own safe margin as 68 px at 1920 (`reference/netflix-on-the-tv.md:23`) and this project
  * choosing 72 in note 188. (`tv/app/Round.kt:50`)
  */
 export const PAGE_EDGE = 72;

@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[2]
 PUBLIC_FILES = ("README.md", "CONTRIBUTING.md")
 
 # The files that still hold a count, named every run so the hole is never silent.
-NOT_YET = ("apps/android/README.md", "apps/apple/README.md", "pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md")
+NOT_YET = ("apps/android/README.md", "apps/apple/README.md")
 
 # "1,744 lines", "15 files", "93 files of Kotlin", "2,185 lines of ES5". A version number, a date
 # and a port are not size claims, so the unit has to be there.

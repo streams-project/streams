@@ -89,8 +89,8 @@ Note 215's claim stands, with one correction to how it is phrased.
 The decision is the owner's, because it changes whether the architecture's claim to be universal
 holds. Three options:
 
-**A. The core as WebAssembly.** What `apps/tv/page/host.js` already does for Tizen, webOS and
-Vizio. On Roku it needs a wasm engine that is not documented to exist, or wasm2brs, a five-year-old
+**A. The core as WebAssembly.** What `apps/tv/page/host.js` did for Tizen, webOS and Vizio
+until that folder was deleted on 2026-11-12 (note 224 keeps what it had worked out). On Roku it needs a wasm engine that is not documented to exist, or wasm2brs, a five-year-old
 archived community transpiler, inside a 4 MB package cap, on devices Roku itself says have no GPU
 and cannot reach 60 fps. **Rejected**: the dependency is dead and the budget is not there.
 

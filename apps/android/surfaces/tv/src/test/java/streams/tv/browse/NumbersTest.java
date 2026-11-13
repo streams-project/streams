@@ -16,7 +16,7 @@ import streams.tv.views.Round;
  * <h2>Why this shape and not {@code assertEquals(328, STEP)}</h2>
  * {@code src/test/kotlin/streams/tv/NumbersTest.kt}'s own rule, which is the owner's: "a number is
  * never asserted against itself. {@code assertEquals(328, STEP)} passes forever." Its ten tests hold
- * the Kotlin against {@code pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md}'s reference table and against the derivations written
+ * the Kotlin against {@code reference/netflix-on-the-tv.md}'s reference table and against the derivations written
  * beside each number, and they still pass, because the Kotlin they read is still there.
  *
  * What they cannot see is whether the number came across. {@code Sources.kt:18-22} predicted exactly
@@ -91,7 +91,7 @@ public class NumbersTest {
      * The page margin is 72 in both, and the Java reaches it through a constant as every Kotlin page
      * does.
      *
-     * 72 is a decision and not a measurement -- {@code pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:191} records the reference's
+     * 72 is a decision and not a measurement -- {@code reference/netflix-on-the-tv.md:23} records the reference's
      * own safe margin as 68 px at 1920 and this project choosing 72 in note 188 -- so what is worth
      * checking is the relationship: no page writes it again, which is what makes it changeable at
      * all. {@code NumbersTest.kt}'s last test scans the Kotlin for a bare margin literal;
@@ -155,11 +155,11 @@ public class NumbersTest {
      * overlap the poster by 16 reference pixels, which looks like a drawing bug and is a
      * transcription one."
      *
-     * The gutter here is 19 and not the 17 the closed row uses. {@code pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:206} records
-     * 19 as what the television page used before 2026-11-11 and 17 as what it uses now, so this
-     * surface is the one that did not move. Carried as the recorded fact rather than quietly
-     * corrected: it is a drawing change on a surface nobody ran, and it belongs to whoever owns the
-     * television's geometry, not to its port.
+     * The gutter here is 19 and not the 17 the closed row steps by. {@code
+     * reference/netflix-on-the-tv.md:49} measures 17, and 19 is inside the two px that reference
+     * allows, so both are held. What this test guards is that the port did not change it: 19
+     * came across as 19. Narrowing it to 17 is a drawing change on a surface nobody ran, and it
+     * belongs to whoever owns the television's geometry, not to its port.
      */
     @Test
     public void the_nineteen_gutter_came_across_as_a_derivation() {
@@ -411,27 +411,73 @@ public class NumbersTest {
     }
 
     /**
-     * The six brand colours are the same six on both sides.
+     * Every brand colour a television screen draws is the colour {@code brand.json} gives for that
+     * role, and the Compose value beside it reads the same role.
      *
-     * This is the assertion that makes {@link Ink} safe. {@code Theme.kt:16-21} holds them as
-     * Compose {@code Color} values, which are a {@code @JvmInline value class} over a {@code ULong}
-     * and so unreadable from Java, so the Views surface has to restate them -- and a brand colour
-     * stated twice is drift waiting to happen. Held equal here rather than by care.
+     * Until 2026-11-12 this test held two copies of each colour together -- the Compose literal in
+     * {@code Theme.kt} against the ARGB literal in {@link Ink} -- because a Compose {@code Color} is
+     * a {@code @JvmInline value class} Java cannot name, so the Views surface restated all six.
+     * {@code shared/build.gradle.kts:30-40} now writes them into {@code BuildConfig}, which both
+     * languages read, so there is one copy and nothing for a test to hold against a second one.
+     * What is worth holding is the end of the chain against its start: {@link Ink}'s constants are
+     * {@code const val}s inlined by the Kotlin compiler, so reading one here reads what the
+     * generator wrote, and asserting it against {@code brand.json} proves the whole path
+     * (brand file, gradle, {@code BuildConfig}, {@code Colour}, {@code Ink}) carried the value.
+     *
+     * Three failure modes, all wanted: a colour edited in {@code brand.json} that does not reach the
+     * screens fails; a literal pasted back into either language fails (the last two assertions);
+     * and a role renamed on one side only fails, naming the role.
      */
     @Test
-    public void the_brand_colours_came_across() {
-        assertEquals("Back", colour("Back"), Ink.BACK);
-        assertEquals("Plate", colour("Plate"), Ink.PLATE);
-        assertEquals("Raised", colour("Raised"), Ink.RAISED);
-        assertEquals("Muted", colour("Muted"), Ink.MUTED);
-        assertEquals("Accent", colour("Accent"), Ink.ACCENT);
-        assertEquals("Join", colour("Join"), Ink.JOIN);
+    public void the_brand_colours_are_the_brand_file_colours() {
+        assertEquals("background", brandColour("background"), Ink.BACK);
+        assertEquals("surface", brandColour("surface"), Ink.PLATE);
+        assertEquals("raised", brandColour("raised"), Ink.RAISED);
+        assertEquals("muted", brandColour("muted"), Ink.MUTED);
+        assertEquals("accent", brandColour("accent"), Ink.ACCENT);
+        assertEquals("join", brandColour("join"), Ink.JOIN);
+        assertEquals("Back is the page's colour on the Compose side too", "BACKGROUND", role("Back"));
+        assertEquals("SURFACE", role("Plate"));
+        assertEquals("RAISED", role("Raised"));
+        assertEquals("MUTED", role("Muted"));
+        assertEquals("ACCENT", role("Accent"));
+        assertEquals("JOIN", role("Join"));
+        assertEquals("no colour in Theme.kt is a literal", 0, Source.count("Color\\(0x", theme));
+        assertEquals("and none in Ink.java is either", 0,
+                Source.count("= 0x[0-9A-Fa-f]{8};", Source.code(Source.JAVA + "/views/Ink.java")));
     }
 
-    private int colour(String name) {
-        Matcher said = Source.theOne("val " + name + " = Color\\(0x([0-9A-Fa-f]{8})\\)", theme,
-                name + " in Theme.kt");
-        return (int) Long.parseLong(said.group(1), 16);
+    /**
+     * One colour of {@code brand.json} {@code colors}, as the ARGB integer a drawable takes.
+     *
+     * The three forms {@code launcher/src/brand.rs:69-72} accepts are all read here, so a brand file
+     * that writes {@code #fff} or {@code #rrggbbaa} is checked and not failed over its spelling.
+     * This is the one place in the test that does what the generator does, which is what makes the
+     * assertion a check and not a copy.
+     */
+    private int brandColour(String name) {
+        Matcher said = Source.theOne("\"" + name + "\": \"#([0-9A-Fa-f]{3,8})\"",
+                Source.text("brand.json"), name + " in brand.json");
+        String hex = said.group(1);
+        if (hex.length() == 3) {
+            StringBuilder wide = new StringBuilder();
+            for (char one : hex.toCharArray()) {
+                wide.append(one).append(one);
+            }
+            hex = wide.toString();
+        }
+        assertTrue(name + " is not a colour: #" + hex, hex.length() == 6 || hex.length() == 8);
+        if (hex.length() == 8) {
+            hex = hex.substring(6) + hex.substring(0, 6);
+            return (int) Long.parseLong(hex, 16);
+        }
+        return 0xFF000000 | (int) Long.parseLong(hex, 16);
+    }
+
+    /** The brand role a Compose colour of {@code Theme.kt} reads, through the generated object. */
+    private String role(String name) {
+        return Source.theOne("val " + name + " = Color\\(Colour\\.([A-Z_]+)\\)", theme,
+                name + " in Theme.kt").group(1);
     }
 
     /** White and black at a share of their strength, as hundredths, read the same by both sides. */

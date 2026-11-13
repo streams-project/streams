@@ -42,8 +42,8 @@ plugins:
   # TypeScript. protobuf-es v2 output is ESM and imports @bufbuild/protobuf.
   # platform/kit/core/tests/boundary.rs:295 asserts that no line of
   # platform/bridges/ts/core.ts begins with `import`, so this output is for the
-  # server's clients and not for that bridge. The television DOM page at apps/tv is
-  # no longer a reason for the caveat note 204 wrote here: the owner stopped it
+  # server's clients and not for that bridge. The television DOM page that was at
+  # apps/tv (deleted 2026-11-12) is no longer a reason for the caveat note 204 wrote: the owner stopped it
   # (note 179) in favour of a binary on every platform, so there is no plain-ES5
   # surface left to keep on a JSON core. apps/web is Rust to wasm and reads the
   # schema through platform/contract-proto, not through this plugin.

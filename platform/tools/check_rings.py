@@ -52,8 +52,8 @@ ROOT = Path(__file__).resolve().parents[2]
 FAMILIES = {
     # The television page was deleted on 2026-11-12. The owner stopped it on 2026-11-07 (note 179):
     # it was a DOM page served by the server, and every television now gets a native app. Its
-    # measurements survive in `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md`, which other families cite, until they are
-    # rehoused in a note. There is no family here because there is no code here.
+    # measurements were rehoused in `reference/netflix-on-the-tv.md` on 2026-11-12, where the
+    # families that cite them can read them. There is no family here because there is no code here.
     "web": {
         "code": "apps/web/src",
         "ends": {".rs"},

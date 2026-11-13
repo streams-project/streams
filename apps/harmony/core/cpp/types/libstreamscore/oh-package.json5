@@ -14,5 +14,5 @@
   "name": "libstreamscore.so",
   "types": "./index.d.ts",
   "version": "1.0.0",
-  "description": "The four calls of the Streams core, as ArkTS sees them.",
+  "description": "The four calls of the core, as ArkTS sees them.",
 }

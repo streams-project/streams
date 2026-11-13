@@ -19,7 +19,7 @@ import streams.tv.views.Type;
  * written as the integer literal it is written as at the line it came from. The provenance, carried
  * from {@code tv/browse/Rows.kt:99-102} rather than summarised:
  * {@code netflix-reference/tv/raw/tv-geometry-1920x1080.json}'s {@code row_screen.focused_tile} is
- * 906 x 510, matched to 904 x 508 in {@code 00-gaps.md} gap 9. {@code pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:206} records
+ * 906 x 510, matched to 904 x 508 in {@code 00-gaps.md} gap 9. {@code reference/netflix-on-the-tv.md:49} records
  * both, and the ten tests in {@code src/test/kotlin/streams/tv/NumbersTest.kt} hold the Kotlin
  * against that table; {@code src/test/java/streams/tv/browse/NumbersTest.java} holds this file
  * against the Kotlin, so the measurement has to survive the port to pass.

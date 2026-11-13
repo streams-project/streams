@@ -1,4 +1,4 @@
-// A main page (Home, Series, Films, a genre, My Streams, search results): the pinned header, the
+// A main page (Home, Series, Films, a genre, `nav.mine`, search results): the pinned header, the
 // billboard, the rows and the floating bar. A port of
 // `apps/android/surfaces/phone/src/main/kotlin/streams/phone/browse/Home.kt`.
 //

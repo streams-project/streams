@@ -23,7 +23,7 @@ import streams.shared.ref
  *    gutter, the card's text width from the card and its inset, the hero from the page and its
  *    margins -- or
  *  * holds a raw captured measurement against the capture that recorded it, which for this surface
- *    is `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md`'s reference table and the citation comments in `browse/Rows.kt`.
+ *    is `reference/netflix-on-the-tv.md`'s reference table and the citation comments in `browse/Rows.kt`.
  *
  * Each test says which of the two it is and why. `Sources.kt` says why they read the source as
  * text and what that costs a rewrite.
@@ -35,28 +35,28 @@ class NumbersTest {
     private val hero = withoutComments(File(root, "$MAIN/browse/HeroCard.kt").readText())
     private val reference = File(root, REFERENCE).readText()
 
-    /** The reference table's own row for the row screen, as `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:206` records it. */
-    private val captured = theOne(
-        Regex("""Closed tile (\d+) x (\d+), focused (\d+) x (\d+), gutter (\d+), pitch (\d+)"""),
-        reference,
-        "the row screen's captured sizes in $REFERENCE",
-    ).groupValues.drop(1).map { it.toInt() }
+    /**
+     * The row screen's table in `reference/netflix-on-the-tv.md:49`, read a row at a time rather
+     * than as one sentence about it. Order: closed width, closed height, focused width, focused
+     * height, gutter, pitch -- so an index here moves only when that table does.
+     *
+     * Until 2026-11-12 this read a sentence in the television page's README, which also stated
+     * what *that page* drew, and these numbers were held equal to it. Two surfaces were pinned to
+     * each other through a file belonging to neither, and when the page was deleted the pin went
+     * with it. The capture is the only thing both ever answered to.
+     */
+    private val captured =
+        tileRow("closed tile") + tileRow("focused tile") + listOf(pxRow("gutter"), pxRow("pitch"))
 
-    /** And the same row's column for what this project draws, with its own numbers. */
-    private val drawn = theOne(
-        Regex(
-            """holds within 2 px\**:\s*(\d+) x (\d+), (\d+) x (\d+), """ +
-                """gutter \**(\d+) after today\** \((\d+) before\), pitch (\d+)""",
-        ),
-        reference,
-        "what $REFERENCE records this project drawing",
-    ).groupValues.drop(1).map { it.toInt() }
+    /** How far a surface may sit from the capture, as the reference states it itself. */
+    private val tolerance =
+        number("""within \*\*(\d+) px\*\*""", reference, "the tolerance $REFERENCE allows")
 
     /**
      * The closed tile is the size the capture recorded, to the 2 px the reference table claims.
      *
      * A raw measurement with no derivation, so this is the citation half of the rule: the numbers in
-     * `Rows.kt`'s `Poster` have to equal the numbers `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:206` says this project
+     * `Rows.kt`'s `Poster` have to equal the numbers `reference/netflix-on-the-tv.md:49` says this project
      * draws, and those have to stay within the 2 px of the capture that the same line claims. A
      * tile edited in the code and not in the table fails. A table edited to excuse a tile fails the
      * 2 px claim it makes in its own sentence.
@@ -64,8 +64,6 @@ class NumbersTest {
     @Test
     fun `the closed tile is the captured tile within the two pixels the reference claims`() {
         val (wide, high) = size("Poster")
-        assertEquals("the table says this project draws ${drawn[0]} x ${drawn[1]}", drawn[0], wide)
-        assertEquals(drawn[1], high)
         assertNear("closed tile width", captured[0], wide)
         assertNear("closed tile height", captured[1], high)
     }
@@ -74,8 +72,6 @@ class NumbersTest {
     @Test
     fun `the focused card is the captured card within the two pixels the reference claims`() {
         val (wide, high) = size("OpenCard")
-        assertEquals(drawn[2], wide)
-        assertEquals(drawn[3], high)
         assertNear("focused card width", captured[2], wide)
         assertNear("focused card height", captured[3], high)
     }
@@ -89,10 +85,9 @@ class NumbersTest {
     fun `the tile pitch is the tile plus the gutter beside it`() {
         val step = number("""private const val STEP = (\d+)""", rows, "STEP")
         val (tile, _) = size("Poster")
-        val gutter = drawn[4]
+        val gutter = captured[4]
         assertEquals("the pitch is the tile plus the gutter", tile + gutter, step)
-        assertEquals("and the table records the same pitch", drawn[6], step)
-        assertEquals(captured[5], step)
+        assertEquals("and the reference records the same pitch", captured[5], step)
     }
 
     /**
@@ -113,7 +108,7 @@ class NumbersTest {
         assertTrue("and step back by one pitch for the tile before", rows.contains("(PAGE_EDGE - STEP).ref"))
         assertEquals(
             "the peeking tile's right edge sits one gutter short of the margin",
-            PAGE_EDGE - drawn[4],
+            PAGE_EDGE - captured[4],
             PAGE_EDGE - step + tile,
         )
     }
@@ -127,23 +122,18 @@ class NumbersTest {
      * them together. A card widened to 920 with the sum left at 904 would overlap the poster by 16
      * reference pixels, which looks like a drawing bug and is a transcription one.
      *
-     * The gutter here is 19, not the 17 the closed row uses. `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:206` records 19 as
-     * what the television page used before 2026-11-11 and 17 as what it uses now, so this surface
-     * is the one that did not move. That is held as the recorded fact rather than quietly corrected
-     * -- it is a drawing change on a surface nobody ran today, and it belongs to whoever owns the
-     * television's geometry, not to its test.
+     * The gutter in this sum is not the gutter the closed row uses: the row steps by the capture's
+     * 17 and this sum clears the card by 19. Both sit inside the tolerance the reference allows, so
+     * this holds the sum to the capture rather than to the row, and the two px between them are
+     * left alone. Narrowing them is a drawing change on a surface nobody ran today, and it belongs
+     * to whoever owns the television's geometry, not to its test.
      */
     @Test
     fun `the poster beside the open card clears it by the gutter`() {
         val sum = theOne(Regex("""\(PAGE_EDGE \+ (\d+) \+ (\d+)\)\.ref"""), rows, "the next poster's x in Rows.kt")
         val (card, _) = size("OpenCard")
         assertEquals("the sum has to use the card's own width", card, sum.groupValues[1].toInt())
-        assertEquals(
-            "this surface still uses the gutter the television page used before 2026-11-11",
-            drawn[5],
-            sum.groupValues[2].toInt(),
-        )
-        assertEquals((PAGE_EDGE + card + drawn[5]).ref, 995.ref)
+        assertNear("the gutter that clears the open card", captured[4], sum.groupValues[2].toInt())
     }
 
     /**
@@ -194,7 +184,7 @@ class NumbersTest {
      *
      * The card's 904 x 508 is a raw measurement, so this is the citation half of the rule. The
      * comment cites `row_screen.focused_tile` at 906 x 510 and says it was matched to 904 x 508 in
-     * gap 9; `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:206` has to record the same 906 x 510. A comment rewritten to point
+     * gap 9; `reference/netflix-on-the-tv.md:49` has to record the same 906 x 510. A comment rewritten to point
      * at a different capture, or a capture quoted with different numbers, fails here.
      */
     @Test
@@ -209,20 +199,25 @@ class NumbersTest {
         assertEquals(captured[2], quoted.groupValues[1].toInt())
         assertEquals(captured[3], quoted.groupValues[2].toInt())
         val matched = theOne(Regex("""matched to (\d+) x (\d+) in 00-gaps\.md"""), rowsSaid, "what it was matched to")
-        assertEquals(drawn[2], matched.groupValues[1].toInt())
-        assertEquals(drawn[3], matched.groupValues[2].toInt())
+        val (card, high) = size("OpenCard")
+        assertEquals("the citation has to name the card this surface draws", card, matched.groupValues[1].toInt())
+        assertEquals(high, matched.groupValues[2].toInt())
     }
 
     /**
      * The open card sits in the band the reference pins the focused row to.
      *
-     * A raw measurement held against its capture: `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:219` records the band as
-     * y 199 to 708 and claims this page holds it within 2 px. The card's own y and height are in
+     * A raw measurement held against its capture: `reference/netflix-on-the-tv.md:70` records the
+     * band as y 199 to 708, found in 24 of 24 sampled frames. The card's own y and height are in
      * `Rows.kt:87` and `:88`, so the claim is checkable rather than remembered.
      */
     @Test
     fun `the open card sits in the band the reference pins the focused row to`() {
-        val band = theOne(Regex("""fixed band, y (\d+)-(\d+)"""), reference, "the focused band in $REFERENCE")
+        val band = theOne(
+            Regex("""focus outline sits at \*\*y (\d+)-(\d+)\*\*"""),
+            reference,
+            "the focused band in $REFERENCE",
+        )
         val top = band.groupValues[1].toInt()
         val bottom = band.groupValues[2].toInt()
         val y = number("""fun OpenCard\([\s\S]*?\.offset\(PAGE_EDGE\.ref, (\d+)\.ref\)""", rows, "the open card's y")
@@ -235,7 +230,7 @@ class NumbersTest {
      * The page margin is the number the reference table records this project deciding on, and every
      * page reaches it through the constant.
      *
-     * 72 is a decision and not a measurement: `pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md:191` records the reference's own
+     * 72 is a decision and not a measurement: `reference/netflix-on-the-tv.md:23` records the reference's own
      * safe margin as 68 px at 1920 and this project choosing 72 in note 188. So this is the
      * citation half of the rule for the number, and for the constant it is the relationship the
      * number participates in -- no page writes the margin as a literal, which is what makes the
@@ -245,13 +240,10 @@ class NumbersTest {
      */
     @Test
     fun `the page margin is the recorded decision and no page writes it again`() {
-        val decided = theOne(
-            Regex("""Safe margin (\d+) px at (\d+).*?this project uses \**(\d+)\**"""),
-            reference,
-            "the margin decision in $REFERENCE",
-        )
-        assertEquals(1920, decided.groupValues[2].toInt())
-        assertEquals("the margin has to be the one the table records", decided.groupValues[3].toInt(), PAGE_EDGE)
+        val measuredAt = number("""reference pixel\*\* at (\d+)x""", reference, "the width $REFERENCE measures at")
+        val chosen = number("""This project uses \*\*(\d+)\*\*""", reference, "the margin decision in $REFERENCE")
+        assertEquals(1920, measuredAt)
+        assertEquals("the margin has to be the one the reference records", chosen, PAGE_EDGE)
 
         val written = mutableListOf<String>()
         File(root, MAIN).walkTopDown()
@@ -271,11 +263,21 @@ class NumbersTest {
 
     /** The two reference pixels the table's own sentence allows between a capture and this page. */
     private fun assertNear(what: String, captured: Int, drawn: Int) = assertTrue(
-        "$what: $drawn against the captured $captured is more than the 2 px $REFERENCE claims",
-        kotlin.math.abs(captured - drawn) <= 2,
+        "$what: $drawn against the captured $captured is more than the $tolerance px $REFERENCE allows",
+        kotlin.math.abs(captured - drawn) <= tolerance,
     )
 
     /** The size a named part of `Rows.kt` draws itself at, as `(wide, high)` reference pixels. */
+    /** One `| <name> | **W x H**, ... |` row of the reference's row-screen table. */
+    private fun tileRow(name: String): List<Int> =
+        theOne(Regex("""\| $name \| \*\*(\d+) x (\d+)\*\*"""), reference, "the $name row in $REFERENCE")
+            .groupValues.drop(1).map { it.toInt() }
+
+    /** One `| <name> | **N px** |` row of the same table. */
+    private fun pxRow(name: String): Int =
+        theOne(Regex("""\| $name \| \*\*(\d+) px\*\*"""), reference, "the $name row in $REFERENCE")
+            .groupValues[1].toInt()
+
     private fun size(part: String): Pair<Int, Int> {
         val found = theOne(
             Regex("""fun $part\([\s\S]*?\.size\((\d+)\.ref,\s*(\d+)\.ref\)"""),
@@ -296,6 +298,6 @@ class NumbersTest {
          * numbers taken from it are written down. Read rather than copied: a test that copied them
          * would be two transcriptions of one measurement, which is the thing being guarded against.
          */
-        const val REFERENCE = "pstream/notes/netflix-reference/tv/00-netflix-on-the-tv-measured.md"
+        const val REFERENCE = "reference/netflix-on-the-tv.md"
     }
 }

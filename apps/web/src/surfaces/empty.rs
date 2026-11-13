@@ -248,8 +248,12 @@ mod tests {
         assert_eq!(floor[1], TILES_ACROSS_ROW);
         // The style sheet writes the slack and the gap in brand units; this file writes them in
         // pixels, and the unit is brand.json's own `spacing.unit`.
+        // No trailing comma in the shape: `spacing.unit` became the last key in its object when
+        // the brand's orphaned gutter was removed on 2026-11-12, and a shape ending in an empty
+        // piece means "and then anything", which is what `numbers` documents it for. Reading the
+        // comma tied this test to where `unit` happened to sit among its neighbours.
         let unit = one_number(
-            &["\"unit\": ", ","],
+            &["\"unit\": ", ""],
             &source("brand.json"),
             "the brand's unit",
         );
