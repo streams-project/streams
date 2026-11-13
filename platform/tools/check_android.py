@@ -56,11 +56,22 @@ JBR = os.environ.get(
 # Where the Android SDK is looked for last, when nothing in the environment names one.
 SDK_GUESSES = (Path.home() / "Library" / "Android" / "sdk", Path.home() / "Android" / "Sdk")
 
-# The surface modules, read from the build rather than written here: a fourth surface must not be
-# able to arrive without these tests arriving with it.
-A_SURFACE = re.compile(r'":surfaces:([a-z0-9-]+)"')
+# Every module, read from the build rather than written here: a module must not be able to arrive
+# without its tests arriving with it.
+#
+# This read "..surfaces.." until 2026-11-13, and the day it was written that covered every module
+# holding tests. It stopped being true the same day: `:ports` gained four of them, proving Java
+# can read the generated contract, and they ran in no check at all -- so the build line that
+# opened that gate could have closed again and nothing would have said so. A check that names a
+# subset by spelling rather than by the property it cares about is the defect this file exists to
+# end, and it had the defect.
+A_MODULE = re.compile(r'"(:[a-z0-9:-]+)"')
 
+# An Android module's tests live behind a build variant; a plain JVM module's do not. The plugin
+# in the module's own build file decides, so neither name is written here.
 VARIANT = "testDebugUnitTest"
+PLAIN = "test"
+ANDROID_PLUGIN = re.compile(r"com\.android\.(?:library|application)")
 
 
 def answers(java: Path) -> bool:
@@ -134,13 +145,26 @@ def sdk_home() -> tuple[str | None, str | None]:
     )
 
 
-def surfaces() -> list[str]:
-    return sorted(set(A_SURFACE.findall(SETTINGS.read_text())))
+def surfaces() -> list[tuple[str, Path, str]]:
+    """Every module that holds unit tests: its gradle path, its folder, and the task that runs them.
+
+    A module with no `src/test` is not named, because asking gradle for a task that does not exist
+    fails the whole run. A module that grows one is picked up with no edit here.
+    """
+    found = []
+    for path in sorted(set(A_MODULE.findall(SETTINGS.read_text()))):
+        folder = ANDROID / path.strip(":").replace(":", "/")
+        if not (folder / "src" / "test").is_dir():
+            continue
+        build = folder / "build.gradle.kts"
+        android = build.is_file() and ANDROID_PLUGIN.search(build.read_text())
+        found.append((path, folder, VARIANT if android else PLAIN))
+    return found
 
 
-def results(module: str) -> tuple[int, list[str]]:
+def results(folder: Path, task: str) -> tuple[int, list[str]]:
     """How many test cases that module's last run wrote, and the names that did not pass."""
-    return read_reports(ANDROID / "surfaces" / module / "build" / "test-results" / VARIANT)
+    return read_reports(folder / "build" / "test-results" / task)
 
 
 def read_reports(folder: Path) -> tuple[int, list[str]]:
@@ -177,7 +201,7 @@ def gradle(home: str, sdk: str, modules: list[str]) -> int:
         print(f"android: {wrapper} is not there to run")
         return 1
     environment = dict(os.environ, JAVA_HOME=home, ANDROID_HOME=sdk)
-    command = ["./gradlew", "--continue"] + [f":surfaces:{name}:{VARIANT}" for name in modules]
+    command = ["./gradlew", "--continue"] + [f"{path}:{task}" for path, _, task in modules]
     done = subprocess.run(command, cwd=ANDROID, env=environment)
     return done.returncode
 
@@ -187,9 +211,9 @@ def main() -> int:
     sdk, why_sdk = sdk_home()
     modules = surfaces()
     if not modules:
-        print(f"android: no surface module in {SETTINGS}, so there is nothing to test")
+        print(f"android: no module in {SETTINGS} holds tests, so there is nothing to run")
         return 1
-    named = ", ".join(modules)
+    named = ", ".join(path for path, _, _ in modules)
     if why_java or why_sdk:
         # Loud, every run, with what is missing and what that cost. A skip nobody reads is the
         # same as no check at all, which is what this file was written to end.
@@ -204,20 +228,19 @@ def main() -> int:
 
     code = gradle(home, sdk, modules)
     total, failed = 0, False
-    for module in modules:
-        cases, bad = results(module)
+    for path, folder, task in modules:
+        cases, bad = results(folder, task)
         total += cases
         if bad:
             failed = True
             print(
-                "android: :surfaces:%s FAILED %d of %d - %s"
-                % (module, len(bad), cases, ", ".join(bad[:10]))
+                "android: %s FAILED %d of %d - %s" % (path, len(bad), cases, ", ".join(bad[:10]))
             )
         elif cases == 0:
             failed = True
-            print(f"android: :surfaces:{module} wrote no test result, so it proved nothing")
+            print(f"android: {path} wrote no test result, so it proved nothing")
         else:
-            print(f"android: :surfaces:{module} {cases} tests passed")
+            print(f"android: {path} {cases} tests passed")
     print("android: %d unit tests in %d modules (%s), on %s" % (total, len(modules), named, home))
     if code == 0 and (failed or total == 0):
         # Gradle was happy and the reports are not: a stale or empty report is not a pass.

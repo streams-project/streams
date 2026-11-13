@@ -1,4 +1,4 @@
-package streams.tv.views;
+package streams.shared;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +10,16 @@ import java.util.Map;
  * {@code tv/app/Television.kt:39}, keyed at {@code Browse.kt:164}). Simpler here than in Compose
  * because there is no composition local to thread through: one of these is a field on the activity
  * or on the root, handed to whatever screen asks.
+ *
+ * <h2>Why this one is in the shared module and its neighbours are not</h2>
+ * It was written for the television in {@code tv/.../views} and moved here on 2026-11-13, because
+ * nothing in it is a television. There is no remote in it ({@link java.util.Map} of
+ * {@link String} to {@link Object} and nothing else), no reference pixel, no view and no context,
+ * so a Java screen on the phone holds its pages with the same class rather than with a second copy
+ * of it. The three parts of {@link #page} -- who is watching, which screen, which genre -- are the
+ * product's idea of a page and not the television's; what is television-shaped is the exact
+ * rendering of the two edge cases below, which is kept because the Kotlin it replaces builds the
+ * key that way and a key that differed would lose the viewer's place on return.
  *
  * What it holds, today, is a page's focus state and its growth past the first twelve rows
  * ({@code Browse.kt:165}, {@code :176-178}). It is deliberately a map of {@link Object}: the pieces

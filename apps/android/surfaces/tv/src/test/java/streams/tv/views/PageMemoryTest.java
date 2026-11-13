@@ -7,6 +7,7 @@ import static org.junit.Assert.assertSame;
 
 import java.util.regex.Matcher;
 import org.junit.Test;
+import streams.shared.PageMemory;
 
 /**
  * What a page is called, and that one page is one place in the memory.
