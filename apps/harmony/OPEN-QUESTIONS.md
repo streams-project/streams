@@ -83,8 +83,9 @@ So this folder gained a seam instead of the generator gaining a rewrite:
 * `contract/read.ts` — one typed read per body, because ArkTS bans `any`
   (`arkts-no-any-unknown`, 10605008) and `JSON.parse` is typed `any`.
 
-`core/Host.ets` is 290 lines shorter in intent for it: three `Extract` aliases and every `as Event`
-literal are gone, and the file names no type ArkTS cannot.
+`core/Host.ets` is shorter in intent for it: three `Extract` aliases and every `as Event` literal
+are gone, and the file names no type ArkTS cannot. How much shorter is a count, so it is not stated
+here -- `git log -p` is what measures it.
 
 **The price, stated in the reference and paid knowingly**: "when data and objects of TS/JS are used
 as those of ArkTS, the static type check of ArkTS may be bypassed, causing unexpected behavior or

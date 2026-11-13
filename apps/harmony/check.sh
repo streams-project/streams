@@ -1,19 +1,25 @@
 #!/bin/sh
-# Builds and runs everything in this folder that can run without a HarmonyOS SDK.
+# Runs everything in this folder that can run without a HarmonyOS SDK.
 #
-# That is two tests, and both of them are the C glue. Nothing else here can run on this machine:
-# `node`, `npx`, `tsc`, `cmake`, `ohpm`, `hvigorw` and `codelinter` are all absent, so not one line
-# of the ArkTS -- the host, the ports, the contract seam and the twenty files of `surfaces/touch` --
-# can be compiled, let alone run. The README says so and this script does not pretend otherwise.
+# `node`, `npx`, `tsc`, `cmake`, `ohpm`, `hvigorw` and `codelinter` are all absent from this
+# machine, so not one line of the ArkTS can be compiled, type checked, linted or run, and nothing
+# below pretends otherwise. What CAN be done is two different things, and this runs both:
 #
-#   1. The bridge against a recording core, which drives every refusal and holds the ledger: every
-#      block taken from `core_alloc` goes back to `core_free` with its own size.
-#   2. The bridge against the real `libbridge_c.a`, which proves bytes cross to the core that ships.
+#   1. THE C GLUE IS BUILT AND RUN. `core/cpp/napi_bridge.c` is the whole boundary between ArkTS
+#      and the core, it is C, and C runs here. Twice: against a core that records every call and
+#      holds the ledger that every block taken from `core_alloc` goes back to `core_free` with its
+#      OWN size, and against the real `libbridge_c.a`, which proves bytes cross to the core that
+#      ships. Both drive the bridge through the stub runtime in `core/cpp/test/`.
 #
-# Both drive `core/cpp/napi_bridge.c` itself through the stub runtime in `core/cpp/test/`. What
-# neither proves is that OpenHarmony's `napi/native_api.h` declares these calls the way the upstream
-# Node-API headers do; that is stated in `core/cpp/test/napi/native_api.h` and is `OPEN-QUESTIONS.md`
-# Q1, and the first build against a real SDK is what settles it.
+#   2. THE ARKTS IS READ. Every number, word, colour, corner, icon and import in `surfaces/touch`
+#      is text, and so is the Android phone Kotlin that measured it, `brand.json` and
+#      `strings/en.json`. `touch_check.py` holds one against the other, which is the same shape the
+#      television's Kotlin is held in by `apps/android/.../streams/tv/NumbersTest.kt`. It proves
+#      nothing about whether the ArkTS COMPILES; it proves that nothing in it was invented here.
+#
+# What none of it proves is that OpenHarmony's `napi/native_api.h` declares these calls the way the
+# upstream Node-API headers do; that is stated in `core/cpp/test/napi/native_api.h` and is
+# `OPEN-QUESTIONS.md` Q1, and the first build against a real SDK is what settles it.
 #
 # The root `./check` does not call this, for the same reason it does not call `apps/xbox/check.sh`:
 # it carries no C compiler for this folder and `platform/tools/check_rings.py` has no `harmony`
@@ -50,4 +56,9 @@ $cc $flags $include "$glue/napi_bridge.c" "$glue/test/napi_stub.c" "$glue/test/b
 "$out/smoke"
 
 echo
-echo "both held. No test here touches HarmonyOS, DevEco, ArkTS or a Huawei device."
+echo "== the touch surface read against what it was written from"
+python3 apps/harmony/touch_check.py
+
+echo
+echo "all three held. Nothing here ran HarmonyOS, DevEco, a compiler for ArkTS or a Huawei device,"
+echo "and no line of ArkTS in this folder has been compiled. See apps/harmony/README.md."

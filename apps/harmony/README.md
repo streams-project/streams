@@ -5,15 +5,25 @@ ArkUI app for Huawei phones and tablets. **Touch** surface, **native** core.
 Part of an open video platform.
 
 Status: **an app whose ArkTS has never been compiled.** The route switch, Home with its billboard
-and rows, the title page, the profile gate and search are written and laid out against the measured
-reference, and not one line of them has been compiled: no HarmonyOS SDK, no DevEco Studio and no
-Huawei device were on the machine they were written on, and `node`, `npx` and `tsc` are not there
-either. [What cannot be done here](#what-cannot-be-done-without-the-sdk-and-a-device) says exactly
-what that leaves.
+and rows, the title page, the profile gate, search and the notifications feed are written and laid
+out against the measured reference, and not one line of them has been compiled: no HarmonyOS SDK, no
+DevEco Studio and no Huawei device were on the machine they were written on, and `node`, `npx` and
+`tsc` are not there either. [What cannot be done
+here](#what-cannot-be-done-without-the-sdk-and-a-device) says exactly what that leaves.
 
-One part of this folder is not in that state. The C glue -- `core/cpp/napi_bridge.c`, the whole of
-the boundary between ArkTS and the core -- is built and run on whatever machine types
-`./apps/harmony/check.sh`, against a recording core and against the real one.
+Two parts of this folder are not in that state, and `./apps/harmony/check.sh` runs both.
+
+The C glue -- `core/cpp/napi_bridge.c`, the whole of the boundary between ArkTS and the core -- is
+built and run on whatever machine types that command, against a recording core and against the real
+one.
+
+And since 2026-11-13 the ArkTS, which cannot be compiled, is READ. `touch_check.py` holds every
+number in `surfaces/touch` against the Android phone Kotlin that measured it, every colour and
+corner against `brand.json`, every word key against `strings/en.json`, every icon against the
+`R.drawable.icon_*` the Android phone draws, and every import against the file it names. It is the
+same shape the television's Kotlin is held in by `apps/android/.../streams/tv/NumbersTest.kt` and it
+proves nothing about whether any of this compiles -- only that nothing in it was invented here.
+`surfaces/touch/README.md` has the table of what it reads against what.
 
 Four of the six questions in `OPEN-QUESTIONS.md` are now answered, from Huawei's own reference rather
 than from a device, and the code changed where the answers changed it. The two that are left want a
@@ -107,22 +117,31 @@ So that nobody later mistakes this for a finished app:
 3. **No project file.** `build-profile.json5`, `oh-package.json5`, `module.json5`, `AppScope/app.json5`
    and `hvigorfile.ts` are versioned with the SDK. Where they go and what they must contain is now
    known (Q6); the files themselves still want the SDK that stamps today's version numbers into them.
-4. **Five routes draw nothing.** The server address screen, `start`, `sign_in`, `watch` and the
-   notifications screen have no screen in this folder, and `surfaces/touch/Root.ets` names each one
-   with the Kotlin that specifies it rather than sending the viewer somewhere that looks like it
-   worked.
+4. **Four routes draw nothing.** The server address screen, `start`, `sign_in` and `watch` have no
+   screen in this folder, and `surfaces/touch/Root.ets` names each one with the Kotlin that
+   specifies it rather than sending the viewer somewhere that looks like it worked. It was five
+   until 2026-11-13, when the notifications feed was written.
 5. **The icons do not exist.** `surfaces/touch/Icons.ets` names all 23 as `$r('app.media.*')`
    references; what they resolve against is a module `resources/base/media` folder, which is part of
    Q6.
-6. **Tests, for the C glue only.** As of 2026-11-13 this family has `./apps/harmony/check.sh`, which
-   builds `core/cpp/napi_bridge.c` and runs it twice: against a core that records every call, which
-   drives each refusal and holds the ledger that every block taken from `core_alloc` goes back to
-   `core_free` with its own size; and against the real `libbridge_c.a`, which opens, steps and closes
-   a core with a phone's config. That is the equivalent of the Xbox family's `smoke_test.cpp`, and
-   more of one than that file is. The runtime underneath both is `core/cpp/test/napi_stub.c`, a fake.
-   What neither proves is that OpenHarmony's own `napi/native_api.h` declares these calls the way the
-   upstream Node-API headers do, which is `OPEN-QUESTIONS.md` Q1 and is stated in
-   `core/cpp/test/napi/native_api.h`. **Nothing tests the ArkTS**, and nothing on this machine can.
+6. **Nothing RUNS the ArkTS, and nothing on this machine can.** `./apps/harmony/check.sh` holds this
+   family three ways and none of them is a compiler.
+
+   Two build and run `core/cpp/napi_bridge.c`: against a core that records every call, which drives
+   each refusal and holds the ledger that every block taken from `core_alloc` goes back to
+   `core_free` with its own size; and against the real `libbridge_c.a`, which opens, steps and
+   closes a core with a phone's config. The runtime underneath both is `core/cpp/test/napi_stub.c`,
+   a fake. What neither proves is that OpenHarmony's own `napi/native_api.h` declares these calls
+   the way the upstream Node-API headers do, which is `OPEN-QUESTIONS.md` Q1 and is stated in
+   `core/cpp/test/napi/native_api.h`.
+
+   The third, `touch_check.py`, READS the ArkTS. It cannot tell whether a file compiles, whether a
+   type is right, whether an `@Builder` may be called where it is called, whether `Repeat` takes the
+   arguments given it, or whether a vp is a dp. What it does tell is whether anything in the folder
+   was invented here: every number against the Kotlin that measured it, every colour and corner
+   against `brand.json`, every word against `strings/en.json`, every icon against the Android
+   phone's, every import against the file it names, and every length against being a named constant
+   at all. `surfaces/touch/README.md` has the table.
 7. **Six ArkUI calls are marked `ASSUMED` where they are used**, and no more than six: the alpha order
    of a hex colour string, `bindMenu`'s one-argument form, the six canvas text methods the Top 10
    numeral is drawn with, `effectKit`'s colour picker, whether `direction` is inherited down a

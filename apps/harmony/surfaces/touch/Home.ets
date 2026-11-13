@@ -34,7 +34,9 @@ import { SKIP_ALL } from './Heard';
 import { argb, BACK, CATEGORY_IDLE_INK, CORNER_BUTTON, FIRST_TINT, INK, round } from './Theme';
 import { ICON_CLIPS, ICON_HOME, ICON_SEARCH, ICON_USER } from './Icons';
 import {
-  AT_TOP_WITHIN, BAR_LIFT, BAR_ROOM, CHIPS_MS, CHIP_ROW, TINT_HIGH, TINT_MS, TOP_BAR,
+  AT_TOP_WITHIN, BAR_LIFT, BAR_ROOM, BILLBOARD_GAP, CATEGORY_PAD_HIGH, CATEGORY_PAD_SIDE,
+  CATEGORY_TOP, CATEGORY_TYPE, CHIP_ROW, CHIPS_MS, CLOSE_BOX, CLOSE_GLYPH_TYPE, CLOSE_LIFT,
+  TINT_HIGH, TINT_MS, TOP_BAR,
 } from './Sizes';
 
 /** The pages the chips offer, in the reference's order. `browse/Home.kt:82`. */
@@ -186,7 +188,7 @@ export struct Home {
             })
           }
           ListItem() {
-            Stack().height(16)
+            Stack().height(BILLBOARD_GAP)
           }
         }
         Repeat<Section>(this.rowList)
@@ -325,13 +327,13 @@ export struct Home {
             ListItem() {
               Stack() {
                 Text(held.item.label)
-                  .fontSize(21)
+                  .fontSize(CATEGORY_TYPE)
                   .fontWeight(this.chosenGenre(held.item) ? FontWeight.Bold : FontWeight.Medium)
                   .fontColor(this.chosenGenre(held.item) ? INK : CATEGORY_IDLE_INK)
                   .textAlign(TextAlign.Center)
               }
               .width('100%')
-              .padding({ top: 12, bottom: 12, left: 24, right: 24 })
+              .padding({ top: CATEGORY_PAD_HIGH, bottom: CATEGORY_PAD_HIGH, left: CATEGORY_PAD_SIDE, right: CATEGORY_PAD_SIDE })
               .onClick(() => {
                 this.categories = false;
                 this.shell.go(genreAddress(held.item.genre ?? ''));
@@ -345,21 +347,21 @@ export struct Home {
       .width('100%')
       .layoutWeight(1)
       .scrollBar(BarState.Off)
-      .contentStartOffset(40)
+      .contentStartOffset(CATEGORY_TOP)
 
       // A cross drawn on a canvas has nothing for a reader to gather, so this control is given
       // words (`browse/Home.kt:296-298`).
       Stack() {
         Text('×')
-          .fontSize(28)
+          .fontSize(CLOSE_GLYPH_TYPE)
           .fontColor(BACK)
           .accessibilityLevel(SKIP_ALL)
       }
-      .width(56)
-      .height(56)
+      .width(CLOSE_BOX)
+      .height(CLOSE_BOX)
       .backgroundColor(INK)
-      .borderRadius(round(CORNER_BUTTON, 56))
-      .margin({ bottom: 24 })
+      .borderRadius(round(CORNER_BUTTON, CLOSE_BOX))
+      .margin({ bottom: CLOSE_LIFT })
       .onClick(() => {
         this.categories = false;
       })
@@ -406,12 +408,24 @@ export struct Home {
   }
 
   /**
-   * The page's name, which the server translated. `browse/Home.kt:98-100`.
+   * The page's name, which the server translated. `browse/Home.kt:103-107`.
    *
-   * The Kotlin's last fallback is `words["app.title"]`, and there is NO `app.title` in
-   * `strings/en.json` -- checked on 2026-11-12, 301 keys, no such key. So that fallback draws an
-   * empty string on Android too, and this draws one here rather than inventing a word. It is an open
-   * item for `strings/`, not something to paper over in a surface.
+   * Ends on the brand, which is `seen.brand` and not a word of any language: the chosen genre, then
+   * the menu's label for this page, then `app.title`, then the brand.
+   *
+   * CORRECTED 2026-11-13. This file was written on 2026-11-12 against a Kotlin that ended on
+   * `words["app.title"]`, and it recorded in this comment that there is no `app.title` key in
+   * `strings/` and that the header therefore draws nothing. That is a defect, not a finding, and
+   * the Kotlin had already been fixed the same day (`browse/Home.kt:98-106` records it): a page the
+   * menu has no label for drew an empty header. The Apple surface has always fallen through to the
+   * brand (`apps/apple/Sources/SurfacesPhone/browse/Home.swift:55`); all three do now.
+   *
+   * `app.title` stays in the chain rather than being dropped, for the reason
+   * `apps/android/surfaces/phone/src/test/kotlin/streams/phone/WordsTest.kt` gives: whether the key
+   * is wanted at all is the owner's question, and until he takes it the chain is written the way
+   * all three families write it. It is read through `seen.words` directly and not through `word`,
+   * so this surface asks for no key that `strings/en.json` does not have -- which is what
+   * `touch_check.py`'s empty gap set says.
    */
   private pageName(): string {
     const picked = this.pickedGenre();
@@ -424,7 +438,11 @@ export struct Home {
         return item.label;
       }
     }
-    return word(this.seen, 'app.title');
+    const titled = this.seen.words['app.title'];
+    if (titled !== undefined && titled.length > 0) {
+      return titled;
+    }
+    return this.seen.brand;
   }
 
   /**

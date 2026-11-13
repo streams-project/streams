@@ -10,7 +10,8 @@
 // refuse to throw on one that is not JSON, because a screen that threw on a malformed body would
 // take the app down over a proxy's error page.
 import {
-  Hello, More, Nav, NotificationCount, ProfileGate, Screen, Season, Strings, TitleDetail,
+  Hello, More, Nav, NotificationCount, Notifications, ProfileGate, Screen, Season, Strings,
+  TitleDetail,
 } from './contract';
 
 function read<T>(text: string): T | null {
@@ -52,6 +53,11 @@ export function readStrings(text: string): Strings | null {
 
 export function readNotificationCount(text: string): NotificationCount | null {
   return read<NotificationCount>(text);
+}
+
+/** `GET /v1/notifications`, a page of the feed with its cursor. */
+export function readNotifications(text: string): Notifications | null {
+  return read<Notifications>(text);
 }
 
 export function readHello(text: string): Hello | null {

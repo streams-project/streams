@@ -28,10 +28,10 @@ import {
 import { ICON_CHECK, ICON_PLAY, ICON_PLUS } from './Icons';
 import {
   CARD_BOTTOM, CARD_LOGO_GAP, CARD_LOGO_HIGH, CARD_LOGO_SHARE, CARD_NAME_TYPE, CARD_PAD,
-  CARD_RATIO, CARD_SHARE, CARD_SIDE, CARD_TAGS_GAP, CARD_TAGS_MOST, CARD_TAGS_TYPE,
-  WIDE_BUTTON_GAP, WIDE_BUTTON_HIGH, WIDE_BUTTON_ICON, WIDE_BUTTON_TYPE,
+  CARD_RATIO, CARD_SHARE, CARD_SIDE, CARD_TAGS_GAP, CARD_TAGS_MOST, CARD_TAGS_TYPE, HAIRLINE,
+  WIDE_BUTTON_GAP, WIDE_BUTTON_HIGH, WIDE_BUTTON_ICON, WIDE_BUTTON_TYPE, WIDE_BUTTON_WORD_GAP,
+  widthClass, WidthClass,
 } from './Sizes';
-import { WidthClass, widthClass } from './Sizes';
 
 @ComponentV2
 export struct Billboard {
@@ -141,7 +141,7 @@ export struct Billboard {
       .backgroundColor(CARD_PLATE)
       .borderRadius(CORNER_PANEL)
       .clip(true)
-      .border({ width: 1, color: argb(INK, 0.28) })
+      .border({ width: HAIRLINE, color: argb(INK, 0.28) })
       .onClick(() => this.open())
       // "The card is one control that opens the title. Its picture, its logo and its tag line carry
       // the same name between them, so the name is said once, here, and the two buttons inside it
@@ -168,7 +168,7 @@ export struct Billboard {
         .height(WIDE_BUTTON_ICON)
         .fillColor(ink)
         .accessibilityLevel(SKIP_ALL)
-      Stack().width(6)
+      Stack().width(WIDE_BUTTON_WORD_GAP)
       Text(says)
         .fontSize(WIDE_BUTTON_TYPE)
         .fontWeight(FontWeight.Medium)

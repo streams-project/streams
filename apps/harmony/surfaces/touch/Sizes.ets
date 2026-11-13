@@ -366,3 +366,195 @@ export const GATE_NAME_TYPE: number = 20;
 /** Its line, 8.2 under the logo. `profiles/GateArt.kt:185-189`. */
 export const GATE_LINE_TYPE: number = 14;
 export const GATE_LINE_GAP: number = 8.2;
+
+// ---------------------------------------------------------------------------------------------
+// Added 2026-11-13. Every one of these was a bare number written at its call site until that day,
+// which is 86 lengths across nine files and exactly the thing this file's head forbids: a number
+// with no citation is a number this surface may not draw with, and `surfaces/touch/README.md`
+// claimed none existed. `apps/harmony/touch_check.py` now reads every length a screen draws with
+// and fails on any that is not one of the names here, so the claim is held rather than made.
+//
+// They are grouped by what they belong to, not by the file they were found in.
+
+/**
+ * The thinnest line this surface draws: the billboard's second button, the floating bar's edge, a
+ * chip's outline and the title page's rule under its facts. One device unit, not a figure off a
+ * capture -- `browse/Header.kt:197`, `title/Title.kt:608` and the two borders write `1.dp`.
+ */
+export const HAIRLINE: number = 1;
+
+/** The gap between a wide button's icon and its word. `browse/Billboard.kt:216`. */
+export const WIDE_BUTTON_WORD_GAP: number = 6;
+
+/** The count drawn on the bell: 10 bold, 4 by 1 inside, 8 down and 6 in. `browse/Header.kt:117-124`. */
+export const BELL_COUNT_TYPE: number = 10;
+export const BELL_COUNT_PAD_SIDE: number = 4;
+export const BELL_COUNT_PAD_TOP: number = 1;
+export const BELL_COUNT_TOP: number = 8;
+export const BELL_COUNT_END: number = 6;
+
+/** After the last box of the top bar, so the row ends on a gap and not on the edge. `browse/Header.kt:130`. */
+export const BAR_BOX_GAP: number = 4;
+
+/** A chip that drops: the gap before its caret, and the caret. `browse/Header.kt:213-214`. */
+export const CHIP_CARET_GAP: number = 4;
+export const CHIP_CARET: number = 18;
+
+/**
+ * The kids badge on a face: 9 extra bold, cornered 2, 4 by 1 inside, and inset 4 from the corner
+ * it sits in. `profiles/GateGrid.kt:194-202`.
+ */
+export const KIDS_BADGE_TYPE: number = 9;
+export const KIDS_BADGE_CORNER: number = 2;
+export const KIDS_BADGE_PAD_SIDE: number = 4;
+export const KIDS_BADGE_PAD_TOP: number = 1;
+export const BADGE_INSET: number = 4;
+
+/** The pencil over a face in manage mode. `profiles/GateGrid.kt:218`. */
+export const GATE_PENCIL: number = 26;
+
+/**
+ * A face's name, and the padlock under it when the profile has a PIN: 14, four under the name.
+ * `profiles/GateGrid.kt:228,240-246,287`.
+ *
+ * CORRECTED 2026-11-13. This surface drew the name at 13 and the padlock at 16 laid over the
+ * face's bottom corner. The Kotlin draws the name at 14 and the padlock at 14 BELOW the name, and
+ * neither number nor place was a decision recorded anywhere here -- they were a transcription. The
+ * citation check could not see it, because the sizes were not in this file at all.
+ */
+export const FACE_NAME_TYPE: number = 14;
+export const FACE_LOCK: number = 14;
+export const FACE_LOCK_GAP: number = 4;
+
+/** Between the billboard and the first row. `browse/Home.kt:232`. */
+export const BILLBOARD_GAP: number = 16;
+
+/** The categories page: 21 a line, 12 by 24 around each, 40 down from the top, 120 clear at the foot. `browse/Home.kt:298,311,317`. */
+export const CATEGORY_TYPE: number = 21;
+export const CATEGORY_PAD_HIGH: number = 12;
+export const CATEGORY_PAD_SIDE: number = 24;
+export const CATEGORY_TOP: number = 40;
+export const CATEGORY_BOTTOM: number = 120;
+
+/** Its round close, and how far it sits off the foot. `browse/Home.kt:329-330`. */
+export const CLOSE_BOX: number = 56;
+export const CLOSE_LIFT: number = 24;
+
+/** The gap between the back arrow and the name on a page a row's name opens. `browse/Rows.kt:540`. */
+export const GRID_BAR_GAP: number = 8;
+
+/** The New badge's corner. `browse/Rows.kt:470`. */
+export const BADGE_NEW_CORNER: number = 4;
+
+/** A Continue tile's two round buttons: the glyph inside, and the room beside its word. `browse/Rows.kt:369,385,400`. */
+export const CONTINUE_ICON: number = 20;
+export const CONTINUE_WORD_PAD: number = 4;
+
+/** The title page's facts line, 8 under the name. `title/Title.kt:239`. */
+export const TITLE_FACTS_TOP: number = 8;
+
+/** A title that has not arrived: its line at 15, 10 down, and the reminder 8 under that. `title/Title.kt:308-310,324`. */
+export const TITLE_COMING_TYPE: number = 15;
+export const TITLE_COMING_TOP: number = 10;
+export const TITLE_REMIND_TOP: number = 8;
+
+/** Between a wide title-page button's icon and its word. `title/Title.kt:339`. */
+export const TITLE_BUTTON_WORD_GAP: number = 8;
+
+/** The play button, 10 under the facts; the synopsis 10 under that; the genres 8 under that. `title/Title.kt:310,409,448`. */
+export const TITLE_PLAY_TOP: number = 10;
+export const TITLE_SYNOPSIS_TOP: number = 10;
+export const TITLE_GENRES_TOP: number = 8;
+
+/** The row of actions: 16 down, 4 in, each 4 deep inside. `title/Title.kt:457,497`. */
+export const TITLE_ACTIONS_TOP: number = 16;
+export const TITLE_ACTIONS_START: number = 4;
+export const TITLE_ACTION_PAD_HIGH: number = 4;
+
+/** The three ratings: 4 apart, 8 under the actions, 8 by 4 inside. `title/Title.kt:481,497,513`. */
+export const RATE_GAP: number = 4;
+export const RATE_TOP: number = 8;
+export const RATE_PAD_SIDE: number = 8;
+export const RATE_PAD_HIGH: number = 4;
+
+/** The season chip, 12 clear above and below. `title/Episodes.kt:102,132`. */
+export const SEASON_CHIP_TOP: number = 12;
+
+/** One episode: its length 2 under its name, its description 8 under that, 4 deep in all. `title/Episodes.kt:229,297,312`. */
+export const EPISODE_LENGTH_TOP: number = 2;
+export const EPISODE_TEXT_TOP: number = 8;
+export const EPISODE_PAD_HIGH: number = 4;
+
+/** The season sheet's close, off the foot. `title/Episodes.kt:194`. */
+export const SEASON_CLOSE_LIFT: number = 20;
+
+// ---------------------------------------------------------------------------------------------
+// NOT MEASURED. Three numbers this surface chose, and the only three in this file.
+//
+// Each one is a substitution rather than a port: the Android surface draws its close as two lines
+// on a `Canvas` (`browse/Home.kt:340-341`, `title/Title.kt:179-180`, `title/Episodes.kt:202`), and
+// this surface draws the multiplication sign at a size that fills the same box, because ArkUI's
+// canvas text was already the one `ASSUMED` call in `Tiles.ets` and a glyph needs none of it. The
+// Kotlin's own numbers are the canvas box -- 20, 20 and 16 -- and a type size is not a box size,
+// so citing them here would be a false citation.
+//
+// `apps/harmony/touch_check.py` holds this list exactly: a fourth number cannot join it quietly,
+// and taking one away without giving it a citation fails too. What would settle all three is one
+// look at the drawn screen, which wants the SDK.
+
+/** The categories page's close glyph, in a 56 box. `browse/Home.kt:339` draws a 20 canvas instead. */
+export const CLOSE_GLYPH_TYPE: number = 28;
+/** The title page's close glyph, in a 48 box. `title/Title.kt:179` draws a 16 canvas instead. */
+export const TITLE_CLOSE_GLYPH_TYPE: number = 20;
+/** The season sheet's close glyph, in a 64 box. `title/Episodes.kt:202` draws a 20 canvas instead. */
+export const SEASON_CLOSE_GLYPH_TYPE: number = 30;
+
+/** The rule under the title page's actions, 16 down from them. `title/Title.kt:606`. */
+export const TITLE_RULE_TOP: number = 16;
+
+// ---------------------------------------------------------------------------------------------
+// The notifications screen, added 2026-11-13 with the screen itself. Every figure is
+// `apps/android/surfaces/phone/src/main/kotlin/streams/phone/notifications/Notifications.kt`, which
+// is the only measurement of this screen the project has.
+
+/** Its bar: 52 high with a 48 box 4 in, a 24 glyph and the page's name at 22 bold. `notifications/Notifications.kt:127,132-133,142,152`. */
+export const NOTICE_BAR: number = 52;
+export const NOTICE_BAR_EDGE: number = 4;
+export const NOTICE_TITLE_TYPE: number = 22;
+
+/** When there is nothing: a 48 bell, 16 of room, and a line at 16. `notifications/Notifications.kt:169-176`. */
+export const NOTICE_EMPTY_ICON: number = 48;
+export const NOTICE_EMPTY_GAP: number = 16;
+export const NOTICE_EMPTY_TYPE: number = 16;
+
+/** The list: 8 clear top and bottom, and 16 around the waiting mark at its foot. `notifications/Notifications.kt:184,212`. */
+export const NOTICE_LIST_PAD: number = 8;
+export const NOTICE_MORE_PAD: number = 16;
+
+/** One notice: 16 by 10 around it, a 72 x 104 poster, 16 to its words. `notifications/Notifications.kt:248,253,268`. */
+export const NOTICE_PAD_SIDE: number = 16;
+export const NOTICE_PAD_HIGH: number = 10;
+export const NOTICE_ART_WIDE: number = 72;
+export const NOTICE_ART_HIGH: number = 104;
+export const NOTICE_ART_GAP: number = 16;
+
+/** Its kind, as a chip: 8 by 2 inside, 11 semibold, 6 under it. `notifications/Notifications.kt:282,287,291`. */
+export const NOTICE_KIND_PAD_SIDE: number = 8;
+export const NOTICE_KIND_PAD_HIGH: number = 2;
+export const NOTICE_KIND_TYPE: number = 11;
+export const NOTICE_KIND_GAP: number = 6;
+
+/** Its name at 16 bold, then its date at 13 four under it. `notifications/Notifications.kt:297,303,308`. */
+export const NOTICE_NAME_TYPE: number = 16;
+export const NOTICE_DATE_GAP: number = 4;
+export const NOTICE_DATE_TYPE: number = 13;
+
+/** The unread dot, 12 clear of the words. `notifications/Notifications.kt:313,316`. */
+export const NOTICE_DOT_GAP: number = 12;
+export const NOTICE_DOT: number = 8;
+
+/**
+ * How close to the end of the list the viewer comes before the next page is asked for.
+ * `notifications/Notifications.kt:105`: `lastVisible >= items.size - 3`.
+ */
+export const NOTICES_AHEAD: number = 3;

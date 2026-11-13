@@ -12,11 +12,15 @@ import { Pictures, Seen } from '../../ports/Ports';
 import { Art } from './Pictures';
 import { fill, word } from './Words';
 import { SKIP_ALL } from './Heard';
-import { ACCENT, argb, CHIP_INK, CORNER_BUTTON, CORNER_CHIP, CORNER_CHIP_END, INK, round } from './Theme';
+import {
+  ACCENT, argb, BLACK, CHIP_INK, CORNER_BUTTON, CORNER_CHIP, CORNER_CHIP_END, INK, round,
+} from './Theme';
 import { ICON_BACK, ICON_BELL, ICON_CARET_DOWN } from './Icons';
 import {
-  BAR_BOX, BAR_BOX_EDGE, BAR_ICON, CHIP_EDGE, CHIP_GAP, CHIP_HIGH, CHIP_PAD, CHIP_ROW, CHIP_TYPE,
-  MARK, OUTLINE_HIGH, PAGE_NAME_TYPE, TOP_BAR,
+  BAR_BOX, BAR_BOX_EDGE, BAR_BOX_GAP, BAR_ICON, BELL_COUNT_END, BELL_COUNT_PAD_SIDE,
+  BELL_COUNT_PAD_TOP, BELL_COUNT_TOP, BELL_COUNT_TYPE, CHIP_CARET, CHIP_CARET_GAP, CHIP_EDGE,
+  CHIP_GAP, CHIP_HIGH, CHIP_PAD, CHIP_ROW, CHIP_TYPE, HAIRLINE, MARK, OUTLINE_HIGH,
+  PAGE_NAME_TYPE, TOP_BAR,
 } from './Sizes';
 
 /**
@@ -97,14 +101,14 @@ export struct TopBar {
           if (this.unread > 0) {
             // The count is drawn on the bell, so the bell says it (`browse/Header.kt:100-105`).
             Text(this.unread > 9 ? '9+' : this.unread.toString())
-              .fontSize(10)
+              .fontSize(BELL_COUNT_TYPE)
               .fontWeight(FontWeight.Bold)
               .fontColor(INK)
               .backgroundColor(ACCENT)
               .borderRadius(round(CORNER_BUTTON, 14))
-              .padding({ left: 4, right: 4, top: 1, bottom: 1 })
+              .padding({ left: BELL_COUNT_PAD_SIDE, right: BELL_COUNT_PAD_SIDE, top: BELL_COUNT_PAD_TOP, bottom: BELL_COUNT_PAD_TOP })
               .maxLines(1)
-              .margin({ top: 8, right: 6 })
+              .margin({ top: BELL_COUNT_TOP, right: BELL_COUNT_END })
               .accessibilityLevel(SKIP_ALL)
           }
         }
@@ -114,7 +118,7 @@ export struct TopBar {
         .accessibilityGroup(true)
         .accessibilityText(this.bellSays())
 
-        Stack().width(4)
+        Stack().width(BAR_BOX_GAP)
       }
     }
     .width('100%')
@@ -197,10 +201,10 @@ export struct ChipRow {
         .maxLines(1)
 
       if (chip.drops) {
-        Stack().width(4)
+        Stack().width(CHIP_CARET_GAP)
         Image(ICON_CARET_DOWN)
-          .width(18)
-          .height(18)
+          .width(CHIP_CARET)
+          .height(CHIP_CARET)
           .fillColor(this.ink(chip))
           .accessibilityLevel(SKIP_ALL)
       }
@@ -209,7 +213,7 @@ export struct ChipRow {
     .padding({ start: LengthMetrics.vp(CHIP_PAD), end: LengthMetrics.vp(CHIP_PAD) })
     .backgroundColor(this.fillOf(chip))
     .borderRadius(this.corners(index))
-    .border({ width: 1, color: this.edgeOf(chip) })
+    .border({ width: HAIRLINE, color: this.edgeOf(chip) })
     .onClick(chip.go)
     // A chip draws its own word, and the caret beside it is inside this node, so the word is
     // gathered rather than given again (`browse/Header.kt:199-200`).
@@ -261,6 +265,6 @@ export struct ChipRow {
   }
 
   private ink(chip: Chip): string {
-    return chip.chosen ? '#000000' : CHIP_INK;
+    return chip.chosen ? BLACK : CHIP_INK;
   }
 }

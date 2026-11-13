@@ -8,8 +8,16 @@ a pointer surface, which no family has built yet. That is an open item, not some
 here: a phone layout stretched to a desktop is the same mistake as a desktop layout scaled up to a
 television.
 
-**20 files, 5,382 lines, written 2026-11-12. Not one line compiled.** No HarmonyOS SDK and no device
-were on the machine, and `../../OPEN-QUESTIONS.md` says what that leaves and what would close it.
+**Written from 2026-11-12. Not one line compiled.** No HarmonyOS SDK and no device were on the
+machine, and `../../OPEN-QUESTIONS.md` says what that leaves and what would close it. What is here
+is what this folder holds:
+
+    ls apps/harmony/surfaces/touch
+
+and what holds it is
+
+    ./apps/harmony/check.sh
+
 Every ArkTS and ArkUI call used is either in the reference documentation read that day, or marked
 `ASSUMED` where it is used — there is no third category, and nothing here was written from memory of
 an API.
@@ -30,6 +38,7 @@ an API.
 | `Gate.ets` | the profile chooser: carousel, arc sheet, grid, manage mode | `profiles/Gate.kt`, `profiles/GateGrid.kt`, `profiles/GateArt.kt` |
 | `GateTint.ets` | the gate's colour model, HSV by hand | `profiles/GateTint.kt` |
 | `Search.ets` | search — read its head before changing it | `tv/search/Search.kt` for behaviour only |
+| `Notifications.ets` | the notifications feed, its paging and its read mark | `notifications/Notifications.kt` |
 | `Face.ets` | a profile's picture, or its first letter | `shared/Face.kt` |
 | `Pictures.ets` | `Art`, which draws what the `Pictures` port hands back | `shared/Art.kt` |
 | `Paging.ets` | how a page and a row grow through `/v1/more/{cursor}` | `browse/Paging.kt` |
@@ -43,12 +52,10 @@ an API.
 
 ## What is not written, and is not pretended
 
-Five routes draw nothing, each named in `Root.ets` with the Kotlin that specifies it: the server
-address screen, `start` (`door/Doors.kt`), `sign_in`, `watch` (`watch/Watch.kt` and the player's
-controls) and the notifications screen (`notifications/Notifications.kt`). The opening
-(`app/Opening.kt`, 309 lines) is not here either. Adding and editing a profile
-(`profiles/AddProfile.kt`, `profiles/EditProfile.kt`, 1,505 lines between them) are raised by the
-gate and go nowhere. A blank page is the honest state; a placeholder would be the `apps/roku`
+Four routes draw nothing, each named in `Root.ets` with the Kotlin that specifies it: the server
+address screen, `start` (`door/Doors.kt`), `sign_in` and `watch` (`watch/Watch.kt` and the player's
+controls). It was five until 2026-11-13, when the notifications screen was written. The opening (`app/Opening.kt`) is not here either. Adding and editing a profile
+(`profiles/AddProfile.kt`, `profiles/EditProfile.kt`) are raised by the gate and go nowhere. A blank page is the honest state; a placeholder would be the `apps/roku`
 mistake.
 
 ## The measured shape every screen here meets
@@ -139,3 +146,30 @@ the address table   "/(home|browse|latest|login|sign-in|profiles|search|help|set
 colour out of a `PixelMap` the port already handed over, which is what `androidx.palette` does inside
 the Android surface at `browse/Billboard.kt:134`. If it is to be banned, the colour moves into the
 `Pictures` port for both families at once.
+
+## What holds this folder, with no SDK on the machine
+
+    ./apps/harmony/check.sh
+
+Its third suite is `apps/harmony/touch_check.py`, which reads every `.ets` file here as text and
+holds it against what it was written from. It proves nothing about whether any of this COMPILES.
+What it proves is that nothing in it was invented here:
+
+| What it reads | Against |
+|---|---|
+| every `Sizes.ets` constant | the Android phone Kotlin file its citation names |
+| the tile, its ratio and the tiles across a row | the arithmetic this README states for them |
+| `Theme.ets`'s colours and corners | `brand.json`, by role |
+| every other `.ets` file | that it spells no colour, no corner and no brand name of its own |
+| every length a screen draws with | that it is a named constant and not a literal |
+| every word key the folder names | `strings/en.json` |
+| every `.ets` file | that it spells no English a viewer could read |
+| every `.ets` file | that it calls no HarmonyOS kit a port is for, and spells no address |
+| `Icons.ets` | the `R.drawable.icon_*` the Android phone surface draws, name for name |
+| every import from a sibling | that the sibling exports it and this file uses it |
+
+Two lists in it are exact rather than open: the three numbers this surface chose rather than
+measured (the three close glyphs), and the two icons named here that no screen here draws yet. A
+fourth of either cannot appear without a line saying why.
+
+What it cannot do is in `../../README.md` under "What cannot be done without the SDK and a device".

@@ -4,16 +4,18 @@
 // It is also the one place that holds `Seen`, measures the window, and sets the language's digits.
 // Everything under it is handed what it needs and reaches nothing itself.
 //
-// WHAT IS NOT BEHIND THIS SWITCH. Five of the twelve targets have no screen in this folder, and
+// WHAT IS NOT BEHIND THIS SWITCH. Four of the twelve targets have no screen in this folder, and
 // they are listed by name rather than sent somewhere that looks like it worked:
 //
-//   `start`                     `door/Doors.kt` (152 lines)
+//   `start`                     `door/Doors.kt`
 //   `sign_in`                   the phone's sign in form, and the television's code screen
-//   `watch`                     `watch/Watch.kt` (96 lines) plus the player's own controls
-//   `screen` = notifications    `notifications/Notifications.kt` (322 lines)
+//   `watch`                     `watch/Watch.kt` plus the player's own controls
 //   the server address screen   drawn when `seen.server` is empty, before anything else
-//   the opening                 `app/Opening.kt` (309 lines), which covers the first screen while
-//                               it builds and lifts as it hands over
+//   the opening                 `app/Opening.kt`, which covers the first screen while it builds
+//                               and lifts as it hands over
+//
+// It was five until 2026-11-13, when `screen` = notifications gained a screen of its own, written
+// from `notifications/Notifications.kt`. See `Notifications.ets`.
 //
 // A target with no screen draws nothing. That is deliberate: a placeholder would be the `apps/roku`
 // mistake -- something that looks like a surface and is not -- and a viewer who reaches a blank page
@@ -25,6 +27,7 @@ import { Seen, Shell } from '../../ports/Ports';
 import { Home } from './Home';
 import { Gate } from './Gate';
 import { SearchScreen } from './Search';
+import { NotificationsScreen } from './Notifications';
 import { Title } from './Title';
 import { Speaking } from './Words';
 import { BACK } from './Theme';
@@ -115,6 +118,12 @@ export struct Root {
         pictures: this.shell.pictures,
         screenWide: this.wide,
       })
+    } else if (this.isNotifications()) {
+      NotificationsScreen({
+        shell: this.shell,
+        seen: this.seen,
+        pictures: this.shell.pictures,
+      })
     } else if (this.isSearch()) {
       SearchScreen({
         shell: this.shell,
@@ -149,14 +158,17 @@ export struct Root {
     return this.target() === 'screen' && this.seen.route?.screen === 'search';
   }
 
+  /** `notifications` is a `screen` target with a screen of its own, so it is not sent to `Home`. */
+  private isNotifications(): boolean {
+    return this.target() === 'screen' && this.seen.route?.screen === 'notifications';
+  }
+
   /** `app/Root.kt:71-72`: home, the kids' home, and every other server-built page. */
   private isBrowse(): boolean {
     const target = this.target();
     if (target === 'home' || target === 'kids_home') {
       return true;
     }
-    // `notifications` is a `screen` target too, and it has a screen of its own in the Android
-    // family that is not written here, so it is not sent to `Home`.
-    return target === 'screen' && this.seen.route?.screen !== 'notifications';
+    return target === 'screen' && !this.isNotifications();
   }
 }

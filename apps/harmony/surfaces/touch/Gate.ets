@@ -30,15 +30,17 @@ import { Face } from './Face';
 import { logo } from './Pick';
 import { fill, number, word } from './Words';
 import { SKIP_ALL } from './Heard';
-import { argb, BLACK, INK, JOIN } from './Theme';
+import { argb, BLACK, INK, JOIN, round } from './Theme';
 import { ICON_CHECK, ICON_LOCKED, ICON_PENCIL, ICON_PLUS } from './Icons';
 import { GateTint } from './GateTint';
 import {
-  FACE_BOX, FACE_CORNER, FACE_LETTER_TYPE, FACE_NAME_GAP, GATE_ACROSS, GATE_BLOCK_DROP,
-  GATE_BLOCK_LIFT, GATE_COLUMN_GAP, GATE_EVERY_MS, GATE_FADE_MS, GATE_GRID_DROP, GATE_LABEL_EDGE,
-  GATE_LABEL_LIFT, GATE_LABEL_TYPE, GATE_ROW_GAP, GATE_ROW_TOP, GATE_ROW_TOP_LEAST,
-  GATE_LINE_GAP, GATE_LINE_TYPE, GATE_LOGO_HIGH, GATE_LOGO_WIDE, GATE_NAME_TYPE, GATE_NAME_WIDE,
-  GATE_ROW_TOP_ROOM, GATE_SHEET_DROP, GATE_SHEET_SAG, GATE_STILLS, GATE_ZOOM, PROFILES_MAX,
+  BADGE_INSET, FACE_BOX, FACE_CORNER, FACE_LETTER_TYPE, FACE_LOCK, FACE_LOCK_GAP, FACE_NAME_GAP,
+  FACE_NAME_TYPE, GATE_ACROSS, GATE_BLOCK_DROP, GATE_BLOCK_LIFT, GATE_COLUMN_GAP, GATE_EVERY_MS,
+  GATE_FADE_MS, GATE_GRID_DROP, GATE_LABEL_EDGE, GATE_LABEL_LIFT, GATE_LABEL_TYPE, GATE_LINE_GAP,
+  GATE_LINE_TYPE, GATE_LOGO_HIGH, GATE_LOGO_WIDE, GATE_NAME_TYPE, GATE_NAME_WIDE, GATE_PENCIL,
+  GATE_ROW_GAP, GATE_ROW_TOP, GATE_ROW_TOP_LEAST, GATE_ROW_TOP_ROOM, GATE_SHEET_DROP,
+  GATE_SHEET_SAG, GATE_STILLS, GATE_ZOOM, KIDS_BADGE_CORNER, KIDS_BADGE_PAD_SIDE,
+  KIDS_BADGE_PAD_TOP, KIDS_BADGE_TYPE, PROFILES_MAX,
 } from './Sizes';
 
 /** What one cell of the grid is. The grid is profiles, then the actions. `profiles/GateGrid.kt:66-72`. */
@@ -313,30 +315,26 @@ export struct Gate {
 
         if (!this.manage && person.kids) {
           Text(word(this.seen, 'profile.badge.kids'))
-            .fontSize(9)
+            .fontSize(KIDS_BADGE_TYPE)
             .fontWeight(FontWeight.Bolder)
             .fontColor(INK)
             .backgroundColor(JOIN)
-            .borderRadius(2)
-            .padding({ left: 4, right: 4, top: 1, bottom: 1 })
-            .offset({ x: -4, y: -4 })
-            .accessibilityLevel(SKIP_ALL)
-        }
-
-        if (!this.manage && person.has_pin) {
-          Image(ICON_LOCKED)
-            .width(16)
-            .height(16)
-            .fillColor(INK)
-            .offset({ x: -4, y: -4 })
+            .borderRadius(KIDS_BADGE_CORNER)
+            .padding({
+              left: KIDS_BADGE_PAD_SIDE,
+              right: KIDS_BADGE_PAD_SIDE,
+              top: KIDS_BADGE_PAD_TOP,
+              bottom: KIDS_BADGE_PAD_TOP,
+            })
+            .offset({ x: -BADGE_INSET, y: -BADGE_INSET })
             .accessibilityLevel(SKIP_ALL)
         }
 
         if (this.manage) {
           Stack() {
             Image(ICON_PENCIL)
-              .width(26)
-              .height(26)
+              .width(GATE_PENCIL)
+              .height(GATE_PENCIL)
               .fillColor(INK)
               .accessibilityLevel(SKIP_ALL)
           }
@@ -354,10 +352,25 @@ export struct Gate {
       Stack().height(FACE_NAME_GAP)
 
       Text(person.name)
-        .fontSize(13)
+        .fontSize(FACE_NAME_TYPE)
+        .fontWeight(FontWeight.Bold)
         .fontColor(INK)
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
+
+      // CORRECTED 2026-11-13. The padlock was drawn over the face's bottom corner at 16, beside
+      // the kids badge. `profiles/GateGrid.kt:240-246` draws it UNDER the name, at 14, four down
+      // -- and nothing in this folder recorded a reason to differ, so it was a transcription and
+      // not a decision. The reader's side was already right: the tile says the padlock as part of
+      // its own label (`profiles/GateGrid.kt:159-162`), which is why the picture is decoration.
+      if (!this.manage && person.has_pin) {
+        Stack().height(FACE_LOCK_GAP)
+        Image(ICON_LOCKED)
+          .width(FACE_LOCK)
+          .height(FACE_LOCK)
+          .fillColor(INK)
+          .accessibilityLevel(SKIP_ALL)
+      }
     }
     .width(FACE_BOX)
     .onClick(() => this.chose(person))
@@ -393,7 +406,7 @@ export struct Gate {
       Stack().height(FACE_NAME_GAP)
 
       Text(this.actionWord(kind))
-        .fontSize(13)
+        .fontSize(FACE_NAME_TYPE)
         .fontColor(INK)
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })

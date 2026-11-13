@@ -37,11 +37,11 @@ import { Art } from './Pictures';
 import { tall, titleAddress } from './Pick';
 import { word } from './Words';
 import { SKIP_ALL } from './Heard';
-import { BACK, CORNER_CARD, CORNER_FIELD, INK, MUTED, RAISED } from './Theme';
+import { BACK, CORNER_CARD, CORNER_FIELD, INK, MUTED, RAISED, round } from './Theme';
 import { ICON_BACK } from './Icons';
 import {
-  BAR_BOX, BAR_ICON, BAR_ROOM, GRID_ACROSS, GRID_BAR, GRID_EDGE_HIGH, GRID_TITLE_TYPE, OFFERED,
-  ROW_START, SETTLE_MS, TILE_GAP, TILE_HIGH, TILE_RATIO, TILE_WIDE,
+  BAR_BOX, BAR_ICON, BAR_ROOM, GRID_ACROSS, GRID_BAR, GRID_BAR_GAP, GRID_EDGE_HIGH,
+  GRID_TITLE_TYPE, OFFERED, ROW_START, SETTLE_MS, TILE_GAP, TILE_HIGH, TILE_RATIO, TILE_WIDE,
 } from './Sizes';
 
 /**
@@ -151,7 +151,7 @@ export struct SearchScreen {
         .accessibilityGroup(true)
         .accessibilityText(word(this.seen, 'common.back'))
 
-        Stack().width(8)
+        Stack().width(GRID_BAR_GAP)
 
         Text(word(this.seen, 'nav.search'))
           .fontSize(GRID_TITLE_TYPE)

@@ -75,8 +75,14 @@ export const CHIP_INK: string = '#bfbfbe';
 export const BAR_FILL: string = '#2d2d2d';
 export const BAR_CHOSEN: string = '#383838';
 export const BAR_IDLE_INK: string = '#c0c0c0';
-/** The gate's edit and action tiles. `profiles/GateGrid.kt:44`. */
+/**
+ * The gate's edit and action tiles, and the same grey the gate wears when no picture has been read
+ * yet. `profiles/GateGrid.kt:44` and `profiles/GateTint.kt:39`, which are the same value in the
+ * Kotlin too -- `Color(0xFF333333)` in both -- so it is one constant here and not two.
+ */
 export const TILE_GREY: string = '#333333';
+/** The band behind the gate before a picture has been read. `profiles/GateTint.kt:34,55`. */
+export const GATE_NEUTRAL_BAND: string = '#1a1a1a';
 /** A Top 10 numeral: filled this, stroked that. `browse/Rows.kt:282,292`. */
 export const RANK_FILL: string = '#1e1e1e';
 export const RANK_STROKE_INK: string = '#9e9e9e';

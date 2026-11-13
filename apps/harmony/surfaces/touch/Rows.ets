@@ -15,7 +15,7 @@ import { LengthMetrics } from '@kit.ArkUI';
 import { Section, SectionKind, Tile } from '../../contract/contract';
 import { Pictures, Seen } from '../../ports/Ports';
 import { Depth } from './Paging';
-import { ContinueCard, rankOf, RankedTileCard, TileCard } from './Tiles';
+import { ContinueCard, RankedTileCard, rankOf, TileCard } from './Tiles';
 import { Art } from './Pictures';
 import { tall } from './Pick';
 import { warm } from './Pictures';
@@ -24,9 +24,9 @@ import { SKIP_ALL } from './Heard';
 import { argb, BACK, CORNER_CARD, INK, RAISED } from './Theme';
 import { ICON_BACK } from './Icons';
 import {
-  BAR_BOX, BAR_ICON, CONTINUE_HIGH, CONTINUE_STRIP_HIGH, GRID_ACROSS, GRID_BAR, GRID_EDGE_HIGH,
-  GRID_TITLE_TYPE, ROW_GAP, ROW_NAME_GAP, ROW_NAME_HIGH, ROW_NAME_TYPE, ROW_OPENS_PAST, ROW_START,
-  TILE_GAP, TILE_HIGH, TILE_WIDE, WARM_AHEAD,
+  BAR_BOX, BAR_ICON, CONTINUE_HIGH, CONTINUE_STRIP_HIGH, GRID_ACROSS, GRID_BAR, GRID_BAR_GAP,
+  GRID_EDGE_HIGH, GRID_TITLE_TYPE, ROW_GAP, ROW_NAME_GAP, ROW_NAME_HIGH, ROW_NAME_TYPE,
+  ROW_OPENS_PAST, ROW_START, TILE_GAP, TILE_HIGH, TILE_WIDE, WARM_AHEAD,
 } from './Sizes';
 
 /** The rows a page shows, in the server's order. `browse/Rows.kt:76`. */
@@ -276,7 +276,7 @@ export struct RowGrid {
         .accessibilityGroup(true)
         .accessibilityText(word(this.seen, 'common.back'))
 
-        Stack().width(8)
+        Stack().width(GRID_BAR_GAP)
 
         Text(this.section.title ?? '')
           .fontSize(GRID_TITLE_TYPE)

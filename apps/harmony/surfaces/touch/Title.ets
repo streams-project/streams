@@ -30,18 +30,24 @@ import {
   ICON_THUMB_DOWN, ICON_THUMB_DOWN_FILLED, ICON_THUMB_UP, ICON_THUMB_UP_FILLED,
 } from './Icons';
 import {
-  BAR_BOX, BAR_ICON, BAR_ROOM, EPISODES_EDGE, EPISODE_ART_HIGH,
-  EPISODE_ART_WIDE, EPISODE_GAP, EPISODE_LENGTH_TYPE, EPISODE_NAME_LINE, EPISODE_NAME_TYPE,
+  BAR_BOX, BAR_ICON, BAR_ROOM, EPISODE_ART_HIGH, EPISODE_ART_WIDE, EPISODE_GAP,
+  EPISODE_LENGTH_TOP, EPISODE_LENGTH_TYPE, EPISODE_NAME_LINE, EPISODE_NAME_TYPE, EPISODE_PAD_HIGH,
   EPISODE_RING, EPISODE_RING_EDGE, EPISODE_RING_ICON, EPISODE_ROW_GAP, EPISODE_TEXT_LINE,
-  EPISODE_TEXT_LINES, EPISODE_TEXT_TYPE, MORE_ACROSS, MORE_EDGE_HIGH, MORE_EDGE_SIDE, MORE_GAP,
-  PROGRESS_HIGH, SEASON_CHIP_GAP, SEASON_CHIP_HIGH, SEASON_CHIP_PAD, SEASON_CHIP_TYPE,
-  TILE_RATIO, TITLE_ACTION_GAP, TITLE_ACTION_ICON, TITLE_ACTION_TYPE, TITLE_ACTION_WIDE,
-  TITLE_ACTION_WORD_GAP, TITLE_AGE_PAD_SIDE, TITLE_AGE_PAD_TOP, TITLE_AGE_TYPE, TITLE_ART_RATIO,
-  TITLE_BAR, TITLE_BODY_EDGE, TITLE_FACTS_GAP, TITLE_FACTS_TYPE, TITLE_GENRES_FEW,
-  TITLE_GENRES_LINE, TITLE_GENRES_TYPE, TITLE_LOGO_HIGH, TITLE_LOGO_SHARE, TITLE_NAME_LINE,
-  TITLE_NAME_TYPE, TITLE_PLAY_HIGH, TITLE_PLAY_ICON, TITLE_PLAY_TYPE, TITLE_SYNOPSIS_LINE,
-  TITLE_SYNOPSIS_LINES, TITLE_SYNOPSIS_TYPE, TITLE_TAB_HIGH, TITLE_TAB_LINE,
-  TITLE_TAB_PAD, TITLE_TAB_TYPE,
+  EPISODE_TEXT_LINES, EPISODE_TEXT_TOP, EPISODE_TEXT_TYPE, EPISODES_EDGE, HAIRLINE, MORE_ACROSS,
+  MORE_EDGE_HIGH, MORE_EDGE_SIDE, MORE_GAP, PROGRESS_HIGH, RATE_GAP, RATE_PAD_HIGH, RATE_PAD_SIDE,
+  RATE_TOP, SEASON_CHIP_GAP, SEASON_CHIP_HIGH, SEASON_CHIP_PAD, SEASON_CHIP_TOP, SEASON_CHIP_TYPE,
+  SEASON_CLOSE, SEASON_CLOSE_GLYPH_TYPE, SEASON_CLOSE_LIFT, SEASON_ROW_HIGH, SEASON_ROW_WIDE,
+  SEASON_SHEET_BOTTOM, SEASON_SHEET_TOP, SEASON_TYPE_CHOSEN, SEASON_TYPE_IDLE, TILE_RATIO,
+  TITLE_ACTION_GAP, TITLE_ACTION_ICON, TITLE_ACTION_PAD_HIGH, TITLE_ACTION_TYPE,
+  TITLE_ACTION_WIDE, TITLE_ACTION_WORD_GAP, TITLE_ACTIONS_START, TITLE_ACTIONS_TOP,
+  TITLE_AGE_PAD_SIDE, TITLE_AGE_PAD_TOP, TITLE_AGE_TYPE, TITLE_ART_RATIO, TITLE_BAR,
+  TITLE_BODY_EDGE, TITLE_BUTTON_WORD_GAP, TITLE_CLOSE_GLYPH_TYPE, TITLE_COMING_TOP,
+  TITLE_COMING_TYPE, TITLE_FACTS_GAP, TITLE_FACTS_TOP, TITLE_FACTS_TYPE, TITLE_GENRES_FEW,
+  TITLE_GENRES_LINE, TITLE_GENRES_TOP, TITLE_GENRES_TYPE, TITLE_LOGO_HIGH, TITLE_LOGO_SHARE,
+  TITLE_NAME_LINE, TITLE_NAME_TYPE, TITLE_PLAY_HIGH, TITLE_PLAY_ICON, TITLE_PLAY_TOP,
+  TITLE_PLAY_TYPE, TITLE_REMIND_TOP, TITLE_RULE_TOP, TITLE_SYNOPSIS_LINE, TITLE_SYNOPSIS_LINES,
+  TITLE_SYNOPSIS_TOP, TITLE_SYNOPSIS_TYPE, TITLE_TAB_HIGH, TITLE_TAB_LINE, TITLE_TAB_PAD,
+  TITLE_TAB_TYPE,
 } from './Sizes';
 
 @ComponentV2
@@ -148,7 +154,7 @@ export struct Title {
       // given words (`title/Title.kt:176-177`).
       Stack() {
         Text('×')
-          .fontSize(20)
+          .fontSize(TITLE_CLOSE_GLYPH_TYPE)
           .fontColor(INK)
           .accessibilityLevel(SKIP_ALL)
       }
@@ -241,9 +247,9 @@ export struct Title {
 
     Stack()
       .width('100%')
-      .height(1)
+      .height(HAIRLINE)
       .backgroundColor(argb(INK, 0.15))
-      .margin({ top: 16 })
+      .margin({ top: TITLE_RULE_TOP })
 
     this.tabs(data)
 
@@ -289,7 +295,7 @@ export struct Title {
       // what belongs here is a key saying so. Until there is one this draws nothing.
     }
     .width('100%')
-    .margin({ top: 8 })
+    .margin({ top: TITLE_FACTS_TOP })
     .alignItems(VerticalAlign.Center)
   }
 
@@ -314,10 +320,10 @@ export struct Title {
   @Builder
   coming(data: TitleDetail) {
     Text(fill(word(this.seen, 'gate.coming'), 'date', data.available_from!))
-      .fontSize(15)
+      .fontSize(TITLE_COMING_TYPE)
       .fontWeight(FontWeight.Medium)
       .fontColor(INK)
-      .margin({ top: 10 })
+      .margin({ top: TITLE_COMING_TOP })
 
     Row() {
       Image(this.reminded ? ICON_CHECK : ICON_BELL)
@@ -325,7 +331,7 @@ export struct Title {
         .height(TITLE_PLAY_ICON)
         .fillColor(INK)
         .accessibilityLevel(SKIP_ALL)
-      Stack().width(8)
+      Stack().width(TITLE_BUTTON_WORD_GAP)
       Text(word(this.seen, this.reminded ? 'remind.set' : 'remind.me'))
         .fontSize(TITLE_PLAY_TYPE)
         .fontWeight(FontWeight.Bold)
@@ -333,7 +339,7 @@ export struct Title {
     }
     .width('100%')
     .height(TITLE_PLAY_HIGH)
-    .margin({ top: 8 })
+    .margin({ top: TITLE_REMIND_TOP })
     .backgroundColor(this.reminded ? RAISED : ACCENT)
     .borderRadius(round(CORNER_BUTTON, TITLE_PLAY_HIGH))
     .justifyContent(FlexAlign.Center)
@@ -359,7 +365,7 @@ export struct Title {
         .height(TITLE_PLAY_ICON)
         .fillColor(BLACK)
         .accessibilityLevel(SKIP_ALL)
-      Stack().width(8)
+      Stack().width(TITLE_BUTTON_WORD_GAP)
       Text(word(this.seen, 'common.play'))
         .fontSize(TITLE_PLAY_TYPE)
         .fontWeight(FontWeight.Bold)
@@ -367,7 +373,7 @@ export struct Title {
     }
     .width('100%')
     .height(TITLE_PLAY_HIGH)
-    .margin({ top: 10 })
+    .margin({ top: TITLE_PLAY_TOP })
     .backgroundColor(INK)
     .borderRadius(round(CORNER_BUTTON, TITLE_PLAY_HIGH))
     .justifyContent(FlexAlign.Center)
@@ -428,7 +434,7 @@ export struct Title {
         // and the whole block stays tappable, which is how the reference opens it anyway.
       }
       .width('100%')
-      .margin({ top: 10 })
+      .margin({ top: TITLE_SYNOPSIS_TOP })
       .alignItems(HorizontalAlign.Start)
       .onClick(() => {
         this.synopsisOpen = !this.synopsisOpen;
@@ -448,7 +454,7 @@ export struct Title {
         .lineHeight(TITLE_GENRES_LINE)
         .fontColor(MUTED)
         .width('100%')
-        .margin({ top: 8 })
+        .margin({ top: TITLE_GENRES_TOP })
         .onClick(() => {
           if (data.genres!.length > TITLE_GENRES_FEW) {
             this.genresOpen = !this.genresOpen;
@@ -493,7 +499,7 @@ export struct Title {
       // there, and a reader would be told it exists. Named in the note as an open item.
     }
     .width('100%')
-    .margin({ top: 16, left: 4 })
+    .margin({ top: TITLE_ACTIONS_TOP, left: TITLE_ACTIONS_START })
     .alignItems(VerticalAlign.Top)
 
     if (this.rateOpen) {
@@ -519,7 +525,7 @@ export struct Title {
       }
     }
     .width(TITLE_ACTION_WIDE)
-    .padding({ top: 4, bottom: 4 })
+    .padding({ top: TITLE_ACTION_PAD_HIGH, bottom: TITLE_ACTION_PAD_HIGH })
     .onClick(go)
     // The word under the icon already says which way the control stands ("My List" against "In My
     // List"), so it is gathered, not replaced (`title/Title.kt:70-72`).
@@ -542,13 +548,13 @@ export struct Title {
   /** The three ratings. `title/Title.kt:123-175`. */
   @Builder
   rateRow(data: TitleDetail) {
-    Row({ space: 4 }) {
+    Row({ space: RATE_GAP }) {
       this.rateOne(data, 'down', ICON_THUMB_DOWN, ICON_THUMB_DOWN_FILLED, 'player.down')
       this.rateOne(data, 'up', ICON_THUMB_UP, ICON_THUMB_UP_FILLED, 'player.up')
       this.rateOne(data, 'love', ICON_LOVE, ICON_LOVE_FILLED, 'player.love')
     }
-    .margin({ top: 8 })
-    .padding({ start: LengthMetrics.vp(8), end: LengthMetrics.vp(8), top: LengthMetrics.vp(4), bottom: LengthMetrics.vp(4) })
+    .margin({ top: RATE_TOP })
+    .padding({ start: LengthMetrics.vp(RATE_PAD_SIDE), end: LengthMetrics.vp(RATE_PAD_SIDE), top: LengthMetrics.vp(RATE_PAD_HIGH), bottom: LengthMetrics.vp(RATE_PAD_HIGH) })
     .backgroundColor(RAISED)
     .borderRadius(round(CORNER_BUTTON, 40))
     .alignItems(VerticalAlign.Center)
@@ -690,7 +696,7 @@ export struct Title {
             .accessibilityLevel(SKIP_ALL)
         }
         .height(SEASON_CHIP_HIGH)
-        .margin({ top: 12, bottom: 12 })
+        .margin({ top: SEASON_CHIP_TOP, bottom: SEASON_CHIP_TOP })
         .padding({ start: LengthMetrics.vp(SEASON_CHIP_PAD), end: LengthMetrics.vp(SEASON_CHIP_PAD) })
         .backgroundColor(RAISED)
         .borderRadius(CORNER_CHIP)
@@ -705,7 +711,7 @@ export struct Title {
         Text(fill(word(this.seen, 'title.season.number'), 'n', this.seasonNumber))
           .fontSize(SEASON_CHIP_TYPE)
           .fontColor(MUTED)
-          .margin({ top: 12, bottom: 12 })
+          .margin({ top: SEASON_CHIP_TOP, bottom: SEASON_CHIP_TOP })
       }
 
       Column({ space: EPISODE_GAP }) {
@@ -786,7 +792,7 @@ export struct Title {
             Text(fill(word(this.seen, 'title.length.minutes'), 'm', episode.runtime_min))
               .fontSize(EPISODE_LENGTH_TYPE)
               .fontColor(MUTED)
-              .margin({ top: 2 })
+              .margin({ top: EPISODE_LENGTH_TOP })
           }
         }
         .layoutWeight(1)
@@ -802,11 +808,11 @@ export struct Title {
           .fontColor(MUTED)
           .maxLines(EPISODE_TEXT_LINES)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .margin({ top: 8 })
+          .margin({ top: EPISODE_TEXT_TOP })
       }
     }
     .width('100%')
-    .padding({ top: 4, bottom: 4 })
+    .padding({ top: EPISODE_PAD_HIGH, bottom: EPISODE_PAD_HIGH })
     .alignItems(HorizontalAlign.Start)
     .onClick(() => {
       this.shell.go(
@@ -850,7 +856,7 @@ export struct Title {
 
       Stack() {
         Text('×')
-          .fontSize(30)
+          .fontSize(SEASON_CLOSE_GLYPH_TYPE)
           .fontColor(BLACK)
           .accessibilityLevel(SKIP_ALL)
       }
@@ -858,7 +864,7 @@ export struct Title {
       .height(SEASON_CLOSE)
       .backgroundColor(INK)
       .borderRadius(round(CORNER_BUTTON, SEASON_CLOSE))
-      .margin({ bottom: 20 })
+      .margin({ bottom: SEASON_CLOSE_LIFT })
       .onClick(() => {
         this.seasonSheet = false;
       })

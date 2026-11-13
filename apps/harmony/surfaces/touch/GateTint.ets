@@ -13,10 +13,13 @@
 //
 // NOT COMPILED. See ../../OPEN-QUESTIONS.md.
 
-/** The grey the gate wears when no picture has been read. `profiles/GateTint.kt:34`. */
-const NEUTRAL_BAND: string = '#1a1a1a';
-/** And its edit tile. `profiles/GateTint.kt:39`. */
-const NEUTRAL_TILE: string = '#333333';
+import { GATE_NEUTRAL_BAND, round, TILE_GREY } from './Theme';
+
+// The two greys this file used to spell are now `Theme.ets`'s, which is the one place in this
+// surface a colour is written. `NEUTRAL_TILE` was `#333333` here and `TILE_GREY` there, the same
+// value with two homes and no check between them; the Kotlin has one, `Color(0xFF333333)` at both
+// `profiles/GateTint.kt:39` and `profiles/GateGrid.kt:44`, so this folder has one now too.
+
 /** Saturation floor, so a grey picture still tints. `profiles/GateTint.kt:28`. */
 const LEAST_SATURATION: number = 0.2;
 /** The band and the top of the sheet. `profiles/GateTint.kt:35,62`. */
@@ -123,13 +126,13 @@ export class GateTint {
 
   /** The strip between the art and the arc, and the bottom fade's target. */
   band(): string {
-    return this.neutral ? NEUTRAL_BAND : hsv(this.h, this.s, BAND_VALUE);
+    return this.neutral ? GATE_NEUTRAL_BAND : hsv(this.h, this.s, BAND_VALUE);
   }
 
   /** The edit and action tiles of the grid, over a fifth of white. */
   editTile(): string {
     if (this.neutral) {
-      return NEUTRAL_TILE;
+      return TILE_GREY;
     }
     const base = hsv(this.h, this.s, TILE_VALUE);
     const r = Number.parseInt(base.substring(1, 3), 16) * (1 - TILE_WHITE) + 255 * TILE_WHITE;
@@ -147,7 +150,7 @@ export class GateTint {
    */
   sheet(sheetHigh: number): Array<[string, number]> {
     if (this.neutral) {
-      return [[NEUTRAL_BAND, 0], [NEUTRAL_BAND, 1]];
+      return [[GATE_NEUTRAL_BAND, 0], [GATE_NEUTRAL_BAND, 1]];
     }
     let stop = 0.08;
     if (sheetHigh > 0) {

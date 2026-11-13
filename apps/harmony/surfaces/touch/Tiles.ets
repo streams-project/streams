@@ -15,14 +15,14 @@ import { tall } from './Pick';
 import { fill, number, word } from './Words';
 import { SKIP_ALL } from './Heard';
 import {
-  ACCENT, argb, CORNER_CARD, INK, RAISED, RANK_FILL, RANK_STROKE_INK, round,
+  ACCENT, argb, CORNER_BUTTON, CORNER_CARD, INK, RAISED, RANK_FILL, RANK_STROKE_INK, round,
 } from './Theme';
 import { ICON_INFO, ICON_MORE } from './Icons';
 import {
-  BADGE_EDGE, BADGE_NEW_PAD_SIDE, BADGE_NEW_TYPE, BADGE_PAD_SIDE, BADGE_PAD_TOP, BADGE_TYPE,
-  CONTINUE_BUTTON, CONTINUE_HIGH, CONTINUE_STRIP_HIGH, PROGRESS_HIGH, RANK_EXTRA, RANK_EXTRA_TWO,
-  RANK_NUMERAL_HIGH, RANK_NUMERAL_TYPE, RANK_NUMERAL_WIDE, RANK_NUMERAL_WIDE_TWO, RANK_STROKE,
-  TILE_HIGH, TILE_WIDE,
+  BADGE_EDGE, BADGE_NEW_CORNER, BADGE_NEW_PAD_SIDE, BADGE_NEW_TYPE, BADGE_PAD_SIDE, BADGE_PAD_TOP,
+  BADGE_TYPE, CONTINUE_BUTTON, CONTINUE_HIGH, CONTINUE_ICON, CONTINUE_STRIP_HIGH,
+  CONTINUE_WORD_PAD, PROGRESS_HIGH, RANK_EXTRA, RANK_EXTRA_TWO, RANK_NUMERAL_HIGH,
+  RANK_NUMERAL_TYPE, RANK_NUMERAL_WIDE, RANK_NUMERAL_WIDE_TWO, RANK_STROKE, TILE_HIGH, TILE_WIDE,
 } from './Sizes';
 
 /** The rank a tile carries, or zero. `browse/Rows.kt:198,219`. */
@@ -130,7 +130,7 @@ export struct TileCard {
           .fontWeight(FontWeight.Bold)
           .fontColor(INK)
           .backgroundColor(ACCENT)
-          .borderRadius(4)
+          .borderRadius(BADGE_NEW_CORNER)
           .padding({ left: BADGE_NEW_PAD_SIDE, right: BADGE_NEW_PAD_SIDE, top: BADGE_PAD_TOP, bottom: BADGE_PAD_TOP })
           .margin(BADGE_EDGE);
       }
@@ -247,14 +247,14 @@ export struct ContinueCard {
       Row() {
         Stack() {
           Image(ICON_INFO)
-            .width(20)
-            .height(20)
+            .width(CONTINUE_ICON)
+            .height(CONTINUE_ICON)
             .fillColor(INK)
             .accessibilityLevel(SKIP_ALL)
         }
         .width(CONTINUE_BUTTON)
         .height(CONTINUE_BUTTON)
-        .borderRadius(round(999, CONTINUE_BUTTON))
+        .borderRadius(round(CORNER_BUTTON, CONTINUE_BUTTON))
         .onClick(() => this.openInfo())
         .accessibilityGroup(true)
         .accessibilityText(word(this.seen, 'common.more_info'))
@@ -263,14 +263,14 @@ export struct ContinueCard {
 
         Stack() {
           Image(ICON_MORE)
-            .width(20)
-            .height(20)
+            .width(CONTINUE_ICON)
+            .height(CONTINUE_ICON)
             .fillColor(INK)
             .accessibilityLevel(SKIP_ALL)
         }
         .width(CONTINUE_BUTTON)
         .height(CONTINUE_BUTTON)
-        .borderRadius(round(999, CONTINUE_BUTTON))
+        .borderRadius(round(CORNER_BUTTON, CONTINUE_BUTTON))
         .accessibilityGroup(true)
         .accessibilityText(word(this.seen, 'say.more_options'))
         // The one-argument form, which opens on a tap of the node it is bound to. ASSUMED: the
@@ -281,7 +281,7 @@ export struct ContinueCard {
       }
       .width('100%')
       .height(CONTINUE_STRIP_HIGH)
-      .padding({ left: 4, right: 4 })
+      .padding({ left: CONTINUE_WORD_PAD, right: CONTINUE_WORD_PAD })
       .backgroundColor(RAISED)
     }
     .width(TILE_WIDE)

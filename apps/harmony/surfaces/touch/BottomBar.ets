@@ -18,7 +18,7 @@ import { SKIP_ALL } from './Heard';
 import { argb, BAR_CHOSEN, BAR_FILL, BAR_IDLE_INK, CORNER_BUTTON, INK, round } from './Theme';
 import {
   BAR_FACE, BAR_HIGH, BAR_ITEM_HIGH, BAR_ITEM_PAD, BAR_ITEM_WIDE, BAR_ITEM_WIDE_FULL, BAR_PAD,
-  BAR_WORD_GAP, BAR_WORD_TYPE,
+  BAR_WORD_GAP, BAR_WORD_TYPE, HAIRLINE,
 } from './Sizes';
 
 /**
@@ -59,7 +59,7 @@ export struct BottomBar {
     .padding({ start: LengthMetrics.vp(BAR_PAD), end: LengthMetrics.vp(BAR_PAD) })
     .backgroundColor(BAR_FILL)
     .borderRadius(round(CORNER_BUTTON, BAR_HIGH))
-    .border({ width: 1, color: argb(INK, 0.1) })
+    .border({ width: HAIRLINE, color: argb(INK, 0.1) })
     .justifyContent(FlexAlign.Center)
     .alignItems(VerticalAlign.Center)
   }
