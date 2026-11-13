@@ -91,7 +91,26 @@ cargo test --locked -p bridge-c --no-default-features
   python3 tools/test_check_android_native.py
   python3 tools/test_check_android.py
   python3 tools/test_check_apple.py
+  python3 tools/test_check_roku.py
 )
+
+# The Roku surface: its TypeScript type-checked against every strict flag its tsconfig declares,
+# and the unit tests under apps/roku/src/tests run with `node --test`. Until 2026-11-13 nothing
+# here ran either: 130 tests in 9 suites had never been executed and every strict flag was a
+# promise nothing had asked a compiler to keep. Jest was the alternative and was turned down, for
+# the package.json, the lockfile and the node_modules it would bring. The translation from the
+# suites' describe/it/expect shape to node's runner lives in check_roku.py and nowhere in apps/roku.
+# On a machine with no node or no tsc it prints what it could not prove and passes, the way
+# check_types.py does for a language whose compiler is absent - and even there it still proves one
+# thing, that the suites ask for no assertion the translation has not got. It prints the counts
+# rather than this comment holding them, because that folder is still growing.
+# The files that import the Roku SDK can never be checked here - the SDK is not in this repository
+# and putting it here is the dependency tree the runner choice exists to avoid - so they are named
+# as unchecked on every run, and they are the only part of the surface nothing looks at.
+# Measured on the machine it landed on, 2026-11-13: 0.3 seconds with no node, which is every
+# machine this project has today. With node and tsc it is two tsc passes and a node run, and that
+# has never been measured anywhere, because nothing here has ever had a node to measure it with.
+python3 platform/tools/check_roku.py
 
 # Every id a server test name claims must be a real ledger row.
 (cd server && python3 scripts/check_test_ids.py)

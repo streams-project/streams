@@ -9,6 +9,12 @@
   //      colour, corner or brand name is written twice.
   //   3. every strictness flag, because this is the only check this folder has until it can be
   //      built: there is no `node` on the machine it was written on.
+  //
+  // Since 2026-11-13 those flags are asked for rather than only declared. `tsconfig.check.json`
+  // beside this file extends it with the subset that can be compiled without the Roku SDK, and
+  // `platform/tools/check_roku.py` runs `tsc --noEmit` over that subset and then the suites under
+  // `src/tests` with `node --test`. On a machine with no node it prints what it could not prove
+  // and passes. Nothing here is edited for that: the whole translation lives in that one file.
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",

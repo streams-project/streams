@@ -1,0 +1,34 @@
+{
+  // The subset of this folder that can be type-checked and run on a machine with nothing installed
+  // but a TypeScript compiler. `tools/check_roku.py` uses this file twice: once with `--noEmit` to
+  // prove every strictness flag in `tsconfig.json`, and once more, overridden to emit CommonJS into
+  // a temporary folder, to produce something `node --test` can run.
+  //
+  // It extends `tsconfig.json` rather than repeating it, so the strictness flags are declared in
+  // one place and this file cannot drift into being laxer than the real build.
+  //
+  // What it leaves out, and why. `src/main.tsx`, the four files under `src/screens`, and
+  // `src/screens/remote.ts` import `@roku-sdk/solid` and `@roku-sdk/navigation`. Those packages are
+  // not here and cannot be without a `package.json`, a lockfile and a `node_modules`. Declaring
+  // them by hand would mean inventing an API and a set of JSX intrinsic elements nobody has read,
+  // and a type check against an invented API proves less than no type check at all because it
+  // reads green. So those files are named out loud as unchecked on every run instead:
+  // `check_roku.py` finds them by their imports, not by a list, and its test fails if a file that
+  // does NOT import the SDK falls outside the `include` below.
+  //
+  // `types/ambient.d.ts` carries the four Node names the suites use and the `describe`/`it`/`expect`
+  // the harness defines. There is no `@types/node` and there is no test framework.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Nothing is auto-included from a `node_modules/@types` that does not exist. Without this, a
+    // machine that happens to have one nearby would type-check against types CI has not got.
+    "types": []
+  },
+  "include": [
+    "types/*.d.ts",
+    "src/*.ts",
+    "src/tests/*.ts",
+    "roku-config.ts",
+    "../../platform/contract/generated/types/contract.ts"
+  ]
+}

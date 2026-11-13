@@ -84,8 +84,8 @@ class NoTools(unittest.TestCase):
         _, output, _ = run_without(
             ("JAVA_HOME", "PATH", "JBR_HOME"), {"PATH": empty, "JBR_HOME": empty}
         )
-        for module in android.surfaces():
-            self.assertIn(module, output)
+        for path, _, _ in android.surfaces():
+            self.assertIn(path, output)
 
 
 class Probes(unittest.TestCase):
@@ -156,15 +156,32 @@ class Modules(unittest.TestCase):
     def test_every_module_it_will_test_is_a_folder_that_is_there(self):
         modules = android.surfaces()
         self.assertTrue(modules)
-        for module in modules:
-            self.assertTrue((android.ANDROID / "surfaces" / module).is_dir(), module)
+        for path, folder, task in modules:
+            self.assertTrue(folder.is_dir(), path)
+            self.assertTrue((folder / "src" / "test").is_dir(), path)
+            self.assertIn(task, (android.VARIANT, android.PLAIN))
 
-    def test_every_surface_folder_with_tests_is_a_module_it_will_test(self):
-        """A surface whose tests this step does not name is a surface CI cannot see."""
-        modules = set(android.surfaces())
-        for folder in sorted((android.ANDROID / "surfaces").iterdir()):
-            if (folder / "src" / "test").is_dir():
-                self.assertIn(folder.name, modules)
+    def test_every_module_with_tests_is_a_module_it_will_test(self):
+        """A module whose tests this step does not name is a module CI cannot see.
+
+        This read only `surfaces/` until 2026-11-13, which is how `:ports` came to hold four
+        tests that ran in no check at all -- they proved Java can read the generated contract,
+        and the build line that opened that gate could have closed again unnoticed. It walks
+        every module the build declares now, so a module cannot arrive without its tests.
+
+        The walk below is a filesystem walk on purpose, not `A_MODULE` over the settings file.
+        An earlier version of this test used that regex -- the same one `surfaces()` uses -- so
+        narrowing the regex narrowed the test's own search and the mutation survived. A check
+        that enumerates with the thing it is checking asserts that thing against itself.
+        """
+        named = {folder for _, folder, _ in android.surfaces()}
+        for tests in sorted(android.ANDROID.glob("*/src/test")) + sorted(
+            android.ANDROID.glob("*/*/src/test")
+        ):
+            folder = tests.parent.parent
+            if "build" in folder.parts:
+                continue
+            self.assertIn(folder, named, str(folder))
 
 
 if __name__ == "__main__":
