@@ -75,11 +75,10 @@ dependencies {
     // `surfaces/phone/build.gradle.kts` gives: an Android library gets its Kotlin from the Android
     // plugin and its unit tests run on JUnit 4 by default. The semantics and the dp scale these
     // tests read are plain Kotlin value classes, so they need no device, no resources and no
-    // toolkit runner. `androidx.compose.ui:ui-test` is still not resolved, so a *composed* tree
-    // cannot be read here and `Heard.kt` in the test source set says what that costs. The Views
-    // half of that hole is closed: `org.robolectric` resolved on 2026-11-13 and
-    // `surfaces/tv/src/test/java/streams/tv/views/HeardTest.java` walks a real
-    // `AccessibilityNodeInfo` tree. This module stays on JUnit alone until something here needs
-    // more than a value class.
+    // toolkit runner, so this module stays on JUnit alone. The tree itself is read elsewhere:
+    // `org.robolectric` and `androidx.compose.ui:ui-test` both resolved on 2026-11-13, after two
+    // files here had recorded them as unavailable. `surfaces/tv/.../views/HeardTest.java` walks a
+    // real `AccessibilityNodeInfo` tree and `surfaces/phone/.../HeardTreeTest.kt` walks the merged
+    // semantics tree. Note 228.
     testImplementation("junit:junit:4.13.2")
 }

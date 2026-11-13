@@ -20,7 +20,8 @@ android {
     // slower resource-backed runner is left off.
     testOptions {
         unitTests {
-            isIncludeAndroidResources = false
+            // PROBE 2026-11-13: a composed tree needs the real resource table.
+            isIncludeAndroidResources = true
             isReturnDefaultValues = true
         }
     }
@@ -56,4 +57,9 @@ dependencies {
     // kotlin-test picks its framework from a rule the Kotlin plugin would have installed. Asking
     // for JUnit 4 directly is one dependency that needs no rule to work.
     testImplementation("junit:junit:4.13.2")
+    // PROBE 2026-11-13: can a composed semantics tree be read in a unit test here?
+    testImplementation("org.robolectric:robolectric:4.17")
+    testImplementation(bom)
+    testImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
