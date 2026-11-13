@@ -53,13 +53,20 @@ const fn tag(group: Group) -> &'static str {
     }
 }
 
-fn security(auth: Auth) -> Value {
-    match auth {
-        Auth::Member => json!([{ "member": [] }]),
-        Auth::Profile => json!([{ "profile": [] }]),
-        Auth::Device => json!([{ "device": [] }]),
-        Auth::Service => json!([{ "service": [] }]),
-        _ => json!([]),
+fn security(route: &Route) -> Value {
+    let wanted = match route.auth {
+        Auth::Member => json!({ "member": [] }),
+        Auth::Profile => json!({ "profile": [] }),
+        Auth::Device => json!({ "device": [] }),
+        Auth::Service => json!({ "service": [] }),
+        _ => return json!([]),
+    };
+    // A route a visitor may read states two ways to call it: with the token, or with none. An
+    // empty requirement object is OpenAPI's word for "no security".
+    if route.open_to_visitors {
+        json!([wanted, {}])
+    } else {
+        json!([wanted])
     }
 }
 
@@ -142,7 +149,7 @@ fn operation(route: &Route, fixtures: &[String]) -> Value {
     item.insert("operationId".into(), json!(route.name));
     item.insert("summary".into(), json!(route.about));
     item.insert("tags".into(), json!([tag(route.group)]));
-    item.insert("security".into(), security(route.auth));
+    item.insert("security".into(), security(route));
     item.insert("parameters".into(), json!(parameters(route)));
     if let Some(request) = route.request {
         item.insert(

@@ -114,12 +114,48 @@ class EveryOperation(unittest.TestCase):
         self.assertEqual(answer["code"], "upgrade_required")
         self.assertIn("text", answer["notice"])
 
+    def visitor(self):
+        """The headers of a caller holding no token."""
+        return {name: value for name, value in HEADERS.items() if name != "Authorization"}
+
     def test_a_route_with_a_token_refuses_a_call_without_one(self):
-        headers = dict(HEADERS)
-        del headers["Authorization"]
-        status, answer = self.server.answer("GET", "/v1/nav", headers)
+        status, answer = self.server.answer("GET", "/v1/profiles/me/settings", self.visitor())
         self.assertEqual(status, 401)
         self.assertEqual(answer["code"], "profile_required")
+
+    def test_a_route_open_to_visitors_answers_a_call_with_no_token(self):
+        """`security` lists alternatives, so an empty requirement object opens the route.
+
+        A fake that reads the length of that list instead of its contents refuses these seven.
+        """
+        open_routes = [
+            (method, template)
+            for method, template, _, operation in self.server.routes
+            if {} in operation["security"]
+        ]
+        self.assertEqual(len(open_routes), 7, open_routes)
+        for method, template in open_routes:
+            status, _ = self.server.answer(method, fill(template), self.visitor())
+            self.assertEqual(status, 200, template)
+
+    def test_a_route_with_no_open_alternative_still_refuses_a_visitor(self):
+        count = 0
+        for method, template, _, operation in self.server.routes:
+            if operation["security"] and {} not in operation["security"]:
+                status, _ = self.server.answer(method, fill(template), self.visitor())
+                self.assertEqual(status, 401, template)
+                count += 1
+        self.assertGreater(count, 20)
+
+    def test_a_route_that_names_no_security_at_all_stays_open(self):
+        count = 0
+        for method, template, _, operation in self.server.routes:
+            if not operation["security"]:
+                self.assertFalse(fake_server.needs_token(operation), template)
+                status, _ = self.server.answer(method, fill(template), self.visitor())
+                self.assertNotEqual(status, 401, template)
+                count += 1
+        self.assertGreater(count, 2)
 
     def test_a_bare_id_in_a_body_is_refused_h57(self):
         status, answer = self.server.answer("POST", "/v1/play", HEADERS, {"title": "550"})

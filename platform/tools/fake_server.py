@@ -81,6 +81,17 @@ def type_matches(value, kind):
     raise Refused("the contract does not use type %s" % kind)
 
 
+def needs_token(operation):
+    """True when every way the operation states of calling it wants a token.
+
+    `security` is a list of alternatives and a call satisfies any one of them. An empty
+    requirement object asks for nothing, so a route that lists one is open to a visitor even
+    though its list is not empty. An empty list says the same thing with no alternatives at all.
+    """
+    alternatives = operation["security"]
+    return bool(alternatives) and all(alternatives)
+
+
 class FakeServer:
     """Answers every operation in openapi.json with a fixture named by that operation."""
 
@@ -129,7 +140,7 @@ class FakeServer:
         for name in self.required_headers(operation):
             if name not in headers:
                 return 400, self.error(operation, "upgrade_required")
-        if operation["security"] and "Authorization" not in headers:
+        if needs_token(operation) and "Authorization" not in headers:
             return 401, self.error(operation, "profile_required")
         if "requestBody" in operation:
             schema = operation["requestBody"]["content"]["application/json"]["schema"]
