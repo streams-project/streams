@@ -8,9 +8,14 @@ sits outside this repository; paths like `netflix-reference/tv/...` are inside t
 
 Status: no app, and one native route left standing. This folder holds a README, a `.gitignore`,
 `host/` (the C++ side of the core boundary, with a test that drives it) and `surfaces/remote/` (the
-input grammar, with a test). Nothing draws a screen, and the reason is written down: there is no C++
-contract, so no screen can read what the core hands back. Both tests run on a developer's own
-machine with no Xbox: `./apps/xbox/check.sh`.
+input grammar, the drawing numbers, where the remote is on a page, and the reading of the contract
+into that page, each with a test). Nothing draws a screen, because drawing needs a Windows machine
+and this is not one. What does not need Windows is written and run here: every test runs on a
+developer's own machine with no Xbox, with `./apps/xbox/check.sh`.
+
+The C++ contract that earlier versions of this file called the blocker is not one any more.
+`platform/contract/generated/types/Contract.hpp` is generated and this surface reads it directly, so
+there is no equivalent here of the Kotlin seam the Android television surface cannot do without.
 
 The core cross-compiles for Windows from macOS, which was the one architectural question this
 folder carried. See [The core on Xbox](#the-core-on-xbox).
@@ -200,23 +205,33 @@ functions carrying UTF-8 JSON, described in `platform/bridges/README.md` - writt
 | `surfaces/remote/paint.h` | the drawing numbers: the reference scale, the brand's colours and corners, Microsoft's TV-safe band, the easing curve and the 320 ms rise |
 | `surfaces/remote/paint.cpp` | that arithmetic. No WinRT, no Win2D, no screen |
 | `surfaces/remote/paint_test.cpp` | 61 checks, six of them held against `brand.json` itself. Not run by CI |
-| `check.sh` | builds and runs all three tests on whatever machine this is |
+| `surfaces/remote/place.h` | a page of rows flattened, where the remote is on it, and the tile each row was left on |
+| `surfaces/remote/place.cpp` | that state machine. The key map branch for branch, and in the same order |
+| `surfaces/remote/place_test.cpp` | 82 checks, scripted key sequences. Not run by CI |
+| `surfaces/remote/reading.h` | reading `Contract.hpp` into that page: which rows a page may draw, which picture goes where, the flattening |
+| `surfaces/remote/reading.cpp` | that reading. No seam, because C++ needs none |
+| `surfaces/remote/reading_test.cpp` | 40 checks, held against the contract's own fixtures. Not run by CI |
+| `check.sh` | builds and runs all five tests on whatever machine this is |
 
 It holds no rules, exactly as `apps/android/core/src/main/cpp/bridge.c` holds none for Java.
 
-Ran on this machine, 2026-11-12, x86_64 macOS 25.6.0, rustc 1.98.1:
+Ran on this machine, 2026-11-13, x86_64 macOS 25.6.0, rustc 1.98.1:
 
     ./apps/xbox/check.sh
 
-39 of 39 held for the input grammar, 61 of 61 for the drawing numbers and 11 of 11 for the
-boundary, no compiler warnings under `-Wall -Wextra -Wpedantic`. That proves the C++ side of the
-boundary, the config shape a console sends (`"class":"box"`, `"form":"tv"`), the whole input grammar
-and every number a painter needs before Windows is involved. It proves nothing about Xbox.
+Five suites held, with no compiler warnings under `-Wall -Wextra -Wpedantic`: the input grammar, the
+drawing numbers against `brand.json`, where the remote goes on a page and where a row opens when it
+comes back, the reading of the contract's own fixtures into that page, and the core boundary. That
+proves the C++ side of the boundary, the config shape a console sends (`"class":"box"`,
+`"form":"tv"`), the whole input grammar, every number a painter needs before Windows is involved,
+the key map, and that a C++ surface reads the contract with nothing between it and the generated
+header. It proves nothing about Xbox.
 
 **CI never runs it.** The root `./check` is the whole of CI and it carries no C++ compiler and no C++
 test runner, and `platform/tools/check_rings.py` has no `xbox` family, so these tests run only when
-someone types `./apps/xbox/check.sh`. They will go stale silently the first time the C ABI or the
-core's config shape moves. `check.sh` exists so that it is one command rather than four, which is as
+someone types `./apps/xbox/check.sh`. They will go stale silently the first time the C ABI, the
+core's config shape, the brand or the contract moves. `check.sh` exists so that it is one command
+rather than five, which is as
 far as this folder can take it: registering it in `./check`, behind a "no C++ toolchain, not run"
 line like `check_types.py` already prints for a missing compiler, belongs to whoever owns that file.
 
@@ -287,21 +302,23 @@ Xbox at all:
 |---|---|---|
 | 1. The core as a Windows x64 static library | nothing but this Mac | **done**, 2026-11-12 |
 | 2. The remote's input grammar | nothing but a C++ compiler | **done**, 39 checks |
-| 3. The contract as C++ types | a `cpp.rs` in `platform/contract/gen` | open item 8, no hardware |
-| 4. The screens, in the remote grammar, against those types | step 3 | blocked by step 3, no hardware |
+| 3. The contract as C++ types | a `cpp.rs` in `platform/contract/gen` | **done**: `cpp.rs` is in the generator and `Contract.hpp` is on disk |
+| 4. What a screen decides before it draws: which rows a page may draw, where the remote is, what OK chooses, what the contract says | nothing but a C++ compiler | **done**, 2026-11-13, 122 checks |
+| 4b. The drawing itself: every Win2D call | **a Windows machine** | blocked, no console needed |
 | 5. The five ports as WinRT adapters: network, secrets, store, player, reel | **a Windows machine** with Visual Studio, the Windows SDK and the C++/WinRT projection. Not a console - the headers do not exist on macOS and cannot be installed here | hardware wall 1 |
 | 6. Run it, see it, measure it | **a retail Xbox** in Developer Mode, plus a free developer account with identity verification. One activation of a limited number | hardware wall 2 |
 | 7. Publish it | a Store submission, plus the unnamed "additional reviews to meet today's Xbox One standards" | open, unquantified |
 
-So the honest line is between 4 and 5, and it is a Windows machine rather than a console. Steps 3 and
-4 are the largest piece of remaining work in this folder and neither of them needs anything bought.
+So the honest line is between 4 and 4b, and it is a Windows machine rather than a console. Note 223
+put that line between 4 and 5 and called steps 3 and 4 the largest piece of remaining work; both are
+done as of 2026-11-13 and the largest piece left is the drawing, which cannot start here.
 
 ## Folder shape
 
 | Folder | State |
 |---|---|
 | `host/` | written. The core boundary and its test |
-| `surfaces/remote/` | the input grammar and the drawing numbers, written and tested. **No screens**, and none can be written yet: see below. Note 223 settles how a screen will draw once it can be written: a UWP C++/WinRT app, one swap chain, Win2D over Direct2D |
+| `surfaces/remote/` | the input grammar, the drawing numbers, the page the remote moves on and the reading of the contract into it, all written and tested. **No screens**: what is missing is the drawing, which needs a Windows machine. Note 223 settles its shape -- a UWP C++/WinRT app, one swap chain, Win2D over Direct2D |
 | `ports/` | not written. The five ports every family names: network, secrets, store, player, reel |
 | `adapters/` | not written. What each port does on Xbox, through WinRT |
 
@@ -309,18 +326,25 @@ The empty two are listed and absent on purpose: a folder here would claim work n
 `platform/tools/check_rings.py` has no `xbox` family, so nothing yet holds this folder to its ports;
 adding one belongs to `platform/tools`.
 
-### Why there are no screens, and it is not the console's fault
+### Why there are no screens, and what that does not mean any more
 
-A screen reads the view the core hands back. On Android that view arrives as generated Kotlin types
-(`contract.Target`, `seen.words`, `seen.route`); on Apple, as generated Swift. The generator is
-`platform/contract/gen`, and it writes **five** languages: `java.rs`, `kotlin.rs`, `swift.rs`,
-`typescript.rs` and `openapi.rs`. There is no `cpp.rs`.
+**This section said something different until 2026-11-13, and it was wrong by then.** It said the
+next thing standing between this folder and a screen was a missing `cpp.rs` in the contract
+generator. `cpp.rs` is in `platform/contract/gen/src/` and
+`platform/contract/generated/types/Contract.hpp` is on disk: plain aggregates with a reader, a
+writer and a JSON parser beside them. `surfaces/remote/reading.cpp` reads it, and
+`surfaces/remote/reading_test.cpp` holds that reading against the contract's own fixtures.
 
-So the next thing standing between this folder and a screen is not a console, not an account and not
-a licence. It is a C++ emitter in the contract generator, which is a file in
-`platform/contract/gen/src/` and belongs to the contract's owner, not here. Hand-writing the
-contract types in C++ instead would put a second copy of the contract in the tree that nothing
-checks, which is how the two versions drift. Open item 8.
+That also settles something the Android family paid for and this one never will. There, one Kotlin
+file flattens the contract because Java source could not call 184 name-mangled getters (note 210);
+that gate closed on the Android side on 2026-11-13. C++ calls them all and always could, so this
+surface has no seam and needs none.
+
+What is left before a screen is the drawing, and that needs a Windows machine: every Win2D call, the
+swap chain, the font, the picture decode. Note 223 settles the shape of it and names every API. What
+a screen *decides* before it draws does not need Windows and is written: `surfaces/remote/place.h`
+is where the remote is on a page and `surfaces/remote/reading.h` is what the contract says is on
+it.
 
 The input grammar does not wait on that, which is why it exists: a key press never crosses the C
 boundary. `EventBody` in `platform/contract/src/core_msg.rs:279` has sixteen kinds and not one of

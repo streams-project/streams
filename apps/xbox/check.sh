@@ -1,18 +1,21 @@
 #!/bin/sh
 # Builds and runs everything in this folder that can run without an Xbox.
 #
-# Three tests: the core boundary (`host/`), which needs the C bridge built as a static library for
-# whatever machine this is, and the input grammar and the drawing numbers (`surfaces/remote/`),
-# which need nothing but a C++ compiler. All three are plain programs that print a line per check
-# and return non-zero on a failure. The drawing numbers read `brand.json` from the repository root,
-# which is why this script runs from there.
+# Five tests. The core boundary (`host/`) needs the C bridge built as a static library for whatever
+# machine this is; the other four (`surfaces/remote/`) need nothing but a C++ compiler. All five are
+# plain programs that print a line per check and return non-zero on a failure, and three of them are
+# held against a file nobody here owns: the drawing numbers read `brand.json` and the contract
+# reading reads the contract's own fixtures, which is why this script runs from the repository root.
 #
 # The root `./check` is the whole of CI and it does not call this: it carries no C++ compiler and
 # `platform/tools/check_rings.py` has no `xbox` family. So this runs when a person types it, and the
-# first time the C ABI or the core's config shape moves, nothing will notice but this script.
+# first time the C ABI, the core's config shape, the brand or the contract moves, nothing will
+# notice but this script.
 #
-# It proves nothing about an Xbox. What it proves is that the two pieces that do not need one are
-# correct: bytes cross the boundary, and a controller speaks the six words of a remote.
+# It proves nothing about an Xbox. What it proves is that the pieces that do not need one are
+# correct: bytes cross the boundary, a controller speaks the six words of a remote, the drawn
+# numbers are the brand's, the remote reaches the stop it should, and a C++ surface reads the
+# contract with nothing between it and the generated header.
 set -eu
 
 root=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
@@ -26,6 +29,13 @@ Darwin) host="$(uname -m)-apple-darwin" ;;
 Linux) host="$(uname -m)-unknown-linux-gnu" ;;
 *) echo "no host target known for $(uname -s)" >&2; exit 1 ;;
 esac
+
+contract=platform/contract/generated/types
+# The wire the generated header itself names, so the fixtures are never chosen by a date written
+# twice.
+wire=$(sed -n 's/^inline constexpr std::string_view wire_version = "\(.*\)";$/\1/p' \
+    "$contract/Contract.hpp")
+fixtures=platform/contract/fixtures/$wire/valid
 
 cxx=${CXX:-c++}
 flags="-std=c++17 -Wall -Wextra"
@@ -42,6 +52,19 @@ $cxx $flags apps/xbox/surfaces/remote/paint.cpp apps/xbox/surfaces/remote/paint_
 "$out/paint" brand.json
 
 echo
+echo "== where the remote is on a page, and where a row opens when it comes back"
+$cxx $flags apps/xbox/surfaces/remote/remote.cpp apps/xbox/surfaces/remote/place.cpp \
+    apps/xbox/surfaces/remote/place_test.cpp -o "$out/place"
+"$out/place"
+
+echo
+echo "== reading the contract into a page, held against the contract's own $wire fixtures"
+$cxx $flags -I "$contract" apps/xbox/surfaces/remote/remote.cpp \
+    apps/xbox/surfaces/remote/place.cpp apps/xbox/surfaces/remote/reading.cpp \
+    apps/xbox/surfaces/remote/reading_test.cpp -o "$out/reading"
+"$out/reading" "$fixtures"
+
+echo
 echo "== the core boundary, against a real static library built for $host"
 CARGO_INCREMENTAL=0 cargo build --locked --profile native -p bridge-c --target "$host"
 $cxx $flags -I platform/bridges/c apps/xbox/host/core_host.cpp apps/xbox/host/smoke_test.cpp \
@@ -49,4 +72,4 @@ $cxx $flags -I platform/bridges/c apps/xbox/host/core_host.cpp apps/xbox/host/sm
 "$out/smoke"
 
 echo
-echo "all three held. No test here touches an Xbox, WinRT, a screen or a controller."
+echo "all five held. No test here touches an Xbox, WinRT, a screen or a controller."

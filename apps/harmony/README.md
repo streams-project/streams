@@ -4,12 +4,16 @@ ArkUI app for Huawei phones and tablets. **Touch** surface, **native** core.
 
 Part of an open video platform.
 
-Status: **an app that has never been compiled.** 37 files and 7,350 lines as of 2026-11-12, of which
-`surfaces/touch` is 20 files and 5,382 lines: the route switch, Home with its billboard and rows, the
-title page, the profile gate and search, laid out against the measured reference. Nothing here has
-been compiled — no HarmonyOS SDK, no DevEco Studio and no Huawei device were on the machine it was
-written on — and [what cannot be done here](#what-cannot-be-done-without-the-sdk-and-a-device) says
-exactly what that leaves.
+Status: **an app whose ArkTS has never been compiled.** The route switch, Home with its billboard
+and rows, the title page, the profile gate and search are written and laid out against the measured
+reference, and not one line of them has been compiled: no HarmonyOS SDK, no DevEco Studio and no
+Huawei device were on the machine they were written on, and `node`, `npx` and `tsc` are not there
+either. [What cannot be done here](#what-cannot-be-done-without-the-sdk-and-a-device) says exactly
+what that leaves.
+
+One part of this folder is not in that state. The C glue -- `core/cpp/napi_bridge.c`, the whole of
+the boundary between ArkTS and the core -- is built and run on whatever machine types
+`./apps/harmony/check.sh`, against a recording core and against the real one.
 
 Four of the six questions in `OPEN-QUESTIONS.md` are now answered, from Huawei's own reference rather
 than from a device, and the code changed where the answers changed it. The two that are left want a
@@ -72,11 +76,12 @@ where CMake links `libstreamscore.so` against the archive, exactly as the Androi
 
 | Folder | State |
 |---|---|
-| `core/cpp/` | written. `napi_bridge.c`, its `CMakeLists.txt` and the type declaration ArkTS reads. Syntax checked, never built against a real SDK |
+| `core/cpp/` | written. `napi_bridge.c`, its `CMakeLists.txt` and the type declaration ArkTS reads. Built and run by `check.sh` against a stub runtime; never built against a real SDK |
+| `core/cpp/test/` | the stub Node-API runtime, the recording core and the two tests that drive the bridge. None of it ships: it exists so the glue is run rather than read |
 | `core/` | written, never compiled. `NativeCore.ets` declares the four calls; `Host.ets` steps the core and performs its effects |
 | `ports/` | written, never compiled. The six ports every native family names: network, secrets, store, player, reel, pictures |
 | `adapters/` | not written. `adapters/README.md` names the expected API per port and how sure each one is |
-| `surfaces/touch/` | **written, never compiled.** 20 files. `surfaces/touch/README.md` lists them and holds the measured shape they meet |
+| `surfaces/touch/` | **written, never compiled.** `surfaces/touch/README.md` lists the files and holds the measured shape they meet |
 | `contract/` | `effects.ts` and `read.ts`, written: the TypeScript seam that holds everything ArkTS refuses about the generated contract. `contract.ts` is copied by `build-core.sh` |
 
 `core/Host.ets` is a line by line port of `apps/android/core/src/main/kotlin/streams/core/Host.kt`,
@@ -90,11 +95,12 @@ rather than swallowed.
 
 So that nobody later mistakes this for a finished app:
 
-1. **Nothing has been compiled.** Not one line of ArkTS. `node`, `npx`, `tsc`, `cmake`, `ohpm`,
-   `hvigorw` and `codelinter` are all absent from the machine this was written on, so every file here
-   has been read and never checked by a tool, and `core/cpp/CMakeLists.txt` has not been parsed.
-   **This is now a download and not a device**: the Command Line Tools package carries `hvigorw` and
-   `codelinter` and neither wants a phone (`OPEN-QUESTIONS.md`, the section after Q6).
+1. **No ArkTS has been compiled.** Not one line. `node`, `npx`, `tsc`, `cmake`, `ohpm`, `hvigorw`
+   and `codelinter` are all absent from the machine this was written on, so every `.ets` and `.ts`
+   file here has been read and never checked by a tool, and `core/cpp/CMakeLists.txt` has not been
+   parsed. **This is now a download and not a device**: the Command Line Tools package carries
+   `hvigorw` and `codelinter` and neither wants a phone (`OPEN-QUESTIONS.md`, the section after Q6).
+   The C glue is the exception and is compiled and run; see item 6.
 2. **No adapter exists.** All six ports are declared and none is implemented, so the host cannot make
    a request, keep a token, keep a page, show a picture or play one frame. The screens draw, and what
    they draw is whatever the ports answer — which today is nothing.
@@ -108,11 +114,15 @@ So that nobody later mistakes this for a finished app:
 5. **The icons do not exist.** `surfaces/touch/Icons.ets` names all 23 as `$r('app.media.*')`
    references; what they resolve against is a module `resources/base/media` folder, which is part of
    Q6.
-6. **No test, and no harness to write one in.** This family has none. The C glue was syntax checked
-   with `clang -fsyntax-only -Wall -Wextra` against a hand written stub of the Node-API surface, which
-   catches a typo and proves nothing about the real SDK. There is no equivalent of the Xbox family's
-   `smoke_test.cpp` here, because the thing to test is a module loaded by a runtime that is not on
-   this machine.
+6. **Tests, for the C glue only.** As of 2026-11-13 this family has `./apps/harmony/check.sh`, which
+   builds `core/cpp/napi_bridge.c` and runs it twice: against a core that records every call, which
+   drives each refusal and holds the ledger that every block taken from `core_alloc` goes back to
+   `core_free` with its own size; and against the real `libbridge_c.a`, which opens, steps and closes
+   a core with a phone's config. That is the equivalent of the Xbox family's `smoke_test.cpp`, and
+   more of one than that file is. The runtime underneath both is `core/cpp/test/napi_stub.c`, a fake.
+   What neither proves is that OpenHarmony's own `napi/native_api.h` declares these calls the way the
+   upstream Node-API headers do, which is `OPEN-QUESTIONS.md` Q1 and is stated in
+   `core/cpp/test/napi/native_api.h`. **Nothing tests the ArkTS**, and nothing on this machine can.
 7. **Six ArkUI calls are marked `ASSUMED` where they are used**, and no more than six: the alpha order
    of a hex colour string, `bindMenu`'s one-argument form, the six canvas text methods the Top 10
    numeral is drawn with, `effectKit`'s colour picker, whether `direction` is inherited down a
