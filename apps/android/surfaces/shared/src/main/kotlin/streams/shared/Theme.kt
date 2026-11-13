@@ -12,13 +12,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 
-/** The brand's colours. brand.json is the source, and `streams build android` will write these. */
-val Back = Color(0xFF0B0B10)
-val Plate = Color(0xFF16161D)
-val Raised = Color(0xFF24242E)
-val Muted = Color(0xFFA6A6B3)
-val Accent = Color(0xFF2F6BFF)
-val Join = Color(0xFFE5352B)
+/** The brand's colours, from brand.json `colors` through `Colour` at the end of this file. */
+val Back = Color(Colour.BACKGROUND)
+val Plate = Color(Colour.SURFACE)
+val Raised = Color(Colour.RAISED)
+val Muted = Color(Colour.MUTED)
+val Accent = Color(Colour.ACCENT)
+val Join = Color(Colour.JOIN)
 
 @Composable
 fun Brand(content: @Composable () -> Unit) {
@@ -131,4 +131,32 @@ fun pluralOf(n: Int, lang: String): String = when (lang.substringBefore('-')) {
 fun Map<String, String>.counted(base: String, n: Int): String {
     val form = pluralOf(n, Speaking.code)
     return listOf(form, "other", "many", "one").firstNotNullOfOrNull { this["$base.$it"] }.orEmpty().fill("n", n)
+}
+
+/**
+ * The brand's colours from brand.json `colors`, as the one ARGB integer both this project's
+ * languages take: `Color(Int)` on the Compose side (the six values at the top of this file) and
+ * `GradientDrawable.setColor` on the Views side, through `tv/views/Ink.java`.
+ *
+ * `build.gradle.kts:30-40` writes them into `BuildConfig`, which is generated Java, and a
+ * `const val` is a static field on this object, so Java calls it. That is the path `Corner` above
+ * gives the corners, and it now carries the colours as well: the brand's colour has one home.
+ *
+ * Until 2026-11-12 the six at the top of this file were Compose literals, and the comment over them
+ * promised a generator (`streams build android`) that did not exist. That forced `Ink.java` to
+ * restate all six as ARGB ints -- a Compose `Color` is a `@JvmInline value class` over a `ULong`
+ * whose type Java source cannot name -- with a test holding the two copies equal.
+ *
+ * It sits at the end of the file rather than beside the colours it feeds because four other
+ * families cite this file by line (`apps/roku/src/numbers.ts`, `apps/roku/src/words.ts`,
+ * `apps/harmony/surfaces/touch/Theme.ets` and `Words.ets`, `apps/web/src/surfaces/words.rs`), so a
+ * block inserted above moves what every one of them points at.
+ */
+object Colour {
+    const val BACKGROUND = BuildConfig.BACKGROUND_COLOR
+    const val SURFACE = BuildConfig.SURFACE_COLOR
+    const val RAISED = BuildConfig.RAISED_COLOR
+    const val MUTED = BuildConfig.MUTED_COLOR
+    const val ACCENT = BuildConfig.ACCENT_COLOR
+    const val JOIN = BuildConfig.JOIN_COLOR
 }

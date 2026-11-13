@@ -11,10 +11,32 @@ android {
     compileSdk = 37
     defaultConfig {
         minSdk = 26
+        val brand = JsonSlurper().parse(rootDir.resolve("../../brand.json")) as Map<*, *>
         // The brand's corners, read from brand.json so a renamed copy carries its own shape.
-        val shape = (JsonSlurper().parse(rootDir.resolve("../../brand.json")) as Map<*, *>)["shape"] as Map<*, *>
+        val shape = brand["shape"] as Map<*, *>
         for (role in listOf("card", "panel", "field", "button", "chip", "chip_end")) {
             buildConfigField("int", "${role.uppercase()}_RADIUS", "${shape["${role}_radius"]}")
+        }
+
+        // `#rgb`, `#rrggbb` or `#rrggbbaa` as the one ARGB integer both toolkits take, written as a
+        // Java hex literal because that is what `buildConfigField` pastes into generated Java.
+        fun argb(value: String): String {
+            val hex = value.removePrefix("#")
+            val rgb = if (hex.length == 3) hex.map { "$it$it" }.joinToString("") else hex
+            val order = if (rgb.length == 8) rgb.takeLast(2) + rgb.take(6) else "FF$rgb"
+            return "0x${order.uppercase()}"
+        }
+
+        // And the brand's colours, the same way. Until 2026-11-12 `Theme.kt` held these six as
+        // Compose literals and the television's Views surface restated them as ARGB ints, because a
+        // Compose `Color` is a `@JvmInline value class` over a `ULong` and Java source cannot name
+        // it. An ARGB int is a form both toolkits take -- `Color(Int)` and
+        // `GradientDrawable.setColor` -- and `BuildConfig` is generated Java, so generating them
+        // here gives the brand's colour one home for both languages, as the corners above have.
+        // The six are the six the surfaces draw with; a role no family asks for is not emitted.
+        val colors = brand["colors"] as Map<*, *>
+        for (role in listOf("background", "surface", "raised", "muted", "accent", "join")) {
+            buildConfigField("int", "${role.uppercase()}_COLOR", argb(colors[role] as String))
         }
     }
     buildFeatures {

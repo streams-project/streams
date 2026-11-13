@@ -259,7 +259,7 @@ button { cursor: pointer; border: 0; background: none; }
 .notice-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .notice-text { display: grid; gap: calc(var(--unit) * 1.5); justify-items: start; flex: 1; }
 .notice-text small { color: var(--muted); font-size: 13px; }
-.chip { padding: 2px calc(var(--unit) * 2); border-radius: var(--radius-field); background: var(--surface); font-size: 11px; font-weight: 600; }
+.chip { padding: 2px calc(var(--unit) * 2); border-radius: var(--radius-chip); background: var(--surface); font-size: 11px; font-weight: 600; }
 .chip-now { background: var(--accent); color: var(--accent-text); }
 .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
 

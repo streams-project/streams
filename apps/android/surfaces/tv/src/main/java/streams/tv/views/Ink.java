@@ -1,45 +1,47 @@
 package streams.tv.views;
 
+import streams.shared.Colour;
+
 /**
  * The brand's colours, as the ARGB integers Views draws with.
  *
- * <h2>Why this file is a second home, and what makes that safe</h2>
- * {@code shared/Theme.kt:16-21} holds the same six colours as Compose {@code Color} values, and a
- * Compose {@code Color} is a {@code @JvmInline value class} over a {@code ULong}: Java source cannot
- * name its type and cannot read {@code Back}. So a Views surface has to state them, and stating a
- * brand colour twice is exactly the kind of drift the repository's one-copy rule exists to stop.
+ * <h2>Why the colours are read and not restated</h2>
+ * {@code Colour.BACKGROUND} and its five siblings are {@code const val} on a Kotlin object
+ * ({@code shared/Theme.kt:155-162}) reading {@code BuildConfig} integers that
+ * {@code shared/build.gradle.kts:30-40} writes from {@code brand.json}. A {@code const val} is a
+ * static field on the class, so Java calls it, and generated {@code BuildConfig} is Java already.
+ * That is the path {@link Round} takes for the corners, and it now carries the colours too: the
+ * brand's colour has one home for both languages. This class only names the roles a television
+ * screen draws and adds the shades.
  *
- * What makes it safe is that the two copies are held equal by a test rather than by care:
- * {@code src/test/java/streams/tv/browse/NumbersTest.java} reads the six literals out of
- * {@code Theme.kt} and asserts each one against the constant here. A colour changed on one side and
- * not the other fails before a screen is ever drawn.
- *
- * <h2>Why not read them from {@code brand.json} like the corners</h2>
- * The corners already come through {@code BuildConfig} ({@code shared/build.gradle.kts:14-19}),
- * which is generated Java and callable. The colours do not: {@code Theme.kt}'s own comment says
- * "brand.json is the source, and {@code streams build android} will write these", and today nothing
- * writes them. Adding a second generator for them is a build change, and
- * {@code apps/android}'s build files belong to wave 0's package S4 and not to this one. So
- * this file carries them with a test, and the comment says where they should end up.
+ * <h2>What was here until 2026-11-12, and why it is gone</h2>
+ * A Compose {@code Color} is a {@code @JvmInline value class} over a {@code ULong}, so Java source
+ * cannot name its type and cannot read {@code Back}. While {@code Theme.kt} held the six as Compose
+ * literals, this file had to restate all six as ARGB ints, and the two copies were held equal by a
+ * test rather than by care -- a brand colour with two homes, which is the drift the repository's
+ * one-copy rule exists to stop. An ARGB int is a form both toolkits take ({@code Color(Int)} on one
+ * side, {@code GradientDrawable.setColor} on the other), so the generator emits that and each
+ * language wraps it. {@code NumbersTest.java} no longer holds two copies together: it holds each
+ * constant below against the colour {@code brand.json} gives for that role.
  */
 public final class Ink {
-    /** The page behind everything. {@code Theme.kt:16}. */
-    public static final int BACK = 0xFF0B0B10;
+    /** The page behind everything. {@code brand.json} {@code background}. */
+    public static final int BACK = Colour.BACKGROUND;
 
-    /** A panel lifted off the page: the hero. {@code Theme.kt:17}. */
-    public static final int PLATE = 0xFF16161D;
+    /** A panel lifted off the page: the hero. {@code brand.json} {@code surface}. */
+    public static final int PLATE = Colour.SURFACE;
 
-    /** A tile before its artwork arrives. {@code Theme.kt:18}. */
-    public static final int RAISED = 0xFF24242E;
+    /** A tile before its artwork arrives. {@code brand.json} {@code raised}. */
+    public static final int RAISED = Colour.RAISED;
 
-    /** Words that are not the point: a fact, a dot between facts. {@code Theme.kt:19}. */
-    public static final int MUTED = 0xFFA6A6B3;
+    /** Words that are not the point: a fact, a dot between facts. {@code brand.json} {@code muted}. */
+    public static final int MUTED = Colour.MUTED;
 
-    /** A profile's plate. {@code Theme.kt:20}. */
-    public static final int ACCENT = 0xFF2F6BFF;
+    /** A profile's plate. {@code brand.json} {@code accent}. */
+    public static final int ACCENT = Colour.ACCENT;
 
-    /** A kid's profile plate. {@code Theme.kt:21}. */
-    public static final int JOIN = 0xFFE5352B;
+    /** A kid's profile plate. {@code brand.json} {@code join}. */
+    public static final int JOIN = Colour.JOIN;
 
     private Ink() {
     }

@@ -36,7 +36,9 @@ pub struct Fonts {
 pub struct Shape {
     pub button_radius: u32,
     pub card_radius: u32,
-    /// A chip's corners inside a chip row; the row's two outer ends take `chip_end_radius`.
+    /// A chip: a badge on its own, or one inside a chip row whose two outer ends take
+    /// `chip_end_radius`. Both are drawn from this one value -- `apps/web/style.css`'s `.chip` and
+    /// `phone/notifications/Notifications.kt`'s kind badge are the same part on two families.
     pub chip_radius: u32,
     pub chip_end_radius: u32,
     pub field_radius: u32,
@@ -141,8 +143,16 @@ impl Brand {
         Ok(())
     }
 
-    /// The look as a style sheet, loaded before the site's own. The chip corners stay with the apps
-    /// until the site has a chip row (the site test refuses a value it never uses).
+    /// The look as a style sheet, loaded before the site's own.
+    ///
+    /// Every variable here has a user in `apps/web/style.css`, and `tests/one_name.rs` refuses one
+    /// that has none: `--gutter` was emitted for years after its last user went with the television
+    /// page, and `gutter` left this file and the brand file on 2026-11-12. `chip_end_radius` is for
+    /// that reason not emitted. It is the corner a chip row's two outer ends take, the site draws no
+    /// chip row, and the value already reaches the families that draw one (`CHIP_END_RADIUS` through
+    /// Android's `BuildConfig`, `Corner.chipEnd` through `apps/apple/write-brand.py`). The day the
+    /// site grows a chip row, the other half of that test -- a variable the site uses that the brand
+    /// file does not give -- fails on `var(--radius-chip-end)` and names what to add here.
     #[must_use]
     pub fn css(&self) -> String {
         let (c, f, s, g) = (&self.colors, &self.fonts, &self.shape, &self.spacing);
@@ -160,8 +170,8 @@ impl Brand {
             ":root {{\n  --background: {};\n  --surface: {};\n  --raised: {};\n  --text: {};\n  \
              --muted: {};\n  --accent: {};\n  --accent-text: {};\n  --join: {};\n  \
              --join-text: {};\n  --font-body: \"{}\";\n  --font-display: \"{}\";\n{arabic}{hebrew}  \
-             --radius-button: {}px;\n  --radius-card: {}px;\n  --radius-field: {}px;\n  \
-             --radius-panel: {}px;\n  --unit: {}px;\n}}\n",
+             --radius-button: {}px;\n  --radius-card: {}px;\n  --radius-chip: {}px;\n  \
+             --radius-field: {}px;\n  --radius-panel: {}px;\n  --unit: {}px;\n}}\n",
             c.background,
             c.surface,
             c.raised,
@@ -175,6 +185,7 @@ impl Brand {
             f.display,
             s.button_radius,
             s.card_radius,
+            s.chip_radius,
             s.field_radius,
             s.panel_radius,
             g.unit,
@@ -207,11 +218,29 @@ mod tests {
         let mut changed = file();
         changed["colors"]["accent"] = "#123456".into();
         changed["shape"]["button_radius"] = 22.into();
+        changed["shape"]["chip_radius"] = 7.into();
         changed["fonts"]["display"] = "Some Font".into();
         let css = brand(changed).unwrap().css();
         assert!(css.contains("--accent: #123456;"));
         assert!(css.contains("--radius-button: 22px;"));
+        assert!(css.contains("--radius-chip: 7px;"));
         assert!(css.contains("--font-display: \"Some Font\";"));
+    }
+
+    /// A chip row's outer corner is the one shape value the site is not given, and `css` saying so
+    /// in a comment is not the same as a test saying so. The apps have it; `chip_end_radius` is read
+    /// by `apps/android/surfaces/shared/build.gradle.kts` and `apps/apple/write-brand.py`.
+    #[test]
+    fn the_corner_no_page_draws_is_not_in_the_style_sheet() {
+        let css = brand(file()).unwrap().css();
+        assert!(
+            !css.contains("chip-end"),
+            "the site has no chip row to use it"
+        );
+        assert!(
+            css.contains("--radius-chip: 12px;"),
+            "and the chip itself is given"
+        );
     }
 
     #[test]
