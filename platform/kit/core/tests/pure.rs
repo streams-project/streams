@@ -31,6 +31,36 @@ const ALLOWED: &[&str] = &[
     "zmij",
 ];
 
+/// What the core's `proto` feature may add on top: prost and the crates that build
+/// its derive macro. `anyhow`, `itertools` and `either` build the proc macro only,
+/// and `cargo tree --edges normal` lists them, which is what this reads. Note 204
+/// named these six before the feature existed; the tree names the same six.
+const ALLOWED_WITH_PROTO: &[&str] = &[
+    "anyhow",
+    "bytes",
+    "contract-proto",
+    "either",
+    "itertools",
+    "prost",
+    "prost-derive",
+];
+
+/// Every feature a crate declares, `default` apart.
+fn features(krate: &str) -> Vec<String> {
+    let manifest = fs::read_to_string(root().join(krate).join("Cargo.toml")).unwrap();
+    let Some(start) = manifest.find("\n[features]\n") else {
+        return Vec::new();
+    };
+    let rest = &manifest[start + "\n[features]\n".len()..];
+    let end = rest.find("\n[").unwrap_or(rest.len());
+    rest[..end]
+        .lines()
+        .filter_map(|line| line.split_once('='))
+        .map(|(name, _)| name.trim().to_string())
+        .filter(|name| name != "default")
+        .collect()
+}
+
 fn sources(krate: &str) -> Vec<PathBuf> {
     let mut found = Vec::new();
     let mut folders = vec![root().join(krate).join("src")];
@@ -122,12 +152,44 @@ fn h106_the_core_never_knows_the_offline_layer_exists() {
     assert!(!names.iter().any(|name| name == "offline"), "{names:?}");
     let manifest = fs::read_to_string(root().join("core/Cargo.toml")).unwrap();
     assert!(!manifest.contains("offline"), "core names the layer");
-    assert!(
-        !manifest.contains("[features]"),
-        "a feature could bring std back"
-    );
     let manifest = fs::read_to_string(root().join("offline/Cargo.toml")).unwrap();
     assert!(!manifest.contains("[features]"));
+}
+
+/// This line stood in the test above as "core/Cargo.toml holds no `[features]` at
+/// all", on the ground that a feature could bring std back. The core has one now -
+/// note 238's off-by-default `proto` - so the ban is replaced by the proof it was
+/// standing in for, and the replacement is the stronger of the two: every feature
+/// the core declares is built for the browser and television target, which has no
+/// std to find, and its dependency tree is read against the two lists above. A
+/// feature that brought std back fails this; the old line could only ever have
+/// failed on the word.
+#[test]
+fn h1_h106_h109_every_feature_the_core_declares_still_builds_for_wasm_and_adds_nothing_else() {
+    let allowed: BTreeSet<&str> = ALLOWED.iter().chain(ALLOWED_WITH_PROTO).copied().collect();
+    let found = features("core");
+    assert!(!found.is_empty(), "no feature to check");
+    for feature in &found {
+        let with = format!("core/{feature}");
+        let names = tree("core", &["--features", &with, "--target", "wasm32v1-none"]);
+        let bad: Vec<&String> = names
+            .iter()
+            .filter(|name| !allowed.contains(name.as_str()))
+            .collect();
+        assert!(bad.is_empty(), "core/{feature} holds {bad:?}");
+        let built = wasm_build(&target_folder("kit-feature"), &["--features", &with]);
+        assert!(
+            built.status.success(),
+            "core/{feature}: {}",
+            String::from_utf8_lossy(&built.stderr)
+        );
+    }
+}
+
+#[test]
+fn the_feature_reader_finds_what_a_manifest_declares() {
+    assert_eq!(features("core"), ["proto"]);
+    assert_eq!(features("offline"), Vec::<String>::new());
 }
 
 #[test]
@@ -300,6 +362,21 @@ fn build_copy(name: &str, plant: &str) -> std::process::Output {
         copy_tree(
             &root().join(krate).join("src"),
             &copy.join(krate).join("src"),
+        );
+    }
+    // The core names contract-proto as an optional dependency, and cargo reads the
+    // manifest of a path dependency whether or not the feature that turns it on is
+    // asked for. It is copied whole rather than stubbed, so this stays a copy of
+    // the tree and not an edit of it; with the feature off nothing here is built.
+    let proto = root().join("contract-proto");
+    fs::create_dir_all(copy.join("contract-proto")).unwrap();
+    for file in ["Cargo.toml", "build.rs"] {
+        fs::copy(proto.join(file), copy.join("contract-proto").join(file)).unwrap();
+    }
+    for folder in ["src", "proto", "generated"] {
+        copy_tree(
+            &proto.join(folder),
+            &copy.join("contract-proto").join(folder),
         );
     }
     let manifest = fs::read_to_string(workspace().join("Cargo.toml")).unwrap();

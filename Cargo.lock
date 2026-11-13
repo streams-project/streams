@@ -609,6 +609,7 @@ name = "core"
 version = "0.0.0"
 dependencies = [
  "contract",
+ "contract-proto",
  "serde",
  "serde_json",
 ]

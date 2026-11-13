@@ -16,6 +16,11 @@
 
 extern crate alloc;
 
+// The codec, handed on with the types it belongs to. Whoever reads these structs
+// off a wire needs `prost::Message` in scope, and taking it from here keeps the
+// prost version a decision of this crate rather than of each reader.
+pub use prost;
+
 pub mod contract {
     //! Generated from proto/contract/v1/*.proto by build.rs, with protox. Checked
     //! in under generated/.

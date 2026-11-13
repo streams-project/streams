@@ -9,6 +9,8 @@ pub mod gate;
 pub mod net;
 mod pairing;
 pub mod player;
+#[cfg(feature = "proto")]
+pub mod proto;
 pub mod routes;
 mod session;
 

@@ -11,7 +11,16 @@ publish.workspace = true
 name = "platform_core"
 path = "src/lib.rs"
 
+[features]
+default = []
+# The step boundary on the binary wire, beside the JSON one and not instead of it.
+# Off by default: with the feature off this crate's dependency tree, its public
+# surface and every byte it compiles to are what they were. Note 238 has the two
+# builds and the difference between them.
+proto = ["dep:contract-proto"]
+
 [dependencies]
 contract = { path = "../contract" }
+contract-proto = { path = "../contract-proto", optional = true }
 serde.workspace = true
 serde_json.workspace = true

@@ -1,0 +1,47 @@
+# What the proto codec costs in the REAL core, rather than in a matched spike.
+#
+# The module this builds is the shipped one: it depends on bridge-wasm, so it
+# carries the same six exports, the same allocator and the same panic handler as
+# platform/bridges/wasm, and adds one export of its own per codec. Two builds that
+# differ only by `--features proto` therefore differ only by the proto path, and
+# the difference is the answer. Note 238 has the numbers and the commands.
+#
+#   cargo build --offline --profile wasm --target wasm32v1-none
+#   cargo build --offline --profile wasm --target wasm32v1-none --features proto
+#   cargo build --offline --profile wasm --target wasm32v1-none --features validate
+#
+# Its own `[workspace]`, like platform/contract-proto/size: it is a cdylib built by
+# hand for one target to answer one question, and `./check` neither builds nor sees
+# it. Nothing ships it.
+[workspace]
+
+[package]
+name = "size-core"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[features]
+default = []
+# The core's step boundary on the binary wire, reachable from an export so the
+# linker keeps it.
+proto = ["core-rules/proto"]
+# The same, plus the generated validator run over the in message, so the 185
+# generated functions are reachable too.
+validate = ["proto"]
+
+[dependencies]
+bridge-wasm = { path = "../../bridges/wasm" }
+core-rules = { path = "..", package = "core" }
+
+[profile.wasm]
+inherits = "release"
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
