@@ -7,9 +7,10 @@ use std::time::Duration;
 
 use anyhow::{Context, Result, bail};
 use launcher::address::{self, Site};
-use launcher::brand::Brand;
+use launcher::brand::{Brand, Refusal};
 use launcher::data::{self, Data, Found};
 use launcher::films;
+use launcher::migrations;
 use launcher::postgres::{self, Postgres};
 use launcher::running;
 use launcher::site;
@@ -18,11 +19,44 @@ use rand::Rng;
 use serde_json::{Value, json};
 
 /// Everything found once at the start.
+///
+/// The brand is held as it came out of the file, refusal and all. A brand file one key out of step
+/// with this program used to stop every command before it began, `doctor` among them, so the one
+/// command whose job is to say what is wrong was the first thing taken away by the thing that was
+/// wrong. The commands that need the look still stop; `doctor` and `help` do not.
 struct Stack {
     root: PathBuf,
-    brand: Brand,
+    brand: std::result::Result<Brand, Refusal>,
     home: PathBuf,
     programs: PathBuf,
+}
+
+impl Stack {
+    fn brand_file(&self) -> PathBuf {
+        self.root.join("brand.json")
+    }
+
+    /// The look, for a command that cannot do its work without it.
+    ///
+    /// # Errors
+    /// When the brand file did not read, with what is the matter with it.
+    fn brand(&self) -> Result<&Brand> {
+        self.brand
+            .as_ref()
+            .map_err(|why| anyhow::anyhow!(why.sentence(&self.brand_file())))
+    }
+
+    /// What to call this program in a sentence to a person: the brand's command, or, when the
+    /// brand file will not read, the name of the file this program was started from.
+    fn command(&self) -> String {
+        if let Ok(brand) = &self.brand {
+            return brand.command.clone();
+        }
+        std::env::current_exe()
+            .ok()
+            .and_then(|exe| Some(exe.file_stem()?.to_string_lossy().into_owned()))
+            .unwrap_or_else(|| String::from("this program"))
+    }
 }
 
 const DEFAULT_PORT: u16 = 8080;
@@ -111,12 +145,22 @@ fn find_root() -> Result<PathBuf> {
 
 fn open_stack() -> Result<Stack> {
     let root = find_root()?;
-    let brand = Brand::read(&root.join("brand.json"))?;
+    let brand = Brand::read_or_say(&root.join("brand.json"));
     let home = match std::env::var_os("STACK_HOME") {
         Some(home) => PathBuf::from(home),
         None => {
             let user = std::env::var_os("HOME").context("HOME is not set")?;
-            Path::new(&user).join(format!(".{}", brand.command))
+            // With no brand to name the folder, the program's own file name names it, which is
+            // the same word on every install this program ever made: it was copied into `bin/`
+            // under the brand's command. So `doctor` looks in the right place even now.
+            let folder = match &brand {
+                Ok(brand) => brand.command.clone(),
+                Err(_) => std::env::current_exe()
+                    .ok()
+                    .and_then(|exe| Some(exe.file_stem()?.to_string_lossy().into_owned()))
+                    .context("the brand file does not read and this program has no name either")?,
+            };
+            Path::new(&user).join(format!(".{folder}"))
         }
     };
     let exe = std::env::current_exe()?;
@@ -228,12 +272,38 @@ fn migrate(stack: &Stack, database: &Postgres) -> Result<()> {
         .output()
         .context("the server program did not run")?;
     if !output.status.success() {
-        bail!(
+        // What the runner says is true and gives a person nothing to do with it. The same
+        // comparison `doctor` makes says which file, and what kind of disagreement it is.
+        let mut said = format!(
             "the database update failed: {}",
             String::from_utf8_lossy(&output.stderr).trim()
         );
+        for problem in migration_trouble(stack, &database.url) {
+            said.push_str(&format!("\n  {problem}"));
+        }
+        bail!(said);
     }
     Ok(())
+}
+
+/// Every way this copy's migration files and that database's record disagree, said plainly.
+///
+/// Nothing here is allowed to be the reason a command fails, so a look that cannot be taken comes
+/// back as a line saying so rather than as an error of its own.
+fn migration_trouble(stack: &Stack, url: &str) -> Vec<String> {
+    let steps = match migrations::steps(&migrations::folder(&stack.root)) {
+        Ok(steps) => steps,
+        Err(why) => return vec![format!("the migration files could not be read: {why:#}")],
+    };
+    let Some(bin) = postgres::installed(&stack.home.join("postgres")) else {
+        return Vec::new();
+    };
+    match migrations::applied(&bin.join("psql"), url) {
+        Ok(applied) => migrations::compare(&steps, &applied).problems(),
+        Err(why) => vec![format!(
+            "and what it has applied could not be read: {why:#}"
+        )],
+    }
 }
 
 /// Source packs live in `packs/<name>/`, each its own program.
@@ -360,6 +430,7 @@ fn up_options(words: &[String]) -> Result<UpOptions> {
 }
 
 async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
+    let brand = stack.brand()?;
     std::fs::create_dir_all(&stack.home)?;
     // First of all, before a file is written or a program is started: one launcher at a time on
     // one home folder. A second run takes over from the first instead of starting beside it, and
@@ -370,7 +441,7 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
         .as_str()
         .context("the secrets file has no finder token")?
         .to_owned();
-    let site = site::publish(&stack.root, &stack.home, &stack.brand)?;
+    let site = site::publish(&stack.root, &stack.home, brand)?;
     let data = data_set(stack)?;
     println!("Preparing the database...");
     let bin = postgres::install(&stack.home.join("postgres")).await?;
@@ -399,7 +470,7 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
     let local = format!("http://127.0.0.1:{}", options.port);
     let reach = Site {
         chosen: options.site_address.as_deref(),
-        domain: &stack.brand.domain,
+        domain: &brand.domain,
         public: options.public,
         port: options.port,
         lan: address::lan_ip(),
@@ -449,8 +520,8 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
                 .into_owned(),
             ),
             ("SITE_ADDRESS", site_address.clone()),
-            ("BRAND_NAME", stack.brand.name.clone()),
-            ("SUPPORT_EMAIL", stack.brand.support_email.clone()),
+            ("BRAND_NAME", brand.name.clone()),
+            ("SUPPORT_EMAIL", brand.support_email.clone()),
             // Where a built catalogue's posters live. A sample has none, so it stays empty.
             (
                 "IMAGE_BASE",
@@ -523,7 +594,7 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
             server_log.display()
         );
     }
-    println!("{} is running at {local}", stack.brand.name);
+    println!("{} is running at {local}", brand.name);
     if site_address != local {
         println!("Other devices reach it at {site_address}");
     }
@@ -556,10 +627,11 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
 
 /// Copy the programs into `bin/`, with this one under the brand's command name.
 fn install(stack: &Stack) -> Result<()> {
+    let brand = stack.brand()?;
     let bin = stack.root.join("bin");
     std::fs::create_dir_all(&bin)?;
     let exe = std::env::current_exe()?;
-    let target = bin.join(&stack.brand.command);
+    let target = bin.join(&brand.command);
     if exe != target {
         std::fs::copy(&exe, &target)?;
     }
@@ -588,8 +660,140 @@ fn is_root() -> bool {
         .is_ok_and(|output| String::from_utf8_lossy(&output.stdout).trim() == "0")
 }
 
+/// What `doctor` can say about the database this install keeps.
+///
+/// Every answer here is one of three: it looked and found nothing wrong, it looked and found
+/// something, or it could not look -- and the third is a `PROBLEM`, never a pass. `doctor` printed
+/// eight `ok` lines one second after `up` had stopped on a migration it could not apply, because
+/// it checked four file paths and never opened the database. A check that cannot see the broken
+/// thing is worse than no check: it is the sentence that sends a person away.
+///
+/// `check_types.py` holds the same line for the languages it cannot compile, and says why: "a
+/// guard that proved nothing is a failure, not a pass".
+fn database(stack: &Stack) -> bool {
+    let folder = migrations::folder(&stack.root);
+    let steps = match migrations::steps(&folder) {
+        Ok(steps) => steps,
+        Err(why) => {
+            return line(
+                false,
+                &format!(
+                    "database: COULD NOT CHECK, the migration files in {} do not read: {why:#}",
+                    folder.display()
+                ),
+            );
+        }
+    };
+    let data = stack.home.join("database/data");
+    if !postgres::made(&data) {
+        return line(
+            true,
+            &format!(
+                "database: none yet, up makes one and applies {} migrations",
+                steps.len()
+            ),
+        );
+    }
+    let Some(bin) = postgres::installed(&stack.home.join("postgres")) else {
+        return line(
+            false,
+            &format!(
+                "database: COULD NOT CHECK, there is one in {} and the database program is not \
+                 installed here, so nothing could ask it what it holds",
+                data.display()
+            ),
+        );
+    };
+    let psql = bin.join("psql");
+    if !psql.exists() {
+        return line(
+            false,
+            &format!(
+                "database: COULD NOT CHECK, {} is not there to ask it anything",
+                psql.display()
+            ),
+        );
+    }
+    // A database already serving is asked where it listens and left alone. A stopped one is
+    // started on a port of this run's own and stopped again, and `Postgres` stops only what it
+    // started, so neither path can take down anybody else's.
+    let mut ports = Ports::default();
+    // Held until this function ends, so a database started to be asked a question is stopped
+    // again when the asking is done.
+    let _started;
+    let url = match postgres::running_pid(&data) {
+        Some(_) => match postgres::running_port(&data) {
+            Some(port) => postgres::url(&data, port),
+            None => Err(anyhow::anyhow!(
+                "a database is running in {} and its pid file does not say on which port",
+                data.display()
+            )),
+        },
+        None => match ports
+            .take_and_free()
+            .and_then(|port| Postgres::start(&bin, &data, port))
+        {
+            Ok(database) => {
+                let url = database.url.clone();
+                _started = database;
+                Ok(url)
+            }
+            Err(why) => Err(why),
+        },
+    };
+    let url = match url {
+        Ok(url) => url,
+        Err(why) => {
+            return line(
+                false,
+                &format!("database: COULD NOT CHECK, it would not come up: {why:#}"),
+            );
+        }
+    };
+    let applied = match migrations::applied(&psql, &url) {
+        Ok(applied) => applied,
+        Err(why) => {
+            return line(
+                false,
+                &format!("database: COULD NOT CHECK, it did not answer: {why:#}"),
+            );
+        }
+    };
+    let compared = migrations::compare(&steps, &applied);
+    let mut good = line(
+        compared.settled(),
+        &format!(
+            "database: asked it, {} of {} migrations applied{}",
+            compared.agreed + compared.changed.len() + compared.gone.len(),
+            steps.len(),
+            if compared.pending.is_empty() {
+                String::new()
+            } else {
+                format!(", {} waiting for the next up", compared.pending.len())
+            }
+        ),
+    );
+    for problem in compared.problems() {
+        good &= line(false, &problem);
+    }
+    good
+}
+
 fn doctor(stack: &Stack) -> bool {
-    let mut good = line(true, &format!("brand: {}", stack.brand.name));
+    let mut good = match &stack.brand {
+        Ok(brand) => line(true, &format!("brand: {}", brand.name)),
+        Err(why) => {
+            let name = Brand::name_in(&stack.brand_file());
+            line(
+                false,
+                &format!(
+                    "brand: {}{}",
+                    name.map(|name| format!("{name}, but ")).unwrap_or_default(),
+                    why.sentence(&stack.brand_file())
+                ),
+            )
+        }
+    };
     good &= line(
         stack.programs.join("server").exists(),
         "the server program is built",
@@ -618,7 +822,7 @@ fn doctor(stack: &Stack) -> bool {
     );
     let packs = packs(stack);
     line(true, &format!("source packs: {}", packs.len()));
-    good
+    good & database(stack)
 }
 
 async fn backup(stack: &Stack, words: &[String]) -> Result<()> {
@@ -665,7 +869,7 @@ fn build(stack: &Stack, words: &[String]) -> Result<()> {
             if !status.success() {
                 bail!("the website did not build");
             }
-            site::publish(&stack.root, &stack.home, &stack.brand)?;
+            site::publish(&stack.root, &stack.home, stack.brand()?)?;
             Ok(())
         }
         Some(other) => bail!("{other} cannot be built yet. Ready now: web"),
@@ -695,7 +899,7 @@ async fn run() -> Result<bool> {
         "backup" => backup(&stack, rest).await?,
         "build" => build(&stack, rest)?,
         "install" => install(&stack)?,
-        _ => help(&stack.brand.command),
+        _ => help(&stack.command()),
     }
     Ok(true)
 }
@@ -726,7 +930,7 @@ mod tests {
         let _ = std::fs::remove_dir_all(&home);
         std::fs::create_dir_all(home.join("data")).expect("a home");
         let stack = Stack {
-            brand: Brand::read(&root.join("brand.json")).expect("the brand"),
+            brand: Brand::read_or_say(&root.join("brand.json")),
             programs: root.join("bin"),
             root,
             home: home.clone(),
