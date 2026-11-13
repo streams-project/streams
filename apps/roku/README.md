@@ -8,12 +8,16 @@ folder takes the newer one for new code:
 | SceneGraph + BrightScript, since 2014 | BrightScript and XML | **yes** |
 | RSG 2.0 SDK, public beta since 2026-10-29 | TypeScript and TSX, running on Hermes | **no.** Sideload only. General availability targeted Fall 2027 |
 
-Status, 2026-11-12: **18 source files and 2,088 lines, plus 6 Jest suites and 728 lines of tests
-that need no device. The rules, the key maps, the geometry and the contract calls are written. The
-host is not written, and no line of this folder has been compiled or run, because the toolchain is
-not installed on this machine.** Measured with
-`cat src/*.ts src/screens/* src/main.tsx roku-config.ts | wc -l`. What is left is listed in
-section 5, each item with what unblocks it.
+Status, 2026-11-13: **21 source files and 2,502 lines, plus 9 suites and 1,280 lines of tests that
+need no device. 130 of 130 tests pass and 17 of 17 mutants were killed. The rules, the key maps,
+the geometry and the contract calls are written. The host is not written, and the folder has still
+not been type-checked, because there is no TypeScript compiler on this machine.** Measured with
+`cat src/*.ts src/screens/* src/main.tsx roku-config.ts | wc -l` and
+`cat src/tests/*.ts | wc -l` on 2026-11-13. What is left is listed in section 5, each item with
+what unblocks it.
+
+Yesterday's line here said "no line of this folder has been compiled or run". That has changed for
+the running half: section 4 says how, and section 7 is the mirror these tests exist to hold down.
 
 Licensed under either of MIT or Apache 2.0, at your option.
 
@@ -125,6 +129,9 @@ other file is plain TypeScript that could be read and checked on any machine.
 | `src/numbers.ts` | 203 | Every number the surface lays out with, each beside the Kotlin line it was taken from. Corners and colours are read from `brand.json`, not transcribed |
 | `src/keys.ts` | 78 | Roku's 15 documented key strings, turned into the six words a screen answers |
 | `src/page.ts` | 80 | Which rows a page may draw, and whether the answer in hand is even its own |
+| `src/tier.ts` | 133 | What a profile may be shown: its age tier, and the certificate a title carries. A mirror of the Rust in `server-rules`; see section 7 |
+| `src/growth.ts` | 95 | How a page follows its cursor, and the one read at a time behind it |
+| `src/facts.ts` | 81 | The line of facts about a title: genre, year, length, age |
 | `src/focus.ts` | 178 | Where the remote is on a page of rows, and what each key does there |
 | `src/title.ts` | 164 | A title page's menu lines, its three ratings, and its key map |
 | `src/api.ts` | 111 | The routes this surface reads. Addresses come from the generated `ADDRESS`, not from strings here |
@@ -139,7 +146,7 @@ other file is plain TypeScript that could be read and checked on any machine.
 | `src/screens/remote.ts` | 54 | The one seam between Roku's keys and the six words |
 | `src/main.tsx` | 56 | The one place that picks a screen |
 | `roku-config.ts` | 41 | The generated manifest, with the app's name taken from `brand.json` |
-| `src/tests/` | 728 | Six Jest suites: the rows a page draws, the two key maps, the key names, the words, the geometry |
+| `src/tests/` | 1,280 | Nine suites: the rows a page draws, the two key maps, the key names, the words, the geometry, and the three mirrored rules of section 7 |
 
 ### Nothing is transcribed that something else already states
 
@@ -213,9 +220,47 @@ versions the beta is on, and a hand-written one here would either pin versions n
 fight the generator. The way in is `rk create`, then copy `src/` and `roku-config.ts` over what it
 wrote.
 
-### Testing without a Roku
+### Testing without a Roku, and what actually ran
 
-This is the part that turns out to be better than expected:
+**The suites run here, today, with nothing installed.** They had never been run before 2026-11-13:
+this machine has no `node`, no `pnpm` and no `tsc` (`node --version`, `pnpm --version` and
+`tsc --version` all fail, re-measured 2026-11-13), so six suites and 728 lines of assertions had
+been written blind and never executed. What it cost to find that out:
+
+| | |
+|---|---|
+| What ran them | `/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc`, the JavaScript shell macOS ships. It takes `-m`, `readFile` and `load`; `print` is its only output |
+| How the TypeScript reached it | type erasure by a small scanner, plus a Jest shim for `describe`, `it` and `expect`, both in a scratch folder and **neither in this repository**. They are a measurement instrument, like a ruler: nothing here depends on them |
+| What it proves | that each test discriminates. It does **not** type-check anything: erasure is not checking, and the folder is still unchecked |
+| Result, 2026-11-13 | 130 of 130 tests pass across nine suites. 17 of 17 mutants killed: every mutation was confirmed by the file's checksum moving before the run and returning after it |
+
+**Three defects were found by running them, none of which a reading had found:**
+
+1. `src/tests/focus.test.ts` had two cases that could never pass. Both assumed a page of rows opens
+   on the top bar; it opens on the hero when it has one, which is what the Java spec does
+   (`apps/android/surfaces/tv/src/main/java/streams/tv/browse/Place.java:85`). The tests were
+   wrong and the code was right.
+2. `src/tests/numbers.test.ts` imported `../../../brand.json`, which from `src/tests/` is
+   `apps/brand.json` and does not exist. Three folders up, not four. That suite could not have been
+   loaded by any runner.
+3. The first draft of `src/facts.ts` wrapped the hours and minutes in a second pair of isolation
+   marks, because it used this folder's `fill` where `Facts.kt:27-29` uses a plain replace. The
+   fixture-held test caught it on its first run.
+
+**The runner itself is an open boundary question for the lead, not something this folder settles.**
+There is no `package.json` here and no TypeScript step in `check`, so `check` does not run any of
+this. Three ways out, and the cost of each:
+
+* **Jest**, which is what the suites are already written for and what Roku says it uses internally.
+  Costs a `package.json` in this folder, `node_modules`, and a `check` step that needs node.
+* **`node --test`**, which costs no framework but rewrites the assertions and still needs node.
+* **Leave `check` out of it** and let the suites run only under `rk dev`. Costs: they go
+  unrun on every push, which is how they came to hold three defects in the first place.
+
+CI already installs node 22 and TypeScript 5 for `check_types.py` (`.github/workflows/check.yml`),
+so the runner is nearer than this folder's history suggests. Picking one is the lead's.
+
+The rest of this section is what Roku publishes, and is unchanged:
 
 * **Jest runs on a computer**, with a mock render tree, and is what Roku uses internally: "Jest is
   what Roku uses internally to test the SDK", and "Jest does not run on the device"
@@ -274,8 +319,11 @@ In the order they block a running app.
    settings, episodes, more-like-this, and the player. The player additionally needs the Video
    node's fields and an answer on HLS and DRM. *Unblocks with*: the work, in that order; none of it
    needs a device either, except the player.
-9. **Nothing has been compiled or run.** No `node` on this machine. *Unblocks with*: Node 24 and
-   pnpm 11, about 300 MB of `node_modules`, and 4 GB of disk headroom.
+9. **Nothing has been type-checked.** The suites now run (section 4), but erasing types is not
+   checking them: no `tsc` has read a line of this folder, so every `strict` flag in
+   `tsconfig.json` is still a promise. *Unblocks with*: Node 24 and a TypeScript compiler, about
+   300 MB of `node_modules`, and 4 GB of disk headroom. CI already installs both for
+   `check_types.py`.
 10. **`POST /v1/core/step` does not answer.** `server/crates/server-api/tests/routes.rs:11`.
    *Unblocks with*: the server work, which is another agent's.
 
@@ -291,3 +339,66 @@ no English. The brand's name comes from `brand.json` and reaches the manifest th
     `audioGuideText` on the Poster node; nothing equivalent to a live region was established, so
     `screenRemote` hands a screen its own sentence back and draws it nowhere.
     *Unblocks with*: Roku's accessibility documentation, which was not read.
+
+---
+
+## 7. The mirror, and what keeps it from drifting
+
+Section 2 ends in a recommendation the owner has not taken: step the core on the server. On
+2026-11-12 he decided the other way for now — **mirror the rules in this language, and accept two
+homes for them**. This section is what that decision looks like in files, and what was built to
+keep the second home honest.
+
+Two implementations of one rule drift. That is not a risk, it is the default, and a second
+implementation checked only against its own expectations is worse than none, because it keeps
+passing while the rule it mirrors moves underneath it. So every mirrored rule here is held to
+something outside this folder.
+
+### What is mirrored
+
+| Rule | Mirrored from | Held against |
+|---|---|---|
+| A profile's age tier and the certificate a title may carry (`src/tier.ts`) | `server/crates/server-rules/src/tier.rs:7-120` and the certificate clause of `eligibility.rs:47-88` | `fixtures/2026-11-05/valid/ProfileLimits.basic.json`, `Profile.kids.json`, `Profile.main.json`, **and `tier.rs` itself, read from disk** |
+| How a page follows its cursor and how far ahead it reads (`src/growth.ts`, `PageFocus.wantsMore`) | `tv/browse/Browse.kt:32-46` and `:139-168`, `browse/Place.java:342-360` | `fixtures/2026-11-05/valid/More.section.json` and `Screen.home.json` |
+| The line of facts about a title (`src/facts.ts`, `counted` and `number` in `src/words.ts`) | `tv/parts/Facts.kt:21-48`, `shared/Theme.kt:88-134` | `fixtures/2026-11-05/valid/TitleDetail.{film,series,coming}.json` and the real `strings/*.json` |
+| Which rows a page may draw (`src/page.ts`, already here) | `tv/browse/Page.kt` | `fixtures/2026-11-05/valid/Screen.home.json` and `tolerated/Section.unknown_kind.json` |
+
+The fixtures are not this folder's. They are
+`platform/contract/fixtures/2026-11-05/`, 271 files that
+`platform/contract/tests/fixtures.rs` reads with `fs::read_dir` and round-trips through the Rust
+contract types, and whose first line reads: "Fixtures are plain JSON and every language reads the
+same files." A TypeScript test reads them with `readFileSync` and gets the same bytes the Rust
+does. **That is the whole answer to "what holds the mirror to the core": the corpus already
+existed, in a form every language can read, and nothing had to be moved or reshaped to use it.**
+
+### The drift guard
+
+Fixtures hold the behaviour. They do not notice the day somebody adds a tier to the Rust enum or
+changes a certificate rank, because a fixture carries data and not rules. So
+`src/tests/tier.test.ts` also reads `server/crates/server-rules/src/tier.rs` **as text** and
+compares its match arms with the tables here: the order of the tiers, every rating word, every
+coarse level, every certificate rank, and the ceiling a Kids profile is clamped to. Change the Rust
+and this folder goes red, naming that file.
+
+It is a text read and it is brittle to a rewrite of that file, which is the price. The alternative
+was no guard at all.
+
+### What is deliberately not mirrored
+
+* **`Tier::of_account`** (`tier.rs:78-90`), the widest tier across an account's profiles. It needs
+  each profile's own age limit, and the wire gives a client a `Profile` with no limit on it at all.
+  A mirror of it here would be a rule with no caller and no way to be wrong.
+* **The rest of `eligible`** (`eligibility.rs:47-88`): the adult and suggestive flags, the blocked
+  genres, the blocked keywords, and the scored profile model used when a title has no certificate.
+  None of the five reaches a client over the wire. `certificateFits` answers `null` for that case
+  rather than guessing, and the screen draws what the server sent.
+* **Everything the core decides.** Sessions, refresh, the queue, play, the layer: `src/host.ts` is
+  still unwritten and section 2's question is still open. This mirror is the drawing half of four
+  rules, not a second core.
+
+### The numbers
+
+No number was copied out of the Rust into a literal here. The five certificate ranks are positions
+in one ordered list of tiers, which is how `tier.rs:7` declares them ("A tier, narrowest first"),
+so a rank and a tier cannot disagree. `REACH` stays where every other number this surface uses
+stays, in `src/numbers.ts`, with the Kotlin line it came from.

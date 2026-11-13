@@ -12,6 +12,7 @@
 
 import type { Section, Tile, TitleKey } from "./contract";
 import type { Word } from "./keys";
+import { REACH } from "./numbers";
 
 /** The place of the search button, to the left of the first tab. (`TopBar.kt:31`) */
 export const SEARCH_TAB = -2;
@@ -99,6 +100,20 @@ export class PageFocus {
   /** The last row that exists, or -1 when the page has none. */
   private lastRow(): number {
     return this.rows.length - 1;
+  }
+
+  /**
+   * Whether the page should read its next rows now: the focus is within `REACH` of the last row
+   * the page holds, or the page has no rows at all and can only grow by asking.
+   * (`apps/android/surfaces/tv/src/main/java/streams/tv/browse/Place.java:342-357`)
+   *
+   * The derivation of `REACH` is in `src/numbers.ts:119-123`, where every number this surface uses
+   * lives: one row below the focused one is already partly on screen, so the second row down is the
+   * first the viewer cannot see at all, and holding that one as well is this surface's own prefetch
+   * margin rather than anything measured off a reference.
+   */
+  wantsMore(): boolean {
+    return this.rows.length === 0 || (this.where === "row" && this.row >= this.lastRow() - REACH);
   }
 
   /** True when the key moved the focus. False means the key was not used here. (`Browse.kt:107-151`) */

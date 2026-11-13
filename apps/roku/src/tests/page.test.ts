@@ -6,8 +6,14 @@
 // whatever the tab before it was showing, because the core never asks for Games and never clears
 // what it holds (`apps/android/surfaces/tv/.../browse/Page.kt:11-15`).
 
-import type { Section, Tile } from "../contract";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import type { Screen, Section, Tile } from "../contract";
 import { answerIsThisPage, heroOn, pageKey, rowsOn, screenOf } from "../page";
+
+/** The fixture corpus, four folders up from `apps/roku/src/tests`. */
+const CORPUS = join(__dirname, "..", "..", "..", "..", "platform", "contract", "fixtures", "2026-11-05");
 
 function tile(id: number): Tile {
   return { name: `t${id}`, title: `movie:${id}` };
@@ -88,6 +94,42 @@ describe("heroOn", () => {
   it("has no hero on games, and none when the hero section is empty", () => {
     expect(heroOn("games", [section("h", "hero", 3)])).toBeNull();
     expect(heroOn("home", [section("h", "hero", 0)])).toBeNull();
+  });
+});
+
+// Every case above builds its own sections, which proves the rule against this file's idea of a
+// page and nothing else. These read the corpus instead: `Screen.home.json` and
+// `Section.unknown_kind.json` are files `platform/contract/tests/fixtures.rs` reads with
+// `fs::read_dir` and round-trips through the Rust contract types, and that file's first line says
+// they are "plain JSON and every language reads the same files".
+describe("a real page, from the fixture corpus", () => {
+  const home = JSON.parse(
+    readFileSync(join(CORPUS, "valid", "Screen.home.json"), "utf8"),
+  ) as Screen;
+  const future = JSON.parse(
+    readFileSync(join(CORPUS, "tolerated", "Section.unknown_kind.json"), "utf8"),
+  ) as Section;
+
+  it("the corpus holds a hero and a row under one name", () => {
+    expect(home.name).toBe("home");
+    expect(home.sections.map((one) => one.kind)).toEqual(["hero", "row"]);
+  });
+
+  it("draws the row and not the hero section, which is drawn as the hero", () => {
+    expect(rowsOn("home", null, home.name, home.sections, []).map((one) => one.id)).toEqual(["s1"]);
+    expect(heroOn("home", home.sections)?.title).toBe("movie:1001");
+  });
+
+  it("draws neither on the games tab, however the answer arrived", () => {
+    expect(rowsOn("games", null, home.name, home.sections, [])).toEqual([]);
+    expect(heroOn("games", home.sections)).toBeNull();
+  });
+
+  it("leaves out a section whose kind this build does not draw", () => {
+    // The corpus carries this one on purpose: the wire rule is that an unknown word must not fail
+    // (`platform/contract/README.md:41`), and `Section.unknown_kind.json` is the fixture for it.
+    expect(future.kind).toBe("kind_from_the_future");
+    expect(rowsOn("home", null, home.name, [future, ...home.sections], [])).toHaveLength(1);
   });
 });
 

@@ -48,9 +48,14 @@ describe("moving", () => {
   });
 
   it("goes up from the first row to the hero, then to the bar, then stops", () => {
+    // A page with a hero opens ON the hero (`Place.java:85`), so one Down reaches the rows and a
+    // second walks down them. Written here as two Downs and one Up back to row 0 before the climb.
     const focus = new PageFocus(rows(2), 4, 0, true);
     focus.press("down");
     focus.press("down");
+    expect(focus.row).toBe(1);
+    focus.press("up");
+    expect(focus.row).toBe(0);
     expect(focus.where).toBe("row");
     expect(focus.press("up")).toBe(true);
     expect(focus.where).toBe("hero");
@@ -82,7 +87,6 @@ describe("moving", () => {
 
   it("moves between the hero's two buttons", () => {
     const focus = new PageFocus(rows(1), 4, 0, true);
-    focus.press("down");
     expect(focus.where).toBe("hero");
     focus.press("right");
     expect(focus.button).toBe(1);

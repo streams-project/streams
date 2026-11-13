@@ -5,7 +5,9 @@
 // repeats a number from `src/numbers.ts`. Each case asserts something that would break if a value
 // were changed on its own: a sum, a fit on the screen, or a value derived from `brand.json`.
 
-import brand from "../../../brand.json";
+// Four levels up from `src/tests/`, not three: `apps/roku/src/tests` -> `apps/roku/src` ->
+// `apps/roku` -> `apps` -> the repository root, which is where `brand.json` is.
+import brand from "../../../../brand.json";
 import {
   BAR_HIGH,
   BAR_MID,
