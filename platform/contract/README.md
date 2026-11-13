@@ -61,6 +61,11 @@ Fixture files are named `<Type>.<case>.json`.
   even where visitors may browse, and no profile. `RouteTarget.code` holds the code as it stood in
   the address, and a screen cleans it before sending. The first answer to a code stands: another
   one reads `error.device_decided`.
+- A route the contract marks `Auth::Profile` is still read with no token at all where the
+  deployer allows visitors, at the tier they stated. `Route.open_to_visitors` names those routes,
+  and each one says so in its summary in `generated/openapi.json`. Its `security` does not say so
+  yet, so a fake server that reads `security` alone asks a visitor for a token the deployment does
+  not want.
 - Three versions, kept apart: the wire by date in `Api-Version`, the C boundary by number, crates
   by semver. Clients are compared against a range, never for equality.
 

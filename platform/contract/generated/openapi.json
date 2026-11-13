@@ -8605,7 +8605,7 @@
                 }
               }
             },
-            "description": "The next part of a screen or section."
+            "description": "The next part of a screen or section. A visitor reads it where the deployer allows visitors, at the stated tier."
           },
           "default": {
             "content": {
@@ -8643,7 +8643,7 @@
             "profile": []
           }
         ],
-        "summary": "The next part of a screen or section.",
+        "summary": "The next part of a screen or section. A visitor reads it where the deployer allows visitors, at the stated tier.",
         "tags": [
           "pages"
         ]
@@ -8683,7 +8683,7 @@
                 }
               }
             },
-            "description": "The menu for this class and profile."
+            "description": "The menu for this class and profile. A visitor reads it where the deployer allows visitors, at the stated tier."
           },
           "304": {
             "description": "Not changed since the ETag in If-None-Match."
@@ -8724,7 +8724,7 @@
             "profile": []
           }
         ],
-        "summary": "The menu for this class and profile.",
+        "summary": "The menu for this class and profile. A visitor reads it where the deployer allows visitors, at the stated tier.",
         "tags": [
           "pages"
         ]
@@ -11053,7 +11053,7 @@
                 }
               }
             },
-            "description": "A built page."
+            "description": "A built page. A visitor reads it where the deployer allows visitors, at the stated tier."
           },
           "304": {
             "description": "Not changed since the ETag in If-None-Match."
@@ -11094,7 +11094,7 @@
             "profile": []
           }
         ],
-        "summary": "A built page.",
+        "summary": "A built page. A visitor reads it where the deployer allows visitors, at the stated tier.",
         "tags": [
           "pages"
         ]
@@ -11146,7 +11146,7 @@
                 }
               }
             },
-            "description": "Search results as a screen."
+            "description": "Search results as a screen. A visitor reads it where the deployer allows visitors, at the stated tier."
           },
           "default": {
             "content": {
@@ -11184,7 +11184,7 @@
             "profile": []
           }
         ],
-        "summary": "Search results as a screen.",
+        "summary": "Search results as a screen. A visitor reads it where the deployer allows visitors, at the stated tier.",
         "tags": [
           "pages"
         ]
@@ -11233,7 +11233,7 @@
                 }
               }
             },
-            "description": "Search suggestions."
+            "description": "Search suggestions. A visitor reads them where the deployer allows visitors, at the stated tier."
           },
           "default": {
             "content": {
@@ -11271,7 +11271,7 @@
             "profile": []
           }
         ],
-        "summary": "Search suggestions.",
+        "summary": "Search suggestions. A visitor reads them where the deployer allows visitors, at the stated tier.",
         "tags": [
           "pages"
         ]
@@ -11609,7 +11609,7 @@
                 }
               }
             },
-            "description": "One title."
+            "description": "One title. A visitor reads it where the deployer allows visitors, at the stated tier."
           },
           "304": {
             "description": "Not changed since the ETag in If-None-Match."
@@ -11650,7 +11650,7 @@
             "profile": []
           }
         ],
-        "summary": "One title.",
+        "summary": "One title. A visitor reads it where the deployer allows visitors, at the stated tier.",
         "tags": [
           "pages"
         ]
@@ -11716,7 +11716,7 @@
                 }
               }
             },
-            "description": "One season."
+            "description": "One season. A visitor reads it where the deployer allows visitors, at the stated tier."
           },
           "304": {
             "description": "Not changed since the ETag in If-None-Match."
@@ -11757,7 +11757,7 @@
             "profile": []
           }
         ],
-        "summary": "One season.",
+        "summary": "One season. A visitor reads it where the deployer allows visitors, at the stated tier.",
         "tags": [
           "pages"
         ]

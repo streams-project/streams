@@ -364,3 +364,52 @@ fn every_route_is_found_by_its_own_path() {
     assert!(find("GET", "/v1/profiles/").is_none());
     assert!(find("DELETE", "/v1/hello").is_none());
 }
+
+/// The routes a deployment that allows visitors answers with no token at all. Frozen by hand:
+/// a route joining or leaving this list changes who may read the service without an account, so
+/// it cannot happen as a side effect of editing the table.
+const OPEN_TO_VISITORS: [&str; 7] = [
+    "getNav",
+    "getScreen",
+    "getMore",
+    "getTitle",
+    "getSeason",
+    "search",
+    "suggest",
+];
+
+#[test]
+fn only_a_profile_read_of_a_page_is_open_to_visitors_and_the_list_is_the_one_frozen_here() {
+    use contract::api::{Auth, Group, ROUTES};
+    let open: Vec<&str> = ROUTES
+        .iter()
+        .filter(|route| route.open_to_visitors)
+        .map(|route| route.name)
+        .collect();
+    assert_eq!(
+        open, OPEN_TO_VISITORS,
+        "the routes a visitor may read changed: say so here, because four client families are \
+         generated from this table"
+    );
+    for route in ROUTES.iter().filter(|route| route.open_to_visitors) {
+        assert_eq!(
+            route.auth,
+            Auth::Profile,
+            "{} is open to visitors and is not a profile route: the flag is the exception to \
+             Auth::Profile and means nothing anywhere else",
+            route.name
+        );
+        assert_eq!(
+            route.group,
+            Group::Pages,
+            "{} is open to visitors and is not a page: a visitor browses and does nothing else",
+            route.name
+        );
+        assert_eq!(route.method, "GET", "{} is not a read", route.name);
+        assert!(
+            route.request.is_none(),
+            "{} is open to visitors and takes a body",
+            route.name
+        );
+    }
+}

@@ -1,5 +1,13 @@
-//! Every route of the service as data. OpenAPI is generated from this table, so no route exists
-//! that the contract does not name.
+//! Every route of the service as data. OpenAPI is generated from this table, so on the `/v1`
+//! surface a client speaks, no route exists that the contract does not name.
+//!
+//! The promise is bounded to `/v1` because the server also mounts `POST /internal/mail`, the
+//! auth service's send mail hook: it proves itself by signature, not by any token this table can
+//! express, and it is not client surface, so naming it here would publish a webhook to four
+//! generated client families and, having no signature form in the security emitter, publish it as
+//! open. The bound is held by a check and not by this sentence: the router's own source is read
+//! in `server-api/tests/routes.rs`, every `/v1` route it mounts must be named below, and every
+//! route it mounts outside `/v1` must be on the short list named there.
 
 /// Who may call a route.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -55,6 +63,15 @@ pub struct Route {
     pub cacheable: bool,
     /// A text media type this route may answer in place of JSON.
     pub text_form: Option<&'static str>,
+    /// True when a deployment that allows visitors serves this route with no token at all, at the
+    /// tier the deployer stated. The route still wants an active profile everywhere else.
+    ///
+    /// This is a flag on `Auth::Profile` and not a sixth `Auth` class because wherever accounts
+    /// are required, which is the default, the profile requirement is still the whole truth: the
+    /// caller is the same class, under one exception the deployer chooses. A sixth class would
+    /// also shrink every sweep that reasons over `Auth::Profile`, and the routes that moved out of
+    /// it would stop proving the profile gate they still hold on a closed deployment.
+    pub open_to_visitors: bool,
 }
 
 /// Headers every request to the server carries, with what each holds.
@@ -96,12 +113,21 @@ const fn write(
         query: &[],
         cacheable: false,
         text_form: None,
+        open_to_visitors: false,
     }
 }
 
 const fn cached(route: Route) -> Route {
     Route {
         cacheable: true,
+        ..route
+    }
+}
+
+/// A route a deployment that allows visitors answers with no token.
+const fn with_visitors(route: Route) -> Route {
+    Route {
+        open_to_visitors: true,
         ..route
     }
 }
@@ -594,56 +620,60 @@ pub const ROUTES: &[Route] = &[
         WATCHING,
     ),
     // Pages
-    cached(read(
+    with_visitors(cached(read(
         "/v1/nav",
         "getNav",
-        "The menu for this class and profile.",
+        "The menu for this class and profile. A visitor reads it where the deployer allows \
+         visitors, at the stated tier.",
         "Nav",
         PAGES,
-    )),
+    ))),
     with_query(
-        cached(read(
+        with_visitors(cached(read(
             "/v1/screens/{name}",
             "getScreen",
-            "A built page.",
+            "A built page. A visitor reads it where the deployer allows visitors, at the stated \
+             tier.",
             "Screen",
             PAGES,
-        )),
+        ))),
         &[Query {
             name: "genre",
             required: false,
             about: "The genre, for the genre screen.",
         }],
     ),
-    read(
+    with_visitors(read(
         "/v1/more/{cursor}",
         "getMore",
-        "The next part of a screen or section.",
+        "The next part of a screen or section. A visitor reads it where the deployer allows \
+         visitors, at the stated tier.",
         "More",
         PAGES,
-    ),
-    cached(read(
+    )),
+    with_visitors(cached(read(
         "/v1/titles/{kind}/{id}",
         "getTitle",
-        "One title.",
+        "One title. A visitor reads it where the deployer allows visitors, at the stated tier.",
         "TitleDetail",
         PAGES,
-    )),
-    cached(read(
+    ))),
+    with_visitors(cached(read(
         "/v1/titles/{kind}/{id}/seasons/{n}",
         "getSeason",
-        "One season.",
+        "One season. A visitor reads it where the deployer allows visitors, at the stated tier.",
         "Season",
         PAGES,
-    )),
+    ))),
     with_query(
-        read(
+        with_visitors(read(
             "/v1/search",
             "search",
-            "Search results as a screen.",
+            "Search results as a screen. A visitor reads it where the deployer allows visitors, \
+             at the stated tier.",
             "Screen",
             PAGES,
-        ),
+        )),
         &[Query {
             name: "q",
             required: true,
@@ -651,13 +681,14 @@ pub const ROUTES: &[Route] = &[
         }],
     ),
     with_query(
-        read(
+        with_visitors(read(
             "/v1/search/suggest",
             "suggest",
-            "Search suggestions.",
+            "Search suggestions. A visitor reads them where the deployer allows visitors, at the \
+             stated tier.",
             "Suggestions",
             PAGES,
-        ),
+        )),
         &[Query {
             name: "q",
             required: true,

@@ -3,6 +3,8 @@
 
 mod common;
 
+use std::collections::BTreeSet;
+
 use axum::http::{Method, StatusCode};
 use common::{call, harness};
 use contract::api::{Auth, Group, ROUTES};
@@ -204,7 +206,7 @@ async fn watching(server: &common::Harness) -> String {
 }
 
 #[tokio::test]
-async fn every_route_the_contract_calls_cacheable_sends_an_etag_and_answers_304_to_it() {
+async fn n17_every_route_the_contract_calls_cacheable_sends_an_etag_and_answers_304_to_it() {
     let (server, _strings) = full_server();
     let token = watching(&server).await;
     let mut checked = 0usize;
@@ -254,7 +256,7 @@ async fn every_route_the_contract_calls_cacheable_sends_an_etag_and_answers_304_
 }
 
 #[tokio::test]
-async fn no_route_the_contract_leaves_uncacheable_hands_out_an_etag() {
+async fn n17_no_route_the_contract_leaves_uncacheable_hands_out_an_etag() {
     let (server, _strings) = full_server();
     let token = watching(&server).await;
     // The GETs that are not cacheable and that this harness can answer with a profile token.
@@ -378,5 +380,227 @@ async fn h30_every_route_the_contract_marks_profile_refuses_a_member_with_no_pro
             .filter(|route| route.auth == Auth::Profile)
             .count(),
         "every profile route is checked"
+    );
+}
+
+/// Every route the router mounts outside `/v1`, with why the contract does not name it. The
+/// promise in `api.rs` is bounded to the `/v1` surface a client speaks, and this list is the whole
+/// of what that bound lets through.
+const NOT_CLIENT_SURFACE: [(&str, &str, &str); 1] = [(
+    "POST",
+    "/internal/mail",
+    "the auth service's send mail hook: it proves itself by signature, is off without \
+     mail_hook_secret, and no generated client calls it",
+)];
+
+/// The HTTP methods one `.route(...)` call mounts, from the `get(..)`, `post(..)` and friends in
+/// its handler argument. A verb that is part of a longer name, such as `account::delete`, is not
+/// one of them.
+fn methods(call: &str) -> Vec<String> {
+    let mut list = Vec::new();
+    for verb in ["get", "post", "put", "patch", "delete"] {
+        let wanted = format!("{verb}(");
+        let mut rest = call;
+        while let Some(at) = rest.find(&wanted) {
+            let before = rest[..at].chars().next_back();
+            let inside_a_name = before
+                .is_some_and(|letter| letter.is_alphanumeric() || letter == '_' || letter == ':');
+            if !inside_a_name {
+                list.push(verb.to_uppercase());
+                break;
+            }
+            rest = &rest[at + wanted.len()..];
+        }
+    }
+    list
+}
+
+/// Every `(method, path)` the one router mounts, read from the router's own source.
+///
+/// Axum hands out no list of what a `Router` holds, so the source is the only place this can be
+/// read, as the text form test in this file reads `play.rs`. The parse proves itself twice: the
+/// equality in the test wants every `/v1` route the contract names, so a parse that found nothing
+/// cannot pass, and the ways of mounting a route that this parse cannot read are refused here, so
+/// it cannot start lying by omission the day the router grows one.
+fn mounted() -> BTreeSet<(String, String)> {
+    let source = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/src/router.rs"))
+        .expect("the router's own source");
+    for way in [".nest(", ".nest_service(", ".merge(", ".route_service("] {
+        assert!(
+            !source.contains(way),
+            "the router mounts with {way}, which this parse does not read: teach it that before \
+             trusting what it finds"
+        );
+    }
+    let mut found = BTreeSet::new();
+    for rest in source.split(".route(").skip(1) {
+        let mut depth = 1usize;
+        let call: String = rest
+            .chars()
+            .take_while(|letter| {
+                match *letter {
+                    '(' => depth += 1,
+                    ')' => depth -= 1,
+                    _ => {}
+                }
+                depth > 0
+            })
+            .collect();
+        let path = call
+            .split('"')
+            .nth(1)
+            .expect("the first argument of .route is its path")
+            .to_owned();
+        for method in methods(&call) {
+            found.insert((method, path.clone()));
+        }
+    }
+    found
+}
+
+/// The other direction of `u21`: not every declared route is mounted, but every mounted route is
+/// declared. Nothing checked this way round before, which is how `POST /internal/mail` came to be
+/// served without the contract naming it, for however long it has been there.
+#[test]
+fn u21_every_route_the_router_mounts_is_named_by_the_contract_or_listed_as_internal() {
+    let mounted = mounted();
+    assert!(
+        mounted.len() > 60,
+        "the router parse found {} routes, so it is not reading what it thinks it is",
+        mounted.len()
+    );
+    let declared: BTreeSet<(String, String)> = ROUTES
+        .iter()
+        .filter(|route| route.group != Group::Finder)
+        .filter(|route| {
+            !STILL_TO_BUILD
+                .iter()
+                .any(|(method, path, _)| *method == route.method && *path == route.path)
+        })
+        .map(|route| (route.method.to_string(), route.path.to_string()))
+        .collect();
+    let surface: BTreeSet<(String, String)> = mounted
+        .iter()
+        .filter(|(_, path)| path.starts_with("/v1"))
+        .cloned()
+        .collect();
+    let unnamed: Vec<&(String, String)> = surface.difference(&declared).collect();
+    assert!(
+        unnamed.is_empty(),
+        "the router mounts {unnamed:?} under /v1 and the contract names none of them, so a \
+         generated client cannot know they exist: name them in contract/src/api.rs"
+    );
+    let unmounted: Vec<&(String, String)> = declared.difference(&surface).collect();
+    assert!(
+        unmounted.is_empty(),
+        "the contract names {unmounted:?} and the router mounts none of them: mount them, or put \
+         them on STILL_TO_BUILD"
+    );
+    for (method, path) in mounted.iter().filter(|(_, path)| !path.starts_with("/v1")) {
+        assert!(
+            NOT_CLIENT_SURFACE
+                .iter()
+                .any(|(listed_method, listed_path, _)| listed_method == method
+                    && listed_path == path),
+            "the router mounts {method} {path}, which is neither named by the contract nor listed \
+             as internal: say what it is in NOT_CLIENT_SURFACE, or name it in the contract"
+        );
+    }
+    for (method, path, _) in NOT_CLIENT_SURFACE {
+        assert!(
+            !path.starts_with("/v1"),
+            "{path} is on the internal list and is client surface: the contract must name it"
+        );
+        assert!(
+            mounted.contains(&(method.to_owned(), path.to_owned())),
+            "{method} {path} is listed as internal and is not mounted: take it off the list"
+        );
+    }
+}
+
+/// A concrete call for a route the contract opens to visitors, on the sample set. A route the
+/// contract opens and nobody maps here fails the sweep below by name, as the cacheable set does
+/// above. Every one of them owes a visitor an answer, so they all expect 200.
+fn visitor_call(path: &str, cursor: &str) -> String {
+    let series = server_catalog::sample::special::SHARED_ID;
+    match path {
+        "/v1/nav" => String::from("/v1/nav"),
+        "/v1/screens/{name}" => String::from("/v1/screens/home"),
+        "/v1/more/{cursor}" => format!("/v1/more/{cursor}"),
+        // A U title, so the stated visitor tier does not refuse it for its age.
+        "/v1/titles/{kind}/{id}" => String::from("/v1/titles/movie/106"),
+        // The series of the shared id is rated U, so the same holds.
+        "/v1/titles/{kind}/{id}/seasons/{n}" => format!("/v1/titles/tv/{series}/seasons/1"),
+        "/v1/search" => String::from("/v1/search?q=first"),
+        "/v1/search/suggest" => String::from("/v1/search/suggest?q=fir"),
+        other => panic!(
+            "{other} is open to visitors in the contract and has no call here: give it one, \
+             because a client generated from the contract will call it with no token at all"
+        ),
+    }
+}
+
+/// The deployment the contract's visitor flag describes: no accounts required, at a tier the
+/// deployer stated. The tier is 15 and not a children's tier because the sample has no series a
+/// children's tier may see, and the season route is one of the seven.
+#[tokio::test]
+async fn a_visitor_is_served_every_route_the_contract_opens_and_no_other_profile_route() {
+    let open = harness(&[("ACCOUNTS_REQUIRED", "false"), ("VISITOR_TIER", "15")]);
+    let home = common::get("/v1/screens/home").on(&open.state).await;
+    assert_eq!(home.status, StatusCode::OK, "{}", home.body);
+    let cursor = home.body["cursor"]
+        .as_str()
+        .expect("a visitor's home screen pages, so /v1/more has a cursor to ask with")
+        .to_owned();
+    let mut served = 0usize;
+    for route in ROUTES.iter().filter(|route| route.auth == Auth::Profile) {
+        let waiting = STILL_TO_BUILD
+            .iter()
+            .any(|(method, path, _)| *method == route.method && *path == route.path);
+        if waiting {
+            continue;
+        }
+        if route.open_to_visitors {
+            let path = visitor_call(route.path, &cursor);
+            let answer = common::get(&path).on(&open.state).await;
+            assert_eq!(
+                answer.status,
+                StatusCode::OK,
+                "{path} is open to visitors in the contract and answered one {}: {}",
+                answer.status,
+                answer.body
+            );
+            served += 1;
+        } else {
+            let method: Method = route.method.parse().expect("method");
+            let mut request = call(method, &filled(route.path));
+            if route.request.is_some() {
+                request = request.json(serde_json::json!({}));
+            }
+            let answer = request.on(&open.state).await;
+            assert_ne!(
+                answer.status,
+                StatusCode::OK,
+                "{} {} is not open to visitors in the contract and served one",
+                route.method,
+                route.path
+            );
+            assert!(
+                matches!(
+                    answer.status,
+                    StatusCode::UNAUTHORIZED | StatusCode::BAD_REQUEST
+                ),
+                "{} {} refused a visitor for another reason than the missing token: {} {}",
+                route.method,
+                route.path,
+                answer.status,
+                answer.body
+            );
+        }
+    }
+    assert_eq!(
+        served,
+        ROUTES.iter().filter(|route| route.open_to_visitors).count(),
+        "every route the contract opens to visitors is checked"
     );
 }
