@@ -17,7 +17,8 @@ pub use log::{MemoryPlayLog, PgPlayLog, PlayLog};
 pub use marks::{marks_of, pick_marks, pick_reasons, windows_of};
 pub use rank::{Viewing, audio_score, keep_for, rank, usable_headers};
 pub use streams::{
-    Claim, MemoryStreams, PgStreams, STREAM_STALE_S, STREAMS_MAX_DEFAULT, StreamKey, StreamStore,
+    Claim, MemoryStreamStore, PgStreamStore, STREAM_STALE_S, STREAMS_MAX_DEFAULT, StreamKey,
+    StreamStore,
 };
 pub use subtitles::{
     FoundFile, HttpSubtitles, MemorySubtitles, SubtitleError, SubtitleSource, Subtitles,

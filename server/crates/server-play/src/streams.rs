@@ -24,7 +24,7 @@ use server_accounts::{AccountId, ProfileId, SessionId};
 use sqlx::PgPool;
 use uuid::Uuid;
 
-/// Streams one account may play at once when the operator sets no other number.
+/// How many streams one account may play at once when the operator sets no other number.
 pub const STREAMS_MAX_DEFAULT: u32 = 2;
 
 /// A stream nothing has been heard from for this long stops counting.
@@ -62,7 +62,7 @@ pub trait StreamStore: Send + Sync {
     async fn beat(&self, key: StreamKey, play_id: &str);
     /// This stream is over, so its slot goes now rather than when it goes stale.
     async fn release(&self, key: StreamKey, play_id: &str);
-    /// Streams of this account heard from inside the window.
+    /// The streams of this account heard from inside the window.
     async fn live(&self, account: AccountId) -> u32;
 }
 
@@ -80,19 +80,19 @@ struct Row {
 /// same way two servers on one database do. Its clock is set by hand, so a test that proves a
 /// stream goes stale needs no sleep.
 #[derive(Debug)]
-pub struct MemoryStreams {
+pub struct MemoryStreamStore {
     rows: Mutex<HashMap<(Uuid, Uuid), Row>>,
     now_ms: AtomicU64,
     stale_ms: u64,
 }
 
-impl Default for MemoryStreams {
+impl Default for MemoryStreamStore {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl MemoryStreams {
+impl MemoryStreamStore {
     /// A store with the usual window.
     #[must_use]
     pub fn new() -> Self {
@@ -148,7 +148,7 @@ fn pair(key: StreamKey) -> (Uuid, Uuid) {
 }
 
 #[async_trait]
-impl StreamStore for MemoryStreams {
+impl StreamStore for MemoryStreamStore {
     async fn claim(&self, key: StreamKey, play_id: &str, max: u32) -> Claim {
         let mut rows = self.held();
         let mine = pair(key);
@@ -200,12 +200,12 @@ impl StreamStore for MemoryStreams {
 /// serialised and the second sees the first's row; without it, under the default isolation, both
 /// would count the other's uncommitted row as absent and both would be let in.
 #[derive(Clone, Debug)]
-pub struct PgStreams {
+pub struct PgStreamStore {
     pool: PgPool,
     stale_s: f64,
 }
 
-impl PgStreams {
+impl PgStreamStore {
     /// A store on an open pool, with the usual window.
     #[must_use]
     pub fn new(pool: PgPool) -> Self {
@@ -223,7 +223,7 @@ impl PgStreams {
 }
 
 #[async_trait]
-impl StreamStore for PgStreams {
+impl StreamStore for PgStreamStore {
     /// A store that cannot be reached lets the play through. A viewer losing playback because a
     /// database blinked is a worse failure than an account briefly playing one stream too many,
     /// and the stale window closes the second one on its own.
@@ -329,7 +329,7 @@ impl StreamStore for PgStreams {
 
 #[cfg(test)]
 mod tests {
-    use super::{Claim, MemoryStreams, STREAM_STALE_S, StreamKey, StreamStore};
+    use super::{Claim, MemoryStreamStore, STREAM_STALE_S, StreamKey, StreamStore};
     use server_accounts::{AccountId, ProfileId, SessionId};
 
     fn key(account: AccountId, session: SessionId) -> StreamKey {
@@ -342,7 +342,7 @@ mod tests {
 
     #[tokio::test]
     async fn a_third_stream_is_refused_where_two_are_allowed() {
-        let store = MemoryStreams::new();
+        let store = MemoryStreamStore::new();
         let account = AccountId::new();
         let one = key(account, SessionId::new());
         let two = key(account, SessionId::new());
@@ -355,7 +355,7 @@ mod tests {
 
     #[tokio::test]
     async fn another_account_is_counted_apart() {
-        let store = MemoryStreams::new();
+        let store = MemoryStreamStore::new();
         let mine = AccountId::new();
         let theirs = AccountId::new();
         assert_eq!(
@@ -372,7 +372,7 @@ mod tests {
 
     #[tokio::test]
     async fn one_device_playing_a_second_title_is_still_one_stream() {
-        let store = MemoryStreams::new();
+        let store = MemoryStreamStore::new();
         let account = AccountId::new();
         let device = key(account, SessionId::new());
         assert_eq!(store.claim(device, "p1", 1).await, Claim::Taken);
@@ -382,7 +382,7 @@ mod tests {
 
     #[tokio::test]
     async fn a_stream_that_stops_beating_stops_counting() {
-        let store = MemoryStreams::new();
+        let store = MemoryStreamStore::new();
         let account = AccountId::new();
         let one = key(account, SessionId::new());
         let two = key(account, SessionId::new());
@@ -403,7 +403,7 @@ mod tests {
 
     #[tokio::test]
     async fn a_beat_for_an_old_play_does_not_hold_the_slot() {
-        let store = MemoryStreams::new();
+        let store = MemoryStreamStore::new();
         let account = AccountId::new();
         let device = key(account, SessionId::new());
         assert_eq!(store.claim(device, "p1", 2).await, Claim::Taken);
@@ -416,7 +416,7 @@ mod tests {
 
     #[tokio::test]
     async fn a_released_stream_frees_its_slot_at_once() {
-        let store = MemoryStreams::new();
+        let store = MemoryStreamStore::new();
         let account = AccountId::new();
         let device = key(account, SessionId::new());
         assert_eq!(store.claim(device, "p1", 1).await, Claim::Taken);

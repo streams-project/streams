@@ -368,7 +368,7 @@ impl Play {
         handle.spawn(async move { streams.beat(key, &id).await });
     }
 
-    /// Streams this account has running, for a test or an operator's count.
+    /// How many streams this account has running, for a test or an operator's count.
     pub async fn live_streams(&self, scope: &ProfileScope) -> u32 {
         match &self.streams {
             Some(streams) => streams.live(scope.account()).await,
@@ -398,7 +398,7 @@ mod tests {
 
     use super::{Play, PlayAsk, PlayError};
     use crate::finder::MemoryFinder;
-    use crate::streams::{MemoryStreams, STREAM_STALE_S};
+    use crate::streams::{MemoryStreamStore, STREAM_STALE_S};
 
     /// The sample set, built once for every test in this file.
     fn data() -> Arc<DataSet> {
@@ -495,7 +495,7 @@ mod tests {
             .map(|answer| answer.wire().play_id.clone())
     }
 
-    fn gate_with(store: Arc<MemoryStreams>, max: u32) -> Play {
+    fn gate_with(store: Arc<MemoryStreamStore>, max: u32) -> Play {
         let found = finder();
         for _ in 0..8 {
             found.push(answer());
@@ -505,7 +505,7 @@ mod tests {
 
     #[tokio::test]
     async fn a_third_stream_is_refused_where_two_are_allowed() {
-        let store = Arc::new(MemoryStreams::new());
+        let store = Arc::new(MemoryStreamStore::new());
         let gate = gate_with(store, 2);
         let (door, account) = account().await;
         let one = device(&door, account).await;
@@ -519,7 +519,7 @@ mod tests {
 
     #[tokio::test]
     async fn a_stream_that_stopped_beating_stops_counting() {
-        let store = Arc::new(MemoryStreams::new());
+        let store = Arc::new(MemoryStreamStore::new());
         let gate = gate_with(store.clone(), 2);
         let (door, account) = account().await;
         let one = device(&door, account).await;
@@ -543,7 +543,7 @@ mod tests {
 
     #[tokio::test]
     async fn the_count_is_shared_between_two_servers() {
-        let store = Arc::new(MemoryStreams::new());
+        let store = Arc::new(MemoryStreamStore::new());
         // Two gates, each with its own `moka` cache of plays, over one store.
         let first = gate_with(store.clone(), 2);
         let second = gate_with(store, 2);
@@ -565,8 +565,8 @@ mod tests {
     /// not from anything else in the test.
     #[tokio::test]
     async fn a_count_per_server_would_let_the_third_stream_through() {
-        let first = gate_with(Arc::new(MemoryStreams::new()), 2);
-        let second = gate_with(Arc::new(MemoryStreams::new()), 2);
+        let first = gate_with(Arc::new(MemoryStreamStore::new()), 2);
+        let second = gate_with(Arc::new(MemoryStreamStore::new()), 2);
         let (door, account) = account().await;
         let one = device(&door, account).await;
         let two = device(&door, account).await;
@@ -578,7 +578,7 @@ mod tests {
 
     #[tokio::test]
     async fn a_play_that_found_no_source_gives_its_slot_back() {
-        let store = Arc::new(MemoryStreams::new());
+        let store = Arc::new(MemoryStreamStore::new());
         let gate = Play::new(finder()).limiting(store, 1);
         let (door, account) = account().await;
         let one = device(&door, account).await;

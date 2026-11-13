@@ -15,7 +15,7 @@
 use std::sync::Arc;
 
 use server_accounts::{AccountId, ProfileId, SessionId};
-use server_play::{Claim, PgStreams, StreamKey, StreamStore};
+use server_play::{Claim, PgStreamStore, StreamKey, StreamStore};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -103,8 +103,8 @@ async fn the_count_is_shared_between_two_servers() {
         return;
     };
     let world = world(&first, 3).await;
-    let one = PgStreams::new(first);
-    let two = PgStreams::new(second);
+    let one = PgStreamStore::new(first);
+    let two = PgStreamStore::new(second);
     assert_eq!(one.claim(world.key(0), "p1", 2).await, Claim::Taken);
     assert_eq!(two.claim(world.key(1), "p2", 2).await, Claim::Taken);
     assert_eq!(
@@ -123,8 +123,8 @@ async fn a_stream_that_stopped_beating_stops_counting() {
         return;
     };
     let world = world(&first, 3).await;
-    let one = PgStreams::new(first.clone());
-    let two = PgStreams::new(second);
+    let one = PgStreamStore::new(first.clone());
+    let two = PgStreamStore::new(second);
     assert_eq!(one.claim(world.key(0), "p1", 2).await, Claim::Taken);
     assert_eq!(two.claim(world.key(1), "p2", 2).await, Claim::Taken);
     assert_eq!(
@@ -161,8 +161,8 @@ async fn a_beat_keeps_a_slot_and_a_release_frees_it() {
         return;
     };
     let world = world(&first, 2).await;
-    let one = PgStreams::new(first.clone());
-    let two = PgStreams::new(second);
+    let one = PgStreamStore::new(first.clone());
+    let two = PgStreamStore::new(second);
     assert_eq!(one.claim(world.key(0), "p1", 1).await, Claim::Taken);
     sqlx::query(
         "update play_streams set fresh_at = now() - interval '2 minutes' where session_id = $1",
@@ -192,8 +192,8 @@ async fn eight_claims_at_once_on_two_servers_let_two_through() {
         return;
     };
     let world = Arc::new(world(&first, 8).await);
-    let one = Arc::new(PgStreams::new(first));
-    let two = Arc::new(PgStreams::new(second));
+    let one = Arc::new(PgStreamStore::new(first));
+    let two = Arc::new(PgStreamStore::new(second));
     let mut running = Vec::new();
     for device in 0..8 {
         let store = if device % 2 == 0 {
