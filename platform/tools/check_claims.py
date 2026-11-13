@@ -10,9 +10,12 @@ check can tell either.
 So the rule: in the files this reads, a size claim is refused. Say what a thing is and what proves
 it — a command a reader can run — and leave the counting to the command.
 
-The scope is the files whose claims are this repository's own front matter. Two more hold the same
-stale counts (`apps/android/README.md`, `apps/apple/README.md`); they belong to the package that
-owns those folders, so they are named in the output every run until they join the list.
+The scope is the files whose claims are this repository's own front matter. `apps/android/README.md`
+and `apps/apple/README.md` held the same stale counts and were named in the output every run until
+they joined the list; on 2026-11-13 their counts were measured, found wrong in all four figures
+(Kotlin 14,906 lines in 93 files against 19,215 in 122; Swift 10,994 in 75 against 14,963 in 87),
+and removed rather than refreshed. The hole is closed, so `NOT_YET` is empty and both files are
+held to the rule like the rest.
 """
 
 from __future__ import annotations
@@ -25,13 +28,25 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 # The files this rule holds. A file joins this list once its counts are gone.
-PUBLIC_FILES = ("README.md", "CONTRIBUTING.md")
+PUBLIC_FILES = (
+    "README.md",
+    "CONTRIBUTING.md",
+    "apps/android/README.md",
+    "apps/apple/README.md",
+)
 
-# The files that still hold a count, named every run so the hole is never silent.
-NOT_YET = ("apps/android/README.md", "apps/apple/README.md")
+# The files that still hold a count, named every run so the hole is never silent. Empty since
+# 2026-11-13: every file that held one now has none, and all four are in PUBLIC_FILES.
+NOT_YET: tuple[str, ...] = ()
 
 # "1,744 lines", "15 files", "93 files of Kotlin", "2,185 lines of ES5". A version number, a date
 # and a port are not size claims, so the unit has to be there.
+#
+# What that costs, named rather than left silent: a count whose unit is implied slips past. The
+# root README said "152 in the television module alone" of its tests, which this never saw and
+# which had drifted to 160 by 2026-11-13. The sentence was rewritten to name the command instead.
+# Dropping the unit requirement is not the fix -- every port, year and version number would
+# become a claim -- so the hole stays, and this comment is the only thing standing in it.
 A_COUNT = re.compile(
     r"\b\d[\d,]*\s+(?:lines|files|crates|screens|words|languages|tests)\b", re.IGNORECASE
 )
@@ -41,7 +56,7 @@ A_COUNT = re.compile(
 # held to the rule like any other line.
 IN_CODE = re.compile(r"^\s{4,}|^```")
 
-LEAST_READ = 2
+LEAST_READ = 4
 
 
 def tracked(name: str) -> bool:
