@@ -58,14 +58,19 @@ wrong a day after they were written. What each row rests on is a check anybody c
 | Server, core, contract, offline layer, bridges, launcher, finder | Runs | `./check` builds, lints and tests every crate on every push |
 | Data builder (`data`) | Runs | its own checks run inside `./check`, and they cross check the contract and the server |
 | Website (`apps/web`) | Runs | Rust behind the family's ports. It is a workspace crate, so `./check` builds, lints and tests it |
-| Android (`apps/android`) | Runs on real devices, built by hand | Screens behind the family's ports: the television's `browse` is Java and native Views, the rest is still Compose in Kotlin. It builds with gradle on a machine that has it. `./check` does not run gradle, so its unit tests are run by a person or by CI, not by `./check`. Count them with `grep -rc '@Test' apps/android/surfaces/*/src/test` |
-| Apple (`apps/apple`) | Compiles and tests, never run on a device | A phone surface and a television surface in Swift behind the family's ports. `xcodebuild test -scheme AppleFamily-Package` runs its tests on the iOS simulator and the television half on the tvOS one. `./check` does not run xcodebuild, so nothing automated reaches them |
-| Desktop (`apps/desktop`) | Started, built nowhere | ports, adapters, a host and two test files in Rust. It is not a workspace member, so `./check` does not build it |
-| Harmony (`apps/harmony`), Xbox (`apps/xbox`) | Started, built nowhere | ports and a native bridge each, no screens, and no build this repository runs |
-| Roku (`apps/roku`) | Empty | a README and a `.gitignore`, and no code |
+| Android (`apps/android`) | Runs on real devices, built by hand | Screens behind the family's ports: the television's `browse`, `parts`, `notifications` and `reminder` are Java and native Views, the rest is Compose in Kotlin. `./check` runs its unit tests through `platform/tools/check_android.py` where a JDK and an Android SDK are present, and prints what it did not run, by name, where they are not |
+| Apple (`apps/apple`) | Compiles and tests, never run on a device | A phone surface and a television surface in Swift behind the family's ports. `./check` runs their tests through `platform/tools/check_apple.py` on the iOS and tvOS simulators where Xcode is present, and names what it did not run where it is not. A visionOS surface was started on 2026-11-14 |
+| Desktop (`apps/desktop`) | Lays screens out, paints nothing | The screens before a film, in Rust, laid out into a `Scene` of rectangles, words and brand roles. No painter has been written and which one to use is undecided, so there is no window yet |
+| Harmony (`apps/harmony`) | Read, compiled nowhere | A touch surface in ArkTS behind the family's ports, with a native bridge. No OpenHarmony SDK exists on any machine here, so not one line of it has been compiled, type-checked or run; it is held by being read against the Kotlin it was ported from |
+| Xbox (`apps/xbox`) | Read, compiled nowhere | Key maps and drawing geometry for the television screens in toolkit-free C++, plus a native bridge. Everything that paints needs a Windows machine, and `check_rings.py` has no entry for it because nothing fills a port here yet |
+| Roku (`apps/roku`) | Runs under no compiler | Screens, a host, ports and adapters in TypeScript. The whole path from a key press to an HTTP request and back onto a screen exists and its tests run under JavaScriptCore with a type eraser. No `tsc` exists on any machine here, so nothing in it has ever been type-checked |
 
-What every row has in common: `./check` holds the family to its ports with
-`platform/tools/check_rings.py`, whether or not it can build that family.
+What every row has in common, with one exception named: `./check` holds the family to its ports
+with `platform/tools/check_rings.py`, whether or not it can build that family. The exception is
+Xbox, which has no entry because nothing there fills a port yet, and the check refuses a family
+whose rings do not exist rather than passing it vacuously. That sentence was false for Roku too
+until 2026-11-14 -- its rings are one file each and the check demanded a folder, so the family it
+claimed to hold was held by nothing.
 
 The code is under MIT or Apache 2.0, at your option. The Streams name and marks are not, see
 `TRADEMARKS.md`.

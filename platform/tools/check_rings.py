@@ -156,6 +156,71 @@ FAMILIES = {
             "the pictures port": r"createImageSource\s*\(|createPixelMap\s*\(",
         },
     },
+    # Added 2026-11-14, the day this family stopped being screens with no program. Until then its
+    # adapters were one file and the line above demanded a folder, so `roku` could not have an entry
+    # here at all -- while the root README said of every row that "`./check` holds the family to its
+    # ports with `check_rings.py`, whether or not it can build that family". Nothing stopped a Roku
+    # screen calling `fetch` directly, in the one family whose TypeScript no compiler on this
+    # machine has ever read.
+    #
+    # Its surfaces are `screens`, not `surfaces`: that is the word this platform's own documents use
+    # and the folder a Roku developer looks in. The entry names it rather than the folder being
+    # renamed to suit the check.
+    "roku": {
+        "code": "apps/roku/src",
+        # `.tsx` as well as `.ts`, taken before the fact rather than after it. The android entry
+        # above records what the other order cost: `.kt` alone left every `.java` file in no ring
+        # and skipped by both reads, so the hexagon quietly stopped being enforced for it. Every
+        # screen here is `.tsx` and one (`remote.ts`) is not, so both suffixes are the family.
+        "ends": {".ts", ".tsx"},
+        "surfaces": ("screens",),
+        # 8 screen files today. The floor keeps a margin, like every other family's.
+        "least": 6,
+        # Everything of this family that is not a ring. `ports.ts` and `adapters.ts` are rings and
+        # so are not named. `host.ts` is the one object that plugs adapters into ports; the rest are
+        # the shared reading, geometry and words that screens are allowed to use.
+        "rest": (
+            "api.ts",
+            "art.ts",
+            "badges.ts",
+            "contract.ts",
+            "door.ts",
+            "facts.ts",
+            "focus.ts",
+            "growth.ts",
+            "hero.ts",
+            "host.ts",
+            "icons.ts",
+            "keys.ts",
+            "lost.ts",
+            "main.tsx",
+            "numbers.ts",
+            "page.ts",
+            "parts.ts",
+            "route.ts",
+            "tests",
+            "tier.ts",
+            "title.ts",
+            "type.ts",
+            "words.ts",
+        ),
+        "skip": set(),
+        "builds": (),
+        "banned_deps": {},
+        "allowed_deps": frozenset(),
+        # Read whole, comments included, like every family but `harmony`. The words below appear in
+        # `adapters.ts` prose explaining why each one is that ring's business, and `adapters.ts` is
+        # a ring, so the surfaces read never reaches it.
+        "comments": False,
+        "banned": {
+            "the address table": r'"/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)[/"?]',
+            "the network port": r"\bfetch\(|\broUrlTransfer\b",
+            "the store port": r"\broRegistry\b",
+            "the clock port": r"\bsetTimeout\b|\bsetInterval\b",
+            "the launch port": r"\broAppInfo\b|\bgetLaunchParam",
+            "a port, and adapters are not for screens": r'from "\.\./adapters"|from "\./adapters"',
+        },
+    },
     "android": {
         "code": "apps/android",
         # Java as well as Kotlin, and not because any Java is here: with `.kt` alone a `.java` file
@@ -445,9 +510,24 @@ def check(name: str, family: dict) -> list[str]:
     ports = sorted(code.glob("ports*"))
     if not ports:
         found.append(f"{name}: no ports")
-    for part in PARTS:
-        if not (code / part).is_dir():
-            found.append(f"{name}: no {part} folder")
+    # A ring is a folder in a large family and one file in a small one. `ports` has been read both
+    # ways since this check was written -- the `glob("ports*")` above, with a comment below saying
+    # why -- and `adapters` was read only as a folder. So a family whose adapters are one file,
+    # which is the honest shape for a surface of a few thousand lines, could not have an entry here
+    # at all and was therefore held by nothing.
+    #
+    # `roku` was in exactly that position on 2026-11-14, with `ports.ts` and `adapters.ts` as
+    # files, while the root README said of every family that "`./check` holds the family to its
+    # ports with `platform/tools/check_rings.py`, whether or not it can build that family". That
+    # sentence was false for two of the eight rows, and the inconsistency between these two lines
+    # is why. Globbed now, for the reason the ports line already gave.
+    adapters = sorted(code.glob("adapters*"))
+    if not adapters:
+        found.append(f"{name}: no adapters")
+    # `surfaces` is deliberately NOT globbed here. A family names its own surface folders in its
+    # entry and they are not always called that -- `roku` draws in `screens` -- so the name to
+    # check is the family's, not this literal. What enforces their existence is `surface_folders`
+    # below, which reports a declared folder that is not there, and `least`.
     folders, blind = surface_folders(code, family)
     found += [f"{name}: {line}" for line in blind]
     # The folder at the family root is the one a person looks in, so it has to be one of the
@@ -461,7 +541,7 @@ def check(name: str, family: dict) -> list[str]:
     rings = set(folders)
     # A family small enough keeps its ports in one file rather than a folder, so both count.
     rings |= {part.resolve() for part in ports}
-    rings |= {(code / part).resolve() for part in PARTS if (code / part).is_dir()}
+    rings |= {part.resolve() for part in adapters}
     # Every file of the family is in a ring or in a part the family says is not one. This is the
     # assertion `least` could never make: a new folder of screens is a failure here even when the
     # count of what was read goes up.
