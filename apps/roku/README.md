@@ -8,16 +8,18 @@ folder takes the newer one for new code:
 | SceneGraph + BrightScript, since 2014 | BrightScript and XML | **yes** |
 | RSG 2.0 SDK, public beta since 2026-10-29 | TypeScript and TSX, running on Hermes | **no.** Sideload only. General availability targeted Fall 2027 |
 
-Status, 2026-11-13: **21 source files and 2,502 lines, plus 9 suites and 1,280 lines of tests that
-need no device. 130 of 130 tests pass and 17 of 17 mutants were killed. The rules, the key maps,
-the geometry and the contract calls are written. The host is not written, and the folder has still
-not been type-checked, because there is no TypeScript compiler on this machine.** Measured with
-`cat src/*.ts src/screens/* src/main.tsx roku-config.ts | wc -l` and
-`cat src/tests/*.ts | wc -l` on 2026-11-13. What is left is listed in section 5, each item with
-what unblocks it.
+Status, 2026-11-14: **33 source files and 4,546 lines, plus 17 suites and 3,061 lines of tests that
+need no device. 279 of 279 tests pass and 24 of 24 mutants were killed. The host is written.** The
+rules, the key maps, the geometry, the contract calls, the ports, the adapters and the host are
+all here; what is missing is the SDK call that hands the whole thing to a Roku, and that is now
+one line rather than a folder (`src/main.tsx`, the foot). **The folder has still not been
+type-checked, because there is no TypeScript compiler on this machine.** Measured with
+`cat src/*.ts src/screens/* src/main.tsx roku-config.ts | wc -l`, `cat src/tests/*.ts | wc -l` and
+`grep -c "^\s*it(" src/tests/*.ts` on 2026-11-14. What is left is listed in section 5, each item
+with what unblocks it.
 
-Yesterday's line here said "no line of this folder has been compiled or run". That has changed for
-the running half: section 4 says how, and section 7 is the mirror these tests exist to hold down.
+Yesterday's line here said "the host is not written, so no screen has data". That is what changed
+today: section 8 is the host, and section 4 is what was actually run to believe any of it.
 
 Licensed under either of MIT or Apache 2.0, at your option.
 
@@ -121,12 +123,13 @@ answer. That number cannot be measured until the route exists.
 
 ## 3. What is in this folder
 
-Nothing here is a Roku API call except in the four `.tsx` files and `src/screens/remote.ts`. Every
-other file is plain TypeScript that could be read and checked on any machine.
+Nothing here is a Roku API call except in the five `.tsx` files and `src/screens/remote.ts`. Every
+other file is plain TypeScript that could be read and checked on any machine, and `src/adapters.ts`
+is the one that would be a Roku API call and deliberately is not: see section 8.
 
 | File | Lines | What it does |
 |---|---|---|
-| `src/numbers.ts` | 203 | Every number the surface lays out with, each beside the Kotlin line it was taken from. Corners and colours are read from `brand.json`, not transcribed |
+| `src/numbers.ts` | 231 | Every number the surface lays out with, each beside the Kotlin line it was taken from. Corners and colours are read from `brand.json`, not transcribed |
 | `src/keys.ts` | 78 | Roku's 15 documented key strings, turned into the six words a screen answers |
 | `src/page.ts` | 80 | Which rows a page may draw, and whether the answer in hand is even its own |
 | `src/tier.ts` | 133 | What a profile may be shown: its age tier, and the certificate a title carries. A mirror of the Rust in `server-rules`; see section 7 |
@@ -135,18 +138,24 @@ other file is plain TypeScript that could be read and checked on any machine.
 | `src/focus.ts` | 178 | Where the remote is on a page of rows, and what each key does there |
 | `src/title.ts` | 164 | A title page's menu lines, its three ratings, and its key map |
 | `src/api.ts` | 111 | The routes this surface reads. Addresses come from the generated `ADDRESS`, not from strings here |
-| `src/words.ts` | 57 | The string keys. No English in this folder |
+| `src/words.ts` | 154 | The string keys. No English in this folder |
 | `src/art.ts` | 24 | Which picture goes in which place |
-| `src/ports.ts` | 109 | The hexagon: what a screen may ask a Roku for |
-| `src/contract.ts` | 42 | The wire types and `ADDRESS`, re-exported from the generated file. Nothing is redeclared |
+| `src/contract.ts` | 46 | The wire types and `ADDRESS`, re-exported from the generated file. Nothing is redeclared |
 | `src/screens/Browse.tsx` | 249 | A page of rows: the screen that owns the keys |
 | `src/screens/Rows.tsx` | 209 | The open row and the dim row below it |
 | `src/screens/TopBar.tsx` | 145 | Who is watching, search, the tabs, the mark |
 | `src/screens/TitlePage.tsx` | 229 | One title's artwork, story, ratings and menu |
 | `src/screens/remote.ts` | 54 | The one seam between Roku's keys and the six words |
-| `src/main.tsx` | 56 | The one place that picks a screen |
+| `src/screens/Lost.tsx` | 101 | This app has a server and cannot reach it, said with the words it may not have |
+| `src/main.tsx` | 82 | The one place that picks a screen |
 | `roku-config.ts` | 41 | The generated manifest, with the app's name taken from `brand.json` |
-| `src/tests/` | 1,280 | Nine suites: the rows a page draws, the two key maps, the key names, the words, the geometry, and the three mirrored rules of section 7 |
+| `src/host.ts` | 415 | **The host.** It fills `Seen`, performs what a screen asks through the ports, and holds no rules and no screens. Section 8 |
+| `src/ports.ts` | 236 | The hexagon, now with the four device ports: network, store, player, pictures, plus a clock and this family's own launch |
+| `src/adapters.ts` | 194 | The one file where a Roku is named. Three adapters written, two refusing in the open |
+| `src/route.ts` | 222 | What an address opens. A mirror of `platform/core/src/routes.rs`, held to the fixtures and to that file read as text |
+| `src/door.ts` | 114 | Where the server's address comes from, and which addresses this app will take |
+| `src/lost.ts` | 53 | What a screen says when there is no server, including when it has no words to say it with |
+| `src/tests/` | 3,061 | Seventeen suites, counted by `ls src/tests/*.test.ts`: the rows a page draws, the two key maps, the key names, the words, the geometry, the three mirrored rules of section 7, and the host, the router, the door, the lost screen and the adapters of section 8 |
 
 ### Nothing is transcribed that something else already states
 
@@ -229,10 +238,32 @@ been written blind and never executed. What it cost to find that out:
 
 | | |
 |---|---|
-| What ran them | `/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc`, the JavaScript shell macOS ships. It takes `-m`, `readFile` and `load`; `print` is its only output |
+| What ran them | `/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc`, the JavaScript shell macOS ships. It takes `-m`, `readFile`, `load` and `drainMicrotasks`; `print` is its only output |
 | How the TypeScript reached it | type erasure by a small scanner, plus a Jest shim for `describe`, `it` and `expect`, both in a scratch folder and **neither in this repository**. They are a measurement instrument, like a ruler: nothing here depends on them |
 | What it proves | that each test discriminates. It does **not** type-check anything: erasure is not checking, and the folder is still unchecked |
 | Result, 2026-11-13 | 130 of 130 tests pass across nine suites. 17 of 17 mutants killed: every mutation was confirmed by the file's checksum moving before the run and returning after it |
+| Result, 2026-11-14 | 279 of 279 tests pass across seventeen suites. 24 of 24 mutants killed, by the same method, each restored and checked byte for byte afterwards |
+
+**What the second run found that a reading had not**, beyond the three defects below:
+
+4. Four of the first twenty-three mutations **survived**, and each was a different kind of defect
+   in the suite rather than in the code. One was a mutation that changed nothing (a `catch` given
+   an unused binding). One was a rule the test exercised through only one of its four call sites,
+   so a mutation on the other three was invisible. One was a guard that nothing could reach,
+   because the line that makes it unreachable is the `stop()` in `arrive` — and the case that does
+   reach it, a device whose timers cannot be cancelled, is one a Roku may well be, since nothing
+   Roku publishes says it has timers at all. The fourth was `expect(waits).toContain(LOST_MS)`:
+   **a number asserted against itself**, which is the one thing `src/tests/numbers.test.ts` opens
+   by forbidding, written anyway in a suite that is not about numbers. It now reads
+   `WAIT_AT_MOST` out of the Kotlin and asserts the derivation.
+5. **One defect was found by reading and by neither the tests nor any compiler**, and it is a kind
+   this language has and Rust does not. A table of words looked up as a plain object answers for
+   every name `Object.prototype` has, so `/constructor`, `/toString` and `/valueOf` each found a
+   *function* where `undefined` was expected, and an `=== undefined` test passed it on as the name
+   of a screen. `strict` and `noUncheckedIndexedAccess` cannot see it: the type says
+   `ScreenName | undefined` and is right about every value anybody wrote. It was in `src/route.ts`
+   and in `src/adapters.ts`, both now read as a value (`typeof x === "string"`) rather than as a
+   presence, and both are mutations 5 and 24 in the table.
 
 **Three defects were found by running them, none of which a reading had found:**
 
@@ -288,13 +319,26 @@ needs either a device, or a cloud emulator account, in the USA, with a card.
 
 In the order they block a running app.
 
-1. **`src/host.ts`: the host.** Nothing fills a `Seen`, so no screen has data. It needs the SDK's
-   http client, its persistent storage, and the decision in section 2 about where the rules run.
-   *Unblocks with*: the owner's answer on A/B/C, and the SDK installed so its http and storage APIs
-   can be read rather than guessed.
+1. ~~**`src/host.ts`: the host.**~~ **Written on 2026-11-14**, and section 8 is what it decided.
+   It did not wait for the SDK, because it did not have to: the host talks to ports, and only the
+   adapters behind them are a Roku. Two of the five adapters are still refusing in the open
+   (`src/adapters.ts`), and those two are items 1a and 1b below rather than a host that is missing.
+   1. **The registry adapter.** `StandingStore` keeps the server's address for the run of the app
+      and not between runs, so a device that loses power is handed its address again at the next
+      launch. Roku's documents describe the registry as BrightScript's `roRegistry` and its Q&A
+      says a flush in either language flushes both; **the TypeScript spelling was published
+      nowhere that was read**. *Unblocks with*: the SDK installed, or
+      [the public repository](https://gitlab.com/rokudev/rsg-sdk) read. It is about ten lines.
+   2. **The launch-parameter adapter.** `NoLaunch` hands back none, so a fresh device falls
+      through to the kept address and finds nothing. How a sideloaded RSG 2.0 app reads the
+      parameters it was launched with was not established. *Unblocks with*: the same. This is the
+      **first** thing to write, because section 8's whole answer to "where does the address come
+      from" rests on it.
 2. **The app's entry point.** `main` from `@roku-sdk/rsg-ts` is named on Roku's getting-started page
-   but its signature was not published on any page read. *Unblocks with*: the SDK installed, or the
-   [public repository](https://gitlab.com/rokudev/rsg-sdk) read.
+   but its signature was not published on any page read. It is now the only thing between this
+   folder and a running app: the foot of `src/main.tsx` is the five lines it would be, and every
+   one of the names in them is written and type-checkable. *Unblocks with*: the SDK installed, or
+   the [public repository](https://gitlab.com/rokudev/rsg-sdk) read.
 3. **`RemoteKey`.** `useFocusable`'s `onKey` is "a declarative map from remote key names to
    handlers", and Roku's page writes one key as `RemoteKey.Select` without listing the enum. This
    folder keys the map with the key strings Roku's own [onKeyEvent](https://developer.roku.com/dev/docs/onkeyevent)
@@ -315,17 +359,37 @@ In the order they block a running app.
 7. **Text that fits.** Neither `maxLines` nor `wrap` is in the Label page's field list, so the
    story and the card's name are drawn without a line limit. *Unblocks with*: the LabelBase field
    list.
-8. **The screens that are not here**: the hero card, search, profiles, the door and sign-in, help,
-   settings, episodes, more-like-this, and the player. The player additionally needs the Video
-   node's fields and an answer on HLS and DRM. *Unblocks with*: the work, in that order; none of it
-   needs a device either, except the player.
-9. **Nothing has been type-checked.** The suites now run (section 4), but erasing types is not
+8. **The screens that are not here**: the hero card, search, profiles, sign-in, help, settings,
+   episodes, more-like-this, and the player. The player additionally needs the Video node's fields
+   and an answer on HLS and DRM. *Unblocks with*: the work, in that order; none of it needs a
+   device either, except the player. **The address screen is not on this list and is not an
+   oversight**: section 8 says why this family has none, and what it would cost to add it the day
+   the store opens.
+9. **A string key that does not exist.** An address this app refuses — plain http to anything but
+   the viewer's own network — is shown as the address and nothing else, because `strings/` has no
+   key for the sentence. Android and Apple both hold that sentence as an **English literal in the
+   host** (`apps/android/core/src/main/kotlin/streams/core/Host.kt:94-95`,
+   `apps/apple/Sources/CoreHost/Host.swift:44`), which is the shape of the problem rather than a
+   solution to it. *Unblocks with*: a key in `strings/`, which is not this folder's file — and
+   which has the same chicken-and-egg as every other word on that screen, since the words come
+   from the server that has not been named yet.
+10. **Nothing has been type-checked.** The suites run (section 4), but erasing types is not
    checking them: no `tsc` has read a line of this folder, so every `strict` flag in
-   `tsconfig.json` is still a promise. *Unblocks with*: Node 24 and a TypeScript compiler, about
-   300 MB of `node_modules`, and 4 GB of disk headroom. CI already installs both for
-   `check_types.py`.
-10. **`POST /v1/core/step` does not answer.** `server/crates/server-api/tests/routes.rs:11`.
-   *Unblocks with*: the server work, which is another agent's.
+   `tsconfig.json` is still a promise. This matters more today than it did yesterday, because
+   `src/host.ts` and `src/route.ts` are the first files here that would fail a type check in ways
+   a reader cannot see. *Unblocks with*: Node 24 and a TypeScript compiler, about 300 MB of
+   `node_modules`, and 4 GB of disk headroom. CI already installs both for `check_types.py`, and
+   `platform/tools/check_roku.py` runs `tsc --noEmit` the moment one is on the PATH.
+11. **`POST /v1/core/step` does not answer.** `server/crates/server-api/tests/routes.rs:13`.
+   *Unblocks with*: the server work, which is another agent's. Until it does, `src/route.ts` and
+   section 7's four rules are a second home for rules the Rust already holds, and section 8 says
+   exactly which lines would be deleted the day that route answers.
+12. **What a screen reader says as the remote moves.** Android gives the one focusable a live
+    region, re-spoken each time it changes, because a surface that paints its own focus announces
+    nothing otherwise (`Remote.kt:57-69`). The only accessibility field found on Roku's pages is
+    `audioGuideText` on the Poster node; nothing equivalent to a live region was established, so
+    `screenRemote` hands a screen its own sentence back and draws it nowhere.
+    *Unblocks with*: Roku's accessibility documentation, which was not read.
 
 ## 6. Words
 
@@ -333,12 +397,6 @@ In the order they block a running app.
 (`platform/contract/src/api.rs:183`). `src/words.ts` lists the keys this surface asks for and holds
 no English. The brand's name comes from `brand.json` and reaches the manifest through
 `roku-config.ts`.
-11. **What a screen reader says as the remote moves.** Android gives the one focusable a live
-    region, re-spoken each time it changes, because a surface that paints its own focus announces
-    nothing otherwise (`Remote.kt:57-69`). The only accessibility field found on Roku's pages is
-    `audioGuideText` on the Poster node; nothing equivalent to a live region was established, so
-    `screenRemote` hands a screen its own sentence back and draws it nowhere.
-    *Unblocks with*: Roku's accessibility documentation, which was not read.
 
 ---
 
@@ -364,7 +422,9 @@ something outside this folder.
 | Which rows a page may draw (`src/page.ts`, already here) | `tv/browse/Page.kt` | `fixtures/2026-11-05/valid/Screen.home.json` and `tolerated/Section.unknown_kind.json` |
 
 The fixtures are not this folder's. They are
-`platform/contract/fixtures/2026-11-05/`, 271 files that
+`platform/contract/fixtures/2026-11-05/` — count them with
+`find platform/contract/fixtures/2026-11-05 -type f | wc -l`, which answered 274 on 2026-11-14 and
+271 when this line was written on 2026-11-12 — files that
 `platform/contract/tests/fixtures.rs` reads with `fs::read_dir` and round-trips through the Rust
 contract types, and whose first line reads: "Fixtures are plain JSON and every language reads the
 same files." A TypeScript test reads them with `readFileSync` and gets the same bytes the Rust
@@ -402,3 +462,166 @@ No number was copied out of the Rust into a literal here. The five certificate r
 in one ordered list of tiers, which is how `tier.rs:7` declares them ("A tier, narrowest first"),
 so a rank and a tier cannot disagree. `REACH` stays where every other number this surface uses
 stays, in `src/numbers.ts`, with the Kotlin line it came from.
+
+---
+
+## 8. The host
+
+Written 2026-11-14. `src/host.ts` is the object that holds the state every screen draws from,
+performs what a screen asks through the ports, and decides nothing about what anything looks like.
+Its twins are `apps/android/core/src/main/kotlin/streams/core/Host.kt` and
+`apps/apple/Sources/CoreHost/Host.swift`, and the difference between it and both of them is the
+whole of section 2: those two step the shared Rust core and this one has no core to step.
+
+Each decision below names its precedent, because none of them is new work where an answer already
+existed somewhere in this repository.
+
+### 8.1 Where the server's address comes from
+
+**Decision: the parameters the channel was launched with, then the registry. There is no address
+screen.**
+
+| family | where the address comes from |
+|---|---|
+| web | nowhere: a browser is already at the server it loaded the page from |
+| android | a kept value, else a screen of its own with a text field (`door/ServerAddress.kt`) |
+| apple | a kept value, else the `SERVER_URL` environment variable, else that same screen (`CoreHost/Host.swift:127-131`) |
+| **roku** | **the launch parameters, else a kept value** |
+
+Apple's environment variable is the nearest precedent and is worth naming, because it is the same
+idea: a device that is set up by somebody at a computer can be *handed* its address instead of
+being asked for it. On a Roku that is not a convenience, it is the only shape that fits. An RSG 2.0
+app cannot reach the Streaming Store before Fall 2027 (section 1), so the only way onto a device is
+`rk dev`, run by a person who is already typing a command — and a television remote has no
+keyboard.
+
+What it buys, beyond not writing an on-screen keyboard against a text-input node nobody has read:
+the address screen is the **one** screen in this folder that could not be drawn in the viewer's
+language, because every word comes from `/v1/strings/{lang}` on the server that has not been named
+yet. That is not a hypothetical. Android's own address screen holds four English literals for
+exactly that reason (`door/ServerAddress.kt:57,70,74`) and Apple's holds the same, in a project
+whose rule is that no surface contains an English literal. This folder holds none and now needs
+none.
+
+What it costs, stated rather than hidden: a viewer who is handed a device cannot move it to another
+server without a computer. The day the store opens this family needs the screen the other two have,
+and it needs string keys that can be drawn before any string has arrived.
+
+The launch parameter **outranks** the kept address, deliberately: a kept value that won would make
+a television impossible to re-point without clearing its registry, which is not something a person
+with a remote can do. `src/tests/door.test.ts` holds that order.
+
+**With no address anywhere**, `seen.server` is empty and `main.tsx` draws the background and
+nothing else — which is what it did before the host existed, and now it is a decision with a
+reason rather than a gap. The one exception is an address this app **refused**: that is shown, as
+the address and nothing else, for the reason section 8.4 gives.
+
+### 8.2 The ports
+
+`src/ports.ts` is the family's seam and `src/adapters.ts` is the one file where a Roku is named.
+The four every family has, plus two this one needs:
+
+| port | shape | adapter | state |
+|---|---|---|---|
+| `Network` | one `send(call, done)`, `done` runs once whatever happened | `FetchNetwork` | **written** |
+| `Store` | `get` / `put` / `delete` | `StandingStore` | **standing**: this run only. Section 5, item 1.i |
+| `Player` | `command` / `listen` | `NoPlayer` | **refusing**, and collected so it can be read back |
+| `Pictures` | one call: `of(url)` | `ServerPictures` | **written** |
+| `Clock` | `after(ms, run)` | `TimerClock` | **written**, and the one guess in the folder |
+| `Launch` | `parameters()` | `NoLaunch` | **refusing**. Section 5, item 1.ii |
+
+Three of these are worth more than a row:
+
+* **`Network` is written, and that was not expected.** Roku's own RSG 2.0 Q&A says network calls
+  are ordinary `async`/`await` with `fetch`, that the beta supports basic fetch, and that streaming
+  is not there yet. **Status: assumed, not verified.** That came from a search restricted to
+  `developer.roku.com`, `forum.developer.roku.com` and `gitlab.com` on 2026-11-14, which named the
+  RSG 2.0 Live Q&A recap and the Dev Summit recap; **neither page was opened**, unlike every line
+  of section 1. The same search is where the registry's 32 KB below comes from, and it found no
+  TypeScript registry API at all. `fetch` is a standard, not an SDK
+  call, so `FetchNetwork` imports no `@roku-sdk` package and is type-checked and run with the rest.
+  The narrow shape it uses is declared in `types/ambient.d.ts` and nothing wider: no `Request`, no
+  `Headers`, no streaming body, and **no `AbortController`**, which that recap names as something
+  Roku *wants* natively — which is not the same as having it. So a deadline is a race against the
+  clock, the abandoned read is still running underneath, and `done` runs exactly once. That last
+  part is a case in `src/tests/adapters.test.ts` because a reader cannot see it.
+* **`Pictures` is one call here and six on Android** (`ports/Ports.kt:128-156`), and that is a real
+  difference between the two devices rather than something left out. A Roku draws a picture by
+  handing a Poster node a `uri`; there is no fetch that gives the pixels back, so there is nothing
+  for a `warm`, a `Want` or a `Stop` to mean.
+* **`Store` is 32 KB and that decides what it is for.** A Roku's registry is capped at 32 KB for
+  the whole app (Roku's Dev Summit Q&A; same search, same status: **assumed, not verified**).
+  Android's `Store` holds the core's
+  offline layer — waiting commands and kept pages — and one kept page of twelve rows does not fit
+  in 32 KB beside anything else. **So this family has no offline layer, and a command sent while
+  the server is unreachable is gone.** That is written at `Host.act` and in the `Store` port rather
+  than discovered later.
+
+### 8.3 What fills `Seen`, and what a screen draws before anything has
+
+**Decision: every read carries the number of the state it was started for, and an answer whose
+number has moved on is dropped. A move clears the last page's data at once.**
+
+The precedent is four days old and is `cardsOf(arrived, season)` in
+`apps/android/surfaces/tv/src/main/kotlin/streams/tv/title/Episodes.kt:153-168`. The defect it was
+written for reached every viewer: during a season change the page drew the *previous* season's
+names, stills and descriptions under a column already marking the new season as chosen, because
+the pair in hand was replaced only when the new answer landed.
+
+Reading that before writing this changed the design in one way worth naming. The late-answer guard
+is the half that is easy to see; **the half a viewer actually saw is the clearing**. So `arrive`
+does both, in this order: count the state up, clear `screen` and `detail`, say `reading`, then ask.
+Both halves have their own case in `src/tests/host.test.ts`, and both are in the mutation table.
+
+The rule is at the host and not in one screen, because at this level the same defect is a page of
+rows drawing the last page's rows while the new one is read. `src/screens/Browse.tsx` already did
+its own half of it for a title's details (`if (got.title === tile.title)`); it no longer has to.
+
+Two scopes, not one: the menu and the words belong to a **server** and not to a page, so they
+survive every move between pages and are thrown away when the server changes. An app that kept the
+old server's tabs after being re-pointed would draw tabs that lead nowhere.
+
+### 8.4 When the server cannot be reached
+
+**Decision: say so at once when a read fails, and after the television's own wait when a read
+simply never answers. Draw the address whether or not any word has arrived.**
+
+The television could not say it was offline until 2026-11-13: on a Google TV Streamer with the
+server unreachable the app drew a flat rectangle with 9 nodes, 0 focusable and 0 words, held across
+8 probes and a cold start (`tv/app/Lost.kt:39-42`). `error.no_server` and `say.try_again` now exist
+in all eighteen languages, and `src/tests/words.test.ts` holds that this folder's keys do too.
+
+**This family has the same hole**, and the README would be worth less if it pretended otherwise:
+every word this app draws arrives from the server, so an app that cannot reach one has no
+vocabulary to say so with. `src/lost.ts` carries the only answer there is, which is `Lost.kt`'s —
+the address is the one thing on the screen that did not have to be fetched to be known, it is last,
+and it is never missing, which is also what keeps the spoken sentence from being empty and the one
+focusable node from being unnamed. Most of `src/tests/lost.test.ts` is that empty case.
+
+**And one more hole of its own.** The television at least has an address to draw. A Roku that was
+never handed one has no server *and* no words, and there is nothing on the screen at all. That is
+the cost of 8.1 and it is listed there.
+
+Two things here are better than the television's, and both came from writing the host rather than
+porting the screen:
+
+* **A failed read says so immediately.** The television only has a timer, so a refused connection
+  and a wrong address both cost sixteen seconds of blank screen. Here a read that fails — no
+  answer, an error status, or a body this app cannot parse — sets `lost` on the spot. The timer is
+  only for the server that accepts a connection and then says nothing.
+* **A wait belongs to the page that started it.** A page left while it was still reading leaves its
+  wait behind; without a guard that wait comes due, sees that something is being read, and says the
+  app is lost about a page that is seconds old. Finding that case took a surviving mutation, and
+  the test for it runs on a clock that ignores `stop` — which is not a contrived device, since
+  nothing Roku publishes says a TypeScript app can cancel a timer, or has one.
+
+### 8.5 What the host does not do
+
+Named here so nothing reads it as a core: sessions and sign-in, the offline queue, playing,
+`GET /v1/hello` (so `{brand}` draws empty and no moved-address table is mirrored), and stepping
+anything. `ROUTE.step` is in `src/api.ts` and called from nowhere.
+
+`src/route.ts` is the largest mirror in the folder and the one most worth deleting. It mirrors two
+of the four steps of `platform/core/src/routes.rs` — `place` and `member_target` — and names the
+other two as not mirrored with what each would need. The day `POST /v1/core/step` answers, that
+file and the four rules of section 7 are what comes out.

@@ -122,6 +122,34 @@ export const GLIDE = [0.22, 0.61, 0.2, 1] as const;
  */
 export const REACH = 2;
 
+/**
+ * How long this app waits for the page it is on before it says, on screen, that it cannot reach
+ * its server.
+ *
+ * Taken from the television's own derivation and not chosen again:
+ * `apps/android/surfaces/tv/src/main/kotlin/streams/tv/app/Lost.kt:44` is
+ * `2 * (WAIT_AT_MOST * 1000)`, and `WAIT_AT_MOST` is `8f` seconds
+ * (`tv/app/Opening.kt:66`). The reasoning there is that the server gets as long with the viewer
+ * watching as it got behind the opening. This folder has no opening, so the number crosses as a
+ * number and the derivation does not: 16 seconds is what the television waits, and a second
+ * surface waiting a different length for the same server would be a difference nobody chose.
+ *
+ * It is a ceiling and rarely the wait. `src/host.ts` says lost the moment a read fails, which is
+ * what a refused connection and a wrong address both look like; this is only for the server that
+ * accepts a connection and never answers.
+ */
+export const LOST_MS = 2 * 8 * 1000;
+
+/**
+ * How long one request may take. This surface's own number: the Android `Call` carries a deadline
+ * the core chose per effect (`ports/Ports.kt:24`) and there is no core here to choose one.
+ *
+ * Under `LOST_MS`, deliberately, so a request that is going nowhere ends and is seen to end before
+ * the screen that is waiting on it gives up: a wait that outlived the giving-up would leave a
+ * screen that says it is lost and then quietly fills in behind the words.
+ */
+export const ASK_MS = 10 * 1000;
+
 /** The top bar: its centre line, the height of its round parts, and the face. (`tv/browse/TopBar.kt:37-39`) */
 export const BAR_MID = 68;
 export const BAR_HIGH = 64;

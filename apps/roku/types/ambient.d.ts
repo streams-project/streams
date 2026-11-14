@@ -18,6 +18,32 @@
 /** The repository root, reached from a compiled suite by `join(__dirname, "..", ...)`. */
 declare const __dirname: string;
 
+/**
+ * `fetch`, narrowed to the one call shape `src/adapters.ts` uses.
+ *
+ * Not an SDK API and not an invention: Roku's RSG 2.0 Q&A says network calls are ordinary
+ * `async`/`await` with `fetch`, that the beta supports basic fetch, and that streaming is not
+ * there yet. **Assumed, not verified**: that is a search of Roku's own domains on 2026-11-14 and
+ * the recap page itself was not opened. If the spelling differs, this declaration and
+ * `FetchNetwork` are the two places that change. What is declared here is basic fetch and
+ * nothing beyond it - no `Request`, no `Headers`, no `AbortSignal`, no streaming body - because a
+ * declaration wider than what was read is a type check that reads green against an API nobody has
+ * seen. `AbortController` is deliberately absent: that recap names it as something Roku wants
+ * natively, which is not the same as having it, and `FetchNetwork` races a clock instead.
+ */
+declare function fetch(
+  url: string,
+  options?: { method: string; headers: Record<string, string>; body?: string },
+): Promise<{ status: number; text(): Promise<string> }>;
+
+/**
+ * Timers, narrowed the same way and for the same reason. Whether a Roku runs timers for a
+ * TypeScript app was not established on any page read; `src/adapters.ts` says so at the one place
+ * that calls them.
+ */
+declare function setTimeout(run: () => void, ms: number): number;
+declare function clearTimeout(token: number): void;
+
 declare module "node:fs" {
   /** Only the one call shape the suites use: a whole file, as text. */
   export function readFileSync(path: string, encoding: "utf8"): string;

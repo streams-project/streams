@@ -131,6 +131,13 @@ export const KEY = {
   badgeNewEpisode: "badge.new_episode",
   badgeRanked: "badge.ranked",
   badgeTop10: "badge.top_10",
+  /**
+   * What a screen says when this app has a server and cannot reach it. Both keys were added for
+   * the television on 2026-11-13 and exist in all eighteen languages;
+   * `src/tests/words.test.ts` is what holds that true for this folder. (`tv/app/Lost.kt:81-82`)
+   */
+  errorNoServer: "error.no_server",
+  sayTryAgain: "say.try_again",
   /** How the language writes its digits, and whether it wants larger text. (`Television.kt:53-56`) */
   digits: "language.digits",
   textScale: "language.text_scale",
