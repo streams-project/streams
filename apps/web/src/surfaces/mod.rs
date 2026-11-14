@@ -4,6 +4,7 @@ mod browse;
 mod door;
 mod empty;
 mod notifications;
+mod search;
 pub mod sizes;
 mod title;
 mod watch;

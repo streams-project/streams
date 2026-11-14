@@ -11,6 +11,7 @@ use contract::screen::{
 use leptos::prelude::*;
 
 use super::door::Logo;
+use super::search::SearchBox;
 use super::words::{fill, filled, number};
 use super::{empty, image, label_text, maybe_text, notifications, title_address, watch_address};
 use crate::host;
@@ -813,37 +814,6 @@ fn stamp_of(here: &str, screen: Option<&Screen>) -> String {
             screen.sections.len()
         ),
         None => here.to_owned(),
-    }
-}
-
-#[component]
-fn SearchBox(asked: RwSignal<String>) -> impl IntoView {
-    let shared = expect_context::<Shared>();
-    let text = RwSignal::new(String::new());
-    let run = move |event: leptos::ev::SubmitEvent| {
-        event.prevent_default();
-        let words = text.get();
-        asked.set(words.clone());
-        let query: String = js_sys::encode_uri_component(&words).into();
-        let path = format!("/v1/search?q={query}");
-        host::ask(HttpMethod::Get, &path, None, move |status, body| {
-            if (200..300).contains(&status)
-                && let Ok(screen) = serde_json::from_str::<Screen>(&body)
-            {
-                shared.screen.set(Some(screen));
-            }
-        });
-    };
-    // The field is labelled rather than given a placeholder. A placeholder is not a label - it is
-    // gone the moment anything is typed, and a reader is not promised it - and the one that was
-    // here, "Titles, people, genres", was English written into this file. `strings/` has no key for
-    // those words; it has the name of the page, which is what the field is for.
-    view! {
-        <form class="search" on:submit=run>
-            <label class="said" for="search-field">{move || label_text(shared, "nav.search")}</label>
-            <input id="search-field" type="search" autofocus bind:value=text/>
-            <button class="solid" type="submit">{move || label_text(shared, "nav.search")}</button>
-        </form>
     }
 }
 

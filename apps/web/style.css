@@ -286,7 +286,21 @@ button { cursor: pointer; border: 0; background: none; }
 }
 
 .search { display: flex; gap: calc(var(--unit) * 3); padding: 96px var(--edge) calc(var(--unit) * 4);
-  & input { flex: 1; }
+  & input { width: 100%; }
+}
+
+/* The field and the list it owns are one stacking box, so the list hangs under the field instead of
+   pushing the results down the page: a list that moved the page every time an answer arrived would
+   move the thing the viewer is reading while they type. The list sits above the rows and below the
+   fixed top bar, which is z-index 20. */
+.search-field { position: relative; flex: 1; }
+.suggestions { position: absolute; z-index: 10; inset-inline: 0; top: calc(100% + var(--unit));
+  max-height: 60vh; overflow-y: auto; margin: 0; padding: var(--unit) 0; list-style: none;
+  border-radius: var(--radius-field); border: 1px solid var(--glass-strong); background: var(--surface);
+}
+.suggestion { padding: calc(var(--unit) * 2) calc(var(--unit) * 3); color: var(--text); cursor: pointer;
+  &:hover { background: var(--raised); }
+  &.here { background: var(--raised); }
 }
 
 /* Every number here is raw/empty-state.json. The 437 px column is centred in the content box, not on
