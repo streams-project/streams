@@ -73,8 +73,15 @@ public final class KeyboardState {
     /// ask without holding on to the view it drew.
     func hereIs(_ cancel: String, _ done: String, _ words: [String: String]) -> String {
         let rows = caps(page, upper, cancel, done, words)
+        // The same rule as `press` below, and it has to be the same rule: this answers what the
+        // stop IS and `press` answers what the stop DOES, so a stop where they disagree is one a
+        // person who cannot see the screen is lied to about. Until 2026-11-14 this guard was safe
+        // and wrong where `press` was unsafe and right -- at the four stops standing past the end
+        // of a short fourth row it returned nothing, so a reader was told nothing while OK typed
+        // that row's last key. The crash was the louder half of one defect; this was the quieter.
         guard let line = rows[safe: row],
-              let here = line.first(where: { column >= $0.column && column < $0.column + $0.span })
+            let here = line.first(where: { column >= $0.column && column < $0.column + $0.span })
+                ?? line.last
         else { return "" }
         let said = here.says ?? ""
         return said.isEmpty ? (here.word ?? "") : said
@@ -83,7 +90,22 @@ public final class KeyboardState {
     /// Answers a word from the remote. `finish` gets the text on Done, or nothing on Cancel.
     func press(_ word: Word, _ cancel: String, _ done: String, _ finish: (String?) -> Void) -> Bool {
         let rows = caps(page, upper, cancel, done)
-        let here = rows[row].first { column >= $0.column && column < $0.column + $0.span }!
+        // The key under the remote, by the rule the Kotlin and the Java already take: the key whose
+        // span holds this column, or -- where the column stands past the end of a shorter row --
+        // that row's last key.
+        //
+        // Until 2026-11-14 this line ended in `!`, and the fourth row is shorter than the three
+        // above it, so a column that no key of that row covers is reachable: eleven presses from
+        // where the keyboard opens, on every one of the four screens that draws one, and the
+        // shortest path ends with a viewer typing a password. The Kotlin and the Java were fixed on
+        // 2026-11-13 and this was not. `hereIs`, eight lines above, has guarded with `rows[safe:]`
+        // the whole time -- so this file has disagreed with itself about whether the question has an
+        // answer: what a person who cannot see the screen was told was safe, and what the press did
+        // was not.
+        guard let line = rows[safe: row],
+            let here = line.first(where: { column >= $0.column && column < $0.column + $0.span })
+                ?? line.last
+        else { return false }
         switch word {
         case .up: if row > 0 { row -= 1 } else { return false }
         case .down: if row < rows.count - 1 { row += 1 }
