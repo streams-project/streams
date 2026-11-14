@@ -106,6 +106,17 @@ extension View {
     public func says(_ label: String, on: Bool) -> some View {
         says(label).accessibilityAddTraits(on ? [.isSelected] : [])
     }
+
+    /// A part the remote can stop on whose own drawn words are its label, and which also stands one
+    /// of two ways and says so with something that is not words. A line of the television's
+    /// notifications feed is both at once: it draws the kind, the name and the day, it is where the
+    /// remote may be, and whether it has been read is drawn as the weight of its ink.
+    ///
+    /// The two are kept apart - the words as the label, how it stands as the value - because a
+    /// reader says them in different places and a state read into the label is a state said twice.
+    public func saysItsWords(state: String, on: Bool) -> some View {
+        saysItsWords(state: state).accessibilityAddTraits(on ? [.isSelected] : [])
+    }
 }
 
 /// Two things a person hears one after the other, as one label: a title and the row it sits in, a

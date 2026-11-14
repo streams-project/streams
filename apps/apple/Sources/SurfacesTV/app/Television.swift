@@ -66,6 +66,8 @@ public struct Television: View {
                     Search(shell: shell, seen: seen, state: search)
                 case .screen where seen.route?.screen == .help:
                     GetHelp(shell: shell, seen: seen)
+                case .screen where seen.route?.screen == .notifications:
+                    Notices(shell: shell, seen: seen)
                 case .notFound:
                     NotFoundProblem(shell: shell, seen: seen)
                 case .upgrade:

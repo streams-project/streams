@@ -110,9 +110,21 @@ public func heard<V: View>(
     host.view.layoutIfNeeded()
     // Turns of the run loop: SwiftUI commits its accessibility tree on a later turn, not in layout.
     RunLoop.current.run(until: Date().addingTimeInterval(settle))
-    var found: [Heard] = []
-    walk(host.view, 0, &found)
+    let found = heard(in: host.view)
     window.isHidden = true
+    return found
+}
+
+/// The same reading, of a view that is already drawn in a window.
+///
+/// For a test that put the screen in a window itself - because it had keys to press on it before
+/// reading it - and must not build a second copy of the walk to see what it has got. One walker,
+/// so a tree a reader would stop on is found the same way whoever drew the screen.
+@MainActor
+public func heard(in view: UIView) -> [Heard] {
+    listenForAccessibility()
+    var found: [Heard] = []
+    walk(view, 0, &found)
     return found
 }
 

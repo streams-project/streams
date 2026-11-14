@@ -33,7 +33,10 @@ public struct Settings: View {
     @State private var line = 0
     @State private var langPicker: LanguageTarget?
     @State private var pendingConfirm: SettingsAction?
-    @State private var confirmAt = 1
+    // The two line question a row can ask, and where the remote is on it. Both are `parts/Question`,
+    // which the reminder screen asks with as well, so the panel cannot answer one word here and a
+    // different one there.
+    @State private var question = Question()
 
     public init(shell: Shell, seen: Seen) {
         self.shell = shell
@@ -107,18 +110,16 @@ public struct Settings: View {
             sendSubtitleStyle(size: subSize, color: subColor, bg: subBg)
         case .askClearHistory, .askRemoveDevice, .askRemoveOtherDevices, .askSignOutEverywhere:
             pendingConfirm = action
-            confirmAt = 1
+            question = Question()
         }
     }
 
     private func press(_ word: Word, rowsCount: Int) -> Bool {
         if let asking = pendingConfirm {
-            switch word {
-            case .up: if confirmAt > 0 { confirmAt -= 1 }
-            case .down: if confirmAt < 1 { confirmAt += 1 }
-            case .ok: if confirmAt == 0 { executeConfirmed(asking) } else { pendingConfirm = nil }
-            case .back, .left: pendingConfirm = nil
-            default: break
+            switch question.press(word) {
+            case .yes: executeConfirmed(asking)
+            case .close: pendingConfirm = nil
+            case .moved, .nothing: break
             }
             return true
         }
@@ -168,7 +169,7 @@ public struct Settings: View {
         if pendingConfirm != nil {
             // The question's two lines are its own word and Cancel; the question itself is read
             // from the tree above them.
-            return confirmAt == 0 ? askedWord() : (seen.words["common.cancel"] ?? "")
+            return question.word(yes: askedWord(), close: seen.words["common.cancel"] ?? "")
         }
         if right {
             guard let row = rows[safe: line] else { return "" }
@@ -264,23 +265,15 @@ public struct Settings: View {
                             ("", "")
                         }
 
-                        VStack(alignment: .leading, spacing: 0) {
-                            // The question itself. A reader can jump to it, because it is what the
-                            // two lines under it answer.
-                            Text(askPrompt)
-                                .brand(32)
-                                .foregroundStyle(.white)
-                                .accessibilityAddTraits(.isHeader)
-                                .padding(.leading, menuWords.ref)
-                            Spacer().frame(height: 24.ref)
-                            Menu(
-                                lines: [MenuLine(word: yesWord), MenuLine(word: seen.words["common.cancel"] ?? "")],
-                                focus: confirmAt,
-                                width: 520
-                            )
-                        }
-                        .padding(.leading, 16.ref)
-                        .padding(.top, 8.ref)
+                        // The question itself is a heading, because it is what the two lines
+                        // under it answer. The panel is `parts/QuestionPanel`, which the
+                        // reminder screen draws as well.
+                        QuestionPanel(
+                            prompt: askPrompt,
+                            yes: yesWord,
+                            close: seen.words["common.cancel"] ?? "",
+                            at: question.at
+                        )
                     } else {
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
