@@ -200,6 +200,50 @@ int across(int left);
 
 } // namespace Grid
 
+// The keyboard's box, in reference pixels: the keys, the panel round them, and the two buttons at
+// the foot.
+//
+// **Not measured.** `reference/netflix-on-the-tv.md` measures a top bar, a row screen, a tile, the
+// focused band, the artwork swap, a Top 10 row and the episodes screen, and **no keyboard at all**.
+// So unlike the four figures the README quotes, nothing here is scored against Netflix: these are
+// this surface's own numbers, taken from the two television twins that already draw a keyboard
+// (`parts/Keyboard.kt:25-28, 78-99` and `parts/Keyboard.swift:4-7, 118-134`), and they are written
+// here rather than in `keys.h` because `keys.h` is a key map and these are what a painter needs.
+//
+// What `keys.h` keeps is the shape of the grid -- ten columns, six rows, five columns to a button
+// -- because that is a property of the letter tables it holds and not of how wide a key is drawn.
+// What is here is how large each of those is on a screen. `paint_test.cpp` holds the two against
+// each other rather than against a measurement: a panel that stopped holding its own grid fails
+// there, which is the only kind of check a number with no measurement behind it can be given.
+namespace Key {
+
+// A key's side, and the distance to the next one, which is the key plus the gap between them.
+constexpr int SIDE = 63;
+constexpr int STEP = 66;
+
+// The panel the whole thing sits in, and where the first key starts inside it.
+constexpr int PANEL_W = 722;
+constexpr int PANEL_H = 476;
+constexpr int INSET_X = 30;
+constexpr int INSET_Y = 29;
+
+// The two buttons at the foot, which are pills rather than keys: their own height, their own top,
+// and where the right hand one starts.
+constexpr int BUTTON_W = 327;
+constexpr int BUTTON_H = 62;
+constexpr int BUTTON_TOP = 356;
+constexpr int BUTTON_X = 331;
+
+// How wide a key covering `span` columns is drawn: the columns it spans, less the one gap that
+// falls past its right hand edge. `Keyboard.kt:85`.
+constexpr int wide(int span) { return span * STEP - (STEP - SIDE); }
+
+// Where a key at `column` starts, and a row at `row` sits, inside the panel's inset.
+constexpr int left(int column) { return column * STEP; }
+constexpr int top(int row) { return row * STEP; }
+
+} // namespace Key
+
 // Microsoft's TV-safe band, in reference pixels, and whether a part is inside it.
 //
 // This is the one part of the drawing that Android handed us and an Xbox will not. On a television

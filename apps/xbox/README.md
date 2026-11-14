@@ -8,8 +8,9 @@ sits outside this repository; paths like `netflix-reference/tv/...` are inside t
 
 Status: no app, and one native route left standing. This folder holds a README, a `.gitignore`,
 `host/` (the C++ side of the core boundary, with a test that drives it) and `surfaces/remote/` (the
-input grammar, the drawing numbers, the reading of the contract into a page, and three key maps --
-a page of rows, a title's own three pages, and the profile gate -- each with a test). Nothing draws
+input grammar, the drawing numbers, the reading of the contract into a page, and five key maps --
+a page of rows, a title's own three pages, the profile gate, the door, and the keyboard the door
+and three other screens share -- each with a test). Nothing draws
 a screen, because drawing needs a Windows machine and this is not one. What does not need Windows is written and run here: every test runs on a
 developer's own machine with no Xbox, with `./apps/xbox/check.sh`.
 
@@ -217,7 +218,13 @@ functions carrying UTF-8 JSON, described in `platform/bridges/README.md` - writt
 | `surfaces/remote/gate.h` | the profile gate: the column, the pencil, and the panel in front of a locked profile |
 | `surfaces/remote/gate.cpp` | that state machine. The digits are held only until they have been read once |
 | `surfaces/remote/gate_test.cpp` | 67 checks, scripted key sequences. Not run by CI |
-| `check.sh` | builds and runs all seven tests on whatever machine this is |
+| `surfaces/remote/keys.h` | the keyboard four screens share: the grid, its ragged fourth row, the shift and the two other pages, and what each key types |
+| `surfaces/remote/keys.cpp` | that state machine. One home for "which key is the remote on", which is the half of the television's defect the television still has |
+| `surfaces/remote/keys_test.cpp` | 78 checks. Scripted sequences, and then every stop of the keyboard walked from every stop in all four directions. Not run by CI |
+| `surfaces/remote/door.h` | the door: the landing with its showreel card and its trending titles, and the sign in screen with its two ways in |
+| `surfaces/remote/door.cpp` | those two state machines, and the keyboard under one of the two ways |
+| `surfaces/remote/door_test.cpp` | 99 checks, scripted key sequences. Not run by CI |
+| `check.sh` | builds and runs all nine tests on whatever machine this is |
 
 It holds no rules, exactly as `apps/android/core/src/main/cpp/bridge.c` holds none for Java.
 
@@ -225,14 +232,29 @@ Ran on this machine, 2026-11-13, x86_64 macOS 25.6.0, rustc 1.98.1:
 
     ./apps/xbox/check.sh
 
-Seven suites held, with no compiler warnings under `-Wall -Wextra -Wpedantic`: the input grammar,
-the drawing numbers against `brand.json` and the television reference, where the remote goes on a
-page of rows and where a row opens when it comes back, the reading of the contract's own fixtures
-into that page, where the remote goes on a title's own three pages, the profile gate and its PIN
-panel, and the core boundary. That proves the C++ side of the boundary, the config shape a console
-sends (`"class":"box"`, `"form":"tv"`), the whole input grammar, every number a painter needs
-before Windows is involved, three key maps, and that a C++ surface reads the contract with nothing
-between it and the generated header. It proves nothing about Xbox.
+Nine suites, 584 checks, with no compiler warnings under `-Wall -Wextra -Wpedantic`: the input
+grammar (39), the drawing numbers against `brand.json` and the television reference (76), where the
+remote goes on a page of rows and where a row opens when it comes back (82), where it goes on a
+title's own three pages (92), the profile gate and its PIN panel (67), the keyboard (78), the door
+(99), the reading of the contract's own fixtures into a page (40), and the core boundary (11). That
+proves the C++ side of the boundary, the config shape a console sends (`"class":"box"`,
+`"form":"tv"`), the whole input grammar, every number a painter needs before Windows is involved,
+five key maps, and that a C++ surface reads the contract with nothing between it and the generated
+header. It proves nothing about Xbox.
+
+One of those checks is not a scripted sequence and is the reason the keyboard was worth doing
+carefully. The Android television's keyboard had a **reachable crash**: its fourth row is two
+letters short on two of its three pages, so a remote that came down the right hand edge stood on a
+column with no key, and the next press asked a list for a key that was not there. Eleven presses
+from where the keyboard opens, on all four screens that draw one, and it closed the sign in screen
+under a viewer typing a password. It was found by a person walking the keyboard and not by any
+test. So this port's keyboard is not checked by walking the path that broke: `keys_test.cpp` walks
+**every stop from every stop**, breadth first over the three pages, the two cases, the six rows and
+the ten columns -- 360 stops, 1,440 presses of the four directions, 2,160 presses in all -- and
+asserts that no move leaves the grid, that every stop has a key under it before and after the
+press, and that at each of the four stops standing on an empty column the remote is held by the
+last key of that row. A fourth row that grew shorter again, a span that stopped covering a column,
+or a fourth page with a short line in it cannot pass it.
 
 **CI never runs it.** The root `./check` is the whole of CI and it carries no C++ compiler and no C++
 test runner, and `platform/tools/check_rings.py` has no `xbox` family, so these tests run only when
@@ -325,7 +347,7 @@ done as of 2026-11-13 and the largest piece left is the drawing, which cannot st
 | Folder | State |
 |---|---|
 | `host/` | written. The core boundary and its test |
-| `surfaces/remote/` | the input grammar, the drawing numbers, the reading of the contract into a page, and the key maps of three screens -- a page of rows, a title, the profile gate -- all written and tested. **No screens**: what is missing is the drawing, which needs a Windows machine. Note 223 settles its shape -- a UWP C++/WinRT app, one swap chain, Win2D over Direct2D |
+| `surfaces/remote/` | the input grammar, the drawing numbers, the reading of the contract into a page, and the key maps of four screens and one shared part -- a page of rows, a title, the profile gate, the door, and the keyboard -- all written and tested. **No screens**: what is missing is the drawing, which needs a Windows machine. Note 223 settles its shape -- a UWP C++/WinRT app, one swap chain, Win2D over Direct2D |
 | `ports/` | not written. The five ports every family names: network, secrets, store, player, reel |
 | `adapters/` | not written. What each port does on Xbox, through WinRT |
 
@@ -362,6 +384,56 @@ boundary. `EventBody` in `platform/contract/src/core_msg.rs:279` has sixteen kin
 them is a key - the surface keeps its own focus and sends `Action` and `Address` events, exactly as
 `Television.kt:92` and `Browse.kt:109-148` do. A remote surface's key map is therefore entirely the
 surface's own, and entirely testable without a core.
+
+### What the door's twins disagree about
+
+Four screens were read against each other to write `door.h` and `keys.h`: `door/Door.kt` and
+`door/Door.swift`, `door/SignIn.kt` and `door/SignIn.swift`, the keyboard in `parts/Keyboard.kt`,
+`parts/Keyboard.swift` and `parts/Keys.java`, and -- because it turned out to matter -- the
+browser's own door at `apps/web/src/surfaces/door.rs`. Where they disagree there is something to
+find, and five things were found. None of them is fixed here: this folder may write only inside
+`apps/xbox/`.
+
+1. **`Keyboard.swift:88` force-unwraps the key under the remote**, and at the ragged stop there is
+   no key there. `rows[row].first { ... }!` is a fatal error on the exact stop the Kotlin's own
+   `KeyboardReachTest` reaches in eleven presses. The Kotlin and the Java were both fixed on
+   2026-11-13 with a fall back to the last key of the row; the Swift was not. **This one ships**,
+   to every tvOS viewer, on all four screens that draw a keyboard, and the shortest path to it ends
+   in a viewer typing a password.
+2. **`Keyboard.swift` disagrees with itself.** Its `hereIs` -- what a person who cannot see the
+   screen is told -- reads the same row through `rows[safe: row]` and a `guard`, and answers an
+   empty string rather than crashing. So the spoken answer is safe and the pressed one is not, in
+   one file, eight lines apart.
+3. **All three twins draw nothing lit at that stop.** `Keyboard.kt:118`, `Keyboard.swift:139` and
+   `KeysView.java:107` each decide which key to light by asking `holds(column)` of every key and
+   lighting the one that answers -- a second predicate, not the one `press` uses. At the four stops
+   that stand on an empty column, nothing answers, so no key is lit while OK types the row's last
+   one. The fix of 2026-11-13 stopped the crash and left a stop where the viewer cannot see where
+   they are. `keys.h` has one home for the question and `keys_test.cpp` asserts the two readers
+   agree at all 360 stops.
+4. **Neither television door reads `Features.accounts_required`.** The browser's door does
+   (`apps/web/src/surfaces/door.rs:70-76`) and draws a way straight in beside Get Started when the
+   server asks for no accounts; the core routes a visitor through on the same flag
+   (`platform/core/src/routes.rs:290`). Both television surfaces load `/v1/public/trending`
+   whatever the server says and send every OK on the landing to sign in. So on a server that wants
+   no accounts, a visitor with a browser is let in and a visitor with a television is sent to make
+   an account the server did not ask for. `door.h` takes the browser's shape and nothing more than
+   its shape: one stop, after Get Started, opening the home page, and the flag is **given** to the
+   landing rather than read in it.
+5. **Erase is three different units.** `Keyboard.kt:150` drops one UTF-16 unit, `Keys.java:243`
+   drops one code point, `Keyboard.swift:103` drops one grapheme. No letter on the three pages
+   today tells the three apart; a page with one astral letter on it would, and the Kotlin would
+   leave half of one in the field. This port drops a code point, which is the Java's.
+
+Two smaller things, recorded because they were looked at and are not what they seem:
+
+* `Door.swift:38` says the next card "shows at 1636" and `Door.kt:131` says 1653 for the same two
+  numbers. `pageEdge` is 72 and the step is 1581, so 1653 is right and the Swift comment is stale.
+  A comment, not behaviour.
+* `Door.kt` and `Door.swift` work out the lockup's handover from different values -- the Kotlin
+  from the state after the press, the Swift partly from one read before it -- and reach the same
+  answer every time, because the one case that would differ is unreachable. `door.cpp` takes the
+  Kotlin's, which is the one that does not depend on a value read before the press.
 
 ## What is still open
 
@@ -412,6 +484,17 @@ surface's own, and entirely testable without a core.
    remote the system owns the repeat and on a gamepad nobody does. Unblocked by one measurement
    against the reference on a television, or by a console. Until then the numbers are wrong by an
    unknown amount and a viewer crossing a long row will feel it.
+
+   **And a second half of it, found while writing the door: which words may repeat at all.**
+   `Pad::frame` already makes OK and BACK press edges, so a held A cannot open a title twice. The
+   four directions are not press edges, and on the sign in screen Left on the first of the two
+   pills is a way *out* of the screen (`SignIn.kt:185`, and the same rule at `PinPanel.kt:99`). A
+   held Left therefore answers "go back" once every 120 ms, and a shell that pops a screen per
+   answer would walk the viewer out of several. Every other edge on the door and the keyboard is
+   idempotent and `door_test.cpp` presses one of them twenty times to say so; this one is not.
+   Not fixed in the screen: a rule about which words may repeat belongs in `remote.h` beside the
+   clock that repeats them, and putting it in a screen would be a second home for it. Unblocked by
+   the owner or the lead saying whether a direction that leaves a screen should be a press edge.
 7. **Whether `std`'s four Windows imports are reachable inside an app container.** The library names
    `ucrt`, `api-ms-win-core-synch-l1-2-0`, `bcryptprimitives` and `kernel32`. Unblocked by the
    archived API Sets list for UWP apps read against those four, which can be done from here, and
@@ -433,11 +516,33 @@ surface's own, and entirely testable without a core.
    `KeyDown` nor `KeyUp` for B, `SystemNavigationManager::BackRequested` fires and the app must
    implement it. Unblocked by the owner deciding, and note 187 wants a dated correction either way.
 10. **The screens with no key map yet.** `place.h` is a page of rows, `title.h` is a title's three
-   pages and `gate.h` is the profile gate. What has none: the door and its keyboard, search, the
-   player and its panels, settings, get help and the help centre, and the editor and adder the gate
-   opens. Each is the same kind of work and none of it needs Windows. Nothing is blocked on this;
-   it is a list, so that nobody reads three key maps as all of them.
-11. **What a screen reader is handed, on any of these screens.** `Place.java` has `says` and this
+   pages, `gate.h` is the profile gate, `door.h` is the landing and the sign in screen, and
+   `keys.h` is the keyboard those four screens share. What has none: search and its letter grid
+   (which is `search/LetterGrid.kt`, a different part from the keyboard), the player and its
+   panels, settings, get help and the help centre, the editor and adder the gate opens, and the
+   server address screen -- see item 12. Each is the same kind of work and none of it needs
+   Windows. Nothing is blocked on this; it is a list, so that nobody reads five key maps as all of
+   them.
+11. **Whether a trending card should open its title on a server that asks for no accounts.** The
+   look round is built because the browser has one and the brief asked for it. What is **not**
+   built is the other reading of the same flag: today OK on a trending title's card answers
+   `Opening::SignIn` on every server, including one that wants no accounts, where the title is
+   there to be watched. Both television twins send it to sign in unconditionally and no twin does
+   otherwise, so this port did not invent it. Unblocked by the lead or the owner saying which.
+12. **The server address screen has no key map, and on tvOS it cannot be typed into at all.**
+   `ServerAddress.swift` draws a fixed `https://` and its `.remote` handler answers only `.ok`, so
+   there is no way to enter an address; the Kotlin reaches a system IME, which a television has and
+   an immediate-mode Xbox surface will not. It is the first screen of the app, before any server
+   has answered and so before `strings/` has any words. On Xbox it needs `keys.h` and its own key
+   map. Not written here because it is a screen of its own and was not in this brief.
+13. **A notice from the server against the step it belongs to.** `cardsOf(arrived, season)` on the
+   two television title pages is the shape for an answer that may arrive for a state the page has
+   since left. Nothing in `door.h` needs it: the one answer the landing waits for,
+   `/v1/public/trending`, is keyed on no state, and `Landing::arrived` takes the titles and the
+   server's flag together. The place the shape would apply on this screen is the sign in notice --
+   a refusal that lands after the viewer has cancelled back to the email step is drawn under the
+   wrong field in both twins -- and the notice is the shell's and the core's, above this file.
+14. **What a screen reader is handed, on any of these screens.** `Place.java` has `says` and this
    port has nothing, because there is no automation provider to hand a sentence to without XAML
    (note 223 open item 7). Both new files answer *what* the remote is on and neither says a word;
    the word belongs above them. Unblocked by the drawing, which is a Windows machine.

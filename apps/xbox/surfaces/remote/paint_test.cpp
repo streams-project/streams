@@ -325,6 +325,40 @@ int main(int argc, char **argv) {
         ok(distinct, "and every 60 Hz frame of it is a nearer position than the one before");
     }
 
+    // ------------------------------------------------------------------ the keyboard's box
+    //
+    // Numbers with no measurement behind them -- the reference measures no keyboard -- so what is
+    // checked is that they hold each other up. A panel that stopped containing its own grid, or a
+    // pair of buttons that stopped lining up with a row of keys, fails here.
+    {
+        // Ten columns of keys, as `keys.h` counts them.
+        const int across = 10;
+        const int rowWide = paint::Key::left(across - 1) + paint::Key::wide(1);
+        ok(rowWide == 657, "a row of ten keys is 657 reference pixels across");
+        ok(paint::Key::wide(2) == 129 && paint::Key::wide(3) == 195,
+           "a key spanning two or three columns takes their gaps with it and not the one past its "
+           "own edge");
+        ok(paint::Key::INSET_X + rowWide <= paint::Key::PANEL_W,
+           "and the panel is wide enough to hold one");
+
+        // Five rows of keys above the two buttons: four of letters and the modifier row.
+        const int keysHigh = paint::Key::top(4) + paint::Key::SIDE;
+        ok(keysHigh == 327, "five rows of keys are 327 deep");
+        ok(paint::Key::BUTTON_TOP > keysHigh,
+           "the two buttons sit below the last of them rather than over it");
+        ok(paint::Key::INSET_Y + paint::Key::BUTTON_TOP + paint::Key::BUTTON_H ==
+               paint::Key::PANEL_H - paint::Key::INSET_Y,
+           "and the foot of the buttons is exactly the panel's own inset up from its bottom edge, "
+           "which is what makes 476 the height it is");
+
+        // The two buttons are five columns each, so together they are a row of keys wide.
+        const int bothWide = paint::Key::BUTTON_X + paint::Key::BUTTON_W;
+        ok(bothWide == 658, "the two buttons together are 658 across");
+        ok(bothWide - rowWide == 1,
+           "within a reference pixel of a row of ten keys, which is what makes them look like one "
+           "grid: five columns each, drawn as pills rather than as keys");
+    }
+
     if (failures > 0) {
         std::printf("%d of %d failed\n", failures, checks);
         return 1;

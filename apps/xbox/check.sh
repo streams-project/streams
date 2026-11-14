@@ -1,8 +1,8 @@
 #!/bin/sh
 # Builds and runs everything in this folder that can run without an Xbox.
 #
-# Seven tests. The core boundary (`host/`) needs the C bridge built as a static library for whatever
-# machine this is; the other six (`surfaces/remote/`) need nothing but a C++ compiler. All seven are
+# Nine tests. The core boundary (`host/`) needs the C bridge built as a static library for whatever
+# machine this is; the other eight (`surfaces/remote/`) need nothing but a C++ compiler. All nine are
 # plain programs that print a line per check and return non-zero on a failure, and three of them are
 # held against a file nobody here owns: the drawing numbers read `brand.json` and
 # `reference/netflix-on-the-tv.md`, and the contract reading reads the contract's own fixtures,
@@ -16,8 +16,9 @@
 # It proves nothing about an Xbox. What it proves is that the pieces that do not need one are
 # correct: bytes cross the boundary, a controller speaks the six words of a remote, the drawn
 # numbers are the brand's and the reference's, the remote reaches the stop it should on a page of
-# rows, on a title's own three pages and on the profile gate, and a C++ surface reads the contract
-# with nothing between it and the generated header.
+# rows, on a title's own three pages, on the profile gate and on the door, no move on the keyboard
+# leaves the grid from any of its three hundred and sixty stops, and a C++ surface reads the
+# contract with nothing between it and the generated header.
 set -eu
 
 root=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
@@ -73,6 +74,18 @@ $cxx $flags apps/xbox/surfaces/remote/remote.cpp apps/xbox/surfaces/remote/gate.
 "$out/gate"
 
 echo
+echo "== the keyboard: every key from every key, in all four directions"
+$cxx $flags apps/xbox/surfaces/remote/remote.cpp apps/xbox/surfaces/remote/keys.cpp \
+    apps/xbox/surfaces/remote/keys_test.cpp -o "$out/keys"
+"$out/keys"
+
+echo
+echo "== the door: the landing, the two ways in, and the keyboard under one of them"
+$cxx $flags apps/xbox/surfaces/remote/remote.cpp apps/xbox/surfaces/remote/keys.cpp \
+    apps/xbox/surfaces/remote/door.cpp apps/xbox/surfaces/remote/door_test.cpp -o "$out/door"
+"$out/door"
+
+echo
 echo "== reading the contract into a page, held against the contract's own $wire fixtures"
 $cxx $flags -I "$contract" apps/xbox/surfaces/remote/remote.cpp \
     apps/xbox/surfaces/remote/place.cpp apps/xbox/surfaces/remote/reading.cpp \
@@ -87,4 +100,4 @@ $cxx $flags -I platform/bridges/c apps/xbox/host/core_host.cpp apps/xbox/host/sm
 "$out/smoke"
 
 echo
-echo "all seven held. No test here touches an Xbox, WinRT, a screen or a controller."
+echo "all nine held. No test here touches an Xbox, WinRT, a screen or a controller."
