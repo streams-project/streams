@@ -115,6 +115,48 @@ public func heard<V: View>(
     return found
 }
 
+/// The same, given a question to wait for instead of a length of time to wait.
+///
+/// A fixed `settle` is a guess about how fast this machine is at this moment, and on 2026-11-14,
+/// with eighteen agents building, that guess was wrong intermittently: two tests drawing the same
+/// screen and reading the same read-ahead list disagreed in one run, one passing and one failing,
+/// which is only possible if the work had finished for one and not the other. A test that waits
+/// for a duration asserts the machine's speed along with the product's behaviour, and only one of
+/// those is being tested.
+///
+/// So this pumps the loop in short turns until the caller's question answers true, and gives up at
+/// `within`. A test that passes in 40 ms still takes 40 ms; a loaded machine takes longer and
+/// still passes; and a product that never does the work fails after `within` instead of passing
+/// whenever the machine happens to be quick. The deadline is generous on purpose -- it is there to
+/// end a failing run, not to measure anything.
+@MainActor
+public func heard<V: View>(
+    _ view: V,
+    size: CGSize = CGSize(width: 1920, height: 1080),
+    within: TimeInterval = 5,
+    until ready: () -> Bool
+) -> [Heard] {
+    listenForAccessibility()
+    let host = UIHostingController(rootView: view)
+    let window = UIWindow(frame: CGRect(origin: .zero, size: size))
+    window.rootViewController = host
+    window.isHidden = false
+    window.makeKeyAndVisible()
+    host.view.frame = CGRect(origin: .zero, size: size)
+    host.view.setNeedsLayout()
+    host.view.layoutIfNeeded()
+    let deadline = Date().addingTimeInterval(within)
+    // A short slice rather than one long wait: `run(until:)` returns when the loop has nothing
+    // left to do as well as when the date passes, so slicing it is what lets the question be
+    // asked between turns instead of only at the end.
+    while !ready(), Date() < deadline {
+        RunLoop.current.run(until: Date().addingTimeInterval(0.02))
+    }
+    let found = heard(in: host.view)
+    window.isHidden = true
+    return found
+}
+
 /// The same reading, of a view that is already drawn in a window.
 ///
 /// For a test that put the screen in a window itself - because it had keys to press on it before

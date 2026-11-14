@@ -113,9 +113,21 @@ final class PicturesTests: XCTestCase {
           held now: \(heldNow) bytes
           held whole: \(heldWhole) bytes
         """)
+        // Two, not six. Six was written without arithmetic and this test could only ever fail:
+        // the grid asks for 592 by 828 and the fixture poster is 1000 by 1500, so the most any
+        // implementation can save per poster is 1_500_000 / 490_176 = 3.06x. A threshold a correct
+        // implementation cannot reach is not a test of the implementation -- it is a test of the
+        // number, and the number loses every time. Measured here: 33_619_968 against 72_000_000,
+        // a saving of 2.14x.
+        //
+        // The phone holds the same rule at the same 2x (`PhoneTests/Pictures.swift`), and the
+        // television cannot do better for a structural reason worth keeping: its cells are a large
+        // fraction of any poster a server will serve, where a phone's are a small one. Asking in
+        // the drawn box is worth less on a television and is still worth doing -- what it is worth
+        // is half the memory, not five sixths.
         XCTAssertLessThan(
-            heldNow * 6, heldWhole,
-            "the boxes this grid asks for save less than five sixths of holding its posters whole"
+            heldNow * 2, heldWhole,
+            "the boxes this grid asks for save less than half of holding its posters whole"
         )
     }
 }
@@ -134,7 +146,9 @@ final class ReadAheadTests: XCTestCase {
     /// Every picture of every card is read ahead, before any of those cards is in view.
     func testTheLandingReadsEveryCardsPicturesAheadOfTheViewer() {
         let shell = landingShell()
-        _ = heard(Door(shell: shell, seen: shell.seen, state: opened()), size: tv, settle: 0.6)
+        _ = heard(Door(shell: shell, seen: shell.seen, state: opened()), size: tv) {
+            !shell.shown.warmed.isEmpty
+        }
         XCTAssertEqual(
             Set(shell.shown.warmed.map(\.url)), Set(everySlide()),
             "the landing did not read every card's pictures ahead of the viewer"
@@ -155,7 +169,9 @@ final class ReadAheadTests: XCTestCase {
     /// read and warm nothing, and nothing on screen would look wrong.
     func testAPictureReadAheadAsksInTheBoxTheCardWillDrawIn() {
         let shell = landingShell()
-        _ = heard(Door(shell: shell, seen: shell.seen, state: opened()), size: tv, settle: 0.6)
+        _ = heard(Door(shell: shell, seen: shell.seen, state: opened()), size: tv) {
+            !shell.shown.warmed.isEmpty
+        }
         let warmed = shell.shown.warmed
         XCTAssertFalse(warmed.isEmpty, "the landing read nothing ahead at all")
         let scale = UIScreen.main.scale
@@ -179,7 +195,9 @@ final class ReadAheadTests: XCTestCase {
     /// read ahead holds every backdrop whole.
     func testWhatTheLandingReadsAheadCostsInBytes() {
         let shell = landingShell()
-        _ = heard(Door(shell: shell, seen: shell.seen, state: opened()), size: tv, settle: 0.6)
+        _ = heard(Door(shell: shell, seen: shell.seen, state: opened()), size: tv) {
+            !shell.shown.warmed.isEmpty
+        }
         let warmed = shell.shown.warmed
         // A guard and not an assertion: everything below reads the first want, and a test that
         // crashes instead of failing takes the rest of the run with it.
