@@ -22,8 +22,15 @@ const ABOUT_THE_BRAND: [&str; 7] = [
 fn no_program_file_states_the_brand_name() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("..");
     let brand = Brand::read(&root.join("brand.json")).expect("the brand file");
+    // `--others --exclude-standard` beside `--cached`: the index AND the files on disk that git
+    // does not hold yet, minus the ones .gitignore names. Until 2026-11-14 this read the index
+    // alone, and that is how two types carrying the brand's name were written, run against this
+    // test, reported green, and only went red on the commit that tracked them -- the author ran
+    // the rule and the rule could not see the file. A check that reads only what is committed
+    // agrees with whatever is not. The same hole was closed in `platform/tools/loose.py` for
+    // `check_private.py` and `check_rings.py`, which had it for the same reason.
     let listed = Command::new("git")
-        .arg("ls-files")
+        .args(["ls-files", "--cached", "--others", "--exclude-standard"])
         .current_dir(&root)
         .output()
         .expect("git runs");

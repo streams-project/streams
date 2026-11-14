@@ -151,7 +151,7 @@ the Android surface at `browse/Billboard.kt:134`. If it is to be banned, the col
 
     ./apps/harmony/check.sh
 
-Its third suite is `apps/harmony/touch_check.py`, which reads every `.ets` file here as text and
+Its third suite is `platform/tools/touch_check.py`, which reads every `.ets` file here as text and
 holds it against what it was written from. It proves nothing about whether any of this COMPILES.
 What it proves is that nothing in it was invented here:
 

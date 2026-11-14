@@ -371,7 +371,7 @@ export const GATE_LINE_GAP: number = 8.2;
 // Added 2026-11-13. Every one of these was a bare number written at its call site until that day,
 // which is 86 lengths across nine files and exactly the thing this file's head forbids: a number
 // with no citation is a number this surface may not draw with, and `surfaces/touch/README.md`
-// claimed none existed. `apps/harmony/touch_check.py` now reads every length a screen draws with
+// claimed none existed. `platform/tools/touch_check.py` now reads every length a screen draws with
 // and fails on any that is not one of the names here, so the claim is held rather than made.
 //
 // They are grouped by what they belong to, not by the file they were found in.
@@ -498,7 +498,7 @@ export const SEASON_CLOSE_LIFT: number = 20;
 // Kotlin's own numbers are the canvas box -- 20, 20 and 16 -- and a type size is not a box size,
 // so citing them here would be a false citation.
 //
-// `apps/harmony/touch_check.py` holds this list exactly: a fourth number cannot join it quietly,
+// `platform/tools/touch_check.py` holds this list exactly: a fourth number cannot join it quietly,
 // and taking one away without giving it a citation fails too. What would settle all three is one
 // look at the drawn screen, which wants the SDK.
 

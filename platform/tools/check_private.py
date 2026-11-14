@@ -9,6 +9,13 @@ list: a file may not name a person's home folder.
 The scanner's word list is private, named by an environment variable, so a copy of this project has
 none. That is why this says out loud which rules it ran and how many files it read: a scan that
 quietly found nothing is the fault being closed here, not a pass.
+
+It reads the working tree as well as the index, and that is the second hole, closed on 2026-11-13.
+Until then this read `git ls-files` alone, so a home folder or a credential in a file nobody had
+committed yet was never scanned at all: the leak would arrive green and turn red on the commit that
+carried it, by which time its author had been told nothing. `loose.py` holds why that answer was
+chosen over stopping every run on an uncommitted file. The escape is the one `check_tracked.py`
+names: a scratch file of your own goes in `.gitignore` or `.git/info/exclude`.
 """
 
 from __future__ import annotations
@@ -22,8 +29,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "data" / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from databuild import scan  # noqa: E402
+from loose import loose  # noqa: E402
 
 # A path under somebody's home folder. Nothing that ships may hold one: it names a person, and it
 # names a machine nobody else has. The folder has to start the path, so a temporary folder that
@@ -84,6 +93,16 @@ def tracked() -> list[str]:
     return [name for name in done.stdout.split("\0") if name]
 
 
+def files() -> list[str]:
+    """Every file this scan reads: what git holds, and what is here that git does not.
+
+    The second half is the hole closed on 2026-11-13. A leak written an hour ago is a leak; waiting
+    for somebody to commit it before reading it is what made the first one invisible.
+    """
+    held = tracked()
+    return held + [name for name in loose(ROOT) if name not in set(held)]
+
+
 def addresses() -> tuple[str, ...]:
     """Every address this product publishes that a home folder could be confused with."""
     found = set()
@@ -133,7 +152,10 @@ def main() -> int:
     found: list[str] = []
     read: dict[str, int] = {}
     published = addresses()
-    for name in tracked():
+    held = set(tracked())
+    here = files()
+    not_in_git = sum(1 for name in here if name not in held)
+    for name in here:
         path = ROOT / name
         if not path.is_file():
             continue
@@ -158,7 +180,10 @@ def main() -> int:
         rules += (
             f"; NOT file names, private words or capture tags, {scan.REFUSED_FILE} is not set"
         )
-    print(f"private: read {sum(read.values())} files, refusing {rules}")
+    print(
+        f"private: read {sum(read.values())} files, {not_in_git} of them on this disk and not in "
+        f"git, refusing {rules}"
+    )
 
     for folder, least in sorted(LEAST.items()):
         if read.get(folder, 0) < least:

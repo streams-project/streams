@@ -17,7 +17,7 @@ The C glue -- `core/cpp/napi_bridge.c`, the whole of the boundary between ArkTS 
 built and run on whatever machine types that command, against a recording core and against the real
 one.
 
-And since 2026-11-13 the ArkTS, which cannot be compiled, is READ. `touch_check.py` holds every
+And since 2026-11-13 the ArkTS, which cannot be compiled, is READ. `platform/tools/touch_check.py` holds every
 number in `surfaces/touch` against the Android phone Kotlin that measured it, every colour and
 corner against `brand.json`, every word key against `strings/en.json`, every icon against the
 `R.drawable.icon_*` the Android phone draws, and every import against the file it names. It is the
@@ -135,7 +135,7 @@ So that nobody later mistakes this for a finished app:
    the way the upstream Node-API headers do, which is `OPEN-QUESTIONS.md` Q1 and is stated in
    `core/cpp/test/napi/native_api.h`.
 
-   The third, `touch_check.py`, READS the ArkTS. It cannot tell whether a file compiles, whether a
+   The third, `platform/tools/touch_check.py`, READS the ArkTS. It cannot tell whether a file compiles, whether a
    type is right, whether an `@Builder` may be called where it is called, whether `Repeat` takes the
    arguments given it, or whether a vp is a dp. What it does tell is whether anything in the folder
    was invented here: every number against the Kotlin that measured it, every colour and corner

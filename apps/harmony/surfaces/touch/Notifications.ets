@@ -3,7 +3,7 @@
 // is the only measurement of this screen the project has: there is no television notifications
 // screen and no capture of Netflix's own, so every figure here is that file's and nothing in this
 // one was chosen. They are in `Sizes.ets` as `NOTICE_*` with the line each came from, and
-// `apps/harmony/touch_check.py` reads both sides.
+// `platform/tools/touch_check.py` reads both sides.
 //
 // `Root.ets` listed this as one of the five routes that draw nothing. It is now four.
 //

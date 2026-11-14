@@ -20,19 +20,40 @@ app. The touch surface's figures were measured on the Netflix Android app on a P
 them is the phone surface's Kotlin, each line carrying its own citation. So the Kotlin is this
 family's reference file, and `surfaces/touch/README.md` says the same.
 
-Run by `apps/harmony/check.sh` beside the two C suites. Python because every check here is text
-against text -- a `.ets` file against a `.kt` file, against `brand.json`, against `strings/en.json`
--- which is regular expression work, and because `platform/tools` belongs to whoever owns it: this
-file is written in that folder's shape (a `main() -> int`, a summary line, no arguments) so moving
-it there later is a `git mv` and a line in `./check`.
+Moved here from `apps/harmony/` on 2026-11-13 and run by `./check`. It was written in this folder's
+shape from the start (a `main() -> int`, a summary line, no arguments, nothing outside the standard
+library) and was left where it was only because its author did not own this folder. Python because
+every check here is text against text -- a `.ets` file against a `.kt` file, against `brand.json`,
+against `strings/en.json` -- which is regular expression work.
+
+Two things it used to keep a copy of now come from the file that states them, because that file is
+in this same folder and reading it is no longer a ring crossing:
+
+  the size claim     `check_claims.claims_in`, which also carries the code-block rule this file
+                     used to restate. It used to pull the expression out of `check_claims.py` with
+                     a regular expression and `eval` it -- the right answer across a folder
+                     boundary, and the wrong one now that an import says it exactly
+  the banned calls   `check_rings.FAMILIES["harmony"]["banned"]`, which is the hexagon rule for
+                     this family since 2026-11-13. Before that there was no `harmony` family and
+                     this file's own list was all there was
+
+What it still does not prove is that any of this COMPILES: no HarmonyOS SDK, no DevEco, and no
+`node`, `npx`, `tsc`, `ohpm`, `hvigorw` or `codelinter` on this machine. `main` probes for each one
+and names it as NOT CHECKED on every run, so a green line here is never read as more than it is.
 """
 
 from __future__ import annotations
 
 import json
 import re
+import shutil
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import check_claims  # noqa: E402
+import check_rings  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 TOUCH = ROOT / "apps/harmony/surfaces/touch"
@@ -595,29 +616,37 @@ def suite_brand_name() -> None:
     brand = json.loads((ROOT / "brand.json").read_text(encoding="utf-8"))
     name = brand["name"]
     # `launcher/tests/one_name.rs` walks `git ls-files`, so a file written and not yet committed is
-    # invisible to it. This walks the folder, which is what catches a new file the day it is
-    # written rather than the day it is added.
-    for path in sorted(HARMONY.rglob("*")):
+    # invisible to it: that is the hole that let two types carrying the brand's name sit green
+    # until the commit that added them. This walks the folder, which is what catches a new file the
+    # day it is written rather than the day it is added. This file is walked with the folder it
+    # reads, because moving it to `platform/tools` on 2026-11-13 took it out of that walk and the
+    # count fell from 874 to 873 -- one check lost in a move is exactly the quiet kind.
+    for path in [*sorted(HARMONY.rglob("*")), Path(__file__).resolve()]:
         if not path.is_file() or path.suffix not in (".ets", ".ts", ".c", ".h", ".py", ".json5"):
             continue
         ok(
-            f"{path.relative_to(HARMONY)} does not state the name {name}",
+            f"{path.relative_to(ROOT)} does not state the name {name}",
             name not in path.read_text(encoding="utf-8", errors="ignore"),
         )
 
 
-# What reaches a device directly. `surfaces/touch/README.md` holds this list and says why each one
-# is a call and not an import: `@kit.ImageKit` is imported for the TYPE `image.PixelMap`, which
-# ArkTS needs because it has no structural typing, so an import is not a ring crossing and a call
-# is. `platform/tools/check_rings.py` has no `harmony` family, so until it does this is the only
-# thing holding this folder to its ports.
+# What reaches a device directly, read from the hexagon rule rather than kept here. `check_rings.py`
+# gained a `harmony` family on 2026-11-13; before that there was none and this dict was the only
+# thing holding this folder to its ports. Two statements of one list is how a ban goes quiet on one
+# side and not the other, so there is now one, and it is the one `./check` enforces for every
+# family. `surfaces/touch/README.md` says why each entry is a call and not an import: `@kit.ImageKit`
+# is imported for the TYPE `image.PixelMap`, which ArkTS needs because it has no structural typing.
+#
+# The address table is read with it and then held separately below, because this file knows one
+# thing the family entry cannot: `Pick.ets` is where this family keeps its one routing table, so an
+# address there is the table and not a screen spelling one.
+THE_FAMILY = check_rings.FAMILIES["harmony"]
 BANNED = {
-    "the network port": r"\bhttp\.createHttp\b|\bcreateHttp\(|@ohos\.net\.|@kit\.NetworkKit",
-    "the secrets port": r"\basset\.(add|query|remove|update)\b|@kit\.AssetStoreKit",
-    "the store port": r"\bfileIo\.|@kit\.CoreFileKit|@ohos\.file\.fs",
-    "the player port": r"\bAVPlayer\b|createAVPlayer|createMediaSourceWithUrl",
-    "the pictures port": r"createImageSource|createPixelMap",
+    port: words
+    for port, words in THE_FAMILY["banned"].items()
+    if port != "the address table"
 }
+THE_ADDRESS_TABLE = THE_FAMILY["banned"]["the address table"]
 
 
 def suite_rings() -> None:
@@ -643,7 +672,7 @@ def suite_rings() -> None:
     )
     # Addresses are the core's, not a screen's: a path spelled in a surface is a second routing
     # table. `Pick.ets` is where this family keeps the one it has.
-    table = re.compile(r"""'/(?:home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)(?:[/'?])""")
+    table = re.compile(THE_ADDRESS_TABLE)
     for path in touch_files():
         if path.name == "Pick.ets":
             continue
@@ -815,33 +844,58 @@ def suite_corners() -> None:
 def suite_claims() -> None:
     print()
     print("== no file in this family claims a count nothing measures")
-    # `platform/tools/check_claims.py` holds four public files to this and names neither of this
-    # family's READMEs. Until one of them joins that list, this holds them to the same rule, with
-    # that file's own expression so there is one statement of what a claim is.
-    source = (ROOT / "platform/tools/check_claims.py").read_text(encoding="utf-8")
-    pattern = re.search(r"A_COUNT = re\.compile\(\n\s*(r\"[^\"]+\")", source)
-    if not ok("check_claims.py still states what a size claim is", pattern is not None):
-        return
-    a_count = re.compile(eval(pattern.group(1)), re.IGNORECASE)  # noqa: S307 - a literal from that file
-    in_code = re.compile(r"^\s{4,}|^```")
+    # `check_claims.py` holds this family's two front pages since 2026-11-13; the other markdown in
+    # this folder is not in its list and this is what holds it. The rule itself is read from that
+    # file -- `claims_in` is the whole of it, the fenced-block and indented-line exemptions
+    # included -- so there is one statement of what a size claim is and no copy here to drift.
+    ok(
+        "check_claims.py still states what a size claim is",
+        bool(check_claims.A_COUNT.search("1,744 lines")),
+    )
     for path in sorted(HARMONY.rglob("*.md")):
-        text = path.read_text(encoding="utf-8")
-        inside = False
-        found = []
-        for at, line in enumerate(text.split("\n"), start=1):
-            if line.startswith("```"):
-                inside = not inside
-                continue
-            if inside or in_code.match(line):
-                continue
-            hit = a_count.search(line)
-            if hit:
-                found.append(f"{at}: {hit.group(0)}")
+        name = path.relative_to(ROOT).as_posix()
+        found = check_claims.claims_in(path.read_text(encoding="utf-8"), name)
         ok(
             f"{path.relative_to(HARMONY)} names a command rather than a count",
             not found,
             "; ".join(found),
         )
+
+
+# What would have to be on this machine for any of the ArkTS to be compiled, type checked or
+# linted, and what each one would prove. `check_android.py` and `check_types.py` are the worked
+# examples of this: probe, say what could not run, name it, every run.
+A_TOOLCHAIN = {
+    "node": "nothing here could be run",
+    "npx": "nothing here could be run",
+    "tsc": "no `.ets` file was type checked",
+    "ohpm": "no package of this family was resolved",
+    "hvigorw": "nothing was built",
+    "codelinter": "no ArkTS lint rule was applied",
+}
+
+
+def not_checked() -> None:
+    """What this did NOT prove, by name, on every run, whatever the machine has.
+
+    Even a machine that grows every tool below still gets this line, because the missing piece is
+    not a tool: it is the HarmonyOS SDK, and nothing in this repository can stand in for it. A run
+    with 874 green lines proves that nothing in the touch surface was invented in it. It proves
+    nothing about whether one line of it compiles.
+    """
+    absent = sorted(name for name in A_TOOLCHAIN if shutil.which(name) is None)
+    files = len(touch_files())
+    print()
+    if absent:
+        print(
+            "touch: NOT RUN, no " + ", ".join(absent) + " on the PATH, so "
+            + "; ".join(sorted({A_TOOLCHAIN[name] for name in absent}))
+        )
+    print(
+        f"touch: {files} .ets files in apps/harmony/surfaces/touch were not compiled, type "
+        "checked, linted or run here, and no HarmonyOS SDK, DevEco or Huawei device was used, so "
+        "nothing about whether this surface COMPILES was proved on this machine"
+    )
 
 
 def main() -> int:
@@ -856,6 +910,7 @@ def main() -> int:
     suite_corners()
     suite_imports()
     suite_claims()
+    not_checked()
     print()
     print(f"{held - len(failed)} of {held} held")
     if failed:

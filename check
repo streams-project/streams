@@ -88,6 +88,7 @@ cargo test --locked -p bridge-c --no-default-features
   python3 tools/test_check_rings.py
   python3 tools/test_check_types.py
   python3 tools/test_check_claims.py
+  python3 tools/test_loose.py
   python3 tools/test_check_android_native.py
   python3 tools/test_check_android.py
   python3 tools/test_check_apple.py
@@ -111,6 +112,18 @@ cargo test --locked -p bridge-c --no-default-features
 # machine this project has today. With node and tsc it is two tsc passes and a node run, and that
 # has never been measured anywhere, because nothing here has ever had a node to measure it with.
 python3 platform/tools/check_roku.py
+
+# The HarmonyOS touch surface, read against what it was written from: every number against the
+# Android phone Kotlin that measured it, every colour and corner against brand.json, every word key
+# against strings/en.json, every icon against the drawables the phone surface names, every import
+# against the sibling that exports it. 874 of them on 2026-11-13. It lived in apps/harmony and was
+# run only by `apps/harmony/check.sh`, which `./check` does not call because that script needs a C
+# compiler; so until today this folder's one guard ran only when a person typed it. It needs no
+# compiler and no network, it was written in platform/tools' shape, and it is here now.
+# It proves nothing about whether one line of that ArkTS compiles - there is no HarmonyOS SDK, no
+# DevEco and no node, tsc, ohpm, hvigorw or codelinter on any machine this project has - and it
+# prints exactly that, with the names, on every run. Measured 2026-11-13: 0.4 seconds.
+python3 platform/tools/touch_check.py
 
 # Every id a server test name claims must be a real ledger row.
 (cd server && python3 scripts/check_test_ids.py)

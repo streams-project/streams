@@ -1,7 +1,33 @@
 #!/usr/bin/env python3
-"""Check that every strings/<lang>.json file has all keys and matching placeholders from en.json,
-and that strings/rows/<lang>.json translates every row name in strings/rows/names.json (the English
-names the page builder makes, written by the row_names test in server-pages)."""
+"""Every language file has English's keys, and the same holes to fill in each of them.
+
+What this reads, and it is the whole of it:
+
+  keys          every key of `strings/en.json` is in every other `strings/<lang>.json`
+  placeholders  each translated line carries English's `{placeholders}`, with two exemptions:
+                `{brand}` may be dropped, because a language names a thing its own way, and `{n}`
+                may be dropped from a `.one` or `.two` plural, which some languages spell out
+  rows          `strings/rows/<lang>.json` translates every row name in `strings/rows/names.json`
+                -- the English names the page builder makes, written by the row_names test in
+                server-pages -- with no blank left standing in for one
+
+What it does NOT read, written down because two separate agents on 2026-11-13 each believed one of
+these was already here and built on it:
+
+  * **No source file is opened.** Not a `.kt`, `.swift`, `.rs`, `.ets`, `.ts` or `.java`. An
+    English sentence typed straight into a screen is invisible here: this compares one JSON file
+    against another and nothing else. The families that have such a guard each wrote their own --
+    `touch_check.py` holds the HarmonyOS surface to it, `check_roku.py` the Roku one -- and the
+    families that have not got one are not covered by anything.
+  * **No key a screen asks for is checked to exist.** A screen naming `title.episodes.missing`
+    passes here whether or not `en.json` has it; nothing walks from a call site to a key. The
+    reverse is true too: a key in `en.json` that no screen asks for is never reported.
+  * **Nothing is said about what a translation MEANS.** A value copied from English, or wrong, is
+    a present key with the right placeholders, and that is all this asks of it.
+
+The first of the three is the one worth closing and it is not closed here: it wants a per-family
+read of source text, which is where each family already keeps one.
+"""
 
 from __future__ import annotations
 

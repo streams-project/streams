@@ -33,11 +33,25 @@ PUBLIC_FILES = (
     "CONTRIBUTING.md",
     "apps/android/README.md",
     "apps/apple/README.md",
+    # The HarmonyOS family's two front pages, added 2026-11-13. Both were written clean -- they
+    # name `ls apps/harmony/surfaces/touch` and `./apps/harmony/check.sh` where a count would have
+    # gone -- and both were outside this rule, so the next number written into either would have
+    # been as unenforced as the four that started this check. They were measured before being
+    # added: 0 claims in each.
+    "apps/harmony/README.md",
+    "apps/harmony/surfaces/touch/README.md",
 )
 
-# The files that still hold a count, named every run so the hole is never silent. Empty since
-# 2026-11-13: every file that held one now has none, and all four are in PUBLIC_FILES.
-NOT_YET: tuple[str, ...] = ()
+# The files that still hold a count, named every run so the hole is never silent. Emptied on
+# 2026-11-13 when the android and apple READMEs joined the rule, and filled again the same day:
+# two families' front pages arrived while this list was empty and neither is in PUBLIC_FILES.
+# Measured 2026-11-13 by `counts()`: 6 claims in the desktop README (lines 6 and 7), 8 in the roku
+# README (lines 11, 12, 159, 227, 235, 332, 367). Neither file is this folder's to edit, so they
+# are named here rather than held, which is what this list is for.
+NOT_YET: tuple[str, ...] = (
+    "apps/desktop/README.md",
+    "apps/roku/README.md",
+)
 
 # "1,744 lines", "15 files", "93 files of Kotlin", "2,185 lines of ES5". A version number, a date
 # and a port are not size claims, so the unit has to be there.
@@ -56,7 +70,7 @@ A_COUNT = re.compile(
 # held to the rule like any other line.
 IN_CODE = re.compile(r"^\s{4,}|^```")
 
-LEAST_READ = 4
+LEAST_READ = 6
 
 
 def tracked(name: str) -> bool:

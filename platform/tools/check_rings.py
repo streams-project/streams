@@ -14,8 +14,11 @@ are asserted, in this order:
   patterns    every `surfaces` pattern of a family matched at least one real folder
   parts       the `surfaces` and `adapters` folders at the family root are inside the read set,
               whether they are folders or links to folders
-  no strays   every code file the family has in git is inside a ring, or inside a folder the
-              family declares as `rest`, which is the part of the app that is not a ring
+  no strays   every code file the family has, in git OR on this disk and not ignored, is inside a
+              ring, or inside a folder the family declares as `rest`, which is the part of the app
+              that is not a ring. The disk half was added on 2026-11-13: reading the index alone
+              meant a new folder of screens was invisible until somebody committed it, which is the
+              one moment its author has stopped looking. `loose.py` holds the whole of that
   depends     no surface module DECLARES a dependency that reaches the device. The read above is a
               read of words in source, which is a different assertion: the android family's
               `okhttp3` ban passed on every run while okhttp3 was linked into all three surface
@@ -32,6 +35,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from loose import loose  # noqa: E402
 
 # A family's folder, what its code ends in, where its surfaces live, the floor under the number of
 # surface files, the parts of the family that are not rings, and what a surface may not name.
@@ -64,6 +70,7 @@ FAMILIES = {
         "builds": (),
         "banned_deps": {},
         "allowed_deps": frozenset(),
+        "comments": False,
         "banned": {
             "the address table": r'"/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)[/"?]',
             "the network port": r"\bfetch_with|\bRequestInit\b|\breqwest\b",
@@ -71,6 +78,82 @@ FAMILIES = {
             "the address port": r"\bhistory\(\)|\bpush_state",
             "the player port": r"\bwebPlayer\b|\bHtmlVideoElement\b",
             "a port, and adapters are not for surfaces": r"crate::adapters",
+        },
+    },
+    # Written on 2026-11-12 and 2026-11-13 and held by nothing here until today: this family paints
+    # nothing, it lays a screen out into a `Scene` of rectangles, words and brand roles, and a
+    # painter of forty lines turns a scene into a window. That is exactly the shape this rule is
+    # for -- the surfaces may name no system thing at all -- and the banned words are the four
+    # adapter type names `lib.rs` exports, because in a one-crate family reaching past a port means
+    # naming the adapter that fills it.
+    "desktop": {
+        "code": "apps/desktop/src",
+        "ends": {".rs"},
+        "surfaces": ("surfaces",),
+        "least": 4,
+        # `adapters` and `ports.rs` are rings and so are not named here. What is left of the family
+        # is the host that steps the core and the crate root that wires the three together.
+        "rest": ("host.rs", "lib.rs"),
+        "skip": set(),
+        "builds": (),
+        "banned_deps": {},
+        "allowed_deps": frozenset(),
+        # Comments are read here, as they are for every family but `harmony`: the four names below
+        # are this crate's own types and a surface has no reason to write one in prose either.
+        "comments": False,
+        "banned": {
+            "the address table": r'"/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)[/"?]',
+            "the network port": r"\breqwest\b|\bTcpStream\b|\bstd::net\b|\bHttpNetwork\b",
+            "the secrets port": r"\bFileSecrets\b",
+            "the store port": r"\bFileStore\b",
+            "the player port": r"\bNoPlayer\b|\blibmpv\b",
+            "a port, and adapters are not for surfaces": r"crate::adapters|super::adapters",
+        },
+    },
+    # HarmonyOS: ArkTS that no compiler on any machine here can read. `touch_check.py` holds the
+    # same list against the same files with comments blanked and reports it file by file; this is
+    # the family's entry in the hexagon rule, and it is where the list is now written once --
+    # `touch_check.py` reads it from here rather than keeping a second copy that can drift.
+    #
+    # What a surface may not name is a CALL, not an import: `@kit.ImageKit` is imported by four
+    # files in `surfaces/touch` for the type name `image.PixelMap`, which ArkTS requires because it
+    # has no structural typing, and a type name has to be writable. `surfaces/touch/README.md`
+    # states that and this list follows it.
+    "harmony": {
+        "code": "apps/harmony",
+        # `.c` and `.h` are in here with no ring of this family holding one, and on purpose: the C
+        # glue is under `core`, which is `rest`, and the day somebody drops a `.c` into a surface
+        # folder it is a file this read sees rather than one it passes over on its suffix. That is
+        # the android family's `.java` lesson taken before the fact rather than after it.
+        "ends": {".ets", ".ts", ".c", ".h"},
+        "surfaces": ("surfaces",),
+        "least": 20,
+        # The core in its NAPI shell with the C bridge under it, and the contract read into ArkTS.
+        "rest": ("core", "contract"),
+        "skip": set(),
+        "builds": (),
+        "banned_deps": {},
+        "allowed_deps": frozenset(),
+        # The one family whose comments are blanked before the read, and it is not a convenience:
+        # this folder compiles nowhere, so what it knows about HarmonyOS is written in its comments,
+        # including the names of the very calls banned below. `Pictures.ets:13` says in prose that
+        # nothing here calls `image.createImageSource`, and `Pick.ets:63` quotes "/browse" to
+        # explain why no screen may spell an address. Both are the rule being explained, and a rule
+        # that cannot be explained in the file it holds is a rule people route around.
+        # What it costs, named rather than left silent: the blanking is by regular expression and
+        # knows nothing about quotes, so a `//` inside a string takes the rest of that line with
+        # it. No file in this folder has one, and `touch_check.py` has read the same text the same
+        # way since it was written.
+        "comments": True,
+        "banned": {
+            "the address table": r'["\']/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)["\'/?]',
+            "the network port": r"\bhttp\.createHttp\b|\bcreateHttp\(|@ohos\.net\.|@kit\.NetworkKit",
+            "the secrets port": r"\basset\.(add|query|remove|update)\b|@kit\.AssetStoreKit",
+            "the store port": r"\bfileIo\.|@kit\.CoreFileKit|@ohos\.file\.fs",
+            "the player port": r"\bAVPlayer\b|createAVPlayer|createMediaSourceWithUrl",
+            # A call and not the type: `createImageSource(` and `createPixelMap(` decode bytes,
+            # which is the adapter's work, and `image.PixelMap` is a name a cast has to write.
+            "the pictures port": r"createImageSource\s*\(|createPixelMap\s*\(",
         },
     },
     "android": {
@@ -102,6 +185,7 @@ FAMILIES = {
         # -- moved to `:adapters` behind the `Pictures` port on 2026-11-12. This line goes when the
         # last `AsyncImage` does.
         "allowed_deps": frozenset({"io.coil-kt.coil3:coil-compose"}),
+        "comments": False,
         "banned": {
             "the address table": r'"/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)[/"?]',
             "the network port": r"\bjava\.net\b|\bokhttp3\b|\bHttpURLConnection\b",
@@ -131,6 +215,7 @@ FAMILIES = {
         "builds": (),
         "banned_deps": {},
         "allowed_deps": frozenset(),
+        "comments": False,
         "banned": {
             "the address table": r'"/(home|browse|latest|login|sign-in|profiles|search|help|settings|kids|mine|games|activate)[/"?]',
             # Capability, not spelling. Until 2026-11-13 this banned the word URLSession alone,
@@ -159,6 +244,19 @@ FAMILIES = {
     },
 }
 PARTS = ("adapters", "surfaces")
+
+# A `/* */` or `//` comment, blanked and not deleted so every line number stays what it was. Only a
+# family that declares `"comments": True` is read this way; the rest are read whole, where a banned
+# word in a comment is a finding like any other. `harmony` is the one family that needs it and the
+# entry above says why.
+A_BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
+A_LINE_COMMENT = re.compile(r"//[^\n]*")
+
+
+def without_comments(text: str) -> str:
+    """The same text, the same length, with every comment turned to spaces."""
+    text = A_BLOCK_COMMENT.sub(lambda found: re.sub(r"[^\n]", " ", found.group(0)), text)
+    return A_LINE_COMMENT.sub(lambda found: " " * len(found.group(0)), text)
 
 # A line's comment, so prose about a library is not mistaken for a declaration of one. It is read
 # per line and knows nothing about quotes, so a `//` inside a string takes the rest of that line
@@ -296,10 +394,37 @@ def tracked_code(code: Path, family: dict) -> list[Path]:
     return files
 
 
+def loose_code(code: Path, family: dict) -> list[Path]:
+    """Every file of the family's language that is on this disk and NOT in git.
+
+    The hole this closes, 2026-11-13: `strays` read the index alone, so a new file of screens that
+    nobody had committed yet was in no ring and nothing said so. It went red on the commit that
+    carried it, which is the one moment its author is no longer watching. `loose.py` holds why this
+    answer was taken rather than refusing to run at all while anything is uncommitted; the escape is
+    the same one `check_tracked.py` names, `.gitignore` or `.git/info/exclude`.
+
+    A build folder is not here either way: git ignores those, so `loose` never reports one, and
+    `BUILT` names them again in case a family's own ignore rules ever stop covering one.
+    """
+    files = []
+    for name in loose(ROOT, str(code.relative_to(ROOT))):
+        path = ROOT / name
+        if path.is_symlink() or not path.is_file() or path.suffix not in family["ends"]:
+            continue
+        if path.name in family["skip"] or BUILT.intersection(Path(name).parts[:-1]):
+            continue
+        files.append(path)
+    return files
+
+
 def strays(code: Path, family: dict, rings: set[Path]) -> list[str]:
-    """Every file of the family that is in no ring and in no part the family declares."""
+    """Every file of the family that is in no ring and in no part the family declares.
+
+    Read from the index AND from the disk: a file git does not hold yet is held to the hexagon the
+    day it is written, not the day it is added.
+    """
     found = []
-    for path in tracked_code(code, family):
+    for path in tracked_code(code, family) + loose_code(code, family):
         real = path.resolve()
         if any(real.is_relative_to(ring) for ring in rings):
             continue
@@ -353,6 +478,8 @@ def check(name: str, family: dict) -> list[str]:
         )
     for path in files:
         text = path.read_text("utf-8")
+        if family["comments"]:
+            text = without_comments(text)
         for port, words in family["banned"].items():
             for match in re.finditer(words, text):
                 line = text[: match.start()].count("\n") + 1
@@ -369,7 +496,8 @@ def main() -> int:
         builds, _ = surface_builds(code, family)
         print(
             f"rings: {name} read {len(surface_files(code, family))} surface files in "
-            f"{len(folders)} folders, {len(tracked_code(code, family))} files of the family in git, "
+            f"{len(folders)} folders, {len(tracked_code(code, family))} files of the family in git "
+            f"and {len(loose_code(code, family))} on this disk git does not hold, "
             f"{len(builds)} surface build files for what they depend on"
         )
     for line in found:

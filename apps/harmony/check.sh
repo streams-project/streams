@@ -21,9 +21,11 @@
 # upstream Node-API headers do; that is stated in `core/cpp/test/napi/native_api.h` and is
 # `OPEN-QUESTIONS.md` Q1, and the first build against a real SDK is what settles it.
 #
-# The root `./check` does not call this, for the same reason it does not call `apps/xbox/check.sh`:
-# it carries no C compiler for this folder and `platform/tools/check_rings.py` has no `harmony`
-# family.
+# The root `./check` does not call the C suites below, because it carries no C compiler for this
+# folder. It does now call the ArkTS reading: `touch_check.py` moved to `platform/tools/` on
+# 2026-11-14 and is a step of `./check`, and `check_rings.py` gained a `harmony` family the same
+# day. This script still runs the reading too, so that running this one file proves the whole
+# folder.
 set -eu
 
 root=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
@@ -57,7 +59,7 @@ $cc $flags $include "$glue/napi_bridge.c" "$glue/test/napi_stub.c" "$glue/test/b
 
 echo
 echo "== the touch surface read against what it was written from"
-python3 apps/harmony/touch_check.py
+python3 platform/tools/touch_check.py
 
 echo
 echo "all three held. Nothing here ran HarmonyOS, DevEco, a compiler for ArkTS or a Huawei device,"

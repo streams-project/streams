@@ -183,7 +183,13 @@ class NoToolchain(unittest.TestCase):
         _, output = check()
         for suite in roku.suites():
             self.assertIn(suite.name, output)
-        self.assertIn("%d tests in %d suites" % (roku.cases_written(roku.suites()), 9), output)
+        # Both numbers come from the read, not from a copy of it here. This line said `9` and went
+        # red on 2026-11-13 when the folder reached 12 suites: a test asserting a number against a
+        # restatement of itself, which is the defect this folder keeps finding and which the test
+        # beside it in `test_check_claims.py` had already been fixed for.
+        written = roku.suites()
+        self.assertIn("%d tests in %d suites" % (roku.cases_written(written), len(written)), output)
+        self.assertGreater(len(written), 9)
 
     def test_the_skip_names_the_files_the_sdk_keeps_out_of_the_type_check(self):
         """Not an aside. Six files in that folder can never be checked here, and a run that did not
