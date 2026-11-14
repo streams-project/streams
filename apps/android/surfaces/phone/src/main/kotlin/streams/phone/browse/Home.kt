@@ -49,6 +49,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -230,23 +231,32 @@ fun Home(shell: Shell, seen: Seen) {
                 .fillMaxWidth()
                 .background(if (atTop) Color.Transparent else Back.copy(alpha = 0.97f))
                 .statusBarsPadding()
-                // One stop of the page for a screen reader, which is what puts it first.
+                // One stop of the page for a screen reader, and the first one.
                 //
                 // This header is drawn after the list on purpose, so that it draws over it. With
                 // no semantics of its own it was not a node at all: the page's name, the bell and
-                // the chip row were loose leaves, sorted for a reader against the list's subtree
-                // by where each one sits, and they lost -- the list's box is the whole window and
-                // takes the top of the page with it. A reader began on the billboard and reached
-                // the chips at stop 18 of 30 with three rows in hand, behind several hundred on a
-                // page that has grown. Two phones with two vendors' screen readers never reached
-                // them at all (note 239).
+                // the chip row were loose leaves sorted against the list's subtree by where each
+                // one sat, and they lost -- the list's box is the whole window and takes the top
+                // of the page with it. A reader began on the billboard and reached the chips at
+                // stop 18 of 30 with three rows in hand, behind several hundred on a page that has
+                // grown. Two phones with two vendors' screen readers never reached them at all
+                // (note 239).
                 //
-                // As one group the header is one box at the top of the screen, and the toolkit's
-                // own sort puts it where it is drawn. Measured, not assumed: `traversalIndex` on
-                // this and on the bar, and a group around the whole page, were all tried together
-                // first and removing any of them changed no reading -- this line alone carries it,
-                // and the three tests of `HomeReachTest` fail without it.
-                .semantics { isTraversalGroup = true },
+                // Both halves of this are load bearing and neither is enough on its own, which was
+                // established by deleting each one and watching `HomeReachTest` go red:
+                //
+                // `isTraversalGroup` makes the header one node instead of three loose leaves, so
+                // there is something for an order to be stated about and the block stays together.
+                // Without it the index has nothing to hold: 2 tests fail.
+                //
+                // `traversalIndex` states the order outright. Without it the order falls back to
+                // where the boxes are, and the toolkit compares left, then top, then bottom, then
+                // right: on a window with no status bar the header and the list tie at y = 0 and
+                // the header wins on `bottom` by luck, while on a phone the header's top is the
+                // status bar's height against the list's 0, the list wins on `top`, and nothing
+                // the page says is ever reached. That is a fix that passes its tests and does
+                // nothing on every real phone -- it was shipped once, in cebb0b3. 4 tests fail.
+                .semantics { isTraversalGroup = true; traversalIndex = -1f },
         ) {
             TopBar(
                 seen.server,

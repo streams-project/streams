@@ -63,6 +63,9 @@ class SweepTest {
         // Idling waits for the drawing to settle; it does not move the clock past a `delay`, so a
         // screen that shows itself after one shows nothing until the clock is moved by hand.
         if (after > 0) compose.mainClock.advanceTimeBy(after)
+        // With a status bar, as a phone has. Read with none, an order decided by a tie on where a
+        // box starts comes out right here and wrong on a device: see [STATUS_BAR].
+        statusBar(compose)
         val root = compose.onRoot().fetchSemanticsNode()
         val reading = Reached.of(root)
         println("SWEEP $name: ${reading.size} stops -> ${reading.words()}")
@@ -163,6 +166,7 @@ class SweepTest {
         // The feed arrives as an answer to the ask the screen makes while it composes. Held back,
         // the screen draws its spinner, and a sweep over that measures the spinner.
         compose.runOnIdle { shell.answer(200, noticesBody()) }
+        statusBar(compose)
         val root = compose.onRoot().fetchSemanticsNode()
         val reading = Reached.of(root)
         println("SWEEP Notifications: ${reading.size} stops -> ${reading.words()}")

@@ -20,9 +20,16 @@ import streams.shared.Brand
  * and the tiles are never reached (note 239, section 3). [Reached] takes the order from the
  * toolkit's own accessibility delegate, which is the order a screen reader walks.
  *
- * The screen is a phone's, because the reading depends on what is laid out: in the toolkit's
- * default 320 x 470 dp window the billboard alone fills the page and no row is composed at all, so
- * a test run at that size would report "no row is reachable" while measuring the window.
+ * Two things about the window decide whether this measures a phone or measures the toolkit's
+ * defaults, and both were got wrong once:
+ *
+ * * **the screen**, because the reading depends on what is laid out. In the default 320 x 470 dp
+ *   window the billboard alone fills the page and no row is composed at all, so a test at that
+ *   size reports "no row is reachable" while measuring the window.
+ * * **the status bar**, because the reading depends on where things are. Robolectric reports no
+ *   inset, every box starts at y = 0, and an order that is decided by a tie on `top` comes out
+ *   right here and wrong on every phone. That is exactly what happened: see [STATUS_BAR]. Every
+ *   reading below is taken with a status bar, and one test holds the two against each other.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], qualifiers = "w411dp-h914dp-xxhdpi")
@@ -30,10 +37,25 @@ import streams.shared.Brand
 class HomeReachTest {
     @get:Rule val compose = createComposeRule()
 
-    private fun readingOnHome(): List<Stop> {
+    /** A loaded Home on a phone with a status bar, read as a screen reader is walked through it. */
+    private fun readingOnHome(inset: Int = STATUS_BAR): List<Stop> {
         val seen = homeSeen()
         compose.setContent { Brand { Home(Showing(seen), seen) } }
+        statusBar(compose, inset)
         return Reached.of(compose.onRoot().fetchSemanticsNode())
+    }
+
+    @Test
+    fun `the reading does not depend on the status bar`() {
+        // The guard for the defect that made the first fix hollow. An order held up by where a box
+        // happens to start reads correctly under a window with no inset and wrongly under a window
+        // with one, and every phone has one. The two readings have to be the same reading.
+        val seen = homeSeen()
+        compose.setContent { Brand { Home(Showing(seen), seen) } }
+        val bare = Reached.of(compose.onRoot().fetchSemanticsNode()).words()
+        statusBar(compose)
+        val withBar = Reached.of(compose.onRoot().fetchSemanticsNode()).words()
+        assertEquals("a status bar of ${STATUS_BAR} px changes what a reader is handed", bare, withBar)
     }
 
     @Test

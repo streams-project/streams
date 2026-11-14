@@ -7,7 +7,11 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.onRoot
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows
 
@@ -169,4 +173,40 @@ internal fun silentControls(root: SemanticsNode): List<String> {
     }
     walk(root)
     return found
+}
+
+/**
+ * The height of a status bar, in pixels at this test's density, and the reason for the number.
+ *
+ * 24 dp is the platform's own `status_bar_height` default and the floor for a device that has a
+ * status bar at all; a phone with a camera cutout reports more. The value hardly matters -- what
+ * matters is that it is **not nought**, and nought is what Robolectric reports unless a test says
+ * otherwise. The tests run at xxhdpi, so 24 dp is 72 px.
+ *
+ * This number is why the first version of the reading order fix was hollow. Robolectric handed
+ * every screen a zero inset, the pinned header's semantics box therefore began at y = 0 like the
+ * list's, the toolkit's `LtrBoundsComparator` compares left, then **top**, then bottom, then
+ * right, and the header won on `bottom` by accident. On a real phone its top is 72 against the
+ * list's 0, the list wins on `top`, and the comparison never reaches anything the fix had said.
+ * The fix passed its tests and did nothing on every phone with a status bar. Measured 2026-11-14.
+ */
+internal const val STATUS_BAR = 72
+
+/**
+ * Hands the composition a window with a status bar, as a device does, and lets it settle.
+ *
+ * Dispatched to the real view rather than faked into a composition local: the toolkit reads insets
+ * from the view's `onApplyWindowInsets`, so anything else would be a test agreeing with itself.
+ * Proved by what it moves -- the billboard's top goes from 375 to 447 px.
+ */
+internal fun statusBar(compose: ComposeContentTestRule, px: Int = STATUS_BAR) {
+    if (px == 0) return
+    val view = (compose.onRoot().fetchSemanticsNode().root as ViewRootForTest).view
+    ViewCompat.dispatchApplyWindowInsets(
+        view,
+        WindowInsetsCompat.Builder()
+            .setInsets(WindowInsetsCompat.Type.statusBars(), Insets.of(0, px, 0, 0))
+            .build(),
+    )
+    compose.waitForIdle()
 }
