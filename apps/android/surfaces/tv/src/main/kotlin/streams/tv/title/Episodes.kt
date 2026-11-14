@@ -128,6 +128,54 @@ private fun SeasonLine(words: Map<String, String>, season: SeasonSummary, chosen
     }
 }
 
+/**
+ * The episodes in hand, and the season the answer that brought them was for.
+ *
+ * The two travel together because they are read together, and because the page used to read them
+ * apart. `produceState` keeps the value it has until the new season answers, so for the whole of a
+ * read -- which is as long as the link is slow -- the cards on screen were the *previous* season's
+ * names, stills and descriptions, under a column that already marked the new season as chosen, with
+ * nothing on the page saying so. Every viewer saw that on every season change. The rare tail of it
+ * was an address: a held Down walks the stale list's bound, and OK then asked for
+ * `/watch/<title>/2/7` out of season 1's seven episodes, which the server answers with no source
+ * and the viewer reads as "this title cannot play right now" on a title that plays fine.
+ *
+ * So the season travels with its episodes. [cardsOf] is what the page reads, and it hands back
+ * nothing at all while the chosen season is being read; the address OK asks for names [season], the
+ * season the list in hand came from, so the number in the address and the card it was read off can
+ * never be two different seasons. [season] is 0 before anything has arrived, which no season number
+ * is, and [episodes] is empty there.
+ */
+private data class Arrived(val season: Long, val episodes: List<Episode>)
+
+private val NothingArrived = Arrived(0, emptyList())
+
+/**
+ * The cards a season shows: the ones in hand when the answer that brought them was for this season,
+ * and none while this season is being read.
+ *
+ * This is the whole of the half that reached every viewer. A read takes as long as the link is
+ * slow, and for all of it the page drew the *previous* season's names, stills and descriptions
+ * under a column already marking the new season as chosen, because the pair in hand is only
+ * replaced when the new answer lands. What is drawn now is what this surface draws for any page
+ * with nothing to show yet -- `browse/Waiting.kt` takes it from the measured reference: the
+ * destination already lit, the body empty, no skeleton, no shimmer, no old content held.
+ *
+ * Everything else on the page reads this and not the pair, so nothing can be walked to, lit or
+ * played that is not drawn.
+ */
+private fun cardsOf(arrived: Arrived, season: Long) =
+    if (arrived.season == season) arrived.episodes else emptyList()
+
+/**
+ * Where the remote is left on a column of [count] cards: never off either end of it, and on 0 when
+ * there are none.
+ *
+ * The floor is the whole of it. A season being read is an empty list, whose last index is -1, and
+ * a card at -1 is a page drawn a card low with nothing on it lit.
+ */
+internal fun cardIn(card: Int, count: Int) = card.coerceIn(0, maxOf(0, count - 1))
+
 /** A series' seasons on the left, and that season's episodes as cards on the right. */
 @Composable
 fun Episodes(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
@@ -142,15 +190,30 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
     var card by remember { mutableIntStateOf(0) }
     var placed by remember { mutableStateOf(onNow == null) }
     val number = seasons.getOrNull(chosen)?.number ?: 1
-    val episodes by produceState(emptyList<Episode>(), number) {
-        value = shell.read("/v1/titles/$path/seasons/$number")
-            ?.let { contractJson.decodeFromString(Season.serializer(), it).episodes }
-            .orEmpty()
+    val arrived by produceState(NothingArrived, number) {
+        value = Arrived(
+            number,
+            shell.read("/v1/titles/$path/seasons/$number")
+                ?.let { contractJson.decodeFromString(Season.serializer(), it).episodes }
+                .orEmpty(),
+        )
     }
-    LaunchedEffect(episodes) {
-        if (!placed && episodes.isNotEmpty() && seasons.getOrNull(chosen)?.number == onNow?.season) {
-            card = episodes.indexOfFirst { it.number == onNow?.episode }.coerceAtLeast(0)
+    // The cards of the season the page is on, which is none of them until it answers.
+    val episodes = cardsOf(arrived, number)
+    LaunchedEffect(arrived) {
+        // Once, and only for the season the viewer is on: the season that answered is the one the
+        // card is placed in, so a season chosen later starts at its first episode.
+        val on = onNow
+        if (!placed && episodes.isNotEmpty() && on != null && arrived.season == on.season) {
+            card = episodes.indexOfFirst { it.number == on.episode }.coerceAtLeast(0)
             placed = true
+        } else {
+            // Whatever a season answers with, the remote is left on a card that list has. A card
+            // the arrival does not reach is drawn by nothing and lit by nothing: the page scrolls
+            // to a slot that is not there and no card carries the border that says where the remote
+            // is. The floor below keeps the card off -1 in the first place; this is what catches a
+            // card an arrival leaves out of range, whatever put it there.
+            card = cardIn(card, episodes.size)
         }
     }
     val step = with(LocalDensity.current) { CARD_STEP.ref.toPx() }
@@ -159,7 +222,12 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
     fun press(word: Word): Boolean {
         when (word) {
             Word.UP -> if (inList) line = maxOf(0, line - 1) else card = maxOf(0, card - 1)
-            Word.DOWN -> if (inList) line = minOf(seasons.lastIndex, line + 1) else card = minOf(episodes.lastIndex, card + 1)
+            // The floor is the season still being read: the last index of a list with nothing in it
+            // is -1, so Down before the first answer lands put the card at -1, where nothing
+            // corrects it. The column then drew a full card low, with an empty slot where episode 1
+            // belongs and no card carrying the border that says where the remote is. One press on a
+            // slow link was enough, on a plain first open of a series nobody has started.
+            Word.DOWN -> if (inList) line = minOf(seasons.lastIndex, line + 1) else card = cardIn(card + 1, episodes.size)
             // From the cards Left opens the seasons at the one shown; from the seasons it goes back.
             Word.LEFT -> if (inList) {
                 leave()
@@ -173,7 +241,9 @@ fun Episodes(shell: Shell, seen: Seen, data: TitleDetail, leave: () -> Unit) {
                 card = 0
                 inList = false
             } else {
-                episodes.getOrNull(card)?.let { shell.go("${Address.WATCH}$path/$number/${it.number}") }
+                // The season the card came from, which `cardsOf` has already made the chosen one:
+                // naming it here is what keeps the two from being able to disagree.
+                episodes.getOrNull(card)?.let { shell.go("${Address.WATCH}$path/${arrived.season}/${it.number}") }
             }
             Word.BACK -> leave()
         }

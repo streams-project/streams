@@ -105,7 +105,18 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, line: MutableIn
         add(Row.LIST)
     }
     var part by remember { mutableStateOf(Part.MENU) }
-    var row by line
+    // The line the remote is on, kept across a fresh answer for the same title and read inside the
+    // menu that answer has.
+    //
+    // No reachable state needs this today, and it is here as a bound and not as a fix. A shorter
+    // menu for the title already showing would do it -- the server dropping `more_like_this` while
+    // the viewer sits on My List -- but nothing delivers one: `seen.detail` is written only by
+    // `keep()`, for an answer marked `BodyTarget.SCREEN`, which for a title comes only from `go()`
+    // on `Target::Title`, which returns early when the route has not changed; and the one
+    // `shell.go` to a title while this page is composed is `MoreLike.kt`, whose grid never holds
+    // the title it is drawn on. The line is not moved by the clamp, only read through it, for the
+    // reason `RowMemory.columnOf` gives: a bounds answer is not a focus answer.
+    val row = line.intValue.coerceIn(0, rows.lastIndex)
     var reaction by remember { mutableIntStateOf(1) }
     var rating by remember(data.title, data.rating) { mutableStateOf(data.rating) }
     var saved by remember(data.title, data.inList) { mutableStateOf(data.inList == true) }
@@ -143,13 +154,13 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, line: MutableIn
     fun press(word: Word): Boolean {
         when (word) {
             Word.UP -> when {
-                part == Part.MENU && row > 0 -> row -= 1
+                part == Part.MENU && row > 0 -> line.intValue = row - 1
                 part == Part.MENU -> part = Part.REACTIONS
                 else -> Unit
             }
             Word.DOWN -> when {
                 part == Part.REACTIONS -> part = Part.MENU
-                row < rows.lastIndex -> row += 1
+                row < rows.lastIndex -> line.intValue = row + 1
             }
             // The menu sits at the left edge: Left from it goes back, as Back does.
             Word.LEFT -> when {
