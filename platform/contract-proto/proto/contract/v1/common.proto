@@ -149,6 +149,13 @@ enum AttemptKind {
   ATTEMPT_KIND_HLS = 1;
   ATTEMPT_KIND_FILE = 2;
   ATTEMPT_KIND_EMBED = 3;
+  // 4, although `Dash` is declared SECOND in platform/contract/src/play.rs, between
+  // `Hls` and `File`. A value number is forever: taking 2 for it would move `File`
+  // to 3 and `Embed` to 4, and every CapabilityCard and Attempt already written
+  // with the old numbers would then name a different kind. New words go on the end
+  // whatever the Rust order is, which is why nothing here may be numbered from
+  // declaration order.
+  ATTEMPT_KIND_DASH = 4;
 }
 
 // Windows of time inside a video.
@@ -414,6 +421,17 @@ enum TextDirection {
 // Player and errors. platform/contract/src/driver.rs, error.rs.
 // ---------------------------------------------------------------------------
 
+// A key system a player can open a protected stream with. The word is the
+// contract's own; each adapter maps it to the name its platform uses.
+// platform/contract/src/driver.rs.
+enum KeySystem {
+  KEY_SYSTEM_UNSPECIFIED = 0;
+  KEY_SYSTEM_WIDEVINE = 1;
+  KEY_SYSTEM_PLAY_READY = 2;
+  KEY_SYSTEM_FAIR_PLAY = 3;
+  KEY_SYSTEM_CLEAR_KEY = 4;
+}
+
 // Failure classes a driver reports. The core picks the next attempt from these.
 enum ErrorClass {
   ERROR_CLASS_UNSPECIFIED = 0;
@@ -529,10 +547,18 @@ message TitleKey {
   uint64 id = 2 [(contract.constraints.v1.field) = {min: 1, max: 2147483647}];
 }
 
-// One episode of a series. A film has none. Both parts are optional today.
+// One episode of a series. A film has none.
+//
+// Both parts are REQUIRED: platform/contract/src/title.rs:223-226 declares them
+// `u32` with no `Option` and no serde default, so serde refuses an EpisodeRef that
+// is missing either one. This message carried neither rule until 2026-11-13 and the
+// comment here said "both parts are optional today", which was never true of the
+// contract. The refusal was being made a second time, by hand, in
+// platform/core/src/proto.rs `episode_in`; every other language's generated check
+// would have been born more forgiving than the core.
 message EpisodeRef {
-  optional uint32 season = 1;
-  optional uint32 episode = 2;
+  optional uint32 season = 1 [(contract.constraints.v1.field) = {required: true}];
+  optional uint32 episode = 2 [(contract.constraints.v1.field) = {required: true}];
 }
 
 // A day of the calendar as a packed decimal: 2026-11-05 is 20261105.

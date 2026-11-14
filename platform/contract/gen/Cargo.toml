@@ -17,3 +17,10 @@ path = "src/main.rs"
 contract = { path = "..", features = ["schema"] }
 schemars = { version = "=1.2.3", default-features = false, features = ["derive", "std"] }
 serde_json = { workspace = true, features = ["std"] }
+
+[dev-dependencies]
+# Reads the checked in descriptor so tests/proto_schema.rs can hold the protobuf
+# schema to this contract. Already in the workspace and already a dev dependency of
+# platform/contract-proto, so the lockfile does not move; nothing this crate ships
+# links it, and the generator's own dependency tree is unchanged.
+prost-reflect = { workspace = true }

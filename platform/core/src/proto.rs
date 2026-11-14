@@ -51,7 +51,7 @@ use contract::core_msg::{
     NoAnswerReason, PlayState, PlayView, RouteTarget, ScreenBody, SecretOp, SessionState,
     SessionView, StoreOp, Target, TimerOp, View,
 };
-use contract::driver::{DriverCommand, DriverEvent, ErrorClass, Track};
+use contract::driver::{DriverCommand, DriverEvent, ErrorClass, KeyDelivery, KeySystem, Track};
 use contract::error::Notice;
 use contract::hello::{
     BrandValues, ClassValue, ClientFloor, Features, Hello, Limits, MovedAddress, Rollout,
@@ -242,6 +242,15 @@ words_out!(
     Plain
 );
 words_out!(to_out, BodyTarget, BodyTarget, Core, Screen);
+words_out!(
+    key_system_out,
+    KeySystem,
+    KeySystem,
+    Widevine,
+    PlayReady,
+    FairPlay,
+    ClearKey
+);
 words_out!(store_op_out, StoreOp, StoreOp, Get, Put, Delete, List);
 words_out!(secret_op_out, SecretOp, SecretOp, Get, Put, Delete);
 words_out!(timer_op_out, TimerOp, TimerOp, Set, Clear);
@@ -608,6 +617,15 @@ fn effect_out(effect: Effect) -> Result<p::Effect, BadMessage> {
     })
 }
 
+fn key_delivery_out(key: KeyDelivery) -> Result<p::KeyDelivery, BadMessage> {
+    Ok(p::KeyDelivery {
+        system: Some(key_system_out(key.system)?),
+        path: Some(key.path),
+        headers: key.headers,
+        certificate_path: key.certificate_path,
+    })
+}
+
 fn driver_command_out(command: DriverCommand) -> Result<p::DriverCommand, BadMessage> {
     use p::driver_command::{
         Close, Op, Open, Pause, Play, Rate, Seek, SelectAudio, SelectText, Volume,
@@ -620,6 +638,7 @@ fn driver_command_out(command: DriverCommand) -> Result<p::DriverCommand, BadMes
             generation,
             max_height,
             max_bitrate,
+            key,
         } => Op::Open(Open {
             url: Some(url),
             headers: Some(p::Headers { values: headers }),
@@ -627,6 +646,7 @@ fn driver_command_out(command: DriverCommand) -> Result<p::DriverCommand, BadMes
             generation: Some(generation),
             max_height,
             max_bitrate,
+            key: key.map(key_delivery_out).transpose()?,
         }),
         DriverCommand::Play => Op::Play(Play {}),
         DriverCommand::Pause => Op::Pause(Pause {}),

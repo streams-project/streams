@@ -4,8 +4,8 @@
 // does. Every line below comes from a field option in proto/contract/v1, so no
 // rule can be stated in one language and not another.
 //
-// 218 messages in the contract, 185 with a validator, 638 fields read.
-// Rules: required 329, bounds 3, closed 2, value 1.
+// 219 messages in the contract, 187 with a validator, 646 fields read.
+// Rules: required 333, bounds 3, closed 2, value 1.
 // Declared losses: 49 repeated fields refuse absence today and cannot on a
 // proto3 wire.
 
@@ -117,6 +117,9 @@ pub fn action_play(m: &c::action::Play) -> Result<(), Refused> {
     match &m.title {
         None => return Err(Refused::new(Rule::Required, "contract.v1.Action.Play.title")),
         Some(inner) => title_key(inner)?,
+    }
+    if let Some(inner) = &m.episode {
+        episode_ref(inner)?;
     }
     Ok(())
 }
@@ -650,6 +653,9 @@ pub fn command_position(m: &c::command::Position) -> Result<(), Refused> {
         None => return Err(Refused::new(Rule::Required, "contract.v1.Command.Position.title")),
         Some(inner) => title_key(inner)?,
     }
+    if let Some(inner) = &m.episode {
+        episode_ref(inner)?;
+    }
     if m.position_s.is_none() {
         return Err(Refused::new(Rule::Required, "contract.v1.Command.Position.position_s"));
     }
@@ -1070,6 +1076,9 @@ pub fn driver_command_open(m: &c::driver_command::Open) -> Result<(), Refused> {
     if m.generation.is_none() {
         return Err(Refused::new(Rule::Required, "contract.v1.DriverCommand.Open.generation"));
     }
+    if let Some(inner) = &m.key {
+        key_delivery(inner)?;
+    }
     Ok(())
 }
 
@@ -1334,6 +1343,20 @@ pub fn episode(m: &c::Episode) -> Result<(), Refused> {
     Ok(())
 }
 
+/// `contract.v1.EpisodeRef`.
+///
+/// # Errors
+/// The first rule the message breaks, naming the field.
+pub fn episode_ref(m: &c::EpisodeRef) -> Result<(), Refused> {
+    if m.season.is_none() {
+        return Err(Refused::new(Rule::Required, "contract.v1.EpisodeRef.season"));
+    }
+    if m.episode.is_none() {
+        return Err(Refused::new(Rule::Required, "contract.v1.EpisodeRef.episode"));
+    }
+    Ok(())
+}
+
 /// `contract.v1.ErrorBody`.
 ///
 /// # Errors
@@ -1479,6 +1502,9 @@ pub fn find_request(m: &c::FindRequest) -> Result<(), Refused> {
     match &m.title {
         None => return Err(Refused::new(Rule::Required, "contract.v1.FindRequest.title")),
         Some(inner) => title_key(inner)?,
+    }
+    if let Some(inner) = &m.episode {
+        episode_ref(inner)?;
     }
     if m.name.is_none() {
         return Err(Refused::new(Rule::Required, "contract.v1.FindRequest.name"));
@@ -1814,6 +1840,20 @@ pub fn image(m: &c::Image) -> Result<(), Refused> {
     }
     if m.url.is_none() {
         return Err(Refused::new(Rule::Required, "contract.v1.Image.url"));
+    }
+    Ok(())
+}
+
+/// `contract.v1.KeyDelivery`.
+///
+/// # Errors
+/// The first rule the message breaks, naming the field.
+pub fn key_delivery(m: &c::KeyDelivery) -> Result<(), Refused> {
+    if m.system.is_none() {
+        return Err(Refused::new(Rule::Required, "contract.v1.KeyDelivery.system"));
+    }
+    if m.path.is_none() {
+        return Err(Refused::new(Rule::Required, "contract.v1.KeyDelivery.path"));
     }
     Ok(())
 }
@@ -2167,6 +2207,9 @@ pub fn play_answer(m: &c::PlayAnswer) -> Result<(), Refused> {
     if let Some(inner) = &m.age_card {
         age_card(inner)?;
     }
+    if let Some(inner) = &m.next_episode {
+        episode_ref(inner)?;
+    }
     if m.dropped.is_none() {
         return Err(Refused::new(Rule::Required, "contract.v1.PlayAnswer.dropped"));
     }
@@ -2210,6 +2253,9 @@ pub fn play_request(m: &c::PlayRequest) -> Result<(), Refused> {
         None => return Err(Refused::new(Rule::Required, "contract.v1.PlayRequest.title")),
         Some(inner) => title_key(inner)?,
     }
+    if let Some(inner) = &m.episode {
+        episode_ref(inner)?;
+    }
     Ok(())
 }
 
@@ -2225,8 +2271,14 @@ pub fn play_view(m: &c::PlayView) -> Result<(), Refused> {
         None => return Err(Refused::new(Rule::Required, "contract.v1.PlayView.title")),
         Some(inner) => title_key(inner)?,
     }
+    if let Some(inner) = &m.episode {
+        episode_ref(inner)?;
+    }
     for item in &m.windows {
         time_window(item)?;
+    }
+    if let Some(inner) = &m.next_episode {
+        episode_ref(inner)?;
     }
     Ok(())
 }
@@ -2349,6 +2401,9 @@ pub fn progress_state(m: &c::ProgressState) -> Result<(), Refused> {
     match &m.title {
         None => return Err(Refused::new(Rule::Required, "contract.v1.ProgressState.title")),
         Some(inner) => title_key(inner)?,
+    }
+    if let Some(inner) = &m.episode {
+        episode_ref(inner)?;
     }
     if m.position_s.is_none() {
         return Err(Refused::new(Rule::Required, "contract.v1.ProgressState.position_s"));
@@ -2477,6 +2532,9 @@ pub fn report(m: &c::Report) -> Result<(), Refused> {
 /// # Errors
 /// The first rule the message breaks, naming the field.
 pub fn resume(m: &c::Resume) -> Result<(), Refused> {
+    if let Some(inner) = &m.episode {
+        episode_ref(inner)?;
+    }
     if m.position_s.is_none() {
         return Err(Refused::new(Rule::Required, "contract.v1.Resume.position_s"));
     }
@@ -2507,6 +2565,9 @@ pub fn route_target(m: &c::RouteTarget) -> Result<(), Refused> {
     }
     if let Some(inner) = &m.title {
         title_key(inner)?;
+    }
+    if let Some(inner) = &m.episode {
+        episode_ref(inner)?;
     }
     Ok(())
 }
@@ -2740,6 +2801,9 @@ pub fn tile(m: &c::Tile) -> Result<(), Refused> {
     }
     for item in &m.badges {
         badge(item)?;
+    }
+    if let Some(inner) = &m.episode {
+        episode_ref(inner)?;
     }
     Ok(())
 }

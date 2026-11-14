@@ -73,6 +73,13 @@ cargo test --locked -p bridge-c --no-default-features
   # check cannot go quiet without a red run.
   python3 -I tools/check_proto_tie.py
   python3 -I tools/check_proto_tie.py --selftest
+  # The contract against the schema's own numbers, and the schema's one consumer actually built.
+  # On 2026-11-13 a contract change added two types, an enum word and three fields; the schema
+  # gained none of them and `core/src/proto.rs` stopped compiling. Nothing here built it, so the
+  # whole feature was broken for a day with every step green. The first line catches the drift,
+  # the second catches the break.
+  cargo test --locked -p contract-gen --test proto_schema
+  cargo build --locked -p core --features proto --target wasm32v1-none
   python3 tools/test_fake_server.py
   python3 tools/test_port_help.py
   # The expression every generated client compiles into itself refuses exactly what the core

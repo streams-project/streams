@@ -24,6 +24,28 @@ message Track {
   bool selected = 4;
 }
 
+// Where a protected stream's keys come from.
+//
+// A path, never an address, as an http effect is. The host holds the base address,
+// so the licence server is the same server the core already talks to, and there is
+// nowhere in this type to name another one.
+//
+// `headers` is a bare map and not the `Headers` wrapper, which is the whole
+// difference between this and DriverCommand.Open.headers: that one is required even
+// when empty, so it needs a message to carry presence, and this one is optional
+// (platform/contract/src/driver.rs, `skip_serializing_if = "BTreeMap::is_empty"`),
+// so absent and empty mean the same thing and no wrapper is owed.
+message KeyDelivery {
+  optional KeySystem system = 1 [(contract.constraints.v1.field) = {required: true}];
+  // A path, never an address.
+  optional string path = 2 [(contract.constraints.v1.field) = {required: true}];
+  // Headers the player must send with the licence request.
+  map<string, string> headers = 3;
+  // Where the key system's server certificate is read, for the systems that ask for
+  // one before the first request. A path, never an address.
+  optional string certificate_path = 4;
+}
+
 // A command to the player. Attempts carry their headers here.
 message DriverCommand {
   message Open {
@@ -33,6 +55,9 @@ message DriverCommand {
     optional uint32 generation = 4 [(contract.constraints.v1.field) = {required: true}];
     optional uint32 max_height = 5;
     optional uint32 max_bitrate = 6;
+    // Absent for a stream that needs no key, which is every stream today. A message
+    // field, so its own absence is the presence and no option is owed.
+    KeyDelivery key = 7;
   }
   message Play {}
   message Pause {}

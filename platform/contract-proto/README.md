@@ -51,6 +51,11 @@ From the repository root:
     python3 -I tools/check_proto_tie.py             # the ledger tie, standard library only
     python3 -I tools/check_proto_tie.py --selftest  # each of its rules, broken on purpose
 
+    cd ..
+    cargo test --locked -p contract-gen --test proto_schema   # the contract tie, 8 tests
+    cargo build --locked -p core --features proto \
+        --target wasm32v1-none                      # the schema's one consumer, built
+
 `size/` is deliberately NOT a member — it is a `cdylib` with its own
 `#[panic_handler]` and its own `wasm` profile, built by hand for one target to answer
 one question, and the root manifest excludes it. The figures below came from it:
@@ -61,51 +66,52 @@ one question, and the root manifest excludes it. The figures below came from it:
     CARGO_BUILD_JOBS=2 nice -n 15 cargo build --offline --profile wasm \
         --target wasm32v1-none --features validate
 
-## What is measured (2026-11-12, all by build, test or script)
+## What is measured (2026-11-14, all by build, test or script)
 
 | | number | how |
 |---|---|---|
-| Schema | 2,331 lines in 14 files | `cat $(find proto -name '*.proto') | wc -l` |
-| Messages | 218, including nested union arms | the generator, and `check_proto_tie.py` |
-| Enums | 40, one of them closed | the same |
-| Fields read | 638 | the generator |
-| Generated Rust types | 4,007 lines, 0 `HashMap`, 5 `BTreeMap` | `wc -l`, `rg -c` on `generated/contract.v1.rs` |
-| Generated validator | 2,872 lines, 185 functions, 335 refusal sites | `wc -l`, `rg -c` on `generated/validate.rs` |
-| Rules declared | 329 `required`, 3 bounds, 2 `closed`, 1 value rule | the generator's own count |
+| Schema | 2,395 lines in 14 files | `cat $(find proto -name '*.proto') | wc -l` |
+| Messages | 219, including nested union arms | the generator, and `check_proto_tie.py` |
+| Enums | 41, one of them closed | the same |
+| Fields read | 646 | the generator |
+| Generated Rust types | 4,111 lines, 0 `HashMap`, 7 `BTreeMap` | `wc -l`, `rg -c` on `generated/contract.v1.rs` |
+| Generated validator | 2,936 lines, 187 functions, 339 refusal sites | `wc -l`, `rg -c` on `generated/validate.rs` |
+| Rules declared | 333 `required`, 3 bounds, 2 `closed`, 1 value rule | the generator's own count |
 | Hand written rule code | 11 lines (`is_calendar_day` in `src/rules.rs`) | the file |
 | Declared losses | 49 repeated fields refuse absence today and cannot on a proto3 wire | the generator |
-| Descriptor | 209,121 bytes with source info | `ls -l generated/contract.descriptor.binpb`, re-measured 2026-11-12 after the move; this row read 205,180, and the file is byte-identical to the worktree's copy, so that figure was stale rather than tree-specific |
-| Module, 16 types round tripped, prost only | **127,244** bytes (gzip -9 34,092) | `size/`, `wasm` profile, `wasm32v1-none`, stripped |
-| The same plus every validator | **156,437** bytes (gzip -9 41,377) | the same, `--features validate` |
-| **What the whole constraints half costs** | **29,193 bytes** (gzip -9 7,285) | the difference |
+| Descriptor | 213,612 bytes with source info | `ls -l generated/contract.descriptor.binpb`, re-measured 2026-11-14 after the drift close; it read 209,121 before `KeyDelivery`, `KeySystem` and four fields arrived |
+| Module, 16 types round tripped, prost only | **128,708** bytes (gzip -9 34,494) | `size/`, `wasm` profile, `wasm32v1-none`, stripped, re-measured 2026-11-14 (was 127,244 before the drift close) |
+| The same plus every validator | **158,883** bytes (gzip -9 42,055) | the same, `--features validate`, re-measured 2026-11-14 (was 156,437) |
+| **What the whole constraints half costs** | **30,175 bytes** (gzip -9 7,561) | the difference |
 | Of which, the field path strings | 10,016 bytes over 332 unique paths | counted in the generated file |
 | Tests | 25, all passing | `cargo test --locked -p contract-proto` |
+| The proto path in the REAL core, reachable | **+66,139** bytes (552,629 json only, 618,768 with it) | `platform/core/size`, `wasm` profile, `wasm32v1-none`, with and without `--features proto`, measured 2026-11-14 |
+| The same plus the validator over the in message | +1,295 bytes on top (620,063) | the same, `--features validate` |
+| The shipped module, `bridge-wasm`, before `cc1f607` | 700,936 bytes | `cargo build --offline --profile wasm -p bridge-wasm --target wasm32v1-none`, 2026-11-14 |
+| The same at `cc1f607` | **706,003** bytes, 5,003 OVER `SIZE_CEILING` | the same build; `platform/kit/core/tests/boundary.rs:27` is 701,000 and that test is red |
 | Of those, added on landing | 3 | the uint64 declaration pin, and `tests/deps.rs` |
 
 Set beside the spike, which round tripped the same sixteen types out of a sixteen type
 module: serde_json 228,543, prost 96,193, plus 386 bytes for its six hand written
-checks. The same sixteen types out of the **whole** 218 message module cost 127,244,
+checks. The same sixteen types out of the **whole** 219 message module cost 128,708,
 so modelling the other 202 messages adds 31,051 bytes for the same round trips. The
 validator's 29,193 bytes buy every refusal in the contract, generated, where the
 spike's 386 bytes bought six functions a caller had to remember to call. If the module
 is ever tight, 10,016 of those bytes are the field path strings and a numeric rule id
 would recover them.
 
-Which of these were re-measured after the move, 2026-11-12: the schema lines and
-file count, the message, enum, field, validator, refusal-site and rule counts (by
-running the generator and `check_proto_tie.py` in the main tree - every figure
-reproduced), the generated line counts, `0 HashMap` / `5 BTreeMap`, the 332 unique
-paths and their 10,016 bytes, the descriptor size, and the tests. The four wasm size
-figures - 127,244, 156,437, their difference and the gzip values - were **not**
-re-measured, because they need the `size/` harness built for `wasm32v1-none` and that
-is measurement this stage does not need. They still hold: `generated/validate.rs`,
-`generated/contract.v1.rs` and the descriptor are byte-identical to the worktree's
-copies (`cmp`, all four files), and `size/` was copied unchanged, so the inputs to
-those builds did not move.
+Every figure above was re-measured on 2026-11-14, the four wasm ones included. The
+previous revision of this table said the four wasm figures were **not** re-measured
+and that they still held because the inputs had not moved. The second half of that
+was true when it was written and stopped being true the moment the schema gained a
+message; the four figures are now taken rather than argued, and the four that moved
+moved by the amount the drift close added.
 
-Not measured here: the real core after the swap. That needs note 204's P3 behind the
-feature flag and then `cargo build --locked --profile wasm -p bridge-wasm --target
-wasm32v1-none` with `twiggy top`, against today's 695,638 bytes.
+The one thing still not measured is the core **after the swap**, because the swap has
+not been made. What is measured instead, and it is the number the question actually
+needs, is the core carrying BOTH codecs: `platform/core/size` builds the shipped
+module with one export per codec, so two builds that differ only by `--features
+proto` differ only by the proto path. They differ by **66,139 bytes**.
 
 ## The design: one declaration, and a generator that refuses what it cannot enforce
 
@@ -209,6 +215,77 @@ and no decoder in any language could tell them apart. The `Headers` wrapper mess
 restores presence for two bytes, and `an_empty_headers_map_is_not_a_missing_one` proves
 the twin is still accepted.
 
+## The contract tie, and why a field number is never derived (2026-11-14)
+
+`ledger-proto.csv` below ties the schema to the behaviour LEDGER. Until 2026-11-14
+nothing tied it to the CONTRACT, and the gap that opened is the reason this section
+exists.
+
+`cc1f607` added `KeySystem`, `KeyDelivery`, `AttemptKind::Dash`, `Attempt.bitrate`,
+`DriverCommand::Open.key`, `CapabilityCard.key_systems` and
+`CapabilityCard.secure_max_height` to `platform/contract/src`. All 110 generated JSON
+files regenerated and matched, because `contract/gen/tests/generated.rs` holds them.
+The schema here did not move, because nothing held it - and the one consumer,
+`platform/core/src/proto.rs` behind `--features proto`, stopped compiling (`E0027:
+pattern does not mention field key`). `./check` stayed green through all of it: line
+47 builds `-p contract-proto` for wasm, and nothing anywhere builds `-p core
+--features proto`.
+
+One older loss came out with it. `EpisodeRef.season` and `EpisodeRef.episode` are
+`u32` with no `Option` and no serde default, so serde refuses a message missing
+either; this schema declared both `optional` with no rule and the comment above them
+said "both parts are optional today", which was never true of the contract. The
+refusal was being made a second time, by hand, in `core/src/proto.rs::episode_in` -
+the exact defect this package exists to close, in a new place.
+
+**The tie is `platform/contract/gen/tests/proto_schema.rs`**, beside
+`generated.rs`. It reads the shape from `contract_gen::shape::items` - the same call
+the five type emitters make, not a second reading of it - and holds the committed
+descriptor against it: every type, every field name and type, every `required`, every
+enum word, in both directions. It is not an emitter, and the reason is the one rule a
+wire format has that none of the others do.
+
+**A field number is forever, and nothing in the contract source states one.** An
+emitter has to put a number on every field, and the only thing it could derive one
+from is declaration order. Declaration order moves: `cc1f607` declared `Dash` SECOND,
+between `Hls` and `File`, and `bitrate` between `height` and `audio`. An
+order-numbering emitter hands `Dash` the 2 that `File` holds and `bitrate` the 10
+that `audio` holds, and every deployed reader then reads a file attempt as a dash
+attempt and an audio list as a bitrate. The schema gives them 4 and 12, which no
+derivation can produce. So the numbers are hand written here, the test never computes
+one, and two tests hold them:
+
+* `the_number_of_every_field_and_word_is_the_number_it_had_in_the_last_commit` reads
+  `git show HEAD:` of the descriptor and compares path by path, including a number
+  freed by a rename being handed to a different field of the same message. Git
+  already keeps every past numbering, so holding one commit against its parent holds
+  every commit against every ancestor by induction and nothing carries a second copy
+  of 646 numbers.
+* `the_schema_is_not_numbered_in_declaration_order_and_must_never_be` fails if every
+  number ever happens to equal its position. It is the witness: replacing this file
+  with an emitter means deleting that test first, which is the visible act that
+  deriving numbers really is.
+
+Proved by breaking it, three ways, each restored byte for byte afterwards:
+
+| mutation | what the check said |
+|---|---|
+| `frame_rate` inserted into `Attempt` between `height` and `bitrate` in `platform/contract/src/play.rs` | `contract.v1.Attempt.frame_rate is in the contract and not in the schema`, exit 101 - and the numbers test stayed green, because nothing was renumbered: `audio` is still 10 and `bitrate` still 12 |
+| `AttemptKind` renumbered the way an order-driven emitter would, `DASH=2 FILE=3 EMBED=4` | `ATTEMPT_KIND_DASH takes 2, which ATTEMPT_KIND_FILE held in the last commit`; `ATTEMPT_KIND_FILE was 2 and is now 3`; `ATTEMPT_KIND_EMBED was 3 and is now 4` |
+| `required: true` removed from `EpisodeRef.season` | `contract.v1.EpisodeRef.season is required in the contract and the schema refuses nothing` |
+
+What it still cannot hold is a number that was never in a commit. That is `buf
+breaking`'s job, `buf.yaml` already sets it to `FILE`, and no machine here can run it.
+
+`./check` needs two lines for this, which this change does not make because that file
+belonged to another lead this hour:
+
+    cargo test --locked -p contract-gen --test proto_schema
+    cargo build --locked -p core --features proto --target wasm32v1-none
+
+The second is the one that would have caught `cc1f607` on the day: the schema's only
+consumer, built.
+
 ## The ledger tie
 
 `ledger-proto.csv`, two columns, `id,proto`, keyed by ledger id.
@@ -237,7 +314,7 @@ the defect this package exists to close. The ledger is the specification and it 
 the implementation; the implementation does not point back.
 
 Today, re-run in the main tree on 2026-11-12 after the move and reproducing the worktree
-exactly: 218 messages, 40 enums, 0 orphans, 6 ledger rows tied over 11 paths, 381 fields
+exactly: 219 messages, 41 enums, 0 orphans, 6 ledger rows tied over 11 paths, 385 fields
 with a rule, 49 `presence_lost` declarations. The other 60-odd rows note 204 expects to
 carry a path are P7's to write; the check reports the coverage rather than pretending.
 
@@ -428,9 +505,13 @@ allowed to state it twice because one side is the wire and the other is the doma
 and `Features.accounts_required`, `Strings.dir` and `Language.dir` have a default
 that is not the zero value, so the reader applies the default and implicit presence
 would turn the safe answer into the unsafe one silently. Behind note 204's feature
-flag, and the gate is the size measurement against today's 695,638 bytes of
-`bridge-wasm`, which is the one benchmark still worth running because it decides
-whether the swap happens at all.
+flag, and the gate is the size measurement against `bridge-wasm`, which is the one
+benchmark still worth running because it decides whether the swap happens at all.
+**Measured 2026-11-14 and it is worse than the 695,638 this line used to quote:**
+the shipped module is 706,003 bytes, which is 5,003 OVER the 701,000 in
+`platform/kit/core/tests/boundary.rs:27`, and 700,936 at `cc1f607^`. The proto path
+adds a further 66,139 (`platform/core/size`, both codecs). The swap has to give back
+more than it costs before it can even reach the ceiling it is already through.
 
 **3. `platform/contract/generated/openapi.json` is regenerated, not retired**, and
 the body half is what changes. Protobuf says nothing about 65 paths, 71 operations,

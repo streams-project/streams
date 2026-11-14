@@ -47,4 +47,10 @@ message CapabilityCard {
   optional uint64 storage_bytes = 19 [(contract.constraints.v1.field) = {required: true}];
   repeated InputKind input = 20 [(contract.constraints.v1.field) = {presence_lost: true}];
   repeated string languages = 21 [(contract.constraints.v1.field) = {presence_lost: true}];
+  // Key systems this player opens. Empty means none, and a protected attempt is
+  // dropped for this device. Optional in the contract, so no `presence_lost`: empty
+  // and absent already mean the same thing there.
+  repeated KeySystem key_systems = 22;
+  // Tallest picture this device plays with a secure path. Absent means not known.
+  optional uint32 secure_max_height = 23;
 }

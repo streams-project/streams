@@ -35,6 +35,13 @@ message Attempt {
   repeated string audio = 10;
   // Wall time, ms since 1970, after which the address stops working.
   optional uint64 expires_at_ms = 11;
+  // Bits per second the source declares. Absent when nothing read one.
+  //
+  // 12, although platform/contract/src/play.rs declares `bitrate` between `height`
+  // and `audio`. A field number is forever: numbering from declaration order would
+  // hand it 10 and push `audio` and `expires_at_ms` along, so every Attempt already
+  // on a wire would read its audio list as a bitrate.
+  optional uint32 bitrate = 12;
 }
 
 // Age card shown once at the start of play.

@@ -33,7 +33,15 @@ pub struct TitleKey {
     #[prost(uint64, tag = "2")]
     pub id: u64,
 }
-/// One episode of a series. A film has none. Both parts are optional today.
+/// One episode of a series. A film has none.
+///
+/// Both parts are REQUIRED: platform/contract/src/title.rs:223-226 declares them
+/// `u32` with no `Option` and no serde default, so serde refuses an EpisodeRef that
+/// is missing either one. This message carried neither rule until 2026-11-13 and the
+/// comment here said "both parts are optional today", which was never true of the
+/// contract. The refusal was being made a second time, by hand, in
+/// platform/core/src/proto.rs `episode_in`; every other language's generated check
+/// would have been born more forgiving than the core.
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct EpisodeRef {
     #[prost(uint32, optional, tag = "1")]
@@ -526,6 +534,13 @@ pub enum AttemptKind {
     Hls = 1,
     File = 2,
     Embed = 3,
+    /// 4, although `Dash` is declared SECOND in platform/contract/src/play.rs, between
+    /// `Hls` and `File`. A value number is forever: taking 2 for it would move `File`
+    /// to 3 and `Embed` to 4, and every CapabilityCard and Attempt already written
+    /// with the old numbers would then name a different kind. New words go on the end
+    /// whatever the Rust order is, which is why nothing here may be numbered from
+    /// declaration order.
+    Dash = 4,
 }
 impl AttemptKind {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -538,6 +553,7 @@ impl AttemptKind {
             Self::Hls => "ATTEMPT_KIND_HLS",
             Self::File => "ATTEMPT_KIND_FILE",
             Self::Embed => "ATTEMPT_KIND_EMBED",
+            Self::Dash => "ATTEMPT_KIND_DASH",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -547,6 +563,7 @@ impl AttemptKind {
             "ATTEMPT_KIND_HLS" => Some(Self::Hls),
             "ATTEMPT_KIND_FILE" => Some(Self::File),
             "ATTEMPT_KIND_EMBED" => Some(Self::Embed),
+            "ATTEMPT_KIND_DASH" => Some(Self::Dash),
             _ => None,
         }
     }
@@ -1468,6 +1485,44 @@ impl TextDirection {
         }
     }
 }
+/// A key system a player can open a protected stream with. The word is the
+/// contract's own; each adapter maps it to the name its platform uses.
+/// platform/contract/src/driver.rs.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum KeySystem {
+    Unspecified = 0,
+    Widevine = 1,
+    PlayReady = 2,
+    FairPlay = 3,
+    ClearKey = 4,
+}
+impl KeySystem {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::Unspecified => "KEY_SYSTEM_UNSPECIFIED",
+            Self::Widevine => "KEY_SYSTEM_WIDEVINE",
+            Self::PlayReady => "KEY_SYSTEM_PLAY_READY",
+            Self::FairPlay => "KEY_SYSTEM_FAIR_PLAY",
+            Self::ClearKey => "KEY_SYSTEM_CLEAR_KEY",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "KEY_SYSTEM_UNSPECIFIED" => Some(Self::Unspecified),
+            "KEY_SYSTEM_WIDEVINE" => Some(Self::Widevine),
+            "KEY_SYSTEM_PLAY_READY" => Some(Self::PlayReady),
+            "KEY_SYSTEM_FAIR_PLAY" => Some(Self::FairPlay),
+            "KEY_SYSTEM_CLEAR_KEY" => Some(Self::ClearKey),
+            _ => None,
+        }
+    }
+}
 /// Failure classes a driver reports. The core picks the next attempt from these.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
@@ -1826,6 +1881,14 @@ pub struct CapabilityCard {
     pub input: ::prost::alloc::vec::Vec<i32>,
     #[prost(string, repeated, tag = "21")]
     pub languages: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    /// Key systems this player opens. Empty means none, and a protected attempt is
+    /// dropped for this device. Optional in the contract, so no `presence_lost`: empty
+    /// and absent already mean the same thing there.
+    #[prost(enumeration = "KeySystem", repeated, tag = "22")]
+    pub key_systems: ::prost::alloc::vec::Vec<i32>,
+    /// Tallest picture this device plays with a secure path. Absent means not known.
+    #[prost(uint32, optional, tag = "23")]
+    pub secure_max_height: ::core::option::Option<u32>,
 }
 /// One image address. Images go straight from the host to the viewer.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -2131,6 +2194,14 @@ pub struct Attempt {
     /// Wall time, ms since 1970, after which the address stops working.
     #[prost(uint64, optional, tag = "11")]
     pub expires_at_ms: ::core::option::Option<u64>,
+    /// Bits per second the source declares. Absent when nothing read one.
+    ///
+    /// 12, although platform/contract/src/play.rs declares `bitrate` between `height`
+    /// and `audio`. A field number is forever: numbering from declaration order would
+    /// hand it 10 and push `audio` and `expires_at_ms` along, so every Attempt already
+    /// on a wire would read its audio list as a bitrate.
+    #[prost(uint32, optional, tag = "12")]
+    pub bitrate: ::core::option::Option<u32>,
 }
 /// Age card shown once at the start of play.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -2304,6 +2375,35 @@ pub struct Track {
     #[prost(bool, tag = "4")]
     pub selected: bool,
 }
+/// Where a protected stream's keys come from.
+///
+/// A path, never an address, as an http effect is. The host holds the base address,
+/// so the licence server is the same server the core already talks to, and there is
+/// nowhere in this type to name another one.
+///
+/// `headers` is a bare map and not the `Headers` wrapper, which is the whole
+/// difference between this and DriverCommand.Open.headers: that one is required even
+/// when empty, so it needs a message to carry presence, and this one is optional
+/// (platform/contract/src/driver.rs, `skip_serializing_if = "BTreeMap::is_empty"`),
+/// so absent and empty mean the same thing and no wrapper is owed.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct KeyDelivery {
+    #[prost(enumeration = "KeySystem", optional, tag = "1")]
+    pub system: ::core::option::Option<i32>,
+    /// A path, never an address.
+    #[prost(string, optional, tag = "2")]
+    pub path: ::core::option::Option<::prost::alloc::string::String>,
+    /// Headers the player must send with the licence request.
+    #[prost(btree_map = "string, string", tag = "3")]
+    pub headers: ::prost::alloc::collections::BTreeMap<
+        ::prost::alloc::string::String,
+        ::prost::alloc::string::String,
+    >,
+    /// Where the key system's server certificate is read, for the systems that ask for
+    /// one before the first request. A path, never an address.
+    #[prost(string, optional, tag = "4")]
+    pub certificate_path: ::core::option::Option<::prost::alloc::string::String>,
+}
 /// A command to the player. Attempts carry their headers here.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DriverCommand {
@@ -2331,6 +2431,10 @@ pub mod driver_command {
         pub max_height: ::core::option::Option<u32>,
         #[prost(uint32, optional, tag = "6")]
         pub max_bitrate: ::core::option::Option<u32>,
+        /// Absent for a stream that needs no key, which is every stream today. A message
+        /// field, so its own absence is the presence and no option is owed.
+        #[prost(message, optional, tag = "7")]
+        pub key: ::core::option::Option<super::KeyDelivery>,
     }
     #[derive(Clone, Copy, PartialEq, ::prost::Message)]
     pub struct Play {}
