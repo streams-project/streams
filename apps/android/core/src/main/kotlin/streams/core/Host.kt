@@ -83,53 +83,12 @@ class Host(
     private val deviceClass: DeviceClass,
     private val form: Form,
     private val version: String,
+    private val server: String,
 ) : Shell {
     private companion object {
-        const val SERVER = "app:server"
         const val DEFAULT_LANGUAGE = "en"
         const val WAKE_CAP_MS = 60_000L
         const val TOUCH_EVERY_MS = 10_000L
-
-        // Said to the viewer, not logged: the only words this host has of its own.
-        const val PLAIN_REFUSED =
-            "This address must start with https://. Plain http reaches only a server on your own network."
-
-        /**
-         * True when this address is reached in the clear, false when it is encrypted, and null when
-         * it may not be used at all.
-         */
-        fun encryptionOf(server: String): Boolean? {
-            val lower = server.lowercase()
-            if (lower.startsWith("https://")) return false
-            if (!lower.startsWith("http://")) return null
-            return if (ownNetwork(hostOf(lower))) true else null
-        }
-
-        /** The host of an address, with the port, the path and an IPv6 address's brackets taken off. */
-        private fun hostOf(address: String): String {
-            val after = address.removePrefix("http://").takeWhile { it != '/' }
-            if (after.startsWith("[")) return after.drop(1).takeWhile { it != ']' }
-            return after.takeWhile { it != ':' }
-        }
-
-        /**
-         * The viewer's own machine or their own network: a hop no stranger is on. Names are here
-         * because a server is usually found by its name on the network, not by its number.
-         */
-        private fun ownNetwork(host: String): Boolean {
-            if (host == "localhost" || host.endsWith(".local") || host == "::1") return true
-            val parts = host.split(".")
-            if (parts.size != 4) return false
-            val numbers = parts.map { it.toIntOrNull() ?: return false }
-            if (numbers.any { it < 0 || it > 255 }) return false
-            return when {
-                numbers[0] == 127 || numbers[0] == 10 -> true
-                numbers[0] == 192 && numbers[1] == 168 -> true
-                numbers[0] == 169 && numbers[1] == 254 -> true
-                numbers[0] == 172 && numbers[1] in 16..31 -> true
-                else -> false
-            }
-        }
     }
 
     private val thread = HandlerThread("core").apply { start() }
@@ -157,29 +116,24 @@ class Host(
             if (event is DriverEventTracks) state.update { it.copy(audio = event.audio, text = event.text) }
             send(listOf(EventDriver(event = event, generation = generation)))
         }
-        val kept = secrets.get(SERVER)
-        if (kept != null) connect(kept)
+        base = server.trim().trimEnd('/')
+        state.update { it.copy(server = base) }
+        if (base.isNotEmpty()) {
+            loop.post { open() }
+        }
     }
 
-    /**
-     * The one gate every server address passes, typed or kept. Plain http carries the session's
-     * bearer and refresh tokens in the clear, so it may only reach the viewer's own network;
-     * anything else must be https. A refused address is said, not swallowed.
-     */
-    override fun connect(server: String) {
-        val typed = server.trim().trimEnd('/')
-        val plain = encryptionOf(typed)
-        if (plain == null) {
-            state.update { it.copy(notice = PLAIN_REFUSED, notices = it.notices + 1) }
-            return
-        }
+    override fun retry() {
         loop.post {
-            base = typed
-            secrets.put(SERVER, base)
-            // A notice is one time. This address was taken, so a refusal still sitting in the app
-            // wide slot is not news any more and must not be read as some other screen's error.
-            state.update { it.copy(server = base, serverPlain = plain, notice = null) }
-            if (handle == 0L) open()
+            loop.removeCallbacks(wake)
+            queue.clear()
+            if (handle != 0L) {
+                NativeCore.close(handle)
+                handle = 0L
+            }
+            waiting.values.forEach { it(0, "") }
+            waiting.clear()
+            if (base.isNotEmpty()) open()
         }
     }
 
@@ -355,6 +309,7 @@ class Host(
                     profiles = view.profiles?.profiles ?: now.profiles,
                     play = view.play ?: now.play,
                     brand = view.hello?.brand?.name ?: now.brand,
+                    accountsRequired = view.hello?.features?.accountsRequired ?: now.accountsRequired,
                     active = view.session?.profile ?: now.active,
                 )
             }

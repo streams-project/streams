@@ -1,42 +1,30 @@
 // Where this app's server comes from, and which addresses it will take.
 //
-// Everyone runs their own server, so nothing is built in and every family has to answer this. The
-// three that have a host answer it three ways, and the Roku answer is a fourth:
+// Everyone runs their own server, so every family resolves its address from its build or launch
+// without asking the viewer to type one on an address screen:
 //
 //   | family  | where the address comes from                                                   |
 //   |---------|--------------------------------------------------------------------------------|
 //   | web     | nowhere: a browser is already at the server it loaded the page from            |
-//   | android | a kept value, else a screen of its own with a text field (`door/ServerAddress.kt`) |
-//   | apple   | a kept value, else the `SERVER_URL` environment variable, else that same screen (`CoreHost/Host.swift:127-131`) |
-//   | roku    | the parameters the channel was launched with, else a kept value                |
+//   | native  | bound into the build from `deployment.json` or `--server` (`launcher/src/address.rs`) |
+//   | roku    | the parameters the channel was launched with, else a kept value, else the bound build address |
 //
-// **The decision, and why it is this one.** A Roku app built with RSG 2.0 cannot be installed from
-// the Streaming Store before Fall 2027 (README section 1): the only way onto a device is `rk dev`,
-// run by a person at a computer. That person is already typing a command, and a television remote
-// has no keyboard. So the address is a parameter of the launch, kept in the registry on the way
-// past, and from the second run onwards the television starts straight into the app.
-//
-// What that buys, beyond not writing an on-screen keyboard: it is the **one** address screen this
-// folder would have had which cannot be drawn in the viewer's language, because the words come
-// from `/v1/strings/{lang}` on the server that has not been named yet. Android's own address
-// screen holds four English literals for exactly that reason (`door/ServerAddress.kt:57,70,74`),
-// and Apple's holds the same. This folder holds no English and now needs none.
-//
-// What it costs, stated rather than hidden: a viewer who is handed a device cannot move it to
-// another server without a computer. The day the store opens, this family needs the screen the
-// other two have, and it needs string keys that can be drawn before any string has arrived.
+// **Why launch parameters outrank kept and bound.** An RSG 2.0 app is installed with `rk dev`,
+// run by a person at a computer, and a television remote has no keyboard. Passing `server` as a
+// launch parameter lets that person re-point an already built or already installed channel without
+// clearing its registry; when none is passed, a kept value or the bound build address still starts
+// straight into the app.
 
 /** The name of the launch parameter that carries the address. This surface's own, not Roku's. */
 export const SERVER_PARAMETER = "server";
 
 /**
- * Where the kept address lives. The same name Android and Apple use (`core/Host.kt:88`,
- * `CoreHost/Host.swift:37`), so a person reading one family recognises it in the next.
+ * Where the kept address lives in the device store.
  */
 export const SERVER_KEY = "app:server";
 
-/** Which of the two places an address came from, or neither. */
-export type Source = "launch" | "kept" | "none";
+/** Which of the three places an address came from, or none. */
+export type Source = "launch" | "kept" | "bound" | "none";
 
 export interface Given {
   server: string;
@@ -46,27 +34,29 @@ export interface Given {
 /**
  * The address this run starts with.
  *
- * The launch parameter wins over the kept one, and deliberately: it is the only way a person with
- * a computer can move a television that is already set up, and a kept value that outranked it
- * would make a device impossible to re-point without clearing the registry.
+ * The launch parameter wins over the kept one, which wins over the build's bound address: a kept
+ * value that outranked the launch parameter would make a device impossible to re-point without
+ * clearing the registry, and a bound build address gives a fresh device a server when neither was
+ * passed at launch.
  */
-export function serverFrom(given: Record<string, string>, kept: string | null): Given {
+export function serverFrom(given: Record<string, string>, kept: string | null, bound = ""): Given {
   const launched = (given[SERVER_PARAMETER] ?? "").trim();
   if (launched !== "") return { server: launched, from: "launch" };
   const held = (kept ?? "").trim();
   if (held !== "") return { server: held, from: "kept" };
+  const built = bound.trim();
+  if (built !== "") return { server: built, from: "bound" };
   return { server: "", from: "none" };
 }
 
-/** An address with the spaces and the trailing slash off it. (`core/Host.kt:170`) */
+/** An address with the spaces and the trailing slash off it. (`launcher/src/address.rs`) */
 export function tidy(server: string): string {
   return server.trim().replace(/\/+$/, "");
 }
 
 /**
  * True when this address is reached in the clear, false when it is encrypted, and **null when it
- * may not be used at all**. A mirror of `core/Host.kt:101-132` and `CoreHost/Host.swift:172-200`,
- * branch for branch.
+ * may not be used at all**. Matches `launcher/src/address.rs` (`check_bind` and `own_network`).
  *
  * The rule, in one sentence, because the shape of the answer hides it: plain http carries the
  * session's bearer and refresh tokens where anyone on the hop can read them, so it is allowed only
@@ -79,7 +69,7 @@ export function encryptionOf(server: string): boolean | null {
   return ownNetwork(hostOf(lower)) ? true : null;
 }
 
-/** The host of an address, with the port, the path and an IPv6 address's brackets off. (`Host.kt:109-113`) */
+/** The host of an address, with the port, the path and an IPv6 address's brackets off. */
 export function hostOf(address: string): string {
   const after = upTo(address.slice("http://".length), "/");
   if (after.startsWith("[")) return upTo(after.slice(1), "]");
@@ -92,8 +82,8 @@ function upTo(text: string, mark: string): string {
 }
 
 /**
- * The viewer's own machine or their own network: a hop no stranger is on. Names are here because a
- * server is usually found by its name on the network, not by its number. (`Host.kt:119-132`)
+ * The viewer's own machine or their own network: a hop no stranger is on. Matches
+ * `launcher/src/address.rs:own_network`.
  */
 export function ownNetwork(host: string): boolean {
   if (host === "localhost" || host.endsWith(".local") || host === "::1") return true;

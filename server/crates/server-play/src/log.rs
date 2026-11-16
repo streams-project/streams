@@ -18,7 +18,7 @@ use contract::play::Report;
 use sqlx::PgPool;
 use time::{Date, OffsetDateTime};
 
-use crate::health::{Health, Tally, group};
+use crate::health::{Health, HostSummary, Tally, group, summarize};
 
 /// Where reports go. A failed write loses a report and never a viewer's request.
 #[async_trait]
@@ -27,6 +27,21 @@ pub trait PlayLog: Send + Sync {
     async fn health(&self, rows: &[Tally]);
     /// Playback health from this day forward, newest day first, grouped by (class, host, day).
     async fn health_since(&self, day: Date) -> Vec<Health>;
+    /// Playback health from this day forward filtered by optional client class and/or host.
+    async fn health_for(&self, day: Date, class: Option<&str>, host: Option<&str>) -> Vec<Health> {
+        self.health_since(day)
+            .await
+            .into_iter()
+            .filter(|row| {
+                class.is_none_or(|wanted| row.class == wanted)
+                    && host.is_none_or(|wanted| row.host == wanted)
+            })
+            .collect()
+    }
+    /// Playback health rolled up by `(class, host)` from this day forward.
+    async fn health_summary(&self, day: Date) -> Vec<HostSummary> {
+        summarize(&self.health_since(day).await)
+    }
     /// Keep a client error report.
     async fn report(&self, report: &Report);
     /// Delete reports older than this.
@@ -74,11 +89,24 @@ impl PlayLog for MemoryPlayLog {
     }
 
     async fn health_since(&self, day: Date) -> Vec<Health> {
+        self.health_for(day, None, None).await
+    }
+
+    async fn health_for(&self, day: Date, class: Option<&str>, host: Option<&str>) -> Vec<Health> {
         let held = self
             .health
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
-        group(held.iter().filter(|row| row.day >= day).cloned().collect())
+        group(
+            held.iter()
+                .filter(|row| {
+                    row.day >= day
+                        && class.is_none_or(|wanted| row.class == wanted)
+                        && host.is_none_or(|wanted| row.host == wanted)
+                })
+                .cloned()
+                .collect(),
+        )
     }
 
     async fn report(&self, report: &Report) {
@@ -141,11 +169,21 @@ impl PlayLog for PgPlayLog {
     }
 
     async fn health_since(&self, day: Date) -> Vec<Health> {
+        self.health_for(day, None, None).await
+    }
+
+    async fn health_for(&self, day: Date, class: Option<&str>, host: Option<&str>) -> Vec<Health> {
         let found = sqlx::query_as::<_, (String, String, Date, String, i32, i32, i64, i32, i32, i32)>(
             "select class, host, day, fault, tries, starts, start_ms_total, rebuffers, failures, \
-             gave_up from reachability where day >= $1 order by day desc, class, host, fault",
+             gave_up from reachability \
+             where day >= $1 \
+               and ($2::text is null or class = $2) \
+               and ($3::text is null or host = $3) \
+             order by day desc, class, host, fault",
         )
         .bind(day)
+        .bind(class)
+        .bind(host)
         .fetch_all(&self.pool)
         .await
         .unwrap_or_default();
@@ -196,5 +234,119 @@ impl PlayLog for PgPlayLog {
             }
         }
         gone
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use contract::driver::ErrorClass;
+    use contract::play::{PlayEvent, PlayEventName};
+
+    use super::*;
+    use crate::health::fold;
+
+    fn day(n: u16) -> Date {
+        Date::from_ordinal_date(2026, 300 + n).expect("a day")
+    }
+
+    fn event(name: PlayEventName, host: &str) -> PlayEvent {
+        PlayEvent {
+            name,
+            at_ms: 0,
+            attempt: Some("a1".to_owned()),
+            first_frame_ms: None,
+            failure: None,
+            host: Some(host.to_owned()),
+            rung: None,
+        }
+    }
+
+    #[tokio::test]
+    async fn memory_store_merges_matching_keys_and_reads_back_by_day_host_and_class() {
+        let store = MemoryPlayLog::default();
+
+        let mut started_one = event(PlayEventName::FirstFrame, "edge-a.example");
+        started_one.first_frame_ms = Some(900);
+        let mut failed_seg = event(PlayEventName::Failure, "edge-b.example");
+        failed_seg.failure = Some(ErrorClass::Segment);
+
+        store
+            .health(&fold(
+                "tv",
+                day(0),
+                &[
+                    failed_seg.clone(),
+                    started_one,
+                    event(PlayEventName::Rebuffer, "edge-a.example"),
+                    event(PlayEventName::Ended, "edge-a.example"),
+                ],
+            ))
+            .await;
+
+        let mut started_two = event(PlayEventName::FirstFrame, "edge-a.example");
+        started_two.first_frame_ms = Some(1_500);
+        let mut failed_manifest = event(PlayEventName::Failure, "edge-b.example");
+        failed_manifest.failure = Some(ErrorClass::Manifest);
+
+        store
+            .health(&fold(
+                "tv",
+                day(0),
+                &[
+                    failed_seg,
+                    failed_manifest,
+                    event(PlayEventName::Ended, "edge-b.example"),
+                    started_two,
+                ],
+            ))
+            .await;
+
+        store
+            .health(&fold(
+                "web",
+                day(1),
+                &[event(PlayEventName::Ended, "edge-a.example")],
+            ))
+            .await;
+
+        let all = store.health_since(day(0)).await;
+        assert_eq!(all.len(), 3);
+        assert_eq!(all[0].day, day(1));
+        assert_eq!(all[0].class, "web");
+        assert_eq!(all[0].ended_without_picture(), 1);
+
+        let tv_only = store.health_for(day(0), Some("tv"), None).await;
+        assert_eq!(tv_only.len(), 2);
+
+        let edge_a = store
+            .health_for(day(0), Some("tv"), Some("edge-a.example"))
+            .await;
+        assert_eq!(edge_a.len(), 1);
+        assert_eq!(edge_a[0].tries, 2);
+        assert_eq!(edge_a[0].starts, 2);
+        assert_eq!(edge_a[0].first_frame_ms_sum(), 2_400);
+        assert_eq!(edge_a[0].mean_start_ms(), Some(1_200));
+        assert_eq!(edge_a[0].rebuffers, 1);
+        assert_eq!(edge_a[0].ended_without_picture(), 0);
+
+        let edge_b = store
+            .health_for(day(0), Some("tv"), Some("edge-b.example"))
+            .await;
+        assert_eq!(edge_b.len(), 1);
+        assert_eq!(edge_b[0].tries, 2);
+        assert_eq!(edge_b[0].starts, 0);
+        assert_eq!(edge_b[0].ended_without_picture(), 1);
+        assert_eq!(
+            edge_b[0].failures,
+            vec![("manifest".to_owned(), 1), ("segment".to_owned(), 2)]
+        );
+        assert_eq!(edge_b[0].failures_total(), 3);
+
+        let recent = store.health_since(day(1)).await;
+        assert_eq!(recent.len(), 1);
+        assert_eq!(recent[0].day, day(1));
+
+        let summary = store.health_summary(day(0)).await;
+        assert_eq!(summary.len(), 3);
     }
 }

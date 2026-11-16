@@ -70,9 +70,7 @@ public func buildSettingsRows(
     subBg: String,
     historyCleared: Bool,
     devices: [DeviceSession],
-    account: Account?,
-    server: String,
-    serverPlain: Bool
+    account: Account?
 ) -> [SettingsRow] {
     let onWord = words["settings.on"] ?? ""
     let offWord = words["settings.off"] ?? ""
@@ -134,9 +132,6 @@ public func buildSettingsRows(
         ]
     case .about:
         return [
-            // An unencrypted server is marked here, because this is the only screen that says
-            // which server this device talks to.
-            SettingsRow(words["settings.server"] ?? "", value: server, warn: serverPlain),
             SettingsRow(words["settings.sign_out_everywhere"] ?? "", value: "", action: .askSignOutEverywhere),
         ]
     }

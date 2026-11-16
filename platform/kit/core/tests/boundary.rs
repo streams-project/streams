@@ -309,7 +309,7 @@ fn the_linked_module_stays_under_its_ceiling() {
 #[test]
 fn the_served_module_stays_under_its_compressed_ceiling() {
     let module = linked_module(&[], &target_root());
-    let raw = fs::read(&module).expect("the linked module");
+    let raw_len = fs::metadata(&module).expect("the linked module").len();
     // The module goes to gzip as a path, not through its stdin. Writing 700 KB to a pipe before
     // reading the 190 KB that comes back deadlocks: gzip blocks on a full stdout and stops
     // reading, and this side blocks on a full stdin. It hung for nine minutes on 2026-11-19.
@@ -323,8 +323,7 @@ fn the_served_module_stays_under_its_compressed_ceiling() {
     assert!(
         size <= GZIP_CEILING,
         "core.wasm is {size} bytes compressed, which is what a television downloads \
-         ({} bytes raw)",
-        raw.len()
+         ({raw_len} bytes raw)"
     );
 }
 

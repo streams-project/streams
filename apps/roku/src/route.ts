@@ -73,7 +73,7 @@ export function titleKey(kind: string, id: string): TitleKey | null {
   if (kind === "" || id === "") return null;
   if (!/^[a-z]+$/.test(kind)) return null;
   if (!/^[A-Za-z0-9_-]+$/.test(id)) return null;
-  return `${kind}:${id}`;
+  return `${kind}:${id}` as TitleKey;
 }
 
 /** A title from its address form, `tv-1399`. (`routes.rs:174-178`) */

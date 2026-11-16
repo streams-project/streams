@@ -9,6 +9,7 @@ node_modules/
 *.p12
 *.pem
 Brand.xcconfig
+Deployment.xcconfig
 Sources/Contract/Contract.swift
 Sources/CoreBridge/include/core.h
 .build/

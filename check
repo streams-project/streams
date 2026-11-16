@@ -40,6 +40,9 @@ cargo test --workspace --locked
 # Every app family is its own hexagon.
 python3 platform/tools/check_rings.py
 
+# The build ships the server, no app asks for an address, and every door honours accounts_required.
+python3 platform/tools/check_bound_server.py
+
 # The core still fits a browser and a television. contract-proto is in this line and not only in
 # the workspace build because the whole size case for a binary wire rests on prost being no_std:
 # the crate is `#![no_std]` with `alloc`, which is the shape the core is in, and this is what
@@ -100,6 +103,7 @@ cargo test --locked -p bridge-c --no-default-features
   python3 tools/test_check_android.py
   python3 tools/test_check_apple.py
   python3 tools/test_check_roku.py
+  python3 tools/test_check_bound_server.py
 )
 
 # The Roku surface: its TypeScript type-checked against every strict flag its tsconfig declares,

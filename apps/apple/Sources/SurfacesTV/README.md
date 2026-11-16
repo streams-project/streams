@@ -7,7 +7,7 @@ one is at the same path in the other and can be carried across part by part.
 | Folder | What is in it |
 |---|---|
 | app | The root (Television), the remote and its key map rules (Remote), shapes, edges and direction (Round), the opening, title details, pictures |
-| door | The landing, sign in, its code picture, the server address |
+| door | The landing, sign in, its code picture |
 | profiles | Choosing, adding, editing and locking profiles, the profile menu, picture rows |
 | browse | Pages of rows: the top bar, the hero, the rows |
 | title | The title page, episodes, More Like This, reactions, the poster grid |

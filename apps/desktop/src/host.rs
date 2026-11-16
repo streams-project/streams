@@ -4,7 +4,7 @@
 //! around it, which is what makes the store port matter on a machine that has a disk.
 
 use std::collections::{BTreeMap, HashMap};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::mpsc::{Receiver, Sender, channel};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
@@ -35,6 +35,49 @@ const STEPS: usize = 64;
 const SECRETS: &str = "secrets";
 const STORE: &str = "store";
 
+/// Untracked deployment manifest written at the repository root by `launcher`.
+pub const DEPLOYMENT_FILE: &str = "deployment.json";
+
+/// Why a deployment server address could not be loaded from `deployment.json`.
+#[derive(Debug, PartialEq, Eq)]
+pub enum DeploymentError {
+    Io(String),
+    Json(String),
+    MissingServer,
+}
+
+impl std::fmt::Display for DeploymentError {
+    fn fmt(&self, out: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Io(error) => write!(out, "could not read {DEPLOYMENT_FILE}: {error}"),
+            Self::Json(error) => write!(out, "{DEPLOYMENT_FILE} is not valid JSON: {error}"),
+            Self::MissingServer => write!(out, "{DEPLOYMENT_FILE} has no non-empty server"),
+        }
+    }
+}
+
+impl std::error::Error for DeploymentError {}
+
+/// Reads the server address from `<root>/deployment.json`, validates it is non-empty, and trims
+/// trailing slashes.
+///
+/// # Errors
+/// Returns [`DeploymentError`] if `deployment.json` cannot be read, is invalid JSON, or has a
+/// missing or empty `server` string.
+pub fn server_from_deployment(root: &Path) -> Result<String, DeploymentError> {
+    let text = std::fs::read_to_string(root.join(DEPLOYMENT_FILE))
+        .map_err(|error| DeploymentError::Io(error.to_string()))?;
+    let value: serde_json::Value =
+        serde_json::from_str(&text).map_err(|error| DeploymentError::Json(error.to_string()))?;
+    let server = value
+        .get("server")
+        .and_then(serde_json::Value::as_str)
+        .map(|raw| raw.trim().trim_end_matches('/'))
+        .filter(|trimmed| !trimmed.is_empty())
+        .ok_or(DeploymentError::MissingServer)?;
+    Ok(server.to_owned())
+}
+
 /// What the shell tells this host. Nothing here is a setting a viewer sees: a brand's name, its
 /// folder and its server are the shell's to resolve, exactly as `launcher` resolves them today.
 pub struct Settings {
@@ -44,6 +87,24 @@ pub struct Settings {
     pub data_dir: PathBuf,
     /// Bytes the offline layer may keep. 0 keeps nothing across a restart.
     pub storage_bytes: u64,
+}
+
+impl Settings {
+    /// Builds host settings with the server address read from `<root>/deployment.json`.
+    ///
+    /// # Errors
+    /// Returns [`DeploymentError`] if `deployment.json` cannot be read or has no valid `server`.
+    pub fn from_deployment(
+        root: &Path,
+        data_dir: PathBuf,
+        storage_bytes: u64,
+    ) -> Result<Self, DeploymentError> {
+        Ok(Self {
+            server: server_from_deployment(root)?,
+            data_dir,
+            storage_bytes,
+        })
+    }
 }
 
 /// The ports this crate names, filled. `Host::open` fills them with what a desktop has; a test
@@ -517,7 +578,10 @@ fn open_text(settings: &Settings) -> Result<String, Opening> {
 mod tests {
     use contract::core_msg::{BodyTarget, EventBody, NoAnswerReason};
 
-    use super::{Answer, Back, Reply, Settings, messages, open_text};
+    use super::{
+        Answer, Back, DEPLOYMENT_FILE, DeploymentError, Reply, Settings, messages, open_text,
+        server_from_deployment,
+    };
 
     /// What one answer turned into: the page, the reply, and the event the core was given.
     fn parts(
@@ -674,5 +738,51 @@ mod tests {
             serde_json::from_str(&open_text(&settings()).expect("two")).expect("reads");
         assert_ne!(one["seed"], two["seed"]);
         assert_ne!(one["layer"]["boot_id"], two["layer"]["boot_id"]);
+    }
+
+    #[test]
+    fn server_from_deployment_reads_valid_json_trims_slashes_and_rejects_bad_inputs() {
+        let root = std::env::temp_dir().join(format!("desktop-deployment-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(&root).expect("temp dir");
+
+        assert!(matches!(
+            server_from_deployment(&root),
+            Err(DeploymentError::Io(_))
+        ));
+
+        let manifest = root.join(DEPLOYMENT_FILE);
+        std::fs::write(&manifest, "{not json").expect("write");
+        assert!(matches!(
+            server_from_deployment(&root),
+            Err(DeploymentError::Json(_))
+        ));
+
+        for bad in [
+            "{}",
+            r#"{"server": 42}"#,
+            r#"{"server": ""}"#,
+            r#"{"server": "   ///"}"#,
+        ] {
+            std::fs::write(&manifest, bad).expect("write");
+            assert_eq!(
+                server_from_deployment(&root),
+                Err(DeploymentError::MissingServer),
+                "for {bad}"
+            );
+        }
+
+        std::fs::write(
+            &manifest,
+            r#"{"server": "  https://example.test///  ", "bound": "2026-11-16"}"#,
+        )
+        .expect("write");
+        let loaded =
+            Settings::from_deployment(&root, root.join("data"), 4096).expect("valid deployment");
+        assert_eq!(loaded.server, "https://example.test");
+        assert_eq!(loaded.data_dir, root.join("data"));
+        assert_eq!(loaded.storage_bytes, 4096);
+
+        let _ = std::fs::remove_dir_all(&root);
     }
 }

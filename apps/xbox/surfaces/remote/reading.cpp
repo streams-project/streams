@@ -193,4 +193,61 @@ place::Feed feedOf(const std::vector<contract::NavItem> &bar, int active,
     return feed;
 }
 
+watch::Window windowOf(const contract::TimeWindow &window) {
+    watch::Window out;
+    out.kind = window.kind.value;
+    out.start_ms = window.start_ms;
+    out.end_ms = window.end_ms;
+    out.has_seek_to = window.seek_to_ms.has_value();
+    out.seek_to_ms = window.seek_to_ms.value_or(0);
+    out.text = window.text.value_or(std::string());
+    return out;
+}
+
+std::vector<watch::Window> windowsOf(const std::vector<contract::TimeWindow> &windows) {
+    std::vector<watch::Window> out;
+    out.reserve(windows.size());
+    for (const contract::TimeWindow &window : windows) {
+        out.push_back(windowOf(window));
+    }
+    return out;
+}
+
+watch::Play playOf(const contract::PlayView &view) {
+    watch::Play out;
+    out.title = view.title.value;
+    if (view.state.value == contract::PlayState::resolving) {
+        out.state = watch::State::Resolving;
+    } else if (view.state.value == contract::PlayState::starting) {
+        out.state = watch::State::Starting;
+    } else if (view.state.value == contract::PlayState::playing) {
+        out.state = watch::State::Playing;
+    } else if (view.state.value == contract::PlayState::paused) {
+        out.state = watch::State::Paused;
+    } else if (view.state.value == contract::PlayState::stalled) {
+        out.state = watch::State::Stalled;
+    } else if (view.state.value == contract::PlayState::switching) {
+        out.state = watch::State::Switching;
+    } else if (view.state.value == contract::PlayState::ended) {
+        out.state = watch::State::Ended;
+    } else if (view.state.value == contract::PlayState::failed) {
+        out.state = watch::State::Failed;
+    }
+    if (view.episode.has_value()) {
+        out.has_episode = true;
+        out.episode.season = view.episode->season;
+        out.episode.episode = view.episode->episode;
+    }
+    if (view.next_episode.has_value()) {
+        out.has_next_episode = true;
+        out.next_episode.season = view.next_episode->season;
+        out.next_episode.episode = view.next_episode->episode;
+    }
+    out.still_asking = view.still_asking.value_or(false);
+    if (view.windows.has_value()) {
+        out.windows = windowsOf(*view.windows);
+    }
+    return out;
+}
+
 } // namespace streams::reading

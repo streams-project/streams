@@ -70,7 +70,7 @@ internal class Showing(seen: Seen = Seen()) : Shell {
     override fun go(address: String) { went += address }
     override fun swap(address: String) { went += address }
     override fun back() { went += "back" }
-    override fun connect(server: String) = error("a screen reading test is already connected")
+    override fun retry() = error("a screen reading test is already connected")
     override fun act(action: Action) = Unit
     override fun send(method: String, path: String, body: String, reply: (Int, String) -> Unit) =
         error("a screen reading test reads, it never sends")

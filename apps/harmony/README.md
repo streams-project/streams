@@ -5,7 +5,7 @@ ArkUI app for Huawei phones and tablets. **Touch** surface, **native** core.
 Part of an open video platform.
 
 Status: **an app whose ArkTS has never been compiled.** The route switch, Home with its billboard
-and rows, the title page, the profile gate, search and the notifications feed are written and laid
+and rows, the title page, the player, the profile gate, search and the notifications feed are written and laid
 out against the measured reference, and not one line of them has been compiled: no HarmonyOS SDK, no
 DevEco Studio and no Huawei device were on the machine they were written on, and `node`, `npx` and
 `tsc` are not there either. [What cannot be done
@@ -96,10 +96,8 @@ where CMake links `libstreamscore.so` against the archive, exactly as the Androi
 
 `core/Host.ets` is a line by line port of `apps/android/core/src/main/kotlin/streams/core/Host.kt`,
 which is the written and shipped version of this host. Nothing in it is a second opinion about what a
-host does, and when that file changes this one is diffed against it. It carries the Android host's
-plain-http gate word for word: plain http reaches only an address on the viewer's own network, because
-a session's bearer and refresh tokens travel in the clear, and a refused address is said to the viewer
-rather than swallowed.
+host does, and when that file changes this one is diffed against it. It takes the server address in
+its constructor rather than storing or gating one in the viewer's flow.
 
 ## What cannot be done without the SDK and a device
 
@@ -117,10 +115,9 @@ So that nobody later mistakes this for a finished app:
 3. **No project file.** `build-profile.json5`, `oh-package.json5`, `module.json5`, `AppScope/app.json5`
    and `hvigorfile.ts` are versioned with the SDK. Where they go and what they must contain is now
    known (Q6); the files themselves still want the SDK that stamps today's version numbers into them.
-4. **Four routes draw nothing.** The server address screen, `start`, `sign_in` and `watch` have no
-   screen in this folder, and `surfaces/touch/Root.ets` names each one with the Kotlin that
-   specifies it rather than sending the viewer somewhere that looks like it worked. It was five
-   until 2026-11-13, when the notifications feed was written.
+4. **Two routes draw nothing.** `start` and `sign_in` have no screen in this folder, and
+   `surfaces/touch/Root.ets` names each one with the Kotlin that specifies it rather than sending
+   the viewer somewhere that looks like it worked.
 5. **The icons do not exist.** `surfaces/touch/Icons.ets` names all 23 as `$r('app.media.*')`
    references; what they resolve against is a module `resources/base/media` folder, which is part of
    Q6.

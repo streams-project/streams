@@ -39,6 +39,7 @@ an API.
 | `GateTint.ets` | the gate's colour model, HSV by hand | `profiles/GateTint.kt` |
 | `Search.ets` | search — read its head before changing it | `tv/search/Search.kt` for behaviour only |
 | `Notifications.ets` | the notifications feed, its paging and its read mark | `notifications/Notifications.kt` |
+| `Watch.ets` | the player, its timeline bar and its skip marks (`TimeWindow`) | `watch/Watch.kt`, `tv/watch/Moments.kt` |
 | `Face.ets` | a profile's picture, or its first letter | `shared/Face.kt` |
 | `Pictures.ets` | `Art`, which draws what the `Pictures` port hands back | `shared/Art.kt` |
 | `Paging.ets` | how a page and a row grow through `/v1/more/{cursor}` | `browse/Paging.kt` |
@@ -52,11 +53,11 @@ an API.
 
 ## What is not written, and is not pretended
 
-Four routes draw nothing, each named in `Root.ets` with the Kotlin that specifies it: the server
-address screen, `start` (`door/Doors.kt`), `sign_in` and `watch` (`watch/Watch.kt` and the player's
-controls). It was five until 2026-11-13, when the notifications screen was written. The opening (`app/Opening.kt`) is not here either. Adding and editing a profile
-(`profiles/AddProfile.kt`, `profiles/EditProfile.kt`) are raised by the gate and go nowhere. A blank page is the honest state; a placeholder would be the `apps/roku`
-mistake.
+Two routes draw nothing, each named in `Root.ets` with the Kotlin that specifies it: `start`
+(`door/Doors.kt`) and `sign_in`. The opening (`app/Opening.kt`) is not
+here either. Adding and editing a profile (`profiles/AddProfile.kt`, `profiles/EditProfile.kt`) are
+raised by the gate and go nowhere. A blank page is the honest state; a placeholder would be the
+`apps/roku` mistake.
 
 ## The measured shape every screen here meets
 

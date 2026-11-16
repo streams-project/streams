@@ -1,4 +1,6 @@
 #if canImport(UIKit)
+import Heard
+import SwiftUI
 import XCTest
 
 @testable import SurfacesTV
@@ -102,8 +104,52 @@ final class KeyboardReachTests: XCTestCase {
         say(keys, .down, .down, .down)
         let spoken = keys.hereIs("cancel", "done", [:])
         XCTAssertFalse(spoken.isEmpty, "the stop has a key, so it has something to say")
+        let selected = heard(
+            Keyboard(state: keys, cancel: "cancel", done: "done"),
+            size: CGSize(width: 1920, height: 1080)
+        ).filter(\.isSelected).map(\.label)
+        XCTAssertEqual(selected, [spoken], "the key that lights is the key that speaks")
         say(keys, .ok)
         XCTAssertEqual(keys.text, spoken, "what it said it was, and what it typed")
+    }
+
+    /// Every reachable stop across all three pages, both cases, six rows and ten columns lights a
+    /// key (`lit(row) >= 0`), and at the four ragged stops it lights the last key of the row.
+    func testEveryReachableStopLightsAKey() {
+        var seen = Set<String>()
+        var queue: [[Word]] = [[]]
+        seen.insert("\(keys().page[3]):false:2:4")
+        let all: [Word] = [.up, .down, .left, .right, .ok, .back]
+        var stops = 0
+        var unlit = 0
+        var ragged = 0
+        var wrongLit = 0
+        var head = 0
+        while head < queue.count {
+            let path = queue[head]
+            head += 1
+            let from = keys()
+            for step in path { _ = from.press(step, "cancel", "done") { _ in } }
+            stops += 1
+            let at = from.lit(from.row)
+            if at < 0 { unlit += 1 }
+            if from.row == 3 && from.column == 9 && from.page[3].count == 7 {
+                ragged += 1
+                if at != 7 { wrongLit += 1 }
+            }
+            for word in all {
+                let next = keys()
+                for step in path { _ = next.press(step, "cancel", "done") { _ in } }
+                _ = next.press(word, "cancel", "done") { _ in }
+                if next.lit(next.row) < 0 { unlit += 1 }
+                let key = "\(next.page[3]):\(next.upper):\(next.row):\(next.column)"
+                if seen.insert(key).inserted { queue.append(path + [word]) }
+            }
+        }
+        XCTAssertEqual(stops, 360)
+        XCTAssertEqual(unlit, 0)
+        XCTAssertEqual(ragged, 4)
+        XCTAssertEqual(wrongLit, 0)
     }
 }
 #endif

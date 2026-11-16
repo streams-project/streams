@@ -65,8 +65,8 @@ class SpokenTest {
         }
         assertTrue("the scan found $taps tap chains: it has stopped reading the surface", taps >= 60)
         assertEquals(KNOWN_SILENT, silent.map { it.substringBefore(':') }.toSortedSet())
-        assertEquals("two controls are known silent and no more", 2, silent.size)
-        assertEquals("the controls that speak, the tap regions and the two known silent are all of them", taps, spoken + regions + silent.size)
+        assertEquals("one control is known silent and no more", 1, silent.size)
+        assertEquals("the controls that speak, the tap regions and the one known silent are all of them", taps, spoken + regions + silent.size)
     }
 
     /**
@@ -77,7 +77,8 @@ class SpokenTest {
      * moved or removed, and that is the point: editing it is a rewriter stating, in the diff, which
      * parts stopped speaking.
      *
-     * Counted 2026-11-12 by this test's own scan: 71 calls across 14 files on the phone. Note 215's
+     * Counted 2026-11-12 by this test's own scan: 71 calls across 14 files on the phone, and 74
+     * across 15 once `watch/Watch.kt` gained words for its transport and bar. Note 215's
      * figure of 99 across 29 files for all three surfaces is not reproducible by this method -- the
      * same files give 95 in 27 counting calls with comments blanked (71 phone, 22 television, 2
      * shared), and 93, 97 or 101 counting matching lines with `rg` depending on whether the two
@@ -92,7 +93,7 @@ class SpokenTest {
             if (calls > 0) census[path] = calls
         }
         assertEquals(SPOKEN, census.toMap())
-        assertEquals(71, census.values.sum())
+        assertEquals(74, census.values.sum())
     }
 
     /**
@@ -150,7 +151,7 @@ class SpokenTest {
         /** A chain that draws no press feedback is a tap region and not a control. */
         val INDICATION = Regex("""indication\s*=\s*null""")
 
-        val KNOWN_SILENT = sortedSetOf("profiles/EditProfile.kt", "watch/Watch.kt")
+        val KNOWN_SILENT = sortedSetOf("profiles/EditProfile.kt")
 
         val SPOKEN = mapOf(
             "browse/Billboard.kt" to 2,
@@ -167,6 +168,7 @@ class SpokenTest {
             "title/Episodes.kt" to 5,
             "title/MoreLike.kt" to 1,
             "title/Title.kt" to 10,
+            "watch/Watch.kt" to 3,
         )
     }
 }

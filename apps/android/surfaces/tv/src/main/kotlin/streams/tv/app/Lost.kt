@@ -90,7 +90,7 @@ fun Lost(shell: Shell, seen: Seen) {
             .background(Color.Black)
             .remote(saying) { word ->
                 if (word == Word.OK) {
-                    shell.connect(seen.server)
+                    shell.retry()
                     true
                 } else {
                     false

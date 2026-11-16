@@ -152,13 +152,17 @@ button { cursor: pointer; border: 0; background: none; }
   & img { display: block; height: 32px; }
 }
 
-.door { min-height: 100vh; display: flex; flex-direction: column; background: radial-gradient(90% 70% at 50% 0%, var(--raised), var(--background)); }
+.door { min-height: 100vh; display: flex; flex-direction: column; background: radial-gradient(90% 70% at 50% 0%, var(--raised), var(--background));
+  & .logo { min-width: 48px; min-height: 48px; align-items: center; justify-content: center; }
+  & button { display: inline-flex; align-items: center; justify-content: center; min-width: 48px; min-height: 48px; }
+  & input { min-height: 48px; }
+}
 .door-top { display: flex; justify-content: space-between; align-items: center; padding: calc(var(--unit) * 5) var(--edge); }
 .door-card { margin: auto; width: min(460px, calc(100vw - 32px)); padding: calc(var(--unit) * 10); background: var(--glass); border-radius: var(--radius-panel); backdrop-filter: blur(20px);
   & h1 { font-size: 30px; margin-bottom: calc(var(--unit) * 5); }
   & form { display: grid; gap: calc(var(--unit) * 3); }
 }
-.door-links { display: grid; justify-items: start; margin-top: calc(var(--unit) * 4); }
+.door-links { display: grid; justify-items: start; gap: var(--unit); margin-top: calc(var(--unit) * 2); }
 .trouble { color: var(--join); font-size: 14px; }
 
 .gate { position: fixed; inset: 0; z-index: 40; display: grid; place-content: center; justify-items: center; gap: calc(var(--unit) * 8); background: var(--background);
@@ -254,7 +258,7 @@ button { cursor: pointer; border: 0; background: none; }
 @media (min-width: 840px) { .row h2 { font-size: 24px; line-height: 30.5px; } }
 .strip { display: flex; gap: calc(var(--unit) * 2); overflow-x: auto; padding: calc(var(--unit) * 2) var(--edge); scroll-padding: var(--edge); scroll-snap-type: x proximity; scrollbar-width: none;
   --tile-wide: calc((100% - var(--unit) * 2 * (var(--tile-across) - 1)) / var(--tile-across));
-  & .card, & .going { flex: 0 0 var(--tile-wide); scroll-snap-align: start; }
+  & > .tile, & > .card, & > .going { flex: 0 0 var(--tile-wide); scroll-snap-align: start; }
 }
 /* The control that moves a row, and the band it stands in.
    A scrolling row overflows under its own side padding - a browser clips a scroller at its padding
@@ -276,11 +280,16 @@ button { cursor: pointer; border: 0; background: none; }
 .strip-back { inset-inline-start: 0; }
 .strip-on { inset-inline-end: 0; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--tile-least), 1fr)); gap: calc(var(--unit) * 2); padding: calc(var(--unit) * 2) var(--edge); }
+.tile { position: relative; aspect-ratio: 16 / 9; transition: transform 160ms ease-out;
+  & .card { display: block; width: 100%; height: 100%; transition: none; }
+  &:has(.card:hover), &:has(.card:focus-visible) { transform: scale(1.06); z-index: 2; }
+  & .card:hover, & .card:focus-visible { transform: none; z-index: auto; }
+}
 .card { position: relative; aspect-ratio: 16 / 9; padding: 0; overflow: hidden; border-radius: var(--radius-card); background: var(--raised) center / cover no-repeat; transition: transform 160ms ease-out;
   &:hover, &:focus-visible { transform: scale(1.06); z-index: 2; outline: 2px solid var(--text); }
 }
 .card-name { position: absolute; inset: 0; display: grid; place-items: center; padding: var(--unit); font-weight: 600; text-align: center; }
-.rank { position: absolute; inset-inline-start: 8px; bottom: 0; font-size: 56px; font-weight: 800; -webkit-text-stroke: 2px var(--text); color: var(--background); line-height: 1; }
+.rank { position: absolute; inset-inline-start: 8px; bottom: 0; font-size: 56px; font-weight: 800; -webkit-text-stroke: 2px var(--text); color: var(--background); line-height: 1; pointer-events: none; }
 .progress { position: absolute; inset-inline: 0; bottom: 0; height: 4px; background: var(--glass);
   & span { display: block; height: 100%; background: var(--join); }
 }
@@ -349,6 +358,7 @@ button { cursor: pointer; border: 0; background: none; }
 .watch-fail { position: relative; }
 .watch-top, .watch-bottom { position: absolute; inset-inline: 0; padding: calc(var(--unit) * 5) var(--edge); transition: opacity 200ms linear; }
 .watch-top { top: 0; background: linear-gradient(rgb(0 0 0 / 60%), transparent); }
+.watch-skip { position: absolute; inset-inline-end: var(--edge); bottom: calc(var(--unit) * 24); }
 .watch-bottom { bottom: 0; background: linear-gradient(transparent, rgb(0 0 0 / 70%));
   & input[type="range"] { width: 100%; accent-color: var(--join); }
 }
@@ -419,7 +429,7 @@ button { cursor: pointer; border: 0; background: none; }
 
 /* A mark on a tile, and the mark on a kids' profile. */
 .badge { padding: 2px calc(var(--unit) * 1.5); border-radius: var(--radius-field); background: var(--accent); color: var(--accent-text); font-size: 10px; font-weight: 700; }
-.card .badge { position: absolute; top: 6px; inset-inline-start: 6px; }
+.tile .badge, .card .badge { position: absolute; top: 6px; inset-inline-start: 6px; pointer-events: none; }
 
 /* A Continue Watching tile, which carries its two controls under the art (browse/Rows.kt:306-410). */
 .going { position: relative; display: grid; background: var(--raised); border-radius: var(--radius-card); overflow: visible;

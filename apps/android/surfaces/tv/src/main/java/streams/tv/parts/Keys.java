@@ -192,15 +192,23 @@ public final class Keys {
         return caps;
     }
 
-    /** The key the remote is on now. */
-    public Cap here(String cancel, String done) {
-        return here(caps(cancel, done));
+    /**
+     * Which key of a row the remote is on, as a place in that row's own list, or -1 for a row it is
+     * not on. {@link KeysView} and {@link #press} ask this one question, so the key that lights is
+     * the key that answers.
+     */
+    public int lit(int atRow) {
+        return lit(atRow, caps("", ""));
     }
 
-    private Cap here(Cap[][] rows) {
-        for (Cap cap : rows[row]) {
-            if (cap.holds(column)) {
-                return cap;
+    private int lit(int atRow, Cap[][] rows) {
+        if (atRow != row || atRow < 0 || atRow >= rows.length) {
+            return -1;
+        }
+        Cap[] line = rows[atRow];
+        for (int at = 0; at < line.length; at++) {
+            if (line[at].holds(column)) {
+                return at;
             }
         }
         // Not every row covers every column, and the Compose form did not know it: `Symbols` is
@@ -210,7 +218,16 @@ public final class Keys {
         // down that edge expects to be, so it holds there. `parts/Keyboard.kt:132-138` carries the
         // same fix and the same reason: until 2026-11-13 it asked `first` and threw
         // NoSuchElementException on the eleventh press from where the keyboard opens.
-        return rows[row][rows[row].length - 1];
+        return line.length - 1;
+    }
+
+    /** The key the remote is on now. */
+    public Cap here(String cancel, String done) {
+        return here(caps(cancel, done));
+    }
+
+    private Cap here(Cap[][] rows) {
+        return rows[row][lit(row, rows)];
     }
 
     /**

@@ -1198,7 +1198,8 @@
             ],
             [
               "auth.login_codes",
-              "device_codes"
+              "device_codes",
+              "play_streams"
             ],
             [
               "refused_trailers",

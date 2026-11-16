@@ -4,18 +4,16 @@
 // It is also the one place that holds `Seen`, measures the window, and sets the language's digits.
 // Everything under it is handed what it needs and reaches nothing itself.
 //
-// WHAT IS NOT BEHIND THIS SWITCH. Four of the twelve targets have no screen in this folder, and
+// WHAT IS NOT BEHIND THIS SWITCH. Two of the twelve targets have no screen in this folder, and
 // they are listed by name rather than sent somewhere that looks like it worked:
 //
 //   `start`                     `door/Doors.kt`
 //   `sign_in`                   the phone's sign in form, and the television's code screen
-//   `watch`                     `watch/Watch.kt` plus the player's own controls
-//   the server address screen   drawn when `seen.server` is empty, before anything else
 //   the opening                 `app/Opening.kt`, which covers the first screen while it builds
 //                               and lifts as it hands over
 //
-// It was five until 2026-11-13, when `screen` = notifications gained a screen of its own, written
-// from `notifications/Notifications.kt`. See `Notifications.ets`.
+// `screen` = notifications gained a screen of its own on 2026-11-13 (`Notifications.ets`), and
+// `watch` is drawn by `Watch.ets` from `watch/Watch.kt` and `tv/watch/Moments.kt`.
 //
 // A target with no screen draws nothing. That is deliberate: a placeholder would be the `apps/roku`
 // mistake -- something that looks like a surface and is not -- and a viewer who reaches a blank page
@@ -29,6 +27,7 @@ import { Gate } from './Gate';
 import { SearchScreen } from './Search';
 import { NotificationsScreen } from './Notifications';
 import { Title } from './Title';
+import { Watch } from './Watch';
 import { Speaking } from './Words';
 import { BACK } from './Theme';
 
@@ -63,11 +62,7 @@ export struct Root {
   build() {
     Stack({ alignContent: Alignment.TopStart }) {
       if (this.wide > 0) {
-        if (this.seen.server.length === 0) {
-          // The address screen. Not written -- see the head of this file.
-        } else {
-          this.screen()
-        }
+        this.screen()
       }
     }
     .width('100%')
@@ -117,6 +112,11 @@ export struct Root {
         seen: this.seen,
         pictures: this.shell.pictures,
         screenWide: this.wide,
+      })
+    } else if (this.target() === 'watch') {
+      Watch({
+        shell: this.shell,
+        seen: this.seen,
       })
     } else if (this.isNotifications()) {
       NotificationsScreen({

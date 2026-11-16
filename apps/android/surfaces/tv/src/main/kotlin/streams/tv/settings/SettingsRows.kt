@@ -86,8 +86,6 @@ fun buildSettingsRows(
     historyCleared: Boolean,
     devices: List<DeviceSession>,
     account: Account?,
-    server: String,
-    serverPlain: Boolean,
 ): List<SettingsRow> {
     val onWord = words.say("settings.on")
     val offWord = words.say("settings.off")
@@ -170,9 +168,6 @@ fun buildSettingsRows(
             )
         }
         SettingsSection.ABOUT -> listOf(
-            // An unencrypted server is marked here, because this is the only screen that says
-            // which server this device talks to.
-            SettingsRow(words.say("settings.server"), server, warn = serverPlain),
             SettingsRow(words.say("settings.sign_out_everywhere"), "", AskSignOutEverywhere),
         )
     }

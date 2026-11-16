@@ -51,6 +51,16 @@ public class KeysTest {
         return keys.here("Cancel", "Done").word;
     }
 
+    private String drawn() {
+        Keys.Cap[][] rows = keys.caps("Cancel", "Done");
+        Keys.Cap[] line = rows[keys.row()];
+        int at = keys.lit(keys.row());
+        if (at < 0 || at >= line.length) {
+            return "<no key lit>";
+        }
+        return line[at].word;
+    }
+
     /**
      * The remote starts in the middle of the home row, which is {@code Keyboard.kt:74-75}, and that
      * is the letter g. A start that moved would put a viewer's first press somewhere else on every
@@ -236,6 +246,7 @@ public class KeysTest {
         press(Word.DOWN, Word.DOWN, Word.DOWN);
         assertEquals(3, keys.row());
         assertEquals("the row holds no key at column 9", "~", on());
+        assertEquals("and the painter lights that same key", "~", drawn());
         press(Word.OK);
         assertEquals("~", keys.text());
     }

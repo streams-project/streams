@@ -44,7 +44,7 @@ internal class Asked : Shell {
     override val player: Player get() = error("a paging test does not play")
     override val reel: Reel get() = error("a paging test has no brand film")
     override val pictures: Pictures get() = error("a paging test draws no pictures")
-    override fun connect(server: String) = error("not asked for by paging")
+    override fun retry() = error("not asked for by paging")
     override fun go(address: String) = error("not asked for by paging")
     override fun swap(address: String) = error("not asked for by paging")
     override fun back() = error("not asked for by paging")

@@ -20,10 +20,9 @@ export function App(props: { shell: Shell }) {
     <group>
       <rectangle width={SCREEN_WIDE} height={SCREEN_HIGH} color={COLOUR.background} />
       {/*
-        A run with no server yet starts at the address screen on the other two families
-        (`Television.kt:74`). This family is handed its address instead and has no such screen, so
-        a run with none draws the background and nothing else - with one exception below, which is
-        the address this app refused. The whole of that decision is the head of `src/door.ts`.
+        A run with no server yet draws the background and nothing else - with one exception below,
+        which is the address this app refused. The whole of that decision is the head of
+        `src/door.ts`.
       */}
       <Show when={seen().server !== "" || seen().refused !== ""}>
         <Switch>

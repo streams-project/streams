@@ -1,4 +1,4 @@
-//! The screens that come before a film: the server address, the door, who is watching, and rows.
+//! The screens that come before a film: the door, who is watching, and rows.
 //!
 //! This family drew nothing until today. `DECISIONS.md` decision 2 said the pointer screens were
 //! `apps/web`'s and this crate would add none; the owner has since decided the desktop is its own
@@ -13,9 +13,9 @@
 //!
 //! * Every measurement is the reference's. [`sizes`] reads `reference/netflix-on-the-web.md` in
 //!   its own tests, at all 28 widths from 160 to 1920.
-//! * Every word is `strings/`. This file holds the English file as its first words - the address
-//!   screen is drawn before any server exists, so no server can have sent them - and replaces all
-//!   of them the moment `/v1/strings/{lang}` answers. No English is written into this crate.
+//! * Every word is `strings/`. This file holds the English file as its first words while waiting
+//!   for a server to answer, and replaces all of them the moment `/v1/strings/{lang}` answers. No
+//!   English is written into this crate.
 //! * Every colour, corner and face is a **role**, resolved by the painter against `brand.json`.
 //!   Nothing here is a hex colour or a radius, so there is no copy of the brand to drift.
 //!
@@ -27,13 +27,15 @@ mod door;
 mod gate;
 pub mod scene;
 pub mod sizes;
+mod watch;
 
 use std::collections::BTreeMap;
 
 use contract::account::Profile;
-use contract::core_msg::{Action, RouteTarget, Target, View};
+use contract::core_msg::{Action, PlayView, RouteTarget, Target, View};
 use contract::error::Notice;
 use contract::hello::{Hello, Strings};
+use contract::play::{TimeWindow, WindowKind};
 use contract::screen::{Nav, NavItem, Screen, ScreenName};
 
 use crate::host::Turn;
@@ -43,11 +45,10 @@ pub use sizes::Window;
 
 /// The words a screen has before any server has answered.
 ///
-/// The address screen is drawn when there is no server to ask, so the English file travels in the
-/// binary. It is the same file `check_strings.py` holds every other language to, read at build
-/// time and never copied: `server-pages/src/words.rs` does exactly this for the same reason. Every
-/// one of them is replaced by `/v1/strings/{lang}` as soon as a server answers, so a viewer sees
-/// English only before they have named a server.
+/// While waiting for the server's strings, the English file travels in the binary. It is the same
+/// file `check_strings.py` holds every other language to, read at build time and never copied:
+/// `server-pages/src/words.rs` does exactly this for the same reason. Every one of them is replaced
+/// by `/v1/strings/{lang}` as soon as a server answers.
 const FIRST_WORDS: &str = include_str!("../../../../strings/en.json");
 
 /// The id this surface gives its own request for the words. A reply carries the id of the event
@@ -57,14 +58,9 @@ const WORDS: &str = "surface.words";
 /// The label a trouble falls back to when the one a refusal named has no words on this server.
 const FAILED: &str = "problem-failed";
 
-/// What the address screen says when the server it was given never answered.
-const UNREACHED: &str = "error.no_server";
-
 /// Which screen is up.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Face {
-    /// No server yet: the one screen that is this family's own.
-    Address,
     /// The way in, before a name is given.
     Door,
     /// Sign in.
@@ -73,6 +69,8 @@ pub enum Face {
     Gate,
     /// A page of rows.
     Browse,
+    /// The picture, and the controls over it.
+    Watch,
     /// The core has not said yet.
     Waiting,
 }
@@ -80,9 +78,6 @@ pub enum Face {
 /// What a screen asks the shell for. Nothing here performs anything.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Ask {
-    /// Open the core against this server. Only the address screen asks it, once, and the shell
-    /// holds the address from there on: no screen keeps one.
-    Server(String),
     /// Hand the core this action, as an event.
     Act(Action),
     /// Open this address, as an event the core routes.
@@ -97,7 +92,6 @@ pub enum Ask {
 
 /// Everything the core and the server have told these screens, and where the viewer is in them.
 pub struct Surface {
-    opened: bool,
     words: BTreeMap<String, String>,
     hello: Option<Hello>,
     route: Option<RouteTarget>,
@@ -106,14 +100,13 @@ pub struct Surface {
     nav: Vec<NavItem>,
     screen: Option<Screen>,
     notice: Option<Notice>,
+    play: Option<PlayView>,
+    position_ms: u64,
     /// What is typed in each field. A secret field's text is here and never in a scene.
     typed: BTreeMap<Field, String>,
     caret: Option<Field>,
     /// The profile whose PIN is being asked for.
     locked: Option<String>,
-    /// A label the screen that is up should say, where the shell or the core has told this
-    /// surface something that is not a notice over a page.
-    trouble: Option<String>,
     /// How far the page of rows is scrolled, in pixels.
     down: f64,
     /// How many pages each row has been moved along, by its section id.
@@ -127,11 +120,11 @@ impl Default for Surface {
 }
 
 impl Surface {
-    /// A surface with the words it has before a server exists, on the address screen.
+    /// A surface with the initial words from `strings/en.json`, waiting until the core's `View`
+    /// routes to a screen.
     #[must_use]
     pub fn new() -> Self {
         Self {
-            opened: false,
             words: serde_json::from_str(FIRST_WORDS).unwrap_or_default(),
             hello: None,
             route: None,
@@ -140,10 +133,11 @@ impl Surface {
             nav: Vec::new(),
             screen: None,
             notice: None,
+            play: None,
+            position_ms: 0,
             typed: BTreeMap::new(),
             caret: None,
             locked: None,
-            trouble: None,
             down: 0.0,
             paged: BTreeMap::new(),
         }
@@ -152,9 +146,6 @@ impl Surface {
     /// Which screen is up.
     #[must_use]
     pub fn face(&self) -> Face {
-        if !self.opened {
-            return Face::Address;
-        }
         if self.gate && !self.profiles.is_empty() {
             return Face::Gate;
         }
@@ -163,24 +154,33 @@ impl Surface {
             Some(Target::SignIn) => Face::SignIn,
             Some(Target::Profiles) => Face::Gate,
             Some(Target::Home | Target::KidsHome | Target::Screen | Target::Title) => Face::Browse,
+            Some(Target::Watch) => Face::Watch,
+            None if self.play.is_some() => Face::Watch,
             // Everything else is a screen this surface has not drawn yet, and it waits rather
-            // than drawing a page of rows that is not the page the core asked for: a film
-            // (`Watch`), the device approval screen (`Activate`), a page that is not there
-            // (`NotFound`) and a build this server refuses (`Upgrade`).
+            // than drawing a page of rows that is not the page the core asked for: the device
+            // approval screen (`Activate`), a page that is not there (`NotFound`) and a build
+            // this server refuses (`Upgrade`).
             _ => Face::Waiting,
         }
     }
 
-    /// The shell could not reach the server this surface asked it to open.
-    ///
-    /// It goes back to the address screen with the address still in the box, so a mistyped one is
-    /// corrected rather than retyped, and with the words for what happened. The shell calls this
-    /// when `Host::open` refuses and when the first request to that server never answers; this
-    /// surface has no port and cannot tell either by itself.
-    pub fn no_server(&mut self) {
-        self.opened = false;
-        self.trouble = Some(UNREACHED.to_owned());
-        self.caret = Some(Field::Server);
+    /// Record the player's current position in milliseconds so `TimeWindow` skip marks and
+    /// overlays can be compared against player time.
+    pub fn at(&mut self, position_ms: u64) {
+        self.position_ms = position_ms;
+    }
+
+    /// The player's last reported position in milliseconds.
+    #[must_use]
+    pub fn position_ms(&self) -> u64 {
+        self.position_ms
+    }
+
+    /// The active `TimeWindow` of one of `kinds` covering `position_ms`.
+    #[must_use]
+    pub fn window_now(&self, kinds: &[WindowKind]) -> Option<&TimeWindow> {
+        let play = self.play.as_ref()?;
+        watch::window_now(&play.windows, self.position_ms, kinds)
     }
 
     /// Ask for the interface's words in this language. The shell knows which language the machine
@@ -247,6 +247,9 @@ impl Surface {
         if let Some(hello) = &view.hello {
             self.hello = Some(hello.clone());
         }
+        if let Some(play) = &view.play {
+            self.play = Some(play.clone());
+        }
     }
 
     /// The screen, laid out for a window this size.
@@ -259,11 +262,11 @@ impl Surface {
             Corner::Square,
         ));
         match self.face() {
-            Face::Address => door::address(self, &mut scene),
             Face::Door => door::landing(self, &mut scene),
             Face::SignIn => door::sign_in(self, &mut scene),
             Face::Gate => gate::draw(self, &mut scene),
             Face::Browse => browse::draw(self, &mut scene),
+            Face::Watch => watch::draw(self, &mut scene),
             Face::Waiting => browse::waiting(self, &mut scene),
         }
         if let Some(notice) = &self.notice {
@@ -290,16 +293,6 @@ impl Surface {
     /// that only move this surface are taken here, so a shell never sees them.
     fn does(&mut self, ask: Ask) -> Vec<Ask> {
         match ask {
-            Ask::Server(address) => {
-                let address = address.trim().to_owned();
-                if address.is_empty() {
-                    return Vec::new();
-                }
-                self.opened = true;
-                self.trouble = None;
-                self.caret = None;
-                vec![Ask::Server(address)]
-            }
             Ask::Act(Action::EnterProfile { profile, pin: None })
                 if self.profile_is_locked(&profile) =>
             {
@@ -350,7 +343,6 @@ impl Surface {
     /// because what a key does is the screen's and not the layout's.
     pub fn submit(&mut self) -> Vec<Ask> {
         let ask = match self.face() {
-            Face::Address => Some(Ask::Server(self.text_in(Field::Server).to_owned())),
             Face::SignIn => Some(Ask::Act(Action::SignIn {
                 email: self.text_in(Field::Email).to_owned(),
                 password: self.text_in(Field::Password).to_owned(),
@@ -605,16 +597,6 @@ mod tests {
     use crate::host::{Reply, Turn};
     use contract::core_msg::{GateView, Target, View};
 
-    /// A surface that has been given a server, so the screens behind the address one can be
-    /// reached without a core.
-    pub fn opened() -> Surface {
-        let mut surface = Surface::new();
-        surface.write(Field::Server, "https://example.test");
-        let asks = surface.submit();
-        assert!(matches!(asks.first(), Some(Ask::Server(_))), "{asks:?}");
-        surface
-    }
-
     impl Surface {
         /// Type into a field, as a viewer does: put the caret in it first.
         pub fn write(&mut self, field: Field, text: &str) {
@@ -662,19 +644,14 @@ mod tests {
     }
 
     #[test]
-    fn a_surface_with_no_server_is_on_the_address_screen_and_nowhere_else() {
+    fn a_new_surface_waits_for_the_core_s_route() {
         let surface = Surface::new();
-        assert_eq!(surface.face(), Face::Address);
-        // And it stays there whatever the core says, because there is no core until a server is
-        // named: a route that arrived first would otherwise draw a page of rows over nothing.
-        let mut surface = surface;
-        route(&mut surface, Target::Home);
-        assert_eq!(surface.face(), Face::Address);
+        assert_eq!(surface.face(), Face::Waiting);
     }
 
     #[test]
     fn the_core_s_route_decides_which_screen_is_up() {
-        let mut surface = opened();
+        let mut surface = Surface::new();
         assert_eq!(surface.face(), Face::Waiting);
         for (target, face) in [
             (Target::Start, Face::Door),
@@ -683,6 +660,7 @@ mod tests {
             (Target::Screen, Face::Browse),
             (Target::KidsHome, Face::Browse),
             (Target::Profiles, Face::Gate),
+            (Target::Watch, Face::Watch),
             (Target::Wait, Face::Waiting),
         ] {
             route(&mut surface, target);
@@ -694,7 +672,7 @@ mod tests {
     /// watching without changing the address.
     #[test]
     fn the_gate_shows_over_the_page_the_viewer_was_on() {
-        let mut surface = opened();
+        let mut surface = Surface::new();
         route(&mut surface, Target::Home);
         let mut turn = Turn::default();
         turn.views.push(View {
@@ -732,7 +710,7 @@ mod tests {
     /// for them carries the id this surface matches the answer by.
     #[test]
     fn the_server_s_words_replace_the_ones_the_binary_carries() {
-        let mut surface = opened();
+        let mut surface = Surface::new();
         let Ask::Read { id, path } = Surface::speak("fr") else {
             panic!("the words are asked for by a read");
         };
@@ -774,7 +752,7 @@ mod tests {
     /// reads back wrong.
     #[test]
     fn a_filled_value_keeps_its_own_order_inside_the_line() {
-        let mut surface = opened();
+        let mut surface = Surface::new();
         surface
             .words
             .insert("say.test".to_owned(), "{name}, locked".to_owned());
@@ -805,7 +783,7 @@ mod tests {
 
     #[test]
     fn a_character_typed_with_the_caret_nowhere_goes_nowhere() {
-        let mut surface = opened();
+        let mut surface = Surface::new();
         surface.typed('a');
         assert_eq!(surface.text_in(Field::Email), "");
         surface.rubbed();
@@ -819,7 +797,7 @@ mod tests {
     /// a label this server has rather than to silence.
     #[test]
     fn a_notice_is_drawn_over_the_screen_and_always_says_something() {
-        let mut surface = opened();
+        let mut surface = Surface::new();
         route(&mut surface, Target::Home);
         let mut turn = Turn::default();
         turn.notices.push(contract::error::Notice {

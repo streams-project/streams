@@ -558,3 +558,13 @@ export const NOTICE_DOT: number = 8;
  * `notifications/Notifications.kt:105`: `lastVisible >= items.size - 3`.
  */
 export const NOTICES_AHEAD: number = 3;
+
+// ---------------------------------------------------------------------------------------------
+// The player screen, read from `apps/android/surfaces/phone/src/main/kotlin/streams/phone/watch/Watch.kt`.
+
+/** The controls stay up for 3000 ms, 24 in from the edge, the clock 14 above a 4 bar. `watch/Watch.kt:46,105,109-110`. */
+export const WATCH_CONTROLS_MS: number = 3000;
+export const WATCH_PAD: number = 24;
+export const WATCH_CLOCK_BOTTOM: number = 14;
+export const WATCH_CLOCK_TYPE: number = 14;
+export const WATCH_BAR_HIGH: number = 4;

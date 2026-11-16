@@ -30,14 +30,13 @@ const ADDRESS_SIZE = 32;
 export function Lost(props: { shell: Shell }) {
   const seen = () => props.shell.seen();
   // The address, always: it is the one thing on this screen that did not have to be fetched to be
-  // known. A run that was never given one at all has `refused` instead, which is the address this
-  // app would not take (`src/host.ts`, `connect`).
+  // known. A run that was given an address this app refused has `refused` instead (`src/host.ts`).
   const address = () => (seen().server !== "" ? seen().server : seen().refused);
 
   const { ref } = screenRemote({
     read: (word) => {
       if (word !== "ok") return false;
-      props.shell.connect(address());
+      props.shell.retry();
       return true;
     },
     rtl: () => seen().rtl,

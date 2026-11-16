@@ -368,22 +368,25 @@ fn Card(tile: Tile, #[prop(default = None)] rank: Option<u32>) -> impl IntoView 
         .map(|url| format!("background-image:url('{url}')"));
     let says = tile_says(shared, &tile, rank);
     view! {
-        <button class="card" style=style on:click=move |_| host::go(&address) aria-label=says>
-            // The numeral is drawn twice over itself as a fill and a stroke, and the place it says
-            // is already in the tile's own words, so it is a decoration (`browse/Rows.kt:264-267`).
+        <div class="tile">
+            <button class="card" style=style on:click=move |_| host::go(&address) aria-label=says>
+                {picture.is_none().then(|| view! { <span class="card-name">{name.clone()}</span> })}
+                {percent.map(|percent| view! {
+                    <span class="progress" aria-hidden="true">
+                        <span style=format!("width:{percent}%")></span>
+                    </span>
+                })}
+            </button>
+            // Decorative overlays sit beside `<button>` rather than inside it: the rank numeral
+            // and the "New" badge are already visual decorations (and rank is already in `says`),
+            // and WCAG 2.5.3 / Axe visible-text extraction includes `aria-hidden` descendants.
             {rank.map(|rank| view! {
                 <span class="rank" aria-hidden="true">{number(shared, rank)}</span>
             })}
-            {picture.is_none().then(|| view! { <span class="card-name">{name.clone()}</span> })}
             {new.then(|| view! {
                 <span class="badge" aria-hidden="true">{label_text(shared, "badge.new")}</span>
             })}
-            {percent.map(|percent| view! {
-                <span class="progress" aria-hidden="true">
-                    <span style=format!("width:{percent}%")></span>
-                </span>
-            })}
-        </button>
+        </div>
     }
 }
 
@@ -1781,5 +1784,33 @@ mod tests {
         );
         assert_eq!(f64::from(WidthClass::Expanded.page_edge()), desk);
         assert!(phone < desk, "the inset grows with the window");
+    }
+
+    /// Decorative rank and badge spans live outside `<button class="card">` so Axe's visible-text
+    /// extraction for WCAG 2.5.3 never prepends the rank numeral or appends the badge to the
+    /// button's visible label.
+    #[test]
+    fn card_button_keeps_decorative_overlays_outside_the_button() {
+        let code = source("apps/web/src/surfaces/browse.rs");
+        let prod = code.split_once("#[cfg(test)]").expect("tests").0;
+        let card = prod.split_once("fn Card(").expect("Card component").1;
+        let button = card
+            .split_once("<button class=\"card\"")
+            .expect("card button")
+            .1
+            .split_once("</button>")
+            .expect("closing button")
+            .0;
+        assert!(
+            !button.contains("class=\"rank\"") && !button.contains("class=\"badge\""),
+            "decorative overlays must stay outside <button class=\"card\">: {button}"
+        );
+        let wrapper = card.split_once("</button>").expect("after button").1;
+        assert!(
+            wrapper.contains("class=\"rank\"") && wrapper.contains("class=\"badge\""),
+            "expected .rank and .badge inside .tile beside <button>"
+        );
+        let css = flat(&source(SITE));
+        assert!(css.contains(".tile {") && css.contains("pointer-events: none;"));
     }
 }

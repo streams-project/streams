@@ -44,8 +44,6 @@ fun Television(shell: Shell) {
         ProvideTextStyle(TextStyle(fontFamily = BrandFont)) {
             Box(Modifier.fillMaxSize().background(Color.Black)) {
                 val target = seen.route?.target
-                // A run of the app with no server yet starts at the address screen, with no opening.
-                if (seen.server.isEmpty() && !opening.opened) opening.over()
                 // Under the opening the first screen is built and loading, and drawn once the first stage is over.
                 Box(Modifier.fillMaxSize().graphicsLayer { alpha = if (opening.shown || opening.opened) 1f else 0f }) {
                 // A right to left language mirrors every screen; the player keeps its own way (Watch).
@@ -71,7 +69,6 @@ fun Television(shell: Shell) {
                     inside = true
                 }
                 when {
-                    seen.server.isEmpty() -> Server(shell, seen)
                     // A route with no answer behind it yet: the page waits with its destination
                     // lit, as the reference does, instead of drawing nothing at all (Waiting.kt).
                     // It waits for a bounded time and then says it cannot reach the server, which
@@ -109,7 +106,7 @@ fun Television(shell: Shell) {
                 }
                 }
                 }
-                if (seen.server.isNotEmpty()) OpeningLayer(shell, seen, opening)
+                OpeningLayer(shell, seen, opening)
             }
         }
     }

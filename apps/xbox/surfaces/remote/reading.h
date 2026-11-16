@@ -43,6 +43,7 @@
 
 #include "Contract.hpp"
 #include "place.h"
+#include "watch.h"
 
 namespace streams::reading {
 
@@ -97,6 +98,16 @@ place::Feed feedOf(const std::vector<contract::NavItem> &bar, int active,
                    const std::optional<contract::Profile> &person, const std::string &server,
                    const std::vector<contract::Section> &rows,
                    const std::optional<contract::Tile> &lead, const std::string &empty);
+
+// One `contract::TimeWindow`, flattened into `watch::Window`.
+watch::Window windowOf(const contract::TimeWindow &window);
+
+// A list of `contract::TimeWindow` marks (from `contract::Marks` or `contract::PlayView`),
+// flattened into `watch::Window`.
+std::vector<watch::Window> windowsOf(const std::vector<contract::TimeWindow> &windows);
+
+// `contract::PlayView`, flattened into `watch::Play`.
+watch::Play playOf(const contract::PlayView &view);
 
 } // namespace streams::reading
 

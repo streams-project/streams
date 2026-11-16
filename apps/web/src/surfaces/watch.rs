@@ -1,6 +1,7 @@
 //! The player page. The core runs the session; this draws its state and passes on the controls.
 
-use contract::core_msg::{Action, PlayState};
+use contract::core_msg::{Action, PlayState, PlayView};
+use contract::play::{TimeWindow, WindowKind};
 use leptos::html::Div;
 use leptos::prelude::*;
 
@@ -31,6 +32,81 @@ fn clock_text(ms: u64, digits: &str) -> String {
 fn leave() {
     host::act(Action::Stop);
     address::back();
+}
+
+/// What a skip control does when pressed: jump ahead in this video, or open the next episode.
+#[derive(Clone, Debug, PartialEq, Eq)]
+enum SkipTarget {
+    Seek(u64),
+    Next(String),
+}
+
+impl SkipTarget {
+    fn run(&self) {
+        self.apply(|to_ms| host::act(Action::Seek { to_ms }), host::go);
+    }
+
+    fn apply(&self, seek: impl FnOnce(u64), next: impl FnOnce(&str)) {
+        match self {
+            Self::Seek(to_ms) => seek(*to_ms),
+            Self::Next(address) => next(address),
+        }
+    }
+}
+
+/// The skip control offered at a moment of the video: its label key and what pressing it does.
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct SkipOffer {
+    label: &'static str,
+    target: SkipTarget,
+}
+
+/// The first window of one of `kinds` that covers `at_ms`. `Moments.kt:33-34`, `Moments.swift:8-10`.
+fn window_now<'a>(
+    windows: &'a [TimeWindow],
+    at_ms: u64,
+    kinds: &[WindowKind],
+) -> Option<&'a TimeWindow> {
+    windows.iter().find(|window| {
+        kinds.contains(&window.kind) && (window.start_ms..window.end_ms).contains(&at_ms)
+    })
+}
+
+/// The skip offer for `play` at `at_ms`. `Watch.kt:257-258`, `:373-376`, `:488-494`;
+/// `Watch.swift:209-210`, `:277`, `:400-403`.
+fn skip_offer(play: &PlayView, at_ms: u64) -> Option<SkipOffer> {
+    if play.state == PlayState::Failed {
+        return None;
+    }
+    if let Some(part) = window_now(
+        &play.windows,
+        at_ms,
+        &[WindowKind::Intro, WindowKind::Recap],
+    ) {
+        let label = match part.kind {
+            WindowKind::Intro => "player.skip_intro",
+            _ => "player.skip_recap",
+        };
+        return Some(SkipOffer {
+            label,
+            target: SkipTarget::Seek(part.seek_to_ms.unwrap_or(part.end_ms)),
+        });
+    }
+    let episode = play.next_episode.as_ref()?;
+    window_now(&play.windows, at_ms, &[WindowKind::Credits]).map(|_| SkipOffer {
+        label: "player.next",
+        target: SkipTarget::Next(watch_address(play.title, Some(episode))),
+    })
+}
+
+/// The active skip offer for the current playback state and clock, with its localized words.
+fn active_skip(shared: Shared) -> Option<(String, SkipOffer)> {
+    let at_ms = shared.clock.get().time_ms;
+    let offer = shared
+        .play
+        .with(|play| play.as_ref().and_then(|play| skip_offer(play, at_ms)))?;
+    let words = maybe_text(shared, offer.label)?;
+    Some((words, offer))
 }
 
 #[component]
@@ -136,6 +212,14 @@ pub fn Watch() -> impl IntoView {
                     {move || label_text(shared, "player.back")}
                 </button>
             </div>
+            {move || active_skip(shared).map(|(words, offer)| view! {
+                <button
+                    class="solid watch-skip"
+                    on:click=move |_| offer.target.run()
+                >
+                    {words}
+                </button>
+            })}
             <div class="watch-bottom">
                 // The bar is a slider, and a slider has to say where it is: a reader hears a bare
                 // number from a range otherwise, with no idea what of.
@@ -212,7 +296,13 @@ pub fn Watch() -> impl IntoView {
 
 #[cfg(test)]
 mod tests {
-    use super::{SEEK_MS, clock_text};
+    use contract::core_msg::{PlayState, PlayView};
+    use contract::play::{TimeWindow, WindowKind};
+    use contract::{EpisodeRef, TitleKey, TitleKind};
+    use leptos::prelude::{Owner, Set};
+
+    use super::{SEEK_MS, SkipOffer, SkipTarget, active_skip, clock_text, skip_offer};
+    use crate::state::{Clock, Shared};
     use crate::surfaces::tests_support::{english, numbers, source};
 
     #[test]
@@ -239,6 +329,138 @@ mod tests {
     }
 
     #[test]
+    fn a_time_window_offers_the_right_skip_label_and_runs_its_action() {
+        Owner::new().with(|| {
+            let shared = Shared::new();
+            shared.strings.set(english());
+            let play = PlayView {
+                state: PlayState::Playing,
+                title: TitleKey::new(TitleKind::Tv, 42).expect("a valid title key"),
+                episode: Some(EpisodeRef {
+                    season: 1,
+                    episode: 2,
+                }),
+                attempt: Some(String::from("a1")),
+                windows: vec![
+                    TimeWindow {
+                        kind: WindowKind::Recap,
+                        start_ms: 5_000,
+                        end_ms: 25_000,
+                        seek_to_ms: None,
+                        text: None,
+                    },
+                    TimeWindow {
+                        kind: WindowKind::Intro,
+                        start_ms: 30_000,
+                        end_ms: 90_000,
+                        seek_to_ms: Some(92_000),
+                        text: None,
+                    },
+                    TimeWindow {
+                        kind: WindowKind::Credits,
+                        start_ms: 1_200_000,
+                        end_ms: 1_260_000,
+                        seek_to_ms: None,
+                        text: None,
+                    },
+                ],
+                next_episode: Some(EpisodeRef {
+                    season: 1,
+                    episode: 3,
+                }),
+                still_asking: false,
+            };
+            shared.play.set(Some(play.clone()));
+
+            // Before any window starts, no skip control is shown.
+            shared.clock.set(Clock {
+                time_ms: 4_999,
+                duration_ms: 1_260_000,
+            });
+            assert_eq!(active_skip(shared), None);
+
+            // Inside the recap window, the control shows "Skip Recap" and seeks to `end_ms` when
+            // `seek_to_ms` is absent.
+            shared.clock.set(Clock {
+                time_ms: 5_000,
+                duration_ms: 1_260_000,
+            });
+            let (words, offer) = active_skip(shared).expect("recap skip offer");
+            assert_eq!(words, "Skip Recap");
+            assert_eq!(
+                offer,
+                SkipOffer {
+                    label: "player.skip_recap",
+                    target: SkipTarget::Seek(25_000),
+                }
+            );
+            let mut sought = None;
+            let mut opened = None;
+            offer.target.apply(
+                |to_ms| sought = Some(to_ms),
+                |addr| opened = Some(addr.to_owned()),
+            );
+            assert_eq!(sought, Some(25_000));
+            assert_eq!(opened, None);
+
+            // The end boundary is exclusive.
+            shared.clock.set(Clock {
+                time_ms: 25_000,
+                duration_ms: 1_260_000,
+            });
+            assert_eq!(active_skip(shared), None);
+
+            // Inside the intro window, the control shows "Skip Intro" and seeks to `seek_to_ms`.
+            shared.clock.set(Clock {
+                time_ms: 45_000,
+                duration_ms: 1_260_000,
+            });
+            let (words, offer) = active_skip(shared).expect("intro skip offer");
+            assert_eq!(words, "Skip Intro");
+            assert_eq!(
+                offer,
+                SkipOffer {
+                    label: "player.skip_intro",
+                    target: SkipTarget::Seek(92_000),
+                }
+            );
+            let mut sought = None;
+            offer.target.apply(|to_ms| sought = Some(to_ms), |_| {});
+            assert_eq!(sought, Some(92_000));
+
+            // Inside the credits window with a next episode available, the control shows
+            // "Next Episode" and navigates to that episode's watch address.
+            shared.clock.set(Clock {
+                time_ms: 1_210_000,
+                duration_ms: 1_260_000,
+            });
+            let (words, offer) = active_skip(shared).expect("credits next offer");
+            assert_eq!(words, "Next Episode");
+            assert_eq!(
+                offer,
+                SkipOffer {
+                    label: "player.next",
+                    target: SkipTarget::Next(String::from("/watch/tv/42/1/3")),
+                }
+            );
+            let mut opened = None;
+            offer
+                .target
+                .apply(|_| {}, |addr| opened = Some(addr.to_owned()));
+            assert_eq!(opened.as_deref(), Some("/watch/tv/42/1/3"));
+
+            // Credits without a next episode offer nothing, and a failed play offers nothing.
+            let mut finale = play.clone();
+            finale.next_episode = None;
+            assert_eq!(skip_offer(&finale, 1_210_000), None);
+
+            let mut failed = play;
+            failed.state = PlayState::Failed;
+            assert_eq!(skip_offer(&failed, 45_000), None);
+        });
+    }
+
+    #[test]
     fn every_label_this_player_names_is_in_the_strings_file() {
         let book = english();
         for label in [
@@ -247,6 +469,8 @@ mod tests {
             "player.audio",
             "player.back",
             "player.next",
+            "player.skip_intro",
+            "player.skip_recap",
             "player.subtitles",
             "player.subtitles_off",
             "say.loading",

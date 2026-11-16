@@ -30,12 +30,10 @@ public struct Television: View {
                 .environment(\.pages, memory)
                 // A right to left language mirrors every screen; the player keeps its own way (Watch).
                 .environment(\.layoutDirection, seen.rtl ? .rightToLeft : .leftToRight)
-            if !seen.server.isEmpty { OpeningLayer(shell: shell, seen: seen, state: opening) }
+            OpeningLayer(shell: shell, seen: seen, state: opening)
         }
         .frame(width: 1920.ref, height: 1080.ref, alignment: .topLeading)
         .ignoresSafeArea()
-        // A run of the app with no server yet starts at the address screen, with no opening.
-        .onChange(of: seen.server.isEmpty, initial: true) { _, none in if none { opening.over() } }
         .onChange(of: seen.route?.target) { _, target in
             if let target, ![.wait, .profiles, .start, .signIn].contains(target) { inside = true }
         }
@@ -44,9 +42,7 @@ public struct Television: View {
     @ViewBuilder
     private func screens(_ seen: Seen) -> some View {
         ZStack {
-            if seen.server.isEmpty {
-                ServerAddress(shell: shell)
-            } else if let target = seen.route?.target {
+            if let target = seen.route?.target {
                 switch target {
                 case .start:
                     Door(shell: shell, seen: seen, state: opening)

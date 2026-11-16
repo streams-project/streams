@@ -173,6 +173,14 @@ export function pauseAction(): Action {
   return { action: 'pause' };
 }
 
+export function unpauseAction(): Action {
+  return { action: 'unpause' };
+}
+
+export function seekAction(toMs: number): Action {
+  return { action: 'seek', to_ms: toMs };
+}
+
 export function stopAction(): Action {
   return { action: 'stop' };
 }

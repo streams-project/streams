@@ -62,5 +62,9 @@ echo "== the touch surface read against what it was written from"
 python3 platform/tools/touch_check.py
 
 echo
-echo "all three held. Nothing here ran HarmonyOS, DevEco, a compiler for ArkTS or a Huawei device,"
+echo "== the touch player and its skip marks"
+python3 apps/harmony/surfaces/touch/test/watch_test.py
+
+echo
+echo "all four held. Nothing here ran HarmonyOS, DevEco, a compiler for ArkTS or a Huawei device,"
 echo "and no line of ArkTS in this folder has been compiled. See apps/harmony/README.md."

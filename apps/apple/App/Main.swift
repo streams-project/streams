@@ -10,6 +10,7 @@ struct MainApp: App {
     @Environment(\.scenePhase) private var phase
 
     init() {
+        let server = Bundle.main.object(forInfoDictionaryKey: "SERVER") as? String ?? ""
         let host = Host(
             network: UrlNetwork(),
             secrets: KeychainSecrets(),
@@ -20,7 +21,8 @@ struct MainApp: App {
             deviceClass: ThisDevice.deviceClass,
             form: ThisDevice.form,
             version: ThisDevice.version,
-            os: ThisDevice.os
+            os: ThisDevice.os,
+            server: server
         )
         RemoteUIView.heard = { host.touched() }
         _host = State(initialValue: host)

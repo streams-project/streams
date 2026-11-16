@@ -21,6 +21,9 @@ mod ports;
 pub mod surfaces;
 
 pub use adapters::{FileSecrets, FileStore, HttpNetwork, NoPlayer};
-pub use host::{APP, Host, Opening, Ports, Reply, Settings, Turn};
+pub use host::{
+    APP, DEPLOYMENT_FILE, DeploymentError, Host, Opening, Ports, Reply, Settings, Turn,
+    server_from_deployment,
+};
 pub use ports::{Answer, Call, Done, Network, Player, Secrets, Store};
 pub use surfaces::{Ask, Face, Surface, Window};

@@ -4,7 +4,8 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 
 use contract::core_msg::{
-    Action, CoreConfig, CoreIn, CoreOut, Effect, EffectBody, Event, EventBody, HttpMethod, View,
+    Action, CoreConfig, CoreIn, CoreOut, Effect, EffectBody, Event, EventBody, HttpMethod,
+    SessionState, SessionView, View,
 };
 use contract::screen::ScreenName;
 use contract::version::WIRE_VERSION;
@@ -115,7 +116,6 @@ pub fn start(shared: Shared) {
     step(Vec::new());
     go(&opened_at);
     read_words(shared, &language::preferred());
-    count_notices(shared);
 }
 
 /// The words of the interface, in a language, with the page told which way that language runs.
@@ -198,8 +198,24 @@ fn match_language(shared: Shared) {
     }
 }
 
+/// True once a viewer is in an active signed-in session (not signed out or a visitor).
+fn is_signed_in(session: Option<&SessionView>) -> bool {
+    session.is_some_and(|s| s.state == SessionState::SignedIn)
+}
+
+/// True only when a view enters `SignedIn` from a non-signed-in state, avoiding repeat polls.
+fn should_count_notices(was_signed_in: bool, next: Option<&SessionView>) -> bool {
+    !was_signed_in && is_signed_in(next)
+}
+
 /// How many notices are waiting, for the bell on the top bar. `GET /v1/notifications/count`.
 pub fn count_notices(shared: Shared) {
+    if !shared
+        .session
+        .with_untracked(|session| is_signed_in(session.as_ref()))
+    {
+        return;
+    }
     ask(
         HttpMethod::Get,
         "/v1/notifications/count",
@@ -373,6 +389,10 @@ fn apply(out: CoreOut) -> Vec<Event> {
 
 fn show(view: View, shared: Shared) {
     let moved = view.session.is_some() || view.profiles.is_some();
+    let was_signed_in = shared
+        .session
+        .with_untracked(|session| is_signed_in(session.as_ref()));
+    let fetch_notices = should_count_notices(was_signed_in, view.session.as_ref());
     if let Some(session) = view.session {
         shared.session.set(Some(session));
     }
@@ -402,6 +422,9 @@ fn show(view: View, shared: Shared) {
     // Last, because it reads the session and the profiles this view may just have written.
     if moved {
         match_language(shared);
+    }
+    if fetch_notices {
+        count_notices(shared);
     }
 }
 
@@ -485,7 +508,21 @@ pub fn keep_page(path: &str, text: &str) {
 
 #[cfg(test)]
 mod tests {
-    use super::form_of;
+    use contract::core_msg::{SessionState, SessionView};
+
+    use super::{form_of, should_count_notices};
+
+    fn session(state: SessionState) -> SessionView {
+        SessionView {
+            state,
+            user_id: None,
+            email: None,
+            expires_at_ms: None,
+            profile: None,
+            scope: None,
+            ended: None,
+        }
+    }
 
     #[test]
     fn a_browser_on_a_phone_draws_in_a_phone_s_form() {
@@ -500,5 +537,16 @@ mod tests {
         assert_eq!(form_of(1440.0), "desktop");
         // A width a browser would not give reads as the form with the shortest idle limit.
         assert_eq!(form_of(f64::INFINITY), "desktop");
+    }
+
+    #[test]
+    fn notifications_count_only_polls_on_signed_in_entry() {
+        let signed_out = session(SessionState::SignedOut);
+        let signed_in = session(SessionState::SignedIn);
+        assert!(!should_count_notices(false, None));
+        assert!(!should_count_notices(false, Some(&signed_out)));
+        assert!(should_count_notices(false, Some(&signed_in)));
+        assert!(!should_count_notices(true, Some(&signed_in)));
+        assert!(!should_count_notices(true, Some(&signed_out)));
     }
 }

@@ -28,7 +28,7 @@ import android.view.ViewTreeObserver;
  * focusable children here, so blocking costs nothing and is the only constant that cannot be
  * defeated by one child added later with a background that happens to be focusable.
  * {@code FOCUS_BEFORE_DESCENDANTS} is right for exactly one kind of screen: one with a real text
- * field, which today is {@code tv/door/ServerAddress.kt} and which note 205 removes.</li>
+ * field, which note 205 removes (no television screen keeps a text field now).</li>
  * <li><b>No {@code nextFocusLeft}/{@code Right}/{@code Up}/{@code Down}, anywhere.</b> Said in the
  * code because it is the obvious thing to reach for and it would be wrong: with one focusable node
  * there is no focus search to steer, and declaring the attributes would re-create the per-control

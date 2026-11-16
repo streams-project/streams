@@ -34,14 +34,11 @@ public enum NativeCore {
 
 /// Steps the core and performs what it asks, through the ports.
 public final class Host: Shell, @unchecked Sendable {
-    private static let serverKey = "app:server"
     private static let defaultLanguage = "en"
     private static let wakeCapMs: Int64 = 60_000
     private static let touchEveryMs: Int64 = 10_000
     private static let restartLimit = 3
-    // Said to the viewer, not logged: these two are the only moments the host has words of its own.
-    private static let plainRefused =
-        "This address must start with https://. Plain http reaches only a server on your own network."
+    // Said to the viewer, not logged: this is the only moment the host has words of its own.
     private static let coreStopped = "This app could not start. Close it and open it again."
 
     private let network: Network
@@ -88,7 +85,8 @@ public final class Host: Shell, @unchecked Sendable {
         deviceClass: DeviceClass,
         form: Form,
         version: String,
-        os: String
+        os: String,
+        server: String
     ) {
         self.network = network
         self.secrets = secrets
@@ -100,6 +98,20 @@ public final class Host: Shell, @unchecked Sendable {
         self.form = form
         self.version = version
         self.os = os
+
+        let trimmed = server
+            .trimmingCharacters(in: .whitespaces)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        self.base = trimmed
+        if Thread.isMainThread {
+            MainActor.assumeIsolated {
+                seen.server = trimmed
+            }
+        } else {
+            Task { @MainActor in
+                self.seen.server = trimmed
+            }
+        }
 
         network.watch { [weak self] online in
             self?.sendEvents([Event(id: nil, body: .network(EventNetwork(online: online)))])
@@ -124,81 +136,19 @@ public final class Host: Shell, @unchecked Sendable {
             self.sendEvents([Event(id: nil, body: .driver(EventDriver(event: event, generation: Int(generation))))])
         }
 
-        if let kept = secrets.get(Self.serverKey) {
-            connect(kept)
-        } else if let envServer = ProcessInfo.processInfo.environment["SERVER_URL"], !envServer.isEmpty {
-            connect(envServer)
-        }
-    }
-
-    /// The one gate every server address passes, typed or kept. Plain http carries the session's
-    /// bearer and refresh tokens in the clear, so it may only reach the viewer's own network;
-    /// anything else must be https. A refused address is said, not swallowed.
-    public func connect(_ server: String) {
-        let trimmed = server
-            .trimmingCharacters(in: .whitespaces)
-            .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        guard let plain = Self.encryption(of: trimmed) else {
-            Task { @MainActor in self.said(Self.plainRefused) }
-            return
-        }
-        // The screens see a kept server from the first frame, so a run with a server never looks
-        // like a first run without one.
-        if Thread.isMainThread {
-            MainActor.assumeIsolated {
-                seen.server = trimmed
-                seen.serverPlain = plain
-                // A notice is one time. This address was taken, so a refusal still sitting in the
-                // app wide slot is not news any more and must not be read as a screen's own error.
-                seen.notice = nil
-            }
-        }
-        queue.async {
-            self.base = trimmed
-            _ = self.secrets.put(Self.serverKey, self.base)
-            Task { @MainActor in
-                self.seen.server = self.base
-                self.seen.serverPlain = plain
-                self.seen.notice = nil
-            }
-            if self.handle == nil {
+        if !trimmed.isEmpty {
+            queue.async {
                 self.open()
             }
         }
     }
 
-    /// True when this address is reached in the clear, false when it is encrypted, and nil when it
-    /// may not be used at all.
-    static func encryption(of server: String) -> Bool? {
-        let lower = server.lowercased()
-        if lower.hasPrefix("https://") { return false }
-        guard lower.hasPrefix("http://") else { return nil }
-        return ownNetwork(host(of: lower)) ? true : nil
-    }
-
-    /// The host of an address, with the port, the path and an IPv6 address's brackets taken off.
-    private static func host(of address: String) -> String {
-        let after = address.dropFirst("http://".count)
-        let upTo = after.prefix { $0 != "/" }
-        if upTo.hasPrefix("[") {
-            return String(upTo.dropFirst().prefix { $0 != "]" })
-        }
-        return String(upTo.prefix { $0 != ":" })
-    }
-
-    /// The viewer's own machine or their own network: a hop no stranger is on. Names are here
-    /// because a server is usually found by its name on the network, not by its number.
-    private static func ownNetwork(_ host: String) -> Bool {
-        if host == "localhost" || host.hasSuffix(".local") || host == "::1" { return true }
-        let parts = host.split(separator: ".").map { Int($0) }
-        guard parts.count == 4, let first = parts[0], let second = parts[1],
-              parts.allSatisfy({ $0.map { (0...255).contains($0) } == true }) else {
-            return false
-        }
-        switch (first, second) {
-        case (127, _), (10, _), (192, 168), (169, 254): return true
-        case (172, 16...31): return true
-        default: return false
+    public func retry() {
+        queue.async {
+            self.resetCoreState()
+            self.restarts = 0
+            guard !self.base.isEmpty else { return }
+            self.open()
         }
     }
 
@@ -361,8 +311,7 @@ public final class Host: Shell, @unchecked Sendable {
         }
     }
 
-    /// Opens a fresh core and gives every waiting ask its no answer, up to a few tries.
-    private func restart() {
+    private func resetCoreState() {
         if let h = handle { NativeCore.close(handle: h) }
         handle = nil
         eventQueue.removeAll()
@@ -371,6 +320,11 @@ public final class Host: Shell, @unchecked Sendable {
         let pending = waiting
         waiting.removeAll()
         for reply in pending.values { reply(0, "") }
+    }
+
+    /// Opens a fresh core and gives every waiting ask its no answer, up to a few tries.
+    private func restart() {
+        resetCoreState()
         restarts += 1
         if restarts > Self.restartLimit {
             Task { @MainActor in self.said(Self.coreStopped) }
@@ -433,7 +387,10 @@ public final class Host: Shell, @unchecked Sendable {
                 if let d = view.deviceSignIn { self.seen.device = d }
                 if let p = view.profiles?.profiles { self.seen.profiles = p }
                 if let pl = view.play { self.seen.play = pl }
-                if let b = view.hello?.brand.name { self.seen.brand = b }
+                if let hello = view.hello {
+                    self.seen.brand = hello.brand.name
+                    self.seen.accountsRequired = hello.features.accountsRequired ?? true
+                }
                 if let s = view.session?.profile {
                     let prev = self.seen.active
                     self.seen.active = s

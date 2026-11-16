@@ -25,7 +25,7 @@
 import { ROUTE } from "./api";
 import type {
   Action,
-  CommandOp,
+  Command,
   Nav,
   Screen,
   ScreenName,
@@ -99,7 +99,7 @@ export class Host implements Shell {
   private generation = 0;
 
   /**
-   * Which server this is, counted up on every `connect`.
+   * Which server this is, counted up on every `open`.
    *
    * The same rule as `generation` at the other scope. The menu and the words belong to a server
    * and not to a page, so they are not thrown away when the viewer moves between pages, and they
@@ -114,7 +114,10 @@ export class Host implements Shell {
   /** The wait that ends in saying so, and the one in flight. */
   private waiting: Stop | null = null;
 
-  constructor(private readonly fittings: Fittings) {}
+  constructor(
+    private readonly fittings: Fittings,
+    private readonly boundServer: string = "",
+  ) {}
 
   // ---- what a screen sees ------------------------------------------------
 
@@ -139,21 +142,34 @@ export class Host implements Shell {
    * One run of the app, from nothing to a drawn screen.
    *
    * A run with no address anywhere ends here with `server` empty, which is the state `main.tsx`
-   * draws nothing for. That is not an oversight and it is not a screen that was forgotten: see the
-   * head of `src/door.ts` for why this family is handed its address instead of asking for one.
+   * draws nothing for. See the head of `src/door.ts` for how launch, kept and bound addresses are
+   * resolved.
    */
   start(): void {
-    const given = serverFrom(this.fittings.launch.parameters(), this.fittings.store.get(SERVER_KEY));
+    const given = serverFrom(
+      this.fittings.launch.parameters(),
+      this.fittings.store.get(SERVER_KEY),
+      this.boundServer,
+    );
     if (given.from === "none") return;
-    this.connect(given.server);
+    this.open(given.server);
+  }
+
+  /** Ask the host to try the current server address again. */
+  retry(): void {
+    if (this.state.server !== "") {
+      this.open(this.state.server);
+    } else {
+      this.start();
+    }
   }
 
   /**
-   * The one gate every server address passes, launched or kept. A refused address is said, not
-   * swallowed: `refused` carries it, and it is the viewer's own data, so a screen can show it with
-   * no words at all. (`core/Host.kt:164-184`)
+   * The one gate every server address passes, launched, kept or bound. A refused address is said,
+   * not swallowed: `refused` carries it, and it is the viewer's own data, so a screen can show it
+   * with no words at all.
    */
-  connect(server: string): void {
+  private open(server: string): void {
     const address = tidy(server);
     const plain = encryptionOf(address);
     if (plain === null) {
@@ -167,8 +183,8 @@ export class Host implements Shell {
     this.ofServer(ROUTE.nav(), (text) => {
       this.change({ nav: (JSON.parse(text) as Nav).items });
     });
-    // `arrive` and not `go`: connecting is not a move the viewer made, and a trail entry here
-    // would make Back walk out to the page it is already on.
+    // `arrive` and not `go`: opening a server is not a move the viewer made, and a trail entry
+    // here would make Back walk out to the page it is already on.
     this.arrive(this.here);
   }
 
@@ -385,7 +401,7 @@ export class Host implements Shell {
       this.refuse(action.action);
       return;
     }
-    const ops: CommandOp[] = [action.command];
+    const ops: Command[] = [action.command];
     this.send("POST", ROUTE.commands(), JSON.stringify({ ops }), () => {});
   }
 

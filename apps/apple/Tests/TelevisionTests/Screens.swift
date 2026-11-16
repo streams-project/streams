@@ -91,7 +91,7 @@ final class NoTellShell: Shell {
 
     var player: Player { fatalError("no screen under test plays") }
     var reel: Reel { fatalError("no screen under test reels") }
-    func connect(_ server: String) {}
+    func retry() {}
     func go(_ address: String) {}
     func swap(_ address: String) {}
     func back() {}

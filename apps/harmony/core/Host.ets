@@ -39,7 +39,6 @@ import {
   readNav, readNotificationCount, readScreen, readStrings, readTitle,
 } from '../contract/read';
 
-const SERVER = 'app:server';
 const DEFAULT_LANGUAGE = 'en';
 const WAKE_CAP_MS = 60000;
 const TOUCH_EVERY_MS = 10000;
@@ -72,11 +71,6 @@ const ROUNDS = 64;
 // used as those of ArkTS, the static type check of ArkTS may be bypassed, causing unexpected
 // behavior or extra overhead". Which is why the seam names every shape it exports rather than
 // widening anything, and why this host reads only tagged members of tagged unions.
-
-// Said to the viewer, not logged: the only words this host has of its own. The same sentence the
-// Android host says, so the two families refuse an address in the same words.
-const PLAIN_REFUSED =
-  'This address must start with https://. Plain http reaches only a server on your own network.';
 
 /**
  * The device facts the host needs that are not ports. The app wiring supplies all three.
@@ -111,94 +105,14 @@ export interface Machine {
   language(): string | null;
 }
 
-/** Whether every character of a string is a Western digit, and how many there are. */
-function digitsOnly(text: string, least: number, most: number): boolean {
-  // Not `/^[0-9]{1,3}$/`: ArkTS refuses a regular expression LITERAL (`arkts-no-regexp-literals`,
-  // which is recorded only in the Adaptation Cases page and not in the migration cookbook, so it
-  // is easy to miss). `new RegExp('^[0-9]{1,3}$')` would be legal, and this is cheaper than either:
-  // one pass, no engine, and it says what it tests.
-  if (text.length < least || text.length > most) {
-    return false;
-  }
-  for (let at = 0; at < text.length; at++) {
-    const code = text.charCodeAt(at);
-    if (code < 0x30 || code > 0x39) {
-      return false;
-    }
-  }
-  return true;
-}
-
 /** This address with every trailing slash taken off. */
 function trimmedEnd(address: string): string {
-  // Not `.replace(/\/+$/, '')`, for the same reason as above.
+  // Not `.replace(/\/+$/, '')`: ArkTS refuses regular expression literals (`arkts-no-regexp-literals`).
   let end = address.length;
   while (end > 0 && address.charAt(end - 1) === '/') {
     end--;
   }
   return address.substring(0, end);
-}
-
-/** The host of an address, with the port, the path and an IPv6 address's brackets taken off. */
-function hostOf(address: string): string {
-  const after = address.replace('http://', '').split('/')[0];
-  if (after.startsWith('[')) {
-    return after.substring(1).split(']')[0];
-  }
-  return after.split(':')[0];
-}
-
-/**
- * The viewer's own machine or their own network: a hop no stranger is on. Names are here because a
- * server is usually found by its name on the network, not by its number.
- */
-function ownNetwork(host: string): boolean {
-  if (host === 'localhost' || host.endsWith('.local') || host === '::1') {
-    return true;
-  }
-  const parts = host.split('.');
-  if (parts.length !== 4) {
-    return false;
-  }
-  const numbers: number[] = [];
-  for (const part of parts) {
-    // Digits only, then parse. Kotlin's `toIntOrNull` refuses "1abc" where JS `Number.parseInt`
-    // reads 1, and accepts a zero padded "010" where comparing the parsed value back to the text
-    // would refuse it. This accepts and refuses exactly what the Android gate does.
-    if (!digitsOnly(part, 1, 3)) {
-      return false;
-    }
-    const value = Number.parseInt(part, 10);
-    if (value > 255) {
-      return false;
-    }
-    numbers.push(value);
-  }
-  if (numbers[0] === 127 || numbers[0] === 10) {
-    return true;
-  }
-  if (numbers[0] === 192 && numbers[1] === 168) {
-    return true;
-  }
-  if (numbers[0] === 169 && numbers[1] === 254) {
-    return true;
-  }
-  return numbers[0] === 172 && numbers[1] >= 16 && numbers[1] <= 31;
-}
-
-/**
- * True when this address is reached in the clear, false when it is encrypted, and null when it may
- * not be used at all.
- */
-function encryptionOf(server: string): boolean | null {
-  const lower = server.toLowerCase();
-  if (lower.startsWith('https://')) {
-    return false;
-  }
-  if (!lower.startsWith('http://')) {
-    return null;
-  }
-  return ownNetwork(hostOf(lower)) ? true : null;
 }
 
 export class Host implements Shell {
@@ -231,6 +145,7 @@ export class Host implements Shell {
     private readonly deviceClass: DeviceClass,
     private readonly form: Form,
     private readonly version: string,
+    private readonly server: string,
   ) {
     this.network.watch((online: boolean) => this.step([networkEvent(online)]));
     this.player.listen((generation: number, event: DriverEvent) => {
@@ -252,9 +167,10 @@ export class Host implements Shell {
       }
       this.step([driverEvent(generation, event)]);
     });
-    const kept = this.secrets.get(SERVER);
-    if (kept !== null) {
-      this.connect(kept);
+    this.base = trimmedEnd(this.server.trim());
+    this.seen.server = this.base;
+    if (this.base.length > 0) {
+      this.start();
     }
   }
 
@@ -294,27 +210,26 @@ export class Host implements Shell {
     this.changed();
   }
 
-  /**
-   * The one gate every server address passes, typed or kept. Plain http carries the session's
-   * bearer and refresh tokens in the clear, so it may only reach the viewer's own network; anything
-   * else must be https. A refused address is said, not swallowed.
-   */
-  connect(server: string): void {
-    const typed = trimmedEnd(server.trim());
-    const plain = encryptionOf(typed);
-    if (plain === null) {
-      this.say(PLAIN_REFUSED);
-      return;
+  retry(): void {
+    this.stop();
+    if (this.wake !== 0) {
+      clearTimeout(this.wake);
+      this.wake = 0;
     }
-    this.base = typed;
-    this.secrets.put(SERVER, this.base);
-    // This address was taken, so a refusal still sitting in the app wide slot is not news any more
-    // and must not be read as some other screen's error.
-    this.seen.server = this.base;
-    this.seen.serverPlain = plain;
+    this.queue = [];
+    this.stepping = false;
+    const pending: ((status: number, text: string) => void)[] = [];
+    this.waiting.forEach((reply: (status: number, text: string) => void) => {
+      pending.push(reply);
+    });
+    this.waiting.clear();
+    for (const reply of pending) {
+      reply(0, '');
+    }
+    this.waiting.clear();
     this.seen.notice = null;
     this.changed();
-    if (this.handle === 0) {
+    if (this.base.length > 0) {
       this.start();
     }
   }
@@ -491,6 +406,7 @@ export class Host implements Shell {
       this.seen.profiles = view.profiles?.profiles ?? this.seen.profiles;
       this.seen.play = view.play ?? this.seen.play;
       this.seen.brand = view.hello?.brand.name ?? this.seen.brand;
+      this.seen.accountsRequired = view.hello?.features?.accounts_required ?? this.seen.accountsRequired;
       this.seen.active = view.session?.profile ?? this.seen.active;
       this.changed();
       this.matchLanguage();
@@ -619,6 +535,7 @@ export class Host implements Shell {
   }
 
   private http(effect: EffectHttp): void {
+    const owner = this.handle;
     const call: Call = {
       method: effect.method,
       url: this.base + effect.path,
@@ -627,6 +544,9 @@ export class Host implements Shell {
       deadlineMs: effect.deadline_ms,
     };
     this.network.send(call, (answer: Answer) => {
+      if (this.handle !== owner) {
+        return;
+      }
       const reply = this.waiting.get(effect.id);
       this.waiting.delete(effect.id);
       if (answer.kind === 'no_reply') {

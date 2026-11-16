@@ -240,9 +240,8 @@ public final class Seen {
     public var notices: Int = 0
     public var brand: String = ""
     public var server: String = ""
-    /// True when that server is reached over plain http. The screen that shows the address marks
-    /// it, so nobody runs on an unencrypted connection without being told.
-    public var serverPlain: Bool = false
+    /// False only when the server explicitly says visitors may browse without signing in.
+    public var accountsRequired: Bool = true
     public var positionMs: Int64 = 0
     public var lengthMs: Int64 = 0
     public var audio: [Track] = []
@@ -264,7 +263,7 @@ public protocol Shell: AnyObject {
     /// that forgets to plug one in fails to compile, which is where that mistake belongs. The draw
     /// sites take it by value for the same reason (`SurfacesShared/Art.swift`).
     var pictures: Pictures { get }
-    func connect(_ server: String)
+    func retry()
     func go(_ address: String)
     func swap(_ address: String)
     func back()

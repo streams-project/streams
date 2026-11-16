@@ -197,11 +197,8 @@ data class Seen(
     val notices: Int = 0,
     val brand: String = "",
     val server: String = "",
-    /**
-     * True when that server is reached over plain http. The screen that shows the address marks it,
-     * so nobody runs on an unencrypted connection without being told.
-     */
-    val serverPlain: Boolean = false,
+    /** Whether this server requires an account before browsing; safe default is true until /v1/hello says false. */
+    val accountsRequired: Boolean = true,
     val positionMs: Long = 0,
     val lengthMs: Long = 0,
     /** The sound and subtitle tracks of what is playing. */
@@ -225,7 +222,8 @@ interface Shell {
      */
     val pictures: Pictures
 
-    fun connect(server: String)
+    /** Asks the bound server again without taking any server address from a surface. */
+    fun retry()
     fun go(address: String)
     /** Goes to this address in place of the one here, so Back passes over it. */
     fun swap(address: String)

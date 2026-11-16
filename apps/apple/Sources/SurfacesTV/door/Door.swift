@@ -25,7 +25,7 @@ private let cardWash = LinearGradient(
 private let cardEdge = Color(red: 0xC4 / 255.0, green: 0xE4 / 255.0, blue: 0xFB / 255.0)
 
 /// Where the focus can be on the landing: the top row, the showreel card's buttons, a title card's button.
-private enum Stop { case home, tab, topSignIn, help, signIn, join, watch }
+private enum Stop { case home, tab, topSignIn, help, signIn, join, lookRound, watch }
 
 /// A card's own box. Its pictures are read in it, so the slideshow behind the card and the read
 /// ahead that fills it before it is in view land on one cache entry rather than two.
@@ -298,6 +298,7 @@ private struct Landing: View {
         case .topSignIn, .signIn: return seen.say("door.sign_in")
         case .help: return seen.say("door.help")
         case .join: return seen.say("door.join")
+        case .lookRound: return seen.say(seen.accountsRequired ? "door.join" : "nav.home")
         // On a title's card Ok signs in, so the viewer hears the title and what the press does.
         case .watch: return sayBoth(titles[safe: page - 1]?.name, seen.say("door.watch"))
         }
@@ -307,6 +308,9 @@ private struct Landing: View {
         let shape = shapeOf(Round.panel)
         let titles = cards ?? []
         let onTop = at == .home || at == .tab || at == .topSignIn
+        let showreelStops: [Stop] = seen.accountsRequired
+            ? [.help, .signIn, .join]
+            : [.help, .signIn, .join, .lookRound]
 
         func cardStop() -> Stop { page == 0 ? .join : .watch }
         func show(_ card: Int) {
@@ -315,6 +319,7 @@ private struct Landing: View {
         }
 
         func press(_ word: Word) -> Bool {
+            if seen.accountsRequired && at == .lookRound { at = .join }
             if word == .back {
                 // Back walks out the way the viewer came in: the row to its card, a title to the
                 // showreel, and only the showreel's buttons leave the app.
@@ -336,13 +341,24 @@ private struct Landing: View {
                 default: break
                 }
             } else if page == 0 {
+                let place = showreelStops.firstIndex(of: at) ?? 0
                 switch word {
-                case .left: at = at == .join ? .signIn : .help
-                // Past Get Started the next card comes in, as on the reference.
+                case .left:
+                    if place > 0 { at = showreelStops[place - 1] }
+                // Past the last button on the showreel the next card comes in, as on the reference.
                 case .right:
-                    if at == .help { at = .signIn } else if at == .signIn { at = .join } else if !titles.isEmpty { show(1) }
+                    if place + 1 < showreelStops.count {
+                        at = showreelStops[place + 1]
+                    } else if !titles.isEmpty {
+                        show(1)
+                    }
                 case .up: at = .home
-                case .ok: shell.go(at == .help ? Address.help : Address.sign_in)
+                case .ok:
+                    switch at {
+                    case .help: shell.go(Address.help)
+                    case .lookRound: shell.go(Address.home)
+                    default: shell.go(Address.sign_in)
+                    }
                 default: break
                 }
             } else {
@@ -432,6 +448,9 @@ private struct Landing: View {
                     Spacer(minLength: 0)
                     Ask(word: seen.say("door.sign_in"), on: at == .signIn, lit: .white, ink: Back)
                     Ask(word: seen.say("door.join"), on: at == .join, lit: Join, ink: .white)
+                    if !seen.accountsRequired {
+                        Ask(word: seen.say("nav.home"), on: at == .lookRound, lit: .white, ink: Back)
+                    }
                 }
                 .frame(width: (1542 - inset).ref)
                 .offset(y: 720.ref)
@@ -458,6 +477,9 @@ private struct Landing: View {
         // has signed in, so it is the one screen where a person who cannot see it has had no chance
         // to learn the shape of anything: without this there is no way in at all.
         .remote(says: hereIs(titles)) { press($0) }
+        .onChange(of: seen.accountsRequired) { _, required in
+            if required && at == .lookRound { at = .join }
+        }
         .task {
             // The titles load under the opening when there is one, and the opening waits for the
             // showreel and the next card, so nothing comes in late.

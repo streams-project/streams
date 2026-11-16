@@ -15,11 +15,14 @@ everything, fetches a pinned database, and starts the server, the finder and the
 A TV signs in with a code that a phone opens, so `--public` also gives the server this machine's network
 address and prints it. Behind a tunnel or a proxy, name the address with `--site-address https://...`.
 
-Everything it writes stays in `~/.<command>`. After the first run the program is `bin/<command>`:
+Everything it writes stays in `~/.<command>`. Starting the service writes an untracked `deployment.json` at the repository root with the deployment's address, and defaults to letting visitors browse without creating an account (`ACCOUNTS_REQUIRED=false`, `VISITOR_TIER=15`; set `ACCOUNTS_REQUIRED=true` in the environment to require sign-in). After the first run the program is `bin/<command>`:
 
-    bin/<command> doctor          check this install
-    bin/<command> backup          save the database while the service is stopped
-    bin/<command> build web       rebuild the website
+    bin/<command> doctor                         check this install
+    bin/<command> backup                         save the database while the service is stopped
+    bin/<command> build web                      rebuild the website
+    bin/<command> build android [--server URL]   build the signed Android APK bound to the server
+    bin/<command> build apple [--server URL]     prepare and build the Apple targets bound to the server
+    bin/<command> build desktop [--server URL]   build the desktop shell bound to the server
 
 Until you build a catalogue with `data`, the site shows a generated sample with invented titles.
 

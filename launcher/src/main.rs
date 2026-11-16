@@ -6,7 +6,7 @@ use std::process::{Command, ExitCode};
 use std::time::Duration;
 
 use anyhow::{Context, Result, bail};
-use launcher::address::{self, Site};
+use launcher::address::{self, Family, Site};
 use launcher::brand::{Brand, Refusal};
 use launcher::data::{self, Data, Found};
 use launcher::films;
@@ -476,6 +476,9 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
         lan: address::lan_ip(),
     };
     let site_address = reach.address();
+    address::write_deployment(&stack.root, &site_address)?;
+    let [accounts_required, visitor_tier] =
+        server_visitor_settings(|name| std::env::var(name).ok());
     let server = Program {
         name: String::from("server"),
         path: stack.programs.join("server"),
@@ -531,12 +534,11 @@ async fn up(stack: &Stack, options: &UpOptions) -> Result<()> {
                 "IMAGE_BASE_ART",
                 std::env::var("IMAGE_BASE_ART").unwrap_or_default(),
             ),
-            // What a visitor may look at before signing in: U, PG, 12 or 15. Unset, the landing
-            // shows its showreel and no title cards.
-            (
-                "VISITOR_TIER",
-                std::env::var("VISITOR_TIER").unwrap_or_default(),
-            ),
+            // A build shipping its own server defaults to accounts off with a visitor tier so the
+            // viewer opens onto browsing instead of a login wall; set ACCOUNTS_REQUIRED=true to
+            // require accounts.
+            accounts_required,
+            visitor_tier,
         ]),
     };
 
@@ -858,9 +860,197 @@ async fn backup(stack: &Stack, words: &[String]) -> Result<()> {
     Ok(())
 }
 
+fn server_visitor_settings(
+    read_env: impl Fn(&str) -> Option<String>,
+) -> [(&'static str, String); 2] {
+    let accounts_required = read_env("ACCOUNTS_REQUIRED")
+        .filter(|v| !v.trim().is_empty())
+        .unwrap_or_else(|| String::from("false"));
+    let visitor_tier = read_env("VISITOR_TIER")
+        .filter(|v| !v.trim().is_empty())
+        .unwrap_or_else(|| String::from("15"));
+    [
+        ("ACCOUNTS_REQUIRED", accounts_required),
+        ("VISITOR_TIER", visitor_tier),
+    ]
+}
+
+struct BuildOptions {
+    family: Family,
+    server: Option<String>,
+}
+
+fn parse_build_options(words: &[String]) -> Result<BuildOptions> {
+    let mut family: Option<Family> = None;
+    let mut server: Option<String> = None;
+    let mut iter = words.iter();
+    while let Some(word) = iter.next() {
+        match word.as_str() {
+            "--server" => {
+                let value = iter.next().context("--server needs an address")?;
+                server = Some(address::checked(value)?);
+            }
+            other if other.starts_with('-') => bail!("unknown build option {other}"),
+            other => {
+                let Some(parsed) = Family::from_word(other) else {
+                    bail!("{other} cannot be built here. Ready now: web, android, apple, desktop");
+                };
+                if family.is_some() {
+                    bail!("name one family at a time: web, android, apple or desktop");
+                }
+                family = Some(parsed);
+            }
+        }
+    }
+    let family = family.context("name what to build. Ready now: web, android, apple, desktop")?;
+    Ok(BuildOptions { family, server })
+}
+
+fn resolve_bind(root: &Path, options: &BuildOptions) -> Result<String> {
+    let candidate = match &options.server {
+        Some(server) => server.clone(),
+        None => address::read_deployment(root)?.server,
+    };
+    address::check_bind(&candidate, options.family)
+}
+
+fn find_java_home() -> Result<PathBuf> {
+    if let Some(home) = std::env::var_os("JAVA_HOME") {
+        let path = PathBuf::from(home);
+        if path.join("bin/java").is_file() {
+            return Ok(path);
+        }
+    }
+    if let Some(path_var) = std::env::var_os("PATH") {
+        for dir in std::env::split_paths(&path_var) {
+            let java = dir.join("java");
+            if java.is_file()
+                && Command::new(&java)
+                    .arg("-version")
+                    .stdout(std::process::Stdio::null())
+                    .stderr(std::process::Stdio::null())
+                    .status()
+                    .is_ok_and(|s| s.success())
+                && let Some(home) = dir.parent()
+            {
+                return Ok(home.to_path_buf());
+            }
+        }
+    }
+    let jbr = std::env::var_os("JBR_HOME").map_or_else(
+        || PathBuf::from("/Applications/Android Studio.app/Contents/jbr/Contents/Home"),
+        PathBuf::from,
+    );
+    if jbr.join("bin/java").is_file() {
+        return Ok(jbr);
+    }
+    bail!("no working JDK was found; set JAVA_HOME or install Android Studio")
+}
+
+fn find_android_sdk(android_dir: &Path) -> Result<PathBuf> {
+    for var in ["ANDROID_HOME", "ANDROID_SDK_ROOT"] {
+        if let Some(sdk) = std::env::var_os(var) {
+            let path = PathBuf::from(sdk);
+            if path.join("platforms").is_dir() {
+                return Ok(path);
+            }
+        }
+    }
+    let local_props = android_dir.join("local.properties");
+    if let Ok(text) = std::fs::read_to_string(&local_props) {
+        for line in text.lines() {
+            if let Some(raw) = line.strip_prefix("sdk.dir=") {
+                let candidate = PathBuf::from(raw.trim());
+                if candidate.join("platforms").is_dir() {
+                    return Ok(candidate);
+                }
+            }
+        }
+    }
+    if let Some(home) = std::env::var_os("HOME") {
+        for suffix in ["Library/Android/sdk", "Android/Sdk"] {
+            let candidate = Path::new(&home).join(suffix);
+            if candidate.join("platforms").is_dir() {
+                return Ok(candidate);
+            }
+        }
+    }
+    bail!("no Android SDK was found; set ANDROID_HOME or configure apps/android/local.properties")
+}
+
+fn ensure_android_keystore(
+    stack: &Stack,
+    alias: &str,
+    java_home: &Path,
+) -> Result<(PathBuf, String)> {
+    let keytool = java_home.join("bin/keytool");
+    if !keytool.is_file() {
+        bail!("keytool was not found under {}", java_home.display());
+    }
+    let keys_dir = stack.home.join("keys");
+    std::fs::create_dir_all(&keys_dir)?;
+    let keystore = keys_dir.join("android.keystore");
+    let pass_file = keys_dir.join("android.pass");
+    let pass = if let Ok(existing) = std::fs::read_to_string(&pass_file) {
+        existing.trim().to_owned()
+    } else {
+        let secret = hex_secret();
+        postgres::write_private(&pass_file, &format!("{secret}\n"))?;
+        secret
+    };
+    if !keystore.exists() {
+        let status = Command::new(&keytool)
+            .args(["-genkeypair", "-v", "-storetype", "PKCS12", "-keystore"])
+            .arg(&keystore)
+            .args([
+                "-alias",
+                alias,
+                "-keyalg",
+                "RSA",
+                "-keysize",
+                "2048",
+                "-validity",
+                "10000",
+                "-storepass",
+                &pass,
+                "-keypass",
+                &pass,
+                "-dname",
+                "CN=App Signing",
+            ])
+            .status()
+            .context("keytool did not run")?;
+        if !status.success() {
+            bail!("could not generate Android signing keystore");
+        }
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(&keystore, std::fs::Permissions::from_mode(0o600))?;
+        }
+    }
+    if let Ok(list) = Command::new(&keytool)
+        .args(["-list", "-v", "-keystore"])
+        .arg(&keystore)
+        .args(["-storepass", &pass, "-alias", alias])
+        .output()
+        && list.status.success()
+    {
+        let stdout = String::from_utf8_lossy(&list.stdout);
+        if let Some(sha) = stdout
+            .lines()
+            .find(|line| line.trim().starts_with("SHA256:"))
+        {
+            println!("Android signing key ({alias}): {}", sha.trim());
+        }
+    }
+    Ok((keystore, pass))
+}
+
 fn build(stack: &Stack, words: &[String]) -> Result<()> {
-    match words.first().map(String::as_str) {
-        Some("web") => {
+    let options = parse_build_options(words)?;
+    match options.family {
+        Family::Web => {
             let status = Command::new("trunk")
                 .args(["build", "--release"])
                 .current_dir(stack.root.join("apps/web"))
@@ -872,18 +1062,85 @@ fn build(stack: &Stack, words: &[String]) -> Result<()> {
             site::publish(&stack.root, &stack.home, stack.brand()?)?;
             Ok(())
         }
-        Some(other) => bail!("{other} cannot be built yet. Ready now: web"),
-        None => bail!("name what to build. Ready now: web"),
+        Family::Android => {
+            let brand = stack.brand()?;
+            let server = resolve_bind(&stack.root, &options)?;
+            let android_dir = stack.root.join("apps/android");
+            let java_home = find_java_home()?;
+            let sdk = find_android_sdk(&android_dir)?;
+            let (keystore, pass) = ensure_android_keystore(stack, &brand.command, &java_home)?;
+            let status = Command::new(android_dir.join("gradlew"))
+                .args([
+                    ":app:assembleRelease",
+                    &format!("-Pserver={server}"),
+                    &format!("-Pkeystore={}", keystore.display()),
+                    &format!("-PkeystorePassword={pass}"),
+                    &format!("-PkeyAlias={}", brand.command),
+                    &format!("-PkeyPassword={pass}"),
+                ])
+                .current_dir(&android_dir)
+                .env("JAVA_HOME", &java_home)
+                .env("ANDROID_HOME", &sdk)
+                .status()
+                .context("gradlew did not run")?;
+            if !status.success() {
+                bail!("the Android release build failed");
+            }
+            println!(
+                "Built Android APKs bound to {server} in {}",
+                android_dir.join("app/build/outputs/apk/release").display()
+            );
+            Ok(())
+        }
+        Family::Apple => {
+            let server = resolve_bind(&stack.root, &options)?;
+            let apple_dir = stack.root.join("apps/apple");
+            let status = Command::new("python3")
+                .arg(apple_dir.join("write-brand.py"))
+                .env("STREAMS_SERVER", &server)
+                .status()
+                .context("write-brand.py did not run")?;
+            if !status.success() {
+                bail!("could not prepare Apple brand and deployment files");
+            }
+            let status = Command::new(apple_dir.join("build-core.sh"))
+                .current_dir(&apple_dir)
+                .env("STREAMS_SERVER", &server)
+                .status()
+                .context("apps/apple/build-core.sh did not run")?;
+            if !status.success() {
+                bail!("could not build Apple core library");
+            }
+            println!(
+                "Prepared Apple deployment config bound to {server} at {}",
+                apple_dir.join("Deployment.xcconfig").display()
+            );
+            Ok(())
+        }
+        Family::Desktop => {
+            let server = resolve_bind(&stack.root, &options)?;
+            let status = Command::new("cargo")
+                .args(["build", "--release", "--locked", "-p", "desktop"])
+                .current_dir(&stack.root)
+                .env("STREAMS_SERVER", &server)
+                .status()
+                .context("cargo did not build the desktop crate")?;
+            if !status.success() {
+                bail!("the desktop build failed");
+            }
+            println!("Built desktop shell bound to {server}");
+            Ok(())
+        }
     }
 }
 
 fn help(command: &str) {
     println!(
         "{command} up [--port N] [--public] [--site-address URL]   start everything\n\
-         {command} doctor                     check this install\n\
-         {command} backup [FILE]              save the database, while stopped\n\
-         {command} build web                  build the website\n\
-         {command} install                    put this program in bin/"
+         {command} doctor                                            check this install\n\
+         {command} backup [FILE]                                     save the database, while stopped\n\
+         {command} build <web|android|apple|desktop> [--server URL]  build and bind a family\n\
+         {command} install                                           put this program in bin/"
     );
 }
 
@@ -1033,5 +1290,56 @@ mod tests {
         seen.sort_unstable();
         seen.dedup();
         assert_eq!(seen.len(), more.len(), "two children got the same port");
+    }
+
+    #[test]
+    fn shipping_server_defaults_to_open_visitor_access_unless_overridden() {
+        assert_eq!(
+            server_visitor_settings(|_| None),
+            [
+                ("ACCOUNTS_REQUIRED", String::from("false")),
+                ("VISITOR_TIER", String::from("15")),
+            ]
+        );
+        assert_eq!(
+            server_visitor_settings(|k| match k {
+                "ACCOUNTS_REQUIRED" => Some(String::from("true")),
+                "VISITOR_TIER" => Some(String::from("PG")),
+                _ => None,
+            }),
+            [
+                ("ACCOUNTS_REQUIRED", String::from("true")),
+                ("VISITOR_TIER", String::from("PG")),
+            ]
+        );
+    }
+
+    #[test]
+    fn build_options_and_deployment_bind_enforce_device_reachability() {
+        let dir = std::env::temp_dir().join(format!("launcher-bind-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        address::write_deployment(&dir, "http://127.0.0.1:8080").unwrap();
+
+        let android = parse_build_options(&[String::from("android")]).unwrap();
+        assert!(resolve_bind(&dir, &android).is_err());
+
+        let android_override = parse_build_options(&[
+            String::from("android"),
+            String::from("--server"),
+            String::from("http://192.168.1.40:8080/"),
+        ])
+        .unwrap();
+        assert_eq!(
+            resolve_bind(&dir, &android_override).unwrap(),
+            "http://192.168.1.40:8080"
+        );
+
+        let desktop = parse_build_options(&[String::from("desktop")]).unwrap();
+        assert_eq!(
+            resolve_bind(&dir, &desktop).unwrap(),
+            "http://127.0.0.1:8080"
+        );
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

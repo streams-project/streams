@@ -572,6 +572,20 @@ async fn c36_c104_a_play_report_reaches_the_table_and_reads_back_by_class_host_a
         .find(|line| line.contains("bad.example"))
         .expect("the host that broke");
     assert!(broke.contains("[segment 1]"), "{broke}");
+
+    let filtered = log
+        .health_for(
+            server_play::health::today(),
+            Some("tv"),
+            Some("host.example"),
+        )
+        .await;
+    assert_eq!(filtered.len(), 1);
+    assert_eq!(filtered[0].first_frame_ms_sum(), 1_200);
+    assert_eq!(filtered[0].ended_without_picture(), 0);
+
+    let summary = log.health_summary(server_play::health::today()).await;
+    assert_eq!(summary.len(), 2);
 }
 
 /// Playback health is not a record of a person, so the personal-rows answer does not govern it.

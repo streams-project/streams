@@ -35,17 +35,23 @@ import contract.ActionSeek
 import contract.ActionUnpause
 import contract.PlayState
 import kotlinx.coroutines.delay
-import streams.shared.Accent
 import streams.ports.Seen
 import streams.ports.Shell
+import streams.shared.Accent
+import streams.shared.decoration
+import streams.shared.fill
+import streams.shared.number
+import streams.shared.says
 
 private const val CONTROLS_MS = 3000L
 private const val SEEK_MS = 10_000L
 
+private fun transportWord(playing: Boolean): String = if (playing) "say.pause" else "common.play"
+
 private fun clock(ms: Long): String {
     val seconds = ms / 1000
     val body = "%d:%02d".format(seconds / 60 % 60, seconds % 60)
-    return if (seconds >= 3600) "${seconds / 3600}:$body" else body
+    return number(if (seconds >= 3600) "${seconds / 3600}:" + "%02d:%02d".format(seconds / 60 % 60, seconds % 60) else body)
 }
 
 @Composable
@@ -53,7 +59,15 @@ fun Watch(shell: Shell, seen: Seen, tv: Boolean) {
     var woke by remember { mutableIntStateOf(1) }
     var shown by remember { mutableStateOf(true) }
     val focus = remember { FocusRequester() }
-    fun toggle() = shell.act(if (seen.play?.state == PlayState.PLAYING) ActionPause else ActionUnpause)
+    val playing = seen.play?.state == PlayState.PLAYING
+    val position = if (seen.lengthMs > 0) {
+        seen.words["say.position"].orEmpty()
+            .fill("at", clock(seen.positionMs))
+            .fill("length", clock(seen.lengthMs))
+    } else {
+        clock(seen.positionMs)
+    }
+    fun toggle() = shell.act(if (playing) ActionPause else ActionUnpause)
     LaunchedEffect(woke) {
         shown = true
         delay(CONTROLS_MS)
@@ -80,14 +94,21 @@ fun Watch(shell: Shell, seen: Seen, tv: Boolean) {
             .clickable {
                 woke += 1
                 if (!tv) toggle()
-            },
+            }
+            .says(seen.words[transportWord(playing)].orEmpty(), position),
     ) {
-        AndroidView({ shell.player.picture(it) as View }, Modifier.fillMaxSize())
+        AndroidView({ shell.player.picture(it) as View }, Modifier.fillMaxSize().decoration())
         if (shown) {
-            Box(Modifier.align(Alignment.BottomStart).padding(24.dp).fillMaxWidth()) {
+            Box(
+                Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(24.dp)
+                    .fillMaxWidth()
+                    .says(position),
+            ) {
                 Text(clock(seen.positionMs) + " / " + clock(seen.lengthMs), Modifier.padding(bottom = 14.dp))
                 Box(Modifier.align(Alignment.BottomStart).fillMaxWidth().height(4.dp).background(Color(0x55FFFFFF))) {
-                    val done = if (seen.lengthMs > 0) seen.positionMs.toFloat() / seen.lengthMs else 0f
+                    val done = if (seen.lengthMs > 0) (seen.positionMs.toFloat() / seen.lengthMs).coerceIn(0f, 1f) else 0f
                     Box(Modifier.fillMaxWidth(done).fillMaxHeight().background(Accent))
                 }
             }

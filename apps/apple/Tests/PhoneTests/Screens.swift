@@ -3,6 +3,7 @@ import Contract
 import Foundation
 import Ports
 import SwiftUI
+import UIKit
 
 import Stand
 
@@ -16,16 +17,27 @@ import Stand
 /// control, so no test here needs an answer back; a screen that asks for the rest of its rows gets
 /// nothing and draws the rows it was given, which is what the first answer of a real page draws.
 @MainActor
+final class NoPlayer: Player {
+    func command(_ given: DriverCommand) {}
+    func listen(_ report: @escaping (Int64, DriverEvent) -> Void) {}
+    func picture(_ context: Any) -> Any { UIView() }
+    func now() -> Int64 { 0 }
+    func lift(_ share: Float) {}
+    func wordsLook(size: Int, color: String, background: String) {}
+}
+
+@MainActor
 final class NoShell: Shell {
     let seen = Seen()
     /// The pictures this screen asked for, which a test may read, and which answer nothing drawn
     /// by default: every address in these fixtures is on `example.invalid`, so a refusal is what a
     /// real read of one would come to anyway.
     let shown = ToldPictures()
+    let playing = NoPlayer()
     var pictures: Pictures { shown }
-    var player: Player { fatalError("no screen under test plays") }
+    var player: Player { playing }
     var reel: Reel { fatalError("no screen under test reels") }
-    func connect(_ server: String) {}
+    func retry() {}
     func go(_ address: String) {}
     func swap(_ address: String) {}
     func back() {}
@@ -56,6 +68,7 @@ let phoneWords: [String: String] = [
     "common.back": "Back",
     "common.done": "Done",
     "common.more_info": "More Info",
+    "door.sign_in": "Sign In",
     "list.add": "My List",
     "list.added": "In My List",
     "nav.home": "Home",
@@ -95,7 +108,9 @@ let phoneWords: [String: String] = [
     "title.season.number": "Season {n}",
     "say.more_options": "More options",
     "say.notifications_unread": "Notifications, {n} new",
+    "say.pause": "Pause",
     "say.pin": "Enter your PIN",
+    "say.position": "{at} of {length}",
     "say.profile_locked": "{name}, locked with a PIN",
     "say.ranked": "{title}, no. {rank} today",
     "say.see_all": "See everything in {row}",

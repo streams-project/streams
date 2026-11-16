@@ -115,7 +115,7 @@ private fun DrawScope.glow() {
 }
 
 /** Where the focus can be on the landing: the top row, the showreel card's buttons, a title card's button. */
-private enum class Stop { HOME, TAB, TOP_SIGN_IN, HELP, SIGN_IN, JOIN, WATCH }
+private enum class Stop { HOME, TAB, TOP_SIGN_IN, HELP, SIGN_IN, JOIN, LOOK_ROUND, WATCH }
 
 /** Cards sit this far apart: 1542 wide and 39 between, so the next one shows at 1653. */
 private const val CARD_STEP = 1581
@@ -248,6 +248,7 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
     val context = LocalContext.current
     // As in the reference, Get started holds the focus when the landing first shows.
     var at by remember { mutableStateOf(Stop.JOIN) }
+    if (at == Stop.LOOK_ROUND && seen.accountsRequired) at = Stop.JOIN
     // Which card is in view: 0 is the showreel, then the trending titles.
     var page by remember { mutableIntStateOf(0) }
     var cards by remember { mutableStateOf<List<TitleDetail>?>(null) }
@@ -304,6 +305,13 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
         at = cardStop()
     }
 
+    fun showreelStops(): List<Stop> = buildList {
+        add(Stop.HELP)
+        add(Stop.SIGN_IN)
+        add(Stop.JOIN)
+        if (!seen.accountsRequired) add(Stop.LOOK_ROUND)
+    }
+
     fun press(word: Word): Boolean {
         val onTop = at == Stop.HOME || at == Stop.TAB || at == Stop.TOP_SIGN_IN
         when {
@@ -329,17 +337,27 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
                 }
                 else -> Unit
             }
-            page == 0 -> when (word) {
-                Word.LEFT -> at = if (at == Stop.JOIN) Stop.SIGN_IN else Stop.HELP
-                // Past Get Started the next card comes in, as on the reference.
-                Word.RIGHT -> when (at) {
-                    Stop.HELP -> at = Stop.SIGN_IN
-                    Stop.SIGN_IN -> at = Stop.JOIN
-                    else -> if (titles.isNotEmpty()) show(1)
+            page == 0 -> {
+                val row = showreelStops()
+                val place = row.indexOf(at).coerceAtLeast(0)
+                when (word) {
+                    Word.LEFT -> if (place > 0) at = row[place - 1]
+                    // Past the last stop on the showreel card the next card comes in, as on the reference.
+                    Word.RIGHT -> if (place + 1 < row.size) {
+                        at = row[place + 1]
+                    } else if (titles.isNotEmpty()) {
+                        show(1)
+                    }
+                    Word.UP -> at = Stop.HOME
+                    Word.OK -> shell.go(
+                        when (at) {
+                            Stop.HELP -> Address.HELP
+                            Stop.LOOK_ROUND -> Address.HOME
+                            else -> Address.SIGN_IN
+                        },
+                    )
+                    else -> Unit
                 }
-                Word.UP -> at = Stop.HOME
-                Word.OK -> shell.go(if (at == Stop.HELP) Address.HELP else Address.SIGN_IN)
-                else -> Unit
             }
             else -> when (word) {
                 Word.LEFT -> show(page - 1)
@@ -454,6 +472,10 @@ private fun Landing(shell: Shell, seen: Seen, opening: Boolean, roll: Boolean, r
                 Ask(words["door.sign_in"].orEmpty(), at == Stop.SIGN_IN, Color.White, Back)
                 Spacer(Modifier.width(32.ref))
                 Ask(words["door.join"].orEmpty(), at == Stop.JOIN, Join, Color.White)
+                if (!seen.accountsRequired) {
+                    Spacer(Modifier.width(32.ref))
+                    Ask(words["nav.home"].orEmpty(), at == Stop.LOOK_ROUND, Color.White, Back)
+                }
             }
         }
         // Each title card is built when it is near: the one in view and one each side.

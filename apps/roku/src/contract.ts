@@ -17,6 +17,7 @@ export { ABI_VERSION, ADDRESS, WIRE_VERSION } from "../../../platform/contract/g
 export type {
   Action,
   Badge,
+  Command,
   CommandOp,
   Cursor,
   DeviceSignInView,
@@ -26,6 +27,8 @@ export type {
   More,
   Nav,
   NavItem,
+  PlayState,
+  PlayView,
   Profile,
   Rating,
   Resume,
@@ -39,8 +42,10 @@ export type {
   Strings,
   Target,
   Tile,
+  TimeWindow,
   TitleDetail,
   TitleKey,
   Track,
   View,
+  WindowKind,
 } from "../../../platform/contract/generated/types/contract";

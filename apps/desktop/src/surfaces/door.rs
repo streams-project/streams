@@ -1,11 +1,7 @@
-//! The way in: the server address, the landing, and sign in.
+//! The way in: the landing and sign in.
 //!
-//! The first of those three is this family's own and belongs to no other surface in the project. A
-//! browser is already at a server when it loads the page and a television is handed one by its
-//! shell; a desktop app is opened from a dock with nothing, so the first thing it can honestly
-//! draw is a box to put a server in. Its words are `settings.server` and `common.next`, which are
-//! the keys `strings/` already has for exactly that; no key is invented and no English is written
-//! here.
+//! The shell resolves the server address before opening the host, so this surface draws no server
+//! address screen.
 //!
 //! What is **not** here, named rather than left to be noticed: joining. `door::Join` on the web is
 //! a form of five fields that creates an account, and the keys for it are not all in `strings/`
@@ -167,35 +163,6 @@ fn stack(wide: f64, headings: f64, lines: f64, fields: f64, buttons: f64) -> f64
         + 2.0 * sizes::hero_inset(wide)
 }
 
-/// The server address: the one screen this family draws that no other surface has.
-pub(super) fn address(surface: &Surface, scene: &mut Scene) {
-    let wide = scene.window.wide;
-    let trouble = surface.trouble.clone();
-    let lines = if trouble.is_some() { 1.0 } else { 0.0 };
-    let high = stack(wide, 1.0, lines, 1.0, 1.0);
-    let card = card(scene, high);
-    let inset = sizes::hero_inset(wide);
-    let mut at = Rect::new(
-        card.x + inset,
-        card.y + inset,
-        (card.wide - 2.0 * inset).max(0.0),
-        0.0,
-    );
-    at.y += heading(scene, at, &surface.text("settings.server")) + GAP;
-    if let Some(label) = &trouble {
-        at.y += line(scene, at, Ink::Join, &surface.text(label)) + GAP;
-    }
-    at.y += field(surface, scene, at, Field::Server, "settings.server") + GAP;
-    button(
-        scene,
-        at,
-        Ink::Accent,
-        Ink::AccentText,
-        &surface.text("common.next"),
-        Ask::Server(surface.text_in(Field::Server).to_owned()),
-    );
-}
-
 /// The landing: the brand's name and a way in, which is all the phone's door has.
 pub(super) fn landing(surface: &Surface, scene: &mut Scene) {
     let wide = scene.window.wide;
@@ -266,11 +233,13 @@ pub(super) fn sign_in(surface: &Surface, scene: &mut Scene) {
 
 #[cfg(test)]
 mod tests {
-    use super::super::reading::english;
+    use super::super::reading::{english, source};
     use super::super::scene::{Field, Mark};
-    use super::super::tests::{opened, route};
+    use super::super::tests::route;
     use super::super::{Ask, Face, Surface, Window};
-    use contract::core_msg::{Action, Target};
+    use crate::host::Turn;
+    use contract::core_msg::{Action, Target, View};
+    use contract::hello::Hello;
 
     /// Every window the reference measured, so a screen is checked at the widths the layout steps
     /// at and not only at a comfortable one.
@@ -282,93 +251,31 @@ mod tests {
         (1920.0, 899.0),
     ];
 
-    /// The address screen draws its three parts, in every window, and nothing it draws is outside
-    /// the window. Break any one of them and this fails.
-    #[test]
-    fn the_address_screen_asks_for_a_server_and_nothing_else() {
-        let surface = Surface::new();
-        let book = english();
-        for (wide, high) in WINDOWS {
-            let scene = surface.draw(Window::new(wide, high));
-            assert_eq!(scene.face, Face::Address, "at {wide}");
-            assert!(
-                scene.says(&book["settings.server"]),
-                "the heading is not drawn at {wide}"
-            );
-            assert!(
-                scene.says(&book["common.next"]),
-                "the way on is not drawn at {wide}"
-            );
-            let fields: Vec<_> = scene
-                .parts
-                .iter()
-                .filter_map(|part| match &part.touch {
-                    Some(super::Touch::Field(which)) => Some(*which),
-                    _ => None,
-                })
-                .collect();
-            assert_eq!(fields, vec![Field::Server], "at {wide}");
-            assert!(
-                scene.outside().is_empty(),
-                "{:?} is drawn outside a {wide} window",
-                scene.outside().first().map(|part| part.rect)
-            );
-        }
+    fn hello(accounts_required: bool) -> Hello {
+        let mut parsed: Hello = serde_json::from_str(&source(
+            "platform/contract/fixtures/2026-11-05/valid/Hello.basic.json",
+        ))
+        .expect("Hello.basic.json reads");
+        parsed.features.accounts_required = accounts_required;
+        parsed
     }
 
-    /// What is typed is drawn, and pressing the way on hands the shell that server and nothing
-    /// else.
-    #[test]
-    fn typing_a_server_and_pressing_on_opens_that_server() {
-        let window = Window::new(1440.0, 900.0);
-        let mut surface = Surface::new();
-        surface.write(Field::Server, " https://films.example  ");
-        assert!(
-            surface.draw(window).says(" https://films.example  "),
-            "what was typed is not drawn"
-        );
-        let asks = surface.press(window, &english()["common.next"]);
-        assert_eq!(asks, vec![Ask::Server("https://films.example".to_owned())]);
-        assert_eq!(surface.face(), Face::Waiting, "the core has not spoken yet");
-    }
-
-    /// An empty box asks for nothing: a press with nothing typed leaves the viewer where they are
-    /// rather than opening a host on the empty string.
-    #[test]
-    fn an_empty_box_opens_nothing() {
-        let window = Window::new(1440.0, 900.0);
-        let mut surface = Surface::new();
-        assert!(surface.press(window, &english()["common.next"]).is_empty());
-        assert_eq!(surface.face(), Face::Address);
-        surface.write(Field::Server, "   ");
-        assert!(surface.submit().is_empty());
-        assert_eq!(surface.face(), Face::Address);
-    }
-
-    /// A server that could not be reached puts the viewer back on the address screen with the
-    /// words for it, rather than leaving them on a blank page.
-    #[test]
-    fn a_server_that_does_not_answer_comes_back_to_the_address_screen() {
-        let window = Window::new(1440.0, 900.0);
-        let mut surface = opened();
-        route(&mut surface, Target::Home);
-        surface.no_server();
-        assert_eq!(surface.face(), Face::Address);
-        let scene = surface.draw(window);
-        assert!(
-            scene.says(&english()["error.no_server"]),
-            "nothing says the server did not answer"
-        );
-        // And the address is still in the box, so it can be corrected instead of retyped.
-        assert!(scene.says("https://example.test"));
+    fn apply_hello(surface: &mut Surface, accounts_required: bool) {
+        let mut turn = Turn::default();
+        turn.views.push(View {
+            hello: Some(hello(accounts_required)),
+            ..View::default()
+        });
+        surface.apply(&turn);
     }
 
     #[test]
-    fn the_landing_offers_the_way_in_and_offers_looking_round_only_where_the_server_does() {
+    fn the_landing_offers_the_way_in_and_hides_home_when_accounts_are_required() {
         let window = Window::new(1440.0, 900.0);
         let book = english();
-        let mut surface = opened();
+        let mut surface = Surface::new();
         route(&mut surface, Target::Start);
+        apply_hello(&mut surface, true);
         let scene = surface.draw(window);
         assert_eq!(scene.face, Face::Door);
         assert!(scene.says(&book["door.watch"]));
@@ -377,8 +284,32 @@ mod tests {
             !scene.says(&book["nav.home"]),
             "a server that requires an account offered a look round"
         );
+        assert!(scene.outside().is_empty());
         let asks = surface.press(window, &book["door.sign_in"]);
         assert_eq!(asks, vec![Ask::Go(contract::address::SIGN_IN.to_owned())]);
+    }
+
+    #[test]
+    fn the_landing_offers_home_when_accounts_are_not_required() {
+        let book = english();
+        for (wide, high) in WINDOWS {
+            let window = Window::new(wide, high);
+            let mut surface = Surface::new();
+            route(&mut surface, Target::Start);
+            apply_hello(&mut surface, false);
+            let scene = surface.draw(window);
+            assert_eq!(scene.face, Face::Door, "at {wide}");
+            assert!(scene.says(&book["door.watch"]), "at {wide}");
+            assert!(scene.says(&book["door.sign_in"]), "at {wide}");
+            assert!(scene.says(&book["nav.home"]), "at {wide}");
+            assert!(scene.outside().is_empty(), "a part is outside at {wide}");
+            let asks = surface.press(window, &book["nav.home"]);
+            assert_eq!(
+                asks,
+                vec![Ask::Go(contract::address::HOME.to_owned())],
+                "at {wide}"
+            );
+        }
     }
 
     #[test]
@@ -387,7 +318,7 @@ mod tests {
         let secret = "correct horse battery";
         for (wide, high) in WINDOWS {
             let window = Window::new(wide, high);
-            let mut surface = opened();
+            let mut surface = Surface::new();
             route(&mut surface, Target::SignIn);
             surface.write(Field::Email, "ada@example.test");
             surface.write(Field::Password, secret);
@@ -423,7 +354,7 @@ mod tests {
     /// A password stops being held the moment it has been sent.
     #[test]
     fn a_password_does_not_outlive_the_press_that_sent_it() {
-        let mut surface = opened();
+        let mut surface = Surface::new();
         route(&mut surface, Target::SignIn);
         surface.write(Field::Email, "ada@example.test");
         surface.write(Field::Password, "hunter2");
@@ -434,18 +365,15 @@ mod tests {
         assert_eq!(surface.text_in(Field::Email), "ada@example.test");
     }
 
-    /// Every label these three screens name is one `strings/en.json` really carries. A screen that
+    /// Every label these two screens name is one `strings/en.json` really carries. A screen that
     /// started naming a key no server has would draw a blank control, which is what this refuses.
     #[test]
     fn every_label_the_door_names_is_in_the_strings_file() {
         let book = english();
         for label in [
-            "common.next",
             "door.sign_in",
             "door.watch",
-            "error.no_server",
             "nav.home",
-            "settings.server",
             "signin.email",
             "signin.password",
         ] {

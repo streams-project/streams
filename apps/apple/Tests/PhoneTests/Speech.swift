@@ -397,6 +397,48 @@ final class SpeechTests: XCTestCase {
         )
     }
 
+    // MARK: - The player
+
+    /// The phone player is one tap surface over the picture and its bar: named by what a tap does
+    /// (pause while playing, play while paused) and valued by how far through the film it is, in
+    /// the words `strings/` gives for `say.position`.
+    func testThePlayerSaysWhatATapDoesAndWhereTheFilmIs() {
+        Speaking.digits = "latn"
+        let (shell, seen) = homeSeen()
+        seen.positionMs = 41_000
+        seen.lengthMs = 634_000
+        seen.play = PlayView(state: .playing, title: try! TitleKey("movie:11"))
+        let playing = heard(Watch(shell: shell, seen: seen), size: phone)
+
+        seen.play = PlayView(state: .paused, title: try! TitleKey("movie:11"))
+        let paused = heard(Watch(shell: shell, seen: seen), size: phone)
+
+        XCTAssertEqual(silent(playing), [], "the playing player has a stop that says nothing")
+        XCTAssertEqual(assetNames(playing), [], "the player reads a picture's file name")
+        XCTAssertEqual(words(playing), [seen.words["say.pause"]!], "a playing film does not offer to pause")
+        XCTAssertEqual(words(paused), [seen.words["common.play"]!], "a paused film does not offer to play")
+        XCTAssertEqual(playing.first?.isButton, true, "the player surface does not say it is a button")
+        let said = seen.words["say.position"]!.fill("at", "0:41").fill("length", "10:34")
+        XCTAssertEqual(
+            playing.first?.value, said,
+            "the player does not say how far through the film it is, in the words the strings give"
+        )
+        XCTAssertEqual(notFromTheCode(playing, seen.words), [])
+        XCTAssertEqual(notFromTheCode(paused, seen.words), [])
+    }
+
+    /// A player with no length yet says where it is and nothing about an end it does not know.
+    func testAPlayerWithNoLengthSaysNoEnd() {
+        Speaking.digits = "latn"
+        let (shell, seen) = homeSeen()
+        seen.positionMs = 30_000
+        seen.lengthMs = 0
+        seen.play = PlayView(state: .playing, title: try! TitleKey("movie:11"))
+        let found = heard(Watch(shell: shell, seen: seen), size: phone)
+        XCTAssertEqual(silent(found), [], "the player has nothing to read")
+        XCTAssertEqual(found.first?.value, "0:30", "a player with no length should still say where it is")
+    }
+
     // MARK: - Decoration
 
     /// A picture carries no words unless it is given them. This is as much of the work as labelling

@@ -30,6 +30,132 @@ val suffix = providers.gradleProperty("appSuffix").orNull
 // splits off instead of failing. This reads the task names the invocation asked for, so a bundle
 // task reached only as some other task's dependency would still fail: name it on the command line.
 val wantsBundle = gradle.startParameter.taskNames.any { it.lowercase().contains("bundle") }
+val deploymentFile = rootDir.resolve("../../deployment.json")
+val deploymentServer = if (deploymentFile.isFile) {
+    ((JsonSlurper().parse(deploymentFile) as? Map<*, *>)?.get("server") as? String).orEmpty()
+} else {
+    ""
+}
+val serverUrl = (providers.gradleProperty("server").orNull ?: deploymentServer).trim().trimEnd('/')
+val releaseKeystore = providers.gradleProperty("keystore").orNull
+val releaseKeystorePassword = providers.gradleProperty("keystorePassword").orNull
+val releaseKeyAlias = providers.gradleProperty("keyAlias").orNull
+val releaseKeyPassword = providers.gradleProperty("keyPassword").orNull
+
+abstract class PrepareBoundNetworkSecurity : DefaultTask() {
+    @get:Input
+    abstract val boundServer: Property<String>
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun generate() {
+        val url = boundServer.get()
+        val xmlDir = outputDir.get().asFile.resolve("xml")
+        xmlDir.mkdirs()
+        val lower = url.lowercase()
+        val policyXml = if (url.isNotEmpty()) {
+            if (!lower.startsWith("https://") && !lower.startsWith("http://")) {
+                throw GradleException("Bound server URL must start with https:// or http://; got: $url")
+            }
+            val host = hostOf(url)
+            if (host.isEmpty()) {
+                throw GradleException("Bound server URL has no host: $url")
+            }
+            if (lower.startsWith("http://")) {
+                if (!isOwnNetworkHost(host)) {
+                    throw GradleException(
+                        "Plain http:// is permitted only on own-network hosts " +
+                            "(localhost, *.local, ::1, 127/8, 10/8, 172.16/12, 192.168/16, 169.254/16); " +
+                            "refused: $url",
+                    )
+                }
+                val escapedHost = xmlEscape(host)
+                """
+                |<?xml version="1.0" encoding="utf-8"?>
+                |<network-security-config>
+                |    <base-config cleartextTrafficPermitted="false" />
+                |    <domain-config cleartextTrafficPermitted="true">
+                |        <domain includeSubdomains="false">$escapedHost</domain>
+                |    </domain-config>
+                |</network-security-config>
+                |""".trimMargin()
+            } else {
+                """
+                |<?xml version="1.0" encoding="utf-8"?>
+                |<network-security-config>
+                |    <base-config cleartextTrafficPermitted="false" />
+                |</network-security-config>
+                |""".trimMargin()
+            }
+        } else {
+            """
+            |<?xml version="1.0" encoding="utf-8"?>
+            |<network-security-config>
+            |    <base-config cleartextTrafficPermitted="false" />
+            |</network-security-config>
+            |""".trimMargin()
+        }
+        xmlDir.resolve("network_security_config.xml").writeText(policyXml)
+    }
+
+    private fun hostOf(address: String): String {
+        val afterScheme = address.substringAfter("://", "")
+        val authority = afterScheme.substringBefore('/').substringBefore('?').substringBefore('#')
+        val hostPort = if ('@' in authority) authority.substringAfterLast('@') else authority
+        if (hostPort.startsWith("[")) {
+            return hostPort.substringAfter('[').substringBefore(']')
+        }
+        return if (hostPort.count { it == ':' } == 1) {
+            hostPort.substringBefore(':')
+        } else {
+            hostPort
+        }
+    }
+
+    private fun isOwnNetworkHost(host: String): Boolean {
+        val lower = host.lowercase()
+        if (lower == "localhost" || lower.endsWith(".local") || lower == "::1") return true
+        val parts = lower.split('.')
+        if (parts.size != 4) return false
+        val numbers = parts.map { it.toIntOrNull() ?: return false }
+        if (numbers.any { it !in 0..255 }) return false
+        return when {
+            numbers[0] == 127 || numbers[0] == 10 -> true
+            numbers[0] == 192 && numbers[1] == 168 -> true
+            numbers[0] == 169 && numbers[1] == 254 -> true
+            numbers[0] == 172 && numbers[1] in 16..31 -> true
+            else -> false
+        }
+    }
+
+    private fun xmlEscape(value: String): String =
+        value.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&apos;")
+}
+
+val requireBoundServer = tasks.register("requireBoundServer") {
+    inputs.property("serverUrl", serverUrl)
+    doLast {
+        if (serverUrl.isBlank()) {
+            throw GradleException(
+                "No server address is bound to :app. Run ./up --public first or pass " +
+                    "-Pserver=<url> (or --server <url> to the launcher build command).",
+            )
+        }
+    }
+}
+
+val wantsAppPackage = gradle.startParameter.taskNames.any { raw ->
+    val name = raw.lowercase()
+    val targetsApp = name.startsWith(":app:") || !name.contains(":")
+    val isPackageTask = listOf("assemble", "bundle", "install", "package").any { name.contains(it) }
+    targetsApp && isPackageTask
+}
 
 android {
     namespace = "streams.app"
@@ -43,10 +169,21 @@ android {
         versionName = "0.1.0"
         applicationIdSuffix = suffix
         ndk { abiFilters += packagedAbis }
+        buildConfigField("String", "SERVER", "\"${serverUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
         resValue("string", "app_name", "${brand["name"]}${suffix.orEmpty()}")
         // The window and the system splash before the first frame take the brand's background, so
         // the opening starts on the same colour with no flash (res/values*/themes.xml).
         resValue("color", "brand_background", (brand["colors"] as Map<*, *>)["background"] as String)
+    }
+    signingConfigs {
+        if (!releaseKeystore.isNullOrBlank()) {
+            create("release") {
+                storeFile = rootDir.resolve(releaseKeystore)
+                storePassword = releaseKeystorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
     }
     buildTypes {
         release {
@@ -59,8 +196,11 @@ android {
             // 2026-11-12 at 2,563,077 bytes holding both `libstreamscore.so.dbg`.
             ndk { debugSymbolLevel = "FULL" }
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "keep.pro")
-            // Until the release key exists, so a release build can run on a test device.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (!releaseKeystore.isNullOrBlank()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
     // One APK per CPU type, instead of one APK that carries both cores. A phone runs `arm64-v8a`
@@ -85,11 +225,33 @@ android {
     buildFeatures {
         compose = true
         resValues = true
+        buildConfig = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+androidComponents {
+    onVariants { variant ->
+        val taskName = "prepareBoundNetworkSecurity${variant.name.replaceFirstChar { it.uppercase() }}"
+        val prepareTask = tasks.register<PrepareBoundNetworkSecurity>(taskName) {
+            boundServer.set(serverUrl)
+        }
+        variant.sources.res?.addGeneratedSourceDirectory(prepareTask, PrepareBoundNetworkSecurity::outputDir)
+    }
+}
+
+tasks.matching { task ->
+    val name = task.name
+    name.startsWith("assemble") ||
+        name.startsWith("bundle") ||
+        name.startsWith("install") ||
+        name.startsWith("package") ||
+        (wantsAppPackage && name.startsWith("pre") && name.endsWith("Build"))
+}.configureEach {
+    dependsOn(requireBoundServer)
 }
 
 dependencies {

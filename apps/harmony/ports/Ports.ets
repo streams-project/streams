@@ -276,11 +276,8 @@ export class Seen {
   notices: number = 0;
   brand: string = '';
   server: string = '';
-  /**
-   * True when that server is reached over plain http. The screen that shows the address marks it,
-   * so nobody runs on an unencrypted connection without being told.
-   */
-  serverPlain: boolean = false;
+  /** True when the server requires an account before browsing. Defaults to true until `/v1/hello`. */
+  accountsRequired: boolean = true;
   positionMs: number = 0;
   lengthMs: number = 0;
   /** The sound and subtitle tracks of what is playing. */
@@ -321,7 +318,7 @@ export class Seen {
     made.notices = this.notices;
     made.brand = this.brand;
     made.server = this.server;
-    made.serverPlain = this.serverPlain;
+    made.accountsRequired = this.accountsRequired;
     made.positionMs = this.positionMs;
     made.lengthMs = this.lengthMs;
     made.audio = this.audio;
@@ -351,7 +348,7 @@ export interface Shell {
    * of how a screen redraws. OPEN QUESTION Q4 is closed by that and by nothing else in ArkUI.
    */
   watch(changed: (seen: Seen) => void): void;
-  connect(server: string): void;
+  retry(): void;
   go(address: string): void;
   /** Goes to this address in place of the one here, so Back passes over it. */
   swap(address: string): void;

@@ -205,9 +205,7 @@ public struct Settings: View {
             subBg: subBg,
             historyCleared: historyCleared,
             devices: devices,
-            account: account,
-            server: seen.server,
-            serverPlain: seen.serverPlain
+            account: account
         )
     }
 

@@ -1,12 +1,12 @@
 #!/bin/sh
 # Builds and runs everything in this folder that can run without an Xbox.
 #
-# Nine tests. The core boundary (`host/`) needs the C bridge built as a static library for whatever
-# machine this is; the other eight (`surfaces/remote/`) need nothing but a C++ compiler. All nine are
-# plain programs that print a line per check and return non-zero on a failure, and three of them are
+# Ten tests. The core boundary (`host/`) needs the C bridge built as a static library for whatever
+# machine this is; the other nine (`surfaces/remote/`) need nothing but a C++ compiler. All ten are
+# plain programs that print a line per check and return non-zero on a failure, and four of them are
 # held against a file nobody here owns: the drawing numbers read `brand.json` and
-# `reference/netflix-on-the-tv.md`, and the contract reading reads the contract's own fixtures,
-# which is why this script runs from the repository root.
+# `reference/netflix-on-the-tv.md`, the player reads `strings/en.json`, and the contract reading
+# reads the contract's own fixtures, which is why this script runs from the repository root.
 #
 # The root `./check` is the whole of CI and it does not call this: it carries no C++ compiler and
 # `platform/tools/check_rings.py` has no `xbox` family. So this runs when a person types it, and the
@@ -86,10 +86,18 @@ $cxx $flags apps/xbox/surfaces/remote/remote.cpp apps/xbox/surfaces/remote/keys.
 "$out/door"
 
 echo
+echo "== the player: TimeWindow skip marks, the transport bar, the ratings, and the track lists"
+$cxx $flags -I "$contract" apps/xbox/surfaces/remote/remote.cpp \
+    apps/xbox/surfaces/remote/watch.cpp apps/xbox/surfaces/remote/watch_test.cpp \
+    -o "$out/watch"
+"$out/watch" strings/en.json
+
+echo
 echo "== reading the contract into a page, held against the contract's own $wire fixtures"
 $cxx $flags -I "$contract" apps/xbox/surfaces/remote/remote.cpp \
-    apps/xbox/surfaces/remote/place.cpp apps/xbox/surfaces/remote/reading.cpp \
-    apps/xbox/surfaces/remote/reading_test.cpp -o "$out/reading"
+    apps/xbox/surfaces/remote/place.cpp apps/xbox/surfaces/remote/watch.cpp \
+    apps/xbox/surfaces/remote/reading.cpp apps/xbox/surfaces/remote/reading_test.cpp \
+    -o "$out/reading"
 "$out/reading" "$fixtures"
 
 echo
@@ -100,4 +108,4 @@ $cxx $flags -I platform/bridges/c apps/xbox/host/core_host.cpp apps/xbox/host/sm
 "$out/smoke"
 
 echo
-echo "all nine held. No test here touches an Xbox, WinRT, a screen or a controller."
+echo "all ten held. No test here touches an Xbox, WinRT, a screen or a controller."

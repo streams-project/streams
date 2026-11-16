@@ -165,8 +165,6 @@ fun Settings(shell: Shell, seen: Seen) {
         historyCleared = historyCleared,
         devices = devices,
         account = account,
-        server = seen.server,
-        serverPlain = seen.serverPlain,
     )
 
     if (line > rows.lastIndex && rows.isNotEmpty()) {

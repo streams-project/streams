@@ -103,8 +103,9 @@ public final class KeysView extends RefLayout {
             shape = wanted;
         }
         for (int row = 0; row < rows.length; row++) {
+            int lit = keys.lit(row);
             for (int at = 0; at < rows[row].length; at++) {
-                paint(faces[row][at], rows[row][at], row == keys.row() && rows[row][at].holds(keys.column()));
+                paint(faces[row][at], rows[row][at], at == lit);
             }
         }
     }

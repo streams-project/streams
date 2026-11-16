@@ -176,6 +176,7 @@
 				"CODE_SIGNING_ALLOWED[sdk=appletvsimulator*]" = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEPLOYMENT_INFOPLIST_APP = Info.plist;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -206,6 +207,7 @@
 				"CODE_SIGNING_ALLOWED[sdk=appletvsimulator*]" = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_INFOPLIST_APP = Info.plist;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -223,7 +225,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A10000180000000000000001 /* Brand.xcconfig */;
 			buildSettings = {
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = "$(DEPLOYMENT_INFOPLIST_APP)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -245,7 +247,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A10000180000000000000001 /* Brand.xcconfig */;
 			buildSettings = {
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = "$(DEPLOYMENT_INFOPLIST_APP)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

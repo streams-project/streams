@@ -128,8 +128,8 @@ class NoServerHeardTest {
         compose.onRoot().performKeyPress(ok())
         assertEquals(
             "OK on this screen has to do the one thing that can change the situation",
-            listOf(ADDRESS),
-            shell.connects,
+            1,
+            shell.retries,
         )
     }
 

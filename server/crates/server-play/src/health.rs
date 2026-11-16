@@ -158,6 +158,18 @@ pub struct Health {
 }
 
 impl Health {
+    /// Sum of first-frame delays in milliseconds across `starts`.
+    #[must_use]
+    pub const fn first_frame_ms_sum(&self) -> i64 {
+        self.start_ms_total
+    }
+
+    /// Sessions that ended at this host without ever showing a picture.
+    #[must_use]
+    pub const fn ended_without_picture(&self) -> i64 {
+        self.gave_up
+    }
+
     /// Every failure of the day, whatever the class.
     #[must_use]
     pub fn failures_total(&self) -> i64 {
@@ -173,6 +185,38 @@ impl Health {
             None
         } else {
             Some(self.start_ms_total / self.starts)
+        }
+    }
+}
+
+/// Playback health for one `(class, host)` rolled up across a window of days.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct HostSummary {
+    pub class: String,
+    pub host: String,
+    pub days: usize,
+    pub tries: i64,
+    pub starts: i64,
+    pub first_frame_ms_sum: i64,
+    pub rebuffers: i64,
+    pub ended_without_picture: i64,
+    pub failures: Vec<(String, i64)>,
+}
+
+impl HostSummary {
+    /// Total failures across all error classes in the window.
+    #[must_use]
+    pub fn failures_total(&self) -> i64 {
+        self.failures.iter().map(|(_, count)| count).sum()
+    }
+
+    /// Mean first-frame delay in milliseconds across `starts`, or `None` when nothing started.
+    #[must_use]
+    pub const fn mean_start_ms(&self) -> Option<i64> {
+        if self.starts == 0 {
+            None
+        } else {
+            Some(self.first_frame_ms_sum / self.starts)
         }
     }
 }
@@ -322,6 +366,61 @@ pub fn group(rows: Vec<Tally>) -> Vec<Health> {
             .then_with(|| (&a.class, &a.host).cmp(&(&b.class, &b.host)))
     });
     out
+}
+
+/// Roll up daily [`Health`] rows into one [`HostSummary`] per `(class, host)`.
+#[must_use]
+pub fn summarize(days: &[Health]) -> Vec<HostSummary> {
+    use std::collections::BTreeSet;
+
+    struct Acc {
+        days: BTreeSet<Date>,
+        tries: i64,
+        starts: i64,
+        first_frame_ms_sum: i64,
+        rebuffers: i64,
+        ended_without_picture: i64,
+        failures: BTreeMap<String, i64>,
+    }
+
+    let mut by_key: BTreeMap<(String, String), Acc> = BTreeMap::new();
+    for row in days {
+        let entry = by_key
+            .entry((row.class.clone(), row.host.clone()))
+            .or_insert_with(|| Acc {
+                days: BTreeSet::new(),
+                tries: 0,
+                starts: 0,
+                first_frame_ms_sum: 0,
+                rebuffers: 0,
+                ended_without_picture: 0,
+                failures: BTreeMap::new(),
+            });
+        entry.days.insert(row.day);
+        entry.tries += row.tries;
+        entry.starts += row.starts;
+        entry.first_frame_ms_sum += row.start_ms_total;
+        entry.rebuffers += row.rebuffers;
+        entry.ended_without_picture += row.gave_up;
+        for (fault, count) in &row.failures {
+            *entry.failures.entry(fault.clone()).or_default() += count;
+        }
+    }
+
+    by_key
+        .into_iter()
+        .map(|((class, host), acc)| HostSummary {
+            class,
+            host,
+            days: acc.days.len(),
+            tries: acc.tries,
+            starts: acc.starts,
+            first_frame_ms_sum: acc.first_frame_ms_sum,
+            rebuffers: acc.rebuffers,
+            ended_without_picture: acc.ended_without_picture,
+            failures: acc.failures.into_iter().collect(),
+        })
+        .collect()
 }
 
 #[cfg(test)]
@@ -483,5 +582,46 @@ mod tests {
         assert_eq!(bad.failures, vec![("segment".to_owned(), 1)]);
         assert_eq!(bad.failures_total(), 1);
         assert_eq!(bad.mean_start_ms(), None);
+    }
+
+    #[test]
+    fn summarize_rolls_up_days_by_class_and_host() {
+        let mut rows = fold("tv", day(0), &a_walk());
+        rows.extend(fold("tv", day(1), &a_walk()));
+        rows.extend(fold(
+            "tv",
+            day(1),
+            &[event(PlayEventName::Ended, "bad.example")],
+        ));
+        let daily = group(rows);
+        let rolled = summarize(&daily);
+        assert_eq!(rolled.len(), 2);
+
+        let bad = rolled
+            .iter()
+            .find(|row| row.host == "bad.example")
+            .expect("bad.example summary");
+        assert_eq!(bad.class, "tv");
+        assert_eq!(bad.days, 2);
+        assert_eq!(bad.tries, 3);
+        assert_eq!(bad.starts, 0);
+        assert_eq!(bad.first_frame_ms_sum, 0);
+        assert_eq!(bad.ended_without_picture, 1);
+        assert_eq!(bad.failures, vec![("segment".to_owned(), 2)]);
+        assert_eq!(bad.failures_total(), 2);
+        assert_eq!(bad.mean_start_ms(), None);
+
+        let good = rolled
+            .iter()
+            .find(|row| row.host == "good.example")
+            .expect("good.example summary");
+        assert_eq!(good.days, 2);
+        assert_eq!(good.tries, 2);
+        assert_eq!(good.starts, 2);
+        assert_eq!(good.first_frame_ms_sum, 2_800);
+        assert_eq!(good.mean_start_ms(), Some(1_400));
+        assert_eq!(good.rebuffers, 4);
+        assert_eq!(good.ended_without_picture, 0);
+        assert!(good.failures.is_empty());
     }
 }

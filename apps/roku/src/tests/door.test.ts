@@ -1,14 +1,12 @@
 // Where this app's server comes from, and which addresses it will take.
 //
-// The second half of this file is a mirror of a rule two other families already hold, so it is
-// held the way every mirror in this folder is held: `apps/android/core/src/main/kotlin/streams/
-// core/Host.kt` is read as **text** and its own list of private networks is compared with the one
-// here. Change the Kotlin and this folder goes red, naming that file. (The technique is
-// `src/tests/tier.test.ts`; the bargain is the same one: brittle to a rewrite of that file, and
-// better than no guard.)
+// The second half of this file is a mirror of the launcher's bind rule, so it is held the way
+// every mirror in this folder is held: `launcher/src/address.rs` is read as **text** and its
+// `own_network` and `check_bind` rules are compared with the ones here. Change the Rust and this
+// folder goes red, naming that file. (The technique is `src/tests/tier.test.ts`; the bargain is
+// the same one: brittle to a rewrite of that file, and better than no guard.)
 //
-// The first half is this family's own decision and has no twin anywhere, so it is held to what
-// the decision says it does.
+// The first half is this family's own decision, so it is held to what the decision says it does.
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -24,10 +22,7 @@ import {
 } from "../door";
 
 const ROOT = join(__dirname, "..", "..", "..", "..");
-const KOTLIN = readFileSync(
-  join(ROOT, "apps", "android", "core", "src", "main", "kotlin", "streams", "core", "Host.kt"),
-  "utf8",
-);
+const ADDRESS_RULES = readFileSync(join(ROOT, "launcher", "src", "address.rs"), "utf8");
 
 describe("the address this run starts with", () => {
   it("is the one the channel was launched with", () => {
@@ -36,34 +31,50 @@ describe("the address this run starts with", () => {
   });
 
   it("is the kept one when the launch carried none", () => {
-    expect(serverFrom({}, "https://two.example")).toEqual({
+    expect(serverFrom({}, "https://two.example", "https://bound.example")).toEqual({
       server: "https://two.example",
       from: "kept",
     });
   });
 
-  it("is the launched one even when there is a kept one, so a device can be re-pointed", () => {
-    // This is the whole reason the order is this way round. A kept value that won would make a
-    // television impossible to move to another server without clearing its registry, and clearing
-    // a registry is not something a person with a remote can do.
-    const given = serverFrom({ [SERVER_PARAMETER]: "https://new.example" }, "https://old.example");
+  it("is the launched one even when there is a kept or bound one, so a device can be re-pointed", () => {
+    // This is the whole reason the order is this way round. A kept or bound value that won would
+    // make a television impossible to move to another server without clearing its registry or
+    // rebuilding, and clearing a registry is not something a person with a remote can do.
+    const given = serverFrom(
+      { [SERVER_PARAMETER]: "https://new.example" },
+      "https://old.example",
+      "https://bound.example",
+    );
     expect(given.server).toBe("https://new.example");
     expect(given.from).toBe("launch");
   });
 
-  it("is nothing when neither place has one, and says so rather than guessing", () => {
+  it("falls back to the bound build address when neither launch nor kept carried one", () => {
+    expect(serverFrom({}, null, "  https://bound.example  ")).toEqual({
+      server: "  https://bound.example  ".trim(),
+      from: "bound",
+    });
+    expect(serverFrom({ [SERVER_PARAMETER]: "  " }, " ", "https://bound.example")).toEqual({
+      server: "https://bound.example",
+      from: "bound",
+    });
+  });
+
+  it("is nothing when no place has one, and says so rather than guessing", () => {
     expect(serverFrom({}, null)).toEqual({ server: "", from: "none" });
-    expect(serverFrom({ [SERVER_PARAMETER]: "   " }, "  ")).toEqual({ server: "", from: "none" });
+    expect(serverFrom({ [SERVER_PARAMETER]: "   " }, "  ", "   ")).toEqual({
+      server: "",
+      from: "none",
+    });
   });
 
   it("ignores every other launch parameter", () => {
     expect(serverFrom({ contentId: "movie:1", mediaType: "movie" }, null).from).toBe("none");
   });
 
-  it("is kept under the name the other two families keep it under", () => {
-    // Not decoration: a person reading one family's host should find the same word in the next.
+  it("keeps the address under the shared store key name", () => {
     expect(SERVER_KEY).toBe("app:server");
-    expect(KOTLIN).toContain('const val SERVER = "app:server"');
   });
 });
 
@@ -74,23 +85,32 @@ describe("an address is tidied before anything looks at it", () => {
   });
 });
 
-describe("the Kotlin this mirrors has not moved", () => {
+describe("the launcher rule this mirrors has not moved", () => {
   it("is where this suite thinks it is", () => {
-    expect(KOTLIN).toContain("fun encryptionOf(server: String): Boolean?");
-    expect(KOTLIN).toContain("private fun ownNetwork(host: String): Boolean");
+    expect(ADDRESS_RULES).toContain("pub fn own_network(host: &str) -> bool");
+    expect(ADDRESS_RULES).toContain("pub fn check_bind(server: &str, family: Family) -> Result<String>");
   });
 
   it("names the same networks as its own hop", () => {
-    const rule = KOTLIN.slice(KOTLIN.indexOf("private fun ownNetwork"));
-    const body = rule.slice(0, rule.indexOf("\n    }"));
-    for (const named of ['"localhost"', '".local"', '"::1"', "127", "10", "192", "168", "169", "254", "172", "16..31"]) {
+    const start = ADDRESS_RULES.indexOf("pub fn own_network");
+    const end = ADDRESS_RULES.indexOf("pub fn check_bind", start);
+    const body = ADDRESS_RULES.slice(start, end);
+    for (const named of [
+      '"localhost"',
+      '".local"',
+      "is_loopback()",
+      "is_private()",
+      "is_link_local()",
+      "is_unique_local()",
+      "0xfe80",
+    ]) {
       expect(body).toContain(named);
     }
-  });
-
-  it("holds its refusal as an English sentence, which is why this folder cannot", () => {
-    // `strings/` has no key for this. The finding is in the README, not worked around here.
-    expect(KOTLIN).toContain("This address must start with https://");
+    const bindStart = ADDRESS_RULES.indexOf("pub fn check_bind");
+    const bindEnd = ADDRESS_RULES.indexOf("#[must_use]", bindStart);
+    const bindBody = ADDRESS_RULES.slice(bindStart, bindEnd);
+    expect(bindBody).toContain('"http://"');
+    expect(bindBody).toContain("!own_network(host)");
   });
 });
 
@@ -137,7 +157,7 @@ describe("plain http reaches only the viewer's own network", () => {
   });
 
   it("takes https whatever case it was typed in", () => {
-    expect(encryptionOf("HTTPS://Streams.Example")).toBe(false);
+    expect(encryptionOf("HTTPS://Example.Test")).toBe(false);
     expect(encryptionOf("HTTP://LOCALHOST")).toBe(true);
   });
 });

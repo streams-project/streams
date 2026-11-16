@@ -330,10 +330,9 @@ In the order they block a running app.
       nowhere that was read**. *Unblocks with*: the SDK installed, or
       [the public repository](https://gitlab.com/rokudev/rsg-sdk) read. It is about ten lines.
    2. **The launch-parameter adapter.** `NoLaunch` hands back none, so a fresh device falls
-      through to the kept address and finds nothing. How a sideloaded RSG 2.0 app reads the
-      parameters it was launched with was not established. *Unblocks with*: the same. This is the
-      **first** thing to write, because section 8's whole answer to "where does the address come
-      from" rests on it.
+      through to the kept address or the bound build address passed to `Host`. How a sideloaded RSG
+      2.0 app reads the parameters it was launched with was not established. *Unblocks with*: the
+      same. This is how `rk dev` can re-point a device at launch without rebuilding.
 2. **The app's entry point.** `main` from `@roku-sdk/rsg-ts` is named on Roku's getting-started page
    but its signature was not published on any page read. It is now the only thing between this
    folder and a running app: the foot of `src/main.tsx` is the five lines it would be, and every
@@ -363,16 +362,12 @@ In the order they block a running app.
    episodes, more-like-this, and the player. The player additionally needs the Video node's fields
    and an answer on HLS and DRM. *Unblocks with*: the work, in that order; none of it needs a
    device either, except the player. **The address screen is not on this list and is not an
-   oversight**: section 8 says why this family has none, and what it would cost to add it the day
-   the store opens.
-9. **A string key that does not exist.** An address this app refuses — plain http to anything but
-   the viewer's own network — is shown as the address and nothing else, because `strings/` has no
-   key for the sentence. Android and Apple both hold that sentence as an **English literal in the
-   host** (`apps/android/core/src/main/kotlin/streams/core/Host.kt:94-95`,
-   `apps/apple/Sources/CoreHost/Host.swift:44`), which is the shape of the problem rather than a
-   solution to it. *Unblocks with*: a key in `strings/`, which is not this folder's file — and
-   which has the same chicken-and-egg as every other word on that screen, since the words come
-   from the server that has not been named yet.
+   oversight**: no family carries an address screen, and section 8 says how Roku resolves its
+   server address from launch parameters, the kept registry value, or the bound build address.
+9. **A string key that does not exist.** A launch address this app refuses — plain http to
+   anything but the viewer's own network — is shown as the address and nothing else, because
+   `strings/` has no key for a refusal sentence before a server answers. *Unblocks with*: a key in
+   `strings/`, which is not this folder's file.
 10. **Nothing has been type-checked.** The suites run (section 4), but erasing types is not
    checking them: no `tsc` has read a line of this folder, so every `strict` flag in
    `tsconfig.json` is still a promise. This matters more today than it did yesterday, because
@@ -478,43 +473,27 @@ existed somewhere in this repository.
 
 ### 8.1 Where the server's address comes from
 
-**Decision: the parameters the channel was launched with, then the registry. There is no address
-screen.**
+**Decision: the parameters the channel was launched with, then the registry, then the bound build
+address. There is no address screen.**
 
 | family | where the address comes from |
 |---|---|
 | web | nowhere: a browser is already at the server it loaded the page from |
-| android | a kept value, else a screen of its own with a text field (`door/ServerAddress.kt`) |
-| apple | a kept value, else the `SERVER_URL` environment variable, else that same screen (`CoreHost/Host.swift:127-131`) |
-| **roku** | **the launch parameters, else a kept value** |
+| android / apple / desktop / harmony | bound into the build from `deployment.json` or `--server` (`launcher/src/address.rs`) |
+| **roku** | **the launch parameters, else a kept value, else the bound build address** |
 
-Apple's environment variable is the nearest precedent and is worth naming, because it is the same
-idea: a device that is set up by somebody at a computer can be *handed* its address instead of
-being asked for it. On a Roku that is not a convenience, it is the only shape that fits. An RSG 2.0
-app cannot reach the Streaming Store before Fall 2027 (section 1), so the only way onto a device is
-`rk dev`, run by a person who is already typing a command — and a television remote has no
-keyboard.
+On Roku, `Host` takes an optional `boundServer` in its constructor so a build bound to a deployment
+works out of the box even when `NoLaunch` returns `{}`. When `rk dev` passes a `server` launch
+parameter, that launch parameter **outranks** both the kept registry value and `boundServer`,
+so a developer can re-point a television without clearing its registry or rebuilding.
+`src/door.ts` validates launched, kept, and bound addresses against the same `ownNetwork` rule as
+`launcher/src/address.rs` (`src/tests/door.test.ts` holds that mirror), and `Shell.retry()` asks the
+host to reconnect when the server is unreachable without exposing a public `connect()` on `Shell`.
 
-What it buys, beyond not writing an on-screen keyboard against a text-input node nobody has read:
-the address screen is the **one** screen in this folder that could not be drawn in the viewer's
-language, because every word comes from `/v1/strings/{lang}` on the server that has not been named
-yet. That is not a hypothetical. Android's own address screen holds four English literals for
-exactly that reason (`door/ServerAddress.kt:57,70,74`) and Apple's holds the same, in a project
-whose rule is that no surface contains an English literal. This folder holds none and now needs
-none.
-
-What it costs, stated rather than hidden: a viewer who is handed a device cannot move it to another
-server without a computer. The day the store opens this family needs the screen the other two have,
-and it needs string keys that can be drawn before any string has arrived.
-
-The launch parameter **outranks** the kept address, deliberately: a kept value that won would make
-a television impossible to re-point without clearing its registry, which is not something a person
-with a remote can do. `src/tests/door.test.ts` holds that order.
-
-**With no address anywhere**, `seen.server` is empty and `main.tsx` draws the background and
-nothing else — which is what it did before the host existed, and now it is a decision with a
-reason rather than a gap. The one exception is an address this app **refused**: that is shown, as
-the address and nothing else, for the reason section 8.4 gives.
+**With no address anywhere** (no launch parameter, no kept value, and no `boundServer`),
+`seen.server` is empty and `main.tsx` draws the background and nothing else. The one exception is
+an address this app **refused**: that is shown, as the address and nothing else, for the reason
+section 8.4 gives.
 
 ### 8.2 The ports
 
@@ -598,9 +577,9 @@ the address is the one thing on the screen that did not have to be fetched to be
 and it is never missing, which is also what keeps the spoken sentence from being empty and the one
 focusable node from being unnamed. Most of `src/tests/lost.test.ts` is that empty case.
 
-**And one more hole of its own.** The television at least has an address to draw. A Roku that was
-never handed one has no server *and* no words, and there is nothing on the screen at all. That is
-the cost of 8.1 and it is listed there.
+**And one more hole of its own.** A Roku started with neither a bound address nor a launch
+parameter has no server *and* no words, and there is nothing on the screen at all. That is the cost
+of 8.1 and it is listed there.
 
 Two things here are better than the television's, and both came from writing the host rather than
 porting the screen:

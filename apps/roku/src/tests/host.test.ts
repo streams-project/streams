@@ -145,10 +145,14 @@ class UnstoppableClock implements Clock {
 }
 
 class FakeLaunch implements Launch {
-  constructor(private readonly given: Record<string, string>) {}
+  constructor(private given: Record<string, string>) {}
 
   parameters(): Record<string, string> {
     return this.given;
+  }
+
+  set(given: Record<string, string>): void {
+    this.given = given;
   }
 }
 
@@ -157,16 +161,22 @@ interface Made {
   network: FakeNetwork;
   store: FakeStore;
   clock: FakeClock;
+  launch: FakeLaunch;
   seen: () => Seen;
 }
 
-function made(given: Record<string, string> = {}, kept: string | null = null): Made {
+function made(
+  given: Record<string, string> = {},
+  kept: string | null = null,
+  bound = "",
+): Made {
   const network = new FakeNetwork();
   const store = new FakeStore();
   const clock = new FakeClock();
+  const launch = new FakeLaunch(given);
   if (kept !== null) store.put(SERVER_KEY, kept);
-  const host = new Host({ network, store, clock, player: new NoPlayer(), launch: new FakeLaunch(given) });
-  return { host, network, store, clock, seen: () => host.seen() };
+  const host = new Host({ network, store, clock, player: new NoPlayer(), launch }, bound);
+  return { host, network, store, clock, launch, seen: () => host.seen() };
 }
 
 const LAUNCHED = { [SERVER_PARAMETER]: "https://streams.example" };
@@ -189,8 +199,8 @@ describe("a run with no address", () => {
   });
 
   it("draws nothing rather than a screen it has not got", () => {
-    // `main.tsx` draws the background alone for this state. The head of `src/door.ts` is why this
-    // family has no address screen to send the viewer to.
+    // `main.tsx` draws the background alone for this state. The head of `src/door.ts` is why a run
+    // with no server draws nothing.
     const all = made();
     all.host.start();
     expect(all.seen().route).toBeNull();
@@ -211,6 +221,23 @@ describe("where the server's address comes from", () => {
     const all = made({}, "https://kept.example");
     all.host.start();
     expect(all.seen().server).toBe("https://kept.example");
+  });
+
+  it("falls back to the bound build address when neither launch nor kept carried one", () => {
+    const all = made({}, null, "https://bound.example/");
+    all.host.start();
+    expect(all.seen().server).toBe("https://bound.example");
+    expect(all.network.paths()).toContain("https://bound.example/v1/screens/home");
+  });
+
+  it("lets launch and kept addresses outrank the bound build address", () => {
+    const keptWins = made({}, "https://kept.example", "https://bound.example");
+    keptWins.host.start();
+    expect(keptWins.seen().server).toBe("https://kept.example");
+
+    const launchWins = made(LAUNCHED, "https://kept.example", "https://bound.example");
+    launchWins.host.start();
+    expect(launchWins.seen().server).toBe("https://streams.example");
   });
 
   it("is asked for the moment it is known, with no screen in between", () => {
@@ -257,7 +284,8 @@ describe("an address this app will not take", () => {
     // from the old server lead nowhere on the new one.
     const all = made(LAUNCHED);
     all.host.start();
-    all.host.connect("https://other.example");
+    all.launch.set({ [SERVER_PARAMETER]: "https://other.example" });
+    all.host.start();
     expect(all.seen().nav).toHaveLength(0);
     all.network.answer("https://streams.example/v1/nav", 200, NAV);
     expect(all.seen().nav).toHaveLength(0);
@@ -268,7 +296,8 @@ describe("an address this app will not take", () => {
   it("and a good address afterwards clears the refusal", () => {
     const all = made({ [SERVER_PARAMETER]: "http://streams.example" });
     all.host.start();
-    all.host.connect("https://streams.example");
+    all.launch.set({ [SERVER_PARAMETER]: "https://streams.example" });
+    all.host.retry();
     expect(all.seen().refused).toBe("");
     expect(all.seen().serverPlain).toBe(false);
   });
@@ -462,7 +491,18 @@ describe("when the server cannot be reached", () => {
     all.host.start();
     all.network.nothing("/v1/screens/home");
     expect(all.seen().lost).toBe(true);
-    all.host.connect("https://streams.example");
+    all.host.retry();
+    all.network.answer("/v1/screens/home", 200, HOME);
+    expect(all.seen().lost).toBe(false);
+    expect(all.seen().screen?.name).toBe("home");
+  });
+
+  it("retries a bound server when lost and recovers once it answers", () => {
+    const all = made({}, null, "https://bound.example");
+    all.host.start();
+    all.network.nothing("/v1/screens/home");
+    expect(all.seen().lost).toBe(true);
+    all.host.retry();
     all.network.answer("/v1/screens/home", 200, HOME);
     expect(all.seen().lost).toBe(false);
     expect(all.seen().screen?.name).toBe("home");

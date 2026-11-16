@@ -45,8 +45,7 @@ export interface Seen {
   server: string;
   /**
    * True when that server is reached over plain http. A plain address is only ever accepted on the
-   * viewer's own network (`src/door.ts`), and a screen that shows the address marks it.
-   * (`apps/android/ports/src/main/kotlin/streams/ports/Ports.kt:200-204`)
+   * viewer's own network (`src/door.ts`).
    */
   serverPlain: boolean;
   /**
@@ -194,11 +193,8 @@ export interface Shell {
   /** What the screens draw from now. */
   seen(): Seen;
 
-  /**
-   * Take this address as the server's. The one gate every address passes, launched or kept.
-   * (`Ports.kt:228`)
-   */
-  connect(server: string): void;
+  /** Ask the host to try the current server address again. */
+  retry(): void;
 
   /** Open an address from `platform/contract/src/address.rs`. A screen never types an address. */
   go(address: string): void;

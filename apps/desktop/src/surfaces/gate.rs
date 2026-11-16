@@ -174,7 +174,7 @@ pub(super) fn draw(surface: &Surface, scene: &mut Scene) {
 mod tests {
     use super::super::reading::english;
     use super::super::scene::Field;
-    use super::super::tests::{a_profile, opened};
+    use super::super::tests::a_profile;
     use super::super::{Ask, Face, Surface, Window, sizes};
     use super::face_at;
     use crate::host::Turn;
@@ -189,7 +189,7 @@ mod tests {
     ];
 
     fn watching(profiles: Vec<contract::account::Profile>) -> Surface {
-        let mut surface = opened();
+        let mut surface = Surface::new();
         let mut turn = Turn::default();
         turn.views.push(View {
             gate: Some(GateView { ask: true }),

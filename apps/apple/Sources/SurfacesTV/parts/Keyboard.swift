@@ -21,6 +21,10 @@ private struct Cap {
     /// key that draws its own, which gathers it and so can never drift from what is seen. From
     /// `strings/`, handed down from the screen.
     var says: String? = nil
+
+    func holds(_ at: Int) -> Bool {
+        at >= column && at < column + span
+    }
 }
 
 let letterKeys = ["1234567890", "qwertyuiop", "asdfghjkl-", "zxcvbnm'"]
@@ -68,20 +72,31 @@ public final class KeyboardState {
         text = start
     }
 
+    /// Which key of a row the remote is on, as a place in that row's own list, or -1 for a row it
+    /// is not on. The painter's question, `hereIs`'s question and `press`'s question are this one
+    /// question, so the key that lights is the key that speaks and the key that answers.
+    func lit(_ atRow: Int) -> Int {
+        let rows = caps(page, upper, "", "")
+        guard atRow == row, let line = rows[safe: atRow], !line.isEmpty else { return -1 }
+        if let at = line.firstIndex(where: { $0.holds(column) }) {
+            return at
+        }
+        return line.count - 1
+    }
+
     /// What the key the remote is on is heard as: the words of a picture key, or the text a key
     /// draws. The state is what knows where the remote is, so it is what answers, and a screen can
     /// ask without holding on to the view it drew.
     func hereIs(_ cancel: String, _ done: String, _ words: [String: String]) -> String {
         let rows = caps(page, upper, cancel, done, words)
-        // The same rule as `press` below, and it has to be the same rule: this answers what the
-        // stop IS and `press` answers what the stop DOES, so a stop where they disagree is one a
-        // person who cannot see the screen is lied to about. Until 2026-11-14 this guard was safe
-        // and wrong where `press` was unsafe and right -- at the four stops standing past the end
-        // of a short fourth row it returned nothing, so a reader was told nothing while OK typed
-        // that row's last key. The crash was the louder half of one defect; this was the quieter.
+        // The same rule as `press` and `Keyboard` below, through `lit`: this answers what the stop
+        // IS, `Keyboard` lights it, and `press` answers what the stop DOES, so a stop where they
+        // disagree is one a person is lied to about. Until 2026-11-14 this guard was safe and wrong
+        // where `press` was unsafe and right -- at the four stops standing past the end of a short
+        // fourth row it returned nothing, so a reader was told nothing while OK typed that row's
+        // last key. The crash was the louder half of one defect; this was the quieter.
         guard let line = rows[safe: row],
-            let here = line.first(where: { column >= $0.column && column < $0.column + $0.span })
-                ?? line.last
+            let here = line[safe: lit(row)]
         else { return "" }
         let said = here.says ?? ""
         return said.isEmpty ? (here.word ?? "") : said
@@ -90,21 +105,16 @@ public final class KeyboardState {
     /// Answers a word from the remote. `finish` gets the text on Done, or nothing on Cancel.
     func press(_ word: Word, _ cancel: String, _ done: String, _ finish: (String?) -> Void) -> Bool {
         let rows = caps(page, upper, cancel, done)
-        // The key under the remote, by the rule the Kotlin and the Java already take: the key whose
-        // span holds this column, or -- where the column stands past the end of a shorter row --
-        // that row's last key.
+        // The key under the remote, by the rule the Kotlin, the Java and the C++ take: the key
+        // whose span holds this column, or -- where the column stands past the end of a shorter row
+        // -- that row's last key (`lit`).
         //
         // Until 2026-11-14 this line ended in `!`, and the fourth row is shorter than the three
         // above it, so a column that no key of that row covers is reachable: eleven presses from
         // where the keyboard opens, on every one of the four screens that draws one, and the
-        // shortest path ends with a viewer typing a password. The Kotlin and the Java were fixed on
-        // 2026-11-13 and this was not. `hereIs`, eight lines above, has guarded with `rows[safe:]`
-        // the whole time -- so this file has disagreed with itself about whether the question has an
-        // answer: what a person who cannot see the screen was told was safe, and what the press did
-        // was not.
+        // shortest path ends with a viewer typing a password.
         guard let line = rows[safe: row],
-            let here = line.first(where: { column >= $0.column && column < $0.column + $0.span })
-                ?? line.last
+            let here = line[safe: lit(row)]
         else { return false }
         switch word {
         case .up: if row > 0 { row -= 1 } else { return false }
@@ -173,8 +183,9 @@ struct Keyboard: View {
         let shape = shapeOf(Round.panel)
         ZStack(alignment: .topLeading) {
             ForEach(Array(rows.enumerated()), id: \.offset) { row, line in
-                ForEach(Array(line.enumerated()), id: \.offset) { _, cap in
-                    CapView(cap: cap, row: row, on: row == state.row && state.column >= cap.column && state.column < cap.column + cap.span)
+                let lit = state.lit(row)
+                ForEach(Array(line.enumerated()), id: \.offset) { at, cap in
+                    CapView(cap: cap, row: row, on: at == lit)
                 }
             }
             .offset(x: 30.ref, y: 29.ref)

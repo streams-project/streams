@@ -255,6 +255,39 @@ int main(int count, char **args) {
         ok(place.wantsMore(), "a page of two rows is already asking for its next ones");
     }
 
+    // ----------------------------------------- the player fixtures: Marks and View.playing
+    {
+        const contract::Marks marks =
+                contract::Marks::read(contract::Json::parse(slurp(folder + "Marks.basic.json")));
+        const std::vector<streams::watch::Window> windows =
+                streams::reading::windowsOf(marks.windows);
+        ok(windows.size() == 2 && windows[0].kind == "intro" && windows[1].kind == "credits",
+           "Marks.basic.json reads straight into two watch::Window spans");
+        ok(windows[0].start_ms == 30000 && windows[0].end_ms == 90000 &&
+               windows[0].has_seek_to && windows[0].seek_to_ms == 90000,
+           "with the intro window's start, end, and seek target intact");
+
+        const contract::View playingView =
+                contract::View::read(contract::Json::parse(slurp(folder + "View.playing.json")));
+        ok(playingView.play.has_value(), "View.playing.json carries a contract::PlayView");
+        const streams::watch::Play play = streams::reading::playOf(*playingView.play);
+        ok(play.title == "tv:1001" && play.state == streams::watch::State::Switching &&
+               play.has_episode && play.episode.season == 1 && play.episode.episode == 3,
+           "which flattens into watch::Play with its title, state, and episode");
+        ok(play.windows.size() == 4, "and all four of its TimeWindow entries");
+
+        streams::watch::Watch player(play);
+        player.tick(2000, 1200000);
+        ok(player.age() == "15", "at two seconds the age_card window from the fixture is active");
+        player.tick(45000, 1200000);
+        player.hide();
+        ok(player.moment().kind == streams::watch::MomentKind::SkipIntro &&
+               player.moment().key == "player.skip_intro" && player.moment().on,
+           "at forty-five seconds with controls hidden, the intro window offers player.skip_intro");
+        ok(player.press(Word::Ok) == streams::watch::Did::Seek && player.seekToMs() == 90000,
+           "and OK skips the intro to the fixture's seek_to_ms");
+    }
+
     if (failures > 0) {
         std::printf("%d of %d failed\n", failures, checks);
         return 1;

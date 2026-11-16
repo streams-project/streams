@@ -6,8 +6,9 @@ Android phone (`apps/android/surfaces/phone/src/main/kotlin/streams/phone`) and 
 | Folder | What is in it |
 |---|---|
 | app | Root (Phone), sizes, shared items |
-| door | Landing, sign in, server address |
+| door | Landing, sign in |
 | profiles | Profiles chooser and management |
 | browse | Home, header, chip row, billboard, section rows |
 | title | Title page, episodes, More Like This |
+| watch | Player and timeline bar |
 | parts | Bottom bar, floating tab capsule |

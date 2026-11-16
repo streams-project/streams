@@ -8,9 +8,10 @@ sits outside this repository; paths like `netflix-reference/tv/...` are inside t
 
 Status: no app, and one native route left standing. This folder holds a README, a `.gitignore`,
 `host/` (the C++ side of the core boundary, with a test that drives it) and `surfaces/remote/` (the
-input grammar, the drawing numbers, the reading of the contract into a page, and five key maps --
-a page of rows, a title's own three pages, the profile gate, the door, and the keyboard the door
-and three other screens share -- each with a test). Nothing draws
+input grammar, the drawing numbers, the reading of the contract into a page and the player, and six
+key maps -- a page of rows, a title's own three pages, the profile gate, the door, the player with
+its `TimeWindow` skip marks and track lists, and the keyboard the door and three other screens
+share -- each with a test). Nothing draws
 a screen, because drawing needs a Windows machine and this is not one. What does not need Windows is written and run here: every test runs on a
 developer's own machine with no Xbox, with `./apps/xbox/check.sh`.
 
@@ -209,9 +210,9 @@ functions carrying UTF-8 JSON, described in `platform/bridges/README.md` - writt
 | `surfaces/remote/place.h` | a page of rows flattened, where the remote is on it, and the tile each row was left on |
 | `surfaces/remote/place.cpp` | that state machine. The key map branch for branch, and in the same order |
 | `surfaces/remote/place_test.cpp` | 82 checks, scripted key sequences. Not run by CI |
-| `surfaces/remote/reading.h` | reading `Contract.hpp` into that page: which rows a page may draw, which picture goes where, the flattening |
+| `surfaces/remote/reading.h` | reading `Contract.hpp` into that page and the player: which rows a page may draw, which picture goes where, `TimeWindow` and `PlayView`, the flattening |
 | `surfaces/remote/reading.cpp` | that reading. No seam, because C++ needs none |
-| `surfaces/remote/reading_test.cpp` | 40 checks, held against the contract's own fixtures. Not run by CI |
+| `surfaces/remote/reading_test.cpp` | 48 checks, held against the contract's own fixtures. Not run by CI |
 | `surfaces/remote/title.h` | a title's three pages: the menu and the reactions, the seasons and their episodes, the grid of titles like it |
 | `surfaces/remote/title.cpp` | that state machine, and what Play asks for on each of its three branches |
 | `surfaces/remote/title_test.cpp` | 92 checks, scripted key sequences. Not run by CI |
@@ -224,22 +225,26 @@ functions carrying UTF-8 JSON, described in `platform/bridges/README.md` - writt
 | `surfaces/remote/door.h` | the door: the landing with its showreel card and its trending titles, and the sign in screen with its two ways in |
 | `surfaces/remote/door.cpp` | those two state machines, and the keyboard under one of the two ways |
 | `surfaces/remote/door_test.cpp` | 99 checks, scripted key sequences. Not run by CI |
-| `check.sh` | builds and runs all nine tests on whatever machine this is |
+| `surfaces/remote/watch.h` | the player: `TimeWindow` skip marks (`player.skip_intro`, `player.skip_recap`, `player.next`), the transport bar, the top controls, the rating pills, the still-watching prompt, and the audio/subtitle strip and full panel |
+| `surfaces/remote/watch.cpp` | that state machine, and its `strings/*.json` key lookup |
+| `surfaces/remote/watch_test.cpp` | 73 checks, held against `strings/en.json`. Not run by CI |
+| `check.sh` | builds and runs all ten tests on whatever machine this is |
 
 It holds no rules, exactly as `apps/android/core/src/main/cpp/bridge.c` holds none for Java.
 
-Ran on this machine, 2026-11-13, x86_64 macOS 25.6.0, rustc 1.98.1:
+Ran on this machine, 2026-11-16, x86_64 macOS 25.6.0, rustc 1.98.1:
 
     ./apps/xbox/check.sh
 
-Nine suites, 584 checks, with no compiler warnings under `-Wall -Wextra -Wpedantic`: the input
+Ten suites, 665 checks, with no compiler warnings under `-Wall -Wextra -Wpedantic`: the input
 grammar (39), the drawing numbers against `brand.json` and the television reference (76), where the
 remote goes on a page of rows and where a row opens when it comes back (82), where it goes on a
 title's own three pages (92), the profile gate and its PIN panel (67), the keyboard (78), the door
-(99), the reading of the contract's own fixtures into a page (40), and the core boundary (11). That
+(99), the player and its `TimeWindow` skip marks against `strings/en.json` (73), the reading of the
+contract's own fixtures into a page and the player (48), and the core boundary (11). That
 proves the C++ side of the boundary, the config shape a console sends (`"class":"box"`,
 `"form":"tv"`), the whole input grammar, every number a painter needs before Windows is involved,
-five key maps, and that a C++ surface reads the contract with nothing between it and the generated
+six key maps, and that a C++ surface reads the contract with nothing between it and the generated
 header. It proves nothing about Xbox.
 
 One of those checks is not a scripted sequence and is the reason the keyboard was worth doing
@@ -516,33 +521,26 @@ Two smaller things, recorded because they were looked at and are not what they s
    `KeyDown` nor `KeyUp` for B, `SystemNavigationManager::BackRequested` fires and the app must
    implement it. Unblocked by the owner deciding, and note 187 wants a dated correction either way.
 10. **The screens with no key map yet.** `place.h` is a page of rows, `title.h` is a title's three
-   pages, `gate.h` is the profile gate, `door.h` is the landing and the sign in screen, and
-   `keys.h` is the keyboard those four screens share. What has none: search and its letter grid
-   (which is `search/LetterGrid.kt`, a different part from the keyboard), the player and its
-   panels, settings, get help and the help centre, the editor and adder the gate opens, and the
-   server address screen -- see item 12. Each is the same kind of work and none of it needs
-   Windows. Nothing is blocked on this; it is a list, so that nobody reads five key maps as all of
-   them.
+   pages, `gate.h` is the profile gate, `door.h` is the landing and the sign in screen, `watch.h`
+   is the player and its panels, and `keys.h` is the keyboard four screens share. What has none:
+   search and its letter grid (which is `search/LetterGrid.kt`, a different part from the
+   keyboard), settings, get help and the help centre, and the editor and adder the gate opens. Each
+   is the same kind of work and none of it needs Windows. Nothing is blocked on this; it is a list,
+   so that nobody reads six key maps as all of them.
 11. **Whether a trending card should open its title on a server that asks for no accounts.** The
    look round is built because the browser has one and the brief asked for it. What is **not**
    built is the other reading of the same flag: today OK on a trending title's card answers
    `Opening::SignIn` on every server, including one that wants no accounts, where the title is
    there to be watched. Both television twins send it to sign in unconditionally and no twin does
    otherwise, so this port did not invent it. Unblocked by the lead or the owner saying which.
-12. **The server address screen has no key map, and on tvOS it cannot be typed into at all.**
-   `ServerAddress.swift` draws a fixed `https://` and its `.remote` handler answers only `.ok`, so
-   there is no way to enter an address; the Kotlin reaches a system IME, which a television has and
-   an immediate-mode Xbox surface will not. It is the first screen of the app, before any server
-   has answered and so before `strings/` has any words. On Xbox it needs `keys.h` and its own key
-   map. Not written here because it is a screen of its own and was not in this brief.
-13. **A notice from the server against the step it belongs to.** `cardsOf(arrived, season)` on the
+12. **A notice from the server against the step it belongs to.** `cardsOf(arrived, season)` on the
    two television title pages is the shape for an answer that may arrive for a state the page has
    since left. Nothing in `door.h` needs it: the one answer the landing waits for,
    `/v1/public/trending`, is keyed on no state, and `Landing::arrived` takes the titles and the
    server's flag together. The place the shape would apply on this screen is the sign in notice --
    a refusal that lands after the viewer has cancelled back to the email step is drawn under the
    wrong field in both twins -- and the notice is the shell's and the core's, above this file.
-14. **What a screen reader is handed, on any of these screens.** `Place.java` has `says` and this
+13. **What a screen reader is handed, on any of these screens.** `Place.java` has `says` and this
    port has nothing, because there is no automation provider to hand a sentence to without XAML
    (note 223 open item 7). Both new files answer *what* the remote is on and neither says a word;
    the word belongs above them. Unblocked by the drawing, which is a Windows machine.

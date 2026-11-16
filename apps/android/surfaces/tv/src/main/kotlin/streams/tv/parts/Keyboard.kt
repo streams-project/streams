@@ -31,17 +31,19 @@ private const val COLUMNS = 10
 private const val BUTTONS = 5
 
 /** What a key does. A letter key carries its text. */
-private sealed interface Press
-private data class Letter(val text: String) : Press
-private data object Shift : Press
-private data object Marks : Press
-private data object Accents : Press
-private data object Space : Press
-private data object Erase : Press
-private data object Cancel : Press
-private data object Done : Press
+internal sealed interface Press
+internal data class Letter(val text: String) : Press
+internal data object Shift : Press
+internal data object Marks : Press
+internal data object Accents : Press
+internal data object Space : Press
+internal data object Erase : Press
+internal data object Cancel : Press
+internal data object Done : Press
 
-private class Cap(val press: Press, val column: Int, val span: Int, val word: String? = null, val icon: Int? = null)
+internal class Cap(val press: Press, val column: Int, val span: Int, val word: String? = null, val icon: Int? = null) {
+    fun holds(at: Int): Boolean = at in column until column + span
+}
 
 private val Letters = listOf("1234567890", "qwertyuiop", "asdfghjkl-", "zxcvbnm'")
 private val Symbols = listOf("1234567890", "!@#$%^&*()", "_=+[]{};:\"", ",.?/\\|~")
@@ -52,7 +54,7 @@ private fun line(letters: String, from: Int, upper: Boolean) = letters.mapIndexe
     Cap(Letter(text), from + index, 1, text)
 }
 
-private fun caps(page: List<String>, upper: Boolean, cancel: String, done: String): List<List<Cap>> = listOf(
+internal fun caps(page: List<String>, upper: Boolean, cancel: String, done: String): List<List<Cap>> = listOf(
     line(page[0], 0, upper),
     line(page[1], 0, upper),
     line(page[2], 0, upper),
@@ -74,6 +76,19 @@ class KeyboardState(start: String) {
     var upper by mutableStateOf(false)
     var row by mutableIntStateOf(2)
     var column by mutableIntStateOf(4)
+
+    /**
+     * Which key of a row the remote is on, as a place in that row's own list, or -1 for a row it is
+     * not on. The painter's question and `press`'s question are this one question, so the key that
+     * lights is the key that answers.
+     */
+    fun lit(atRow: Int): Int {
+        val rows = caps(page, upper, "", "")
+        if (atRow != row || atRow !in rows.indices) return -1
+        val line = rows[atRow]
+        val at = line.indexOfFirst { it.holds(column) }
+        return if (at >= 0) at else line.lastIndex
+    }
 }
 
 @Composable
@@ -116,9 +131,9 @@ fun Keyboard(
     ) {
         Box(Modifier.offset(30.ref, 29.ref)) {
             rows.forEachIndexed { row, caps ->
-                caps.forEach { cap ->
-                    val on = row == state.row && state.column in cap.column until cap.column + cap.span
-                    CapView(cap, row, on)
+                val lit = state.lit(row)
+                caps.forEachIndexed { at, cap ->
+                    CapView(cap, row, at == lit)
                 }
             }
         }
@@ -128,14 +143,14 @@ fun Keyboard(
 /** Answers a word from the remote. `finish` gets the text on Done, or nothing on Cancel. */
 fun KeyboardState.press(word: Word, cancel: String, done: String, finish: (String?) -> Unit): Boolean {
     val rows = caps(page, upper, cancel, done)
-    val caps = rows[row]
     // A row whose letters stop short of the last column has no key under a remote that came down
     // the right hand edge: `Symbols` is `,.?/\|~` and `Accented` is `œšžćčđğ`, seven keys from column 2,
-    // so both end at 8 while the rows above them end at 9. It holds the last key of the row rather
-    // than throwing. Until 2026-11-13 this was `first`, which raised NoSuchElementException on the
-    // eleventh press from where the keyboard opens and closed the screen on a viewer mid password,
-    // on all four screens that draw one (`KeyboardReachTest`).
-    val here = caps.firstOrNull { column in it.column until it.column + it.span } ?: caps.last()
+    // so both end at 8 while the rows above them end at 9. `lit` holds the last key of the row
+    // rather than throwing, and `Keyboard` above asks the same `lit` when it draws, so the key that
+    // lights is the key that answers. Until 2026-11-13 this was `first`, which raised
+    // NoSuchElementException on the eleventh press from where the keyboard opens and closed the
+    // screen on a viewer mid password, on all four screens that draw one (`KeyboardReachTest`).
+    val here = rows[row][lit(row)]
     when (word) {
         Word.UP -> if (row > 0) row -= 1 else return false
         Word.DOWN -> if (row < rows.lastIndex) row += 1

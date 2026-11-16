@@ -168,7 +168,6 @@ pub enum Touch {
 /// A field a viewer types into. The surface holds what is typed; the scene draws it.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Field {
-    Server,
     Email,
     Password,
     Pin,
@@ -404,6 +403,7 @@ mod tests {
             "door.rs",
             "gate.rs",
             "browse.rs",
+            "watch.rs",
         ] {
             let whole =
                 crate::surfaces::reading::source(&format!("apps/desktop/src/surfaces/{file}"));
@@ -444,7 +444,6 @@ mod tests {
     fn a_password_field_is_the_one_that_never_draws_what_was_typed() {
         assert!(Field::Password.secret());
         assert!(Field::Pin.secret());
-        assert!(!Field::Server.secret());
         assert!(!Field::Email.secret());
     }
 

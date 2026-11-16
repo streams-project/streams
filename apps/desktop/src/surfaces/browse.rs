@@ -392,7 +392,7 @@ pub(super) fn waiting(_surface: &Surface, scene: &mut Scene) {
 mod tests {
     use super::super::reading::english;
     use super::super::scene::Mark;
-    use super::super::tests::{opened, route};
+    use super::super::tests::route;
     use super::super::{Ask, Face, Surface, Window, sizes};
     use crate::host::Turn;
     use contract::core_msg::{Action, Target};
@@ -444,7 +444,7 @@ mod tests {
     }
 
     fn browsing() -> Surface {
-        let mut surface = opened();
+        let mut surface = Surface::new();
         route(&mut surface, Target::Home);
         let mut turn = Turn::default();
         turn.pages.push(contract::core_msg::ScreenBody {
@@ -692,7 +692,7 @@ mod tests {
     /// is outside the window.
     #[test]
     fn a_page_that_has_not_arrived_draws_the_shape_of_the_one_that_will() {
-        let mut surface = opened();
+        let mut surface = Surface::new();
         route(&mut surface, Target::Wait);
         for (wide, high) in WINDOWS {
             let scene = surface.draw(Window::new(wide, high));

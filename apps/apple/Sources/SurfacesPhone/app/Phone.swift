@@ -27,9 +27,7 @@ public struct Phone: View {
     @ViewBuilder
     private func page(_ seen: Seen) -> some View {
         let target = seen.route?.target
-        if seen.server.isEmpty {
-            ServerAddress(shell: shell)
-        } else if target == .start {
+        if target == .start {
             Door(shell: shell, seen: seen)
         } else if target == .signIn {
             SignIn(shell: shell, seen: seen)
@@ -39,7 +37,9 @@ public struct Phone: View {
             Title(shell: shell, seen: seen)
         } else if target == .screen && seen.route?.screen == .notifications {
             NotificationsView(shell: shell, seen: seen)
-        } else if target == .home || target == .kidsHome || target == .screen || target == .watch {
+        } else if target == .watch {
+            Watch(shell: shell, seen: seen)
+        } else if target == .home || target == .kidsHome || target == .screen {
             Pages(shell: shell, seen: seen)
         } else {
             ProgressView().tint(.white)

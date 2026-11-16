@@ -82,14 +82,6 @@ class SweepTest {
     private fun seen(target: Target, server: String = SERVER) =
         Seen(brand = BRAND, server = server, words = words, route = RouteTarget(target = target))
 
-    @Test fun server() {
-        // The one screen with no words from `strings/`: it is drawn before a server is known, and
-        // the words of the interface come from the server. Those three are written in `Doors.kt`.
-        sweep("Server", listOf("Your server", "Address", "Connect")) {
-            Server(Showing(), seen(Target.START, ""))
-        }
-    }
-
     @Test fun waiting() {
         // The wait only draws after `LATER_WAIT_MS`: a wait that is over in a blink shows nothing
         // on purpose. Swept before the clock was moved, this screen reported nothing heard and the
@@ -156,8 +148,11 @@ class SweepTest {
 
     @Test fun watch() {
         // Half an hour into a film of one hour forty-four, so the clock says a real time rather
-        // than the 0:00 / 0:00 a player with nothing playing draws.
-        sweep("Watch", listOf("30:00", "1:44:00")) { Watch(Showing(), watchSeen(), tv = false) }
+        // than the 0:00 / 0:00 a player with nothing playing draws, and the control names what a
+        // tap on a playing film does.
+        sweep("Watch", listOf(words.getValue("say.pause"), "30:00", "1:44:00")) {
+            Watch(Showing(), watchSeen(), tv = false)
+        }
     }
 
     @Test fun notifications() {

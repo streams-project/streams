@@ -26,7 +26,7 @@ import streams.ports.Shell
  * Travel is recorded rather than refused. A screen draws controls that could travel, and a shell
  * that threw on one would be testing whichever control the test happened to touch first.
  *
- * [connect] is recorded too, and this is the difference that matters. On the phone it is
+ * [retry] is recorded too, and this is the difference that matters. On the phone it is
  * `error("a screen reading test is already connected")`, because no phone screen offers to reconnect.
  * The television's way out of an unreachable server is exactly that call, so a shell that refused it
  * would make the dead end untestable -- which is how it stayed unmeasured.
@@ -35,7 +35,7 @@ import streams.ports.Shell
  * request and its answer is where screens are wrong, and a shell that closed it would pass a test
  * against broken code.
  */
-internal class Watching(seen: Seen = Seen()) : Shell {
+internal class Watching(seen: Seen = Seen(), private val filmReel: Reel? = null) : Shell {
     private val state = MutableStateFlow(seen)
     override val seen: StateFlow<Seen> = state
 
@@ -45,8 +45,8 @@ internal class Watching(seen: Seen = Seen()) : Shell {
     /** Where the screen was told to travel, in order. "back" for a step back. */
     val went = mutableListOf<String>()
 
-    /** Every address the screen asked to connect to, in order. */
-    val connects = mutableListOf<String>()
+    /** How many times the screen asked to retry the bound server. */
+    var retries = 0
 
     /** Everything the screen asked the core to do, in order. */
     val acted = mutableListOf<Action>()
@@ -101,7 +101,7 @@ internal class Watching(seen: Seen = Seen()) : Shell {
      *
      * A real `View` and not `Any()`, for the reason the player above gives: `Film` casts it.
      */
-    override val reel: Reel = object : Reel {
+    private val viewReel: Reel = object : Reel {
         override fun picture(
             context: Any,
             url: String,
@@ -113,10 +113,13 @@ internal class Watching(seen: Seen = Seen()) : Shell {
         override fun release(picture: Any) = Unit
         override fun hold(still: Boolean) = Unit
     }
+
+    /** A test that brings its own reel gets it; every other gets the one above. */
+    override val reel: Reel get() = filmReel ?: viewReel
     override fun go(address: String) { went += address }
     override fun swap(address: String) { went += address }
     override fun back() { went += "back" }
-    override fun connect(server: String) { connects += server }
+    override fun retry() { retries += 1 }
     override fun act(action: Action) { acted += action }
     override fun send(method: String, path: String, body: String, reply: (Int, String) -> Unit) =
         error("a screen reading test reads, it never sends")

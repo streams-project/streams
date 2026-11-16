@@ -374,6 +374,19 @@ pub const HELD: &[Held] = &[
         export: Export::Under("notification_reads"),
         removal: Removal::Cascade,
     },
+    // ---- 0150_play_streams.sql
+    Held {
+        table: "play_streams",
+        purpose: "which session and profile are playing right now, so simultaneous streams can be \
+                  counted across servers",
+        keyed_by: Keyed::Session,
+        lives: Lives::UntilSpent,
+        consent: Asked::Working,
+        export: Export::Never(
+            "a live slot counter that expires after 150 seconds, with no title and no history",
+        ),
+        removal: Removal::Cascade,
+    },
 ];
 
 /// The tables the export carries, with the name each one goes out under.

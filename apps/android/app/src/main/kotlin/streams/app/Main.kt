@@ -38,6 +38,7 @@ class Main : ComponentActivity() {
             deviceClass = ThisDevice.deviceClass(this),
             form = if (tv) Form.TV else Form.PHONE,
             version = "0.1.0",
+            server = BuildConfig.SERVER,
         )
         // A phone draws under its status and gesture bars, as the reference does; the pages pad for them.
         if (!tv) enableEdgeToEdge()

@@ -550,4 +550,33 @@ mod tests {
             );
         }
     }
+
+    /// Interactive controls on the door keep a 48 px minimum touch target without altering browse
+    /// hero button sizing.
+    #[test]
+    fn door_controls_keep_48px_minimum_touch_targets() {
+        let css = crate::surfaces::tests_support::flat(&crate::surfaces::tests_support::source(
+            "apps/web/style.css",
+        ));
+        let door = css
+            .split_once(".door {")
+            .expect("door rule")
+            .1
+            .split_once(".door-top {")
+            .expect("door-top rule")
+            .0;
+        for selector in ["& .logo {", "& button {", "& input {"] {
+            let body = door
+                .split_once(selector)
+                .unwrap_or_else(|| panic!("missing {selector} inside .door"))
+                .1
+                .split_once('}')
+                .expect("closing brace")
+                .0;
+            assert!(
+                body.contains("min-height: 48px;"),
+                "{selector} must enforce min-height: 48px; got: {body}"
+            );
+        }
+    }
 }

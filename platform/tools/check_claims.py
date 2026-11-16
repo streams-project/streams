@@ -40,16 +40,10 @@ PUBLIC_FILES = (
     # added: 0 claims in each.
     "apps/harmony/README.md",
     "apps/harmony/surfaces/touch/README.md",
+    "apps/desktop/README.md",
 )
 
-# The files that still hold a count, named every run so the hole is never silent. Emptied on
-# 2026-11-13 when the android and apple READMEs joined the rule, and filled again the same day:
-# two families' front pages arrived while this list was empty and neither is in PUBLIC_FILES.
-# Measured 2026-11-13 by `counts()`: 6 claims in the desktop README (lines 6 and 7), 8 in the roku
-# README (lines 11, 12, 159, 227, 235, 332, 367). Neither file is this folder's to edit, so they
-# are named here rather than held, which is what this list is for.
 NOT_YET: tuple[str, ...] = (
-    "apps/desktop/README.md",
     "apps/roku/README.md",
 )
 
