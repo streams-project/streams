@@ -7,6 +7,11 @@ let package = Package(
         .macOS(.v14),
         .tvOS(.v17),
         .iOS(.v17),
+        // Vision Pro. `.v1` and not a later one on purpose: nothing in this family asks for an API
+        // newer than visionOS 1, and a floor raised past what the code needs only narrows who can
+        // run it. The README claimed this platform from the day it was written and the package did
+        // not declare it until 2026-11-14.
+        .visionOS(.v1),
     ],
     products: [
         .library(name: "CoreBridge", targets: ["CoreBridge"]),
@@ -17,6 +22,7 @@ let package = Package(
         .library(name: "SurfacesShared", targets: ["SurfacesShared"]),
         .library(name: "SurfacesTV", targets: ["SurfacesTV"]),
         .library(name: "SurfacesPhone", targets: ["SurfacesPhone"]),
+        .library(name: "SurfacesVision", targets: ["SurfacesVision"]),
     ],
     targets: [
         .target(
@@ -27,6 +33,7 @@ let package = Package(
             linkerSettings: [
                 .unsafeFlags(["-L\(Context.packageDirectory)/target/tvos", "-lbridge_c"], .when(platforms: [.tvOS])),
                 .unsafeFlags(["-L\(Context.packageDirectory)/target/ios", "-lbridge_c"], .when(platforms: [.iOS])),
+                .unsafeFlags(["-L\(Context.packageDirectory)/target/visionos", "-lbridge_c"], .when(platforms: [.visionOS])),
             ]
         ),
         .target(
@@ -62,6 +69,12 @@ let package = Package(
             exclude: ["README.md"]
         ),
         .target(
+            name: "SurfacesVision",
+            dependencies: ["Contract", "Ports", "SurfacesShared"],
+            path: "Sources/SurfacesVision",
+            exclude: ["README.md"]
+        ),
+        .target(
             name: "SurfacesTV",
             dependencies: ["Contract", "Ports", "SurfacesShared"],
             path: "Sources/SurfacesTV",
@@ -93,6 +106,20 @@ let package = Package(
             name: "PhoneTests",
             dependencies: ["Heard", "Stand", "Adapters", "Contract", "Ports", "SurfacesShared", "SurfacesPhone"],
             path: "Tests/PhoneTests"
+        ),
+        // No `Adapters` here, unlike the television's: nothing these tests ask needs a real decode.
+        // Where they RUN is not where they are for. There is no visionOS simulator on this machine
+        // (`xcrun simctl list runtimes`, 2026-11-14: iOS 26.5 and tvOS 26.5, nothing else), so
+        // check_apple.py resolves this target to the iPhone simulator and that is where every count
+        // below was taken. What that proves is the arithmetic of the window rule, the words every
+        // control carries, and how big each control is laid out -- none of which is a fact about
+        // visionOS. What it does NOT prove is anything about gaze, about a hover effect the system
+        // draws out of this process, or about a window in space. `SurfacesVision` is written to
+        // compile on both for exactly this reason, so that half can be held at all.
+        .testTarget(
+            name: "VisionTests",
+            dependencies: ["Heard", "Stand", "Contract", "Ports", "SurfacesShared", "SurfacesVision"],
+            path: "Tests/VisionTests"
         ),
     ]
 )

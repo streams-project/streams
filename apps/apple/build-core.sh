@@ -21,11 +21,21 @@ case "$PLAT" in
     appletvsimulator) KIND="tvos" ;;
     iphoneos) KIND="ios" ;;
     iphonesimulator) KIND="ios" ;;
+    xros) KIND="visionos" ;;
+    xrsimulator) KIND="visionos" ;;
     *) echo "unknown platform ${PLAT:-}" >&2; exit 1 ;;
 esac
 
 # Each Apple platform keeps its own copy of the core, so a TV build and a phone build never
-# overwrite each other. tvOS needs the standard library built from source; iOS ships it.
+# overwrite each other. tvOS needs the standard library built from source; iOS ships it. visionOS
+# is in the same position as tvOS -- both of its Rust targets are tier 3, so both want build-std.
+#
+# visionOS has not been built by this script on any machine yet, and the arch table below is where
+# that shows. Rust 1.98.1 lists exactly two visionOS targets, `aarch64-apple-visionos` and
+# `aarch64-apple-visionos-sim`, and no x86_64 one at all. So an x86_64 visionOS simulator build --
+# which is what an Intel mac asks for, this one included -- has no target to build and is refused
+# by name below rather than silently producing an archive with no slice in it. The device build and
+# the arm64 simulator build are ordinary cross-compiles and need no special machine.
 mkdir -p "$HERE/target/$KIND"
 DEST="$HERE/target/$KIND/libbridge_c.a"
 OUT_DIR="${CARGO_TARGET_DIR:-$HERE/target/cargo}"
@@ -43,12 +53,23 @@ for a in $RAW_ARCHS; do
                 iphonesimulator) T="aarch64-apple-ios-sim"; S="" ;;
                 appletvos) T="aarch64-apple-tvos"; S="-Z build-std=std,panic_unwind" ;;
                 appletvsimulator) T="aarch64-apple-tvos-sim"; S="-Z build-std=std,panic_unwind" ;;
+                xros) T="aarch64-apple-visionos"; S="-Z build-std=std,panic_unwind" ;;
+                xrsimulator) T="aarch64-apple-visionos-sim"; S="-Z build-std=std,panic_unwind" ;;
             esac
             ;;
         x86_64)
             case "$PLAT" in
                 iphoneos|iphonesimulator) T="x86_64-apple-ios"; S="" ;;
                 appletvos|appletvsimulator) T="x86_64-apple-tvos"; S="-Z build-std=std,panic_unwind" ;;
+                xros|xrsimulator)
+                    # Said out loud and not skipped. A `continue` here would leave ARCHIVES empty
+                    # and this script would exit 0 having written no library, which is the shape of
+                    # a quiet pass this repository exists to prevent.
+                    echo "no rust target for x86_64 visionOS: rustc offers aarch64-apple-visionos" >&2
+                    echo "and aarch64-apple-visionos-sim only, so an x86_64 visionOS build needs" >&2
+                    echo "either an arm64 mac or an x86_64-apple-visionos-sim target in rustc" >&2
+                    exit 1
+                    ;;
             esac
             ;;
         *)
