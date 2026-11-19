@@ -6,6 +6,7 @@ import contract.Action
 import contract.DeviceSignInView
 import contract.DriverCommand
 import contract.DriverEvent
+import contract.Hello
 import contract.NavItem
 import contract.PlayView
 import contract.Profile
@@ -206,6 +207,17 @@ data class Seen(
     val text: List<Track> = emptyList(),
     val unreadNotifications: Int = 0,
 )
+
+/**
+ * Whether accounts are required once the view in hand has been read.
+ *
+ * A view with no hello says nothing, so what was known stays: before the first hello that is the
+ * secure default, `true`. A hello that carries no `accounts_required` is the server saying nothing
+ * about it, and the contract's answer to that is that accounts are required, so it is `true` and
+ * not whatever an earlier hello left: a visitor is let in only by a server that says so.
+ */
+fun accountsRequiredAfter(hello: Hello?, before: Boolean): Boolean =
+    if (hello == null) before else hello.features.accountsRequired ?: true
 
 interface Shell {
     val seen: StateFlow<Seen>

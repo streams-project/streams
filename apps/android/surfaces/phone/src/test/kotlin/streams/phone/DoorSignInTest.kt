@@ -71,6 +71,27 @@ class DoorSignInTest {
         assertEquals(listOf(Address.SIGN_IN), shell.went)
     }
 
+    /** The server has not said (no hello yet, or none that says): the contract's answer is that accounts are required. */
+    @Test
+    fun `door omits home button when the server has not said whether accounts are required`() {
+        val seen = Seen(
+            brand = BRAND,
+            server = SERVER,
+            words = words,
+            route = RouteTarget(target = Target.START),
+        )
+        val shell = Showing(seen)
+        compose.setContent { Brand { Door(shell, seen) } }
+        statusBar(compose)
+
+        assertTrue(
+            "nav.home must not appear until the server says accounts are off",
+            compose.onAllNodesWithText(words.getValue("nav.home")).fetchSemanticsNodes().isEmpty(),
+        )
+        compose.onNodeWithText(words.getValue("door.sign_in")).performClick()
+        assertEquals(listOf(Address.SIGN_IN), shell.went)
+    }
+
     @Test
     fun `sign in places heading, fields, and button in top half of screen`() {
         val seen = Seen(

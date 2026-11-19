@@ -92,6 +92,22 @@ class DoorTest {
         assertEquals(listOf(Address.SIGN_IN), shell.went)
     }
 
+    /** The server has not said (no hello yet, or none that says): the contract's answer is that accounts are required. */
+    @Test
+    fun `door omits home pill when the server has not said whether accounts are required`() {
+        val seen = Seen(server = "https://example.test", words = book)
+        val shell = Watching(seen, stubReel)
+        val opening = OpeningState().apply { over() }
+        compose.setContent { Door(shell, seen, opening) }
+        compose.waitForIdle()
+
+        assertFalse("nav.home pill must not appear until the server says accounts are off", book.getValue("nav.home") in wordsOnScreen())
+
+        right()
+        ok()
+        assertEquals(listOf(Address.SIGN_IN), shell.went)
+    }
+
     @Test
     fun `door navigates from LOOK_ROUND to JOIN on Left and clamps when accountsRequired flips true`() {
         val state = mutableStateOf(Seen(server = "https://example.test", words = book, accountsRequired = false))

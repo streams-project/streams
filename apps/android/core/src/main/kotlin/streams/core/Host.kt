@@ -68,6 +68,7 @@ import streams.ports.Secrets
 import streams.ports.Seen
 import streams.ports.Shell
 import streams.ports.Store
+import streams.ports.accountsRequiredAfter
 
 /**
  * Steps the core and performs what it asks, through the ports. It holds no rules and no screens.
@@ -309,7 +310,7 @@ class Host(
                     profiles = view.profiles?.profiles ?: now.profiles,
                     play = view.play ?: now.play,
                     brand = view.hello?.brand?.name ?: now.brand,
-                    accountsRequired = view.hello?.features?.accountsRequired ?: now.accountsRequired,
+                    accountsRequired = accountsRequiredAfter(view.hello, now.accountsRequired),
                     active = view.session?.profile ?: now.active,
                 )
             }
