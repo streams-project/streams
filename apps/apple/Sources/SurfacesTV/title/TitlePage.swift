@@ -12,8 +12,8 @@ private let foot = LinearGradient(
 )
 
 private enum Part { case reactions, menu }
-enum TitleView { case title, episodes, more }
-private enum Line { case play, episodes, more, list }
+enum TitleView { case title, episodes, more, remind }
+private enum Line { case play, episodes, more, list, remind }
 
 extension TitleDetail {
     var isSeries: Bool { title.rawValue.hasPrefix("tv:") }
@@ -61,6 +61,11 @@ public struct TitlePage: View {
     @State private var view = TitleView.title
     @State private var line = 0
     @State private var shown: TitleKey?
+    /// The reminder the viewer last set here, so the line that opens the panel and the panel itself
+    /// say the same thing between one answer and the next. The shape `saved` already has on this
+    /// page for `in_list`, which is the same kind of thing: a change the viewer made, drawn before
+    /// the server has been told.
+    @State private var reminded = false
 
     public init(shell: Shell, seen: Seen) {
         self.shell = shell
@@ -73,7 +78,22 @@ public struct TitlePage: View {
                 switch view {
                 case .episodes: Episodes(shell: shell, seen: seen, data: data) { view = .title }
                 case .more: MoreLike(shell: shell, seen: seen, data: data) { view = .title }
-                case .title: Summary(shell: shell, seen: seen, data: data, line: $line) { view = $0 }
+                case .remind:
+                    // `Coming(data)` answers nil for a title that is already here, so the guard is
+                    // this one `if let` and the panel cannot be opened on a title with nothing to
+                    // be reminded of. The line that opens it is drawn under the same condition.
+                    //
+                    // `reminded` and not `data.reminderSet`: the viewer may have turned it here a
+                    // moment ago, and `seen.detail` is the answer the server gave before that.
+                    if let known = Coming(data) {
+                        let coming = Coming(key: known.key, name: known.name, day: known.day,
+                                            reminded: reminded)
+                        Reminder(shell: shell, seen: seen, coming: coming, turned: { reminded = $0 }) {
+                            view = .title
+                        }
+                    }
+                case .title:
+                    Summary(shell: shell, seen: seen, data: data, line: $line, reminded: reminded) { view = $0 }
                 }
             }
             .onChange(of: data.title, initial: true) { _, now in
@@ -81,6 +101,7 @@ public struct TitlePage: View {
                     shown = now
                     view = .title
                     line = 0
+                    reminded = data.reminderSet == true
                 }
             }
         }
@@ -92,6 +113,9 @@ private struct Summary: View {
     let seen: Seen
     let data: TitleDetail
     @Binding var line: Int
+    /// Whether this viewer has asked to be told when the title arrives, held by the page above so
+    /// that the line here and the panel it opens say the same thing.
+    let reminded: Bool
     let open: (TitleView) -> Void
     @State private var part = Part.menu
     @State private var reaction = 1
@@ -103,6 +127,11 @@ private struct Summary: View {
         if !(data.seasons ?? []).isEmpty { lines.append(.episodes) }
         if !(data.moreLikeThis ?? []).isEmpty { lines.append(.more) }
         lines.append(.list)
+        // A title that has not arrived yet can be asked about. `available_from` is the server's own
+        // answer to "is it here", and it is the condition the phone's button hangs on and the one
+        // `Coming(_:)` states. Last in the menu because Play is first on every title page and this
+        // line is about a day that has not come.
+        if data.availableFrom != nil { lines.append(.remind) }
         let row = min(line, lines.count - 1)
 
         func play() {
@@ -151,6 +180,7 @@ private struct Summary: View {
                 case .episodes: open(.episodes)
                 case .list: toggleList()
                 case .more: open(.more)
+                case .remind: open(.remind)
                 }
             // From the ratings Back returns to the menu first, then leaves the title. On Apple TV a
             // Back no page uses leaves the app, so the page goes back itself.
@@ -167,6 +197,10 @@ private struct Summary: View {
             case .more: return MenuLine(word: seen.say("title.more_like"), icon: "icon_grid")
             case .list:
                 return MenuLine(word: seen.say(saved ? "list.added" : "list.add"), icon: saved ? "icon_check" : "icon_plus")
+            // The phone's own pair on the phone's own two pictures: the bell to ask, the tick once
+            // asked.
+            case .remind:
+                return MenuLine(word: seen.say(reminded ? "remind.set" : "remind.me"), icon: reminded ? "icon_check" : "icon_bell")
             }
         }
         let logoUrl = (data.images ?? []).first { $0.role == .logo }?.url

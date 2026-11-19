@@ -98,7 +98,11 @@ private final class PageFocus {
             else if place == .row && row < rows.count - 1 { way = 1; row += 1 }
             else { return false }
         case .left:
-            if place == .top && tab > 0 { tab -= 1 }
+            // The bell is the far end of the bar, so Left from it comes back to the last tab - or
+            // to search on a run whose nav has not arrived, where there is no last tab to come back
+            // to and the alternative is a dead arrow on the one stop a viewer can reach.
+            if place == .top && tab == bellTab { tab = tabs > 0 ? tabs - 1 : searchTab }
+            else if place == .top && tab > 0 { tab -= 1 }
             else if place == .top && tab == 0 { tab = searchTab }
             else if place == .top && tab == searchTab { tab = whoTab }
             else if place == .hero { button = 0 }
@@ -107,7 +111,14 @@ private final class PageFocus {
         case .right:
             if place == .top && tab == whoTab { tab = searchTab }
             else if place == .top && tab == searchTab { tab = 0 }
+            // The bell is the right edge of the bar: nothing is past it. This line has to stand
+            // before `tab < tabs - 1`, which -4 satisfies for every tab count there is; without it
+            // Right on the bell would walk to -3, which is the far *left* of the same bar.
+            else if place == .top && tab == bellTab { return false }
             else if place == .top && tab < tabs - 1 { tab += 1 }
+            // Past the last tab is the bell. A bar with no tabs yet has no last tab, so this leaves
+            // Right where it was rather than jumping it to the end of a bar that is not drawn.
+            else if place == .top && tab >= 0 && tabs > 0 { tab = bellTab }
             else if place == .hero { button = 1 }
             else if place == .row && column < lastColumn { keep(column + 1) }
             else { return false }
@@ -171,7 +182,14 @@ public struct Browse: View {
         let person = seen.profiles.first(where: { $0.id == seen.active }) ?? seen.profiles.first
         return ZStack(alignment: .topLeading) {
             Color.black
-            TopBar(pictures: shell.pictures, tabs: tabs, active: active, focus: active, person: person, server: seen.server, words: seen.words)
+            // The bar a loading page draws is the bar it will have, bell and count included: the
+            // two are the same view, and a count that appeared when the rows did would move under
+            // the hand of a viewer already walking the bar.
+            TopBar(
+                pictures: shell.pictures, tabs: tabs, active: active, focus: active,
+                person: person, server: seen.server, unread: seen.unreadNotifications,
+                words: seen.words
+            )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         // A screen that is not here yet answers no key. This is a choice, and it is stated as one:
@@ -219,6 +237,10 @@ public struct Browse: View {
                 menu = true
             } else if focus.place == .top && focus.tab == searchTab {
                 shell.go(Address.search)
+            } else if focus.place == .top && focus.tab == bellTab {
+                // The feed. `app/Television.swift` has routed `.notifications` since the screen
+                // landed; this is the line that lets a viewer reach it.
+                shell.go(Address.notifications)
             } else if focus.place == .top {
                 if tabs.indices.contains(focus.tab) { shell.go(Address.of(tabs[focus.tab].screen.rawValue)) }
             } else if focus.place == .row {
@@ -247,6 +269,9 @@ public struct Browse: View {
             case .top:
                 if focus.tab == whoTab { return person?.name ?? "" }
                 if focus.tab == searchTab { return seen.say("nav.search") }
+                // The count is drawn on the bell and nowhere else, so it is the whole of what this
+                // stop has to say. One statement, said here and drawn in `TopBar`.
+                if focus.tab == bellTab { return bellSays(seen.words, unread: seen.unreadNotifications) }
                 return tabs[safe: focus.tab]?.label ?? ""
             case .hero:
                 guard let lead else { return "" }
@@ -262,7 +287,7 @@ public struct Browse: View {
             TopBar(
                 pictures: shell.pictures,
                 tabs: tabs, active: active, focus: focus.place == .top ? focus.tab : -1,
-                person: person, server: seen.server, words: seen.words
+                person: person, server: seen.server, unread: seen.unreadNotifications, words: seen.words
             )
             if inRow {
                 ZStack {

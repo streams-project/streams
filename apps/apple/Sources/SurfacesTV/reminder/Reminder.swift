@@ -108,6 +108,10 @@ struct Reminder: View {
     let seen: Seen
     /// The title this screen asks about. The caller has it already; this screen reads nothing.
     let coming: Coming
+    /// The reminder was turned, and which way. The page that opened this panel draws the same
+    /// answer on the line that opens it, so without this a viewer who set a reminder and came back
+    /// would read "Remind Me" on a title they had just asked about.
+    var turned: ((Bool) -> Void)?
     /// Ok on the second line, Left, or Back.
     let leave: () -> Void
 
@@ -116,10 +120,17 @@ struct Reminder: View {
     /// moment Ok is pressed. The words on the line must not wait on the network.
     @State private var reminded: Bool
 
-    init(shell: Shell, seen: Seen, coming: Coming, leave: @escaping () -> Void) {
+    init(
+        shell: Shell,
+        seen: Seen,
+        coming: Coming,
+        turned: ((Bool) -> Void)? = nil,
+        leave: @escaping () -> Void
+    ) {
         self.shell = shell
         self.seen = seen
         self.coming = coming
+        self.turned = turned
         self.leave = leave
         _reminded = State(initialValue: coming.reminded)
     }
@@ -153,6 +164,7 @@ struct Reminder: View {
             // screen's - and it is the command's whole meaning.
             let next = !reminded
             reminded = next
+            turned?(next)
             shell.act(.command(ActionCommand(command: .remind(CommandRemind(on: next, title: coming.key)))))
         case .close:
             leave()

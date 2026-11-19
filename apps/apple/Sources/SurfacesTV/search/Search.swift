@@ -155,7 +155,11 @@ public struct Search: View {
             TopBar(
                 pictures: shell.pictures,
                 tabs: tabs, active: searchTab, focus: state.zone == .top ? state.tab : -1,
-                person: person, server: seen.server, words: seen.words
+                person: person, server: seen.server,
+                // No bell on this screen: its key map has no stop for one, and a control a remote
+                // cannot reach is worse than none. The other television's search screen is the
+                // same.
+                bell: false, words: seen.words
             )
             LetterGrid(focus: state.zone == .letters ? state.place : nil, keys: keys, words: seen.words)
                 .offset(x: pageEdge.ref, y: 160.ref)
