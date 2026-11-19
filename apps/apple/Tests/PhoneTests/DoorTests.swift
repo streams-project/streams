@@ -54,6 +54,50 @@ final class DoorTests: XCTestCase {
         )
         XCTAssertEqual(shell.went, [Address.home])
     }
+
+    /// What the server's hello says reaches the door: the same `Seen.take` the host calls when a
+    /// hello arrives, driven with the flag true, false and absent. Absent is the contract's "accounts
+    /// are required", so only an explicit false shows Home to somebody with no account.
+    func testTheHelloDecidesWhetherAVisitorIsOfferedHome() throws {
+        for (flag, offered) in [(true, false), (false, true), (nil, false)] as [(Bool?, Bool)] {
+            let shell = PhoneDoorShell()
+            shell.seen.words = phoneWords
+            shell.seen.take(try aHello(accountsRequired: flag))
+            let found = heard(Door(shell: shell, seen: shell.seen), size: phone)
+            XCTAssertTrue(words(found).contains(phoneWords["door.sign_in"]!), "Sign In is always there (flag \(String(describing: flag)))")
+            XCTAssertEqual(
+                words(found).contains(phoneWords["nav.home"]!), offered,
+                "accounts_required \(String(describing: flag)): Home offered must be \(offered)"
+            )
+        }
+    }
+
+    /// Before any hello has arrived the door must not offer Home: a visitor is let in only by a
+    /// server that said so.
+    func testBeforeAnyHelloTheDoorAsksForAnAccount() {
+        let shell = PhoneDoorShell()
+        shell.seen.words = phoneWords
+        XCTAssertTrue(shell.seen.accountsRequired)
+        XCTAssertFalse(words(heard(Door(shell: shell, seen: shell.seen), size: phone)).contains(phoneWords["nav.home"]!))
+    }
+}
+
+/// The hello fixture the contract tests hold (`platform/contract/fixtures`), with its one feature
+/// set the way the test says. Read from the file, so the hello is decoded off the wire shape a
+/// server sends and not built by hand, and `nil` really leaves the key out of the JSON.
+private func aHello(accountsRequired: Bool?) throws -> Hello {
+    let repository = URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent()  // PhoneTests
+        .deletingLastPathComponent()  // Tests
+        .deletingLastPathComponent()  // apple
+        .deletingLastPathComponent()  // apps
+        .deletingLastPathComponent()  // the repository
+    let file = repository.appendingPathComponent("platform/contract/fixtures/2026-11-05/valid/Hello.basic.json")
+    var json = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: Any])
+    var features = try XCTUnwrap(json["features"] as? [String: Any])
+    if let accountsRequired { features["accounts_required"] = accountsRequired } else { features.removeValue(forKey: "accounts_required") }
+    json["features"] = features
+    return try JSONDecoder().decode(Hello.self, from: JSONSerialization.data(withJSONObject: json))
 }
 
 @MainActor

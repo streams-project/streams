@@ -115,6 +115,36 @@ final class DoorTests: XCTestCase {
         window.isHidden = true
     }
 
+    /// What the server's hello says reaches the door: the same `Seen.take` the host calls when a
+    /// hello arrives, driven with the flag true, false and absent. Absent is the contract's "accounts
+    /// are required", so only an explicit false puts Home on the showreel card.
+    func testTheHelloDecidesWhetherAVisitorIsOfferedHome() throws {
+        for (flag, offered) in [(true, false), (false, true), (nil, false)] as [(Bool?, Bool)] {
+            let shell = TVDoorShell(titles: sampleTitles())
+            shell.seen.words = tvWords
+            shell.seen.take(try aHello(accountsRequired: flag))
+            let found = try drive(Door(shell: shell, seen: shell.seen, state: openedState()), [])
+            XCTAssertEqual(
+                words(found.filter(\.isButton)).contains(tvWords["nav.home"]!), offered,
+                "accounts_required \(String(describing: flag)): Home offered must be \(offered)"
+            )
+            // Right from Get Started: a visitor's door has Home next, an account's door has the
+            // first title card, and OK on Get Started signs in either way.
+            let after = try drive(Door(shell: shell, seen: shell.seen, state: openedState()), [.right, .ok])
+            XCTAssertEqual(shell.went, [offered ? Address.home : Address.sign_in], "accounts_required \(String(describing: flag))")
+            _ = after
+        }
+    }
+
+    /// Before any hello has arrived the door must not offer Home.
+    func testBeforeAnyHelloTheDoorAsksForAnAccount() throws {
+        let shell = TVDoorShell(titles: sampleTitles())
+        shell.seen.words = tvWords
+        XCTAssertTrue(shell.seen.accountsRequired)
+        let found = try drive(Door(shell: shell, seen: shell.seen, state: openedState()), [])
+        XCTAssertFalse(words(found.filter(\.isButton)).contains(tvWords["nav.home"]!))
+    }
+
     @discardableResult
     private func drive(_ door: Door, _ wordsToPress: [Word], settle: TimeInterval = 0.15) throws -> [Heard] {
         let host = UIHostingController(rootView: door)
@@ -155,6 +185,24 @@ final class DoorTests: XCTestCase {
             )
         ]
     }
+}
+
+/// The hello fixture the contract tests hold (`platform/contract/fixtures`), with its one feature
+/// set the way the test says. Read from the file, so the hello is decoded off the wire shape a
+/// server sends and not built by hand, and `nil` really leaves the key out of the JSON.
+private func aHello(accountsRequired: Bool?) throws -> Hello {
+    let repository = URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent()  // TelevisionTests
+        .deletingLastPathComponent()  // Tests
+        .deletingLastPathComponent()  // apple
+        .deletingLastPathComponent()  // apps
+        .deletingLastPathComponent()  // the repository
+    let file = repository.appendingPathComponent("platform/contract/fixtures/2026-11-05/valid/Hello.basic.json")
+    var json = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: Any])
+    var features = try XCTUnwrap(json["features"] as? [String: Any])
+    if let accountsRequired { features["accounts_required"] = accountsRequired } else { features.removeValue(forKey: "accounts_required") }
+    json["features"] = features
+    return try JSONDecoder().decode(Hello.self, from: JSONSerialization.data(withJSONObject: json))
 }
 
 @MainActor

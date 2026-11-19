@@ -251,6 +251,21 @@ public final class Seen {
     public init() {}
 }
 
+extension Seen {
+    /// What a server's hello says that a screen draws: whose brand this is, and whether a visitor
+    /// may look round without an account.
+    ///
+    /// One place, so the answer the doors read is the answer the contract gives: a hello that does
+    /// not say (`features.accounts_required` absent, which the contract defines as "accounts are
+    /// required") leaves the door asking for an account, and only an explicit `false` opens it.
+    /// Before this the line sat inline in `CoreHost/Host.swift`, which no test target can build, so
+    /// nothing could break it and be seen.
+    public func take(_ hello: Hello) {
+        brand = hello.brand.name
+        accountsRequired = hello.features.accountsRequired ?? true
+    }
+}
+
 public protocol Shell: AnyObject {
     @MainActor var seen: Seen { get }
     var player: Player { get }

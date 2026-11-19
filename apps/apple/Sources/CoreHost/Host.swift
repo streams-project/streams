@@ -388,8 +388,7 @@ public final class Host: Shell, @unchecked Sendable {
                 if let p = view.profiles?.profiles { self.seen.profiles = p }
                 if let pl = view.play { self.seen.play = pl }
                 if let hello = view.hello {
-                    self.seen.brand = hello.brand.name
-                    self.seen.accountsRequired = hello.features.accountsRequired ?? true
+                    self.seen.take(hello)
                 }
                 if let s = view.session?.profile {
                     let prev = self.seen.active
