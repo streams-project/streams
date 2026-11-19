@@ -50,8 +50,8 @@ private val Side = arrayOf(0f to Color.Black.copy(alpha = 0.82f), 0.62f to Color
 private val Foot = Brush.verticalGradient(0.42f to Color.Transparent, 0.92f to Back)
 
 private enum class Part { REACTIONS, MENU }
-private enum class Page { TITLE, EPISODES, MORE }
-private enum class Row { PLAY, EPISODES, MORE, LIST }
+private enum class Page { TITLE, EPISODES, MORE, REMIND }
+private enum class Row { PLAY, EPISODES, MORE, LIST, REMIND }
 
 private fun TitleDetail.isSeries() = title.value.startsWith("tv:")
 
@@ -88,21 +88,40 @@ fun TitlePage(shell: Shell, seen: Seen) {
     // A new title starts at its summary, and the line opened there is kept for coming back to it.
     var page by remember(data.title) { mutableStateOf(Page.TITLE) }
     val line = remember(data.title) { mutableIntStateOf(0) }
+    // The reminder the viewer last set here, so the line that opens the panel and the panel itself
+    // say the same thing between an answer and the next one. The shape `saved` already has on this
+    // page for `in_list`, which is the same kind of thing: a change the viewer made, drawn before
+    // the server has been told.
+    var reminded by remember(data.title, data.reminderSet) { mutableStateOf(data.reminderSet == true) }
     when (page) {
         Page.EPISODES -> Episodes(shell, seen, data) { page = Page.TITLE }
         Page.MORE -> MoreLike(shell, seen, data) { page = Page.TITLE }
-        Page.TITLE -> Summary(shell, seen, data, line) { page = it }
+        Page.REMIND -> ReminderPage(shell, seen, data, reminded, { reminded = it }) { page = Page.TITLE }
+        Page.TITLE -> Summary(shell, seen, data, line, reminded) { page = it }
     }
 }
 
 @Composable
-private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, line: MutableIntState, open: (Page) -> Unit) {
+private fun Summary(
+    shell: Shell,
+    seen: Seen,
+    data: TitleDetail,
+    line: MutableIntState,
+    reminded: Boolean,
+    open: (Page) -> Unit,
+) {
     val words = seen.words
     val rows = buildList {
         add(Row.PLAY)
         if (!data.seasons.isNullOrEmpty()) add(Row.EPISODES)
         if (!data.moreLikeThis.isNullOrEmpty()) add(Row.MORE)
         add(Row.LIST)
+        // A title that has not arrived yet can be asked about. `available_from` is the server's own
+        // answer to "is it here", and it is the condition the phone's button hangs on
+        // (`phone/title/Title.kt:300-301`) and the one `reminder/Coming.known()` states. Last in
+        // the menu because Play is first on every title page and this line is about a day that has
+        // not come.
+        if (data.availableFrom != null) add(Row.REMIND)
     }
     var part by remember { mutableStateOf(Part.MENU) }
     // The line the remote is on, kept across a fresh answer for the same title and read inside the
@@ -173,6 +192,7 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, line: MutableIn
                 rows[row] == Row.PLAY -> play()
                 rows[row] == Row.EPISODES -> open(Page.EPISODES)
                 rows[row] == Row.LIST -> toggleList()
+                rows[row] == Row.REMIND -> open(Page.REMIND)
                 else -> open(Page.MORE)
             }
             // From the ratings Back returns to the menu first, then leaves the title.
@@ -193,6 +213,9 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, line: MutableIn
                 words[if (saved) "list.added" else "list.add"].orEmpty(),
                 if (saved) R.drawable.icon_check else R.drawable.icon_plus,
             )
+            // The phone's own pair, on the phone's own two pictures
+            // (`phone/title/Title.kt:335`, `:342-343`): the bell to ask, the tick once asked.
+            Row.REMIND -> remindLine(words, reminded).let { (said, picture) -> MenuLine(said, picture) }
         }
     }
     // What the remote is on: a line of the menu, or one of the three reactions.
@@ -240,3 +263,14 @@ private fun Summary(shell: Shell, seen: Seen, data: TitleDetail, line: MutableIn
         Menu(lines, if (part == Part.MENU) row else -1, Modifier.offset(PAGE_EDGE.ref, 581.ref), width = 570)
     }
 }
+
+/**
+ * The line that opens the reminder panel: its words and the picture beside them.
+ *
+ * Its own function so a test can read the pair. The picture is the one half of this line a reader
+ * of the screen is never handed (`Compose` semantics see words, not drawables), so nothing that
+ * reads the page can tell the tick from the bell.
+ */
+internal fun remindLine(words: Map<String, String>, reminded: Boolean): Pair<String, Int> =
+    words[if (reminded) "remind.set" else "remind.me"].orEmpty() to
+        if (reminded) R.drawable.icon_check else R.drawable.icon_bell

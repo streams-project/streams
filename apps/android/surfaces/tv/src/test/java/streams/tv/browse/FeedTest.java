@@ -57,7 +57,7 @@ public class FeedTest {
     @Test
     public void asking_past_the_end_of_a_page_answers_nothing() {
         Feed feed = new Feed(new ArrayList<Feed.Tab>(), 0, null, "", Arrays.asList(row("r1", "movie:1")),
-                null, "");
+                null, "", 0);
         assertEquals("r1", feed.row(0).id);
         assertNull(feed.row(1));
         assertNull(feed.row(-1));
@@ -120,7 +120,7 @@ public class FeedTest {
         assertTrue(Feed.SEARCH_TAB < 0);
         assertTrue(Feed.WHO_TAB < Feed.SEARCH_TAB);
         Feed feed = new Feed(Arrays.asList(new Feed.Tab("Home", "home")), 0, null, "",
-                new ArrayList<Feed.Row>(), null, "");
+                new ArrayList<Feed.Row>(), null, "", 0);
         assertNull("no tab sits at a negative place", feed.tab(Feed.SEARCH_TAB));
         assertNull(feed.tab(Feed.WHO_TAB));
     }

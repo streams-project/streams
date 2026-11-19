@@ -117,7 +117,12 @@ fun Browse(shell: Shell, seen: Seen) {
     } else {
         ""
     }
-    val feed = feedOf(tabs, active, person, seen.server, rows, lead, seen.words, emptyKey)
+    val feed = feedOf(
+        tabs, active, person, seen.server, rows, lead, seen.words, emptyKey,
+        // The bell's count, as the server gave it, and never counted from the feed the
+        // notifications screen holds: that screen holds one page of it.
+        seen.unreadNotifications,
+    )
     val place = remember(current, seen.route?.genre) {
         memory.getOrPut(page) { Place(feed, active) } as Place
     }
@@ -213,6 +218,10 @@ private fun asking(
         when (what) {
             Place.Chose.MENU -> menu(true)
             Place.Chose.SEARCH -> shell.go(Address.SEARCH)
+            // The bell at the end of the bar. The feed is a screen of this surface's own
+            // (`notifications/NoticesPage.kt`), routed by `app/Television.kt` like search and
+            // settings, so this is the same one line each of those is.
+            Place.Chose.NOTIFICATIONS -> shell.go(Address.NOTIFICATIONS)
             Place.Chose.TAB -> tab?.let { shell.go(tabAddress(it.screen)) }
             Place.Chose.TITLE -> tileOf(rows, lead, card)?.let { shell.go(titleAddress(it.title)) }
             Place.Chose.WATCH -> tileOf(rows, lead, card)?.let { shell.go(watchAddress(it.title)) }

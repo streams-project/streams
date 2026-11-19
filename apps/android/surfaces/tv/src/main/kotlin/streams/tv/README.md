@@ -11,6 +11,8 @@ one is at the same path in the other and can be carried across part by part.
 | profiles | Choosing, adding, editing and locking profiles, the profile menu, picture rows |
 | browse | Pages of rows: the top bar, the hero, the rows |
 | title | The title page, episodes, More Like This, reactions, the poster grid |
+| notifications | The feed of what has arrived, reached from the bell at the end of the top bar |
+| reminder | The question asked about a title that has not arrived, opened from its title page |
 | search | Search and its letter keyboard (one set of letters per language, the globe switches to English) |
 | watch | The player and its panels: choices, tracks, moments, side words |
 | help | Get Help, the Help Centre, problem pages |

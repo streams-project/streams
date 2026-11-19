@@ -89,6 +89,13 @@ fun Television(shell: Shell) {
                     target == Target.SCREEN && seen.route?.screen?.value == "search" -> Search(shell, seen, search)
                     target == Target.SCREEN && seen.route?.screen?.value == "help" -> GetHelp(shell, seen)
                     target == Target.SCREEN && seen.route?.screen?.value == "settings" -> Settings(shell, seen)
+                    // The notifications feed. Reached from the bell at the end of the bar
+                    // (`browse/BarView.java`), and nowhere else on this surface. Before the
+                    // `Target.SCREEN` branch below, which would draw it as a page of rows: the
+                    // server sends no rows for this screen, so what the viewer would get is the
+                    // empty-page word with a bar over it and no feed at all.
+                    target == Target.SCREEN && seen.route?.screen?.value == "notifications" ->
+                        NoticesPage(shell, seen)
                     target == Target.HOME || target == Target.KIDS_HOME || target == Target.SCREEN ->
                         BrowseOrProblem(shell, seen)
                     else -> Text("", Modifier.align(Alignment.Center))

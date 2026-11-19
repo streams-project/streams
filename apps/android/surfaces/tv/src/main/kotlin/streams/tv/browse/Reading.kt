@@ -104,6 +104,7 @@ internal fun feedOf(
     lead: Tile?,
     words: Map<String, String>,
     empty: String,
+    unread: Int,
 ): Feed = Feed(
     tabs.map { Feed.Tab(it.label, it.screen.value) },
     active,
@@ -127,6 +128,9 @@ internal fun feedOf(
     rows.map { rowOf(it, words) },
     lead?.let { cardOf(it, words) },
     empty,
+    // The bell's count, as the server gave it. `core/Host.kt:278-283` fills `unreadNotifications`
+    // from `GET /v1/notifications/count`; nothing on this surface counts it.
+    unread,
 )
 
 /**

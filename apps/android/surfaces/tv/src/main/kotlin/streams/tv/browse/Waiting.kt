@@ -52,6 +52,10 @@ fun Waiting(shell: Shell, seen: Seen) {
         lead = null,
         words = seen.words,
         empty = "",
+        // The bar a loading page draws is the bar it will have, bell and count included: the two
+        // are the same view and a count that appeared when the rows did would move under the hand
+        // of a viewer already walking the bar.
+        unread = seen.unreadNotifications,
     )
     AndroidView(
         factory = { context -> WaitingView(context, pictures) },

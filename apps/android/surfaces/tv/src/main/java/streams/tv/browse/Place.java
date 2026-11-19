@@ -44,6 +44,8 @@ public final class Place {
         MENU,
         /** The search button. */
         SEARCH,
+        /** The bell at the end of the bar: the notifications feed. */
+        NOTIFICATIONS,
         /** A tab of the bar. {@link #chosenTab()} is which. */
         TAB,
         /** A title in a row, or the hero's More info, or the hero's Play on a series. */
@@ -176,6 +178,10 @@ public final class Place {
      * disjoint and the order does not matter, which is worth saying because it is the half a reader
      * would assume was the dangerous one. Proved both ways by mutation on 2026-11-12.
      *
+     * {@link Feed#BELL_TAB} at -4 joined them on 2026-11-14 and makes that paragraph one branch
+     * sharper: it also satisfies {@code tab < tabs - 1}, so Right on the bell would walk to -3,
+     * which is the far <em>left</em> of the bar. It is answered before the arithmetic reaches it.
+     *
      * {@code OK} answers false here and is answered by {@link #choose()}, exactly as
      * {@code Browse.kt:148} and {@code :232-236} split it: choosing leaves the page, so it is not a
      * move and must not be reported as one.
@@ -206,7 +212,14 @@ public final class Place {
                 }
                 return true;
             case LEFT:
-                if (where == Where.TOP && tab > 0) {
+                // The bell is the far end of the bar, so Left from it comes back to the last tab --
+                // or to search on a run whose nav has not arrived, where there is no last tab to
+                // come back to and the alternative is a dead arrow on the one stop a viewer can
+                // reach. Answered before the three below for the reason RIGHT gives: -4 satisfies
+                // none of them, but a reader should not have to work that out.
+                if (where == Where.TOP && tab == Feed.BELL_TAB) {
+                    tab = tabs > 0 ? tabs - 1 : Feed.SEARCH_TAB;
+                } else if (where == Where.TOP && tab > 0) {
                     tab -= 1;
                 } else if (where == Where.TOP && tab == 0) {
                     tab = Feed.SEARCH_TAB;
@@ -225,8 +238,20 @@ public final class Place {
                     tab = Feed.SEARCH_TAB;
                 } else if (where == Where.TOP && tab == Feed.SEARCH_TAB) {
                     tab = 0;
+                } else if (where == Where.TOP && tab == Feed.BELL_TAB) {
+                    // The bell is the right edge of the bar: nothing is past it. This branch has to
+                    // stand before `tab < tabs - 1`, which -4 satisfies for every tab count there
+                    // is; without it Right on the bell would walk to -3, the profile, which is the
+                    // far *left* of the bar. The same trap the two negative places above carry, and
+                    // the same answer: name the place before the arithmetic reaches it.
+                    return false;
                 } else if (where == Where.TOP && tab < tabs - 1) {
                     tab += 1;
+                } else if (where == Where.TOP && tab >= 0 && tabs > 0) {
+                    // Past the last tab is the bell. A bar with no tabs yet has no last tab, so
+                    // `tabs > 0` keeps Right on a bare bar where it was rather than jumping it to
+                    // the far end of a bar that is not drawn yet.
+                    tab = Feed.BELL_TAB;
                 } else if (where == Where.HERO) {
                     button = 1;
                 } else if (where == Where.ROW && column() < lastColumn()) {
@@ -267,6 +292,11 @@ public final class Place {
         }
         if (where == Where.TOP && tab == Feed.SEARCH_TAB) {
             return Chose.SEARCH;
+        }
+        // Before the branch below, which reads `feed.tab(-4)` as null and would answer NOTHING:
+        // the bell is not a tab and never will be in the list.
+        if (where == Where.TOP && tab == Feed.BELL_TAB) {
+            return Chose.NOTIFICATIONS;
         }
         if (where == Where.TOP) {
             return feed.tab(tab) == null ? Chose.NOTHING : Chose.TAB;
@@ -326,6 +356,11 @@ public final class Place {
         }
         if (where == Where.TOP && tab == Feed.SEARCH_TAB) {
             return words.of("nav.search");
+        }
+        if (where == Where.TOP && tab == Feed.BELL_TAB) {
+            // The count is drawn on the bell and nowhere else, so it is the whole of what this stop
+            // has to say. {@link Feed#bellSays} is its one statement, said here and drawn there.
+            return Feed.bellSays(words, feed.unread);
         }
         if (where == Where.TOP) {
             Feed.Tab found = feed.tab(tab);

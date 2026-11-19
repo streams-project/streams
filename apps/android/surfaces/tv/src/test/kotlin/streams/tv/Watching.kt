@@ -90,7 +90,29 @@ internal class Watching(seen: Seen = Seen()) : Shell {
         override fun wordsLook(size: Int, color: String, background: String) = Unit
     }
 
-    override val reel: Reel get() = error("a screen reading test has no brand film")
+    /**
+     * A reel that hands back a real `View` and plays nothing.
+     *
+     * It threw until 2026-11-14, on the stated ground that no screen reading test has a brand film.
+     * That stopped being true the day a test composed the whole of `app/Television.kt` to prove a
+     * route reaches its screen: the opening layer is drawn over every signed in screen and draws
+     * the landing's film (`door/Door.kt`'s `Film`), so a reel that threw made every route in this
+     * surface untestable -- which is how they came to be untested.
+     *
+     * A real `View` and not `Any()`, for the reason the player above gives: `Film` casts it.
+     */
+    override val reel: Reel = object : Reel {
+        override fun picture(
+            context: Any,
+            url: String,
+            loop: Boolean,
+            ready: () -> Unit,
+            ended: () -> Unit,
+        ): Any = android.view.View(context as android.content.Context)
+        override fun play(picture: Any, on: Boolean) = Unit
+        override fun release(picture: Any) = Unit
+        override fun hold(still: Boolean) = Unit
+    }
     override fun go(address: String) { went += address }
     override fun swap(address: String) { went += address }
     override fun back() { went += "back" }

@@ -8,7 +8,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import streams.shared.Words;
 import streams.tv.views.Word;
@@ -47,7 +49,7 @@ public class PlaceTest {
                 new Feed.Tab("Series", "series"),
                 new Feed.Tab("Films", "films"));
         return new Feed(tabs, 0, new Feed.Who("Ibrahim", "", false), "http://box",
-                Arrays.asList(rows), hero, "");
+                Arrays.asList(rows), hero, "", 0);
     }
 
     private static Place onRows() {
@@ -55,6 +57,16 @@ public class PlaceTest {
                 row("r1", "Trending Now", "movie:1", "movie:2", "movie:3"),
                 row("r2", "Because you watched", "tv:4", "movie:5"),
                 row("r3", "New", "movie:6")), 0);
+    }
+
+    /** The same page, with a count on the bell. */
+    private static Feed withUnread(int unread) {
+        List<Feed.Tab> tabs = Arrays.asList(
+                new Feed.Tab("Home", "home"),
+                new Feed.Tab("Series", "series"),
+                new Feed.Tab("Films", "films"));
+        return new Feed(tabs, 0, new Feed.Who("Ibrahim", "", false), "http://box",
+                Arrays.asList(row("r1", "Trending Now", "movie:1")), null, "", unread);
     }
 
     private static Place withHero() {
@@ -212,16 +224,21 @@ public class PlaceTest {
     }
 
     /**
-     * The bar runs leftwards past its first tab onto search and then onto the profile, and back
-     * again, and stops at each end.
+     * The bar runs leftwards past its first tab onto search and then onto the profile, rightwards
+     * past its last tab onto the bell, and back again, and stops at each end.
      *
      * The order of the branches is the behaviour here: {@code tab > 0} is tried before
      * {@code tab == 0}, so the two negative places are reached by falling past it
      * ({@code Browse.kt:124-139}). A reordered {@code when} wraps the bar the wrong way at its ends,
      * which is the one way this could be ported wrongly and still look right.
+     *
+     * <p>{@link Feed#BELL_TAB} at -4 is the third negative place and the one on the <em>right</em>,
+     * which makes the order sharper still: -4 satisfies {@code tab < tabs - 1} for every tab count
+     * there is, so a Right on the bell answered by that branch would walk the remote to -3 -- the
+     * profile, at the far left of the same bar. The last two presses below are what catches it.
      */
     @Test
-    public void the_bar_runs_onto_search_and_the_profile_and_stops() {
+    public void the_bar_runs_onto_search_the_profile_and_the_bell_and_stops() {
         Place place = onRows();
         place.press(Word.BACK);
         assertEquals(0, place.tab());
@@ -239,7 +256,109 @@ public class PlaceTest {
         assertEquals(1, place.tab());
         assertTrue(place.press(Word.RIGHT));
         assertEquals(2, place.tab());
-        assertFalse("and the last tab is the right end", place.press(Word.RIGHT));
+        assertTrue("past the last tab is the bell", place.press(Word.RIGHT));
+        assertEquals(Feed.BELL_TAB, place.tab());
+        assertFalse("and the bell is the right end of the bar", place.press(Word.RIGHT));
+        assertEquals("a refused Right must not have moved it anyway", Feed.BELL_TAB, place.tab());
+
+        assertTrue("Left from the bell comes back to the last tab", place.press(Word.LEFT));
+        assertEquals(2, place.tab());
+    }
+
+    /**
+     * The bell is reachable, opens the feed, and says how many notices are waiting.
+     *
+     * Three things a viewer needs and one of them is new to this project on a television: until
+     * this, {@code say.notifications_unread} existed in all eighteen languages and had no
+     * television caller on either family, so a person who could not see the count had no way to
+     * hear it.
+     */
+    @Test
+    public void the_bell_opens_the_feed_and_says_how_many_are_waiting() {
+        Place place = new Place(withUnread(3), 0);
+        place.press(Word.BACK);
+        while (place.tab() != Feed.BELL_TAB && place.press(Word.RIGHT)) {
+            continue;
+        }
+        assertEquals("the bell is reachable from the page's own tab by pressing Right",
+                Feed.BELL_TAB, place.tab());
+        assertEquals(Place.Chose.NOTIFICATIONS, place.choose());
+        assertNull("and it is not a tab, so nothing tries to open one", place.chosenTab());
+
+        Words words = new Words();
+        Map<String, String> said = new HashMap<String, String>();
+        said.put("say.notifications_unread", "Notifications, {n} new");
+        said.put("notifications.title", "Notifications");
+        words.read(said);
+        assertTrue("the count the server sent has to be in what the bell says",
+                place.says(words).contains("3"));
+
+        Place quiet = new Place(withUnread(0), 0);
+        quiet.press(Word.BACK);
+        while (quiet.tab() != Feed.BELL_TAB && quiet.press(Word.RIGHT)) {
+            continue;
+        }
+        assertEquals("with nothing waiting the bell says the screen's own name",
+                "Notifications", quiet.says(words));
+    }
+
+    /**
+     * Back from the bell comes home to the page's own tab before it leaves the page, which is the
+     * branch note 187 already had for a focus that wandered along the bar without choosing.
+     */
+    @Test
+    public void back_from_the_bell_comes_home_to_the_pages_tab() {
+        Place place = new Place(withUnread(1), 0);
+        place.press(Word.BACK);
+        while (place.tab() != Feed.BELL_TAB && place.press(Word.RIGHT)) {
+            continue;
+        }
+        assertTrue(place.press(Word.BACK));
+        assertEquals(place.active(), place.tab());
+        assertFalse("and then it leaves the page", place.press(Word.BACK));
+    }
+
+    /**
+     * A bar with no tabs yet has no last tab, so Right stops where it was rather than jumping to
+     * the far end of a bar that is not drawn, and Left from the bell falls back to search.
+     *
+     * This is the first seconds of every run: {@code seen.nav} is empty until the server answers.
+     */
+    @Test
+    public void a_bar_with_no_tabs_does_not_reach_the_bell_by_arithmetic() {
+        // `Browse.kt` coerces the page's tab to 0 when the nav holds none, so that is the page
+        // this is: a bar with no tabs, standing on the tab it would have.
+        Feed bare = new Feed(new ArrayList<Feed.Tab>(), 0, null, "",
+                new ArrayList<Feed.Row>(), null, "", 2);
+        Place place = new Place(bare, 0);
+        assertEquals(Place.Where.TOP, place.where());
+        assertTrue(place.press(Word.LEFT));
+        assertEquals(Feed.SEARCH_TAB, place.tab());
+        assertTrue(place.press(Word.RIGHT));
+        assertEquals(0, place.tab());
+        assertFalse("there is no last tab to stand past", place.press(Word.RIGHT));
+        assertEquals(0, place.tab());
+    }
+
+    /**
+     * The bell stays reachable when the nav goes away under the remote, and Left leaves it for
+     * search, the nearest stop that is still on the bar.
+     *
+     * A fresh answer replaces the tabs and leaves where the viewer is, so a bar can lose every tab
+     * with the remote on the bell. Left must not walk to the tab the arithmetic would name, nor
+     * stand still on the one stop a viewer can reach.
+     */
+    @Test
+    public void a_nav_that_goes_while_the_remote_is_on_the_bell_leaves_left_to_search() {
+        Place place = new Place(withUnread(2), 0);
+        place.press(Word.UP);
+        while (place.tab() != Feed.BELL_TAB) {
+            assertTrue(place.press(Word.RIGHT));
+        }
+        place.arrived(new Feed(new ArrayList<Feed.Tab>(), 0, null, "",
+                new ArrayList<Feed.Row>(), null, "", 2));
+        assertTrue(place.press(Word.LEFT));
+        assertEquals(Feed.SEARCH_TAB, place.tab());
     }
 
     // --- the funnel -----------------------------------------------------------------------------
@@ -353,7 +472,7 @@ public class PlaceTest {
     @Test
     public void a_page_with_nothing_on_it_chooses_nothing() {
         Place place = new Place(new Feed(new ArrayList<Feed.Tab>(), -1, null, "",
-                new ArrayList<Feed.Row>(), null, "mine.empty"), -1);
+                new ArrayList<Feed.Row>(), null, "mine.empty", 0), -1);
         assertEquals(Place.Where.TOP, place.where());
         assertEquals(Place.Chose.NOTHING, place.choose());
         assertFalse("and no key moves it", place.press(Word.DOWN));
@@ -428,7 +547,7 @@ public class PlaceTest {
         for (int at = 0; at < 8; at++) {
             many.add(row("r" + at, "Row " + at, "movie:" + at));
         }
-        Place place = new Place(new Feed(new ArrayList<Feed.Tab>(), 0, null, "", many, null, ""), 0);
+        Place place = new Place(new Feed(new ArrayList<Feed.Tab>(), 0, null, "", many, null, "", 0), 0);
         assertFalse("row 0 of 8 is nowhere near the end", place.wantsMore());
         for (int at = 0; at < 5; at++) {
             place.press(Word.DOWN);
@@ -437,7 +556,7 @@ public class PlaceTest {
         assertTrue("row 5 of 8 is within two of the last", place.wantsMore());
 
         Place bare = new Place(new Feed(new ArrayList<Feed.Tab>(), 0, null, "",
-                new ArrayList<Feed.Row>(), null, ""), 0);
+                new ArrayList<Feed.Row>(), null, "", 0), 0);
         assertTrue("a page with no rows can only grow by asking", bare.wantsMore());
     }
 

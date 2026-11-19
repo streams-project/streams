@@ -3,6 +3,8 @@ package streams.tv.browse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import streams.shared.ThemeKt;
+import streams.shared.Words;
 
 /**
  * What a page of rows draws, flattened out of the contract into plain Java.
@@ -42,6 +44,28 @@ public final class Feed {
 
     /** And to the left of search. {@code tv/browse/TopBar.kt:34}. */
     public static final int WHO_TAB = -3;
+
+    /**
+     * Where the bar's focus goes to the <em>right</em> of the last tab: the bell.
+     *
+     * <h2>Why it is here and not in {@code TopBar.kt}, unlike the two above</h2>
+     * The two above are transcriptions and {@code NumbersTest} holds each against the Kotlin line
+     * it came from. This one has no Kotlin line: the Compose bar never had a bell, so this is its
+     * only home, and {@code NumbersTest} asserts that in both directions the way it does for
+     * {@code BrowseView.RISE} and {@link Place#REACH}.
+     *
+     * <h2>Why the bell sits at the end of the bar</h2>
+     * The phone's bell is at the trailing end of its header
+     * ({@code phone/browse/Header.kt:99-112}), and so is the browser's. This bar's trailing end is
+     * the brand's mark, so the bell takes the place beside it. Putting it between the face and
+     * search was rejected: it would move search and the tabs, which are transcribed coordinates
+     * ({@link BarView#SEARCH_X}, {@link BarView#TABS_X}) and are not this pass's to move.
+     *
+     * <p>Negative like the other two because it is not a tab, and -4 and not 3 because a place past
+     * the last tab would collide with a real tab on a bar that gained one. {@link Place#press}
+     * answers it before {@code tab < tabs - 1}, which -4 also satisfies.
+     */
+    public static final int BELL_TAB = -4;
 
     /** One tab of the bar. */
     public static final class Tab {
@@ -178,7 +202,7 @@ public final class Feed {
 
     /** Nothing known yet: what a page draws before its first answer. */
     public static final Feed NOTHING =
-            new Feed(new ArrayList<Tab>(), -1, null, "", new ArrayList<Row>(), null, "");
+            new Feed(new ArrayList<Tab>(), -1, null, "", new ArrayList<Row>(), null, "", 0);
 
     public final List<Tab> tabs;
 
@@ -201,8 +225,19 @@ public final class Feed {
      */
     public final String empty;
 
+    /**
+     * How many notices are waiting, for the bell.
+     *
+     * The server's own number, read off {@code seen.unreadNotifications}, which
+     * {@code core/Host.kt:278-283} fills from {@code GET /v1/notifications/count}. Never counted
+     * here and never counted from the feed the notifications screen holds: that screen holds one
+     * page of the feed and would under-report every count past its first page, and a bar that
+     * disagreed with the page it opens is worse than a bar with no number on it.
+     */
+    public final int unread;
+
     public Feed(List<Tab> tabs, int active, Who who, String server, List<Row> rows, Card hero,
-            String empty) {
+            String empty, int unread) {
         this.tabs = tabs == null ? Collections.<Tab>emptyList() : tabs;
         this.active = active;
         this.who = who;
@@ -210,6 +245,39 @@ public final class Feed {
         this.rows = rows == null ? Collections.<Row>emptyList() : rows;
         this.hero = hero;
         this.empty = empty == null ? "" : empty;
+        this.unread = Math.max(0, unread);
+    }
+
+    /**
+     * What the bell says: how many notices are waiting, or the screen's own name when none are.
+     *
+     * The same two keys, in the same order, as every other bell this project has:
+     * {@code phone/browse/Header.kt:101-105}, {@code SurfacesPhone/browse/Header.swift} and
+     * {@code web/src/surfaces/notifications.rs}'s {@code bell_says}. Both keys are in all eighteen
+     * languages; neither is new. {@code say.notifications_unread} had no television caller on
+     * either family until this, which is the one thing a bell is for -- the count is drawn on it,
+     * so a person who cannot see it has nowhere else to get it.
+     *
+     * <p>Filled through {@code shared/Theme.kt:66}'s {@code fill}, which wraps the number in the
+     * bidirectional isolates and writes it in the language's own digits, and not by
+     * {@code String.replace}: a Western numeral dropped into an Arabic sentence comes out in the
+     * wrong place on screen. {@code reminder/Ask.comingWords} calls the same function for the same
+     * reason.
+     *
+     * <p>A run that has not read its language yet holds neither key and says nothing, which is
+     * {@link Words#of}'s rule: never English, never the key.
+     *
+     * <p>Static, and the count passed in rather than read off {@code this}, because the bar draws
+     * this reading from two places that arrive at different moments -- the words when a run reads
+     * its language, the count and the focus on every answer -- and the second of them has no feed
+     * in hand. {@code BarView.words} is that place, and it is the same split search already has.
+     */
+    public static String bellSays(Words words, int unread) {
+        if (unread <= 0) {
+            return words.of("notifications.title");
+        }
+        String said = words.of("say.notifications_unread");
+        return said.isEmpty() ? words.of("notifications.title") : ThemeKt.fill(said, "n", unread);
     }
 
     /** The row at a place, or null past the end. {@code rows.getOrNull(index)}. */

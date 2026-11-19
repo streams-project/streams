@@ -67,7 +67,16 @@ public class SaidTest {
         // The profile (`TopBar.kt:83`), search (`:101`) and a tab (`:56`), plus the caret and the
         // search glass, which are `Icon(painter, null)` today. Search is written twice because its
         // reading needs the word and the focus, and they arrive from different places.
-        SPOKEN.put("BarView.java", 6);
+        //
+        // Four more since 2026-11-14 and none of them has a Kotlin line, because the Compose bar
+        // had no bell: the bell itself, written twice for search's reason and one more besides --
+        // its reading needs the words, the count and the focus, and the three never arrive in one
+        // call -- and the two things drawn inside it, the chime and the count, which say nothing of
+        // their own because the bell says both. The count is the thing to look at: it is drawn on
+        // the bar and a person who cannot see it has nowhere else to get it, so the bell carries
+        // `say.notifications_unread` filled, which had no television caller on either family until
+        // this.
+        SPOKEN.put("BarView.java", 10);
         // A row's name, read as what it means and not as a button, once for each of the two rows
         // this file draws.
         SPOKEN.put("RowsView.java", 2);
@@ -91,7 +100,7 @@ public class SaidTest {
             }
         }
         assertEquals(SPOKEN, census);
-        assertEquals("twenty readings across six files", 20, total(census));
+        assertEquals("twenty-four readings across six files", 24, total(census));
     }
 
     private static int total(SortedMap<String, Integer> census) {

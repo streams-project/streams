@@ -1,6 +1,7 @@
 package streams.tv.browse;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.regex.Matcher;
@@ -405,6 +406,54 @@ public class NumbersTest {
         assertEquals(Source.number("const val WHO_TAB = (-\\d+)", bar, "WHO_TAB"), Feed.WHO_TAB);
         assertEquals(-2, Feed.SEARCH_TAB);
         assertEquals(-3, Feed.WHO_TAB);
+    }
+
+    /**
+     * The third negative place, the bell, has exactly one home and no Kotlin twin.
+     *
+     * The Compose bar never had a bell, so unlike the two above there is nothing to hold this
+     * against. Asserted in both directions, as {@link #the_rise_and_the_reach_have_exactly_one_home}
+     * does and for the same reason: if somebody adds a Kotlin copy there are two homes and this
+     * fails; if somebody deletes the Java constant the literal is gone and this fails.
+     *
+     * <p>And the thing that makes it more than bookkeeping: it must not collide with a tab, and it
+     * must not be a place {@code tab < tabs - 1} can walk onto from the right. Both are asserted.
+     */
+    @Test
+    public void the_bell_place_has_exactly_one_home() {
+        assertTrue("the Java holds the bell's place as a literal",
+                Source.code(Source.JAVA + "/browse/Feed.java").contains("BELL_TAB = -4;"));
+        assertFalse("and the Kotlin bar must not grow a second copy of it",
+                bar.contains("BELL_TAB"));
+        assertEquals(-4, Feed.BELL_TAB);
+        assertTrue("it is not a tab number", Feed.BELL_TAB < 0);
+        assertTrue("and it is not either of the two places on the left either",
+                Feed.BELL_TAB != Feed.SEARCH_TAB && Feed.BELL_TAB != Feed.WHO_TAB);
+    }
+
+    /**
+     * The bell's geometry is derived from the bar's own numbers and invents none.
+     *
+     * The mark's place is the far edge less a page margin and a bar height; the bell is the round
+     * part before it, and the distance between two round parts of this bar is already measured as
+     * {@link BarView#TAB_GAP}. So three of the four numbers below are arithmetic over numbers that
+     * already had a home, and the fourth -- the glyph -- is the size this bar already draws the
+     * search glass at.
+     */
+    @Test
+    public void the_bells_geometry_is_derived_and_not_invented() {
+        assertEquals("the bell stands a round part and a tab gap in from the mark",
+                Ref.W - Round.PAGE_EDGE - BarView.BAR_HIGH - BarView.TAB_GAP - BarView.BAR_HIGH,
+                BarView.BELL_X);
+        assertEquals(1712, BarView.BELL_X);
+        assertTrue("and it clears the last tab", BarView.BELL_X > BarView.TABS_X);
+        assertTrue("the glyph in the bell is the size of the search glass",
+                barJava.contains("BAR_HIGH - 34) / 2") && BarView.GLYPH == 34);
+        assertEquals("the count plate is half a round part high", BarView.BAR_HIGH / 2,
+                BarView.COUNT_HIGH);
+        assertEquals("the bar writes in one size", Source.number("fontSize = (\\d+)\\.refType", bar,
+                "a tab's label size"), BarView.TAB_TYPE);
+        assertEquals(26, BarView.TAB_TYPE);
     }
 
     /**
