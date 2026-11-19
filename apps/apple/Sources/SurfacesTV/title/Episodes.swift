@@ -243,6 +243,12 @@ struct Episodes: View {
         .task(id: number) {
             let brought = await shell.read("/v1/titles/\(path)/seasons/\(number)")
                 .flatMap { try? JSONDecoder().decode(Season.self, from: Data($0.utf8)).episodes } ?? []
+            // A season the viewer has already left. The read is not stopped by the cancel -- the
+            // port's reply resumes it whenever it comes -- so an answer for the season before can
+            // land after the answer for the one on screen, and without this it replaces it: the
+            // chosen season then has no list at all and the cards stay empty until the viewer
+            // changes season again.
+            if Task.isCancelled { return }
             arrived = Arrived(season: number, episodes: brought)
             if !placed, let now = data.resume?.episode, number == now.season {
                 card = brought.firstIndex { $0.number == now.episode } ?? 0
