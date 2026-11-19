@@ -36,6 +36,9 @@ pub struct Fonts {
 pub struct Shape {
     pub button_radius: u32,
     pub card_radius: u32,
+    /// A card on a 390 wide page, measured at 12 where `card_radius` is 14
+    /// (`reference/netflix-on-the-web.md`, line 273). A surface that draws it reads it from here.
+    pub card_radius_compact: u32,
     /// A chip: a badge on its own, or one inside a chip row whose two outer ends take
     /// `chip_end_radius`. Both are drawn from this one value -- `apps/web/style.css`'s `.chip` and
     /// `phone/notifications/Notifications.kt`'s kind badge are the same part on two families.
@@ -97,7 +100,7 @@ fn command_ok(text: &str) -> bool {
 ///
 /// `one_key_of_this_table_is_every_key_of_the_struct` holds this list and the types above together:
 /// a key added or dropped there and not here fails it.
-const KEYS: [(&str, bool); 25] = [
+const KEYS: [(&str, bool); 26] = [
     ("name", true),
     ("command", true),
     ("domain", false),
@@ -118,6 +121,7 @@ const KEYS: [(&str, bool); 25] = [
     ("fonts.hebrew", false),
     ("shape.button_radius", true),
     ("shape.card_radius", true),
+    ("shape.card_radius_compact", true),
     ("shape.chip_radius", true),
     ("shape.chip_end_radius", true),
     ("shape.field_radius", true),

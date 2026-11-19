@@ -2,6 +2,12 @@
 
 Desktop shell for Mac, Windows and Linux, and a small C host for boxes.
 
+**Status: frozen, by the owner's decision of 2026-11-19.** No painter is chosen, so nothing here is
+drawn, and no work on this family goes forward until one is. A web view is ruled out, because the
+owner decided on 2026-11-13 that the desktop is its own app and not a web page in a frame. Flathub
+refuses thin wrappers around a web page. No native Rust toolkit shapes Arabic or Hebrew, which
+is nine of the eighteen languages. The `Scene` tests stay, and `cargo test --locked -p desktop` runs them.
+
 Part of an open video platform. Status: a host, four ports, and the four screens that come before a
 film, laid out but not yet painted. Counted with `find apps/desktop/src -name '*.rs' | xargs wc -l`
 and `cargo test --locked -p desktop` from the repository root. The core is linked as native Rust
