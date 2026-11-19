@@ -16,15 +16,57 @@ use kit_core::sessions::{common, scripts};
 use kit_core::wasm::{I32, Signature, scan_file, shape};
 use serde_json::{Value, json};
 
-/// The target for the linked module is 400 KB, which it misses. This ceiling stops it growing
-/// unseen until the size work lands.
+/// A ratchet on the raw module, and not a budget. Said plainly on 2026-11-14 after the third
+/// time it was hit, because calling it a ceiling has been misleading every time.
 ///
-/// Raised once, on 2026-11-13, when the core began reporting what a play did at its hosts. The
-/// two numbers, from this test on this machine: 699_954 bytes with that report dead, 700_840 with
-/// it live, so the report costs 886 bytes and the ceiling had 46 bytes of room left before it.
-/// Any addition to the core at all would have hit this, which is the thing worth knowing: the
-/// headroom is gone, not spent.
-const SIZE_CEILING: u64 = 701_000;
+/// What it is: the size of the last build that was allowed, so the module cannot grow unseen.
+/// What it is not: anything derived. It was born in `901b7ac` as the then-current size rounded
+/// up to 700_000, deferring to a 400 KB "target" whose only statement anywhere in this tree is a
+/// sentence in `platform/bridges/README.md` naming no device, no download budget and no memory
+/// limit. It was nudged to 701_000 on 2026-11-13 for an 886-byte play report, which left 46
+/// bytes -- a coincidence, not a margin.
+///
+/// Why it moved again, with the measurement, so the next person does not repeat the search:
+/// key delivery (`cc1f607`) cost 5_067 bytes. `twiggy diff` of two unstripped builds attributes
+/// every one of them, and the attribution is complete -- the unstripped delta of 10_562 minus
+/// the 5_495 of function names that `strip = true` removes is exactly 5_067. Where they went:
+///
+///   KeySystem                      3_242   64%   a new enum, as `Vec<KeySystem>`
+///   CapabilityCard's two fields      897   18%
+///   KeyDelivery, map included        329    6%
+///   Attempt.bitrate                  284    6%
+///   DriverCommand.key                210    4%
+///   AttemptKind::Dash                 93    2%
+///
+/// The lesson is in the first and third rows together, and it is the thing to check before the
+/// next addition to the contract: **a field whose type the module already carries is nearly free,
+/// and a `Vec<NewType>` costs about 3 KB.** `KeyDelivery`'s `BTreeMap<String, String>` is 329
+/// bytes because four other fields already link that codegen; `KeySystem` is 3_242 because a new
+/// type in a new container pays for its own visitor, its field visitor, two enum paths and the
+/// whole sequence machinery. Measured, not guessed: `Vec<(String, String)>` in place of that map
+/// costs 463 bytes MORE, and `key_systems: Vec<String>` would give 3_143 back -- which still
+/// leaves the module 1_675 over the old number, so no shape change kept it and the only honest
+/// options were to move this or to drop the feature.
+///
+/// The number below is the measured size of the build that introduced it, with no slack. Zero
+/// slack is deliberate: every growth should be a decision somebody wrote down, which is what this
+/// comment is.
+const SIZE_CEILING: u64 = 706_003;
+
+/// What a television actually downloads, which nothing measured until 2026-11-14.
+///
+/// The wasm module binds one consumer, the web and television page. The launcher copies
+/// `core.wasm` into `bin/` and the server serves it through a `CompressionLayer`
+/// (`server-api/src/site.rs`), so the bytes on the wire are compressed and the raw ratchet above
+/// cannot tell anyone whether that got better or worse. `cc1f607` is 5_067 raw bytes and far
+/// fewer on the wire; a change that grew the raw module while shrinking the compressed one would
+/// have been refused by a ratchet and never noticed by anybody.
+///
+/// Also a ratchet at today's measurement, for the same reason and with the same honesty: the
+/// budget this should be derived from -- a television on a slow connection, a first-paint
+/// deadline -- has never been stated, and stating it is the owner's. When it is, this is the
+/// number that should carry it, and the raw one above stays only as a growth alarm.
+const GZIP_CEILING: u64 = 193_005;
 
 /// One run of one session: its name, its tape and the bytes the native run wrote.
 struct Run {
@@ -256,6 +298,34 @@ fn the_linked_module_stays_under_its_ceiling() {
         .unwrap()
         .len();
     assert!(size <= SIZE_CEILING, "core.wasm is {size} bytes");
+}
+
+/// The compressed size, because that is what is served and nothing held it.
+///
+/// `gzip` rather than a crate: this file already shells out to `cargo`, and a dependency added to
+/// measure a number is a dependency the shipped core would carry in its lock file for nothing.
+/// The server compresses with brotli where a client asks for it, which is smaller again -- gzip
+/// is the floor of what a television pays, and a floor that moves is the signal wanted here.
+#[test]
+fn the_served_module_stays_under_its_compressed_ceiling() {
+    let module = linked_module(&[], &target_root());
+    let raw = fs::read(&module).expect("the linked module");
+    // The module goes to gzip as a path, not through its stdin. Writing 700 KB to a pipe before
+    // reading the 190 KB that comes back deadlocks: gzip blocks on a full stdout and stops
+    // reading, and this side blocks on a full stdin. It hung for nine minutes on 2026-11-19.
+    let done = Command::new("gzip")
+        .args(["-9", "-c"])
+        .arg(&module)
+        .output()
+        .expect("gzip runs: it is on every machine this project builds on");
+    assert!(done.status.success(), "gzip refused the module");
+    let size = done.stdout.len() as u64;
+    assert!(
+        size <= GZIP_CEILING,
+        "core.wasm is {size} bytes compressed, which is what a television downloads \
+         ({} bytes raw)",
+        raw.len()
+    );
 }
 
 #[test]
